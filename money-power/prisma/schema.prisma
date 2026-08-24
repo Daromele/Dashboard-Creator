@@ -1,0 +1,244 @@
+// Money Power — schema.
+// Money is ALWAYS stored as integer cents. Never floats.
+// Group / needWant / wasteFlag are category-derived and are never duplicated
+// onto transactions.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CategoryGroup {
+  Essential
+  Flexible
+  Goals
+}
+
+enum NeedWant {
+  Need
+  Want
+}
+
+enum WasteFlag {
+  Core
+  Protected
+  Watch
+  Cut
+}
+
+enum Priority {
+  CutNow
+  Reduce
+  Review
+  Keep
+}
+
+enum PayFrequency {
+  Weekly
+  Biweekly
+  Semimonthly
+  Monthly
+  Irregular
+}
+
+enum BillFrequency {
+  Weekly
+  Biweekly
+  Semimonthly
+  Monthly
+  Quarterly
+  Annual
+}
+
+enum ConfirmationStatus {
+  NeedsConfirmation
+  Confirmed
+}
+
+model UserProfile {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  clientName String
+  locale     String   @default("en-US")
+  timezone   String   @default("America/Chicago")
+  currency   String   @default("USD")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  settings       FinancialSettings?
+  categories     Category[]
+  paymentMethods PaymentMethod[]
+  recurringBills RecurringBill[]
+  transactions   Transaction[]
+  monthlyBudgets MonthlyBudget[]
+  paycheckPlans  PaycheckPlan[]
+  loginTokens    LoginToken[]
+}
+
+model LoginToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model FinancialSettings {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  selectedMonth String @default("2026-08") // YYYY-MM
+
+  payFrequency        PayFrequency?
+  takeHomePayPerCheck Int? // cents
+  nextPayday          DateTime? @db.Date
+
+  savingsRateTarget  Int? // basis points (1000 = 10.00%)
+  minimumCashCushion Int? // cents
+
+  estimatedAnnualTaxLiability     Int? // cents
+  incomeTaxWithheldYTD            Int? // cents
+  regularWithholdingPerCheck      Int? // cents
+  additionalWithholdingPerCheck   Int? // cents
+  remainingPaychecks              Int?
+  desiredTaxBuffer                Int? // cents
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id        String        @id @default(cuid())
+  userId    String
+  name      String
+  group     CategoryGroup
+  needWant  NeedWant
+  wasteFlag WasteFlag
+  priority  Priority      @default(Review)
+  active    Boolean       @default(true)
+  sortOrder Int           @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user           UserProfile     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+  recurringBills RecurringBill[]
+  monthlyBudgets MonthlyBudget[]
+
+  // Case-insensitive uniqueness is enforced by a raw index in the migration.
+  @@index([userId])
+}
+
+model PaymentMethod {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user           UserProfile     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+  recurringBills RecurringBill[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model RecurringBill {
+  id                 String             @id @default(cuid())
+  userId             String
+  merchant           String
+  categoryId         String
+  expectedAmount     Int? // cents; null = unknown
+  dueDay             Int? // 1-31
+  nextDueDate        DateTime?          @db.Date
+  frequency          BillFrequency      @default(Monthly)
+  paymentMethodId    String?
+  autopay            Boolean            @default(false)
+  notes              String?
+  confirmationStatus ConfirmationStatus @default(NeedsConfirmation)
+  source             String             @default("manual")
+  active             Boolean            @default(true)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user          UserProfile    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+  transactions  Transaction[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id              String   @id @default(cuid())
+  userId          String
+  date            DateTime @db.Date
+  merchant        String
+  categoryId      String
+  amount          Int // cents; negative = refund
+  paymentMethodId String?
+  note            String?
+  recurringBillId String?
+  importSource    String?
+  externalId      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user          UserProfile    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+  recurringBill RecurringBill? @relation(fields: [recurringBillId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, externalId])
+  @@index([userId, date])
+}
+
+model MonthlyBudget {
+  id               String   @id @default(cuid())
+  userId           String
+  month            String // YYYY-MM
+  categoryId       String
+  plannedAmount    Int? // cents; null = blank (NOT the same as 0)
+  userSuggestedCut Int? // cents
+  confirmedNewCap  Int? // cents
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user     UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month, categoryId])
+  @@index([userId, month])
+}
+
+model PaycheckPlan {
+  id               String   @id @default(cuid())
+  userId           String
+  payday           DateTime @db.Date
+  netPay           Int // cents
+  billsEssentials  Int      @default(0)
+  savings          Int      @default(0)
+  debtExtra        Int      @default(0)
+  flexibleSpending Int      @default(0)
+  cashCushion      Int      @default(0)
+  note             String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, payday])
+}
