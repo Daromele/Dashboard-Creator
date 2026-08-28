@@ -1,0 +1,8 @@
+{
+  "name": "AI Quiz Video Generator",
+  "description": "An application that uses Claude to generate engaging quiz questions on any topic, design intro stingers and artwork, and render a complete, shareable video for social media.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": []
+}
