@@ -44,6 +44,11 @@ await page.click('#themeDots [data-theme=cream]'); await page.waitForTimeout(200
 await page.click('[data-action=help]'); await page.waitForTimeout(150); await page.click('#tourNext'); await page.waitForTimeout(150);
 await (await page.$('.tour')).screenshot({ path: path.join(out, 'tour.jpg'), type: 'jpeg', quality: 85 }); await page.click('#tourSkip');
 await page.locator('.steps-card').first().screenshot({ path: path.join(out, 'first-steps.jpg'), type: 'jpeg', quality: 85 });
+// Month in review — the 4th slide ("where it went") reads best as a still.
+await page.click('[data-action=monthStory]'); await page.waitForTimeout(200);
+for (let k = 0; k < 3; k++) { await page.click('#storyFwd'); await page.waitForTimeout(120); }
+await (await page.$('.story')).screenshot({ path: path.join(out, 'story.jpg'), type: 'jpeg', quality: 85 });
+await page.evaluate(() => { while (modalStack.length) modalStack[modalStack.length - 1].close(); });
 await ctx.close();
 // mobile
 const mctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });

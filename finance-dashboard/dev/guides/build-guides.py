@@ -46,7 +46,9 @@ qs.append(f"""
 <div class="box"><b>Log spending</b> Split one receipt across categories with <b>+ Add split</b>. Or <b>Import CSV</b> from your bank — duplicates are flagged automatically.</div>
 <div class="box"><b>Bills and pay days take care of themselves</b> Income posts itself on every pay day. Tick bills <b>Paid</b> (or press <b>✓ Mark all due as paid</b>, or switch on auto-pay in Settings → Automation) and the payment is recorded as a transaction, so the budget and safe-to-spend update instantly.</div>
 <div class="box"><b>Change the month</b> Use ‹ › in the top bar, or click the month name to jump. Every page follows it.</div>
+<div class="box"><b>More room when you need it</b> <b>‹ Collapse</b> at the bottom of the sidebar shrinks it to an icon rail (or press <b>[</b>). Every page also reflows for laptops, tablets and phones.</div>
 <div class="box"><b>Print a report</b> Reports → <b>Print / Save PDF</b> for a monthly or annual summary.</div>
+<div class="box"><b>See the month as a story</b> <b>✨ Month in review</b> on the Overview turns the selected month into a full-screen recap — what came in, where it went, what changed, what you kept — and ends with one suggestion for next month.</div>
 </div>
 <h2>5. Protect your data</h2>
 <div class="box good"><b>Chrome or Edge: turn on automatic backup</b> Settings → Automatic backup → <b>Choose backup file…</b>. Pick a location (a Dropbox, Drive or OneDrive folder works well). Every change is written there two seconds later and verified. Nothing is sent anywhere.</div>
@@ -88,7 +90,7 @@ ug.append(f"""
 <p>Three questions: household mode and names, currency and start month, and whether to load sample data. Re-run it any time from Settings → <b>Re-run setup</b>.</p>
 <h3>Household mode</h3>
 <p><b>Just me</b> keeps every form short. <b>Couple</b> adds an <b>Owner</b> field (Person 1, Person 2 or Joint) to income, bills, subscriptions, transactions, accounts, debts and goals, and switches on:</p>
-<ul><li>a Household split card on the Overview (income, expected income, expenses, net and share of income per person, with contribution and expense donuts);</li>
+<ul><li>a Household split band on the Overview — two stacked share bars (income and expenses, split by person) and a block per person showing net for the month, share of household income, and income, expected and expenses;</li>
 <li>owner chips and owner filters throughout; per-person columns in the annual category report; per-person net worth.</li></ul>
 <p>Switching from Couple back to Just me only hides the owner field — nothing is deleted, and switching back restores every tag.</p>
 <h3>Currency</h3>
@@ -105,6 +107,12 @@ ug.append(f"""
 <p>Six themes: Cream, Charcoal (dark), Midnight (dark navy), Sage, Blush and Slate. Choose one in Settings → Appearance, from the dots at the bottom of the sidebar, or during setup. Charts, chips and every page follow the theme. Tick <b>Follow my device's light / dark setting</b> to switch automatically between Cream and Charcoal. Reports always print in black on white.</p>
 <h3>Tab icon</h3>
 <p>Choose one of eight icons for the browser tab, bookmarks and the sidebar logo, in Settings → Appearance or during setup. The coin icon shows your currency symbol, and every icon takes the accent colour of your theme.</p>
+<h3>Collapsing the sidebar</h3>
+<p><b>‹ Collapse</b> at the bottom of the sidebar shrinks it to a narrow rail of icons, giving the dashboard more room on a laptop screen; click <b>›</b> (or press <b>[</b>) to bring the labels back. The choice is remembered. On a phone the sidebar stays a full menu behind the ☰ button.</p>
+<h3>Checklist</h3>
+<p>Also in Settings → Appearance: <b>Show the "your first steps" checklist</b> puts the onboarding checklist back on the Overview after you have hidden it.</p>
+<h3>Month in review</h3>
+<p>The <b>✨ Month in review</b> button on the Overview (and in Reports) opens a full-screen recap of the month showing in the top bar: what came in, what went out, where it went, the biggest change since last month, how the budget held, bills, what you kept, net worth, debt and any goal you finished — followed by one suggestion for next month. Move with the <b>Next</b>/<b>Back</b> buttons, the arrow keys, a swipe, or by tapping the left and right edges; <b>Esc</b> closes it. Slides with nothing to say are left out, so a quiet month is a short story. Everything on it is read from your own entries — nothing is sent anywhere.</p>
 <h3>The welcome tour and first steps</h3>
 <p>The tour (the <b>?</b> button, or Settings → Welcome tour) is seven short slides: what the dashboard does, then income, bills, accounts, budget, everyday logging and backup, each with a button that opens the relevant form. The <b>Your first steps</b> card on the Overview tracks the same six steps and highlights the next one; hide it with × once you're done.</p>
 <h3>Automation: enter recurring things once</h3>

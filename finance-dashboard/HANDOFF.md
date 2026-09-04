@@ -7,7 +7,7 @@ Paste this file (or its path) into a new session to continue the work. Everythin
 | Item | Value |
 |---|---|
 | Repo | `Daromele/Dashboard-Creator` (GitHub) |
-| Branch | `claude/finance-dashboard-build-jukwqs` |
+| Branch | `claude/finance-dashboard-handoff-5t3adc` (branched from `claude/finance-dashboard-build-jukwqs`) |
 | Draft PR | https://github.com/Daromele/Dashboard-Creator/pull/3 (base: `main`) |
 | Project folder | `finance-dashboard/` — everything for this product lives here. The repo root `index.html` is an unrelated older app; leave it alone. |
 | Shop / owner | Designs by Darowan (Etsy, HTML web-app digital downloads). User email: darowan.rph@gmail.com |
@@ -51,7 +51,7 @@ finance-dashboard/
     capture-shots.mjs               <- regenerates listing/assets (sample data, USD, previous month, reduced motion)
     build-deck.py, geometry-check.mjs        <- mockup deck + overflow/crop-band check
     guides/build-guides.py, guide.css, render-guides.mjs  <- guide HTML -> PDF (Playwright)
-    shot-extra.mjs, shot-polish.mjs <- ad-hoc review screenshots
+    shot-extra.mjs, shot-polish.mjs, shot-story.mjs <- ad-hoc review screenshots
 ```
 
 ### Build & test (run from `finance-dashboard/`)
@@ -80,12 +80,17 @@ Commit convention used: plain messages, Co-Authored-By trailer + Claude-Session 
 - **Automation** (`runAutomation`, Settings → Automation): income posts itself on every pay day (`incomeRef`, default ON); bills auto-tick on due date (default OFF; "✓ Mark all due as paid" button instead); budget copies into a new month (default ON). Deleting an auto-posted item writes to `skipped` so it never returns. "Delete all transactions" also marks past pay days skipped.
 - **Storage**: `storage` wrapper detects quota errors; `persist()` probes to distinguish *blocked* (sandboxed/preview origin — Chrome reports these as quota errors) from *full*, warns once, shows a sidebar pill, keeps working in memory. Note: all `file://` pages share one localStorage origin in Chrome.
 - **Backup** (`backupFile`): handle in IndexedDB, permission re-query on load, 2 s debounced write, verify every 20th write (and on link), last-known-good copy in IndexedDB, staleness prompt if the file's `savedAt` is newer, schema validation/migration on import, manual-export reminder every 5 sessions on Firefox/Safari.
+- **Responsive**: cards are container-query contexts, so a card reflows from its own width (charts stack + centre under 400px; `.t-stack` tables fold to two lines under 330px). Every bare table is inside `.table-wrap`. `.flex` wraps by default (`.flex.nowrap-row` opts out). The test sweeps all ten views at 1024px and 390px for page/card overflow.
+- **Sidebar rail**: `body.rail` (footer button, or `[`) collapses the sidebar to 68px of icons; `ui.rail` is persisted, mobile is unaffected.
+- **Household split**: a full-width `.card.inverse` band — two stacked share bars (income, expenses, coloured by person) plus a per-person block (net, share of income, income/expected/expenses). Replaced the six-column table and two donuts, which could not survive a narrow column.
+- **Layout system**: one uniform grid — `.grid` is `align-items:stretch` and its cards are flex columns, so every row is level; `.push-b` pins a footnote to the card's baseline, charts and donuts centre in leftover space, `.grid.ragged` opts out. Settings uses a real 2-column grid (the old CSS-columns masonry is gone). Radii are only `--r` 6px / `--r-sm` 5px / `--r-lg` 10px; circles are reserved for dots, avatars and step numerals; progress bars are 2px.
 - **Themes**: `THEMES` in app_core (cream, charcoal, midnight, sage, blush, slate + `auto`). `applyTheme()` writes CSS variables, sets `PALETTE` and `C` (chart series colours: ink, accent, good, p1, p2, joint, rest) — never hardcode hex in views. Charcoal and Midnight are dark.
 - **Tab icon**: `APP_ICONS` (coin, bars, leaf, home, heart, star, wallet, spark), SVG favicon + sidebar logo, coloured with theme accent; coin shows the currency symbol.
 - **UI plumbing**: views are `views[name].render()` returning HTML; clicks dispatch via `data-action` → `actions{}`; inputs via `data-change` → `changes{}`. `goto(view, {anchor, cat, month})` scrolls to `[data-anchor=…]` and flashes it — every cross-link and insight carries an anchor. Forms come from `openForm({fields})`; fields marked `advanced` hide under "More options". Quick add = `+ Add` button / key `N`. `renderFresh()` adds `.fresh` for entrance animations + KPI count-up.
 - **First run**: 4-step wizard (household, currency/start month, theme + icon, sample/empty) → 7-slide welcome tour (`openTour`, `?` button) → "Your first steps" checklist card on Overview (6 items, self-ticking, dismissable).
 - **Overview extras**: greeting, up to 4 computed insights (pay day countdown, budget pace, biggest category swing between the last two *complete* months, bills due in 7 days, subscription annual cost, debt-free date + which strategy saves more, emergency cover, goal nearly funded). Safe-to-spend is an inverted contrast card.
-- **Celebrations**: confetti when a goal becomes fully funded or a debt hits zero.
+- **Celebrations**: confetti when a goal becomes fully funded or a debt hits zero, and on the closing slide of a Month in review that ended in the black.
+- **Month in review** (`app_story.js`): full-screen swipeable recap of the month in the top bar, from the Overview greeting button or Reports. `storyStats(month)` collects the numbers, `storySlides(st)` builds up to 11 slides and drops any with nothing to say, `openStory(month)` plays it (Next/Back, arrow keys, space, swipe, edge taps, Esc). The closing slide picks one suggestion for next month from what the month actually showed and links straight to it.
 
 ## 5. Decisions already made (don't re-litigate unless the user asks)
 - Net-worth snapshots: automatic monthly + manual button.
@@ -102,6 +107,8 @@ Commit convention used: plain messages, Co-Authored-By trailer + Claude-Session 
 2. "Not mind blown": added 6 themes incl. dark, welcome tour, first-steps checklist, quick add, simpler forms, greeting/insights, animations, confetti.
 3. "Reduce repetitive entries / deep-link to the exact settings spot / storage-full message": automation switches, anchors + flash everywhere, storage blocked-vs-full diagnostics.
 4. "Favicon options, too much whitespace, minimalist with contrast, things touching": tab icons, tighter density, inverse safe-to-spend card, `.mini` progress rows, settings masonry, budget inputs, savings card wrapping fixes.
+5. "Do 1 and 2" (Month in review + close the known gaps): built the Month in review story, added Settings → Appearance toggles for even card heights and for bringing the first-steps checklist back, and hardened the two Chromium-only spots (`:has()` fallback, `type=month` fallback with format hint and validation). Guides, listing copy and the deck (now 14 slides, with a Month in review slide) regenerated.
+6. "Disorganized, containers different heights, too many curved edges": one uniform grid (every card row level, footnotes pinned to the baseline, charts centred in leftover space), the settings masonry replaced by a real 2-column grid, first-steps buttons moved inline, and a tightened radius scale (6/5/10px, circles only where something is genuinely round). The even-card-heights setting was removed — it is the default now.
 
 ## 7. User preferences & tone
 - Wants responses straight to the point, and contrasting opinions when they exist.
@@ -111,8 +118,8 @@ Commit convention used: plain messages, Co-Authored-By trailer + Claude-Session 
 
 ## 8. Known gaps / ideas not yet done
 - Real-browser pass on Edge, Firefox, Safari over `file://` (only Chromium tested).
-- Offered but not built: a full-screen swipeable "month in review" story generated from the user's data (the proposed next "wow" feature).
-- Possible: option to auto-hide the first-steps card after the tour; equal-height rows if the user dislikes ragged grids.
+- The Month in review has no auto-advancing timer (a real story bar). Deliberate: auto-advance while someone is reading their own numbers is annoying. Easy to add if the user wants the classic feel.
+- No "save the recap as an image" — the viewer sandbox blocks downloads and there is no canvas renderer for it. Printing the Reports page is the current answer.
 - The mockup deck must still be screenshotted by a human (Chrome DevTools → capture node screenshot) to produce Etsy images.
 - Etsy listing kit skill exists (`etsy-listing-kit`, `html-mockup-decks`) if more listing material is wanted; the skills' helper scripts were not present in this environment, so checks were hand-written (`dev/geometry-check.mjs`).
 

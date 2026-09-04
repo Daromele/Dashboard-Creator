@@ -168,6 +168,99 @@ expect(carried > 5, `budget copied into ${bm} (${carried} lines)`);
 const unpaid = await page.evaluate(() => { const m = new Date().toISOString().slice(0, 7); const today = new Date().toISOString().slice(0, 10); return billItems().filter(b => !isBillPaid(m, b.id) && occurrences(b, m + '-01', today).length).length; });
 expect(unpaid === 0, 'auto-pay ticked every bill already due this month');
 await page.click('input[data-key=autoPayBills]'); await page.waitForTimeout(100);
+step('month in review story');
+await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(150);
+await page.click('[data-action=monthStory]'); await page.waitForTimeout(350);
+expect(!!(await page.$('.story')), 'story opens from the overview');
+const nSlides = await page.evaluate(() => document.querySelectorAll('#storySegs i').length);
+expect(nSlides >= 6, `story built ${nSlides} slides from the sample data`);
+await page.screenshot({ path: path.join(shots, '12-story.png') });
+const firstTitle = await page.textContent('.story-title');
+await page.click('#storyFwd'); await page.waitForTimeout(200);
+expect((await page.textContent('.story-title')) !== firstTitle, 'next advances the story');
+await page.keyboard.press('ArrowLeft'); await page.waitForTimeout(200);
+expect((await page.textContent('.story-title')) === firstTitle, 'left arrow goes back');
+for (let k = 0; k < nSlides + 1; k++) { const seg = await page.$('#storySegs'); if (!seg) break; await page.click('#storyFwd'); await page.waitForTimeout(120); }
+expect(!(await page.$('.story')), 'story closes after the last slide');
+await page.screenshot({ path: path.join(shots, '12b-story-end.png') });
+const storySane = await page.evaluate(() => {
+  const st = storyStats(window.__pfd.ui.month); const sl = storySlides(st);
+  const sm = st.sm;
+  return { ok: Math.abs(sm.income - sm.expenses - sm.net) < 0.01, noUndef: !sl.some(x => /undefined|NaN/.test(x.title + x.sub + (x.big || '') + (x.body || ''))), last: !!sl[sl.length - 1].cta };
+});
+expect(storySane.ok, 'story numbers reconcile with the month summary');
+expect(storySane.noUndef, 'no undefined/NaN leaked into any slide');
+expect(storySane.last, 'closing slide offers a next step');
+const emptyStory = await page.evaluate(() => { const st = storyStats('1999-01'); return st.hasData; });
+expect(emptyStory === false, 'a month with no data is reported as empty');
+await page.click('[data-action=monthShift][data-n="-1"]');
+await page.waitForTimeout(150);
+step('appearance: checklist visibility');
+await page.click('#nav button[data-view=settings]');
+await page.click('input[data-change=showChecklist]'); await page.waitForTimeout(150);
+expect(await page.evaluate(() => window.__pfd.state.settings.checklistDismissed === true), 'checklist hidden from settings');
+await page.click('input[data-change=showChecklist]'); await page.waitForTimeout(150);
+expect(await page.evaluate(() => window.__pfd.state.settings.checklistDismissed === false), 'checklist can be brought back');
+
+step('card rows are uniform height');
+await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(250);
+const rows = await page.evaluate(() => [...document.querySelectorAll('#view .grid')].map(g => {
+  const cards = [...g.children].filter(c => c.offsetParent !== null);
+  if (cards.length < 2) return null;
+  const byTop = {};
+  for (const c of cards) { const t = Math.round(c.getBoundingClientRect().top); (byTop[t] = byTop[t] || []).push(Math.round(c.getBoundingClientRect().height)); }
+  return Object.values(byTop).map(hs => Math.max(...hs) - Math.min(...hs));
+}).filter(Boolean).flat());
+expect(rows.length > 0 && rows.every(d => d <= 1), `every card row is level (max drift ${rows.length ? Math.max(...rows) : 'n/a'}px across ${rows.length} rows)`);
+const radii = await page.evaluate(() => { const v = getComputedStyle(document.documentElement); return { r: v.getPropertyValue('--r').trim(), card: getComputedStyle(document.querySelector('#view .card')).borderTopLeftRadius }; });
+expect(radii.r === '6px' && radii.card === '6px', `cards use the tightened radius (${radii.card})`);
+
+step('collapsible sidebar rail');
+await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(150);
+const wideNav = await page.evaluate(() => document.getElementById('sidebar').getBoundingClientRect().width);
+await page.click('#railBtn'); await page.waitForTimeout(300);
+const railed = await page.evaluate(() => ({ w: document.getElementById('sidebar').getBoundingClientRect().width, label: getComputedStyle(document.querySelector('#nav button span')).display, icon: !!document.querySelector('#nav button svg'), cls: document.body.classList.contains('rail') }));
+expect(railed.cls && railed.w < wideNav / 2, `sidebar collapses to a rail (${Math.round(wideNav)} → ${Math.round(railed.w)}px)`);
+expect(railed.label === 'none' && railed.icon, 'rail shows icons only');
+await page.reload(); await page.waitForTimeout(500);
+expect(await page.evaluate(() => document.body.classList.contains('rail')), 'rail state survives a reload');
+await page.click('#railBtn'); await page.waitForTimeout(300);
+expect(!(await page.evaluate(() => document.body.classList.contains('rail'))), 'rail expands again');
+
+step('household split band');
+const split = await page.evaluate(() => {
+  const c = document.querySelector('[data-anchor=split]'); if (!c) return null;
+  const segs = [...c.querySelectorAll('.stack i')].map(i => i.style.width);
+  return { inverse: c.classList.contains('inverse'), bars: c.querySelectorAll('.stack').length, people: c.querySelectorAll('.sp').length, segs };
+});
+expect(split && split.inverse && split.bars === 2 && split.people === 3, `split band renders (${split && split.people} people, ${split && split.bars} share bars)`);
+
+step('responsive: no overflow and charts stay centred');
+for (const [w, h] of [[1600, 1000], [1024, 900], [820, 900], [390, 844]]) {
+  await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(300);
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  const off = await page.evaluate(() => [...document.querySelectorAll('#view .card')].filter(c => c.scrollWidth > c.clientWidth + 1).length);
+  const centred = await page.evaluate(() => [...document.querySelectorAll('#view .donut-wrap')].every(d => { const r = d.getBoundingClientRect(); const svg = d.querySelector('svg').getBoundingClientRect(); const stacked = getComputedStyle(d).flexDirection === 'column'; return !stacked || Math.abs((svg.left + svg.right) / 2 - (r.left + r.right) / 2) < 2; }));
+  expect(over === 0 && off === 0 && centred, `${w}px: no page or card overflow, donuts centred when stacked`);
+}
+const sweep = [];
+for (const [w, h] of [[1024, 900], [390, 844]]) {
+  await page.setViewportSize({ width: w, height: h });
+  for (const v of ['overview', 'income', 'budget', 'transactions', 'bills', 'savings', 'debt', 'networth', 'reports', 'settings']) {
+    await page.click('.hamburger', { force: true }).catch(() => {});
+    await page.evaluate(view => goto(view), v); await page.waitForTimeout(180);
+    const bad = await page.evaluate(() => {
+      const page2 = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+      // a table may scroll inside .table-wrap; a card itself must never overflow
+      const cards = [...document.querySelectorAll('#view .card')].filter(c => c.scrollWidth > c.clientWidth + 1).length;
+      return { page2, cards };
+    });
+    if (bad.page2 > 0 || bad.cards > 0) sweep.push(`${v}@${w}px (page +${bad.page2}, ${bad.cards} cards)`);
+  }
+}
+expect(sweep.length === 0, `all 10 views fit at 1024px and 390px${sweep.length ? ': ' + sweep.join(', ') : ''}`);
+await page.setViewportSize({ width: 1380, height: 900 }); await page.evaluate(() => goto('overview')); await page.waitForTimeout(250);
+
 step('deep links land on the right card');
 await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(150);
 await page.click('.insight[data-anchor]'); await page.waitForTimeout(400);
