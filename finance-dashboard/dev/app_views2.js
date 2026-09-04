@@ -13,8 +13,8 @@ function openIncomeForm(inc) {
       { key: 'amount', label: 'Amount per payment (net)', type: 'number', required: true, min: 0 },
       ...frequencyFields(),
       { key: 'startDate', label: 'First payment date', type: 'date', required: true, hint: 'Payments repeat from this date (pay day = this day of the month for monthly items).' },
-      { key: 'endDate', label: 'End date (optional)', type: 'date' },
-      { key: 'active', label: 'Active', type: 'checkbox', full: true },
+      { key: 'endDate', label: 'End date (optional)', type: 'date', advanced: true },
+      { key: 'active', label: 'Active', type: 'checkbox', full: true, advanced: true },
     ],
     onSave: vals => {
       const rec = Object.assign({ id: inc ? inc.id : uid() }, vals, { amount: round2(num(vals.amount)), owner: vals.owner || 'p1' });
@@ -45,7 +45,7 @@ views.income = {
           <tfoot><tr><td>Total</td>${isCouple() ? '<td></td>' : ''}<td></td><td></td><td></td><td class="right num">${fmt(expected)}</td><td class="right num">${fmt(annual / 12)}</td><td></td></tr></tfoot></table></div>` : emptyBox('No income sources yet', 'Add salaries, freelance income, benefits — the forecast and safe-to-spend use these.', '<button class="btn primary" data-action="incomeAdd">+ Add income</button>')}
       </div>
       ${list.length ? `<div class="card mt"><div class="card-head"><h3>Expected income by month</h3><span class="tiny muted">Weekly and fortnightly pay produce 5- and 3-payday months — shown exactly, not averaged</span></div>
-        ${svgBarChart({ groups: months12.map(m => ({ label: D.MONTHS[D.parse(m).m - 1] + (D.parse(m).m === 1 ? ' ' + String(D.parse(m).y).slice(2) : ''), values: isCouple() ? ['p1', 'p2', 'joint'].map(o => sum(list.filter(i => (i.owner || 'p1') === o), i => amountInMonth(i, m))) : [sum(list, i => amountInMonth(i, m))] })), seriesNames: isCouple() ? [S().person1Name, S().person2Name, 'Joint'] : ['Expected income'], colors: isCouple() ? ['#5b7a8c', '#8b6f8e', '#7a8f6a'] : ['#7a8f6a'], stacked: true, height: 200 })}</div>` : ''}`;
+        ${svgBarChart({ groups: months12.map(m => ({ label: D.MONTHS[D.parse(m).m - 1] + (D.parse(m).m === 1 ? ' ' + String(D.parse(m).y).slice(2) : ''), values: isCouple() ? ['p1', 'p2', 'joint'].map(o => sum(list.filter(i => (i.owner || 'p1') === o), i => amountInMonth(i, m))) : [sum(list, i => amountInMonth(i, m))] })), seriesNames: isCouple() ? [S().person1Name, S().person2Name, 'Joint'] : ['Expected income'], colors: isCouple() ? [C.p1, C.p2, C.joint] : [C.good], stacked: true, height: 200 })}</div>` : ''}`;
   }
 };
 
@@ -61,12 +61,12 @@ function openGoalForm(goal) {
       { key: 'current', label: 'Saved so far', type: 'number', min: 0 },
       { key: 'monthlyContribution', label: 'Monthly contribution', type: 'number', min: 0, hint: 'Used for the projected finish date and safe-to-spend.' },
       { key: 'targetDate', label: 'Target date (optional)', type: 'date' },
-      { key: 'priority', label: 'Priority', type: 'select', options: [{ v: 'high', l: 'High' }, { v: 'medium', l: 'Medium' }, { v: 'low', l: 'Low' }] }, ownerField(),
+      ownerField(), { key: 'priority', label: 'Priority', type: 'select', options: [{ v: 'high', l: 'High' }, { v: 'medium', l: 'Medium' }, { v: 'low', l: 'Low' }], advanced: true },
     ],
     onSave: vals => {
       const rec = Object.assign({ id: goal ? goal.id : uid() }, vals, { target: round2(num(vals.target)), current: round2(num(vals.current)), monthlyContribution: round2(num(vals.monthlyContribution)), owner: vals.owner || 'p1' });
       commit(s => { if (goal) s.goals[s.goals.findIndex(g => g.id === goal.id)] = rec; else s.goals.push(rec); });
-      toast(isNew ? 'Goal added' : 'Goal updated', 'good');
+      if (rec.target > 0 && rec.current >= rec.target && !(goal && num(goal.current) >= num(goal.target))) celebrate(`🎉 "${rec.name}" is fully funded!`); else toast(isNew ? 'Goal added' : 'Goal updated', 'good');
     },
     onDelete: goal ? () => { commit(s => { s.goals = s.goals.filter(g => g.id !== goal.id); }); toast('Goal deleted'); } : null,
   });
@@ -140,11 +140,11 @@ function openDebtForm(debt) {
       { key: 'name', label: 'Name', type: 'text', required: true, full: true, placeholder: 'e.g. Visa card, Car loan' },
       { key: 'debtType', label: 'Type', type: 'select', options: DEBT_TYPES }, ownerField(),
       { key: 'currentBalance', label: 'Current balance', type: 'number', required: true, min: 0 },
-      { key: 'originalBalance', label: 'Original balance', type: 'number', min: 0, hint: 'For the progress bar.' },
+      { key: 'originalBalance', label: 'Original balance', type: 'number', min: 0, hint: 'For the progress bar.', advanced: true },
       { key: 'apr', label: 'APR %', type: 'number', required: true, min: 0, max: 200, hint: 'Interest is charged monthly at APR ÷ 12.' },
       { key: 'minPayment', label: 'Minimum monthly payment', type: 'number', required: true, min: 0 },
-      { key: 'extraPayment', label: 'Committed extra per month', type: 'number', min: 0, hint: 'Always paid on this debt, on top of the strategy pool.' },
-      { key: 'startDate', label: 'Start date', type: 'date' },
+      { key: 'extraPayment', label: 'Committed extra per month', type: 'number', min: 0, hint: 'Always paid on this debt, on top of the strategy pool.', advanced: true },
+      { key: 'startDate', label: 'Start date', type: 'date', advanced: true },
     ],
     onSave: vals => {
       const rec = Object.assign({ id: debt ? debt.id : uid() }, vals, { currentBalance: round2(num(vals.currentBalance)), originalBalance: round2(num(vals.originalBalance) || num(vals.currentBalance)), apr: num(vals.apr), minPayment: round2(num(vals.minPayment)), extraPayment: round2(num(vals.extraPayment)), owner: vals.owner || 'p1' });
@@ -169,7 +169,7 @@ views.debt = {
     const idxs = []; for (let i = 0; i < horizon; i += step) idxs.push(i); if (idxs[idxs.length - 1] !== horizon - 1) idxs.push(horizon - 1);
     const labels = idxs.map(i => { const m = D.addMonths(startMonth, i); return D.parse(m).m === 1 || i === 0 ? D.monthLabel(m) : D.MONTHS[D.parse(m).m - 1]; });
     const pts = (sim) => idxs.map(i => i === 0 ? total : sim.schedule[i - 1] ? sim.schedule[i - 1].totalBalance : (sim.schedule.length ? 0 : total));
-    const chart = debts.length ? svgLineChart({ labels: [ 'Now', ...labels.slice(1) ], series: [{ name: 'Snowball', color: '#b8643a', points: pts(sn), width: ui.debtStrategy === 'snowball' ? 2.6 : 1.6, dash: ui.debtStrategy === 'snowball' ? '' : '5 4' }, { name: 'Avalanche', color: '#2a2824', points: pts(av), width: ui.debtStrategy === 'avalanche' ? 2.6 : 1.6, dash: ui.debtStrategy === 'avalanche' ? '' : '5 4' }], height: 230, dots: horizon <= 60, maxLabels: 10 }) : '';
+    const chart = debts.length ? svgLineChart({ labels: [ 'Now', ...labels.slice(1) ], series: [{ name: 'Snowball', color: C.accent, points: pts(sn), width: ui.debtStrategy === 'snowball' ? 2.6 : 1.6, dash: ui.debtStrategy === 'snowball' ? '' : '5 4' }, { name: 'Avalanche', color: C.ink, points: pts(av), width: ui.debtStrategy === 'avalanche' ? 2.6 : 1.6, dash: ui.debtStrategy === 'avalanche' ? '' : '5 4' }], height: 230, dots: horizon <= 60, maxLabels: 10 }) : '';
     const order = debts.filter(d => cur.payoffByDebt[d.id]).sort((a, b) => cur.payoffByDebt[a.id] < cur.payoffByDebt[b.id] ? -1 : 1);
     const cmpRow = (label, a, b, fmtFn, lowerBetter) => `<tr><td class="muted">${label}</td><td class="right num">${fmtFn(a)}</td><td class="right num">${fmtFn(b)}</td></tr>`;
     const monthsFmt = n => n === null ? '<span class="bad">never</span>' : `${n} mo`;
@@ -231,7 +231,7 @@ function openAccountForm(acct) {
       { key: 'name', label: 'Account name', type: 'text', required: true, full: true, placeholder: 'e.g. Main checking, ISA, Car' },
       { key: 'type', label: 'Type', type: 'select', options: ACCOUNT_TYPES.map(t => ({ v: t.v, l: t.l })), required: true }, ownerField(),
       { key: 'balance', label: 'Current balance', type: 'number', required: true, hint: 'For liabilities, enter the amount owed as a positive number.' },
-      { key: 'notes', label: 'Notes', type: 'text', full: true },
+      { key: 'notes', label: 'Notes', type: 'text', full: true, advanced: true },
     ],
     onSave: vals => {
       const rec = Object.assign({ id: acct ? acct.id : uid() }, vals, { balance: round2(Math.abs(num(vals.balance))), isLiability: !!accountType(vals.type).liability, owner: vals.owner || 'p1', updatedAt: D.today() });
@@ -259,7 +259,7 @@ views.networth = {
       </div>
       ${isCouple() ? `<div class="card mt flat"><div class="flex flex-wrap" style="gap:24px">${['p1', 'p2', 'joint'].map(o => { const a = sum(state.accounts.filter(x => !x.isLiability && (x.owner || 'p1') === o), x => x.balance), l = sum(state.accounts.filter(x => x.isLiability && (x.owner || 'p1') === o), x => x.balance) + sum(state.debts.filter(x => (x.owner || 'p1') === o), x => x.currentBalance); return `<div class="small">${ownerChip(o)} <b class="num ${signCls(a - l)}">${fmt0(a - l)}</b> <span class="muted">(${fmt0(a)} − ${fmt0(l)})</span></div>`; }).join('')}</div></div>` : ''}
       <div class="card mt"><div class="card-head"><h3>Net worth over time</h3><div class="flex"><span class="tiny muted">A snapshot is stored automatically each month you make changes</span><button class="btn sm" data-action="snapshotNow">Snapshot now</button></div></div>
-        ${snaps.length >= 2 ? svgLineChart({ labels: snaps.map(s => D.monthLabel(D.monthOf(s.date))), series: [{ name: 'Net worth', color: '#2a2824', points: snaps.map(s => s.net), area: true }, { name: 'Assets', color: '#7a8f6a', points: snaps.map(s => s.assets), dash: '4 4', width: 1.5 }, { name: 'Liabilities', color: '#b8643a', points: snaps.map(s => s.liabilities), dash: '4 4', width: 1.5 }], height: 220, maxLabels: 8 }) : `<div class="muted small">The chart appears once there are two or more monthly snapshots. ${snaps.length === 1 ? 'First snapshot recorded ' + esc(D.dateLabel(snaps[0].date)) + '.' : ''}</div>`}
+        ${snaps.length >= 2 ? svgLineChart({ labels: snaps.map(s => D.monthLabel(D.monthOf(s.date))), series: [{ name: 'Net worth', color: C.ink, points: snaps.map(s => s.net), area: true }, { name: 'Assets', color: C.good, points: snaps.map(s => s.assets), dash: '4 4', width: 1.5 }, { name: 'Liabilities', color: C.accent, points: snaps.map(s => s.liabilities), dash: '4 4', width: 1.5 }], height: 220, maxLabels: 8 }) : `<div class="muted small">The chart appears once there are two or more monthly snapshots. ${snaps.length === 1 ? 'First snapshot recorded ' + esc(D.dateLabel(snaps[0].date)) + '.' : ''}</div>`}
       </div>
       <div class="grid grid-2 mt">${table(assets, 'Assets', '+ Add')}${table(liabs, 'Liabilities', '+ Add')}</div>
       ${state.debts.length ? `<div class="callout mt small">Debts from the <a href="#" data-action="goto" data-view="debt">Debt view</a> (${fmt(nw.debts)}) are included in liabilities automatically — don't add them here as well.</div>` : ''}
@@ -301,7 +301,7 @@ views.reports = {
         ${kpi('Average month', fmt0(withData.length ? totExp / withData.length : 0), 'expenses')}
       </div>
       <div class="grid grid-3 mt">
-        <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Month by month</h3></div>${svgBarChart({ groups: sums.map(s => ({ label: D.MONTHS[D.parse(s.month).m - 1], values: [s.income, s.expenses] })), seriesNames: ['Income', 'Expenses'], colors: ['#7a8f6a', '#b8643a'], height: 200 })}</div>
+        <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Month by month</h3></div>${svgBarChart({ groups: sums.map(s => ({ label: D.MONTHS[D.parse(s.month).m - 1], values: [s.income, s.expenses] })), seriesNames: ['Income', 'Expenses'], colors: [C.good, C.accent], height: 200 })}</div>
         <div class="card"><div class="card-head"><h3>Highlights</h3></div>
           ${best ? `<table class="small"><tbody>
             <tr><td class="muted">Best month</td><td class="right"><b>${esc(D.monthLabel(best.month))}</b><div class="tiny good">${fmt(best.net, { sign: true })} net</div></td></tr>
@@ -317,7 +317,7 @@ views.reports = {
         <tfoot><tr><td>Total</td><td class="right num">${fmt(totInc)}</td><td class="right num">${fmt(totExp)}</td><td class="right num ${signCls(totNet)}">${fmt(totNet, { sign: true })}</td><td class="right num">${totInc ? fmtPct(totNet / totInc * 100) : '—'}</td><td class="right num muted">${fmt(sum(sums, s => s.expectedIncome))}</td><td class="right num muted">${fmt(sum(sums, s => s.expectedBills))}</td></tr></tfoot></table></div></div>
       <div class="grid grid-2 mt">
         <div class="card"><div class="card-head"><h3>Spending by category · ${year}</h3></div>${catRows.length ? `<div class="table-wrap"><table class="small"><thead><tr><th>Category</th><th class="right">Total</th><th class="right">Per month</th><th class="right">Share</th>${isCouple() ? `<th class="right">${esc(S().person1Name)}</th><th class="right">${esc(S().person2Name)}</th><th class="right">Joint</th>` : ''}</tr></thead><tbody>${catRows.map(([c, v]) => `<tr><td>${esc(c)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${fmt(v / Math.max(1, withData.length))}</td><td class="right num">${fmtPct(totExp ? v / totExp * 100 : 0)}</td>${isCouple() ? ['p1', 'p2', 'joint'].map(o => `<td class="right num muted">${fmt((catByOwner[o] || {})[c] || 0)}</td>`).join('') : ''}</tr>`).join('')}</tbody></table></div>` : '<div class="muted small">No spending recorded.</div>'}</div>
-        <div class="card"><div class="card-head"><h3>Where it went</h3></div>${svgDonut({ slices: catRows.slice(0, 9).map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] })).concat(catRows.length > 9 ? [{ label: 'Everything else', value: sum(catRows.slice(9), r => r[1]), color: '#c9c2b2' }] : []), centre: fmt0(totExp), centreLabel: year })}
+        <div class="card"><div class="card-head"><h3>Where it went</h3></div>${svgDonut({ slices: catRows.slice(0, 9).map(([label, value], i) => ({ label, value, color: PALETTE[(i + 1) % PALETTE.length] })).concat(catRows.length > 9 ? [{ label: 'Everything else', value: sum(catRows.slice(9), r => r[1]), color: C.rest }] : []), centre: fmt0(totExp), centreLabel: year })}
           ${Object.keys(incByType).length ? `<div class="mt"><div class="tiny muted mb-s">INCOME BY TYPE</div><table class="small"><tbody>${Object.entries(incByType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${fmtPct(totInc ? v / totInc * 100 : 0)}</td></tr>`).join('')}</tbody></table></div>` : ''}</div>
       </div>
       ${ms ? `<div class="page-break"></div><div class="section-title"><h2>Monthly report · ${esc(D.monthLabel(selMonth, true))}</h2></div>
@@ -369,6 +369,10 @@ views.settings = {
           <div class="hint mt-s">Renaming a category updates existing transactions and budgets. Removing one keeps the transactions but they show as unbudgeted.</div>
         </div>
       </div>
+      <div class="card mt"><div class="card-head"><h3>Appearance</h3><span class="tiny muted">Pick a colour theme — charts and every page follow it</span></div>
+        ${themeCardsHtml(s.theme === 'auto' ? currentThemeId() : (s.theme || 'cream'), 'data-action="setTheme" data-theme')}
+        <label class="check mt small"><input type="checkbox" data-change="themeAuto" ${s.theme === 'auto' ? 'checked' : ''}> Follow my device's light / dark setting (Cream by day, Charcoal at night)</label>
+      </div>
       <div class="card mt"><div class="card-head"><h3>Automatic backup</h3><span class="chip ${bf.status === 'linked' ? 'good' : bf.status === 'needs-permission' || bf.status === 'error' ? 'warn' : ''}">${esc(bf.statusText())}</span></div>${backupHtml}</div>
       <div class="card mt"><div class="card-head"><h3>Your data</h3><span class="tiny muted">${state.savedAt ? 'Last saved ' + esc(fmtDateTime(state.savedAt)) : ''}</span></div>
         <div class="flex flex-wrap">
@@ -378,6 +382,7 @@ views.settings = {
           <span class="grow"></span>
           <button class="btn" data-action="loadSample">Load sample data</button>
           <button class="btn" data-action="openWizard">Re-run setup</button>
+          <button class="btn" data-action="help">Welcome tour</button>
           <button class="btn ghost" data-action="runTests">Run self-tests</button>
         </div>
         <div class="tiny muted mt">${countsLabel(recordCounts(state))} · ${(serialize().length / 1024).toFixed(0)} KB in browser storage. A JSON backup contains everything and restores on any device.</div>

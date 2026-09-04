@@ -40,7 +40,7 @@ p{margin:0}
 .tile .ic{width:44px;height:44px;border-radius:12px;background:var(--bg2);display:grid;place-items:center;margin-bottom:12px;font-size:22px}
 .note{background:var(--bg2);border-radius:16px;padding:18px 24px;font-size:20px;line-height:1.45;color:var(--ink2)}
 """
-def foot(n): return f'<div class="foot"><span {E}>Personal Finance Dashboard</span><span {E}>{n} / 12</span></div>'
+def foot(n): return f'<div class="foot"><span {E}>Personal Finance Dashboard</span><span {E}>{n} / 13</span></div>'
 def slide(body, cls=''): return f'<section class="slide {cls}"><div class="pad">{body}</div></section>'
 S = []
 # 1 Hero
@@ -55,7 +55,7 @@ S.append(slide(f"""
   <div style="flex:1"><div class="frame"><img src="{img('overview.jpg')}" alt="Overview"></div></div>
 </div>""" + foot(1)))
 # 2 What's inside
-tiles = [('📊','Overview','Income, expenses, cash flow, savings rate, net worth and safe-to-spend.'),('💵','Income','Salaries, freelance, benefits — weekly, fortnightly, monthly or custom.'),('🎯','Budget','Planned vs actual per category with optional rollover.'),('🧾','Transactions','Search, filters, split receipts, CSV import & export.'),('📅','Bills & Subs','Recurring items, paid ticks, and a due-date calendar.'),('🐷','Savings','Goals with projected finish dates and an emergency-fund gauge.'),('💳','Debt','Snowball vs avalanche, payoff dates, total interest.'),('📈','Net Worth','Assets, liabilities and a monthly history chart.'),('🖨️','Reports','Monthly & annual summaries, print to PDF.'),('⚙️','Settings','Currency, couple mode, categories, backup & restore.')]
+tiles = [('📊','Overview','Income, expenses, cash flow, savings rate, net worth and safe-to-spend.'),('💵','Income','Salaries, freelance, benefits — weekly, fortnightly, monthly or custom.'),('🎯','Budget','Planned vs actual per category with optional rollover.'),('🧾','Transactions','Search, filters, split receipts, CSV import & export.'),('📅','Bills & Subs','Recurring items, paid ticks, and a due-date calendar.'),('🐷','Savings','Goals with projected finish dates and an emergency-fund gauge.'),('💳','Debt','Snowball vs avalanche, payoff dates, total interest.'),('📈','Net Worth','Assets, liabilities and a monthly history chart.'),('🖨️','Reports','Monthly & annual summaries, print to PDF.'),('⚙️','Settings','Six colour themes, currency, couple mode, backup & restore.')]
 S.append(slide(f"""
 <div class="kicker" {E}>Ten connected screens</div>
 <h2 {E}>Everything a spreadsheet does, without the spreadsheet.</h2>
@@ -165,7 +165,13 @@ S.append(slide(f"""
   <div class="phone"><img src="{img('mobile-overview.jpg')}" alt="Phone"></div>
   <div class="phone"><img src="{img('mobile-calendar.jpg')}" alt="Phone calendar"></div>
 </div>""" + foot(11)))
-# 12 How it works / what you get
+# 12 Themes
+S.append(slide(f"""
+<div class="kicker" {E}>Six colour themes</div>
+<div class="row" style="justify-content:space-between;align-items:flex-end"><h2 style="max-width:820px" {E}>Your dashboard, your mood. Two dark modes included.</h2><p class="lead" style="max-width:440px;font-size:21px" {E}>Cream, Charcoal, Midnight, Sage, Blush and Slate — one click in the sidebar, or follow your device's light / dark setting.</p></div>
+<div class="grid" style="grid-template-columns:1fr 1fr 1fr;margin-top:34px;flex:1;align-content:center;gap:26px">{''.join(f'<div><div class="frame" style="padding:8px"><img src="{img("theme-" + t + ".jpg")}" alt="{t}"></div><div class="center" style="margin-top:10px;font-size:20px;font-weight:600" {E}>{n}</div></div>' for t, n in [('cream','Cream'),('charcoal','Charcoal'),('midnight','Midnight'),('sage','Sage'),('blush','Blush'),('slate','Slate')])}</div>
+""" + foot(12)))
+# 13 How it works / what you get
 S.append(slide(f"""
 <div class="row" style="height:100%;gap:70px;align-items:flex-start">
   <div style="flex:1">
@@ -191,7 +197,7 @@ S.append(slide(f"""
     <div class="check"><i>✓</i><span {E}>24 currencies + custom symbol</span></div>
     <div class="note" style="margin-top:22px;font-size:18px" {E}>Works in Chrome, Edge, Firefox and Safari. Auto-backup needs Chrome or Edge; everyone gets one-click JSON backup.</div>
   </div></div>
-</div>""" + foot(12)))
+</div>""" + foot(13)))
 out = f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Personal Finance Dashboard — Etsy mockup deck</title><style>{CSS}</style></head><body>
 <div style="max-width:1500px;margin:30px auto 0;font-size:15px;color:#333;background:#fff;padding:16px 22px;border-radius:10px"><b>How to capture:</b> open in Chrome → DevTools (F12) → Elements → right-click a <code>&lt;section class="slide"&gt;</code> → <i>Capture node screenshot</i>. Each slide is exactly 1500×1125. All text is editable in place — click and type before capturing. Keep hero content inside the centre square (Etsy crops search thumbnails to 1:1).</div>
 {''.join(S)}

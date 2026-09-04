@@ -21,6 +21,6 @@ const problems = await page.evaluate(() => {
   });
   return out;
 });
-for (let i = 0; i < 12; i++) await page.locator('.slide').nth(i).screenshot({ path: path.join(here, 'shots', `deck-${String(i + 1).padStart(2, '0')}.png`) });
+for (let i = 0; i < 13; i++) await page.locator('.slide').nth(i).screenshot({ path: path.join(here, 'shots', `deck-${String(i + 1).padStart(2, '0')}.png`) });
 await browser.close();
 console.log(problems.length ? 'PROBLEMS:\n' + [...new Set(problems)].join('\n') : 'GEOMETRY OK');

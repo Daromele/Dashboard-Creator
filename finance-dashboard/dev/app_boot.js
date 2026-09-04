@@ -6,7 +6,7 @@ function render() {
   const v = views[ui.view] || views.overview;
   document.getElementById('viewTitle').textContent = v.title;
   document.getElementById('nav').innerHTML = NAV.map(([k, l]) => `<button class="${ui.view === k ? 'active' : ''}" data-action="goto" data-view="${k}">${ICONS[k] || ''}<span>${esc(l)}</span></button>`).join('');
-  document.getElementById('monthLabel').textContent = D.monthLabel(ui.month, true);
+  document.getElementById('monthLabel').textContent = window.innerWidth < 640 ? D.monthLabel(ui.month) : D.monthLabel(ui.month, true);
   document.getElementById('monthNav').style.visibility = ['settings'].includes(ui.view) ? 'hidden' : 'visible';
   const el = document.getElementById('view');
   const y = window.scrollY;
@@ -15,7 +15,9 @@ function render() {
   backupFile.renderStatus();
   saveUi();
 }
-function goto(view) { ui.view = view; ui.txnLimit = 200; if (view === 'reports') ui.reportYear = ui.month.slice(0, 4); document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.add('hidden'); window.scrollTo(0, 0); render(); }
+function goto(view) { ui.view = view; ui.txnLimit = 200; if (view === 'reports') ui.reportYear = ui.month.slice(0, 4); document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.add('hidden'); window.scrollTo(0, 0); renderFresh(); }
+let _freshTimer = null;
+function renderFresh() { const el = document.getElementById('view'); el.classList.add('fresh'); render(); countUp(el); clearTimeout(_freshTimer); _freshTimer = setTimeout(() => el.classList.remove('fresh'), 1400); }
 
 // ---------- Actions ----------
 const actions = {
@@ -31,6 +33,15 @@ const actions = {
   },
   monthToday: () => { ui.month = D.thisMonth(); if (ui.txnFilter.month) ui.txnFilter.month = ui.month; render(); },
   openWizard: () => openWizard(),
+  help: () => openTour(),
+  setTheme: d => { commit(s => { s.settings.theme = d.theme; }, { silent: true }); applyTheme(); render(); toast(`${THEMES[d.theme].name} theme`, 'default', 1500); },
+  checklistDismiss: () => commit(s => { s.settings.checklistDismissed = true; }),
+  quickAdd: () => {
+    const items = [['💸', 'Expense', 'Something you spent', 'txnAdd'], ['💵', 'Income received', 'Pay that landed', 'txnAddIncome'], ['📅', 'Bill', 'Rent, utilities, insurance', 'billAdd'], ['🔁', 'Subscription', 'Streaming, gym, software', 'subAdd'], ['🏦', 'Account', 'Checking, savings, card', 'accountAdd'], ['🎯', 'Savings goal', 'Holiday, deposit, fund', 'goalAdd'], ['💳', 'Debt', 'Card, loan, mortgage', 'debtAdd'], ['💼', 'Income source', 'Salary or regular income', 'incomeAdd'], ['📥', 'Import CSV', 'From your bank', 'csvImport']];
+    const m = openModal(`<div class="modal narrow" style="max-width:520px"><div class="modal-head"><h3>What would you like to add?</h3><button class="x" data-modal-close>×</button></div><div class="modal-body"><div class="qa-grid">${items.map(([i, t, d, a]) => `<button class="qa" data-qa="${a}"><span class="ic">${i}</span><b>${t}</b><span>${d}</span></button>`).join('')}</div><div class="tiny muted mt center">Tip: press <b>N</b> anywhere to open this.</div></div></div>`);
+    m.bg.addEventListener('click', e => { const b = e.target.closest('[data-qa]'); if (!b) return; m.close(); actions[b.dataset.qa](); });
+  },
+  txnAddIncome: () => { openTxnForm(null); const t = document.querySelector('#genForm [name=type]'); if (t) { t.value = 'income'; t.dispatchEvent(new Event('change', { bubbles: true })); t.dispatchEvent(new Event('input', { bubbles: true })); } },
   loadSample: async () => { if (state.txns.length || state.bills.length) { if (!await confirmDialog('Load sample data?', 'This <b>replaces</b> everything currently in the dashboard with the sample household. Export a backup first if you want to keep your data.', 'Replace with sample', true)) return; } loadSampleData(); },
   runTests: () => { const lines = []; const r = runSelfTests(l => lines.push(l)); const el = document.getElementById('testResults'); if (el) el.innerHTML = `<div class="callout ${r.passed === r.total ? 'good' : 'bad'} small"><b>${r.passed}/${r.total} checks passed</b> — frequency engine, debt amortisation, rollover, CSV parsing and import validation, tested against hand-worked examples.${r.passed !== r.total ? '<pre class="mono tiny">' + esc(lines.slice(1).join('\n')) + '</pre>' : ''}</div>`; toast(`${r.passed}/${r.total} self-tests passed`, r.passed === r.total ? 'good' : 'bad'); },
   print: () => window.print(),
@@ -47,11 +58,11 @@ const actions = {
   incomeAdd: () => openIncomeForm(null), incomeEdit: d => openIncomeForm(byId('income', d.id)),
   // goals
   goalAdd: () => openGoalForm(null), goalEdit: d => openGoalForm(byId('goals', d.id)),
-  goalAddAmount: d => { const g = byId('goals', d.id); openForm({ title: `Add to "${g.name}"`, width: 'narrow', fields: [{ key: 'amount', label: 'Amount to add', type: 'number', required: true, min: 0 }, { key: 'log', label: 'Also record as a "Savings" transaction', type: 'checkbox', full: true }], values: { amount: g.monthlyContribution || '', log: true, }, onSave: v => { commit(s => { const gg = byId('goals', g.id); gg.current = round2(num(gg.current) + num(v.amount)); if (v.log) s.txns.push({ id: uid(), date: D.today(), month: D.thisMonth(), type: 'expense', description: `Savings: ${g.name}`, owner: g.owner || 'p1', paymentMethod: '', notes: '', splits: [{ category: 'Savings', amount: round2(num(v.amount)) }] }); }); toast('Savings updated', 'good'); } }); },
+  goalAddAmount: d => { const g = byId('goals', d.id); openForm({ title: `Add to "${g.name}"`, width: 'narrow', fields: [{ key: 'amount', label: 'Amount to add', type: 'number', required: true, min: 0 }, { key: 'log', label: 'Also record as a "Savings" transaction', type: 'checkbox', full: true }], values: { amount: g.monthlyContribution || '', log: true, }, onSave: v => { let hit = false; commit(s => { const gg = byId('goals', g.id); const was = num(gg.current) >= num(gg.target); gg.current = round2(num(gg.current) + num(v.amount)); hit = !was && num(gg.target) > 0 && gg.current >= num(gg.target); if (v.log) s.txns.push({ id: uid(), date: D.today(), month: D.thisMonth(), type: 'expense', description: `Savings: ${g.name}`, owner: g.owner || 'p1', paymentMethod: '', notes: '', splits: [{ category: 'Savings', amount: round2(num(v.amount)) }] }); }); if (hit) celebrate(`🎉 "${g.name}" is fully funded!`); else toast('Savings updated', 'good'); } }); },
   // debts
   debtAdd: () => openDebtForm(null), debtEdit: d => openDebtForm(byId('debts', d.id)),
   debtStrategy: d => { ui.debtStrategy = d.s; render(); },
-  debtPayment: d => { const debt = byId('debts', d.id); openForm({ title: `Record payment · ${debt.name}`, width: 'narrow', fields: [{ key: 'amount', label: 'Payment amount', type: 'number', required: true, min: 0 }, { key: 'date', label: 'Date', type: 'date', required: true }, { key: 'log', label: 'Also record as a "Debt Payments" transaction', type: 'checkbox', full: true }], values: { amount: round2(num(debt.minPayment) + num(debt.extraPayment)), date: D.today(), log: true }, onSave: v => { commit(s => { const dd = byId('debts', debt.id); dd.currentBalance = Math.max(0, round2(num(dd.currentBalance) - num(v.amount))); if (v.log) s.txns.push({ id: uid(), date: v.date, month: D.monthOf(v.date), type: 'expense', description: `Payment: ${debt.name}`, owner: debt.owner || 'p1', paymentMethod: '', notes: '', splits: [{ category: 'Debt Payments', amount: round2(num(v.amount)) }] }); }); toast('Payment recorded', 'good'); } }); },
+  debtPayment: d => { const debt = byId('debts', d.id); openForm({ title: `Record payment · ${debt.name}`, width: 'narrow', fields: [{ key: 'amount', label: 'Payment amount', type: 'number', required: true, min: 0 }, { key: 'date', label: 'Date', type: 'date', required: true }, { key: 'log', label: 'Also record as a "Debt Payments" transaction', type: 'checkbox', full: true }], values: { amount: round2(num(debt.minPayment) + num(debt.extraPayment)), date: D.today(), log: true }, onSave: v => { let cleared = false; commit(s => { const dd = byId('debts', debt.id); dd.currentBalance = Math.max(0, round2(num(dd.currentBalance) - num(v.amount))); cleared = dd.currentBalance === 0; if (v.log) s.txns.push({ id: uid(), date: v.date, month: D.monthOf(v.date), type: 'expense', description: `Payment: ${debt.name}`, owner: debt.owner || 'p1', paymentMethod: '', notes: '', splits: [{ category: 'Debt Payments', amount: round2(num(v.amount)) }] }); }); if (cleared) celebrate(`🎉 "${debt.name}" is paid off!`); else toast('Payment recorded', 'good'); } }); },
   debtScheduleCsv: () => { const sim = simulateDebt(state.debts, ui.debtStrategy, num(S().debtExtraPool), D.thisMonth()); const rows = [['Month', ...state.debts.flatMap(d => [`${d.name} payment`, `${d.name} interest`, `${d.name} balance`]), 'Total payment', 'Total balance']]; for (const s of sim.schedule) rows.push([s.month, ...state.debts.flatMap(d => { const p = s.perDebt[d.id]; return p ? [p.payment.toFixed(2), p.interest.toFixed(2), p.balance.toFixed(2)] : ['', '', '']; }), s.totalPayment.toFixed(2), s.totalBalance.toFixed(2)]); downloadText(`debt-schedule-${ui.debtStrategy}.csv`, toCSV(rows), 'text/csv'); },
   // accounts / net worth
   accountAdd: () => openAccountForm(null), accountEdit: d => openAccountForm(byId('accounts', d.id)),
@@ -80,6 +91,7 @@ const changes = {
   accountBalance: el => { commit(s => { const a = byId('accounts', el.dataset.id); if (a) { a.balance = round2(Math.abs(num(el.value))); a.updatedAt = D.today(); } }); },
   debtExtra: el => commit(s => { s.settings.debtExtraPool = round2(num(el.value)); }),
   reportYear: el => { ui.reportYear = el.value; render(); },
+  themeAuto: el => { commit(s => { s.settings.theme = el.checked ? 'auto' : currentThemeId(); }, { silent: true }); applyTheme(); render(); },
   setting: el => { const k = el.dataset.key; const v = el.type === 'checkbox' ? el.checked : el.dataset.num ? num(el.value) : el.value; commit(s => { s.settings[k] = v; }); },
   spendable: el => commit(s => { const set = new Set(s.settings.spendableTypes || []); if (el.checked) set.add(el.dataset.type); else set.delete(el.dataset.type); s.settings.spendableTypes = [...set]; }),
   currency: el => { const c = CURRENCIES.find(x => x.code === el.value); commit(s => { s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; buildFormatter(); }); },
@@ -105,6 +117,8 @@ document.addEventListener('change', e => { const el = e.target.closest('[data-ch
 document.addEventListener('input', e => { const el = e.target; if (el.matches && el.matches('input[type=search][data-change="txnFilter"]')) { clearTimeout(el._t); el._t = setTimeout(() => changes.txnFilter(el), 250); } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTopModal(); if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { const f = document.getElementById('genForm'); if (f) f.requestSubmit(); } });
 document.addEventListener('keydown', e => { const el = e.target; if (e.key === 'Enter' && el.matches && el.matches('.inline-input')) { el.blur(); } });
+document.addEventListener('keydown', e => { if (e.ctrlKey || e.metaKey || e.altKey) return; const tag = (e.target.tagName || '').toLowerCase(); if (['input', 'select', 'textarea'].includes(tag) || e.target.isContentEditable || modalStack.length) return; if (e.key === 'n' || e.key === 'N') { e.preventDefault(); actions.quickAdd(); } if (e.key === '?') openTour(); });
+if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (state && state.settings.theme === 'auto') { applyTheme(); render(); } });
 
 // ---------- Sample data ----------
 function seededRandom(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
@@ -113,6 +127,7 @@ function loadSampleData() {
   const s = blankState(); const set = s.settings;
   set.householdMode = 'couple'; set.person1Name = 'Alex'; set.person2Name = 'Sam'; set.onboarded = true;
   set.currency = Object.assign({}, state && state.settings.currency || { code: 'USD', symbol: '$', locale: 'en-US' });
+  if (state) { set.theme = state.settings.theme; set.tourSeen = state.settings.tourSeen; }
   const now = D.thisMonth(); const start = D.addMonths(now, -6); set.startMonth = start; set.safetyBuffer = 300; set.budgetRollover = 'surplus'; set.emergencyMonths = 3; set.debtExtraPool = 200;
   const monthStartDate = D.monthStart(start);
   const id = () => uid();
@@ -181,7 +196,7 @@ function loadSampleData() {
 
 // ---------- First-run wizard ----------
 function openWizard() {
-  let step = 0; const vals = { mode: S().householdMode, p1: S().person1Name === 'Me' ? '' : S().person1Name, p2: S().person2Name === 'Partner' ? '' : S().person2Name, currency: S().currency.code, startMonth: S().startMonth || D.thisMonth(), data: (state.txns.length || state.bills.length) ? 'keep' : 'sample' };
+  let step = 0; const vals = { mode: S().householdMode, p1: S().person1Name === 'Me' ? '' : S().person1Name, p2: S().person2Name === 'Partner' ? '' : S().person2Name, currency: S().currency.code, startMonth: S().startMonth || D.thisMonth(), theme: currentThemeId(), data: (state.txns.length || state.bills.length) ? 'keep' : 'sample' };
   const hasData = !!(state.txns.length || state.bills.length || state.income.length);
   const steps = [
     () => `<h2>Welcome to your Finance Dashboard</h2><p class="muted mt-s">Three quick questions, then you're in. Everything you enter stays in this browser — there's no account, no upload and no bank connection. You can change all of this later in Settings.</p>
@@ -190,6 +205,7 @@ function openWizard() {
     () => `<h2>Currency and start month</h2><p class="muted mt-s">The currency only changes how amounts are displayed — nothing is converted.</p>
       <div class="form-grid mt"><div class="field"><label>Currency</label><select name="currency">${CURRENCIES.filter(c => c.code !== 'CUSTOM').map(c => `<option value="${c.code}"${c.code === vals.currency ? ' selected' : ''}>${c.code} · ${esc(c.name)}</option>`).join('')}</select><div class="hint">Need a different symbol? Pick "Custom" in Settings.</div></div>
       <div class="field"><label>Tracking starts</label><input type="month" name="startMonth" value="${attr(vals.startMonth)}" placeholder="YYYY-MM"><div class="hint">Budgets and rollover chains begin here.</div></div></div>`,
+    () => `<h2>Pick a look</h2><p class="muted mt-s">Six colour themes, including two dark ones. Change it any time from the dots in the sidebar.</p><div class="mt">${themeCardsHtml(vals.theme, 'data-wiz-theme')}</div>`,
     () => `<h2>Start with sample data?</h2><p class="muted mt-s">The sample household (Alex & Sam) has six months of realistic transactions, bills, debts and goals so you can see every page working. Replace it with your own data whenever you're ready — or start empty.</p>
       <div class="choice mt">${hasData ? `<label><input type="radio" name="data" value="keep" ${vals.data === 'keep' ? 'checked' : ''}><b>Keep my data</b><span>Apply the settings above to what's already here.</span></label>` : ''}<label><input type="radio" name="data" value="sample" ${vals.data === 'sample' ? 'checked' : ''}><b>Load the sample household</b><span>Explore with realistic data${hasData ? ' — <b>replaces</b> what is here now' : ''}.</span></label><label><input type="radio" name="data" value="empty" ${vals.data === 'empty' ? 'checked' : ''}><b>Start empty</b><span>Add your own income, bills and accounts.${hasData ? ' <b>Erases</b> current data.' : ''}</span></label></div>
       <div class="callout mt small">Tip: after setup, add your <b>income</b> and <b>bills</b> first — the overview, calendar and safe-to-spend all build from those.</div>`,
@@ -199,20 +215,56 @@ function openWizard() {
   const read = () => { body.querySelectorAll('input,select').forEach(el => { if (el.type === 'radio') { if (el.checked) vals[el.name] = el.value; } else vals[el.name] = el.value; }); };
   const draw = () => { body.innerHTML = steps[step](); m.bg.querySelector('#wizSteps').innerHTML = steps.map((_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join(''); m.bg.querySelector('#wizBack').style.visibility = step ? 'visible' : 'hidden'; m.bg.querySelector('#wizNext').textContent = step === steps.length - 1 ? 'Finish' : 'Next'; };
   body.addEventListener('change', e => { read(); if (e.target.name === 'mode') { const p2 = body.querySelector('#wizP2'); if (p2) p2.style.display = vals.mode === 'couple' ? '' : 'none'; } });
+  body.addEventListener('click', e => { const b = e.target.closest('[data-wiz-theme]'); if (!b) return; vals.theme = b.dataset.wizTheme; state.settings.theme = vals.theme; applyTheme(); body.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.dataset.wizTheme === vals.theme)); });
   m.bg.querySelector('#wizBack').addEventListener('click', () => { read(); step = Math.max(0, step - 1); draw(); });
   m.bg.querySelector('#wizNext').addEventListener('click', () => {
     read();
     if (step < steps.length - 1) { step++; draw(); return; }
     m.close();
-    const apply = s => { s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim() || (vals.mode === 'couple' ? 'Person 1' : 'Me'); s.settings.person2Name = vals.p2.trim() || 'Partner'; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (/^\d{4}-\d{2}$/.test(vals.startMonth)) s.settings.startMonth = vals.startMonth; s.settings.onboarded = true; };
+    const apply = s => { s.settings.theme = vals.theme; s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim() || (vals.mode === 'couple' ? 'Person 1' : 'Me'); s.settings.person2Name = vals.p2.trim() || 'Partner'; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (/^\d{4}-\d{2}$/.test(vals.startMonth)) s.settings.startMonth = vals.startMonth; s.settings.onboarded = true; };
     // With the sample household, keep its couple setup and start month unless the user typed their own names.
-    const applySample = s => { const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (vals.p1.trim()) { s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim(); s.settings.person2Name = vals.p2.trim() || 'Partner'; } s.settings.onboarded = true; };
+    const applySample = s => { s.settings.theme = vals.theme; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (vals.p1.trim()) { s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim(); s.settings.person2Name = vals.p2.trim() || 'Partner'; } s.settings.onboarded = true; };
     if (vals.data === 'sample') { loadSampleData(); commit(applySample); }
     else if (vals.data === 'empty') { state = blankState(); commit(apply); }
     else commit(apply);
-    buildFormatter(); ui.view = 'overview'; render();
-    if (vals.data !== 'sample') toast('You\'re set up. Start with Income and Bills.', 'good', 5000);
+    buildFormatter(); applyTheme(); ui.view = 'overview'; renderFresh();
+    if (!state.settings.tourSeen) openTour(vals.data === 'sample');
   });
+  draw();
+}
+
+
+// ---------- Welcome tour ----------
+function openTour(sample) {
+  const bf = backupFile.supported;
+  const slides = [
+    { icon: '👋', kicker: 'Welcome', title: 'Your money, one calm page at a time.', text: `Here's the whole idea in one line: <b>tell the dashboard what comes in and what goes out, then log what you spend.</b> Everything else — the calendar, safe-to-spend, charts and payoff dates — is worked out for you.${sample ? '<br><br>The sample household is loaded so you can explore. Replace it with your own numbers whenever you like.' : ''}` },
+    { icon: '💵', kicker: 'Step 1', title: 'Add your income.', text: 'Salary, wages, side income. Pick the real pay frequency — weekly and fortnightly pay land on actual dates, so a five-Friday month shows five pay days.', action: 'incomeAdd', label: 'Add income now' },
+    { icon: '📅', kicker: 'Step 2', title: 'Add bills & subscriptions.', text: 'Rent, utilities, insurance, streaming, gym. Give each a due day. The calendar and the "due in the next 14 days" list build themselves, and ticking a bill paid logs it as a transaction.', action: 'billAdd', label: 'Add a bill' },
+    { icon: '🏦', kicker: 'Step 3', title: 'Add your accounts.', text: 'Today\'s balances for checking, savings, cards and loans. Safe-to-spend uses your spendable accounts; net worth uses all of them and starts a monthly history automatically.', action: 'accountAdd', label: 'Add an account' },
+    { icon: '🎯', kicker: 'Step 4', title: 'Set a simple budget.', text: 'Type planned amounts straight into the Budget table — a handful of categories is plenty. Later, "Suggest from last 3 months" fills it in from your real spending.', action: 'goto', view: 'budget', label: 'Open the budget' },
+    { icon: '🧾', kicker: 'Every day', title: 'Log spending with one button.', text: 'The <b>+ Add</b> button top-right (or press <b>N</b>) adds anything from anywhere. Split one receipt across categories, or import a CSV from your bank — duplicates are caught for you.', action: 'txnAdd', label: 'Add an expense' },
+    { icon: '🛡️', kicker: 'Last', title: 'Protect your data.', text: bf ? 'Your data lives in this browser. Link a backup file in Settings and every change is written to it and verified — put it in a Dropbox, Drive or OneDrive folder and it travels with you.' : 'Your data lives in this browser. Export a JSON backup from Settings now and then — you\'ll get a gentle reminder — and restore it on any computer in one click.', action: 'goto', view: 'settings', label: 'Open backup settings' },
+  ];
+  let i = 0;
+  const m = openModal(`<div class="modal tour"><div class="tour-body"><div class="tour-art" id="tourArt"></div><div class="tour-text" id="tourText"></div></div>
+    <div class="modal-foot"><div class="tour-dots" id="tourDots"></div><span class="spacer"></span><button class="btn ghost" id="tourSkip">Skip tour</button><button class="btn" id="tourBack">Back</button><button class="btn primary" id="tourNext">Next</button></div></div>`, { noFocus: true });
+  const draw = () => {
+    const sl = slides[i];
+    m.bg.querySelector('#tourArt').innerHTML = `<span class="num">${i + 1}</span><span class="big">${sl.icon}</span>`;
+    m.bg.querySelector('#tourText').innerHTML = `<div class="kicker">${sl.kicker}</div><h2>${sl.title}</h2><p>${sl.text}</p>${sl.action ? `<button class="btn accent mt" data-tour-action="${sl.action}" ${sl.view ? `data-view="${sl.view}"` : ''}>${sl.label} →</button>` : ''}`;
+    m.bg.querySelector('#tourDots').innerHTML = slides.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('');
+    m.bg.querySelector('#tourBack').style.visibility = i ? 'visible' : 'hidden';
+    m.bg.querySelector('#tourNext').textContent = i === slides.length - 1 ? 'Finish' : 'Next';
+    m.bg.querySelector('#tourSkip').style.visibility = i === slides.length - 1 ? 'hidden' : 'visible';
+  };
+  const done = () => { m.close(); if (!state.settings.tourSeen) commit(s => { s.settings.tourSeen = true; }, { silent: true }); };
+  m.bg.querySelector('#tourNext').addEventListener('click', () => { if (i < slides.length - 1) { i++; draw(); } else done(); });
+  m.bg.querySelector('#tourBack').addEventListener('click', () => { i = Math.max(0, i - 1); draw(); });
+  m.bg.querySelector('#tourSkip').addEventListener('click', done);
+  m.bg.addEventListener('click', e => { const b = e.target.closest('[data-tour-action]'); if (!b) return; done(); if (b.dataset.tourAction === 'goto') goto(b.dataset.view); else actions[b.dataset.tourAction](); });
+  m.bg.addEventListener('keydown', e => { if (e.key === 'ArrowRight') m.bg.querySelector('#tourNext').click(); if (e.key === 'ArrowLeft') m.bg.querySelector('#tourBack').click(); });
+  let sx = null; m.bg.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true }); m.bg.addEventListener('touchend', e => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (dx < -50) m.bg.querySelector('#tourNext').click(); if (dx > 50) m.bg.querySelector('#tourBack').click(); });
   draw();
 }
 
@@ -222,10 +274,10 @@ async function boot() {
   if (!storage.available()) toast('This browser is blocking local storage — data will not be saved. Try a normal (non-private) window.', 'bad', 12000);
   const loaded = loadState();
   state = loaded || blankState();
-  buildFormatter(); loadUi();
+  buildFormatter(); loadUi(); applyTheme();
   if (!views[ui.view]) ui.view = 'overview';
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => { });
-  render();
+  renderFresh();
   await backupFile.init();
   backupFile.renderStatus();
   const sessions = +(storage.get(LS_SESS) || 0) + 1; storage.set(LS_SESS, String(sessions));
@@ -235,6 +287,6 @@ async function boot() {
     if (sessions - lastExport >= REMIND_EVERY_SESSIONS && sessions % REMIND_EVERY_SESSIONS === 0) toast('Reminder: this browser can\'t auto-backup. Download a JSON backup to keep your data safe.', 'warn', 12000, { label: 'Export now', action: 'exportJson' });
   }
   if (location.search.includes('selftest')) { const r = runSelfTests(console.log); window.__selfTestResult = r; }
-  window.__pfd = { get state() { return state; }, ui, render, runSelfTests, simulateDebt, expandRecurring, occurrences, loadSampleData };
+  window.__pfd = { get state() { return state; }, ui, render, runSelfTests, simulateDebt, expandRecurring, occurrences, loadSampleData, openTour, applyTheme, THEMES };
 }
 document.addEventListener('DOMContentLoaded', boot);

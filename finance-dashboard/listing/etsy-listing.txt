@@ -13,7 +13,7 @@ You get ten connected screens: an overview with safe-to-spend, income, budget wi
 How It Works:
 1. Download the ZIP and open Personal_Finance_Dashboard.html in Chrome, Edge, Firefox or Safari.
 2. Answer three setup questions (single or couple, currency, start month), or load the sample household to explore first.
-3. Add your income and bills. The calendar, cash-flow forecast and safe-to-spend figure build themselves from those.
+3. Follow the welcome tour and the first-steps checklist: income, bills, accounts, budget. The calendar, cash-flow forecast and safe-to-spend figure build themselves from those.
 4. Log spending as you go or import a CSV from your bank. Tick bills as paid. Watch the budget bars fill.
 5. Turn on automatic backup in Settings (Chrome/Edge) or export a JSON backup any time.
 
@@ -28,6 +28,10 @@ WHAT YOU'LL GET:
 • Net worth: assets, liabilities, automatic monthly snapshots and a history chart
 • Reports: monthly and annual summaries, best and worst months, category totals, print-to-PDF layout
 • Couple mode with per-person breakdowns (also works perfectly for one person)
+• Six colour themes including two dark modes - switch with one click
+• Welcome tour and a guided first-steps checklist so you always know what to do next
+• One "Add" button for everything, with simple forms that hide the advanced options until you need them
+• Smart insights on the overview: next pay day, budget pace, biggest category change, debt-free date, emergency cover
 • Automatic backup to a file you choose (Chrome/Edge) plus one-click JSON backup and restore in every browser
 • 24 currencies plus a custom symbol option (display only - no conversion)
 • Sample data and a guided first-run setup

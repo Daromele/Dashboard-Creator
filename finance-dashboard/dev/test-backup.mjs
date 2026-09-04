@@ -21,8 +21,8 @@ await page.addInitScript(() => {
   window.showSaveFilePicker = async () => handle;
 });
 await page.goto(file);
-await page.click('#wizNext'); await page.click('#wizNext'); await page.click('label:has(input[name=data][value=sample])'); await page.click('#wizNext');
-await page.waitForTimeout(200);
+await page.click('#wizNext'); await page.click('#wizNext'); await page.click('#wizNext'); await page.click('label:has(input[name=data][value=sample])'); await page.click('#wizNext');
+await page.waitForTimeout(200); await page.click('#tourSkip'); await page.waitForTimeout(100);
 await page.click('#nav button[data-view=settings]');
 await page.click('[data-action=backupLink]'); await page.waitForTimeout(300);
 const s1 = await page.evaluate(() => ({ status: backupFile.status, writes: window.__mockFile.writes, len: window.__mockFile.text.length, verified: !!backupFile.lastVerified }));

@@ -19,6 +19,68 @@ const views = {};
 const kpi = (k, v, s, vc) => `<div class="card kpi"><div class="k">${esc(k)}</div><div class="v ${vc || ''}">${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
 const emptyBox = (title, text, btn) => `<div class="empty"><h3>${esc(title)}</h3><div class="small">${text}</div>${btn ? `<div class="mt">${btn}</div>` : ''}</div>`;
 
+
+// ---------- Overview helpers: greeting, insights, first steps ----------
+function greetingHtml() {
+  const h = new Date().getHours(); const g = h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  const name = S().person1Name && S().person1Name !== 'Me' ? S().person1Name : '';
+  const d = new Date(); const dateStr = d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  const today = D.today(); const dim = D.dim(D.parse(today).y, D.parse(today).m); const left = dim - D.parse(today).d;
+  return `<div class="greet"><div><h2>${esc(g)}${name ? ', ' + esc(name) : ''}.</h2><div class="sub">${esc(dateStr)} · ${left === 0 ? 'last day of the month' : left + ' day' + (left === 1 ? '' : 's') + ' left in ' + D.MONTHS_LONG[d.getMonth()]}</div></div></div>`;
+}
+function insightsHtml(month) {
+  const out = []; const today = D.today(); const thisMonth = D.thisMonth();
+  const add = (icon, cls, title, sub, view) => out.push(`<div class="insight" ${view ? `data-action="goto" data-view="${view}" style="cursor:pointer"` : ''}><div class="ic ${cls}">${icon}</div><div><b>${title}</b><span>${sub}</span></div></div>`);
+  // next pay day
+  const pays = state.income.filter(i => i.active !== false).map(i => ({ i, d: nextDue(i, today) })).filter(x => x.d).sort((a, b) => a.d < b.d ? -1 : 1);
+  if (pays.length) { const days = D.daysBetween(today, pays[0].d); add('💵', 'good', days === 0 ? 'Pay day is today' : `Pay day in ${days} day${days === 1 ? '' : 's'}`, `${esc(pays[0].i.source)} · ${fmt(pays[0].i.amount)} on ${esc(D.dateLabel(pays[0].d))}`, 'income'); }
+  // budget pace
+  const budgets = state.budgets.filter(b => b.month === thisMonth); const planned = sum(budgets, b => b.planned);
+  if (planned > 0) { const spent = sum(Object.values(categoryActuals(thisMonth))); const { y, m, d } = D.parse(today); const pctMonth = d / D.dim(y, m) * 100; const pctBud = spent / planned * 100; add('🎯', pctBud > pctMonth + 10 ? 'warn' : 'good', `${fmtPct(pctBud)} of budget used`, `with ${fmtPct(pctMonth)} of the month gone${pctBud > pctMonth + 10 ? ' — a little ahead of pace' : pctBud < pctMonth - 10 ? ' — nicely under pace' : ' — right on track'}`, 'budget'); }
+  // biggest category swing between the last two complete months
+  const m1 = month < thisMonth ? month : D.addMonths(thisMonth, -1), m0 = D.addMonths(m1, -1);
+  const cur = categoryActuals(m1), prev = categoryActuals(m0);
+  let best = null; for (const c of Object.keys(cur)) { if ((prev[c] || 0) < 50 || cur[c] < 50) continue; const ch = (cur[c] - prev[c]) / prev[c] * 100; if (!best || Math.abs(ch) > Math.abs(best.ch)) best = { c, ch }; }
+  if (best && Math.abs(best.ch) >= 15) add(best.ch > 0 ? '📈' : '📉', best.ch > 0 ? 'warn' : 'good', `${esc(best.c)} ${best.ch > 0 ? 'up' : 'down'} ${Math.abs(best.ch).toFixed(0)}% in ${esc(D.monthLabel(m1))}`, `${fmt0(cur[best.c])} vs ${fmt0(prev[best.c])} in ${esc(D.monthLabel(m0))}`, 'transactions');
+  // bills due this week
+  const wk = billItems().flatMap(b => occurrences(b, today, D.addDays(today, 7)).filter(d => !isBillPaid(D.monthOf(d), b.id)).map(d => ({ b, d })));
+  if (wk.length) add('📅', 'info', `${wk.length} bill${wk.length === 1 ? '' : 's'} due in the next 7 days`, `${fmt(sum(wk, x => x.b.amount))} · first: ${esc(wk.sort((a, b) => a.d < b.d ? -1 : 1)[0].b.name)}`, 'bills');
+  // subscriptions annual
+  const subs = state.subs.filter(x => x.active !== false); if (subs.length >= 2) add('🔁', '', `${subs.length} subscriptions cost ${fmt0(sum(subs, x => annualAmount(subAsRecurring(x))))} a year`, `${fmt0(sum(subs, x => monthlyEquivalent(subAsRecurring(x))))} a month on average`, 'bills');
+  // debt
+  if (state.debts.some(d => num(d.currentBalance) > 0)) { const sim = simulateDebt(state.debts, ui.debtStrategy, num(S().debtExtraPool), thisMonth); const other = simulateDebt(state.debts, ui.debtStrategy === 'snowball' ? 'avalanche' : 'snowball', num(S().debtExtraPool), thisMonth); add('💳', sim.neverPaysOff ? 'bad' : 'info', sim.neverPaysOff ? 'Current payments never clear your debt' : `Debt-free by ${esc(D.monthLabel(sim.debtFreeMonth))}`, sim.neverPaysOff ? 'Add an extra monthly payment to see a date' : `${sim.monthsToDebtFree} months · ${fmt0(sim.totalInterest)} interest${other.totalInterest < sim.totalInterest - 1 ? ` · ${ui.debtStrategy === 'snowball' ? 'avalanche' : 'snowball'} saves ${fmt0(sim.totalInterest - other.totalInterest)}` : ''}`, 'debt'); }
+  // emergency fund
+  if (state.goals.length || state.accounts.some(a => a.type === 'savings')) { const avg = avgMonthlyExpenses(3); if (avg > 0) { const ef = state.goals.find(g => /emergency/i.test(g.name)); const have = ef ? num(ef.current) : sum(state.accounts.filter(a => a.type === 'savings' || a.type === 'cash'), a => a.balance); const mo = have / avg; add('🛟', mo >= (S().emergencyMonths || 3) ? 'good' : mo >= 1 ? 'warn' : 'bad', `Emergency fund covers ${mo.toFixed(1)} month${mo >= 1.05 || mo < 0.95 ? 's' : ''}`, `target ${S().emergencyMonths || 3} months of expenses`, 'savings'); } }
+  // goal about to complete
+  const near = state.goals.map(g => ({ g, p: goalProjection(g, thisMonth) })).filter(x => x.p.pct >= 80 && x.p.pct < 100).sort((a, b) => b.p.pct - a.p.pct)[0];
+  if (near) add('🏁', 'good', `${esc(near.g.name)} is ${fmtPct(near.p.pct)} there`, `${fmt(near.p.remaining)} to go${near.p.projectedMonth ? ' · done by ' + esc(D.monthLabel(near.p.projectedMonth)) : ''}`, 'savings');
+  if (!out.length) return '';
+  return `<div class="insights">${out.slice(0, 4).join('')}</div>`;
+}
+function firstSteps() {
+  const exported = !!storage.get(LS_LAST_EXPORT);
+  return [
+    { key: 'income', icon: '💵', title: 'Add your income', sub: 'Salary, wages, side income — with its real pay frequency.', done: state.income.length > 0, action: 'incomeAdd', label: '+ Income' },
+    { key: 'bills', icon: '📅', title: 'Add bills & subscriptions', sub: 'The calendar and safe-to-spend build from these.', done: state.bills.length + state.subs.length > 0, action: 'billAdd', label: '+ Bill' },
+    { key: 'accounts', icon: '🏦', title: 'Add your accounts', sub: 'Current balances for checking, savings, cards.', done: state.accounts.length > 0, action: 'accountAdd', label: '+ Account' },
+    { key: 'budget', icon: '🎯', title: 'Set a simple budget', sub: 'A few categories is enough to start.', done: state.budgets.some(b => b.month === D.thisMonth()), action: 'goto', view: 'budget', label: 'Open budget' },
+    { key: 'txn', icon: '🧾', title: 'Log your first expense', sub: 'Or import a CSV from your bank.', done: state.txns.some(t => !t.billRef), action: 'txnAdd', label: '+ Expense' },
+    { key: 'backup', icon: '🛡️', title: 'Protect your data', sub: backupFile.supported ? 'Link a backup file — every change is saved to it.' : 'Export a JSON backup you can restore anywhere.', done: backupFile.status === 'linked' || exported, action: 'goto', view: 'settings', label: 'Set up backup' },
+  ];
+}
+function firstStepsHtml() {
+  if (S().checklistDismissed) return '';
+  const steps = firstSteps(); const done = steps.filter(s => s.done).length;
+  const next = steps.find(s => !s.done);
+  if (done === steps.length) return `<div class="callout good mb flex between flex-wrap"><span>🎉 <b>You're all set up.</b> Every first step is done — the dashboard is yours.</span><button class="btn sm" data-action="checklistDismiss">Hide this</button></div>`;
+  return `<div class="steps-card">
+    <div class="steps-head"><div><div class="kicker tiny" style="letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:4px">Your first steps</div><h3 style="font-size:20px">${next ? esc('Next: ' + next.title.toLowerCase()) : 'All done'}</h3><div class="small muted mt-s">Do these in order and every page comes alive. ${done} of ${steps.length} done.</div></div>
+      <div class="flex"><button class="btn sm ghost" data-action="help">Tour</button><button class="btn sm ghost" data-action="checklistDismiss" title="Hide">×</button></div></div>
+    ${progressBar(done / steps.length * 100, 'accent thin')}
+    <div class="steps-list">${steps.map((st, i) => `<div class="step-item ${st.done ? 'done' : ''} ${st === next ? 'next' : ''}"><div class="n">${st.done ? '✓' : i + 1}</div><div class="grow"><b>${st.icon} ${esc(st.title)}</b><span>${esc(st.sub)}</span>${st.done ? '' : `<button class="btn sm ${st === next ? 'accent' : ''}" data-action="${st.action}" ${st.view ? `data-view="${st.view}"` : ''}>${esc(st.label)}</button>`}</div></div>`).join('')}</div>
+  </div>`;
+}
+
 // ================= OVERVIEW =================
 views.overview = {
   title: 'Overview',
@@ -27,14 +89,15 @@ views.overview = {
     const sm = monthSummary(month);
     const nw = netWorth();
     const hasData = state.txns.length || state.income.length || state.bills.length || state.accounts.length;
-    if (!hasData) return emptyBox('Welcome to your dashboard', 'Add income, bills and a few transactions to bring this page to life — or load the sample data from Settings to explore.', `<button class="btn primary" data-action="openWizard">Run setup</button> <button class="btn" data-action="loadSample">Load sample data</button>`);
+    const top = greetingHtml() + insightsHtml(month) + firstStepsHtml();
+    if (!hasData) return top;
     const sts = safeToSpend(month);
     const months12 = D.monthsBetween(D.addMonths(month, -11), month);
     const trend = months12.map(monthSummary);
     const firstTxnMonth = state.txns.length ? state.txns.reduce((a, t) => t.month < a ? t.month : a, '9999') : month;
     const gap = (m, v) => m < firstTxnMonth && m < S().startMonth ? null : v;
     const cats = categoryActuals(month);
-    const catSlices = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }));
+    const catSlices = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([label, value], i) => ({ label, value, color: PALETTE[(i + 1) % PALETTE.length] }));
     const billCats = new Set(billItems().map(b => b.category));
     let fixed = 0, variable = 0;
     for (const t of expenseTxnsInMonth(month)) for (const s of t.splits) { if (t.billRef || billCats.has(s.category)) fixed += num(s.amount); else variable += num(s.amount); }
@@ -49,9 +112,9 @@ views.overview = {
       const expInc = { p1: 0, p2: 0, joint: 0 }; for (const i of state.income) expInc[i.owner || 'p1'] += amountInMonth(i, month);
       const row = (k) => `<tr><td>${ownerChip(k)}</td><td class="right num">${fmt(incBy[k])}</td><td class="right num muted">${fmt(expInc[k])}</td><td class="right num">${fmt(expBy[k])}</td><td class="right num ${signCls(incBy[k] - expBy[k])}">${fmt(incBy[k] - expBy[k], { sign: true })}</td><td class="right num">${sm.income ? fmtPct(incBy[k] / sm.income * 100) : '—'}</td></tr>`;
       coupleHtml = `<div class="card"><div class="card-head"><h3>Household split</h3><span class="tiny muted">${esc(D.monthLabel(month))}</span></div><div class="table-wrap"><table><thead><tr><th>Person</th><th class="right">Income</th><th class="right">Expected</th><th class="right">Expenses</th><th class="right">Net</th><th class="right">Share of income</th></tr></thead><tbody>${['p1', 'p2', 'joint'].map(row).join('')}</tbody></table></div>
-        <div class="grid grid-2 mt"><div><div class="tiny muted mb-s">CONTRIBUTION BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: incBy.p1, color: '#5b7a8c' }, { label: S().person2Name, value: incBy.p2, color: '#8b6f8e' }, { label: 'Joint', value: incBy.joint, color: '#7a8f6a' }] })}</div><div><div class="tiny muted mb-s">EXPENSES BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: expBy.p1, color: '#5b7a8c' }, { label: S().person2Name, value: expBy.p2, color: '#8b6f8e' }, { label: 'Joint', value: expBy.joint, color: '#7a8f6a' }] })}</div></div></div>`;
+        <div class="grid grid-2 mt"><div><div class="tiny muted mb-s">CONTRIBUTION BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: incBy.p1, color: C.p1 }, { label: S().person2Name, value: incBy.p2, color: C.p2 }, { label: 'Joint', value: incBy.joint, color: C.joint }] })}</div><div><div class="tiny muted mb-s">EXPENSES BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: expBy.p1, color: C.p1 }, { label: S().person2Name, value: expBy.p2, color: C.p2 }, { label: 'Joint', value: expBy.joint, color: C.joint }] })}</div></div></div>`;
     }
-    return `
+    return top + `
       <div class="grid grid-5">
         ${kpi('Income', fmt0(sm.income), `Expected ${fmt0(sm.expectedIncome)}`)}
         ${kpi('Expenses', fmt0(sm.expenses), `Bills & subs due ${fmt0(sm.expectedBills)}`)}
@@ -61,7 +124,7 @@ views.overview = {
       </div>
       <div class="grid grid-3 mt">
         <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Income vs expenses</h3><span class="tiny muted">Last 12 months · recorded transactions</span></div>
-          ${svgLineChart({ labels: months12.map(m => D.MONTHS[D.parse(m).m - 1]), series: [{ name: 'Income', color: '#7a8f6a', points: trend.map(t => gap(t.month, t.income)), area: true }, { name: 'Expenses', color: '#b8643a', points: trend.map(t => gap(t.month, t.expenses)), area: true }], height: 230 })}
+          ${svgLineChart({ labels: months12.map(m => D.MONTHS[D.parse(m).m - 1]), series: [{ name: 'Income', color: C.good, points: trend.map(t => gap(t.month, t.income)), area: true }, { name: 'Expenses', color: C.accent, points: trend.map(t => gap(t.month, t.expenses)), area: true }], height: 230 })}
         </div>
         <div class="card"><div class="card-head"><h3>Safe to spend</h3><span class="chip">estimate</span></div>
           <div class="kpi" style="padding:0"><div class="v ${signCls(sts.result)}">${fmt0(sts.result)}</div><div class="s">${month === D.thisMonth() ? 'For the rest of this month' : 'For ' + D.monthLabel(month)}</div></div>
@@ -75,8 +138,8 @@ views.overview = {
         </div>
       </div>
       <div class="grid grid-3 mt">
-        <div class="card"><div class="card-head"><h3>Spending by category</h3></div>${svgDonut({ slices: catSlices.slice(0, 8).concat(catSlices.length > 8 ? [{ label: 'Other categories', value: sum(catSlices.slice(8), s => s.value), color: '#c9c2b2' }] : []), centre: fmt0(sm.expenses), centreLabel: 'spent' })}</div>
-        <div class="card"><div class="card-head"><h3>Fixed vs variable</h3></div>${svgDonut({ size: 130, slices: [{ label: 'Fixed (bills & subs)', value: fixed, color: '#2a2824' }, { label: 'Variable', value: variable, color: '#b8643a' }] })}
+        <div class="card"><div class="card-head"><h3>Spending by category</h3></div>${svgDonut({ slices: catSlices.slice(0, 8).concat(catSlices.length > 8 ? [{ label: 'Other categories', value: sum(catSlices.slice(8), s => s.value), color: C.rest }] : []), centre: fmt0(sm.expenses), centreLabel: 'spent' })}</div>
+        <div class="card"><div class="card-head"><h3>Fixed vs variable</h3></div>${svgDonut({ size: 130, slices: [{ label: 'Fixed (bills & subs)', value: fixed, color: C.ink }, { label: 'Variable', value: variable, color: C.accent }] })}
           <div class="tiny muted mt">Fixed = payments marked paid from Bills, or in a bill category.</div></div>
         <div class="card"><div class="card-head"><h3>Due in the next 14 days</h3><button class="btn sm ghost" data-action="goto" data-view="bills">All bills</button></div>
           ${upcoming.length ? `<table class="small"><tbody>${upcoming.slice(0, 8).map(u => `<tr class="${u.paid ? 'row-muted' : ''}"><td class="nowrap">${esc(D.dateLabel(u.date).slice(0, 6))}</td><td>${esc(u.name)}${u.isSub ? ' <span class="tiny muted">sub</span>' : ''} ${ownerChip(u.owner)}</td><td class="right num">${u.paid ? '<span class="chip good">paid</span>' : fmt(u.amount)}</td></tr>`).join('')}</tbody></table>` : '<div class="muted small">Nothing due in the next two weeks.</div>'}
@@ -176,8 +239,8 @@ function openTxnForm(txn) {
       { key: 'date', label: 'Date', type: 'date', required: true },
       { key: 'description', label: 'Description', type: 'text', required: true, full: true, placeholder: 'e.g. Weekly groceries' },
       ownerField(),
-      { key: 'paymentMethod', label: 'Paid from', type: 'select', options: paymentOptions() },
-      { key: 'notes', label: 'Notes', type: 'text', full: true },
+      { key: 'paymentMethod', label: 'Paid from', type: 'select', options: paymentOptions(), advanced: true },
+      { key: 'notes', label: 'Notes', type: 'text', full: true, advanced: true },
     ],
     extraHtml: splitsEditorHtml, readExtra: readSplits,
     onInput: (vals, form) => { const t = form.querySelector('#splitTotal'); if (t) t.textContent = fmt(sum(vals.splits, s => s.amount)); },
@@ -332,9 +395,9 @@ function openBillForm(bill) {
       { key: 'amount', label: 'Amount', type: 'number', required: true, min: 0 },
       ...frequencyFields(),
       { key: 'dueDay', label: 'Due day of month', type: 'number', step: '1', min: 1, max: 31, show: v => stepOf(v).unit !== 'week', hint: 'Days past the month end (e.g. 31 in February) fall on the last day.' },
-      { key: 'startDate', label: 'Start date', type: 'date', required: true, hint: 'Weekly items repeat from this date. Monthly items start on the first due day on or after it.' },
-      { key: 'endDate', label: 'End date (optional)', type: 'date' },
-      { key: 'active', label: 'Active', type: 'checkbox', full: true },
+      { key: 'startDate', label: 'Start date', type: 'date', required: true, hint: 'Weekly items repeat from this date. Monthly items start on the first due day on or after it.', advanced: v => stepOf(v).unit !== 'week' },
+      { key: 'endDate', label: 'End date (optional)', type: 'date', advanced: true },
+      { key: 'active', label: 'Active', type: 'checkbox', full: true, advanced: true },
     ],
     onSave: vals => {
       const rec = Object.assign({ id: bill ? bill.id : uid() }, vals, { amount: round2(num(vals.amount)), owner: vals.owner || 'p1' });
@@ -355,9 +418,9 @@ function openSubForm(sub) {
       { key: 'amount', label: 'Amount per renewal', type: 'number', required: true, min: 0 },
       { key: 'billingCycle', label: 'Billing cycle', type: 'select', options: [{ v: 'weekly', l: 'Weekly' }, { v: 'monthly', l: 'Monthly' }, { v: 'quarterly', l: 'Quarterly' }, { v: 'semiannual', l: 'Every 6 months' }, { v: 'annual', l: 'Annual' }], required: true },
       { key: 'renewalDate', label: 'Next renewal date', type: 'date', required: true, hint: 'Future renewals repeat from this date.' },
-      { key: 'startDate', label: 'Started (optional)', type: 'date', hint: 'Lets past months show this subscription.' },
-      { key: 'endDate', label: 'Cancel date (optional)', type: 'date' },
-      { key: 'active', label: 'Active', type: 'checkbox', full: true },
+      { key: 'startDate', label: 'Started (optional)', type: 'date', hint: 'Lets past months show this subscription.', advanced: true },
+      { key: 'endDate', label: 'Cancel date (optional)', type: 'date', advanced: true },
+      { key: 'active', label: 'Active', type: 'checkbox', full: true, advanced: true },
     ],
     onSave: vals => {
       const rec = Object.assign({ id: sub ? sub.id : uid() }, vals, { amount: round2(num(vals.amount)), owner: vals.owner || 'p1' });

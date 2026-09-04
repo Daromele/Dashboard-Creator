@@ -21,11 +21,13 @@ qs.append(f"""
 <li><b>Double-click <span class="k">Personal_Finance_Dashboard.html</span></b> It opens in your default browser. Chrome or Edge give the best experience (they support automatic backup); Firefox and Safari work too.</li>
 <li><b>Bookmark it</b> Press Ctrl+D / Cmd+D so it's one click away next time.</li>
 </ol>
-<h2>2. Three-step setup</h2>
+<h2>2. Setup, tour and first steps</h2>
 <p>The first time you open it, a short wizard asks:</p>
 <ul><li><b>Who is it for?</b> Just you, or a couple. Couple mode tags everything to a person (or "joint") and adds per-person breakdowns. You can switch later in Settings.</li>
 <li><b>Currency and start month.</b> The currency only changes the symbol and number format.</li>
+<li><b>Pick a look.</b> Six colour themes, including two dark ones. The dots at the bottom of the sidebar switch themes any time.</li>
 <li><b>Sample data or empty?</b> Choose <b>Load the sample household</b> to explore with six months of realistic data. You can wipe it from Settings whenever you're ready.</li></ul>
+<p>A short <b>welcome tour</b> follows (arrow keys or swipe to move; re-open it with the <b>?</b> button). Each slide has a "do this now" button that opens the right form. The Overview then shows <b>Your first steps</b>, a six-item checklist that ticks itself off as you go and always points at the next thing to do.</p>
 {shot('overview.jpg', 'The Overview after loading the sample household.')}
 """)
 qs.append(f"""
@@ -40,7 +42,8 @@ qs.append(f"""
 </ol>
 <h2>4. Day to day</h2>
 <div class="two">
-<div class="box"><b>Log spending</b> Transactions → <b>+ Add</b>. Split one receipt across categories with <b>+ Add split</b>. Or <b>Import CSV</b> from your bank — duplicates are flagged automatically.</div>
+<div class="box"><b>Add anything with one button</b> The <b>+ Add</b> button top-right (or press <b>N</b>) adds an expense, income, bill, subscription, account, goal or debt from any page. Forms show the essentials; click <b>More options</b> for the rest.</div>
+<div class="box"><b>Log spending</b> Split one receipt across categories with <b>+ Add split</b>. Or <b>Import CSV</b> from your bank — duplicates are flagged automatically.</div>
 <div class="box"><b>Tick bills as paid</b> In Bills & Subscriptions, tick the <b>Paid</b> box for the month. That records the payment as a transaction, so the budget and safe-to-spend update instantly.</div>
 <div class="box"><b>Change the month</b> Use ‹ › in the top bar, or click the month name to jump. Every page follows it.</div>
 <div class="box"><b>Print a report</b> Reports → <b>Print / Save PDF</b> for a monthly or annual summary.</div>
@@ -98,6 +101,12 @@ ug.append(f"""
 <tr><td>Emergency fund target</td><td>Months of expenses the emergency-fund gauge aims for.</td></tr>
 <tr><td>Count subscriptions in bill totals</td><td>Whether subscriptions appear in the bills totals, calendar and safe-to-spend.</td></tr>
 <tr><td>Spendable account types</td><td>Which account types count as "available" money for safe-to-spend (default: checking and cash).</td></tr></table>
+<h3>Appearance</h3>
+<p>Six themes: Cream, Charcoal (dark), Midnight (dark navy), Sage, Blush and Slate. Choose one in Settings → Appearance, from the dots at the bottom of the sidebar, or during setup. Charts, chips and every page follow the theme. Tick <b>Follow my device's light / dark setting</b> to switch automatically between Cream and Charcoal. Reports always print in black on white.</p>
+<h3>The welcome tour and first steps</h3>
+<p>The tour (the <b>?</b> button, or Settings → Welcome tour) is seven short slides: what the dashboard does, then income, bills, accounts, budget, everyday logging and backup, each with a button that opens the relevant form. The <b>Your first steps</b> card on the Overview tracks the same six steps and highlights the next one; hide it with × once you're done.</p>
+<h3>Quick add and simpler forms</h3>
+<p>The <b>+ Add</b> button in the top bar (keyboard: <b>N</b>) opens one chooser for every kind of record. Every form shows only the essential fields; <b>More options</b> reveals the rest (end dates, notes, committed extra payments, and so on). Existing values in those fields expand the section automatically when editing.</p>
 <h3>Categories</h3>
 <p>Add, rename or remove spending categories in Settings. Renaming updates every existing transaction, budget, bill and subscription. Removing a category keeps its transactions (they show as "unbudgeted").</p>
 {shot('settings.jpg', 'Settings: household, currency, planning, categories, backup and data.')}
@@ -116,6 +125,8 @@ ug.append(f"""
 <div class="box"><b>Safe to spend =</b> balances of spendable accounts − bills & subscriptions still due (not yet ticked paid, due today or later) − monthly goal contributions − safety buffer</div>
 <p>For past or future months the "still due" figure covers the whole month. It is labelled an estimate because it relies on the balances you entered being current.</p>
 {shot('safe-to-spend.jpg', 'The safe-to-spend card shows every component of the calculation.')}
+<h3>Insights</h3>
+<p>Up to four short statements at the top of the Overview, computed from your data: days until the next pay day, budget used versus month elapsed, the biggest category swing between the last two complete months, bills due in the next seven days, annual subscription cost, your debt-free date (and which strategy saves more), emergency-fund cover, and any goal that is almost funded. Click one to jump to the page behind it.</p>
 <h3>Other Overview cards</h3>
 <ul><li><b>Income vs expenses</b> — recorded transactions for the last 12 months.</li>
 <li><b>Spending by category</b> — the month's expenses; more than eight categories are grouped as "Other categories".</li>

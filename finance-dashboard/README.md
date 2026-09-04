@@ -17,7 +17,7 @@ Single-file, offline personal finance manager sold as a digital download (Design
 | File | Purpose |
 |---|---|
 | `listing/etsy-listing.txt` | Title, 13 keywords, plain-text description. |
-| `listing/finance-dashboard-etsy-mockups.html` | 12 screenshot-ready 1500×1125 slides, editable copy. Open in Chrome, DevTools → capture node screenshot per `<section class="slide">`. |
+| `listing/finance-dashboard-etsy-mockups.html` | 13 screenshot-ready 1500×1125 slides, editable copy. Open in Chrome, DevTools → capture node screenshot per `<section class="slide">`. |
 | `listing/assets/` | Product screenshots used by the deck and guides. |
 
 ## Development
@@ -50,6 +50,9 @@ Engine self-tests also run in-app (Settings → Run self-tests) or by opening th
 - **Multi-year data**: no cap. Reports pick any year that has data.
 
 ### Notes
+
+- Six colour themes (`THEMES` in `dev/app_core.js`) drive CSS variables and the chart palette; `auto` follows the OS light/dark setting.
+- First-run flow: 4-step wizard (household, currency, theme, data) → 7-slide welcome tour → "Your first steps" checklist on the Overview. Quick add (`N`) is the single entry point for every record type; forms fold non-essential fields under "More options".
 
 - Bill "paid" ticks create a linked expense transaction (and remove it when unticked), so budget, savings rate, reports and safe-to-spend stay consistent.
 - Savings rate counts outflows in the "Savings" category as saved, not spent.
