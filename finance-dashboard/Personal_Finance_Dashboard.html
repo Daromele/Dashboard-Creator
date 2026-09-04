@@ -37,7 +37,7 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-5{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1100px){.grid-5{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}}
-@media(max-width:480px){.grid-4,.grid-5{grid-template-columns:1fr}}
+@media(max-width:480px){.grid-4,.grid-5{grid-template-columns:1fr 1fr;gap:10px}.kpi{padding:12px 14px}.kpi .v{font-size:21px}.kpi .s{font-size:11px}}
 
 /* Layout */
 #app{display:flex;min-height:100vh}
@@ -940,7 +940,7 @@ const backupFile = {
       const same = JSON.stringify(a) === JSON.stringify(b) && parsed.savedAt === state.savedAt;
       if (same) { this.lastVerified = new Date(); await idb.set('lkg', text); await idb.set('lkgAt', state.savedAt); }
       else { this.status = 'error'; this.lastError = 'Verification mismatch'; toast('Backup verification failed — the file on disk does not match. Export a manual JSON backup.', 'bad', 9000); }
-    } catch (e) { this.status = 'error'; this.lastError = 'Verify: ' + e.message; toast('Could not verify backup file: ' + e.message, 'bad'); }
+    } catch (e) { this.status = 'error'; this.lastError = 'Verify: ' + e.message; toast('Backup verification failed — the file on disk could not be read back. Export a manual JSON backup.', 'bad', 9000); }
   },
   async checkStale() {
     try {
@@ -1082,7 +1082,7 @@ function openForm(cfg) {
   form.addEventListener('input', e => {
     read();
     const t = e.target.name;
-    if (fields.some(f => f.show) && fields.find(f => f.key === t) && fields.some(f => f.show && !f._static)) {
+    if (fields.some(f => f.show) && fields.find(f => f.key === t) && (e.target.tagName === 'SELECT' || e.target.type === 'checkbox')) {
       // re-render visibility only (keep focus)
       const active = document.activeElement && document.activeElement.name;
       const grid = form.querySelector('#formGrid'); grid.innerHTML = body();
@@ -1978,7 +1978,7 @@ views.settings = {
         </div>
         <div class="card"><div class="card-head"><h3>Planning</h3></div>
           <div class="form-grid">
-            <div class="field"><label>Tracking starts</label><input type="month" value="${attr(s.startMonth)}" data-change="setting" data-key="startMonth"><div class="hint">Budget rollover chains don't reach before this month.</div></div>
+            <div class="field"><label>Tracking starts</label><input type="month" value="${attr(s.startMonth)}" placeholder="YYYY-MM" data-change="setting" data-key="startMonth"><div class="hint">Budget rollover chains don't reach before this month.</div></div>
             <div class="field"><label>Safety buffer</label><input type="number" step="1" min="0" value="${s.safetyBuffer}" data-change="setting" data-key="safetyBuffer" data-num="1"><div class="hint">Subtracted from safe-to-spend.</div></div>
             <div class="field"><label>Budget rollover</label><select data-change="setting" data-key="budgetRollover"><option value="off"${s.budgetRollover === 'off' ? ' selected' : ''}>Off — each month stands alone</option><option value="surplus"${s.budgetRollover === 'surplus' ? ' selected' : ''}>Surplus only — unspent money carries forward</option><option value="full"${s.budgetRollover === 'full' ? ' selected' : ''}>Full — overspend reduces next month too</option></select></div>
             <div class="field"><label>Emergency fund target</label><select data-change="setting" data-key="emergencyMonths" data-num="1">${[1, 2, 3, 4, 6, 9, 12].map(n => `<option value="${n}"${s.emergencyMonths === n ? ' selected' : ''}>${n} month${n > 1 ? 's' : ''} of expenses</option>`).join('')}</select></div>
@@ -2203,7 +2203,7 @@ function openWizard() {
       <div class="form-grid mt"><div class="field"><label>Your name</label><input type="text" name="p1" value="${attr(vals.p1)}" placeholder="e.g. Alex" maxlength="24"></div><div class="field" id="wizP2" ${vals.mode === 'couple' ? '' : 'style="display:none"'}><label>Partner's name</label><input type="text" name="p2" value="${attr(vals.p2)}" placeholder="e.g. Sam" maxlength="24"></div></div>`,
     () => `<h2>Currency and start month</h2><p class="muted mt-s">The currency only changes how amounts are displayed — nothing is converted.</p>
       <div class="form-grid mt"><div class="field"><label>Currency</label><select name="currency">${CURRENCIES.filter(c => c.code !== 'CUSTOM').map(c => `<option value="${c.code}"${c.code === vals.currency ? ' selected' : ''}>${c.code} · ${esc(c.name)}</option>`).join('')}</select><div class="hint">Need a different symbol? Pick "Custom" in Settings.</div></div>
-      <div class="field"><label>Tracking starts</label><input type="month" name="startMonth" value="${attr(vals.startMonth)}"><div class="hint">Budgets and rollover chains begin here.</div></div></div>`,
+      <div class="field"><label>Tracking starts</label><input type="month" name="startMonth" value="${attr(vals.startMonth)}" placeholder="YYYY-MM"><div class="hint">Budgets and rollover chains begin here.</div></div></div>`,
     () => `<h2>Start with sample data?</h2><p class="muted mt-s">The sample household (Alex & Sam) has six months of realistic transactions, bills, debts and goals so you can see every page working. Replace it with your own data whenever you're ready — or start empty.</p>
       <div class="choice mt">${hasData ? `<label><input type="radio" name="data" value="keep" ${vals.data === 'keep' ? 'checked' : ''}><b>Keep my data</b><span>Apply the settings above to what's already here.</span></label>` : ''}<label><input type="radio" name="data" value="sample" ${vals.data === 'sample' ? 'checked' : ''}><b>Load the sample household</b><span>Explore with realistic data${hasData ? ' — <b>replaces</b> what is here now' : ''}.</span></label><label><input type="radio" name="data" value="empty" ${vals.data === 'empty' ? 'checked' : ''}><b>Start empty</b><span>Add your own income, bills and accounts.${hasData ? ' <b>Erases</b> current data.' : ''}</span></label></div>
       <div class="callout mt small">Tip: after setup, add your <b>income</b> and <b>bills</b> first — the overview, calendar and safe-to-spend all build from those.</div>`,

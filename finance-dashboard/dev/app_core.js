@@ -270,7 +270,7 @@ const backupFile = {
       const same = JSON.stringify(a) === JSON.stringify(b) && parsed.savedAt === state.savedAt;
       if (same) { this.lastVerified = new Date(); await idb.set('lkg', text); await idb.set('lkgAt', state.savedAt); }
       else { this.status = 'error'; this.lastError = 'Verification mismatch'; toast('Backup verification failed — the file on disk does not match. Export a manual JSON backup.', 'bad', 9000); }
-    } catch (e) { this.status = 'error'; this.lastError = 'Verify: ' + e.message; toast('Could not verify backup file: ' + e.message, 'bad'); }
+    } catch (e) { this.status = 'error'; this.lastError = 'Verify: ' + e.message; toast('Backup verification failed — the file on disk could not be read back. Export a manual JSON backup.', 'bad', 9000); }
   },
   async checkStale() {
     try {
@@ -412,7 +412,7 @@ function openForm(cfg) {
   form.addEventListener('input', e => {
     read();
     const t = e.target.name;
-    if (fields.some(f => f.show) && fields.find(f => f.key === t) && fields.some(f => f.show && !f._static)) {
+    if (fields.some(f => f.show) && fields.find(f => f.key === t) && (e.target.tagName === 'SELECT' || e.target.type === 'checkbox')) {
       // re-render visibility only (keep focus)
       const active = document.activeElement && document.activeElement.name;
       const grid = form.querySelector('#formGrid'); grid.innerHTML = body();

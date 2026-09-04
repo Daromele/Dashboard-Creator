@@ -356,7 +356,7 @@ views.settings = {
         </div>
         <div class="card"><div class="card-head"><h3>Planning</h3></div>
           <div class="form-grid">
-            <div class="field"><label>Tracking starts</label><input type="month" value="${attr(s.startMonth)}" data-change="setting" data-key="startMonth"><div class="hint">Budget rollover chains don't reach before this month.</div></div>
+            <div class="field"><label>Tracking starts</label><input type="month" value="${attr(s.startMonth)}" placeholder="YYYY-MM" data-change="setting" data-key="startMonth"><div class="hint">Budget rollover chains don't reach before this month.</div></div>
             <div class="field"><label>Safety buffer</label><input type="number" step="1" min="0" value="${s.safetyBuffer}" data-change="setting" data-key="safetyBuffer" data-num="1"><div class="hint">Subtracted from safe-to-spend.</div></div>
             <div class="field"><label>Budget rollover</label><select data-change="setting" data-key="budgetRollover"><option value="off"${s.budgetRollover === 'off' ? ' selected' : ''}>Off — each month stands alone</option><option value="surplus"${s.budgetRollover === 'surplus' ? ' selected' : ''}>Surplus only — unspent money carries forward</option><option value="full"${s.budgetRollover === 'full' ? ' selected' : ''}>Full — overspend reduces next month too</option></select></div>
             <div class="field"><label>Emergency fund target</label><select data-change="setting" data-key="emergencyMonths" data-num="1">${[1, 2, 3, 4, 6, 9, 12].map(n => `<option value="${n}"${s.emergencyMonths === n ? ' selected' : ''}>${n} month${n > 1 ? 's' : ''} of expenses</option>`).join('')}</select></div>
