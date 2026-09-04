@@ -126,15 +126,15 @@ views.overview = {
         <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Income vs expenses</h3><span class="tiny muted">Last 12 months · recorded transactions</span></div>
           ${svgLineChart({ labels: months12.map(m => D.MONTHS[D.parse(m).m - 1]), series: [{ name: 'Income', color: C.good, points: trend.map(t => gap(t.month, t.income)), area: true }, { name: 'Expenses', color: C.accent, points: trend.map(t => gap(t.month, t.expenses)), area: true }], height: 230 })}
         </div>
-        <div class="card"><div class="card-head"><h3>Safe to spend</h3><span class="chip">estimate</span></div>
-          <div class="kpi" style="padding:0"><div class="v ${signCls(sts.result)}">${fmt0(sts.result)}</div><div class="s">${month === D.thisMonth() ? 'For the rest of this month' : 'For ' + D.monthLabel(month)}</div></div>
+        <div class="card inverse"><div class="card-head"><h3>Safe to spend</h3><span class="chip">estimate</span></div>
+          <div class="kpi" style="padding:0"><div class="v ${sts.result >= 0 ? 'good' : ''}" style="font-size:34px">${fmt0(sts.result)}</div><div class="s">${month === D.thisMonth() ? 'For the rest of this month' : 'For ' + D.monthLabel(month)}</div></div>
           <table class="small mt"><tbody>
             <tr><td>Available in ${sts.accounts.length} spendable account${sts.accounts.length === 1 ? '' : 's'}</td><td class="right num">${fmt(sts.available)}</td></tr>
-            <tr><td>Bills & subs still due (${sts.upcomingList.length})</td><td class="right num bad">−${fmt(sts.upcomingBills)}</td></tr>
-            <tr><td>Goal contributions</td><td class="right num bad">−${fmt(sts.goals)}</td></tr>
-            <tr><td>Safety buffer</td><td class="right num bad">−${fmt(sts.buffer)}</td></tr>
+            <tr><td>Bills & subs still due (${sts.upcomingList.length})</td><td class="right num dim">−${fmt(sts.upcomingBills)}</td></tr>
+            <tr><td>Goal contributions</td><td class="right num dim">−${fmt(sts.goals)}</td></tr>
+            <tr><td>Safety buffer</td><td class="right num dim">−${fmt(sts.buffer)}</td></tr>
           </tbody></table>
-          <div class="tiny muted mt-s">Spendable accounts: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'}. <a href="#" data-action="goto" data-view="settings" data-anchor="planning">Change in Settings</a>.</div>
+          <div class="tiny mt-s dim">Spendable: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'} · <a href="#" data-action="goto" data-view="settings" data-anchor="planning">change</a></div>
         </div>
       </div>
       <div class="grid grid-3 mt">
@@ -147,10 +147,10 @@ views.overview = {
       </div>
       <div class="grid grid-2 mt">
         <div class="card"><div class="card-head"><h3>Budget snapshot</h3><button class="btn sm ghost" data-action="goto" data-view="budget" data-anchor="table">Open budget</button></div>
-          ${budgets.length ? budgets.map(b => `<div class="mb-s"><div class="flex between small"><span>${esc(b.cat)}</span><span class="num ${b.actual > b.planned ? 'bad' : ''}">${fmt0(b.actual)} / ${fmt0(b.planned)}</span></div>${progressBar(b.actual / b.planned * 100, b.actual > b.planned ? 'over thin' : b.actual > b.planned * 0.85 ? 'warn thin' : 'thin')}</div>`).join('') : `<div class="muted small">No budget set for ${esc(D.monthLabel(month))}.</div>`}
+          ${budgets.length ? budgets.map(b => `<div class="mini"><div class="mini-head"><span class="l"><span>${esc(b.cat)}</span></span><span class="v ${b.actual > b.planned ? 'bad' : ''}">${fmt0(b.actual)} <span class="muted">/ ${fmt0(b.planned)}</span></span></div>${progressBar(b.actual / b.planned * 100, b.actual > b.planned ? 'over' : b.actual > b.planned * 0.85 ? 'warn' : '')}</div>`).join('') : `<div class="muted small">No budget set for ${esc(D.monthLabel(month))}.</div>`}
         </div>
         <div class="card"><div class="card-head"><h3>Goals</h3><button class="btn sm ghost" data-action="goto" data-view="savings" data-anchor="goals">All goals</button></div>
-          ${goals.length ? goals.map(g => { const p = goalProjection(g, D.thisMonth()); return `<div class="mb-s"><div class="flex between small"><span>${esc(g.name)} ${ownerChip(g.owner)} ${p.behind ? '<span class="chip warn">behind</span>' : ''}</span><span class="num">${fmt0(g.current)} / ${fmt0(g.target)}</span></div>${progressBar(p.pct, 'accent thin')}</div>`; }).join('') : '<div class="muted small">No savings goals yet.</div>'}
+          ${goals.length ? goals.map(g => { const p = goalProjection(g, D.thisMonth()); return `<div class="mini"><div class="mini-head"><span class="l"><span>${esc(g.name)}</span>${ownerChip(g.owner)}${p.behind ? '<span class="chip warn">behind</span>' : ''}</span><span class="v">${fmt0(g.current)} <span class="muted">/ ${fmt0(g.target)}</span></span></div>${progressBar(p.pct, 'accent')}</div>`; }).join('') : '<div class="muted small">No savings goals yet.</div>'}
         </div>
       </div>
       ${coupleHtml ? `<div class="mt">${coupleHtml}</div>` : ''}`;

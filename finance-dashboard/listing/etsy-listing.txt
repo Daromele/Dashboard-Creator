@@ -29,7 +29,7 @@ WHAT YOU'LL GET:
 • Reports: monthly and annual summaries, best and worst months, category totals, print-to-PDF layout
 • Couple mode with per-person breakdowns (also works perfectly for one person)
 • Enter recurring things once: income posts itself on every pay day, bills can auto-tick on their due date, and your budget carries into each new month
-• Six colour themes including two dark modes - switch with one click
+• Six colour themes including two dark modes, plus eight tab icons - switch with one click
 • Welcome tour and a guided first-steps checklist so you always know what to do next
 • One "Add" button for everything, with simple forms that hide the advanced options until you need them
 • Smart insights on the overview: next pay day, budget pace, biggest category change, debt-free date, emergency cover

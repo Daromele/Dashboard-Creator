@@ -47,6 +47,7 @@ const actions = {
   openWizard: () => openWizard(),
   help: () => openTour(),
   setTheme: d => { commit(s => { s.settings.theme = d.theme; }, { silent: true }); applyTheme(); render(); toast(`${THEMES[d.theme].name} theme`, 'default', 1500); },
+  setIcon: d => { commit(s => { s.settings.icon = d.icon; }, { silent: true }); applyIcon(); render(); },
   checklistDismiss: () => commit(s => { s.settings.checklistDismissed = true; }),
   quickAdd: () => {
     const items = [['💸', 'Expense', 'Something you spent', 'txnAdd'], ['💵', 'Income received', 'Pay that landed', 'txnAddIncome'], ['📅', 'Bill', 'Rent, utilities, insurance', 'billAdd'], ['🔁', 'Subscription', 'Streaming, gym, software', 'subAdd'], ['🏦', 'Account', 'Checking, savings, card', 'accountAdd'], ['🎯', 'Savings goal', 'Holiday, deposit, fund', 'goalAdd'], ['💳', 'Debt', 'Card, loan, mortgage', 'debtAdd'], ['💼', 'Income source', 'Salary or regular income', 'incomeAdd'], ['📥', 'Import CSV', 'From your bank', 'csvImport']];
@@ -107,8 +108,8 @@ const changes = {
   themeAuto: el => { commit(s => { s.settings.theme = el.checked ? 'auto' : currentThemeId(); }, { silent: true }); applyTheme(); render(); },
   setting: el => { const k = el.dataset.key; const v = el.type === 'checkbox' ? el.checked : el.dataset.num ? num(el.value) : el.value; commit(s => { s.settings[k] = v; }); },
   spendable: el => commit(s => { const set = new Set(s.settings.spendableTypes || []); if (el.checked) set.add(el.dataset.type); else set.delete(el.dataset.type); s.settings.spendableTypes = [...set]; }),
-  currency: el => { const c = CURRENCIES.find(x => x.code === el.value); commit(s => { s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; buildFormatter(); }); },
-  currencySymbol: el => commit(s => { s.settings.currency.symbol = el.value; buildFormatter(); }),
+  currency: el => { const c = CURRENCIES.find(x => x.code === el.value); commit(s => { s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; buildFormatter(); }); applyIcon(); },
+  currencySymbol: el => { commit(s => { s.settings.currency.symbol = el.value; buildFormatter(); }); applyIcon(); },
   importJson: async el => {
     const file = el.files[0]; if (!file) return;
     let parsed; try { parsed = JSON.parse(await file.text()); } catch (e) { toast('That file is not valid JSON', 'bad'); return; }
@@ -140,7 +141,7 @@ function loadSampleData() {
   const s = blankState(); const set = s.settings;
   set.householdMode = 'couple'; set.person1Name = 'Alex'; set.person2Name = 'Sam'; set.onboarded = true;
   set.currency = Object.assign({}, state && state.settings.currency || { code: 'USD', symbol: '$', locale: 'en-US' });
-  if (state) { set.theme = state.settings.theme; set.tourSeen = state.settings.tourSeen; }
+  if (state) { set.theme = state.settings.theme; set.icon = state.settings.icon; set.tourSeen = state.settings.tourSeen; }
   const now = D.thisMonth(); const start = D.addMonths(now, -6); set.startMonth = start; set.safetyBuffer = 300; set.budgetRollover = 'surplus'; set.emergencyMonths = 3; set.debtExtraPool = 200;
   const monthStartDate = D.monthStart(start);
   const id = () => uid();
@@ -209,7 +210,7 @@ function loadSampleData() {
 
 // ---------- First-run wizard ----------
 function openWizard() {
-  let step = 0; const vals = { mode: S().householdMode, p1: S().person1Name === 'Me' ? '' : S().person1Name, p2: S().person2Name === 'Partner' ? '' : S().person2Name, currency: S().currency.code, startMonth: S().startMonth || D.thisMonth(), theme: currentThemeId(), data: (state.txns.length || state.bills.length) ? 'keep' : 'sample' };
+  let step = 0; const vals = { mode: S().householdMode, p1: S().person1Name === 'Me' ? '' : S().person1Name, p2: S().person2Name === 'Partner' ? '' : S().person2Name, currency: S().currency.code, startMonth: S().startMonth || D.thisMonth(), theme: currentThemeId(), icon: S().icon || 'coin', data: (state.txns.length || state.bills.length) ? 'keep' : 'sample' };
   const hasData = !!(state.txns.length || state.bills.length || state.income.length);
   const steps = [
     () => `<h2>Welcome to your Finance Dashboard</h2><p class="muted mt-s">Three quick questions, then you're in. Everything you enter stays in this browser — there's no account, no upload and no bank connection. You can change all of this later in Settings.</p>
@@ -218,7 +219,7 @@ function openWizard() {
     () => `<h2>Currency and start month</h2><p class="muted mt-s">The currency only changes how amounts are displayed — nothing is converted.</p>
       <div class="form-grid mt"><div class="field"><label>Currency</label><select name="currency">${CURRENCIES.filter(c => c.code !== 'CUSTOM').map(c => `<option value="${c.code}"${c.code === vals.currency ? ' selected' : ''}>${c.code} · ${esc(c.name)}</option>`).join('')}</select><div class="hint">Need a different symbol? Pick "Custom" in Settings.</div></div>
       <div class="field"><label>Tracking starts</label><input type="month" name="startMonth" value="${attr(vals.startMonth)}" placeholder="YYYY-MM"><div class="hint">Budgets and rollover chains begin here.</div></div></div>`,
-    () => `<h2>Pick a look</h2><p class="muted mt-s">Six colour themes, including two dark ones. Change it any time from the dots in the sidebar.</p><div class="mt">${themeCardsHtml(vals.theme, 'data-wiz-theme')}</div>`,
+    () => `<h2>Pick a look</h2><p class="muted mt-s">Six colour themes, including two dark ones. Change it any time from the dots in the sidebar.</p><div class="mt">${themeCardsHtml(vals.theme, 'data-wiz-theme')}</div><div class="field mt" style="margin-bottom:0"><label>Tab icon</label>${iconRowHtml(vals.icon, 'data-wiz-icon')}</div>`,
     () => `<h2>Start with sample data?</h2><p class="muted mt-s">The sample household (Alex & Sam) has six months of realistic transactions, bills, debts and goals so you can see every page working. Replace it with your own data whenever you're ready — or start empty.</p>
       <div class="choice mt">${hasData ? `<label><input type="radio" name="data" value="keep" ${vals.data === 'keep' ? 'checked' : ''}><b>Keep my data</b><span>Apply the settings above to what's already here.</span></label>` : ''}<label><input type="radio" name="data" value="sample" ${vals.data === 'sample' ? 'checked' : ''}><b>Load the sample household</b><span>Explore with realistic data${hasData ? ' — <b>replaces</b> what is here now' : ''}.</span></label><label><input type="radio" name="data" value="empty" ${vals.data === 'empty' ? 'checked' : ''}><b>Start empty</b><span>Add your own income, bills and accounts.${hasData ? ' <b>Erases</b> current data.' : ''}</span></label></div>
       <div class="callout mt small">Tip: after setup, add your <b>income</b> and <b>bills</b> first — the overview, calendar and safe-to-spend all build from those.</div>`,
@@ -228,15 +229,17 @@ function openWizard() {
   const read = () => { body.querySelectorAll('input,select').forEach(el => { if (el.type === 'radio') { if (el.checked) vals[el.name] = el.value; } else vals[el.name] = el.value; }); };
   const draw = () => { body.innerHTML = steps[step](); m.bg.querySelector('#wizSteps').innerHTML = steps.map((_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join(''); m.bg.querySelector('#wizBack').style.visibility = step ? 'visible' : 'hidden'; m.bg.querySelector('#wizNext').textContent = step === steps.length - 1 ? 'Finish' : 'Next'; };
   body.addEventListener('change', e => { read(); if (e.target.name === 'mode') { const p2 = body.querySelector('#wizP2'); if (p2) p2.style.display = vals.mode === 'couple' ? '' : 'none'; } });
-  body.addEventListener('click', e => { const b = e.target.closest('[data-wiz-theme]'); if (!b) return; vals.theme = b.dataset.wizTheme; state.settings.theme = vals.theme; applyTheme(); body.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.dataset.wizTheme === vals.theme)); });
+  body.addEventListener('click', e => {
+    const ic = e.target.closest('[data-wiz-icon]'); if (ic) { vals.icon = ic.dataset.wizIcon; state.settings.icon = vals.icon; applyIcon(); body.querySelectorAll('.icon-opt').forEach(c => c.classList.toggle('active', c.dataset.wizIcon === vals.icon)); return; }
+    const b = e.target.closest('[data-wiz-theme]'); if (!b) return; vals.theme = b.dataset.wizTheme; state.settings.theme = vals.theme; applyTheme(); body.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.dataset.wizTheme === vals.theme)); body.querySelectorAll('.icon-opt').forEach(c => { c.innerHTML = appIconSvg(c.dataset.wizIcon, THEMES[vals.theme].vars.accent, 24); }); });
   m.bg.querySelector('#wizBack').addEventListener('click', () => { read(); step = Math.max(0, step - 1); draw(); });
   m.bg.querySelector('#wizNext').addEventListener('click', () => {
     read();
     if (step < steps.length - 1) { step++; draw(); return; }
     m.close();
-    const apply = s => { s.settings.theme = vals.theme; s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim() || (vals.mode === 'couple' ? 'Person 1' : 'Me'); s.settings.person2Name = vals.p2.trim() || 'Partner'; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (/^\d{4}-\d{2}$/.test(vals.startMonth)) s.settings.startMonth = vals.startMonth; s.settings.onboarded = true; };
+    const apply = s => { s.settings.theme = vals.theme; s.settings.icon = vals.icon; s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim() || (vals.mode === 'couple' ? 'Person 1' : 'Me'); s.settings.person2Name = vals.p2.trim() || 'Partner'; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (/^\d{4}-\d{2}$/.test(vals.startMonth)) s.settings.startMonth = vals.startMonth; s.settings.onboarded = true; };
     // With the sample household, keep its couple setup and start month unless the user typed their own names.
-    const applySample = s => { s.settings.theme = vals.theme; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (vals.p1.trim()) { s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim(); s.settings.person2Name = vals.p2.trim() || 'Partner'; } s.settings.onboarded = true; };
+    const applySample = s => { s.settings.theme = vals.theme; s.settings.icon = vals.icon; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (vals.p1.trim()) { s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim(); s.settings.person2Name = vals.p2.trim() || 'Partner'; } s.settings.onboarded = true; };
     if (vals.data === 'sample') { loadSampleData(); commit(applySample); }
     else if (vals.data === 'empty') { state = blankState(); commit(apply); }
     else commit(apply);

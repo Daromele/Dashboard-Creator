@@ -77,7 +77,7 @@ function defaultSettings() {
     householdMode: 'single', person1Name: 'Me', person2Name: 'Partner',
     currency: { code: 'USD', symbol: '$', locale: 'en-US' },
     startMonth: D.thisMonth(), safetyBuffer: 0, budgetRollover: 'off', includeSubsInBills: true,
-    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true,
+    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', icon: 'coin', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true,
   };
 }
 function blankState() {
@@ -398,6 +398,7 @@ function applyTheme() {
   root.dataset.theme = id; root.classList.toggle('dark', t.dark);
   const meta = document.querySelector('meta[name=color-scheme]'); if (meta) meta.content = t.dark ? 'dark' : 'light';
   PALETTE = t.chart.slice(); C = Object.assign({}, t.series);
+  applyIcon();
   const dots = document.getElementById('themeDots');
   if (dots) dots.innerHTML = Object.entries(THEMES).map(([k, th]) => `<span class="theme-dot ${k === id ? 'active' : ''}" style="--dot-bg:${th.vars.bg};--dot-accent:${th.vars.accent}" title="${th.name}" data-action="setTheme" data-theme="${k}"></span>`).join('');
 }
@@ -405,6 +406,33 @@ function themeCardsHtml(selected, attrName) {
   return `<div class="theme-grid">${Object.entries(THEMES).map(([k, t]) => `<button type="button" class="theme-card ${selected === k ? 'active' : ''}" ${attrName}="${k}" style="background:${t.vars.surface};color:${t.vars.ink};border-color:${selected === k ? t.vars.accent : t.vars.line}">
     <div class="prev" style="background:${t.vars.bg}"><i style="width:34%;height:44px;background:${t.vars.surface};border:1px solid ${t.vars.line}"></i><i style="width:22%;height:30px;background:${t.vars.accent}"></i><i style="width:22%;height:22px;background:${t.vars.good}"></i><i style="width:22%;height:36px;background:${t.vars.ink}"></i></div>
     <div class="nm">${t.name}<span style="color:${t.vars.muted}">${t.tag}</span></div></button>`).join('')}</div>`;
+}
+
+
+// ---------- App icon / favicon ----------
+const APP_ICONS = {
+  coin:   { name: 'Coin',    glyph: c => `<circle cx="12" cy="12" r="7.5" fill="none" stroke="#fff" stroke-width="2"/><text x="12" y="16" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="${(c || '$').length > 1 ? 7 : 11}" fill="#fff">${esc((c || '$').slice(0, 3))}</text>` },
+  bars:   { name: 'Chart',   glyph: () => `<rect x="4" y="12" width="4" height="8" rx="1" fill="#fff"/><rect x="10" y="7" width="4" height="13" rx="1" fill="#fff"/><rect x="16" y="4" width="4" height="16" rx="1" fill="#fff"/>` },
+  leaf:   { name: 'Leaf',    glyph: () => `<path d="M5 19C5 10 10 5 19 5c0 9-5 14-14 14z" fill="#fff"/><path d="M6 18l8-8" stroke="rgba(0,0,0,.25)" stroke-width="1.6" stroke-linecap="round"/>` },
+  home:   { name: 'Home',    glyph: () => `<path d="M4 11.5L12 4l8 7.5V20h-5v-6H9v6H4z" fill="#fff"/>` },
+  heart:  { name: 'Heart',   glyph: () => `<path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z" fill="#fff"/>` },
+  star:   { name: 'Star',    glyph: () => `<path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 17l-5.4 2.8 1.1-6.1L3.2 9.4l6.1-.8z" fill="#fff"/>` },
+  wallet: { name: 'Wallet',  glyph: () => `<rect x="3" y="6" width="18" height="13" rx="2.5" fill="#fff"/><rect x="14" y="10.5" width="7" height="5" rx="1.5" fill="rgba(0,0,0,.3)"/><circle cx="17" cy="13" r="1" fill="#fff"/>` },
+  spark:  { name: 'Sparkle', glyph: () => `<path d="M12 2c.6 5.4 4.6 9.4 10 10-5.4.6-9.4 4.6-10 10-.6-5.4-4.6-9.4-10-10 5.4-.6 9.4-4.6 10-10z" fill="#fff"/>` },
+};
+function appIconSvg(id, bg, size) {
+  const ic = APP_ICONS[id] || APP_ICONS.coin; const sym = (state && S().currency.symbol) || '$';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size || 64}" height="${size || 64}"><rect width="24" height="24" rx="6" fill="${bg}"/>${ic.glyph(sym)}</svg>`;
+}
+function applyIcon() {
+  const id = (state && state.settings.icon) || 'coin'; const t = THEMES[currentThemeId()];
+  const svg = appIconSvg(id, t.vars.accent, 64);
+  const link = document.getElementById('favicon'); if (link) link.href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  const logo = document.getElementById('brandLogo'); if (logo) logo.innerHTML = appIconSvg(id, 'transparent', 22);
+}
+function iconRowHtml(selected, attrName) {
+  const t = THEMES[currentThemeId()];
+  return `<div class="icon-row">${Object.entries(APP_ICONS).map(([k, ic]) => `<button type="button" class="icon-opt ${k === selected ? 'active' : ''}" ${attrName}="${k}" title="${ic.name}">${appIconSvg(k, t.vars.accent, 24)}</button>`).join('')}</div>`;
 }
 
 // ---------- Formatting ----------

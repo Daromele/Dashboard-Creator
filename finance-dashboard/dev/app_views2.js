@@ -98,17 +98,17 @@ views.savings = {
         ${kpi('Monthly contributions', fmt0(monthly), 'across active goals')}
         ${kpi('Emergency cover', `${covered.toFixed(1)} mo`, `target ${efMonths} months`, covered >= efMonths ? 'good' : covered >= 1 ? 'warn' : 'bad')}
       </div>
-      <div class="grid grid-3 mt">
+      <div class="grid grid-3 mt" style="gap:20px">
         <div style="grid-column:span 2">
           <div class="flex between mb"><h2>Goals</h2><button class="btn primary" data-action="goalAdd">+ Add goal</button></div>
           ${goals.length ? `<div class="grid grid-2" data-anchor="goals">${goals.map(g => { const p = goalProjection(g, D.thisMonth()); const done = p.remaining === 0 && num(g.target) > 0; return `<div class="card">
             <div class="flex between"><div><h3>${esc(g.name)}</h3><div class="tiny muted mt-s">${ownerChip(g.owner)} <span class="chip ${g.priority === 'high' ? 'bad' : g.priority === 'low' ? '' : 'warn'}">${esc(g.priority || 'medium')} priority</span> ${done ? '<span class="chip good">complete</span>' : p.behind ? '<span class="chip warn">behind schedule</span>' : ''}</div></div><button class="btn sm ghost icon" data-action="goalEdit" data-id="${g.id}">✎</button></div>
-            <div class="mt"><div class="flex between small"><b class="num">${fmt(g.current)}</b><span class="muted num">${fmt(g.target)}</span></div>${progressBar(p.pct, done ? '' : 'accent')}<div class="flex between tiny muted mt-s"><span>${fmtPct(p.pct)} complete</span><span>${fmt(p.remaining)} to go</span></div></div>
+            <div class="mini mt" style="margin-bottom:0"><div class="mini-head"><b class="num">${fmt(g.current)}</b><span class="muted num">${fmt(g.target)}</span></div>${progressBar(p.pct, done ? '' : 'accent')}<div class="flex between tiny muted" style="margin-top:6px"><span>${fmtPct(p.pct)} complete</span><span>${fmt(p.remaining)} to go</span></div></div>
             <table class="small mt"><tbody>
               <tr><td class="muted">Monthly contribution</td><td class="right num">${fmt(g.monthlyContribution)}</td></tr>
-              <tr><td class="muted">Projected completion</td><td class="right">${done ? 'Done' : p.projectedMonth ? D.monthLabel(p.projectedMonth) + ` <span class="tiny muted">(${p.monthsNeeded} mo)</span>` : '<span class="warn">No contribution set</span>'}</td></tr>
-              ${g.targetDate ? `<tr><td class="muted">Target date</td><td class="right ${p.behind ? 'bad' : 'good'}">${esc(D.dateLabel(g.targetDate))}</td></tr>` : ''}
-              ${p.behind && p.requiredMonthly ? `<tr><td class="muted">Needed per month to hit target</td><td class="right num bad">${fmt(p.requiredMonthly)}</td></tr>` : ''}
+              <tr><td class="muted">Projected finish</td><td class="right nowrap">${done ? 'Done' : p.projectedMonth ? D.monthLabel(p.projectedMonth) + ` <span class="tiny muted">· ${p.monthsNeeded} mo</span>` : '<span class="warn">No contribution set</span>'}</td></tr>
+              ${g.targetDate ? `<tr><td class="muted">Target date</td><td class="right nowrap ${p.behind ? 'bad' : 'good'}">${esc(D.dateLabel(g.targetDate))}</td></tr>` : ''}
+              ${p.behind && p.requiredMonthly ? `<tr><td class="muted">Needed per month</td><td class="right num bad">${fmt(p.requiredMonthly)}</td></tr>` : ''}
             </tbody></table>
             <div class="mt-s flex"><button class="btn sm" data-action="goalAddAmount" data-id="${g.id}">+ Add to savings</button></div></div>`; }).join('')}</div>` : emptyBox('No goals yet', 'Emergency fund, holiday, new car, house deposit — give every pound a purpose.', '<button class="btn primary" data-action="goalAdd">+ Add a goal</button>')}
         </div>
@@ -207,7 +207,7 @@ views.debt = {
       <div class="grid grid-3" data-anchor="debts">${debts.sort((a, b) => (cur.payoffByDebt[a.id] || '9999') < (cur.payoffByDebt[b.id] || '9999') ? -1 : 1).map(d => { const orig = Math.max(num(d.originalBalance), num(d.currentBalance)); const paid = orig - num(d.currentBalance); const payoff = cur.payoffByDebt[d.id]; const firstMonth = cur.schedule[0] && cur.schedule[0].perDebt[d.id]; const interestOnDebt = round2(sum(cur.schedule, s => s.perDebt[d.id] ? s.perDebt[d.id].interest : 0)); return `<div class="card">
         <div class="flex between"><div><h3>${esc(d.name)}</h3><div class="tiny muted mt-s">${esc(d.debtType || '')} ${ownerChip(d.owner)}</div></div><button class="btn sm ghost icon" data-action="debtEdit" data-id="${d.id}">✎</button></div>
         <div class="kpi mt" style="padding:0"><div class="v">${fmt(d.currentBalance)}</div><div class="s">${fmtPct(d.apr, 2)} APR · min ${fmt(d.minPayment)}${num(d.extraPayment) ? ` + ${fmt(d.extraPayment)} extra` : ''}</div></div>
-        <div class="mt-s">${progressBar(orig ? paid / orig * 100 : 0, 'ink thin')}<div class="flex between tiny muted mt-s"><span>${fmtPct(orig ? paid / orig * 100 : 0)} paid off</span><span>of ${fmt(orig)}</span></div></div>
+        <div class="mt">${progressBar(orig ? paid / orig * 100 : 0, 'ink thin')}<div class="flex between tiny muted" style="margin-top:6px"><span>${fmtPct(orig ? paid / orig * 100 : 0)} paid off</span><span>of ${fmt(orig)}</span></div></div>
         <table class="small mt"><tbody>
           <tr><td class="muted">Paid off</td><td class="right">${payoff ? D.monthLabel(payoff) : '<span class="bad">never</span>'}</td></tr>
           <tr><td class="muted">This month's payment</td><td class="right num">${firstMonth ? fmt(firstMonth.payment) : '—'}</td></tr>
@@ -345,7 +345,7 @@ views.settings = {
       <div class="mt-s"><button class="btn sm ghost" data-action="restoreLkg">Restore last verified copy…</button> <span class="tiny muted">A separate verified copy is kept inside the browser in case the file on disk is damaged.</span></div>`
       : `<div><b>Manual backup only in this browser.</b><div class="tiny muted mt-s">Automatic file backup needs Chrome or Edge. Here, export a JSON backup regularly — you'll get a reminder every ${REMIND_EVERY_SESSIONS} sessions (${sessions} so far).</div></div>`;
     return `
-      <div class="grid grid-2">
+      <div class="masonry">
         <div class="card" data-anchor="household"><div class="card-head"><h3>Household</h3></div>
           <div class="field"><label>Mode</label><div class="seg"><button class="${!isCouple() ? 'active' : ''}" data-action="setMode" data-mode="single">Just me</button><button class="${isCouple() ? 'active' : ''}" data-action="setMode" data-mode="couple">Couple</button></div><div class="hint">Couple mode adds an owner to every income, bill, debt, goal and transaction, with per-person breakdowns. Switching back hides the owner — nothing is deleted.</div></div>
           <div class="form-grid"><div class="field"><label>${isCouple() ? 'Person 1' : 'Your name'}</label><input type="text" value="${attr(s.person1Name)}" data-change="setting" data-key="person1Name" maxlength="24"></div>${isCouple() ? `<div class="field"><label>Person 2</label><input type="text" value="${attr(s.person2Name)}" data-change="setting" data-key="person2Name" maxlength="24"></div>` : ''}</div>
@@ -370,6 +370,7 @@ views.settings = {
           <div class="hint mt-s">Renaming a category updates existing transactions and budgets. Removing one keeps the transactions but they show as unbudgeted.</div>
         </div>
       </div>
+      <div style="height:0"></div>
       <div class="card mt" data-anchor="automation"><div class="card-head"><h3>Automation</h3><span class="tiny muted">Enter recurring things once</span></div>
         <div class="grid grid-3">
           <label class="check" style="align-items:flex-start"><input type="checkbox" data-change="setting" data-key="autoPostIncome" ${s.autoPostIncome !== false ? 'checked' : ''}><span><b>Post income on pay day</b><div class="tiny muted">Each income source creates its own income transaction on every pay date (from your tracking start month). Delete one and that pay day stays deleted.</div></span></label>
@@ -380,6 +381,7 @@ views.settings = {
       <div class="card mt" data-anchor="appearance"><div class="card-head"><h3>Appearance</h3><span class="tiny muted">Pick a colour theme — charts and every page follow it</span></div>
         ${themeCardsHtml(s.theme === 'auto' ? currentThemeId() : (s.theme || 'cream'), 'data-action="setTheme" data-theme')}
         <label class="check mt small"><input type="checkbox" data-change="themeAuto" ${s.theme === 'auto' ? 'checked' : ''}> Follow my device's light / dark setting (Cream by day, Charcoal at night)</label>
+        <div class="field mt" style="margin-bottom:0"><label>Tab icon</label>${iconRowHtml(s.icon || 'coin', 'data-action="setIcon" data-icon')}<div class="hint">Shows in the browser tab, bookmarks and the sidebar. The coin uses your currency symbol.</div></div>
       </div>
       <div class="card mt" data-anchor="backup"><div class="card-head"><h3>Automatic backup</h3><span class="chip ${bf.status === 'linked' ? 'good' : bf.status === 'needs-permission' || bf.status === 'error' ? 'warn' : ''}">${esc(bf.statusText())}</span></div>${backupHtml}</div>
       <div class="card mt" data-anchor="data"><div class="card-head"><h3>Your data</h3><span class="tiny muted">${state.savedAt ? 'Last saved ' + esc(fmtDateTime(state.savedAt)) : ''}</span></div>

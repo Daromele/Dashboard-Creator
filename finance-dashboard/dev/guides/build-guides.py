@@ -103,6 +103,8 @@ ug.append(f"""
 <tr><td>Spendable account types</td><td>Which account types count as "available" money for safe-to-spend (default: checking and cash).</td></tr></table>
 <h3>Appearance</h3>
 <p>Six themes: Cream, Charcoal (dark), Midnight (dark navy), Sage, Blush and Slate. Choose one in Settings → Appearance, from the dots at the bottom of the sidebar, or during setup. Charts, chips and every page follow the theme. Tick <b>Follow my device's light / dark setting</b> to switch automatically between Cream and Charcoal. Reports always print in black on white.</p>
+<h3>Tab icon</h3>
+<p>Choose one of eight icons for the browser tab, bookmarks and the sidebar logo, in Settings → Appearance or during setup. The coin icon shows your currency symbol, and every icon takes the accent colour of your theme.</p>
 <h3>The welcome tour and first steps</h3>
 <p>The tour (the <b>?</b> button, or Settings → Welcome tour) is seven short slides: what the dashboard does, then income, bills, accounts, budget, everyday logging and backup, each with a button that opens the relevant form. The <b>Your first steps</b> card on the Overview tracks the same six steps and highlights the next one; hide it with × once you're done.</p>
 <h3>Automation: enter recurring things once</h3>

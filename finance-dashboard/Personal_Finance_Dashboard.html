@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>Personal Finance Dashboard</title>
+<link rel="icon" id="favicon" href="data:,">
 <style>
 :root{
   --bg:#f5f0e6; --bg2:#ede6d8; --surface:#fffdf9; --surface2:#faf6ee; --line:#e4dccb; --line2:#d3c9b4;
@@ -32,9 +33,9 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .right{text-align:right}.center{text-align:center}
 .nowrap{white-space:nowrap}
 .hidden{display:none!important}
-.mt{margin-top:16px}.mb{margin-bottom:16px}.mt-s{margin-top:8px}.mb-s{margin-bottom:8px}.mt-l{margin-top:28px}
+.mt{margin-top:12px}.mb{margin-bottom:12px}.mt-s{margin-top:8px}.mb-s{margin-bottom:8px}.mt-l{margin-top:28px}
 .flex{display:flex;gap:10px;align-items:center}.flex-wrap{flex-wrap:wrap}.between{justify-content:space-between}.col{flex-direction:column;align-items:stretch}.grow{flex:1}
-.grid{display:grid;gap:16px}
+.grid{display:grid;gap:12px;align-items:start}.grid-4,.grid-5,.grid.stretch{align-items:stretch}
 .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-5{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1100px){.grid-5{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}}
@@ -44,7 +45,7 @@ input,select,textarea{font:inherit;color:var(--ink)}
 #app{display:flex;min-height:100vh}
 .sidebar{width:var(--sidebar);flex:0 0 var(--sidebar);background:var(--surface);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 14px;z-index:20}
 .brand{display:flex;align-items:center;gap:10px;padding:2px 8px 18px}
-.brand .logo{width:34px;height:34px;border-radius:10px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--serif);font-size:18px}
+.brand .logo{width:34px;height:34px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center}.brand .logo svg{width:22px;height:22px;display:block}
 .brand b{font-family:var(--serif);font-size:17px;font-weight:600;display:block;line-height:1.1}
 .brand span{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
 .nav{display:flex;flex-direction:column;gap:2px}
@@ -57,15 +58,15 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .backup-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--line2);flex:0 0 8px}
 .backup-pill.linked .dot{background:var(--good)}.backup-pill.needs-permission .dot{background:var(--warn)}.backup-pill.error .dot{background:var(--bad)}
 main{flex:1;min-width:0;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;gap:10px;padding:18px 32px 10px;position:sticky;top:0;background:linear-gradient(var(--bg) 80%,transparent);z-index:10}
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 28px 8px;position:sticky;top:0;background:linear-gradient(var(--bg) 80%,transparent);z-index:10}
 .topbar h1{flex:1;font-size:26px}
 .hamburger{display:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;width:40px;height:40px;cursor:pointer}
 .month-nav{display:flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px}
 .month-nav button{background:none;border:0;width:30px;height:30px;border-radius:7px;cursor:pointer;color:var(--ink2);font-size:16px}
 .month-nav button:hover{background:var(--surface2)}
 .month-nav input[type=month]{border:0;background:none;font-weight:600;padding:4px 6px;min-width:150px;text-align:center}
-.month-nav .lbl{font-weight:600;padding:0 8px;min-width:130px;text-align:center}
-#view{padding:8px 32px 48px;flex:1}
+.month-nav .lbl{font-weight:600;padding:0 8px;min-width:130px;text-align:center;white-space:nowrap;cursor:pointer}
+#view{padding:4px 28px 40px;flex:1}
 @media(max-width:900px){
   .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:transform .2s;box-shadow:var(--shadow)}
   .sidebar.open{transform:none}
@@ -76,15 +77,16 @@ main{flex:1;min-width:0;display:flex;flex-direction:column}
 }
 
 /* Cards */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow)}
+.card.inverse{background:var(--ink);color:var(--bg);border-color:var(--ink)}.card.inverse h3,.card.inverse .kpi .v,.card.inverse b{color:var(--bg)}.card.inverse .muted,.card.inverse .kpi .s,.card.inverse .tiny,.card.inverse .dim{color:var(--bg);opacity:.62}.card.inverse td{border-color:rgba(128,128,128,.28)}.card.inverse .chip{background:rgba(128,128,128,.28);color:var(--bg);border-color:transparent}.card.inverse a{color:var(--bg)}.card.inverse .good{color:var(--good)}.card.inverse .kpi .v.good{color:var(--good)}
 .card.flat{box-shadow:none}
-.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .card-head h3{font-size:17px}
-.kpi{padding:16px 18px}
+.kpi{padding:14px 18px}
 .kpi .k{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .kpi .v{font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.1}
 .kpi .s{font-size:12px;color:var(--muted);margin-top:6px}
-.section-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 12px}
+.section-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:22px 0 10px}
 .section-title h2{font-size:20px}
 .callout{padding:12px 16px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);font-size:14px}
 .callout.warn{background:var(--warn-soft);border-color:transparent}.callout.bad{background:var(--bad-soft);border-color:transparent}.callout.good{background:var(--good-soft);border-color:transparent}.callout.info{background:var(--info-soft);border-color:transparent}
@@ -112,7 +114,8 @@ main{flex:1;min-width:0;display:flex;flex-direction:column}
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+td .chip,th .chip{margin-left:4px;vertical-align:1px}
 tr:last-child td{border-bottom:0}
 tbody tr:hover{background:var(--surface2)}
 td.actions,th.actions{text-align:right;white-space:nowrap;width:1%}
@@ -131,8 +134,8 @@ textarea{min-height:70px;resize:vertical}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
 .form-grid .full{grid-column:1/-1}
 @media(max-width:560px){.form-grid{grid-template-columns:1fr}}
-.inline-input{border:1px solid transparent;background:transparent;border-radius:7px;padding:4px 6px;width:110px;text-align:right;font-variant-numeric:tabular-nums}
-.inline-input:hover,.inline-input:focus{border-color:var(--line2);background:var(--input)}
+input.inline-input{border:1px solid var(--line);background:var(--input);border-radius:7px;padding:4px 8px;width:104px;text-align:right;font-variant-numeric:tabular-nums;font-size:14px}
+input.inline-input:hover,input.inline-input:focus{border-color:var(--accent)}
 .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
 .filters input,.filters select{width:auto;min-width:120px}
 .filters input[type=search]{min-width:200px}
@@ -217,17 +220,18 @@ textarea{min-height:70px;resize:vertical}
 .theme-card .nm{padding:8px 12px;font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
 .theme-card .nm span{font-weight:400;color:var(--muted);font-size:11.5px}
 /* Greeting & insights */
-.greet{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin:4px 0 18px;flex-wrap:wrap}
+.greet{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin:2px 0 14px;flex-wrap:wrap}
 .greet h2{font-size:30px;font-weight:600}
 .greet .sub{color:var(--muted);font-size:14px;margin-top:4px}
-.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-bottom:18px}
-.insight{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow)}
+.insights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+@media(max-width:1100px){.insights{grid-template-columns:1fr 1fr}}@media(max-width:560px){.insights{grid-template-columns:1fr}}
+.insight{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 14px;min-width:0;box-shadow:var(--shadow)}
 .insight .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:18px;flex:0 0 38px;background:var(--accent-soft)}
 .insight .ic.good{background:var(--good-soft)}.insight .ic.warn{background:var(--warn-soft)}.insight .ic.info{background:var(--info-soft)}.insight .ic.bad{background:var(--bad-soft)}
 .insight b{display:block;font-size:14px;line-height:1.3}.insight span{font-size:12px;color:var(--muted)}
 /* First steps checklist */
-.steps-card{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--line);border-radius:18px;padding:22px 24px;box-shadow:var(--shadow);margin-bottom:20px;position:relative;overflow:hidden}
-.steps-card:before{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:var(--accent-soft);opacity:.7}
+.steps-card{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:14px;position:relative;overflow:hidden}
+.steps-card:before{content:"";position:absolute;right:-70px;bottom:-90px;width:220px;height:220px;border-radius:50%;background:var(--accent-soft);opacity:.55}
 .steps-card > *{position:relative}
 .steps-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
 .steps-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
@@ -239,6 +243,21 @@ textarea{min-height:70px;resize:vertical}
 .step-item.next .n{background:var(--accent);color:#fff;box-shadow:0 0 0 4px var(--accent-soft)}
 .step-item b{display:block;font-size:14px}.step-item span{font-size:12px;color:var(--muted);display:block;line-height:1.35}
 .step-item .btn{margin-top:8px}
+/* Masonry-ish card columns (settings) */
+.masonry{columns:2;column-gap:12px}.masonry>.card{break-inside:avoid;margin-bottom:12px;display:inline-block;width:100%;box-sizing:border-box}
+@media(max-width:900px){.masonry{columns:1}}
+/* Compact progress rows (goals, budget snapshot) */
+.mini{margin-bottom:13px}.mini:last-child{margin-bottom:0}
+.mini-head{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13.5px;margin-bottom:6px}
+.mini-head .l{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.mini-head .v{white-space:nowrap;font-variant-numeric:tabular-nums}
+.mini .bar{height:6px}
+/* Icon picker */
+.icon-row{display:flex;flex-wrap:wrap;gap:8px}
+.icon-opt{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;cursor:pointer;border:2px solid transparent;background:var(--surface2);padding:0}
+.icon-opt svg{width:24px;height:24px;display:block}
+.icon-opt.active{border-color:var(--accent);background:var(--accent-soft)}
+.icon-opt:hover{border-color:var(--line2)}
 /* Quick add */
 .qa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 @media(max-width:560px){.qa-grid{grid-template-columns:1fr 1fr}}
@@ -301,7 +320,7 @@ textarea{min-height:70px;resize:vertical}
 <body>
 <div id="app">
   <aside class="sidebar" id="sidebar">
-    <div class="brand"><div class="logo">₿</div><div><b>Finance Dashboard</b><span>Designs by Darowan</span></div></div>
+    <div class="brand"><div class="logo" id="brandLogo"></div><div><b>Finance Dashboard</b><span>Designs by Darowan</span></div></div>
     <nav class="nav" id="nav"></nav>
     <div class="side-foot">
       <div class="theme-dots" id="themeDots" title="Colour theme"></div>
@@ -838,7 +857,7 @@ function defaultSettings() {
     householdMode: 'single', person1Name: 'Me', person2Name: 'Partner',
     currency: { code: 'USD', symbol: '$', locale: 'en-US' },
     startMonth: D.thisMonth(), safetyBuffer: 0, budgetRollover: 'off', includeSubsInBills: true,
-    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true,
+    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', icon: 'coin', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true,
   };
 }
 function blankState() {
@@ -1159,6 +1178,7 @@ function applyTheme() {
   root.dataset.theme = id; root.classList.toggle('dark', t.dark);
   const meta = document.querySelector('meta[name=color-scheme]'); if (meta) meta.content = t.dark ? 'dark' : 'light';
   PALETTE = t.chart.slice(); C = Object.assign({}, t.series);
+  applyIcon();
   const dots = document.getElementById('themeDots');
   if (dots) dots.innerHTML = Object.entries(THEMES).map(([k, th]) => `<span class="theme-dot ${k === id ? 'active' : ''}" style="--dot-bg:${th.vars.bg};--dot-accent:${th.vars.accent}" title="${th.name}" data-action="setTheme" data-theme="${k}"></span>`).join('');
 }
@@ -1166,6 +1186,33 @@ function themeCardsHtml(selected, attrName) {
   return `<div class="theme-grid">${Object.entries(THEMES).map(([k, t]) => `<button type="button" class="theme-card ${selected === k ? 'active' : ''}" ${attrName}="${k}" style="background:${t.vars.surface};color:${t.vars.ink};border-color:${selected === k ? t.vars.accent : t.vars.line}">
     <div class="prev" style="background:${t.vars.bg}"><i style="width:34%;height:44px;background:${t.vars.surface};border:1px solid ${t.vars.line}"></i><i style="width:22%;height:30px;background:${t.vars.accent}"></i><i style="width:22%;height:22px;background:${t.vars.good}"></i><i style="width:22%;height:36px;background:${t.vars.ink}"></i></div>
     <div class="nm">${t.name}<span style="color:${t.vars.muted}">${t.tag}</span></div></button>`).join('')}</div>`;
+}
+
+
+// ---------- App icon / favicon ----------
+const APP_ICONS = {
+  coin:   { name: 'Coin',    glyph: c => `<circle cx="12" cy="12" r="7.5" fill="none" stroke="#fff" stroke-width="2"/><text x="12" y="16" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="${(c || '$').length > 1 ? 7 : 11}" fill="#fff">${esc((c || '$').slice(0, 3))}</text>` },
+  bars:   { name: 'Chart',   glyph: () => `<rect x="4" y="12" width="4" height="8" rx="1" fill="#fff"/><rect x="10" y="7" width="4" height="13" rx="1" fill="#fff"/><rect x="16" y="4" width="4" height="16" rx="1" fill="#fff"/>` },
+  leaf:   { name: 'Leaf',    glyph: () => `<path d="M5 19C5 10 10 5 19 5c0 9-5 14-14 14z" fill="#fff"/><path d="M6 18l8-8" stroke="rgba(0,0,0,.25)" stroke-width="1.6" stroke-linecap="round"/>` },
+  home:   { name: 'Home',    glyph: () => `<path d="M4 11.5L12 4l8 7.5V20h-5v-6H9v6H4z" fill="#fff"/>` },
+  heart:  { name: 'Heart',   glyph: () => `<path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z" fill="#fff"/>` },
+  star:   { name: 'Star',    glyph: () => `<path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 17l-5.4 2.8 1.1-6.1L3.2 9.4l6.1-.8z" fill="#fff"/>` },
+  wallet: { name: 'Wallet',  glyph: () => `<rect x="3" y="6" width="18" height="13" rx="2.5" fill="#fff"/><rect x="14" y="10.5" width="7" height="5" rx="1.5" fill="rgba(0,0,0,.3)"/><circle cx="17" cy="13" r="1" fill="#fff"/>` },
+  spark:  { name: 'Sparkle', glyph: () => `<path d="M12 2c.6 5.4 4.6 9.4 10 10-5.4.6-9.4 4.6-10 10-.6-5.4-4.6-9.4-10-10 5.4-.6 9.4-4.6 10-10z" fill="#fff"/>` },
+};
+function appIconSvg(id, bg, size) {
+  const ic = APP_ICONS[id] || APP_ICONS.coin; const sym = (state && S().currency.symbol) || '$';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size || 64}" height="${size || 64}"><rect width="24" height="24" rx="6" fill="${bg}"/>${ic.glyph(sym)}</svg>`;
+}
+function applyIcon() {
+  const id = (state && state.settings.icon) || 'coin'; const t = THEMES[currentThemeId()];
+  const svg = appIconSvg(id, t.vars.accent, 64);
+  const link = document.getElementById('favicon'); if (link) link.href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  const logo = document.getElementById('brandLogo'); if (logo) logo.innerHTML = appIconSvg(id, 'transparent', 22);
+}
+function iconRowHtml(selected, attrName) {
+  const t = THEMES[currentThemeId()];
+  return `<div class="icon-row">${Object.entries(APP_ICONS).map(([k, ic]) => `<button type="button" class="icon-opt ${k === selected ? 'active' : ''}" ${attrName}="${k}" title="${ic.name}">${appIconSvg(k, t.vars.accent, 24)}</button>`).join('')}</div>`;
 }
 
 // ---------- Formatting ----------
@@ -1552,15 +1599,15 @@ views.overview = {
         <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Income vs expenses</h3><span class="tiny muted">Last 12 months · recorded transactions</span></div>
           ${svgLineChart({ labels: months12.map(m => D.MONTHS[D.parse(m).m - 1]), series: [{ name: 'Income', color: C.good, points: trend.map(t => gap(t.month, t.income)), area: true }, { name: 'Expenses', color: C.accent, points: trend.map(t => gap(t.month, t.expenses)), area: true }], height: 230 })}
         </div>
-        <div class="card"><div class="card-head"><h3>Safe to spend</h3><span class="chip">estimate</span></div>
-          <div class="kpi" style="padding:0"><div class="v ${signCls(sts.result)}">${fmt0(sts.result)}</div><div class="s">${month === D.thisMonth() ? 'For the rest of this month' : 'For ' + D.monthLabel(month)}</div></div>
+        <div class="card inverse"><div class="card-head"><h3>Safe to spend</h3><span class="chip">estimate</span></div>
+          <div class="kpi" style="padding:0"><div class="v ${sts.result >= 0 ? 'good' : ''}" style="font-size:34px">${fmt0(sts.result)}</div><div class="s">${month === D.thisMonth() ? 'For the rest of this month' : 'For ' + D.monthLabel(month)}</div></div>
           <table class="small mt"><tbody>
             <tr><td>Available in ${sts.accounts.length} spendable account${sts.accounts.length === 1 ? '' : 's'}</td><td class="right num">${fmt(sts.available)}</td></tr>
-            <tr><td>Bills & subs still due (${sts.upcomingList.length})</td><td class="right num bad">−${fmt(sts.upcomingBills)}</td></tr>
-            <tr><td>Goal contributions</td><td class="right num bad">−${fmt(sts.goals)}</td></tr>
-            <tr><td>Safety buffer</td><td class="right num bad">−${fmt(sts.buffer)}</td></tr>
+            <tr><td>Bills & subs still due (${sts.upcomingList.length})</td><td class="right num dim">−${fmt(sts.upcomingBills)}</td></tr>
+            <tr><td>Goal contributions</td><td class="right num dim">−${fmt(sts.goals)}</td></tr>
+            <tr><td>Safety buffer</td><td class="right num dim">−${fmt(sts.buffer)}</td></tr>
           </tbody></table>
-          <div class="tiny muted mt-s">Spendable accounts: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'}. <a href="#" data-action="goto" data-view="settings" data-anchor="planning">Change in Settings</a>.</div>
+          <div class="tiny mt-s dim">Spendable: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'} · <a href="#" data-action="goto" data-view="settings" data-anchor="planning">change</a></div>
         </div>
       </div>
       <div class="grid grid-3 mt">
@@ -1573,10 +1620,10 @@ views.overview = {
       </div>
       <div class="grid grid-2 mt">
         <div class="card"><div class="card-head"><h3>Budget snapshot</h3><button class="btn sm ghost" data-action="goto" data-view="budget" data-anchor="table">Open budget</button></div>
-          ${budgets.length ? budgets.map(b => `<div class="mb-s"><div class="flex between small"><span>${esc(b.cat)}</span><span class="num ${b.actual > b.planned ? 'bad' : ''}">${fmt0(b.actual)} / ${fmt0(b.planned)}</span></div>${progressBar(b.actual / b.planned * 100, b.actual > b.planned ? 'over thin' : b.actual > b.planned * 0.85 ? 'warn thin' : 'thin')}</div>`).join('') : `<div class="muted small">No budget set for ${esc(D.monthLabel(month))}.</div>`}
+          ${budgets.length ? budgets.map(b => `<div class="mini"><div class="mini-head"><span class="l"><span>${esc(b.cat)}</span></span><span class="v ${b.actual > b.planned ? 'bad' : ''}">${fmt0(b.actual)} <span class="muted">/ ${fmt0(b.planned)}</span></span></div>${progressBar(b.actual / b.planned * 100, b.actual > b.planned ? 'over' : b.actual > b.planned * 0.85 ? 'warn' : '')}</div>`).join('') : `<div class="muted small">No budget set for ${esc(D.monthLabel(month))}.</div>`}
         </div>
         <div class="card"><div class="card-head"><h3>Goals</h3><button class="btn sm ghost" data-action="goto" data-view="savings" data-anchor="goals">All goals</button></div>
-          ${goals.length ? goals.map(g => { const p = goalProjection(g, D.thisMonth()); return `<div class="mb-s"><div class="flex between small"><span>${esc(g.name)} ${ownerChip(g.owner)} ${p.behind ? '<span class="chip warn">behind</span>' : ''}</span><span class="num">${fmt0(g.current)} / ${fmt0(g.target)}</span></div>${progressBar(p.pct, 'accent thin')}</div>`; }).join('') : '<div class="muted small">No savings goals yet.</div>'}
+          ${goals.length ? goals.map(g => { const p = goalProjection(g, D.thisMonth()); return `<div class="mini"><div class="mini-head"><span class="l"><span>${esc(g.name)}</span>${ownerChip(g.owner)}${p.behind ? '<span class="chip warn">behind</span>' : ''}</span><span class="v">${fmt0(g.current)} <span class="muted">/ ${fmt0(g.target)}</span></span></div>${progressBar(p.pct, 'accent')}</div>`; }).join('') : '<div class="muted small">No savings goals yet.</div>'}
         </div>
       </div>
       ${coupleHtml ? `<div class="mt">${coupleHtml}</div>` : ''}`;
@@ -2017,17 +2064,17 @@ views.savings = {
         ${kpi('Monthly contributions', fmt0(monthly), 'across active goals')}
         ${kpi('Emergency cover', `${covered.toFixed(1)} mo`, `target ${efMonths} months`, covered >= efMonths ? 'good' : covered >= 1 ? 'warn' : 'bad')}
       </div>
-      <div class="grid grid-3 mt">
+      <div class="grid grid-3 mt" style="gap:20px">
         <div style="grid-column:span 2">
           <div class="flex between mb"><h2>Goals</h2><button class="btn primary" data-action="goalAdd">+ Add goal</button></div>
           ${goals.length ? `<div class="grid grid-2" data-anchor="goals">${goals.map(g => { const p = goalProjection(g, D.thisMonth()); const done = p.remaining === 0 && num(g.target) > 0; return `<div class="card">
             <div class="flex between"><div><h3>${esc(g.name)}</h3><div class="tiny muted mt-s">${ownerChip(g.owner)} <span class="chip ${g.priority === 'high' ? 'bad' : g.priority === 'low' ? '' : 'warn'}">${esc(g.priority || 'medium')} priority</span> ${done ? '<span class="chip good">complete</span>' : p.behind ? '<span class="chip warn">behind schedule</span>' : ''}</div></div><button class="btn sm ghost icon" data-action="goalEdit" data-id="${g.id}">✎</button></div>
-            <div class="mt"><div class="flex between small"><b class="num">${fmt(g.current)}</b><span class="muted num">${fmt(g.target)}</span></div>${progressBar(p.pct, done ? '' : 'accent')}<div class="flex between tiny muted mt-s"><span>${fmtPct(p.pct)} complete</span><span>${fmt(p.remaining)} to go</span></div></div>
+            <div class="mini mt" style="margin-bottom:0"><div class="mini-head"><b class="num">${fmt(g.current)}</b><span class="muted num">${fmt(g.target)}</span></div>${progressBar(p.pct, done ? '' : 'accent')}<div class="flex between tiny muted" style="margin-top:6px"><span>${fmtPct(p.pct)} complete</span><span>${fmt(p.remaining)} to go</span></div></div>
             <table class="small mt"><tbody>
               <tr><td class="muted">Monthly contribution</td><td class="right num">${fmt(g.monthlyContribution)}</td></tr>
-              <tr><td class="muted">Projected completion</td><td class="right">${done ? 'Done' : p.projectedMonth ? D.monthLabel(p.projectedMonth) + ` <span class="tiny muted">(${p.monthsNeeded} mo)</span>` : '<span class="warn">No contribution set</span>'}</td></tr>
-              ${g.targetDate ? `<tr><td class="muted">Target date</td><td class="right ${p.behind ? 'bad' : 'good'}">${esc(D.dateLabel(g.targetDate))}</td></tr>` : ''}
-              ${p.behind && p.requiredMonthly ? `<tr><td class="muted">Needed per month to hit target</td><td class="right num bad">${fmt(p.requiredMonthly)}</td></tr>` : ''}
+              <tr><td class="muted">Projected finish</td><td class="right nowrap">${done ? 'Done' : p.projectedMonth ? D.monthLabel(p.projectedMonth) + ` <span class="tiny muted">· ${p.monthsNeeded} mo</span>` : '<span class="warn">No contribution set</span>'}</td></tr>
+              ${g.targetDate ? `<tr><td class="muted">Target date</td><td class="right nowrap ${p.behind ? 'bad' : 'good'}">${esc(D.dateLabel(g.targetDate))}</td></tr>` : ''}
+              ${p.behind && p.requiredMonthly ? `<tr><td class="muted">Needed per month</td><td class="right num bad">${fmt(p.requiredMonthly)}</td></tr>` : ''}
             </tbody></table>
             <div class="mt-s flex"><button class="btn sm" data-action="goalAddAmount" data-id="${g.id}">+ Add to savings</button></div></div>`; }).join('')}</div>` : emptyBox('No goals yet', 'Emergency fund, holiday, new car, house deposit — give every pound a purpose.', '<button class="btn primary" data-action="goalAdd">+ Add a goal</button>')}
         </div>
@@ -2126,7 +2173,7 @@ views.debt = {
       <div class="grid grid-3" data-anchor="debts">${debts.sort((a, b) => (cur.payoffByDebt[a.id] || '9999') < (cur.payoffByDebt[b.id] || '9999') ? -1 : 1).map(d => { const orig = Math.max(num(d.originalBalance), num(d.currentBalance)); const paid = orig - num(d.currentBalance); const payoff = cur.payoffByDebt[d.id]; const firstMonth = cur.schedule[0] && cur.schedule[0].perDebt[d.id]; const interestOnDebt = round2(sum(cur.schedule, s => s.perDebt[d.id] ? s.perDebt[d.id].interest : 0)); return `<div class="card">
         <div class="flex between"><div><h3>${esc(d.name)}</h3><div class="tiny muted mt-s">${esc(d.debtType || '')} ${ownerChip(d.owner)}</div></div><button class="btn sm ghost icon" data-action="debtEdit" data-id="${d.id}">✎</button></div>
         <div class="kpi mt" style="padding:0"><div class="v">${fmt(d.currentBalance)}</div><div class="s">${fmtPct(d.apr, 2)} APR · min ${fmt(d.minPayment)}${num(d.extraPayment) ? ` + ${fmt(d.extraPayment)} extra` : ''}</div></div>
-        <div class="mt-s">${progressBar(orig ? paid / orig * 100 : 0, 'ink thin')}<div class="flex between tiny muted mt-s"><span>${fmtPct(orig ? paid / orig * 100 : 0)} paid off</span><span>of ${fmt(orig)}</span></div></div>
+        <div class="mt">${progressBar(orig ? paid / orig * 100 : 0, 'ink thin')}<div class="flex between tiny muted" style="margin-top:6px"><span>${fmtPct(orig ? paid / orig * 100 : 0)} paid off</span><span>of ${fmt(orig)}</span></div></div>
         <table class="small mt"><tbody>
           <tr><td class="muted">Paid off</td><td class="right">${payoff ? D.monthLabel(payoff) : '<span class="bad">never</span>'}</td></tr>
           <tr><td class="muted">This month's payment</td><td class="right num">${firstMonth ? fmt(firstMonth.payment) : '—'}</td></tr>
@@ -2264,7 +2311,7 @@ views.settings = {
       <div class="mt-s"><button class="btn sm ghost" data-action="restoreLkg">Restore last verified copy…</button> <span class="tiny muted">A separate verified copy is kept inside the browser in case the file on disk is damaged.</span></div>`
       : `<div><b>Manual backup only in this browser.</b><div class="tiny muted mt-s">Automatic file backup needs Chrome or Edge. Here, export a JSON backup regularly — you'll get a reminder every ${REMIND_EVERY_SESSIONS} sessions (${sessions} so far).</div></div>`;
     return `
-      <div class="grid grid-2">
+      <div class="masonry">
         <div class="card" data-anchor="household"><div class="card-head"><h3>Household</h3></div>
           <div class="field"><label>Mode</label><div class="seg"><button class="${!isCouple() ? 'active' : ''}" data-action="setMode" data-mode="single">Just me</button><button class="${isCouple() ? 'active' : ''}" data-action="setMode" data-mode="couple">Couple</button></div><div class="hint">Couple mode adds an owner to every income, bill, debt, goal and transaction, with per-person breakdowns. Switching back hides the owner — nothing is deleted.</div></div>
           <div class="form-grid"><div class="field"><label>${isCouple() ? 'Person 1' : 'Your name'}</label><input type="text" value="${attr(s.person1Name)}" data-change="setting" data-key="person1Name" maxlength="24"></div>${isCouple() ? `<div class="field"><label>Person 2</label><input type="text" value="${attr(s.person2Name)}" data-change="setting" data-key="person2Name" maxlength="24"></div>` : ''}</div>
@@ -2289,6 +2336,7 @@ views.settings = {
           <div class="hint mt-s">Renaming a category updates existing transactions and budgets. Removing one keeps the transactions but they show as unbudgeted.</div>
         </div>
       </div>
+      <div style="height:0"></div>
       <div class="card mt" data-anchor="automation"><div class="card-head"><h3>Automation</h3><span class="tiny muted">Enter recurring things once</span></div>
         <div class="grid grid-3">
           <label class="check" style="align-items:flex-start"><input type="checkbox" data-change="setting" data-key="autoPostIncome" ${s.autoPostIncome !== false ? 'checked' : ''}><span><b>Post income on pay day</b><div class="tiny muted">Each income source creates its own income transaction on every pay date (from your tracking start month). Delete one and that pay day stays deleted.</div></span></label>
@@ -2299,6 +2347,7 @@ views.settings = {
       <div class="card mt" data-anchor="appearance"><div class="card-head"><h3>Appearance</h3><span class="tiny muted">Pick a colour theme — charts and every page follow it</span></div>
         ${themeCardsHtml(s.theme === 'auto' ? currentThemeId() : (s.theme || 'cream'), 'data-action="setTheme" data-theme')}
         <label class="check mt small"><input type="checkbox" data-change="themeAuto" ${s.theme === 'auto' ? 'checked' : ''}> Follow my device's light / dark setting (Cream by day, Charcoal at night)</label>
+        <div class="field mt" style="margin-bottom:0"><label>Tab icon</label>${iconRowHtml(s.icon || 'coin', 'data-action="setIcon" data-icon')}<div class="hint">Shows in the browser tab, bookmarks and the sidebar. The coin uses your currency symbol.</div></div>
       </div>
       <div class="card mt" data-anchor="backup"><div class="card-head"><h3>Automatic backup</h3><span class="chip ${bf.status === 'linked' ? 'good' : bf.status === 'needs-permission' || bf.status === 'error' ? 'warn' : ''}">${esc(bf.statusText())}</span></div>${backupHtml}</div>
       <div class="card mt" data-anchor="data"><div class="card-head"><h3>Your data</h3><span class="tiny muted">${state.savedAt ? 'Last saved ' + esc(fmtDateTime(state.savedAt)) : ''}</span></div>
@@ -2371,6 +2420,7 @@ const actions = {
   openWizard: () => openWizard(),
   help: () => openTour(),
   setTheme: d => { commit(s => { s.settings.theme = d.theme; }, { silent: true }); applyTheme(); render(); toast(`${THEMES[d.theme].name} theme`, 'default', 1500); },
+  setIcon: d => { commit(s => { s.settings.icon = d.icon; }, { silent: true }); applyIcon(); render(); },
   checklistDismiss: () => commit(s => { s.settings.checklistDismissed = true; }),
   quickAdd: () => {
     const items = [['💸', 'Expense', 'Something you spent', 'txnAdd'], ['💵', 'Income received', 'Pay that landed', 'txnAddIncome'], ['📅', 'Bill', 'Rent, utilities, insurance', 'billAdd'], ['🔁', 'Subscription', 'Streaming, gym, software', 'subAdd'], ['🏦', 'Account', 'Checking, savings, card', 'accountAdd'], ['🎯', 'Savings goal', 'Holiday, deposit, fund', 'goalAdd'], ['💳', 'Debt', 'Card, loan, mortgage', 'debtAdd'], ['💼', 'Income source', 'Salary or regular income', 'incomeAdd'], ['📥', 'Import CSV', 'From your bank', 'csvImport']];
@@ -2431,8 +2481,8 @@ const changes = {
   themeAuto: el => { commit(s => { s.settings.theme = el.checked ? 'auto' : currentThemeId(); }, { silent: true }); applyTheme(); render(); },
   setting: el => { const k = el.dataset.key; const v = el.type === 'checkbox' ? el.checked : el.dataset.num ? num(el.value) : el.value; commit(s => { s.settings[k] = v; }); },
   spendable: el => commit(s => { const set = new Set(s.settings.spendableTypes || []); if (el.checked) set.add(el.dataset.type); else set.delete(el.dataset.type); s.settings.spendableTypes = [...set]; }),
-  currency: el => { const c = CURRENCIES.find(x => x.code === el.value); commit(s => { s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; buildFormatter(); }); },
-  currencySymbol: el => commit(s => { s.settings.currency.symbol = el.value; buildFormatter(); }),
+  currency: el => { const c = CURRENCIES.find(x => x.code === el.value); commit(s => { s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; buildFormatter(); }); applyIcon(); },
+  currencySymbol: el => { commit(s => { s.settings.currency.symbol = el.value; buildFormatter(); }); applyIcon(); },
   importJson: async el => {
     const file = el.files[0]; if (!file) return;
     let parsed; try { parsed = JSON.parse(await file.text()); } catch (e) { toast('That file is not valid JSON', 'bad'); return; }
@@ -2464,7 +2514,7 @@ function loadSampleData() {
   const s = blankState(); const set = s.settings;
   set.householdMode = 'couple'; set.person1Name = 'Alex'; set.person2Name = 'Sam'; set.onboarded = true;
   set.currency = Object.assign({}, state && state.settings.currency || { code: 'USD', symbol: '$', locale: 'en-US' });
-  if (state) { set.theme = state.settings.theme; set.tourSeen = state.settings.tourSeen; }
+  if (state) { set.theme = state.settings.theme; set.icon = state.settings.icon; set.tourSeen = state.settings.tourSeen; }
   const now = D.thisMonth(); const start = D.addMonths(now, -6); set.startMonth = start; set.safetyBuffer = 300; set.budgetRollover = 'surplus'; set.emergencyMonths = 3; set.debtExtraPool = 200;
   const monthStartDate = D.monthStart(start);
   const id = () => uid();
@@ -2533,7 +2583,7 @@ function loadSampleData() {
 
 // ---------- First-run wizard ----------
 function openWizard() {
-  let step = 0; const vals = { mode: S().householdMode, p1: S().person1Name === 'Me' ? '' : S().person1Name, p2: S().person2Name === 'Partner' ? '' : S().person2Name, currency: S().currency.code, startMonth: S().startMonth || D.thisMonth(), theme: currentThemeId(), data: (state.txns.length || state.bills.length) ? 'keep' : 'sample' };
+  let step = 0; const vals = { mode: S().householdMode, p1: S().person1Name === 'Me' ? '' : S().person1Name, p2: S().person2Name === 'Partner' ? '' : S().person2Name, currency: S().currency.code, startMonth: S().startMonth || D.thisMonth(), theme: currentThemeId(), icon: S().icon || 'coin', data: (state.txns.length || state.bills.length) ? 'keep' : 'sample' };
   const hasData = !!(state.txns.length || state.bills.length || state.income.length);
   const steps = [
     () => `<h2>Welcome to your Finance Dashboard</h2><p class="muted mt-s">Three quick questions, then you're in. Everything you enter stays in this browser — there's no account, no upload and no bank connection. You can change all of this later in Settings.</p>
@@ -2542,7 +2592,7 @@ function openWizard() {
     () => `<h2>Currency and start month</h2><p class="muted mt-s">The currency only changes how amounts are displayed — nothing is converted.</p>
       <div class="form-grid mt"><div class="field"><label>Currency</label><select name="currency">${CURRENCIES.filter(c => c.code !== 'CUSTOM').map(c => `<option value="${c.code}"${c.code === vals.currency ? ' selected' : ''}>${c.code} · ${esc(c.name)}</option>`).join('')}</select><div class="hint">Need a different symbol? Pick "Custom" in Settings.</div></div>
       <div class="field"><label>Tracking starts</label><input type="month" name="startMonth" value="${attr(vals.startMonth)}" placeholder="YYYY-MM"><div class="hint">Budgets and rollover chains begin here.</div></div></div>`,
-    () => `<h2>Pick a look</h2><p class="muted mt-s">Six colour themes, including two dark ones. Change it any time from the dots in the sidebar.</p><div class="mt">${themeCardsHtml(vals.theme, 'data-wiz-theme')}</div>`,
+    () => `<h2>Pick a look</h2><p class="muted mt-s">Six colour themes, including two dark ones. Change it any time from the dots in the sidebar.</p><div class="mt">${themeCardsHtml(vals.theme, 'data-wiz-theme')}</div><div class="field mt" style="margin-bottom:0"><label>Tab icon</label>${iconRowHtml(vals.icon, 'data-wiz-icon')}</div>`,
     () => `<h2>Start with sample data?</h2><p class="muted mt-s">The sample household (Alex & Sam) has six months of realistic transactions, bills, debts and goals so you can see every page working. Replace it with your own data whenever you're ready — or start empty.</p>
       <div class="choice mt">${hasData ? `<label><input type="radio" name="data" value="keep" ${vals.data === 'keep' ? 'checked' : ''}><b>Keep my data</b><span>Apply the settings above to what's already here.</span></label>` : ''}<label><input type="radio" name="data" value="sample" ${vals.data === 'sample' ? 'checked' : ''}><b>Load the sample household</b><span>Explore with realistic data${hasData ? ' — <b>replaces</b> what is here now' : ''}.</span></label><label><input type="radio" name="data" value="empty" ${vals.data === 'empty' ? 'checked' : ''}><b>Start empty</b><span>Add your own income, bills and accounts.${hasData ? ' <b>Erases</b> current data.' : ''}</span></label></div>
       <div class="callout mt small">Tip: after setup, add your <b>income</b> and <b>bills</b> first — the overview, calendar and safe-to-spend all build from those.</div>`,
@@ -2552,15 +2602,17 @@ function openWizard() {
   const read = () => { body.querySelectorAll('input,select').forEach(el => { if (el.type === 'radio') { if (el.checked) vals[el.name] = el.value; } else vals[el.name] = el.value; }); };
   const draw = () => { body.innerHTML = steps[step](); m.bg.querySelector('#wizSteps').innerHTML = steps.map((_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join(''); m.bg.querySelector('#wizBack').style.visibility = step ? 'visible' : 'hidden'; m.bg.querySelector('#wizNext').textContent = step === steps.length - 1 ? 'Finish' : 'Next'; };
   body.addEventListener('change', e => { read(); if (e.target.name === 'mode') { const p2 = body.querySelector('#wizP2'); if (p2) p2.style.display = vals.mode === 'couple' ? '' : 'none'; } });
-  body.addEventListener('click', e => { const b = e.target.closest('[data-wiz-theme]'); if (!b) return; vals.theme = b.dataset.wizTheme; state.settings.theme = vals.theme; applyTheme(); body.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.dataset.wizTheme === vals.theme)); });
+  body.addEventListener('click', e => {
+    const ic = e.target.closest('[data-wiz-icon]'); if (ic) { vals.icon = ic.dataset.wizIcon; state.settings.icon = vals.icon; applyIcon(); body.querySelectorAll('.icon-opt').forEach(c => c.classList.toggle('active', c.dataset.wizIcon === vals.icon)); return; }
+    const b = e.target.closest('[data-wiz-theme]'); if (!b) return; vals.theme = b.dataset.wizTheme; state.settings.theme = vals.theme; applyTheme(); body.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.dataset.wizTheme === vals.theme)); body.querySelectorAll('.icon-opt').forEach(c => { c.innerHTML = appIconSvg(c.dataset.wizIcon, THEMES[vals.theme].vars.accent, 24); }); });
   m.bg.querySelector('#wizBack').addEventListener('click', () => { read(); step = Math.max(0, step - 1); draw(); });
   m.bg.querySelector('#wizNext').addEventListener('click', () => {
     read();
     if (step < steps.length - 1) { step++; draw(); return; }
     m.close();
-    const apply = s => { s.settings.theme = vals.theme; s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim() || (vals.mode === 'couple' ? 'Person 1' : 'Me'); s.settings.person2Name = vals.p2.trim() || 'Partner'; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (/^\d{4}-\d{2}$/.test(vals.startMonth)) s.settings.startMonth = vals.startMonth; s.settings.onboarded = true; };
+    const apply = s => { s.settings.theme = vals.theme; s.settings.icon = vals.icon; s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim() || (vals.mode === 'couple' ? 'Person 1' : 'Me'); s.settings.person2Name = vals.p2.trim() || 'Partner'; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (/^\d{4}-\d{2}$/.test(vals.startMonth)) s.settings.startMonth = vals.startMonth; s.settings.onboarded = true; };
     // With the sample household, keep its couple setup and start month unless the user typed their own names.
-    const applySample = s => { s.settings.theme = vals.theme; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (vals.p1.trim()) { s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim(); s.settings.person2Name = vals.p2.trim() || 'Partner'; } s.settings.onboarded = true; };
+    const applySample = s => { s.settings.theme = vals.theme; s.settings.icon = vals.icon; const c = CURRENCIES.find(x => x.code === vals.currency) || CURRENCIES[0]; s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; if (vals.p1.trim()) { s.settings.householdMode = vals.mode; s.settings.person1Name = vals.p1.trim(); s.settings.person2Name = vals.p2.trim() || 'Partner'; } s.settings.onboarded = true; };
     if (vals.data === 'sample') { loadSampleData(); commit(applySample); }
     else if (vals.data === 'empty') { state = blankState(); commit(apply); }
     else commit(apply);
