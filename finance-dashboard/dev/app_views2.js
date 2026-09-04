@@ -353,7 +353,7 @@ views.settings = {
         <div class="card" data-anchor="currency"><div class="card-head"><h3>Currency</h3><span class="chip">display only</span></div>
           <div class="form-grid"><div class="field"><label>Currency</label><select data-change="currency">${CURRENCIES.map(x => `<option value="${x.code}"${x.code === c.code ? ' selected' : ''}>${x.code === 'CUSTOM' ? 'Custom symbol…' : `${x.code} · ${esc(x.name)}`}</option>`).join('')}</select></div>
           ${c.code === 'CUSTOM' ? `<div class="field"><label>Symbol</label><input type="text" value="${attr(c.symbol)}" data-change="currencySymbol" maxlength="5"></div>` : `<div class="field"><label>Preview</label><div style="padding:8px 0" class="num">${fmt(1234.56)} · ${fmt(-89.5)}</div></div>`}</div>
-          <div class="hint">Changes the symbol and number format only. Amounts are never converted between currencies.</div>
+          <div class="hint push-b">Changes the symbol and number format only. Amounts are never converted between currencies.</div>
         </div>
         <div class="card" data-anchor="planning"><div class="card-head"><h3>Planning</h3></div>
           <div class="form-grid">
@@ -382,7 +382,6 @@ views.settings = {
         ${themeCardsHtml(s.theme === 'auto' ? currentThemeId() : (s.theme || 'cream'), 'data-action="setTheme" data-theme')}
         <label class="check mt small"><input type="checkbox" data-change="themeAuto" ${s.theme === 'auto' ? 'checked' : ''}> Follow my device's light / dark setting (Cream by day, Charcoal at night)</label>
         <div class="field mt"><label>Tab icon</label>${iconRowHtml(s.icon || 'coin', 'data-action="setIcon" data-icon')}<div class="hint">Shows in the browser tab, bookmarks and the sidebar. The coin uses your currency symbol.</div></div>
-        <label class="check small"><input type="checkbox" data-change="setting" data-key="evenRows" ${s.evenRows ? 'checked' : ''}> Even card heights — stretch cards in a row to match the tallest, instead of letting them end where their content does</label>
         <label class="check small" style="margin-bottom:0"><input type="checkbox" data-change="showChecklist" ${s.checklistDismissed ? '' : 'checked'}> Show the "your first steps" checklist on the Overview</label>
       </div>
       <div class="card mt" data-anchor="backup"><div class="card-head"><h3>Automatic backup</h3><span class="chip ${bf.status === 'linked' ? 'good' : bf.status === 'needs-permission' || bf.status === 'error' ? 'warn' : ''}">${esc(bf.statusText())}</span></div>${backupHtml}</div>

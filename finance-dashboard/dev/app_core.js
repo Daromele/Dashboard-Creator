@@ -77,7 +77,7 @@ function defaultSettings() {
     householdMode: 'single', person1Name: 'Me', person2Name: 'Partner',
     currency: { code: 'USD', symbol: '$', locale: 'en-US' },
     startMonth: D.thisMonth(), safetyBuffer: 0, budgetRollover: 'off', includeSubsInBills: true,
-    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', icon: 'coin', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true, evenRows: false,
+    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', icon: 'coin', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true,
   };
 }
 function blankState() {
@@ -399,7 +399,6 @@ function applyTheme() {
   const meta = document.querySelector('meta[name=color-scheme]'); if (meta) meta.content = t.dark ? 'dark' : 'light';
   PALETTE = t.chart.slice(); C = Object.assign({}, t.series);
   applyIcon();
-  document.body.classList.toggle('even-rows', !!S().evenRows);
   const dots = document.getElementById('themeDots');
   if (dots) dots.innerHTML = Object.entries(THEMES).map(([k, th]) => `<span class="theme-dot ${k === id ? 'active' : ''}" style="--dot-bg:${th.vars.bg};--dot-accent:${th.vars.accent}" title="${th.name}" data-action="setTheme" data-theme="${k}"></span>`).join('');
 }

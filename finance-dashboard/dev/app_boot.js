@@ -108,7 +108,7 @@ const changes = {
   debtExtra: el => commit(s => { s.settings.debtExtraPool = round2(num(el.value)); }),
   reportYear: el => { ui.reportYear = el.value; render(); },
   themeAuto: el => { commit(s => { s.settings.theme = el.checked ? 'auto' : currentThemeId(); }, { silent: true }); applyTheme(); render(); },
-  setting: el => { const k = el.dataset.key; const v = el.type === 'checkbox' ? el.checked : el.dataset.num ? num(el.value) : el.value; if (el.type === 'month' || el.getAttribute('type') === 'month') { if (!/^\d{4}-\d{2}$/.test(v)) { toast('Enter the month as YYYY-MM, e.g. 2026-03', 'warn'); el.value = S()[k] || D.thisMonth(); return; } } commit(s => { s.settings[k] = v; }); if (k === 'evenRows') document.body.classList.toggle('even-rows', !!v); },
+  setting: el => { const k = el.dataset.key; const v = el.type === 'checkbox' ? el.checked : el.dataset.num ? num(el.value) : el.value; if (el.type === 'month' || el.getAttribute('type') === 'month') { if (!/^\d{4}-\d{2}$/.test(v)) { toast('Enter the month as YYYY-MM, e.g. 2026-03', 'warn'); el.value = S()[k] || D.thisMonth(); return; } } commit(s => { s.settings[k] = v; }); },
   spendable: el => commit(s => { const set = new Set(s.settings.spendableTypes || []); if (el.checked) set.add(el.dataset.type); else set.delete(el.dataset.type); s.settings.spendableTypes = [...set]; }),
   currency: el => { const c = CURRENCIES.find(x => x.code === el.value); commit(s => { s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; buildFormatter(); }); applyIcon(); },
   currencySymbol: el => { commit(s => { s.settings.currency.symbol = el.value; buildFormatter(); }); applyIcon(); },

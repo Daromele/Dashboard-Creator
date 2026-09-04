@@ -106,8 +106,8 @@ ug.append(f"""
 <p>Six themes: Cream, Charcoal (dark), Midnight (dark navy), Sage, Blush and Slate. Choose one in Settings → Appearance, from the dots at the bottom of the sidebar, or during setup. Charts, chips and every page follow the theme. Tick <b>Follow my device's light / dark setting</b> to switch automatically between Cream and Charcoal. Reports always print in black on white.</p>
 <h3>Tab icon</h3>
 <p>Choose one of eight icons for the browser tab, bookmarks and the sidebar logo, in Settings → Appearance or during setup. The coin icon shows your currency symbol, and every icon takes the accent colour of your theme.</p>
-<h3>Layout and checklist options</h3>
-<p>Also in Settings → Appearance: <b>Even card heights</b> stretches the cards in a row to match the tallest one, if you prefer a straight edge to a compact layout; and <b>Show the "your first steps" checklist</b> puts the onboarding checklist back on the Overview after you have hidden it.</p>
+<h3>Checklist</h3>
+<p>Also in Settings → Appearance: <b>Show the "your first steps" checklist</b> puts the onboarding checklist back on the Overview after you have hidden it.</p>
 <h3>Month in review</h3>
 <p>The <b>✨ Month in review</b> button on the Overview (and in Reports) opens a full-screen recap of the month showing in the top bar: what came in, what went out, where it went, the biggest change since last month, how the budget held, bills, what you kept, net worth, debt and any goal you finished — followed by one suggestion for next month. Move with the <b>Next</b>/<b>Back</b> buttons, the arrow keys, a swipe, or by tapping the left and right edges; <b>Esc</b> closes it. Slides with nothing to say are left out, so a quiet month is a short story. Everything on it is read from your own entries — nothing is sent anywhere.</p>
 <h3>The welcome tour and first steps</h3>

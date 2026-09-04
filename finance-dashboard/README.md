@@ -53,6 +53,7 @@ Engine self-tests also run in-app (Settings → Run self-tests) or by opening th
 ### Notes
 
 - Six colour themes (`THEMES` in `dev/app_core.js`) drive CSS variables and the chart palette; `auto` follows the OS light/dark setting.
+- Layout: every row of cards in a `.grid` shares a height (`align-items:stretch`, cards are flex columns); `.push-b` pins a card's footnote to the baseline and charts centre in the leftover space. `.grid.ragged` opts a row out. Corner radii come from `--r` / `--r-sm` / `--r-lg` only — round corners are reserved for genuinely circular things (dots, avatars, the step numerals).
 - **Month in review** (`dev/app_story.js`): full-screen recap of the month in the top bar, opened from the Overview greeting or Reports (`data-action="monthStory"`). Arrow keys, swipe and edge taps move between slides. Slides are data-driven — a month with nothing recorded gets a short "nothing here yet" dialog instead.
 - First-run flow: 4-step wizard (household, currency, theme, data) → 7-slide welcome tour → "Your first steps" checklist on the Overview. Quick add (`N`) is the single entry point for every record type; forms fold non-essential fields under "More options".
 

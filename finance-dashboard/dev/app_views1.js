@@ -78,7 +78,7 @@ function firstStepsHtml() {
     <div class="steps-head"><div><div class="kicker tiny" style="letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:4px">Your first steps</div><h3 style="font-size:20px">${next ? esc('Next: ' + next.title.toLowerCase()) : 'All done'}</h3><div class="small muted mt-s">Do these in order and every page comes alive. ${done} of ${steps.length} done.</div></div>
       <div class="flex"><button class="btn sm ghost" data-action="help">Tour</button><button class="btn sm ghost" data-action="checklistDismiss" title="Hide">×</button></div></div>
     ${progressBar(done / steps.length * 100, 'accent thin')}
-    <div class="steps-list">${steps.map((st, i) => `<div class="step-item ${st.done ? 'done' : ''} ${st === next ? 'next' : ''}"><div class="n">${st.done ? '✓' : i + 1}</div><div class="grow"><b>${st.icon} ${esc(st.title)}</b><span>${esc(st.sub)}</span>${st.done ? '' : `<button class="btn sm ${st === next ? 'accent' : ''}" data-action="${st.action}" ${st.view ? `data-view="${st.view}"` : ''} ${st.anchor ? `data-anchor="${st.anchor}"` : ''}>${esc(st.label)}</button>`}</div></div>`).join('')}</div>
+    <div class="steps-list">${steps.map((st, i) => `<div class="step-item ${st.done ? 'done' : ''} ${st === next ? 'next' : ''}"><div class="n">${st.done ? '✓' : i + 1}</div><div class="grow"><b>${st.icon} ${esc(st.title)}</b><span>${esc(st.sub)}</span></div>${st.done ? '' : `<button class="btn sm ${st === next ? 'accent' : ''}" data-action="${st.action}" ${st.view ? `data-view="${st.view}"` : ''} ${st.anchor ? `data-anchor="${st.anchor}"` : ''}>${esc(st.label)}</button>`}</div>`).join('')}</div>
   </div>`;
 }
 
@@ -135,13 +135,13 @@ views.overview = {
             <tr><td>Goal contributions</td><td class="right num dim">−${fmt(sts.goals)}</td></tr>
             <tr><td>Safety buffer</td><td class="right num dim">−${fmt(sts.buffer)}</td></tr>
           </tbody></table>
-          <div class="tiny mt-s dim">Spendable: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'} · <a href="#" data-action="goto" data-view="settings" data-anchor="planning">change</a></div>
+          <div class="tiny dim push-b">Spendable: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'} · <a href="#" data-action="goto" data-view="settings" data-anchor="planning">change</a></div>
         </div>
       </div>
       <div class="grid grid-3 mt">
         <div class="card"><div class="card-head"><h3>Spending by category</h3></div>${svgDonut({ slices: catSlices.slice(0, 8).concat(catSlices.length > 8 ? [{ label: 'Other categories', value: sum(catSlices.slice(8), s => s.value), color: C.rest }] : []), centre: fmt0(sm.expenses), centreLabel: 'spent' })}</div>
         <div class="card"><div class="card-head"><h3>Fixed vs variable</h3></div>${svgDonut({ size: 130, slices: [{ label: 'Fixed (bills & subs)', value: fixed, color: C.ink }, { label: 'Variable', value: variable, color: C.accent }] })}
-          <div class="tiny muted mt">Fixed = payments marked paid from Bills, or in a bill category.</div></div>
+          <div class="tiny muted push-b">Fixed = payments marked paid from Bills, or in a bill category.</div></div>
         <div class="card"><div class="card-head"><h3>Due in the next 14 days</h3><button class="btn sm ghost" data-action="goto" data-view="bills" data-anchor="bills">All bills</button></div>
           ${upcoming.length ? `<table class="small"><tbody>${upcoming.slice(0, 8).map(u => `<tr class="${u.paid ? 'row-muted' : ''}"><td class="nowrap">${esc(D.dateLabel(u.date).slice(0, 6))}</td><td>${esc(u.name)}${u.isSub ? ' <span class="tiny muted">sub</span>' : ''} ${ownerChip(u.owner)}</td><td class="right num">${u.paid ? '<span class="chip good">paid</span>' : fmt(u.amount)}</td></tr>`).join('')}</tbody></table>` : '<div class="muted small">Nothing due in the next two weeks.</div>'}
         </div>

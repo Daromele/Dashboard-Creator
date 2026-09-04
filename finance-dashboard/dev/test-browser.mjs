@@ -195,16 +195,25 @@ const emptyStory = await page.evaluate(() => { const st = storyStats('1999-01');
 expect(emptyStory === false, 'a month with no data is reported as empty');
 await page.click('[data-action=monthShift][data-n="-1"]');
 await page.waitForTimeout(150);
-step('appearance toggles: even rows, checklist visibility');
+step('appearance: checklist visibility');
 await page.click('#nav button[data-view=settings]');
-await page.click('input[data-key=evenRows]'); await page.waitForTimeout(150);
-expect(await page.evaluate(() => document.body.classList.contains('even-rows')), 'even card heights applied');
-await page.click('input[data-key=evenRows]'); await page.waitForTimeout(150);
-expect(!(await page.evaluate(() => document.body.classList.contains('even-rows'))), 'even card heights turned back off');
 await page.click('input[data-change=showChecklist]'); await page.waitForTimeout(150);
 expect(await page.evaluate(() => window.__pfd.state.settings.checklistDismissed === true), 'checklist hidden from settings');
 await page.click('input[data-change=showChecklist]'); await page.waitForTimeout(150);
 expect(await page.evaluate(() => window.__pfd.state.settings.checklistDismissed === false), 'checklist can be brought back');
+
+step('card rows are uniform height');
+await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(250);
+const rows = await page.evaluate(() => [...document.querySelectorAll('#view .grid')].map(g => {
+  const cards = [...g.children].filter(c => c.offsetParent !== null);
+  if (cards.length < 2) return null;
+  const byTop = {};
+  for (const c of cards) { const t = Math.round(c.getBoundingClientRect().top); (byTop[t] = byTop[t] || []).push(Math.round(c.getBoundingClientRect().height)); }
+  return Object.values(byTop).map(hs => Math.max(...hs) - Math.min(...hs));
+}).filter(Boolean).flat());
+expect(rows.length > 0 && rows.every(d => d <= 1), `every card row is level (max drift ${rows.length ? Math.max(...rows) : 'n/a'}px across ${rows.length} rows)`);
+const radii = await page.evaluate(() => { const v = getComputedStyle(document.documentElement); return { r: v.getPropertyValue('--r').trim(), card: getComputedStyle(document.querySelector('#view .card')).borderTopLeftRadius }; });
+expect(radii.r === '6px' && radii.card === '6px', `cards use the tightened radius (${radii.card})`);
 
 step('deep links land on the right card');
 await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(150);
