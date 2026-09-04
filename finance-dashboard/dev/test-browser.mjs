@@ -1,0 +1,164 @@
+// Headless browser pass over file:// — run: node dev/test-browser.mjs
+import { createRequire } from 'module';
+import path from 'path';
+import fs from 'fs';
+const require = createRequire('/opt/node22/lib/node_modules/playwright/package.json');
+const { chromium } = require('playwright');
+const here = path.dirname(new URL(import.meta.url).pathname);
+const file = 'file://' + path.resolve(here, '..', 'Personal_Finance_Dashboard.html');
+const shots = path.join(here, 'shots'); fs.mkdirSync(shots, { recursive: true });
+const errors = [];
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--allow-file-access-from-files'] });
+const ctx = await browser.newContext({ viewport: { width: 1380, height: 900 }, acceptDownloads: true });
+const page = await ctx.newPage();
+page.on('pageerror', e => errors.push('pageerror: ' + e.message));
+page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+page.on('request', r => { if (!r.url().startsWith('file://') && !r.url().startsWith('blob:') && !r.url().startsWith('data:')) errors.push('NETWORK REQUEST: ' + r.url()); });
+const step = (s) => console.log('· ' + s);
+const fail = (s) => { errors.push('ASSERT: ' + s); console.log('✗ ' + s); };
+const expect = (cond, s) => cond ? console.log('✓ ' + s) : fail(s);
+
+await page.goto(file + '?selftest');
+await page.waitForSelector('#wizBody');
+const st = await page.evaluate(() => window.__selfTestResult);
+expect(st && st.passed === st.total, `self-tests in browser: ${st && st.passed}/${st && st.total}`);
+await page.screenshot({ path: path.join(shots, '00-wizard.png') });
+
+step('wizard: couple, sample data');
+await page.click('label:has(input[name=mode][value=couple])');
+await page.fill('input[name=p1]', 'Alex'); await page.fill('input[name=p2]', 'Sam');
+await page.click('#wizNext'); await page.selectOption('select[name=currency]', 'GBP'); await page.click('#wizNext');
+await page.click('label:has(input[name=data][value=sample])'); await page.click('#wizNext');
+await page.waitForTimeout(300);
+const txCount = await page.evaluate(() => window.__pfd.state.txns.length);
+expect(txCount > 100, `sample loaded: ${txCount} transactions`);
+expect((await page.textContent('#view')).includes('£'), 'GBP formatting applied');
+await page.screenshot({ path: path.join(shots, '01-overview.png'), fullPage: true });
+
+for (const v of ['income', 'budget', 'transactions', 'bills', 'savings', 'debt', 'networth', 'reports', 'settings']) {
+  await page.click(`#nav button[data-view=${v}]`); await page.waitForTimeout(150);
+  const html = await page.innerHTML('#view');
+  expect(html.length > 500 && !html.includes('Something went wrong'), `view renders: ${v}`);
+  await page.screenshot({ path: path.join(shots, `10-${v}.png`), fullPage: true });
+}
+step('bills calendar');
+await page.click('#nav button[data-view=bills]'); await page.click('[data-action=calMode][data-mode=calendar]'); await page.waitForTimeout(100);
+expect((await page.$$('.cal .day')).length >= 28, 'calendar has day cells');
+await page.screenshot({ path: path.join(shots, '11-calendar.png'), fullPage: true });
+await page.click('[data-action=calMode][data-mode=list]');
+
+step('toggle bill paid creates/removes transaction');
+const before = await page.evaluate(() => window.__pfd.state.txns.length);
+const cb = await page.$('input[data-change=togglePaid]:not(:checked):not([disabled])');
+if (cb) {
+  await cb.click(); await page.waitForTimeout(100);
+  const after = await page.evaluate(() => window.__pfd.state.txns.length);
+  expect(after === before + 1, 'paid tick added a transaction');
+  const cb2 = await page.$('input[data-change=togglePaid]:checked'); await cb2.click(); await page.waitForTimeout(100);
+} else console.log('  (all bills already paid this month — skipped)');
+
+step('add transaction with splits via form');
+await page.click('#nav button[data-view=transactions]'); await page.click('[data-action=txnAdd]');
+await page.fill('#genForm [name=description]', 'Test split purchase');
+await page.fill('#genForm [name=split_amt_0]', '40');
+await page.click('#genForm [data-action=splitAdd]'); await page.waitForTimeout(50);
+await page.selectOption('#genForm [name=split_cat_1]', 'Pets'); await page.fill('#genForm [name=split_amt_1]', '12.5');
+await page.click('#genForm button[type=submit]'); await page.waitForTimeout(100);
+const added = await page.evaluate(() => window.__pfd.state.txns.find(t => t.description === 'Test split purchase'));
+expect(added && added.splits.length === 2 && Math.abs(added.splits[1].amount - 12.5) < 1e-9, 'split transaction saved');
+await page.screenshot({ path: path.join(shots, '12-transactions.png'), fullPage: true });
+
+step('search filter');
+await page.fill('input[type=search]', 'Test split'); await page.waitForTimeout(400);
+expect((await page.$$('#view tbody tr')).length === 1, 'search narrows to one row');
+await page.fill('input[type=search]', ''); await page.waitForTimeout(400);
+
+step('CSV import');
+const csvPath = path.join(shots, 'import.csv');
+fs.writeFileSync(csvPath, 'Date,Description,Amount\n2026-03-04,Coffee shop,-4.50\n04/03/2026,"Refund, store",12.00\n2026-03-05,Coffee shop,-4.50\n');
+await page.click('[data-action=csvImport]'); await page.setInputFiles('#csvFile', csvPath); await page.waitForTimeout(200);
+await page.screenshot({ path: path.join(shots, '13-csv-import.png') });
+const preview = await page.textContent('#csvPreview');
+expect(preview.includes('3') && preview.includes('to import'), 'csv preview built');
+await page.click('#csvGo'); await page.waitForTimeout(100);
+const imported = await page.evaluate(() => window.__pfd.state.txns.filter(t => t.description === 'Coffee shop').length);
+expect(imported === 2, 'csv rows imported');
+await page.click('[data-action=csvImport]'); await page.setInputFiles('#csvFile', csvPath); await page.waitForTimeout(200);
+expect((await page.textContent('#csvPreview')).includes('3 duplicate'), 'duplicate detection on re-import');
+await page.keyboard.press('Escape');
+
+step('budget inline edit + rollover');
+await page.click('#nav button[data-view=budget]');
+const inp = await page.$('input[data-change=budgetSet][data-cat=Groceries]');
+await inp.fill('999'); await inp.press('Enter'); await page.waitForTimeout(100);
+const b = await page.evaluate(() => window.__pfd.state.budgets.find(x => x.month === window.__pfd.ui.month && x.category === 'Groceries'));
+expect(b && b.planned === 999, 'budget inline edit saved');
+expect((await page.textContent('#view')).includes('Rollover'), 'rollover column visible (surplus mode)');
+
+step('debt strategy toggle + extra');
+await page.click('#nav button[data-view=debt]');
+await page.click('[data-action=debtStrategy][data-s=avalanche]'); await page.waitForTimeout(100);
+expect((await page.textContent('#view')).includes('avalanche'), 'avalanche selected');
+await page.screenshot({ path: path.join(shots, '14-debt-avalanche.png'), fullPage: true });
+
+step('net worth inline balance + snapshot');
+await page.click('#nav button[data-view=networth]');
+await page.click('[data-action=snapshotNow]'); await page.waitForTimeout(100);
+const snaps = await page.evaluate(() => window.__pfd.state.snapshots.length);
+expect(snaps >= 2, `snapshots: ${snaps}`);
+
+step('settings: currency change, single mode, categories');
+await page.click('#nav button[data-view=settings]');
+await page.selectOption('select[data-change=currency]', 'EUR'); await page.waitForTimeout(100);
+expect((await page.textContent('#view')).includes('€'), 'EUR applied');
+await page.click('[data-action=setMode][data-mode=single]'); await page.waitForTimeout(100);
+await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(100);
+expect(!(await page.textContent('#view')).includes('Household split'), 'single mode hides household split');
+await page.click('#nav button[data-view=settings]'); await page.click('[data-action=setMode][data-mode=couple]');
+await page.click('[data-action=runTests]'); await page.waitForTimeout(100);
+expect((await page.textContent('#testResults')).includes('checks passed'), 'in-app self-tests button');
+
+step('export JSON download');
+const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-action=exportJson]')]);
+const dlPath = path.join(shots, 'backup.json'); await dl.saveAs(dlPath);
+const backup = JSON.parse(fs.readFileSync(dlPath, 'utf8'));
+expect(backup.__schema === 1 && backup.txns.length > 100, 'exported backup is valid');
+
+step('persistence across reload');
+const beforeReload = await page.evaluate(() => window.__pfd.state.txns.length);
+await page.reload(); await page.waitForTimeout(300);
+expect(!(await page.$('#wizBody')), 'wizard not shown on second load');
+const persisted = await page.evaluate(() => window.__pfd.state.txns.length);
+expect(persisted === beforeReload, `state persisted (${persisted})`);
+
+step('erase + restore from backup');
+await page.click('#nav button[data-view=settings]');
+await page.click('[data-action=clearTxns]'); await page.click('.modal [data-modal-result=ok]'); await page.waitForTimeout(100);
+expect((await page.evaluate(() => window.__pfd.state.txns.length)) === 0, 'transactions cleared');
+await page.setInputFiles('input[data-change=importJson]', dlPath); await page.waitForTimeout(200);
+await page.click('.modal [data-modal-result=ok]'); await page.waitForTimeout(200);
+expect((await page.evaluate(() => window.__pfd.state.txns.length)) === backup.txns.length, 'backup restored');
+
+step('reject a future-schema backup');
+const badPath = path.join(shots, 'bad.json'); fs.writeFileSync(badPath, JSON.stringify(Object.assign({}, backup, { __schema: 99 })));
+await page.setInputFiles('input[data-change=importJson]', badPath); await page.waitForTimeout(200);
+expect((await page.textContent('#toasts')).includes('newer version'), 'future schema refused');
+
+step('reports print layout');
+await page.click('#nav button[data-view=reports]'); await page.emulateMedia({ media: 'print' });
+await page.screenshot({ path: path.join(shots, '15-reports-print.png'), fullPage: true });
+await page.emulateMedia({ media: 'screen' });
+
+step('mobile viewport');
+await page.setViewportSize({ width: 390, height: 800 });
+await page.click('#nav button[data-view=overview]').catch(() => {});
+await page.click('.hamburger'); await page.waitForTimeout(100); await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(150);
+const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+expect(!overflow, 'no horizontal page overflow on 390px');
+await page.screenshot({ path: path.join(shots, '20-mobile-overview.png'), fullPage: true });
+await page.click('.hamburger'); await page.click('#nav button[data-view=transactions]'); await page.waitForTimeout(150);
+await page.screenshot({ path: path.join(shots, '21-mobile-transactions.png'), fullPage: true });
+
+await browser.close();
+console.log('\n' + (errors.length ? 'FAILURES:\n' + errors.join('\n') : 'ALL CHECKS PASSED, no console errors, no network requests'));
+process.exit(errors.length ? 1 : 0);
