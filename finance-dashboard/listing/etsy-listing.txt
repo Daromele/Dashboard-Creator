@@ -15,7 +15,8 @@ How It Works:
 2. Answer three setup questions (single or couple, currency, start month), or load the sample household to explore first.
 3. Follow the welcome tour and the first-steps checklist: income, bills, accounts, budget. The calendar, cash-flow forecast and safe-to-spend figure build themselves from those.
 4. Log spending as you go or import a CSV from your bank. Tick bills as paid. Watch the budget bars fill.
-5. Turn on automatic backup in Settings (Chrome/Edge) or export a JSON backup any time.
+5. At the end of the month, hit "Month in review" for a full-screen recap of how it went.
+6. Turn on automatic backup in Settings (Chrome/Edge) or export a JSON backup any time.
 
 WHAT YOU'LL GET:
 • One self-contained HTML file - the whole app, works completely offline
@@ -32,6 +33,7 @@ WHAT YOU'LL GET:
 • Six colour themes including two dark modes, plus eight tab icons - switch with one click
 • Welcome tour and a guided first-steps checklist so you always know what to do next
 • One "Add" button for everything, with simple forms that hide the advanced options until you need them
+• Month in review: one button turns any month into a full-screen, swipeable recap - what came in, where it went, the biggest change since last month, what you kept, and one suggestion for next month
 • Smart insights on the overview: next pay day, budget pace, biggest category change, debt-free date, emergency cover
 • Automatic backup to a file you choose (Chrome/Edge) plus one-click JSON backup and restore in every browser
 • 24 currencies plus a custom symbol option (display only - no conversion)

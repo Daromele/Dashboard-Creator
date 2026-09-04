@@ -35,7 +35,8 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .hidden{display:none!important}
 .mt{margin-top:12px}.mb{margin-bottom:12px}.mt-s{margin-top:8px}.mb-s{margin-bottom:8px}.mt-l{margin-top:28px}
 .flex{display:flex;gap:10px;align-items:center}.flex-wrap{flex-wrap:wrap}.between{justify-content:space-between}.col{flex-direction:column;align-items:stretch}.grow{flex:1}
-.grid{display:grid;gap:12px;align-items:start}.grid-4,.grid-5,.grid.stretch{align-items:stretch}
+.grid{display:grid;gap:12px;align-items:start}
+body.even-rows .grid{align-items:stretch}body.even-rows .grid > .card{display:flex;flex-direction:column}.grid-4,.grid-5,.grid.stretch{align-items:stretch}
 .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-5{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1100px){.grid-5{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}}
@@ -194,7 +195,7 @@ input.inline-input:hover,input.inline-input:focus{border-color:var(--accent)}
 .wiz-steps i.on{background:var(--accent)}
 .choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .choice label{border:1px solid var(--line2);border-radius:12px;padding:14px;cursor:pointer;display:block}
-.choice label:has(input:checked){border-color:var(--accent);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent)}
+.choice label.sel,.choice label:has(input:checked){border-color:var(--accent);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent)}
 .choice input{display:none}
 .choice b{display:block;margin-bottom:3px}
 .choice span{font-size:12.5px;color:var(--muted)}
@@ -278,7 +279,35 @@ input.inline-input:hover,input.inline-input:focus{border-color:var(--accent)}
 .tour-dots i{width:8px;height:8px;border-radius:50%;background:var(--line2);transition:all .2s}.tour-dots i.on{background:var(--accent);width:22px;border-radius:4px}
 @media(max-width:640px){.tour-body{grid-template-columns:1fr}.tour-art{min-height:150px;border-radius:14px 14px 0 0}.tour-art .big{font-size:64px}.tour-text{padding:22px}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+/* Month in review */
+.story{max-width:620px;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:min(600px,86vh);background:var(--surface)}
+.story-top{display:flex;align-items:center;gap:10px;padding:12px 14px 0}
+.story-segs{display:flex;gap:4px;flex:1}
+.story-segs i{height:3px;flex:1;border-radius:2px;background:var(--line2)}
+.story-segs i.on{background:var(--accent)}.story-segs i.done{background:var(--accent);opacity:.45}
+.story-stage{flex:1;display:flex;position:relative;z-index:2;pointer-events:none}
+.story-stage .btn{pointer-events:auto}
+.story-slide{padding:26px 34px 10px;width:100%;align-self:center;animation:storyIn .28s ease-out}
+.story-art{font-size:54px;line-height:1;margin-bottom:14px;animation:float 3s ease-in-out infinite}
+.story-kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px}
+.story-title{font-size:27px;line-height:1.2;margin-bottom:10px}
+.story-big{font-family:var(--serif);font-size:56px;line-height:1;font-weight:600;letter-spacing:-.02em;margin:2px 0 6px}
+.story-slide.good .story-big{color:var(--good)}.story-slide.bad .story-big{color:var(--bad)}.story-slide.warn .story-big{color:var(--warn)}
+.story-sub{color:var(--ink2);font-size:14px;margin-bottom:12px}
+.story-p{color:var(--ink2);font-size:14.5px;line-height:1.55;margin-top:8px}
+.story-bars{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.story-bars .sb-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.story-bars .sb-track{height:8px;border-radius:5px;background:var(--surface2);overflow:hidden}
+.story-bars .sb-track i{display:block;height:100%;border-radius:5px;animation:grow .5s ease-out}
+.story-tap{position:absolute;top:44px;bottom:56px;width:28%;border:0;background:none;cursor:pointer;z-index:1;-webkit-tap-highlight-color:transparent}
+.story-tap.left{left:0}.story-tap.right{right:0;width:40%}
+.story-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px 16px;border-top:1px solid var(--line);position:relative;z-index:2}
+.story-count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+@keyframes storyIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes grow{from{width:0}}
+@media(max-width:600px){.story{min-height:88vh}.story-slide{padding:20px 22px 8px}.story-big{font-size:44px}.story-title{font-size:23px}}
 /* More options in forms */
+.month-hint{display:none}html.no-month-input .month-hint{display:block}
 .more-toggle{background:none;border:0;color:var(--accent);font-weight:600;cursor:pointer;padding:4px 0;font-size:13px;grid-column:1/-1;text-align:left}
 /* Motion */
 @keyframes draw{to{stroke-dashoffset:0}}
@@ -857,7 +886,7 @@ function defaultSettings() {
     householdMode: 'single', person1Name: 'Me', person2Name: 'Partner',
     currency: { code: 'USD', symbol: '$', locale: 'en-US' },
     startMonth: D.thisMonth(), safetyBuffer: 0, budgetRollover: 'off', includeSubsInBills: true,
-    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', icon: 'coin', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true,
+    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', icon: 'coin', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true, evenRows: false,
   };
 }
 function blankState() {
@@ -1179,6 +1208,7 @@ function applyTheme() {
   const meta = document.querySelector('meta[name=color-scheme]'); if (meta) meta.content = t.dark ? 'dark' : 'light';
   PALETTE = t.chart.slice(); C = Object.assign({}, t.series);
   applyIcon();
+  document.body.classList.toggle('even-rows', !!S().evenRows);
   const dots = document.getElementById('themeDots');
   if (dots) dots.innerHTML = Object.entries(THEMES).map(([k, th]) => `<span class="theme-dot ${k === id ? 'active' : ''}" style="--dot-bg:${th.vars.bg};--dot-accent:${th.vars.accent}" title="${th.name}" data-action="setTheme" data-theme="${k}"></span>`).join('');
 }
@@ -1236,6 +1266,8 @@ function fmt(n, opts) {
 const fmt0 = n => fmt(n, { dec0: true });
 const fmtPct = (n, d) => n === null || n === undefined || !Number.isFinite(n) ? '—' : `${n.toFixed(d === undefined ? 0 : d)}%`;
 function fmtDateTime(iso) { try { return new Date(iso).toLocaleString(); } catch (e) { return iso; } }
+/** Firefox and Safari have no month picker — the input falls back to text there, so it gets a format hint and a pattern. */
+function monthInputHtml(extra, value) { return `<input type="month" pattern="[0-9]{4}-[0-9]{2}" inputmode="numeric" placeholder="YYYY-MM" value="${attr(value)}" ${extra || ''}><span class="month-hint hint">Type it as YYYY-MM, e.g. 2026-03.</span>`; }
 function esc(s) { return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 const attr = s => esc(s);
 const cls = (...a) => a.filter(Boolean).join(' ');
@@ -1499,7 +1531,8 @@ function greetingHtml() {
   const name = S().person1Name && S().person1Name !== 'Me' ? S().person1Name : '';
   const d = new Date(); const dateStr = d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
   const today = D.today(); const dim = D.dim(D.parse(today).y, D.parse(today).m); const left = dim - D.parse(today).d;
-  return `<div class="greet"><div><h2>${esc(g)}${name ? ', ' + esc(name) : ''}.</h2><div class="sub">${esc(dateStr)} · ${left === 0 ? 'last day of the month' : left + ' day' + (left === 1 ? '' : 's') + ' left in ' + D.MONTHS_LONG[d.getMonth()]}</div></div></div>`;
+  return `<div class="greet"><div><h2>${esc(g)}${name ? ', ' + esc(name) : ''}.</h2><div class="sub">${esc(dateStr)} · ${left === 0 ? 'last day of the month' : left + ' day' + (left === 1 ? '' : 's') + ' left in ' + D.MONTHS_LONG[d.getMonth()]}</div></div>
+    <button class="btn accent no-print" data-action="monthStory" data-month="${attr(ui.month)}">✨ ${esc(D.monthLabel(ui.month))} in review</button></div>`;
 }
 function insightsHtml(month) {
   const out = []; const today = D.today(); const thisMonth = D.thisMonth();
@@ -2257,7 +2290,7 @@ views.reports = {
     return `
       <div class="flex between flex-wrap mb no-print">
         <div class="flex"><label class="small">Year</label><select data-change="reportYear" style="width:auto">${years.map(y => `<option value="${y}"${y === year ? ' selected' : ''}>${y}</option>`).join('')}</select><span class="tiny muted">Monthly report follows the month picker above.</span></div>
-        <div class="flex"><button class="btn" data-action="exportYearCsv">Export ${year} CSV</button><button class="btn primary" data-action="print">Print / Save PDF</button></div>
+        <div class="flex"><button class="btn accent" data-action="monthStory" data-month="${attr(ui.month)}">✨ Month in review</button><button class="btn" data-action="exportYearCsv">Export ${year} CSV</button><button class="btn primary" data-action="print">Print / Save PDF</button></div>
       </div>
       <div class="print-only mb"><h1>Finance report · ${year}</h1><div class="small muted">${esc(isCouple() ? S().person1Name + ' & ' + S().person2Name : S().person1Name)} · generated ${esc(D.dateLabel(D.today()))} · amounts in ${esc(S().currency.code)}</div></div>
       <div class="section-title"><h2>Annual summary ${year}</h2></div>
@@ -2323,7 +2356,7 @@ views.settings = {
         </div>
         <div class="card" data-anchor="planning"><div class="card-head"><h3>Planning</h3></div>
           <div class="form-grid">
-            <div class="field"><label>Tracking starts</label><input type="month" value="${attr(s.startMonth)}" placeholder="YYYY-MM" data-change="setting" data-key="startMonth"><div class="hint">Budget rollover chains don't reach before this month.</div></div>
+            <div class="field"><label>Tracking starts</label>${monthInputHtml('data-change="setting" data-key="startMonth"', s.startMonth)}<div class="hint">Budget rollover chains don't reach before this month.</div></div>
             <div class="field"><label>Safety buffer</label><input type="number" step="1" min="0" value="${s.safetyBuffer}" data-change="setting" data-key="safetyBuffer" data-num="1"><div class="hint">Subtracted from safe-to-spend.</div></div>
             <div class="field"><label>Budget rollover</label><select data-change="setting" data-key="budgetRollover"><option value="off"${s.budgetRollover === 'off' ? ' selected' : ''}>Off — each month stands alone</option><option value="surplus"${s.budgetRollover === 'surplus' ? ' selected' : ''}>Surplus only — unspent money carries forward</option><option value="full"${s.budgetRollover === 'full' ? ' selected' : ''}>Full — overspend reduces next month too</option></select></div>
             <div class="field"><label>Emergency fund target</label><select data-change="setting" data-key="emergencyMonths" data-num="1">${[1, 2, 3, 4, 6, 9, 12].map(n => `<option value="${n}"${s.emergencyMonths === n ? ' selected' : ''}>${n} month${n > 1 ? 's' : ''} of expenses</option>`).join('')}</select></div>
@@ -2347,7 +2380,9 @@ views.settings = {
       <div class="card mt" data-anchor="appearance"><div class="card-head"><h3>Appearance</h3><span class="tiny muted">Pick a colour theme — charts and every page follow it</span></div>
         ${themeCardsHtml(s.theme === 'auto' ? currentThemeId() : (s.theme || 'cream'), 'data-action="setTheme" data-theme')}
         <label class="check mt small"><input type="checkbox" data-change="themeAuto" ${s.theme === 'auto' ? 'checked' : ''}> Follow my device's light / dark setting (Cream by day, Charcoal at night)</label>
-        <div class="field mt" style="margin-bottom:0"><label>Tab icon</label>${iconRowHtml(s.icon || 'coin', 'data-action="setIcon" data-icon')}<div class="hint">Shows in the browser tab, bookmarks and the sidebar. The coin uses your currency symbol.</div></div>
+        <div class="field mt"><label>Tab icon</label>${iconRowHtml(s.icon || 'coin', 'data-action="setIcon" data-icon')}<div class="hint">Shows in the browser tab, bookmarks and the sidebar. The coin uses your currency symbol.</div></div>
+        <label class="check small"><input type="checkbox" data-change="setting" data-key="evenRows" ${s.evenRows ? 'checked' : ''}> Even card heights — stretch cards in a row to match the tallest, instead of letting them end where their content does</label>
+        <label class="check small" style="margin-bottom:0"><input type="checkbox" data-change="showChecklist" ${s.checklistDismissed ? '' : 'checked'}> Show the "your first steps" checklist on the Overview</label>
       </div>
       <div class="card mt" data-anchor="backup"><div class="card-head"><h3>Automatic backup</h3><span class="chip ${bf.status === 'linked' ? 'good' : bf.status === 'needs-permission' || bf.status === 'error' ? 'warn' : ''}">${esc(bf.statusText())}</span></div>${backupHtml}</div>
       <div class="card mt" data-anchor="data"><div class="card-head"><h3>Your data</h3><span class="tiny muted">${state.savedAt ? 'Last saved ' + esc(fmtDateTime(state.savedAt)) : ''}</span></div>
@@ -2371,6 +2406,180 @@ views.settings = {
       <div class="tiny muted mt-l center">Personal Finance Dashboard v${APP_VERSION} · schema ${SCHEMA_VERSION} · Designs by Darowan · Works entirely offline — no accounts, no bank links, no tracking.</div>`;
   }
 };
+/* ============================================================
+   MONTH IN REVIEW — a full-screen, swipeable recap built from the user's own numbers
+   ============================================================ */
+/** Everything the recap needs for one month. Pure read of state; no side effects. */
+function storyStats(month) {
+  const sm = monthSummary(month), prevMonth = D.addMonths(month, -1), pm = monthSummary(prevMonth);
+  const cats = categoryActuals(month), prevCats = categoryActuals(prevMonth);
+  const catRows = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+  const txns = expenseTxnsInMonth(month);
+  const biggest = txns.slice().sort((a, b) => txnTotal(b) - txnTotal(a))[0] || null;
+  const incomeTxns = incomeTxnsInMonth(month);
+  // Biggest category mover, ignoring amounts too small to be interesting either month.
+  let mover = null;
+  for (const [c, v] of catRows.concat(Object.entries(prevCats).filter(([c]) => !(c in cats)))) {
+    const now = cats[c] || 0, before = prevCats[c] || 0;
+    if (now < 25 && before < 25) continue;
+    const diff = round2(now - before);
+    if (!mover || Math.abs(diff) > Math.abs(mover.diff)) mover = { cat: c, now, before, diff, pct: before > 0 ? diff / before * 100 : null };
+  }
+  // Bills that actually fell due in the month, and how many were ticked off.
+  const due = billItems().filter(b => occurrences(b, D.monthStart(month), D.monthEnd(month)).length);
+  const billsPaid = due.filter(b => isBillPaid(month, b.id));
+  const budgets = state.budgets.filter(b => b.month === month && num(b.planned) > 0).map(b => ({ cat: b.category, planned: num(b.planned), actual: cats[b.category] || 0 }));
+  const overBudget = budgets.filter(b => b.actual > b.planned).sort((a, b) => (b.actual - b.planned) - (a.actual - a.planned));
+  // Spending days vs quiet days (only up to today when the month is still running).
+  const lastDay = month === D.thisMonth() ? D.today() : D.monthEnd(month);
+  const elapsed = D.daysBetween(D.monthStart(month), lastDay) + 1;
+  const spentDays = new Set(txns.map(t => t.date).filter(d => d <= lastDay));
+  const byDay = {}; for (const t of txns) byDay[t.date] = round2((byDay[t.date] || 0) + txnTotal(t));
+  const busiest = Object.entries(byDay).sort((a, b) => b[1] - a[1])[0] || null;
+  // Averages from the three months before this one, so "typical" excludes the month being reviewed.
+  const prev3 = [1, 2, 3].map(k => monthSummary(D.addMonths(month, -k))).filter(s => s.income || s.expenses);
+  const avgExpenses = prev3.length ? round2(sum(prev3, s => s.expenses) / prev3.length) : null;
+  const avgRate = prev3.filter(s => s.savingsRate !== null).length ? sum(prev3.filter(s => s.savingsRate !== null), s => s.savingsRate) / prev3.filter(s => s.savingsRate !== null).length : null;
+  // Net worth from the stored snapshots either side of the month.
+  const snapIn = state.snapshots.filter(s => D.monthOf(s.date) <= month).slice(-1)[0] || null;
+  const snapBefore = state.snapshots.filter(s => D.monthOf(s.date) < month).slice(-1)[0] || null;
+  const goalsHit = state.goals.filter(g => num(g.target) > 0 && num(g.current) >= num(g.target));
+  const debtLeft = round2(sum(state.debts, d => d.currentBalance));
+  const sim = state.debts.some(d => num(d.currentBalance) > 0) ? simulateDebt(state.debts, ui.debtStrategy, num(S().debtExtraPool), D.thisMonth()) : null;
+  return {
+    month, prevMonth, sm, pm, cats, catRows, txnCount: txns.length, biggest, payDays: incomeTxns.length,
+    mover, due: due.length, billsPaid: billsPaid.length, budgets, overBudget, withinBudget: budgets.length - overBudget.length,
+    elapsed, quietDays: Math.max(0, elapsed - spentDays.size), busiest, avgExpenses, avgRate,
+    snapIn, snapBefore, goalsHit, debtLeft, sim, hasData: !!(sm.income || sm.expenses),
+  };
+}
+/** Turns the numbers into slides. Slides with nothing to say are dropped. */
+function storySlides(st) {
+  const sl = [], sm = st.sm;
+  const label = D.monthLabel(st.month, true);
+  const bar = (rows, max) => `<div class="story-bars">${rows.map(r => `<div class="sb"><div class="sb-head"><span>${esc(r.label)}</span><b>${fmt0(r.value)}</b></div><div class="sb-track"><i style="width:${Math.max(2, r.value / max * 100).toFixed(1)}%;background:${r.color}"></i></div></div>`).join('')}</div>`;
+  sl.push({ kicker: 'Month in review', title: label, big: '', sub: `${esc(isCouple() ? S().person1Name + ' & ' + S().person2Name : S().person1Name)} · ${st.txnCount} transaction${st.txnCount === 1 ? '' : 's'} recorded`, art: '📖', body: `<p class="story-p">A short recap of the month, built from what you logged. ${st.month === D.thisMonth() ? 'The month is still running, so this covers it so far.' : ''}</p>` });
+  if (sm.income) sl.push({
+    kicker: 'Money in', title: 'You brought in', big: fmt0(sm.income), tone: 'good', art: '💵',
+    sub: `across ${st.payDays} income transaction${st.payDays === 1 ? '' : 's'}`,
+    body: `<p class="story-p">${sm.expectedIncome ? `You expected ${fmt0(sm.expectedIncome)} from your income sources — ${sm.income >= sm.expectedIncome ? `that's ${fmt0(sm.income - sm.expectedIncome)} <b>more</b> than planned.` : `${fmt0(sm.expectedIncome - sm.income)} of it hasn't landed yet.`}` : 'Add your income sources and next month this page can compare what you expected with what arrived.'}</p>`,
+  });
+  if (sm.expenses) sl.push({
+    kicker: 'Money out', title: 'You spent', big: fmt0(sm.expenses), art: '🧾',
+    sub: st.avgExpenses ? `${sm.expenses > st.avgExpenses ? fmt0(sm.expenses - st.avgExpenses) + ' above' : fmt0(st.avgExpenses - sm.expenses) + ' below'} your 3-month average of ${fmt0(st.avgExpenses)}` : `over ${st.txnCount} transaction${st.txnCount === 1 ? '' : 's'}`,
+    body: `${st.biggest ? `<p class="story-p">Biggest single entry: <b>${esc(st.biggest.description)}</b> at ${fmt(txnTotal(st.biggest))} on ${esc(D.dateLabel(st.biggest.date))}.</p>` : ''}${st.quietDays ? `<p class="story-p">${st.quietDays} of ${st.elapsed} day${st.elapsed === 1 ? '' : 's'} passed without a single expense logged.</p>` : ''}`,
+  });
+  if (st.catRows.length) {
+    const top = st.catRows.slice(0, 4), max = top[0][1];
+    sl.push({
+      kicker: 'Where it went', title: `${esc(st.catRows[0][0])} led the month`, big: fmt0(st.catRows[0][1]), art: '🍰',
+      sub: `${fmtPct(sm.expenses ? st.catRows[0][1] / sm.expenses * 100 : 0)} of everything you spent`,
+      body: bar(top.map(([label2, value], i) => ({ label: label2, value, color: PALETTE[(i + 1) % PALETTE.length] })), max),
+    });
+  }
+  if (st.mover && Math.abs(st.mover.diff) >= 25) {
+    const up = st.mover.diff > 0;
+    sl.push({
+      kicker: 'The big change', title: `${esc(st.mover.cat)} went ${up ? 'up' : 'down'}`, big: fmt0(Math.abs(st.mover.diff)), tone: up ? 'warn' : 'good', art: up ? '📈' : '📉',
+      sub: `${up ? 'more' : 'less'} than ${esc(D.monthLabel(st.prevMonth))}${st.mover.pct === null ? '' : ` · ${Math.abs(st.mover.pct).toFixed(0)}% ${up ? 'up' : 'down'}`}`,
+      body: `<p class="story-p">${fmt0(st.mover.now)} this month against ${fmt0(st.mover.before)} last month.${up ? ' Worth a look before it settles in as normal.' : ' Nicely done.'}</p>`,
+    });
+  }
+  if (st.budgets.length) sl.push({
+    kicker: 'Against plan', title: st.overBudget.length ? `${st.withinBudget} of ${st.budgets.length} categories stayed in budget` : 'Every budget held', big: '', tone: st.overBudget.length ? '' : 'good', art: '🎯',
+    sub: `${fmt0(sum(st.budgets, b => b.actual))} spent of ${fmt0(sum(st.budgets, b => b.planned))} planned`,
+    body: st.overBudget.length ? `<p class="story-p">Furthest over: <b>${esc(st.overBudget[0].cat)}</b>, ${fmt0(st.overBudget[0].actual - st.overBudget[0].planned)} above its ${fmt0(st.overBudget[0].planned)} plan.</p>` : `<p class="story-p">Every category you planned for came in at or under its number. That is the hard part done.</p>`,
+  });
+  if (st.due) sl.push({
+    kicker: 'Bills', title: `${st.billsPaid} of ${st.due} bills ticked off`, big: '', art: '📅', tone: st.billsPaid === st.due ? 'good' : '',
+    sub: st.billsPaid === st.due ? 'nothing left outstanding for this month' : `${st.due - st.billsPaid} still unticked`,
+    body: `<p class="story-p">Bills and subscriptions due in ${esc(D.monthLabel(st.month))} came to ${fmt0(sm.expectedBills)}.</p>`,
+  });
+  if (sm.income) sl.push({
+    kicker: 'Kept', title: sm.net >= 0 ? 'You kept' : 'You overspent by', big: fmt0(Math.abs(sm.net)), tone: sm.net >= 0 ? 'good' : 'bad', art: sm.net >= 0 ? '🏦' : '⚠️',
+    sub: `savings rate ${fmtPct(sm.savingsRate)}${st.avgRate !== null ? ` · 3-month average ${fmtPct(st.avgRate)}` : ''}`,
+    body: `<p class="story-p">${sm.saved ? `${fmt0(sm.saved)} of that moved into the Savings category. ` : ''}${st.avgRate !== null && sm.savingsRate !== null ? (sm.savingsRate >= st.avgRate ? 'That is your better side of normal.' : 'A little below your recent average — one month rarely matters, a run of them does.') : 'Keep logging and next month gets a comparison.'}</p>`,
+  });
+  if (st.snapIn && st.snapBefore && st.snapIn.net !== st.snapBefore.net) {
+    const diff = round2(st.snapIn.net - st.snapBefore.net);
+    sl.push({
+      kicker: 'Net worth', title: diff >= 0 ? 'Net worth grew' : 'Net worth slipped', big: fmt0(Math.abs(diff)), tone: diff >= 0 ? 'good' : 'warn', art: '📊',
+      sub: `now ${fmt0(st.snapIn.net)}, from ${fmt0(st.snapBefore.net)}`,
+      body: `<p class="story-p">Assets ${fmt0(st.snapIn.assets)} against ${fmt0(st.snapIn.liabilities)} owed, taken from your monthly snapshots.</p>`,
+    });
+  }
+  if (st.sim) sl.push({
+    kicker: 'Debt', title: st.sim.neverPaysOff ? 'Your debts need more than the minimums' : `Debt-free by ${esc(D.monthLabel(st.sim.debtFreeMonth))}`, big: fmt0(st.debtLeft), art: '💳', tone: st.sim.neverPaysOff ? 'warn' : '',
+    sub: st.sim.neverPaysOff ? 'still owed — interest is outrunning the payments' : `still owed · ${st.sim.monthsToDebtFree} month${st.sim.monthsToDebtFree === 1 ? '' : 's'} to go`,
+    body: `<p class="story-p">${st.sim.neverPaysOff ? 'Add even a small extra monthly payment on the Debt page and a payoff date appears.' : `On the ${esc(ui.debtStrategy)} plan, with ${fmt0(st.sim.totalInterest)} of interest left to pay.`}</p>`,
+  });
+  if (st.goalsHit.length) sl.push({
+    kicker: 'Goals', title: st.goalsHit.length === 1 ? `${esc(st.goalsHit[0].name)} is fully funded` : `${st.goalsHit.length} goals fully funded`, big: '', tone: 'good', art: '🎉',
+    sub: `${fmt0(sum(st.goalsHit, g => g.current))} saved across ${st.goalsHit.length === 1 ? 'it' : 'them'}`,
+    body: `<p class="story-p">${st.goalsHit.map(g => esc(g.name)).join(', ')} — target reached. Time to pick the next one.</p>`,
+  });
+  // Closing slide: one concrete suggestion, chosen from what the month actually showed.
+  let next = { text: 'Keep logging as you go — a full month of entries is what makes every page on this dashboard sharp.', action: 'txnAdd', label: 'Add an expense' };
+  if (!st.budgets.length) next = { text: 'You have no budget set for this month. A handful of categories is enough to make the pace tracker work.', action: 'goto', view: 'budget', anchor: 'table', label: 'Set a budget' };
+  else if (st.overBudget.length) next = { text: `Try trimming <b>${esc(st.overBudget[0].cat)}</b> next month, or raise its plan to something you'll actually hit.`, action: 'goto', view: 'budget', anchor: 'table', label: 'Adjust the budget' };
+  else if (st.due && st.billsPaid < st.due) next = { text: 'A few bills are still unticked. Marking them paid keeps safe-to-spend honest.', action: 'goto', view: 'bills', anchor: 'bills', label: 'Open bills' };
+  else if (sm.savingsRate !== null && sm.savingsRate < 10) next = { text: 'Your savings rate is under 10%. Even a small automatic goal contribution changes the shape of a year.', action: 'goto', view: 'savings', anchor: 'goals', label: 'Open savings' };
+  else if (st.sim && !st.sim.neverPaysOff) next = { text: `Adding to the extra payment pool moves your debt-free date earlier than ${esc(D.monthLabel(st.sim.debtFreeMonth))}.`, action: 'goto', view: 'debt', anchor: 'comparison', label: 'Open debt' };
+  sl.push({
+    kicker: 'That was ' + label, title: sm.net >= 0 ? 'A month in the black.' : 'A month to learn from.', big: '', art: '✨',
+    sub: `${fmt0(sm.income)} in · ${fmt0(sm.expenses)} out · ${fmt0(sm.net, { sign: true })} net`,
+    body: `<p class="story-p">${next.text}</p>`, cta: next, last: true,
+  });
+  return sl;
+}
+/** The full-screen recap itself. Arrows, swipe, tap the sides, Esc to leave. */
+function openStory(month) {
+  const mo = month || ui.month;
+  const st = storyStats(mo);
+  if (!st.hasData) {
+    openModal(`<div class="modal narrow"><div class="modal-head"><h3>Month in review</h3><button class="x" data-modal-close>×</button></div><div class="modal-body"><p>There's nothing recorded in <b>${esc(D.monthLabel(mo))}</b> yet, so there's no story to tell. Log a few transactions — or pick a month that has some — and come back.</p></div><div class="modal-foot"><span class="spacer"></span><button class="btn primary" data-action="txnAdd" data-modal-close>Add an expense</button></div></div>`);
+    return;
+  }
+  const slides = storySlides(st);
+  let i = 0;
+  const m = openModal(`<div class="modal story"><div class="story-top"><div class="story-segs" id="storySegs"></div><button class="x" data-modal-close title="Close">×</button></div>
+    <div class="story-stage" id="storyStage"></div>
+    <button class="story-tap left" id="storyPrev" aria-label="Previous"></button><button class="story-tap right" id="storyNext" aria-label="Next"></button>
+    <div class="story-foot"><button class="btn ghost sm" id="storyBack">Back</button><span class="story-count" id="storyCount"></span><button class="btn primary sm" id="storyFwd">Next</button></div></div>`, { noFocus: true });
+  const stage = m.bg.querySelector('#storyStage');
+  const draw = () => {
+    const s = slides[i];
+    stage.innerHTML = `<div class="story-slide ${s.tone || ''}" key="${i}">
+      <div class="story-art">${s.art}</div>
+      <div class="story-kicker">${esc(s.kicker)}</div>
+      <h2 class="story-title">${s.title}</h2>
+      ${s.big ? `<div class="story-big">${s.big}</div>` : ''}
+      ${s.sub ? `<div class="story-sub">${s.sub}</div>` : ''}
+      ${s.body || ''}
+      ${s.cta ? `<button class="btn accent mt" data-story-cta="${attr(s.cta.action)}" ${s.cta.view ? `data-view="${attr(s.cta.view)}"` : ''} ${s.cta.anchor ? `data-anchor="${attr(s.cta.anchor)}"` : ''}>${esc(s.cta.label)} →</button>` : ''}
+    </div>`;
+    m.bg.querySelector('#storySegs').innerHTML = slides.map((_, k) => `<i class="${k < i ? 'done' : k === i ? 'on' : ''}"></i>`).join('');
+    m.bg.querySelector('#storyCount').textContent = `${i + 1} / ${slides.length}`;
+    m.bg.querySelector('#storyBack').style.visibility = i ? 'visible' : 'hidden';
+    m.bg.querySelector('#storyFwd').textContent = i === slides.length - 1 ? 'Done' : 'Next';
+    if (slides[i].last && st.sm.net > 0) celebrate();
+  };
+  const go = n => { const k = Math.max(0, Math.min(slides.length - 1, n)); if (k === i) return; i = k; draw(); };
+  const next = () => { if (i < slides.length - 1) go(i + 1); else m.close(); };
+  m.bg.querySelector('#storyFwd').addEventListener('click', next);
+  m.bg.querySelector('#storyNext').addEventListener('click', next);
+  m.bg.querySelector('#storyBack').addEventListener('click', () => go(i - 1));
+  m.bg.querySelector('#storyPrev').addEventListener('click', () => go(i - 1));
+  m.bg.addEventListener('click', e => { const b = e.target.closest('[data-story-cta]'); if (!b) return; m.close(); if (b.dataset.storyCta === 'goto') goto(b.dataset.view, { anchor: b.dataset.anchor, month: mo }); else actions[b.dataset.storyCta](); });
+  document.addEventListener('keydown', function key(e) {
+    if (m.closed) { document.removeEventListener('keydown', key); return; }
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(i - 1); }
+  });
+  let sx = null; m.bg.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+  m.bg.addEventListener('touchend', e => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (dx < -50) next(); if (dx > 50) go(i - 1); });
+  draw();
+}
 /* ============================================================
    ACTIONS, SAMPLE DATA, WIZARD, BOOT
    ============================================================ */
@@ -2411,13 +2620,14 @@ const actions = {
   closeSidebar: () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.add('hidden'); },
   monthShift: d => { ui.month = D.addMonths(ui.month, +d.n); if (ui.txnFilter.month !== undefined && ui.txnFilter.month !== '') ui.txnFilter.month = ui.month; if (ui.view === 'reports') ui.reportYear = ui.month.slice(0, 4); render(); },
   monthPick: () => {
-    openModal(`<div class="modal narrow"><div class="modal-head"><h3>Go to month</h3><button class="x" data-modal-close>×</button></div><div class="modal-body"><div class="field"><input type="month" id="pickMonth" value="${ui.month}"></div><div class="flex flex-wrap">${monthsWithData().slice(-8).reverse().map(m => `<button class="btn sm" data-pick="${m}">${esc(D.monthLabel(m))}</button>`).join('')}</div></div><div class="modal-foot"><button class="btn" data-action="monthToday" data-modal-close>This month</button><span class="spacer"></span><button class="btn primary" id="pickGo">Go</button></div></div>`, {});
+    openModal(`<div class="modal narrow"><div class="modal-head"><h3>Go to month</h3><button class="x" data-modal-close>×</button></div><div class="modal-body"><div class="field">${monthInputHtml('id="pickMonth"', ui.month)}</div><div class="flex flex-wrap">${monthsWithData().slice(-8).reverse().map(m => `<button class="btn sm" data-pick="${m}">${esc(D.monthLabel(m))}</button>`).join('')}</div></div><div class="modal-foot"><button class="btn" data-action="monthToday" data-modal-close>This month</button><span class="spacer"></span><button class="btn primary" id="pickGo">Go</button></div></div>`, {});
     const m = modalStack[modalStack.length - 1];
     m.bg.querySelector('#pickGo').addEventListener('click', () => { const v = m.bg.querySelector('#pickMonth').value; if (/^\d{4}-\d{2}$/.test(v)) { ui.month = v; if (ui.txnFilter.month) ui.txnFilter.month = v; } m.close(); render(); });
     m.bg.addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (b) { ui.month = b.dataset.pick; if (ui.txnFilter.month) ui.txnFilter.month = ui.month; m.close(); render(); } });
   },
   monthToday: () => { ui.month = D.thisMonth(); if (ui.txnFilter.month) ui.txnFilter.month = ui.month; render(); },
   openWizard: () => openWizard(),
+  monthStory: d => openStory(d && d.month),
   help: () => openTour(),
   setTheme: d => { commit(s => { s.settings.theme = d.theme; }, { silent: true }); applyTheme(); render(); toast(`${THEMES[d.theme].name} theme`, 'default', 1500); },
   setIcon: d => { commit(s => { s.settings.icon = d.icon; }, { silent: true }); applyIcon(); render(); },
@@ -2474,12 +2684,13 @@ const changes = {
   txnFilter: (el) => { ui.txnFilter[el.dataset.key] = el.value; ui.txnLimit = 200; if (el.dataset.key === 'month' && el.value) ui.month = el.value; render(); if (el.dataset.key === 'q') { const i = document.querySelector('input[data-key="q"]'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } } },
   togglePaid: el => togglePaid(el.dataset.id, el.dataset.kind, el.checked),
   budgetShowAll: el => { ui.budgetShowAll = el.checked; render(); },
+  showChecklist: el => commit(s => { s.settings.checklistDismissed = !el.checked; }),
   budgetSet: el => { const cat = el.dataset.cat, v = el.value; commit(s => { const i = s.budgets.findIndex(b => b.month === ui.month && b.category === cat); if (v === '') { if (i >= 0) s.budgets.splice(i, 1); } else if (i >= 0) s.budgets[i].planned = round2(num(v)); else s.budgets.push({ id: uid(), month: ui.month, category: cat, planned: round2(num(v)) }); }); },
   accountBalance: el => { commit(s => { const a = byId('accounts', el.dataset.id); if (a) { a.balance = round2(Math.abs(num(el.value))); a.updatedAt = D.today(); } }); },
   debtExtra: el => commit(s => { s.settings.debtExtraPool = round2(num(el.value)); }),
   reportYear: el => { ui.reportYear = el.value; render(); },
   themeAuto: el => { commit(s => { s.settings.theme = el.checked ? 'auto' : currentThemeId(); }, { silent: true }); applyTheme(); render(); },
-  setting: el => { const k = el.dataset.key; const v = el.type === 'checkbox' ? el.checked : el.dataset.num ? num(el.value) : el.value; commit(s => { s.settings[k] = v; }); },
+  setting: el => { const k = el.dataset.key; const v = el.type === 'checkbox' ? el.checked : el.dataset.num ? num(el.value) : el.value; if (el.type === 'month' || el.getAttribute('type') === 'month') { if (!/^\d{4}-\d{2}$/.test(v)) { toast('Enter the month as YYYY-MM, e.g. 2026-03', 'warn'); el.value = S()[k] || D.thisMonth(); return; } } commit(s => { s.settings[k] = v; }); if (k === 'evenRows') document.body.classList.toggle('even-rows', !!v); },
   spendable: el => commit(s => { const set = new Set(s.settings.spendableTypes || []); if (el.checked) set.add(el.dataset.type); else set.delete(el.dataset.type); s.settings.spendableTypes = [...set]; }),
   currency: el => { const c = CURRENCIES.find(x => x.code === el.value); commit(s => { s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; buildFormatter(); }); applyIcon(); },
   currencySymbol: el => { commit(s => { s.settings.currency.symbol = el.value; buildFormatter(); }); applyIcon(); },
@@ -2591,7 +2802,7 @@ function openWizard() {
       <div class="form-grid mt"><div class="field"><label>Your name</label><input type="text" name="p1" value="${attr(vals.p1)}" placeholder="e.g. Alex" maxlength="24"></div><div class="field" id="wizP2" ${vals.mode === 'couple' ? '' : 'style="display:none"'}><label>Partner's name</label><input type="text" name="p2" value="${attr(vals.p2)}" placeholder="e.g. Sam" maxlength="24"></div></div>`,
     () => `<h2>Currency and start month</h2><p class="muted mt-s">The currency only changes how amounts are displayed — nothing is converted.</p>
       <div class="form-grid mt"><div class="field"><label>Currency</label><select name="currency">${CURRENCIES.filter(c => c.code !== 'CUSTOM').map(c => `<option value="${c.code}"${c.code === vals.currency ? ' selected' : ''}>${c.code} · ${esc(c.name)}</option>`).join('')}</select><div class="hint">Need a different symbol? Pick "Custom" in Settings.</div></div>
-      <div class="field"><label>Tracking starts</label><input type="month" name="startMonth" value="${attr(vals.startMonth)}" placeholder="YYYY-MM"><div class="hint">Budgets and rollover chains begin here.</div></div></div>`,
+      <div class="field"><label>Tracking starts</label>${monthInputHtml('name="startMonth"', vals.startMonth)}<div class="hint">Budgets and rollover chains begin here.</div></div></div>`,
     () => `<h2>Pick a look</h2><p class="muted mt-s">Six colour themes, including two dark ones. Change it any time from the dots in the sidebar.</p><div class="mt">${themeCardsHtml(vals.theme, 'data-wiz-theme')}</div><div class="field mt" style="margin-bottom:0"><label>Tab icon</label>${iconRowHtml(vals.icon, 'data-wiz-icon')}</div>`,
     () => `<h2>Start with sample data?</h2><p class="muted mt-s">The sample household (Alex & Sam) has six months of realistic transactions, bills, debts and goals so you can see every page working. Replace it with your own data whenever you're ready — or start empty.</p>
       <div class="choice mt">${hasData ? `<label><input type="radio" name="data" value="keep" ${vals.data === 'keep' ? 'checked' : ''}><b>Keep my data</b><span>Apply the settings above to what's already here.</span></label>` : ''}<label><input type="radio" name="data" value="sample" ${vals.data === 'sample' ? 'checked' : ''}><b>Load the sample household</b><span>Explore with realistic data${hasData ? ' — <b>replaces</b> what is here now' : ''}.</span></label><label><input type="radio" name="data" value="empty" ${vals.data === 'empty' ? 'checked' : ''}><b>Start empty</b><span>Add your own income, bills and accounts.${hasData ? ' <b>Erases</b> current data.' : ''}</span></label></div>
@@ -2600,8 +2811,10 @@ function openWizard() {
   const m = openModal(`<div class="modal"><div class="modal-body" style="padding-top:22px"><div class="wiz-steps" id="wizSteps"></div><div id="wizBody"></div></div><div class="modal-foot"><button class="btn" id="wizBack">Back</button><span class="spacer"></span><button class="btn ghost" data-modal-close>Skip</button><button class="btn primary" id="wizNext">Next</button></div></div>`, { sticky: true, noFocus: true });
   const body = m.bg.querySelector('#wizBody');
   const read = () => { body.querySelectorAll('input,select').forEach(el => { if (el.type === 'radio') { if (el.checked) vals[el.name] = el.value; } else vals[el.name] = el.value; }); };
-  const draw = () => { body.innerHTML = steps[step](); m.bg.querySelector('#wizSteps').innerHTML = steps.map((_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join(''); m.bg.querySelector('#wizBack').style.visibility = step ? 'visible' : 'hidden'; m.bg.querySelector('#wizNext').textContent = step === steps.length - 1 ? 'Finish' : 'Next'; };
-  body.addEventListener('change', e => { read(); if (e.target.name === 'mode') { const p2 = body.querySelector('#wizP2'); if (p2) p2.style.display = vals.mode === 'couple' ? '' : 'none'; } });
+  const draw = () => { body.innerHTML = steps[step](); markChoices(); m.bg.querySelector('#wizSteps').innerHTML = steps.map((_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join(''); m.bg.querySelector('#wizBack').style.visibility = step ? 'visible' : 'hidden'; m.bg.querySelector('#wizNext').textContent = step === steps.length - 1 ? 'Finish' : 'Next'; };
+  // .sel mirrors :has(input:checked) for browsers without :has (Safari < 15.4, Firefox < 121).
+  const markChoices = () => body.querySelectorAll('.choice label').forEach(l => { const r = l.querySelector('input'); l.classList.toggle('sel', !!(r && r.checked)); });
+  body.addEventListener('change', e => { read(); markChoices(); if (e.target.name === 'mode') { const p2 = body.querySelector('#wizP2'); if (p2) p2.style.display = vals.mode === 'couple' ? '' : 'none'; } });
   body.addEventListener('click', e => {
     const ic = e.target.closest('[data-wiz-icon]'); if (ic) { vals.icon = ic.dataset.wizIcon; state.settings.icon = vals.icon; applyIcon(); body.querySelectorAll('.icon-opt').forEach(c => c.classList.toggle('active', c.dataset.wizIcon === vals.icon)); return; }
     const b = e.target.closest('[data-wiz-theme]'); if (!b) return; vals.theme = b.dataset.wizTheme; state.settings.theme = vals.theme; applyTheme(); body.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.dataset.wizTheme === vals.theme)); body.querySelectorAll('.icon-opt').forEach(c => { c.innerHTML = appIconSvg(c.dataset.wizIcon, THEMES[vals.theme].vars.accent, 24); }); });
@@ -2660,6 +2873,7 @@ function openTour(sample) {
 // ---------- Boot ----------
 async function boot() {
   document.getElementById('verLabel').textContent = APP_VERSION;
+  const probe = document.createElement('input'); probe.setAttribute('type', 'month'); if (probe.type !== 'month') document.documentElement.classList.add('no-month-input');
   if (!storage.available()) toast('This browser is blocking local storage — data will not be saved. Try a normal (non-private) window.', 'bad', 12000);
   const loaded = loadState();
   state = loaded || blankState();

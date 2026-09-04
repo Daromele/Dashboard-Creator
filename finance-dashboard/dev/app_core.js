@@ -77,7 +77,7 @@ function defaultSettings() {
     householdMode: 'single', person1Name: 'Me', person2Name: 'Partner',
     currency: { code: 'USD', symbol: '$', locale: 'en-US' },
     startMonth: D.thisMonth(), safetyBuffer: 0, budgetRollover: 'off', includeSubsInBills: true,
-    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', icon: 'coin', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true,
+    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', icon: 'coin', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true, evenRows: false,
   };
 }
 function blankState() {
@@ -399,6 +399,7 @@ function applyTheme() {
   const meta = document.querySelector('meta[name=color-scheme]'); if (meta) meta.content = t.dark ? 'dark' : 'light';
   PALETTE = t.chart.slice(); C = Object.assign({}, t.series);
   applyIcon();
+  document.body.classList.toggle('even-rows', !!S().evenRows);
   const dots = document.getElementById('themeDots');
   if (dots) dots.innerHTML = Object.entries(THEMES).map(([k, th]) => `<span class="theme-dot ${k === id ? 'active' : ''}" style="--dot-bg:${th.vars.bg};--dot-accent:${th.vars.accent}" title="${th.name}" data-action="setTheme" data-theme="${k}"></span>`).join('');
 }
@@ -456,6 +457,8 @@ function fmt(n, opts) {
 const fmt0 = n => fmt(n, { dec0: true });
 const fmtPct = (n, d) => n === null || n === undefined || !Number.isFinite(n) ? '—' : `${n.toFixed(d === undefined ? 0 : d)}%`;
 function fmtDateTime(iso) { try { return new Date(iso).toLocaleString(); } catch (e) { return iso; } }
+/** Firefox and Safari have no month picker — the input falls back to text there, so it gets a format hint and a pattern. */
+function monthInputHtml(extra, value) { return `<input type="month" pattern="[0-9]{4}-[0-9]{2}" inputmode="numeric" placeholder="YYYY-MM" value="${attr(value)}" ${extra || ''}><span class="month-hint hint">Type it as YYYY-MM, e.g. 2026-03.</span>`; }
 function esc(s) { return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 const attr = s => esc(s);
 const cls = (...a) => a.filter(Boolean).join(' ');

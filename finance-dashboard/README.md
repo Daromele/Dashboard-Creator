@@ -17,7 +17,7 @@ Single-file, offline personal finance manager sold as a digital download (Design
 | File | Purpose |
 |---|---|
 | `listing/etsy-listing.txt` | Title, 13 keywords, plain-text description. |
-| `listing/finance-dashboard-etsy-mockups.html` | 13 screenshot-ready 1500×1125 slides, editable copy. Open in Chrome, DevTools → capture node screenshot per `<section class="slide">`. |
+| `listing/finance-dashboard-etsy-mockups.html` | 14 screenshot-ready 1500×1125 slides, editable copy. Open in Chrome, DevTools → capture node screenshot per `<section class="slide">`. |
 | `listing/assets/` | Product screenshots used by the deck and guides. |
 
 ## Development
@@ -41,6 +41,7 @@ Engine self-tests also run in-app (Settings → Run self-tests) or by opening th
 - `dev/app_core.js` — state, localStorage wrapper with quota detection, IndexedDB key/value, `backupFile` module (link, debounced write, verification every 20th write, last-known-good copy, staleness check), formatting, toasts, modals, generic form builder, SVG charts.
 - `dev/app_views1.js` — Overview, Budget, Transactions (+ CSV import/export), Bills & Subscriptions (+ calendar).
 - `dev/app_views2.js` — Income, Savings, Debt, Net Worth, Reports, Settings.
+- `dev/app_story.js` — "Month in review": `storyStats(month)` gathers the month's numbers, `storySlides(st)` turns them into slides (ones with nothing to say are dropped), `openStory(month)` is the full-screen player.
 - `dev/app_boot.js` — render loop, action/change dispatch, sample data generator, first-run wizard, boot.
 
 ### Decisions on the spec's open questions
@@ -52,9 +53,11 @@ Engine self-tests also run in-app (Settings → Run self-tests) or by opening th
 ### Notes
 
 - Six colour themes (`THEMES` in `dev/app_core.js`) drive CSS variables and the chart palette; `auto` follows the OS light/dark setting.
+- **Month in review** (`dev/app_story.js`): full-screen recap of the month in the top bar, opened from the Overview greeting or Reports (`data-action="monthStory"`). Arrow keys, swipe and edge taps move between slides. Slides are data-driven — a month with nothing recorded gets a short "nothing here yet" dialog instead.
 - First-run flow: 4-step wizard (household, currency, theme, data) → 7-slide welcome tour → "Your first steps" checklist on the Overview. Quick add (`N`) is the single entry point for every record type; forms fold non-essential fields under "More options".
 
 - Bill "paid" ticks create a linked expense transaction (and remove it when unticked), so budget, savings rate, reports and safe-to-spend stay consistent.
 - Savings rate counts outflows in the "Savings" category as saved, not spent.
 - Transactions do not adjust account balances; balances are user-maintained snapshots (documented in the guide).
+- Cross-browser hardening: the one `:has()` rule has a `.sel` class fallback, and `<input type=month>` (unsupported in Firefox/Safari) gets a `YYYY-MM` pattern, a format hint shown only when the picker is missing, and validation before the value is stored.
 - Browser pass in this environment covered Chromium only; Firefox/Safari fall back to manual JSON backup with a periodic reminder, as the spec requires, but were not exercised here.

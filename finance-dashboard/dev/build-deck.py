@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds listing/finance-dashboard-etsy-mockups.html — 12 screenshot-ready 1500x1125 slides."""
+"""Builds listing/finance-dashboard-etsy-mockups.html — 14 screenshot-ready 1500x1125 slides."""
 import base64, os, html
 here = os.path.dirname(os.path.abspath(__file__)); root = os.path.dirname(here)
 A = os.path.join(root, 'listing', 'assets')
@@ -40,7 +40,7 @@ p{margin:0}
 .tile .ic{width:44px;height:44px;border-radius:12px;background:var(--bg2);display:grid;place-items:center;margin-bottom:12px;font-size:22px}
 .note{background:var(--bg2);border-radius:16px;padding:18px 24px;font-size:20px;line-height:1.45;color:var(--ink2)}
 """
-def foot(n): return f'<div class="foot"><span {E}>Personal Finance Dashboard</span><span {E}>{n} / 13</span></div>'
+def foot(n): return f'<div class="foot"><span {E}>Personal Finance Dashboard</span><span {E}>{n} / 14</span></div>'
 def slide(body, cls=''): return f'<section class="slide {cls}"><div class="pad">{body}</div></section>'
 S = []
 # 1 Hero
@@ -139,7 +139,23 @@ S.append(slide(f"""
   <div class="card"><h3 {E}>Filter anything</h3><p {E}>Transactions, bills, goals and debts all carry an owner chip and filter by person.</p></div>
   <div class="card"><h3 {E}>Still simple solo</h3><p {E}>Single mode hides the owner field entirely — switch either way at any time.</p></div>
 </div>""" + foot(9), 'dark'))
-# 10 Privacy & backup
+# 10 Month in review
+S.append(slide(f"""
+<div class="row" style="height:100%;gap:56px;align-items:center">
+  <div style="flex:1">
+    <div class="kicker" {E}>Month in review</div>
+    <h2 {E}>Your month, told back to you.</h2>
+    <p class="lead" style="margin-top:20px" {E}>One button turns the month into a full-screen recap — swipe or tap through what came in, where it went, what changed since last month, and what you kept.</p>
+    <div style="margin-top:30px">
+      <div class="check"><i>✓</i><span {E}>Built entirely from your own entries — nothing is sent anywhere</span></div>
+      <div class="check"><i>✓</i><span {E}>The biggest category swing, budgets that held, bills ticked off</span></div>
+      <div class="check"><i>✓</i><span {E}>Net worth, debt payoff date and any goal you finished</span></div>
+      <div class="check"><i>✓</i><span {E}>Ends with one concrete suggestion for next month</span></div>
+    </div>
+  </div>
+  <div style="flex:0 0 600px"><div class="frame" style="padding:10px"><img src="{img('story.jpg')}" alt="Month in review"></div></div>
+</div>""" + foot(10), 'dark'))
+# 11 Privacy & backup
 S.append(slide(f"""
 <div class="row" style="height:100%;gap:56px">
   <div style="flex:1">
@@ -155,8 +171,8 @@ S.append(slide(f"""
   </div>
   <div style="flex:0 0 640px"><div class="frame"><img src="{img('settings.jpg')}" alt="Settings"></div>
     <div class="note" style="margin-top:22px" {E}>"The planner writes only to a file you choose on your own computer. If that folder happens to sync, your backup travels with it. Nothing is ever sent to us."</div></div>
-</div>""" + foot(10)))
-# 11 Devices
+</div>""" + foot(11)))
+# 12 Devices
 S.append(slide(f"""
 <div class="kicker" {E}>Desktop · laptop · tablet · phone</div>
 <div class="row" style="justify-content:space-between;align-items:flex-end"><h2 style="max-width:760px" {E}>Made for a big screen. Still works on the small one.</h2><p class="lead" style="max-width:520px;font-size:21px" {E}>Open the same file on your phone or tablet for a quick check — the layout adapts, tables scroll, the menu tucks away.</p></div>
@@ -164,14 +180,14 @@ S.append(slide(f"""
   <div class="frame" style="width:760px"><img src="{img('tablet-savings.jpg')}" alt="Tablet"></div>
   <div class="phone"><img src="{img('mobile-overview.jpg')}" alt="Phone"></div>
   <div class="phone"><img src="{img('mobile-calendar.jpg')}" alt="Phone calendar"></div>
-</div>""" + foot(11)))
-# 12 Themes
+</div>""" + foot(12)))
+# 13 Themes
 S.append(slide(f"""
 <div class="kicker" {E}>Six colour themes</div>
 <div class="row" style="justify-content:space-between;align-items:flex-end"><h2 style="max-width:820px" {E}>Your dashboard, your mood. Two dark modes included.</h2><p class="lead" style="max-width:440px;font-size:21px" {E}>Cream, Charcoal, Midnight, Sage, Blush and Slate — one click in the sidebar, or follow your device's light / dark setting.</p></div>
 <div class="grid" style="grid-template-columns:1fr 1fr 1fr;margin-top:34px;flex:1;align-content:center;gap:26px">{''.join(f'<div><div class="frame" style="padding:8px"><img src="{img("theme-" + t + ".jpg")}" alt="{t}"></div><div class="center" style="margin-top:10px;font-size:20px;font-weight:600" {E}>{n}</div></div>' for t, n in [('cream','Cream'),('charcoal','Charcoal'),('midnight','Midnight'),('sage','Sage'),('blush','Blush'),('slate','Slate')])}</div>
-""" + foot(12)))
-# 13 How it works / what you get
+""" + foot(13)))
+# 14 How it works / what you get
 S.append(slide(f"""
 <div class="row" style="height:100%;gap:70px;align-items:flex-start">
   <div style="flex:1">
@@ -197,7 +213,7 @@ S.append(slide(f"""
     <div class="check"><i>✓</i><span {E}>24 currencies + custom symbol</span></div>
     <div class="note" style="margin-top:22px;font-size:18px" {E}>Works in Chrome, Edge, Firefox and Safari. Auto-backup needs Chrome or Edge; everyone gets one-click JSON backup.</div>
   </div></div>
-</div>""" + foot(13)))
+</div>""" + foot(14)))
 out = f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Personal Finance Dashboard — Etsy mockup deck</title><style>{CSS}</style></head><body>
 <div style="max-width:1500px;margin:30px auto 0;font-size:15px;color:#333;background:#fff;padding:16px 22px;border-radius:10px"><b>How to capture:</b> open in Chrome → DevTools (F12) → Elements → right-click a <code>&lt;section class="slide"&gt;</code> → <i>Capture node screenshot</i>. Each slide is exactly 1500×1125. All text is editable in place — click and type before capturing. Keep hero content inside the centre square (Etsy crops search thumbnails to 1:1).</div>
 {''.join(S)}

@@ -26,7 +26,8 @@ function greetingHtml() {
   const name = S().person1Name && S().person1Name !== 'Me' ? S().person1Name : '';
   const d = new Date(); const dateStr = d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
   const today = D.today(); const dim = D.dim(D.parse(today).y, D.parse(today).m); const left = dim - D.parse(today).d;
-  return `<div class="greet"><div><h2>${esc(g)}${name ? ', ' + esc(name) : ''}.</h2><div class="sub">${esc(dateStr)} · ${left === 0 ? 'last day of the month' : left + ' day' + (left === 1 ? '' : 's') + ' left in ' + D.MONTHS_LONG[d.getMonth()]}</div></div></div>`;
+  return `<div class="greet"><div><h2>${esc(g)}${name ? ', ' + esc(name) : ''}.</h2><div class="sub">${esc(dateStr)} · ${left === 0 ? 'last day of the month' : left + ' day' + (left === 1 ? '' : 's') + ' left in ' + D.MONTHS_LONG[d.getMonth()]}</div></div>
+    <button class="btn accent no-print" data-action="monthStory" data-month="${attr(ui.month)}">✨ ${esc(D.monthLabel(ui.month))} in review</button></div>`;
 }
 function insightsHtml(month) {
   const out = []; const today = D.today(); const thisMonth = D.thisMonth();

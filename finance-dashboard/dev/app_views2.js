@@ -291,7 +291,7 @@ views.reports = {
     return `
       <div class="flex between flex-wrap mb no-print">
         <div class="flex"><label class="small">Year</label><select data-change="reportYear" style="width:auto">${years.map(y => `<option value="${y}"${y === year ? ' selected' : ''}>${y}</option>`).join('')}</select><span class="tiny muted">Monthly report follows the month picker above.</span></div>
-        <div class="flex"><button class="btn" data-action="exportYearCsv">Export ${year} CSV</button><button class="btn primary" data-action="print">Print / Save PDF</button></div>
+        <div class="flex"><button class="btn accent" data-action="monthStory" data-month="${attr(ui.month)}">✨ Month in review</button><button class="btn" data-action="exportYearCsv">Export ${year} CSV</button><button class="btn primary" data-action="print">Print / Save PDF</button></div>
       </div>
       <div class="print-only mb"><h1>Finance report · ${year}</h1><div class="small muted">${esc(isCouple() ? S().person1Name + ' & ' + S().person2Name : S().person1Name)} · generated ${esc(D.dateLabel(D.today()))} · amounts in ${esc(S().currency.code)}</div></div>
       <div class="section-title"><h2>Annual summary ${year}</h2></div>
@@ -357,7 +357,7 @@ views.settings = {
         </div>
         <div class="card" data-anchor="planning"><div class="card-head"><h3>Planning</h3></div>
           <div class="form-grid">
-            <div class="field"><label>Tracking starts</label><input type="month" value="${attr(s.startMonth)}" placeholder="YYYY-MM" data-change="setting" data-key="startMonth"><div class="hint">Budget rollover chains don't reach before this month.</div></div>
+            <div class="field"><label>Tracking starts</label>${monthInputHtml('data-change="setting" data-key="startMonth"', s.startMonth)}<div class="hint">Budget rollover chains don't reach before this month.</div></div>
             <div class="field"><label>Safety buffer</label><input type="number" step="1" min="0" value="${s.safetyBuffer}" data-change="setting" data-key="safetyBuffer" data-num="1"><div class="hint">Subtracted from safe-to-spend.</div></div>
             <div class="field"><label>Budget rollover</label><select data-change="setting" data-key="budgetRollover"><option value="off"${s.budgetRollover === 'off' ? ' selected' : ''}>Off — each month stands alone</option><option value="surplus"${s.budgetRollover === 'surplus' ? ' selected' : ''}>Surplus only — unspent money carries forward</option><option value="full"${s.budgetRollover === 'full' ? ' selected' : ''}>Full — overspend reduces next month too</option></select></div>
             <div class="field"><label>Emergency fund target</label><select data-change="setting" data-key="emergencyMonths" data-num="1">${[1, 2, 3, 4, 6, 9, 12].map(n => `<option value="${n}"${s.emergencyMonths === n ? ' selected' : ''}>${n} month${n > 1 ? 's' : ''} of expenses</option>`).join('')}</select></div>
@@ -381,7 +381,9 @@ views.settings = {
       <div class="card mt" data-anchor="appearance"><div class="card-head"><h3>Appearance</h3><span class="tiny muted">Pick a colour theme — charts and every page follow it</span></div>
         ${themeCardsHtml(s.theme === 'auto' ? currentThemeId() : (s.theme || 'cream'), 'data-action="setTheme" data-theme')}
         <label class="check mt small"><input type="checkbox" data-change="themeAuto" ${s.theme === 'auto' ? 'checked' : ''}> Follow my device's light / dark setting (Cream by day, Charcoal at night)</label>
-        <div class="field mt" style="margin-bottom:0"><label>Tab icon</label>${iconRowHtml(s.icon || 'coin', 'data-action="setIcon" data-icon')}<div class="hint">Shows in the browser tab, bookmarks and the sidebar. The coin uses your currency symbol.</div></div>
+        <div class="field mt"><label>Tab icon</label>${iconRowHtml(s.icon || 'coin', 'data-action="setIcon" data-icon')}<div class="hint">Shows in the browser tab, bookmarks and the sidebar. The coin uses your currency symbol.</div></div>
+        <label class="check small"><input type="checkbox" data-change="setting" data-key="evenRows" ${s.evenRows ? 'checked' : ''}> Even card heights — stretch cards in a row to match the tallest, instead of letting them end where their content does</label>
+        <label class="check small" style="margin-bottom:0"><input type="checkbox" data-change="showChecklist" ${s.checklistDismissed ? '' : 'checked'}> Show the "your first steps" checklist on the Overview</label>
       </div>
       <div class="card mt" data-anchor="backup"><div class="card-head"><h3>Automatic backup</h3><span class="chip ${bf.status === 'linked' ? 'good' : bf.status === 'needs-permission' || bf.status === 'error' ? 'warn' : ''}">${esc(bf.statusText())}</span></div>${backupHtml}</div>
       <div class="card mt" data-anchor="data"><div class="card-head"><h3>Your data</h3><span class="tiny muted">${state.savedAt ? 'Last saved ' + esc(fmtDateTime(state.savedAt)) : ''}</span></div>

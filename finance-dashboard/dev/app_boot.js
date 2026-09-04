@@ -38,13 +38,14 @@ const actions = {
   closeSidebar: () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.add('hidden'); },
   monthShift: d => { ui.month = D.addMonths(ui.month, +d.n); if (ui.txnFilter.month !== undefined && ui.txnFilter.month !== '') ui.txnFilter.month = ui.month; if (ui.view === 'reports') ui.reportYear = ui.month.slice(0, 4); render(); },
   monthPick: () => {
-    openModal(`<div class="modal narrow"><div class="modal-head"><h3>Go to month</h3><button class="x" data-modal-close>×</button></div><div class="modal-body"><div class="field"><input type="month" id="pickMonth" value="${ui.month}"></div><div class="flex flex-wrap">${monthsWithData().slice(-8).reverse().map(m => `<button class="btn sm" data-pick="${m}">${esc(D.monthLabel(m))}</button>`).join('')}</div></div><div class="modal-foot"><button class="btn" data-action="monthToday" data-modal-close>This month</button><span class="spacer"></span><button class="btn primary" id="pickGo">Go</button></div></div>`, {});
+    openModal(`<div class="modal narrow"><div class="modal-head"><h3>Go to month</h3><button class="x" data-modal-close>×</button></div><div class="modal-body"><div class="field">${monthInputHtml('id="pickMonth"', ui.month)}</div><div class="flex flex-wrap">${monthsWithData().slice(-8).reverse().map(m => `<button class="btn sm" data-pick="${m}">${esc(D.monthLabel(m))}</button>`).join('')}</div></div><div class="modal-foot"><button class="btn" data-action="monthToday" data-modal-close>This month</button><span class="spacer"></span><button class="btn primary" id="pickGo">Go</button></div></div>`, {});
     const m = modalStack[modalStack.length - 1];
     m.bg.querySelector('#pickGo').addEventListener('click', () => { const v = m.bg.querySelector('#pickMonth').value; if (/^\d{4}-\d{2}$/.test(v)) { ui.month = v; if (ui.txnFilter.month) ui.txnFilter.month = v; } m.close(); render(); });
     m.bg.addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (b) { ui.month = b.dataset.pick; if (ui.txnFilter.month) ui.txnFilter.month = ui.month; m.close(); render(); } });
   },
   monthToday: () => { ui.month = D.thisMonth(); if (ui.txnFilter.month) ui.txnFilter.month = ui.month; render(); },
   openWizard: () => openWizard(),
+  monthStory: d => openStory(d && d.month),
   help: () => openTour(),
   setTheme: d => { commit(s => { s.settings.theme = d.theme; }, { silent: true }); applyTheme(); render(); toast(`${THEMES[d.theme].name} theme`, 'default', 1500); },
   setIcon: d => { commit(s => { s.settings.icon = d.icon; }, { silent: true }); applyIcon(); render(); },
@@ -101,12 +102,13 @@ const changes = {
   txnFilter: (el) => { ui.txnFilter[el.dataset.key] = el.value; ui.txnLimit = 200; if (el.dataset.key === 'month' && el.value) ui.month = el.value; render(); if (el.dataset.key === 'q') { const i = document.querySelector('input[data-key="q"]'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } } },
   togglePaid: el => togglePaid(el.dataset.id, el.dataset.kind, el.checked),
   budgetShowAll: el => { ui.budgetShowAll = el.checked; render(); },
+  showChecklist: el => commit(s => { s.settings.checklistDismissed = !el.checked; }),
   budgetSet: el => { const cat = el.dataset.cat, v = el.value; commit(s => { const i = s.budgets.findIndex(b => b.month === ui.month && b.category === cat); if (v === '') { if (i >= 0) s.budgets.splice(i, 1); } else if (i >= 0) s.budgets[i].planned = round2(num(v)); else s.budgets.push({ id: uid(), month: ui.month, category: cat, planned: round2(num(v)) }); }); },
   accountBalance: el => { commit(s => { const a = byId('accounts', el.dataset.id); if (a) { a.balance = round2(Math.abs(num(el.value))); a.updatedAt = D.today(); } }); },
   debtExtra: el => commit(s => { s.settings.debtExtraPool = round2(num(el.value)); }),
   reportYear: el => { ui.reportYear = el.value; render(); },
   themeAuto: el => { commit(s => { s.settings.theme = el.checked ? 'auto' : currentThemeId(); }, { silent: true }); applyTheme(); render(); },
-  setting: el => { const k = el.dataset.key; const v = el.type === 'checkbox' ? el.checked : el.dataset.num ? num(el.value) : el.value; commit(s => { s.settings[k] = v; }); },
+  setting: el => { const k = el.dataset.key; const v = el.type === 'checkbox' ? el.checked : el.dataset.num ? num(el.value) : el.value; if (el.type === 'month' || el.getAttribute('type') === 'month') { if (!/^\d{4}-\d{2}$/.test(v)) { toast('Enter the month as YYYY-MM, e.g. 2026-03', 'warn'); el.value = S()[k] || D.thisMonth(); return; } } commit(s => { s.settings[k] = v; }); if (k === 'evenRows') document.body.classList.toggle('even-rows', !!v); },
   spendable: el => commit(s => { const set = new Set(s.settings.spendableTypes || []); if (el.checked) set.add(el.dataset.type); else set.delete(el.dataset.type); s.settings.spendableTypes = [...set]; }),
   currency: el => { const c = CURRENCIES.find(x => x.code === el.value); commit(s => { s.settings.currency = { code: c.code, symbol: c.symbol, locale: c.locale }; buildFormatter(); }); applyIcon(); },
   currencySymbol: el => { commit(s => { s.settings.currency.symbol = el.value; buildFormatter(); }); applyIcon(); },
@@ -218,7 +220,7 @@ function openWizard() {
       <div class="form-grid mt"><div class="field"><label>Your name</label><input type="text" name="p1" value="${attr(vals.p1)}" placeholder="e.g. Alex" maxlength="24"></div><div class="field" id="wizP2" ${vals.mode === 'couple' ? '' : 'style="display:none"'}><label>Partner's name</label><input type="text" name="p2" value="${attr(vals.p2)}" placeholder="e.g. Sam" maxlength="24"></div></div>`,
     () => `<h2>Currency and start month</h2><p class="muted mt-s">The currency only changes how amounts are displayed — nothing is converted.</p>
       <div class="form-grid mt"><div class="field"><label>Currency</label><select name="currency">${CURRENCIES.filter(c => c.code !== 'CUSTOM').map(c => `<option value="${c.code}"${c.code === vals.currency ? ' selected' : ''}>${c.code} · ${esc(c.name)}</option>`).join('')}</select><div class="hint">Need a different symbol? Pick "Custom" in Settings.</div></div>
-      <div class="field"><label>Tracking starts</label><input type="month" name="startMonth" value="${attr(vals.startMonth)}" placeholder="YYYY-MM"><div class="hint">Budgets and rollover chains begin here.</div></div></div>`,
+      <div class="field"><label>Tracking starts</label>${monthInputHtml('name="startMonth"', vals.startMonth)}<div class="hint">Budgets and rollover chains begin here.</div></div></div>`,
     () => `<h2>Pick a look</h2><p class="muted mt-s">Six colour themes, including two dark ones. Change it any time from the dots in the sidebar.</p><div class="mt">${themeCardsHtml(vals.theme, 'data-wiz-theme')}</div><div class="field mt" style="margin-bottom:0"><label>Tab icon</label>${iconRowHtml(vals.icon, 'data-wiz-icon')}</div>`,
     () => `<h2>Start with sample data?</h2><p class="muted mt-s">The sample household (Alex & Sam) has six months of realistic transactions, bills, debts and goals so you can see every page working. Replace it with your own data whenever you're ready — or start empty.</p>
       <div class="choice mt">${hasData ? `<label><input type="radio" name="data" value="keep" ${vals.data === 'keep' ? 'checked' : ''}><b>Keep my data</b><span>Apply the settings above to what's already here.</span></label>` : ''}<label><input type="radio" name="data" value="sample" ${vals.data === 'sample' ? 'checked' : ''}><b>Load the sample household</b><span>Explore with realistic data${hasData ? ' — <b>replaces</b> what is here now' : ''}.</span></label><label><input type="radio" name="data" value="empty" ${vals.data === 'empty' ? 'checked' : ''}><b>Start empty</b><span>Add your own income, bills and accounts.${hasData ? ' <b>Erases</b> current data.' : ''}</span></label></div>
@@ -227,8 +229,10 @@ function openWizard() {
   const m = openModal(`<div class="modal"><div class="modal-body" style="padding-top:22px"><div class="wiz-steps" id="wizSteps"></div><div id="wizBody"></div></div><div class="modal-foot"><button class="btn" id="wizBack">Back</button><span class="spacer"></span><button class="btn ghost" data-modal-close>Skip</button><button class="btn primary" id="wizNext">Next</button></div></div>`, { sticky: true, noFocus: true });
   const body = m.bg.querySelector('#wizBody');
   const read = () => { body.querySelectorAll('input,select').forEach(el => { if (el.type === 'radio') { if (el.checked) vals[el.name] = el.value; } else vals[el.name] = el.value; }); };
-  const draw = () => { body.innerHTML = steps[step](); m.bg.querySelector('#wizSteps').innerHTML = steps.map((_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join(''); m.bg.querySelector('#wizBack').style.visibility = step ? 'visible' : 'hidden'; m.bg.querySelector('#wizNext').textContent = step === steps.length - 1 ? 'Finish' : 'Next'; };
-  body.addEventListener('change', e => { read(); if (e.target.name === 'mode') { const p2 = body.querySelector('#wizP2'); if (p2) p2.style.display = vals.mode === 'couple' ? '' : 'none'; } });
+  const draw = () => { body.innerHTML = steps[step](); markChoices(); m.bg.querySelector('#wizSteps').innerHTML = steps.map((_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join(''); m.bg.querySelector('#wizBack').style.visibility = step ? 'visible' : 'hidden'; m.bg.querySelector('#wizNext').textContent = step === steps.length - 1 ? 'Finish' : 'Next'; };
+  // .sel mirrors :has(input:checked) for browsers without :has (Safari < 15.4, Firefox < 121).
+  const markChoices = () => body.querySelectorAll('.choice label').forEach(l => { const r = l.querySelector('input'); l.classList.toggle('sel', !!(r && r.checked)); });
+  body.addEventListener('change', e => { read(); markChoices(); if (e.target.name === 'mode') { const p2 = body.querySelector('#wizP2'); if (p2) p2.style.display = vals.mode === 'couple' ? '' : 'none'; } });
   body.addEventListener('click', e => {
     const ic = e.target.closest('[data-wiz-icon]'); if (ic) { vals.icon = ic.dataset.wizIcon; state.settings.icon = vals.icon; applyIcon(); body.querySelectorAll('.icon-opt').forEach(c => c.classList.toggle('active', c.dataset.wizIcon === vals.icon)); return; }
     const b = e.target.closest('[data-wiz-theme]'); if (!b) return; vals.theme = b.dataset.wizTheme; state.settings.theme = vals.theme; applyTheme(); body.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.dataset.wizTheme === vals.theme)); body.querySelectorAll('.icon-opt').forEach(c => { c.innerHTML = appIconSvg(c.dataset.wizIcon, THEMES[vals.theme].vars.accent, 24); }); });
@@ -287,6 +291,7 @@ function openTour(sample) {
 // ---------- Boot ----------
 async function boot() {
   document.getElementById('verLabel').textContent = APP_VERSION;
+  const probe = document.createElement('input'); probe.setAttribute('type', 'month'); if (probe.type !== 'month') document.documentElement.classList.add('no-month-input');
   if (!storage.available()) toast('This browser is blocking local storage — data will not be saved. Try a normal (non-private) window.', 'bad', 12000);
   const loaded = loadState();
   state = loaded || blankState();
