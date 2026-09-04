@@ -15,13 +15,25 @@ function render() {
   backupFile.renderStatus();
   saveUi();
 }
-function goto(view) { ui.view = view; ui.txnLimit = 200; if (view === 'reports') ui.reportYear = ui.month.slice(0, 4); document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.add('hidden'); window.scrollTo(0, 0); renderFresh(); }
+function goto(view, opts) {
+  const o = opts || {};
+  ui.view = view; ui.txnLimit = 200; if (view === 'reports') ui.reportYear = ui.month.slice(0, 4);
+  if (o.month) { ui.month = o.month; if (ui.txnFilter.month) ui.txnFilter.month = o.month; }
+  if (view === 'transactions' && (o.cat !== undefined || o.month)) ui.txnFilter = Object.assign({}, ui.txnFilter, o.cat !== undefined ? { category: o.cat, q: '' } : {}, o.month ? { month: o.month } : {});
+  document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.add('hidden');
+  window.scrollTo(0, 0); renderFresh();
+  if (o.anchor) scrollToAnchor(o.anchor);
+}
+function scrollToAnchor(anchor) {
+  const el = document.querySelector(`[data-anchor="${anchor}"]`); if (!el) return;
+  requestAnimationFrame(() => { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1700); });
+}
 let _freshTimer = null;
 function renderFresh() { const el = document.getElementById('view'); el.classList.add('fresh'); render(); countUp(el); clearTimeout(_freshTimer); _freshTimer = setTimeout(() => el.classList.remove('fresh'), 1400); }
 
 // ---------- Actions ----------
 const actions = {
-  goto: d => goto(d.view),
+  goto: d => goto(d.view, { anchor: d.anchor, cat: d.cat, month: d.month }),
   toggleSidebar: () => { const sb = document.getElementById('sidebar'); sb.classList.toggle('open'); document.getElementById('scrim').classList.toggle('hidden', !sb.classList.contains('open')); },
   closeSidebar: () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.add('hidden'); },
   monthShift: d => { ui.month = D.addMonths(ui.month, +d.n); if (ui.txnFilter.month !== undefined && ui.txnFilter.month !== '') ui.txnFilter.month = ui.month; if (ui.view === 'reports') ui.reportYear = ui.month.slice(0, 4); render(); },
@@ -54,6 +66,7 @@ const actions = {
   // bills
   billAdd: () => openBillForm(null), billEdit: d => openBillForm(byId('bills', d.id)), subAdd: () => openSubForm(null), subEdit: d => openSubForm(byId('subs', d.id)),
   calMode: d => { ui.calendarMode = d.mode; render(); },
+  markAllDue: () => { const m = ui.month, today = D.today(); let n = 0; commit(s => { for (const b of billItems()) { if (isBillPaid(m, b.id)) continue; const to = m === D.thisMonth() ? today : D.monthEnd(m); if (to < D.monthStart(m) || !occurrences(b, D.monthStart(m), to).length) continue; markBillPaid(s, b, m); n++; } }); toast(n ? `Marked ${n} bill${n === 1 ? '' : 's'} paid` : 'Nothing due yet', n ? 'good' : 'default'); },
   // income
   incomeAdd: () => openIncomeForm(null), incomeEdit: d => openIncomeForm(byId('income', d.id)),
   // goals
@@ -80,7 +93,7 @@ const actions = {
   backupLink: () => backupFile.link(), backupUnlink: async () => { if (await confirmDialog('Turn off auto-backup?', 'The file on disk stays as it is; the dashboard just stops writing to it.', 'Turn off')) backupFile.unlink(); },
   backupPermission: () => backupFile.requestPermission(), backupWriteNow: async () => { await backupFile.write(true); toast(backupFile.status === 'linked' ? 'Backup written and verified' : 'Backup write failed', backupFile.status === 'linked' ? 'good' : 'bad'); render(); },
   restoreLkg: async () => { const text = await backupFile.lkg(); if (!text) { toast('No verified copy stored yet', 'warn'); return; } let parsed; try { parsed = JSON.parse(text); } catch (e) { toast('Stored copy is unreadable', 'bad'); return; } const v = validateImport(parsed); if (!v.ok) { toast(v.reason, 'bad'); return; } if (await confirmDialog('Restore verified copy?', `Saved ${esc(fmtDateTime(parsed.savedAt))} · ${countsLabel(recordCounts(parsed))}.<br>This replaces the data currently in the browser.`, 'Restore', true)) { state = normalizeState(migrate(parsed)); buildFormatter(); commit(); toast('Restored', 'good'); } },
-  clearTxns: async () => { if (await confirmDialog('Delete all transactions?', `All ${state.txns.length} transactions and paid-flags will be removed. Bills, income, debts, goals and accounts stay.`, 'Delete transactions', true)) { commit(s => { s.txns = []; s.billPaid = {}; }); toast('Transactions deleted'); } },
+  clearTxns: async () => { if (await confirmDialog('Delete all transactions?', `All ${state.txns.length} transactions and paid-flags will be removed. Bills, income, debts, goals and accounts stay. Past pay days will not be re-posted automatically — future ones will.`, 'Delete transactions', true)) { commit(s => { for (const t of s.txns) { if (t.incomeRef) s.skipped[t.incomeRef.id + '|' + t.incomeRef.date] = true; if (t.billRef) s.skipped['bill|' + t.billRef.id + '|' + t.billRef.month] = true; } const today = D.today(); for (const inc of s.income) for (const d of occurrences(inc, D.monthStart(s.settings.startMonth || D.thisMonth()), today)) s.skipped[inc.id + '|' + d] = true; s.txns = []; s.billPaid = {}; }); toast('Transactions deleted'); } },
   resetAll: async () => { if (await confirmDialog('Erase everything?', 'All data in this browser is deleted and the dashboard starts fresh. <b>This cannot be undone.</b> Export a backup first.', 'Erase everything', true)) { storage.remove(LS_KEY); storage.remove(LS_UI); await idb.del('handle'); await idb.del('lkg'); backupFile.handle = null; backupFile.status = backupFile.supported ? 'off' : 'unsupported'; state = blankState(); buildFormatter(); persist(); ui.view = 'overview'; render(); openWizard(); } },
 };
 const changes = {
@@ -161,7 +174,7 @@ function loadSampleData() {
     const isCurrent = m === now; const lastDay = isCurrent ? D.parse(D.today()).d : D.dim(D.parse(m).y, D.parse(m).m);
     const cutoff = D.iso(D.parse(m).y, D.parse(m).m, lastDay);
     for (const [category, planned] of Object.entries(budgetPlan)) s.budgets.push({ id: id(), month: m, category, planned: category === 'Groceries' && m === D.addMonths(now, -2) ? 640 : planned });
-    for (const inc of s.income) for (const d of occurrences(inc, D.monthStart(m), cutoff)) txn(d, 'income', inc.source, inc.owner, inc.type, inc.amount);
+    for (const inc of s.income) for (const d of occurrences(inc, D.monthStart(m), cutoff)) txn(d, 'income', inc.source, inc.owner, inc.type, inc.amount, { incomeRef: { id: inc.id, date: d } });
     for (const b of [...s.bills, ...s.subs.map(subAsRecurring)]) {
       const hits = occurrences(b, D.monthStart(m), cutoff);
       if (!hits.length) continue;
@@ -239,12 +252,12 @@ function openTour(sample) {
   const bf = backupFile.supported;
   const slides = [
     { icon: '👋', kicker: 'Welcome', title: 'Your money, one calm page at a time.', text: `Here's the whole idea in one line: <b>tell the dashboard what comes in and what goes out, then log what you spend.</b> Everything else — the calendar, safe-to-spend, charts and payoff dates — is worked out for you.${sample ? '<br><br>The sample household is loaded so you can explore. Replace it with your own numbers whenever you like.' : ''}` },
-    { icon: '💵', kicker: 'Step 1', title: 'Add your income.', text: 'Salary, wages, side income. Pick the real pay frequency — weekly and fortnightly pay land on actual dates, so a five-Friday month shows five pay days.', action: 'incomeAdd', label: 'Add income now' },
-    { icon: '📅', kicker: 'Step 2', title: 'Add bills & subscriptions.', text: 'Rent, utilities, insurance, streaming, gym. Give each a due day. The calendar and the "due in the next 14 days" list build themselves, and ticking a bill paid logs it as a transaction.', action: 'billAdd', label: 'Add a bill' },
+    { icon: '💵', kicker: 'Step 1', title: 'Add your income.', text: 'Salary, wages, side income. Pick the real pay frequency — weekly and fortnightly pay land on actual dates. <b>You enter it once</b>: every pay day, the income posts itself as a transaction.', action: 'incomeAdd', label: 'Add income now' },
+    { icon: '📅', kicker: 'Step 2', title: 'Add bills & subscriptions.', text: 'Rent, utilities, insurance, streaming, gym. Give each a due day. The calendar and the "due in the next 14 days" list build themselves. Tick a bill paid and it becomes a transaction — or let Settings → Automation do that on the due date.', action: 'billAdd', label: 'Add a bill' },
     { icon: '🏦', kicker: 'Step 3', title: 'Add your accounts.', text: 'Today\'s balances for checking, savings, cards and loans. Safe-to-spend uses your spendable accounts; net worth uses all of them and starts a monthly history automatically.', action: 'accountAdd', label: 'Add an account' },
     { icon: '🎯', kicker: 'Step 4', title: 'Set a simple budget.', text: 'Type planned amounts straight into the Budget table — a handful of categories is plenty. Later, "Suggest from last 3 months" fills it in from your real spending.', action: 'goto', view: 'budget', label: 'Open the budget' },
     { icon: '🧾', kicker: 'Every day', title: 'Log spending with one button.', text: 'The <b>+ Add</b> button top-right (or press <b>N</b>) adds anything from anywhere. Split one receipt across categories, or import a CSV from your bank — duplicates are caught for you.', action: 'txnAdd', label: 'Add an expense' },
-    { icon: '🛡️', kicker: 'Last', title: 'Protect your data.', text: bf ? 'Your data lives in this browser. Link a backup file in Settings and every change is written to it and verified — put it in a Dropbox, Drive or OneDrive folder and it travels with you.' : 'Your data lives in this browser. Export a JSON backup from Settings now and then — you\'ll get a gentle reminder — and restore it on any computer in one click.', action: 'goto', view: 'settings', label: 'Open backup settings' },
+    { icon: '🛡️', kicker: 'Last', title: 'Protect your data.', text: bf ? 'Your data lives in this browser. Link a backup file in Settings and every change is written to it and verified — put it in a Dropbox, Drive or OneDrive folder and it travels with you.' : 'Your data lives in this browser. Export a JSON backup from Settings now and then — you\'ll get a gentle reminder — and restore it on any computer in one click.', action: 'goto', view: 'settings', anchor: 'backup', label: 'Open backup settings' },
   ];
   let i = 0;
   const m = openModal(`<div class="modal tour"><div class="tour-body"><div class="tour-art" id="tourArt"></div><div class="tour-text" id="tourText"></div></div>
@@ -252,7 +265,7 @@ function openTour(sample) {
   const draw = () => {
     const sl = slides[i];
     m.bg.querySelector('#tourArt').innerHTML = `<span class="num">${i + 1}</span><span class="big">${sl.icon}</span>`;
-    m.bg.querySelector('#tourText').innerHTML = `<div class="kicker">${sl.kicker}</div><h2>${sl.title}</h2><p>${sl.text}</p>${sl.action ? `<button class="btn accent mt" data-tour-action="${sl.action}" ${sl.view ? `data-view="${sl.view}"` : ''}>${sl.label} →</button>` : ''}`;
+    m.bg.querySelector('#tourText').innerHTML = `<div class="kicker">${sl.kicker}</div><h2>${sl.title}</h2><p>${sl.text}</p>${sl.action ? `<button class="btn accent mt" data-tour-action="${sl.action}" ${sl.view ? `data-view="${sl.view}"` : ''} ${sl.anchor ? `data-anchor="${sl.anchor}"` : ''}>${sl.label} →</button>` : ''}`;
     m.bg.querySelector('#tourDots').innerHTML = slides.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('');
     m.bg.querySelector('#tourBack').style.visibility = i ? 'visible' : 'hidden';
     m.bg.querySelector('#tourNext').textContent = i === slides.length - 1 ? 'Finish' : 'Next';
@@ -262,7 +275,7 @@ function openTour(sample) {
   m.bg.querySelector('#tourNext').addEventListener('click', () => { if (i < slides.length - 1) { i++; draw(); } else done(); });
   m.bg.querySelector('#tourBack').addEventListener('click', () => { i = Math.max(0, i - 1); draw(); });
   m.bg.querySelector('#tourSkip').addEventListener('click', done);
-  m.bg.addEventListener('click', e => { const b = e.target.closest('[data-tour-action]'); if (!b) return; done(); if (b.dataset.tourAction === 'goto') goto(b.dataset.view); else actions[b.dataset.tourAction](); });
+  m.bg.addEventListener('click', e => { const b = e.target.closest('[data-tour-action]'); if (!b) return; done(); if (b.dataset.tourAction === 'goto') goto(b.dataset.view, { anchor: b.dataset.anchor }); else actions[b.dataset.tourAction](); });
   m.bg.addEventListener('keydown', e => { if (e.key === 'ArrowRight') m.bg.querySelector('#tourNext').click(); if (e.key === 'ArrowLeft') m.bg.querySelector('#tourBack').click(); });
   let sx = null; m.bg.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true }); m.bg.addEventListener('touchend', e => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (dx < -50) m.bg.querySelector('#tourNext').click(); if (dx > 50) m.bg.querySelector('#tourBack').click(); });
   draw();
@@ -275,6 +288,7 @@ async function boot() {
   const loaded = loadState();
   state = loaded || blankState();
   buildFormatter(); loadUi(); applyTheme();
+  if (loaded && runAutomation()) persist();
   if (!views[ui.view]) ui.view = 'overview';
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => { });
   renderFresh();

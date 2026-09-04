@@ -77,11 +77,11 @@ function defaultSettings() {
     householdMode: 'single', person1Name: 'Me', person2Name: 'Partner',
     currency: { code: 'USD', symbol: '$', locale: 'en-US' },
     startMonth: D.thisMonth(), safetyBuffer: 0, budgetRollover: 'off', includeSubsInBills: true,
-    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', tourSeen: false, checklistDismissed: false,
+    categories: DEFAULT_CATEGORIES.slice(), spendableTypes: ['checking', 'cash'], onboarded: false, emergencyMonths: 3, theme: 'cream', tourSeen: false, checklistDismissed: false, autoPostIncome: true, autoPayBills: false, autoCopyBudget: true,
   };
 }
 function blankState() {
-  return { __schema: SCHEMA_VERSION, __app: APP_VERSION, savedAt: null, settings: defaultSettings(), accounts: [], income: [], bills: [], subs: [], txns: [], budgets: [], debts: [], goals: [], snapshots: [], billPaid: {} };
+  return { __schema: SCHEMA_VERSION, __app: APP_VERSION, savedAt: null, settings: defaultSettings(), accounts: [], income: [], bills: [], subs: [], txns: [], budgets: [], debts: [], goals: [], snapshots: [], billPaid: {}, skipped: {} };
 }
 function normalizeState(s) {
   const b = blankState();
@@ -91,6 +91,7 @@ function normalizeState(s) {
   if (!Array.isArray(out.settings.categories) || !out.settings.categories.length) out.settings.categories = DEFAULT_CATEGORIES.slice();
   for (const c of COLLECTIONS) if (!Array.isArray(out[c])) out[c] = [];
   if (!out.billPaid || typeof out.billPaid !== 'object') out.billPaid = {};
+  if (!out.skipped || typeof out.skipped !== 'object') out.skipped = {};
   for (const t of out.txns) { if (!Array.isArray(t.splits) || !t.splits.length) t.splits = [{ category: t.category || 'Other', amount: num(t.amount) }]; if (!t.month) t.month = D.monthOf(t.date); }
   out.__schema = SCHEMA_VERSION; out.__app = APP_VERSION;
   return out;
@@ -108,17 +109,35 @@ function loadState() {
   } catch (e) { console.warn('Could not parse stored state', e); return null; }
 }
 function serialize() { return JSON.stringify(state); }
+let storageMode = 'ok';   // 'ok' | 'blocked' | 'full'
 function persist() {
   state.savedAt = new Date().toISOString();
   state.__app = APP_VERSION; state.__schema = SCHEMA_VERSION;
   const json = serialize();
   const r = storage.set(LS_KEY, json);
-  if (!r.ok) toast(r.quota ? 'Browser storage is full. Export a JSON backup now and delete old transactions.' : 'Could not save to browser storage. Export a backup to be safe.', 'bad', 8000);
+  if (!r.ok) {
+    // Chrome reports *any* write in a sandboxed / opaque origin (previews, some embedded viewers) as a quota error,
+    // so probe with a tiny write to tell "blocked" from "genuinely full".
+    const mode = !storage.available() || json.length < 400000 ? 'blocked' : 'full';
+    if (storageMode !== mode) {
+      storageMode = mode;
+      toast(mode === 'full'
+        ? `This browser's storage for local files is full (${(json.length / 1024).toFixed(0)} KB needed). Other local HTML apps may share it. Export a JSON backup now — your data stays in memory until this tab closes.`
+        : 'This window cannot save to browser storage (it is being previewed or sandboxed). Open the file from your own computer to keep your data. Nothing is lost while the tab stays open.', 'bad', 12000, { label: 'Export backup', action: 'exportJson' });
+    }
+  } else if (storageMode !== 'ok') { storageMode = 'ok'; toast('Saving to browser storage again', 'good'); }
+  updateStoragePill();
   backupFile.scheduleWrite();
   return json;
 }
+function updateStoragePill() {
+  const pill = document.getElementById('storagePill'); if (!pill) return;
+  pill.classList.toggle('hidden', storageMode === 'ok');
+  pill.textContent = storageMode === 'full' ? '⚠ Not saving — storage full' : '⚠ Not saving — preview mode';
+}
 function commit(fn, opts) {
   if (typeof fn === 'function') fn(state);
+  runAutomation();
   maybeSnapshot();
   persist();
   if (!opts || !opts.silent) render();
@@ -197,6 +216,45 @@ function safeToSpend(month) {
   const buffer = num(S().safetyBuffer);
   const result = round2(available - upcomingBills - goals - buffer);
   return { available, upcomingBills, upcomingList, goals, buffer, result, accounts: spendable };
+}
+
+
+// ---------- Automation (so recurring things don't need re-entering) ----------
+function markBillPaid(s, item, month) {
+  s.billPaid[month] = s.billPaid[month] || {};
+  s.txns = s.txns.filter(t => !(t.billRef && t.billRef.id === item.id && t.billRef.month === month));
+  s.billPaid[month][item.id] = true;
+  const hits = occurrences(item, D.monthStart(month), D.monthEnd(month));
+  s.txns.push({ id: uid(), date: hits[0] || D.monthStart(month), month, type: 'expense', description: item.name, owner: item.owner || 'p1', paymentMethod: '', notes: hits.length > 1 ? `${hits.length} payments this month` : '', splits: [{ category: item.category || 'Other', amount: round2(hits.length * num(item.amount)) }], billRef: { id: item.id, month } });
+}
+/** Posts income on pay day, optionally marks bills paid on their due date, and carries the budget into a new month. Returns how many records it created. */
+function runAutomation() {
+  if (!state) return 0;
+  const today = D.today(), thisMonth = D.thisMonth(); let n = 0; const skipped = state.skipped || (state.skipped = {});
+  if (S().autoPostIncome !== false) {
+    const from = S().startMonth && /^\d{4}-\d{2}$/.test(S().startMonth) ? D.monthStart(S().startMonth) : D.monthStart(D.addMonths(thisMonth, -1));
+    const have = new Set(state.txns.filter(t => t.incomeRef).map(t => t.incomeRef.id + '|' + t.incomeRef.date));
+    for (const inc of state.income) {
+      if (inc.active === false) continue;
+      for (const d of occurrences(inc, from, today)) {
+        const k = inc.id + '|' + d; if (have.has(k) || skipped[k]) continue;
+        state.txns.push({ id: uid(), date: d, month: D.monthOf(d), type: 'income', description: inc.source, owner: inc.owner || 'p1', paymentMethod: '', notes: '', splits: [{ category: inc.type || 'Other', amount: round2(num(inc.amount)) }], incomeRef: { id: inc.id, date: d } });
+        have.add(k); n++;
+      }
+    }
+  }
+  if (S().autoPayBills) {
+    for (const b of billItems()) {
+      if (isBillPaid(thisMonth, b.id) || skipped['bill|' + b.id + '|' + thisMonth]) continue;
+      if (!occurrences(b, D.monthStart(thisMonth), today).length) continue;
+      markBillPaid(state, b, thisMonth); n++;
+    }
+  }
+  if (S().autoCopyBudget !== false && !state.budgets.some(b => b.month === thisMonth) && !skipped['budget|' + thisMonth]) {
+    const prevMonths = [...new Set(state.budgets.map(b => b.month))].filter(m => m < thisMonth).sort();
+    if (prevMonths.length) { const src = prevMonths[prevMonths.length - 1]; for (const b of state.budgets.filter(x => x.month === src)) { state.budgets.push({ id: uid(), month: thisMonth, category: b.category, planned: b.planned }); n++; } }
+  }
+  return n;
 }
 
 // ---------- Backup file (File System Access API) ----------

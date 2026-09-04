@@ -44,7 +44,7 @@ qs.append(f"""
 <div class="two">
 <div class="box"><b>Add anything with one button</b> The <b>+ Add</b> button top-right (or press <b>N</b>) adds an expense, income, bill, subscription, account, goal or debt from any page. Forms show the essentials; click <b>More options</b> for the rest.</div>
 <div class="box"><b>Log spending</b> Split one receipt across categories with <b>+ Add split</b>. Or <b>Import CSV</b> from your bank — duplicates are flagged automatically.</div>
-<div class="box"><b>Tick bills as paid</b> In Bills & Subscriptions, tick the <b>Paid</b> box for the month. That records the payment as a transaction, so the budget and safe-to-spend update instantly.</div>
+<div class="box"><b>Bills and pay days take care of themselves</b> Income posts itself on every pay day. Tick bills <b>Paid</b> (or press <b>✓ Mark all due as paid</b>, or switch on auto-pay in Settings → Automation) and the payment is recorded as a transaction, so the budget and safe-to-spend update instantly.</div>
 <div class="box"><b>Change the month</b> Use ‹ › in the top bar, or click the month name to jump. Every page follows it.</div>
 <div class="box"><b>Print a report</b> Reports → <b>Print / Save PDF</b> for a monthly or annual summary.</div>
 </div>
@@ -105,6 +105,11 @@ ug.append(f"""
 <p>Six themes: Cream, Charcoal (dark), Midnight (dark navy), Sage, Blush and Slate. Choose one in Settings → Appearance, from the dots at the bottom of the sidebar, or during setup. Charts, chips and every page follow the theme. Tick <b>Follow my device's light / dark setting</b> to switch automatically between Cream and Charcoal. Reports always print in black on white.</p>
 <h3>The welcome tour and first steps</h3>
 <p>The tour (the <b>?</b> button, or Settings → Welcome tour) is seven short slides: what the dashboard does, then income, bills, accounts, budget, everyday logging and backup, each with a button that opens the relevant form. The <b>Your first steps</b> card on the Overview tracks the same six steps and highlights the next one; hide it with × once you're done.</p>
+<h3>Automation: enter recurring things once</h3>
+<p>Settings → <b>Automation</b> has three switches.</p>
+<ul><li><b>Post income on pay day</b> (on by default). Every income source creates its own income transaction on each pay date, back to your tracking start month. These carry an <span class="k">auto</span> chip in Transactions. If a pay differs, edit the posted transaction; if you delete one, that pay day stays deleted and is never re-posted.</li>
+<li><b>Mark bills paid on their due date</b> (off by default). Once a due date arrives the bill is ticked and logged for that month. Untick it to undo for that month. Prefer to confirm each payment yourself? Leave this off and use <b>✓ Mark all due as paid</b> in Bills &amp; Subscriptions instead — one click for everything that has come due.</li>
+<li><b>Carry the budget into each new month</b> (on by default). A month that starts with no budget gets last month's planned amounts copied in.</li></ul>
 <h3>Quick add and simpler forms</h3>
 <p>The <b>+ Add</b> button in the top bar (keyboard: <b>N</b>) opens one chooser for every kind of record. Every form shows only the essential fields; <b>More options</b> reveals the rest (end dates, notes, committed extra payments, and so on). Existing values in those fields expand the section automatically when editing.</p>
 <h3>Categories</h3>

@@ -30,13 +30,13 @@ function greetingHtml() {
 }
 function insightsHtml(month) {
   const out = []; const today = D.today(); const thisMonth = D.thisMonth();
-  const add = (icon, cls, title, sub, view) => out.push(`<div class="insight" ${view ? `data-action="goto" data-view="${view}" style="cursor:pointer"` : ''}><div class="ic ${cls}">${icon}</div><div><b>${title}</b><span>${sub}</span></div></div>`);
+  const add = (icon, cls, title, sub, view, anchor, extra) => out.push(`<div class="insight" ${view ? `data-action="goto" data-view="${view}" ${anchor ? `data-anchor="${anchor}"` : ''} ${extra || ''} style="cursor:pointer"` : ''}><div class="ic ${cls}">${icon}</div><div><b>${title}</b><span>${sub}</span></div></div>`);
   // next pay day
   const pays = state.income.filter(i => i.active !== false).map(i => ({ i, d: nextDue(i, today) })).filter(x => x.d).sort((a, b) => a.d < b.d ? -1 : 1);
-  if (pays.length) { const days = D.daysBetween(today, pays[0].d); add('💵', 'good', days === 0 ? 'Pay day is today' : `Pay day in ${days} day${days === 1 ? '' : 's'}`, `${esc(pays[0].i.source)} · ${fmt(pays[0].i.amount)} on ${esc(D.dateLabel(pays[0].d))}`, 'income'); }
+  if (pays.length) { const days = D.daysBetween(today, pays[0].d); add('💵', 'good', days === 0 ? 'Pay day is today' : `Pay day in ${days} day${days === 1 ? '' : 's'}`, `${esc(pays[0].i.source)} · ${fmt(pays[0].i.amount)} on ${esc(D.dateLabel(pays[0].d))}`, 'income', 'sources'); }
   // budget pace
   const budgets = state.budgets.filter(b => b.month === thisMonth); const planned = sum(budgets, b => b.planned);
-  if (planned > 0) { const spent = sum(Object.values(categoryActuals(thisMonth))); const { y, m, d } = D.parse(today); const pctMonth = d / D.dim(y, m) * 100; const pctBud = spent / planned * 100; add('🎯', pctBud > pctMonth + 10 ? 'warn' : 'good', `${fmtPct(pctBud)} of budget used`, `with ${fmtPct(pctMonth)} of the month gone${pctBud > pctMonth + 10 ? ' — a little ahead of pace' : pctBud < pctMonth - 10 ? ' — nicely under pace' : ' — right on track'}`, 'budget'); }
+  if (planned > 0) { const spent = sum(Object.values(categoryActuals(thisMonth))); const { y, m, d } = D.parse(today); const pctMonth = d / D.dim(y, m) * 100; const pctBud = spent / planned * 100; add('🎯', pctBud > pctMonth + 10 ? 'warn' : 'good', `${fmtPct(pctBud)} of budget used`, `with ${fmtPct(pctMonth)} of the month gone${pctBud > pctMonth + 10 ? ' — a little ahead of pace' : pctBud < pctMonth - 10 ? ' — nicely under pace' : ' — right on track'}`, 'budget', 'table'); }
   // biggest category swing between the last two complete months
   const m1 = month < thisMonth ? month : D.addMonths(thisMonth, -1), m0 = D.addMonths(m1, -1);
   const cur = categoryActuals(m1), prev = categoryActuals(m0);
@@ -44,28 +44,28 @@ function insightsHtml(month) {
   if (best && Math.abs(best.ch) >= 15) add(best.ch > 0 ? '📈' : '📉', best.ch > 0 ? 'warn' : 'good', `${esc(best.c)} ${best.ch > 0 ? 'up' : 'down'} ${Math.abs(best.ch).toFixed(0)}% in ${esc(D.monthLabel(m1))}`, `${fmt0(cur[best.c])} vs ${fmt0(prev[best.c])} in ${esc(D.monthLabel(m0))}`, 'transactions');
   // bills due this week
   const wk = billItems().flatMap(b => occurrences(b, today, D.addDays(today, 7)).filter(d => !isBillPaid(D.monthOf(d), b.id)).map(d => ({ b, d })));
-  if (wk.length) add('📅', 'info', `${wk.length} bill${wk.length === 1 ? '' : 's'} due in the next 7 days`, `${fmt(sum(wk, x => x.b.amount))} · first: ${esc(wk.sort((a, b) => a.d < b.d ? -1 : 1)[0].b.name)}`, 'bills');
+  if (wk.length) add('📅', 'info', `${wk.length} bill${wk.length === 1 ? '' : 's'} due in the next 7 days`, `${fmt(sum(wk, x => x.b.amount))} · first: ${esc(wk.sort((a, b) => a.d < b.d ? -1 : 1)[0].b.name)}`, 'bills', 'bills');
   // subscriptions annual
-  const subs = state.subs.filter(x => x.active !== false); if (subs.length >= 2) add('🔁', '', `${subs.length} subscriptions cost ${fmt0(sum(subs, x => annualAmount(subAsRecurring(x))))} a year`, `${fmt0(sum(subs, x => monthlyEquivalent(subAsRecurring(x))))} a month on average`, 'bills');
+  const subs = state.subs.filter(x => x.active !== false); if (subs.length >= 2) add('🔁', '', `${subs.length} subscriptions cost ${fmt0(sum(subs, x => annualAmount(subAsRecurring(x))))} a year`, `${fmt0(sum(subs, x => monthlyEquivalent(subAsRecurring(x))))} a month on average`, 'bills', 'subs');
   // debt
-  if (state.debts.some(d => num(d.currentBalance) > 0)) { const sim = simulateDebt(state.debts, ui.debtStrategy, num(S().debtExtraPool), thisMonth); const other = simulateDebt(state.debts, ui.debtStrategy === 'snowball' ? 'avalanche' : 'snowball', num(S().debtExtraPool), thisMonth); add('💳', sim.neverPaysOff ? 'bad' : 'info', sim.neverPaysOff ? 'Current payments never clear your debt' : `Debt-free by ${esc(D.monthLabel(sim.debtFreeMonth))}`, sim.neverPaysOff ? 'Add an extra monthly payment to see a date' : `${sim.monthsToDebtFree} months · ${fmt0(sim.totalInterest)} interest${other.totalInterest < sim.totalInterest - 1 ? ` · ${ui.debtStrategy === 'snowball' ? 'avalanche' : 'snowball'} saves ${fmt0(sim.totalInterest - other.totalInterest)}` : ''}`, 'debt'); }
+  if (state.debts.some(d => num(d.currentBalance) > 0)) { const sim = simulateDebt(state.debts, ui.debtStrategy, num(S().debtExtraPool), thisMonth); const other = simulateDebt(state.debts, ui.debtStrategy === 'snowball' ? 'avalanche' : 'snowball', num(S().debtExtraPool), thisMonth); add('💳', sim.neverPaysOff ? 'bad' : 'info', sim.neverPaysOff ? 'Current payments never clear your debt' : `Debt-free by ${esc(D.monthLabel(sim.debtFreeMonth))}`, sim.neverPaysOff ? 'Add an extra monthly payment to see a date' : `${sim.monthsToDebtFree} months · ${fmt0(sim.totalInterest)} interest${other.totalInterest < sim.totalInterest - 1 ? ` · ${ui.debtStrategy === 'snowball' ? 'avalanche' : 'snowball'} saves ${fmt0(sim.totalInterest - other.totalInterest)}` : ''}`, 'debt', 'comparison'); }
   // emergency fund
-  if (state.goals.length || state.accounts.some(a => a.type === 'savings')) { const avg = avgMonthlyExpenses(3); if (avg > 0) { const ef = state.goals.find(g => /emergency/i.test(g.name)); const have = ef ? num(ef.current) : sum(state.accounts.filter(a => a.type === 'savings' || a.type === 'cash'), a => a.balance); const mo = have / avg; add('🛟', mo >= (S().emergencyMonths || 3) ? 'good' : mo >= 1 ? 'warn' : 'bad', `Emergency fund covers ${mo.toFixed(1)} month${mo >= 1.05 || mo < 0.95 ? 's' : ''}`, `target ${S().emergencyMonths || 3} months of expenses`, 'savings'); } }
+  if (state.goals.length || state.accounts.some(a => a.type === 'savings')) { const avg = avgMonthlyExpenses(3); if (avg > 0) { const ef = state.goals.find(g => /emergency/i.test(g.name)); const have = ef ? num(ef.current) : sum(state.accounts.filter(a => a.type === 'savings' || a.type === 'cash'), a => a.balance); const mo = have / avg; add('🛟', mo >= (S().emergencyMonths || 3) ? 'good' : mo >= 1 ? 'warn' : 'bad', `Emergency fund covers ${mo.toFixed(1)} month${mo >= 1.05 || mo < 0.95 ? 's' : ''}`, `target ${S().emergencyMonths || 3} months of expenses`, 'savings', 'emergency'); } }
   // goal about to complete
   const near = state.goals.map(g => ({ g, p: goalProjection(g, thisMonth) })).filter(x => x.p.pct >= 80 && x.p.pct < 100).sort((a, b) => b.p.pct - a.p.pct)[0];
-  if (near) add('🏁', 'good', `${esc(near.g.name)} is ${fmtPct(near.p.pct)} there`, `${fmt(near.p.remaining)} to go${near.p.projectedMonth ? ' · done by ' + esc(D.monthLabel(near.p.projectedMonth)) : ''}`, 'savings');
+  if (near) add('🏁', 'good', `${esc(near.g.name)} is ${fmtPct(near.p.pct)} there`, `${fmt(near.p.remaining)} to go${near.p.projectedMonth ? ' · done by ' + esc(D.monthLabel(near.p.projectedMonth)) : ''}`, 'savings', 'goals');
   if (!out.length) return '';
   return `<div class="insights">${out.slice(0, 4).join('')}</div>`;
 }
 function firstSteps() {
   const exported = !!storage.get(LS_LAST_EXPORT);
   return [
-    { key: 'income', icon: '💵', title: 'Add your income', sub: 'Salary, wages, side income — with its real pay frequency.', done: state.income.length > 0, action: 'incomeAdd', label: '+ Income' },
+    { key: 'income', icon: '💵', title: 'Add your income', sub: 'Enter it once — it posts itself every pay day.', done: state.income.length > 0, action: 'incomeAdd', label: '+ Income' },
     { key: 'bills', icon: '📅', title: 'Add bills & subscriptions', sub: 'The calendar and safe-to-spend build from these.', done: state.bills.length + state.subs.length > 0, action: 'billAdd', label: '+ Bill' },
     { key: 'accounts', icon: '🏦', title: 'Add your accounts', sub: 'Current balances for checking, savings, cards.', done: state.accounts.length > 0, action: 'accountAdd', label: '+ Account' },
-    { key: 'budget', icon: '🎯', title: 'Set a simple budget', sub: 'A few categories is enough to start.', done: state.budgets.some(b => b.month === D.thisMonth()), action: 'goto', view: 'budget', label: 'Open budget' },
+    { key: 'budget', icon: '🎯', title: 'Set a simple budget', sub: 'A few categories is enough to start — it copies itself forward each month.', done: state.budgets.some(b => b.month === D.thisMonth()), action: 'goto', view: 'budget', anchor: 'table', label: 'Open budget' },
     { key: 'txn', icon: '🧾', title: 'Log your first expense', sub: 'Or import a CSV from your bank.', done: state.txns.some(t => !t.billRef), action: 'txnAdd', label: '+ Expense' },
-    { key: 'backup', icon: '🛡️', title: 'Protect your data', sub: backupFile.supported ? 'Link a backup file — every change is saved to it.' : 'Export a JSON backup you can restore anywhere.', done: backupFile.status === 'linked' || exported, action: 'goto', view: 'settings', label: 'Set up backup' },
+    { key: 'backup', icon: '🛡️', title: 'Protect your data', sub: backupFile.supported ? 'Link a backup file — every change is saved to it.' : 'Export a JSON backup you can restore anywhere.', done: backupFile.status === 'linked' || exported, action: 'goto', view: 'settings', anchor: 'backup', label: 'Set up backup' },
   ];
 }
 function firstStepsHtml() {
@@ -77,7 +77,7 @@ function firstStepsHtml() {
     <div class="steps-head"><div><div class="kicker tiny" style="letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:4px">Your first steps</div><h3 style="font-size:20px">${next ? esc('Next: ' + next.title.toLowerCase()) : 'All done'}</h3><div class="small muted mt-s">Do these in order and every page comes alive. ${done} of ${steps.length} done.</div></div>
       <div class="flex"><button class="btn sm ghost" data-action="help">Tour</button><button class="btn sm ghost" data-action="checklistDismiss" title="Hide">×</button></div></div>
     ${progressBar(done / steps.length * 100, 'accent thin')}
-    <div class="steps-list">${steps.map((st, i) => `<div class="step-item ${st.done ? 'done' : ''} ${st === next ? 'next' : ''}"><div class="n">${st.done ? '✓' : i + 1}</div><div class="grow"><b>${st.icon} ${esc(st.title)}</b><span>${esc(st.sub)}</span>${st.done ? '' : `<button class="btn sm ${st === next ? 'accent' : ''}" data-action="${st.action}" ${st.view ? `data-view="${st.view}"` : ''}>${esc(st.label)}</button>`}</div></div>`).join('')}</div>
+    <div class="steps-list">${steps.map((st, i) => `<div class="step-item ${st.done ? 'done' : ''} ${st === next ? 'next' : ''}"><div class="n">${st.done ? '✓' : i + 1}</div><div class="grow"><b>${st.icon} ${esc(st.title)}</b><span>${esc(st.sub)}</span>${st.done ? '' : `<button class="btn sm ${st === next ? 'accent' : ''}" data-action="${st.action}" ${st.view ? `data-view="${st.view}"` : ''} ${st.anchor ? `data-anchor="${st.anchor}"` : ''}>${esc(st.label)}</button>`}</div></div>`).join('')}</div>
   </div>`;
 }
 
@@ -134,22 +134,22 @@ views.overview = {
             <tr><td>Goal contributions</td><td class="right num bad">−${fmt(sts.goals)}</td></tr>
             <tr><td>Safety buffer</td><td class="right num bad">−${fmt(sts.buffer)}</td></tr>
           </tbody></table>
-          <div class="tiny muted mt-s">Spendable accounts: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'}. Change in Settings.</div>
+          <div class="tiny muted mt-s">Spendable accounts: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'}. <a href="#" data-action="goto" data-view="settings" data-anchor="planning">Change in Settings</a>.</div>
         </div>
       </div>
       <div class="grid grid-3 mt">
         <div class="card"><div class="card-head"><h3>Spending by category</h3></div>${svgDonut({ slices: catSlices.slice(0, 8).concat(catSlices.length > 8 ? [{ label: 'Other categories', value: sum(catSlices.slice(8), s => s.value), color: C.rest }] : []), centre: fmt0(sm.expenses), centreLabel: 'spent' })}</div>
         <div class="card"><div class="card-head"><h3>Fixed vs variable</h3></div>${svgDonut({ size: 130, slices: [{ label: 'Fixed (bills & subs)', value: fixed, color: C.ink }, { label: 'Variable', value: variable, color: C.accent }] })}
           <div class="tiny muted mt">Fixed = payments marked paid from Bills, or in a bill category.</div></div>
-        <div class="card"><div class="card-head"><h3>Due in the next 14 days</h3><button class="btn sm ghost" data-action="goto" data-view="bills">All bills</button></div>
+        <div class="card"><div class="card-head"><h3>Due in the next 14 days</h3><button class="btn sm ghost" data-action="goto" data-view="bills" data-anchor="bills">All bills</button></div>
           ${upcoming.length ? `<table class="small"><tbody>${upcoming.slice(0, 8).map(u => `<tr class="${u.paid ? 'row-muted' : ''}"><td class="nowrap">${esc(D.dateLabel(u.date).slice(0, 6))}</td><td>${esc(u.name)}${u.isSub ? ' <span class="tiny muted">sub</span>' : ''} ${ownerChip(u.owner)}</td><td class="right num">${u.paid ? '<span class="chip good">paid</span>' : fmt(u.amount)}</td></tr>`).join('')}</tbody></table>` : '<div class="muted small">Nothing due in the next two weeks.</div>'}
         </div>
       </div>
       <div class="grid grid-2 mt">
-        <div class="card"><div class="card-head"><h3>Budget snapshot</h3><button class="btn sm ghost" data-action="goto" data-view="budget">Open budget</button></div>
+        <div class="card"><div class="card-head"><h3>Budget snapshot</h3><button class="btn sm ghost" data-action="goto" data-view="budget" data-anchor="table">Open budget</button></div>
           ${budgets.length ? budgets.map(b => `<div class="mb-s"><div class="flex between small"><span>${esc(b.cat)}</span><span class="num ${b.actual > b.planned ? 'bad' : ''}">${fmt0(b.actual)} / ${fmt0(b.planned)}</span></div>${progressBar(b.actual / b.planned * 100, b.actual > b.planned ? 'over thin' : b.actual > b.planned * 0.85 ? 'warn thin' : 'thin')}</div>`).join('') : `<div class="muted small">No budget set for ${esc(D.monthLabel(month))}.</div>`}
         </div>
-        <div class="card"><div class="card-head"><h3>Goals</h3><button class="btn sm ghost" data-action="goto" data-view="savings">All goals</button></div>
+        <div class="card"><div class="card-head"><h3>Goals</h3><button class="btn sm ghost" data-action="goto" data-view="savings" data-anchor="goals">All goals</button></div>
           ${goals.length ? goals.map(g => { const p = goalProjection(g, D.thisMonth()); return `<div class="mb-s"><div class="flex between small"><span>${esc(g.name)} ${ownerChip(g.owner)} ${p.behind ? '<span class="chip warn">behind</span>' : ''}</span><span class="num">${fmt0(g.current)} / ${fmt0(g.target)}</span></div>${progressBar(p.pct, 'accent thin')}</div>`; }).join('') : '<div class="muted small">No savings goals yet.</div>'}
         </div>
       </div>
@@ -185,13 +185,13 @@ views.budget = {
         ${kpi('Remaining', fmt0(totPlanned - totActual), '', signCls(totPlanned - totActual))}
         ${kpi('Over budget', String(rows.filter(r => r.hasBudget && r.actual > r.effective).length), 'categories', rows.some(r => r.hasBudget && r.actual > r.effective) ? 'bad' : '')}
       </div>
-      <div class="card mt">
+      <div class="card mt" data-anchor="table">
         <div class="card-head"><h3>${esc(D.monthLabel(month, true))}</h3><div class="flex flex-wrap">
           ${prevHas ? `<button class="btn sm" data-action="budgetCopyPrev">Copy ${esc(D.monthLabel(prev))}</button>` : ''}
           <button class="btn sm" data-action="budgetFromAverage" title="Set each category to its average spend over the last 3 months">Suggest from last 3 months</button>
           <label class="check small"><input type="checkbox" data-change="budgetShowAll" ${ui.budgetShowAll ? 'checked' : ''}> Show all categories</label>
-          <button class="btn sm ghost" data-action="goto" data-view="settings">Rollover: ${esc({ off: 'off', surplus: 'surplus', full: 'full' }[mode] || 'off')}</button></div></div>
-        ${!hasAny && !shown.length ? emptyBox('No budget for this month', 'Type planned amounts below — every category is editable inline. Press Enter or click away to save.', '') : ''}
+          <button class="btn sm ghost" data-action="goto" data-view="settings" data-anchor="planning">Rollover: ${esc({ off: 'off', surplus: 'surplus', full: 'full' }[mode] || 'off')}</button></div></div>
+        ${!hasAny && !shown.length ? emptyBox('No budget for this month', 'Type planned amounts below — every category is editable inline. Press Enter or click away to save. Once set, the budget copies itself into each new month.', '') : ''}
         <div class="table-wrap"><table>
           <thead><tr><th>Category</th><th class="right">Planned</th>${mode !== 'off' ? '<th class="right">Rollover</th><th class="right">Available</th>' : ''}<th class="right">Spent</th><th class="right">Remaining</th><th style="width:26%">Progress</th></tr></thead>
           <tbody>${(shown.length ? shown : rows).map(r => {
@@ -254,10 +254,11 @@ function openTxnForm(txn) {
     onSave: vals => {
       const rec = { id: txn ? txn.id : uid(), date: vals.date, month: D.monthOf(vals.date), type: vals.type, description: vals.description.trim(), owner: vals.owner || 'p1', paymentMethod: vals.paymentMethod || '', notes: vals.notes || '', splits: vals.splits.map(s => ({ category: s.category, amount: round2(num(s.amount)) })) };
       if (txn && txn.billRef) rec.billRef = txn.billRef;
+      if (txn && txn.incomeRef) rec.incomeRef = txn.incomeRef;
       commit(s => { if (txn) { const i = s.txns.findIndex(t => t.id === txn.id); s.txns[i] = rec; } else s.txns.push(rec); });
       toast(isNew ? 'Transaction added' : 'Transaction updated', 'good');
     },
-    onDelete: txn ? () => { commit(s => { s.txns = s.txns.filter(t => t.id !== txn.id); if (txn.billRef && s.billPaid[txn.billRef.month]) delete s.billPaid[txn.billRef.month][txn.billRef.id]; }); toast('Transaction deleted'); } : null,
+    onDelete: txn ? () => { commit(s => { s.txns = s.txns.filter(t => t.id !== txn.id); if (txn.billRef && s.billPaid[txn.billRef.month]) { delete s.billPaid[txn.billRef.month][txn.billRef.id]; s.skipped['bill|' + txn.billRef.id + '|' + txn.billRef.month] = true; } if (txn.incomeRef) s.skipped[txn.incomeRef.id + '|' + txn.incomeRef.date] = true; }); toast(txn.incomeRef ? 'Deleted — this pay day will not be re-posted' : 'Transaction deleted'); } : null,
     after: (form, vals, m) => {
       form.addEventListener('click', e => {
         const add = e.target.closest('[data-action="splitAdd"]'), rem = e.target.closest('[data-action="splitRemove"]');
@@ -299,10 +300,10 @@ views.transactions = {
         <div class="flex"><button class="btn sm" data-action="csvImport">Import CSV</button><button class="btn sm" data-action="csvExport">Export CSV</button><button class="btn primary" data-action="txnAdd">+ Add</button></div>
       </div>
       <div class="grid grid-3 mb">${kpi('Income', fmt0(inc), `${list.filter(t => t.type === 'income').length} transactions`)}${kpi('Expenses', fmt0(exp), `${list.filter(t => t.type === 'expense').length} transactions`)}${kpi('Net', fmt0(inc - exp), '', signCls(inc - exp))}</div>
-      <div class="card">
+      <div class="card" data-anchor="list">
         ${list.length ? `<div class="table-wrap"><table>
           <thead><tr><th>Date</th><th>Description</th><th>Category</th>${isCouple() ? '<th>Owner</th>' : ''}<th>Paid from</th><th class="right">Amount</th><th class="actions"></th></tr></thead>
-          <tbody>${shown.map(t => { const tot = txnTotal(t); return `<tr data-action="txnEdit" data-id="${t.id}" style="cursor:pointer"><td class="nowrap">${esc(D.dateLabel(t.date))}</td><td>${esc(t.description)}${t.billRef ? ' <span class="chip">bill</span>' : ''}${t.notes ? `<div class="tiny muted">${esc(t.notes)}</div>` : ''}</td><td>${t.splits.length > 1 ? `<span class="chip" title="${attr(t.splits.map(s => `${s.category} ${fmt(s.amount)}`).join(', '))}">${t.splits.length} splits</span> <span class="tiny muted">${esc(t.splits.map(s => s.category).join(', '))}</span>` : esc(t.splits[0].category)}</td>${isCouple() ? `<td>${ownerChip(t.owner)}</td>` : ''}<td class="muted small">${esc(paymentLabel(t.paymentMethod))}</td><td class="right num ${t.type === 'income' ? 'good' : t.type === 'transfer' ? 'muted' : ''}">${t.type === 'income' ? '+' : t.type === 'expense' ? '−' : ''}${fmt(tot)}</td><td class="actions"><button class="btn sm ghost icon" data-action="txnEdit" data-id="${t.id}" title="Edit">✎</button></td></tr>`; }).join('')}</tbody>
+          <tbody>${shown.map(t => { const tot = txnTotal(t); return `<tr data-action="txnEdit" data-id="${t.id}" style="cursor:pointer"><td class="nowrap">${esc(D.dateLabel(t.date))}</td><td>${esc(t.description)}${t.billRef ? ' <span class="chip" title="Created by ticking the bill as paid">bill</span>' : ''}${t.incomeRef ? ' <span class="chip good" title="Posted automatically on pay day">auto</span>' : ''}${t.notes ? `<div class="tiny muted">${esc(t.notes)}</div>` : ''}</td><td>${t.splits.length > 1 ? `<span class="chip" title="${attr(t.splits.map(s => `${s.category} ${fmt(s.amount)}`).join(', '))}">${t.splits.length} splits</span> <span class="tiny muted">${esc(t.splits.map(s => s.category).join(', '))}</span>` : esc(t.splits[0].category)}</td>${isCouple() ? `<td>${ownerChip(t.owner)}</td>` : ''}<td class="muted small">${esc(paymentLabel(t.paymentMethod))}</td><td class="right num ${t.type === 'income' ? 'good' : t.type === 'transfer' ? 'muted' : ''}">${t.type === 'income' ? '+' : t.type === 'expense' ? '−' : ''}${fmt(tot)}</td><td class="actions"><button class="btn sm ghost icon" data-action="txnEdit" data-id="${t.id}" title="Edit">✎</button></td></tr>`; }).join('')}</tbody>
         </table></div>${list.length > limit ? `<div class="center mt"><button class="btn sm" data-action="txnMore">Show more (${list.length - limit} hidden)</button></div>` : ''}` : emptyBox('No transactions match', 'Add one, import a CSV from your bank, or change the filters.', `<button class="btn primary" data-action="txnAdd">+ Add transaction</button>`)}
       </div>`;
   }
@@ -461,13 +462,13 @@ views.bills = {
       </div>
       <div class="flex between flex-wrap mt">
         <div class="seg"><button class="${ui.calendarMode === 'list' ? 'active' : ''}" data-action="calMode" data-mode="list">List</button><button class="${ui.calendarMode === 'calendar' ? 'active' : ''}" data-action="calMode" data-mode="calendar">Calendar</button></div>
-        <div class="flex"><button class="btn" data-action="subAdd">+ Subscription</button><button class="btn primary" data-action="billAdd">+ Bill</button></div>
+        <div class="flex flex-wrap"><button class="btn" data-action="markAllDue" title="Tick every bill and subscription that has come due this month">✓ Mark all due as paid</button><button class="btn" data-action="subAdd">+ Subscription</button><button class="btn primary" data-action="billAdd">+ Bill</button></div>
       </div>
       ${ui.calendarMode === 'calendar' ? renderBillCalendar(month) : `
-      <div class="card mt"><div class="card-head"><h3>Bills</h3><span class="tiny muted">Tick "Paid" to record the payment as a transaction for ${esc(D.monthLabel(month))}</span></div>
+      <div class="card mt" data-anchor="bills"><div class="card-head"><h3>Bills</h3><span class="tiny muted">Tick "Paid" to record the payment as a transaction for ${esc(D.monthLabel(month))}${S().autoPayBills ? ' · auto-ticked on the due date' : ''}</span></div>
         ${bills.length ? `<div class="table-wrap"><table>${head}<tbody>${rowsFor(bills, false)}</tbody><tfoot><tr><td></td><td>Total</td>${isCouple() ? '<td></td>' : ''}<td></td><td></td><td></td><td class="right num">${fmt(billsMonth)}</td><td class="right num">${fmt(billsAnnual / 12)}</td><td></td></tr></tfoot></table></div>` : emptyBox('No bills yet', 'Add rent, utilities, insurance — anything that recurs.', '<button class="btn primary" data-action="billAdd">+ Add a bill</button>')}
       </div>
-      <div class="card mt"><div class="card-head"><h3>Subscriptions</h3><span class="tiny muted">${S().includeSubsInBills ? 'Counted in bills totals' : 'Not counted in bills totals (Settings)'}</span></div>
+      <div class="card mt" data-anchor="subs"><div class="card-head"><h3>Subscriptions</h3><span class="tiny muted">${S().includeSubsInBills ? 'Counted in bills totals' : 'Not counted in bills totals (Settings)'}</span></div>
         ${subs.length ? `<div class="table-wrap"><table>${head}<tbody>${rowsFor(subs, true)}</tbody><tfoot><tr><td></td><td>Total</td>${isCouple() ? '<td></td>' : ''}<td></td><td></td><td></td><td class="right num">${fmt(subsMonth)}</td><td class="right num">${fmt(subsAnnual / 12)}</td><td></td></tr></tfoot></table></div>` : emptyBox('No subscriptions yet', 'Streaming, software, gym, memberships — track every renewal.', '<button class="btn" data-action="subAdd">+ Add a subscription</button>')}
       </div>`}`;
   }
@@ -479,19 +480,14 @@ function renderBillCalendar(month) {
   let cells = '';
   for (let i = 0; i < first; i++) cells += '<div class="day blank"></div>';
   for (let d = 1; d <= days; d++) { const iso = D.iso(y, m, d); const items = byDay[d] || []; cells += `<div class="day ${iso === today ? 'today' : ''}"><div class="d">${d}${items.length ? ` <span class="muted">· ${fmt0(sum(items, i => i.amount))}</span>` : ''}</div>${items.map(i => `<span class="it ${i.paid ? 'paid' : ''} ${i.isSub ? 'sub' : ''}" title="${attr(i.name + ' ' + fmt(i.amount))}">${esc(i.name)}</span>`).join('')}</div>`; }
-  return `<div class="card mt"><div class="card-head"><h3>${esc(D.monthLabel(month, true))}</h3><span class="tiny muted">Dashed = subscription · struck through = paid</span></div><div class="cal">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="dow">${d}</div>`).join('')}${cells}</div></div>`;
+  return `<div class="card mt" data-anchor="bills"><div class="card-head"><h3>${esc(D.monthLabel(month, true))}</h3><span class="tiny muted">Dashed = subscription · struck through = paid</span></div><div class="cal">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="dow">${d}</div>`).join('')}${cells}</div></div>`;
 }
 function togglePaid(id, kind, checked) {
   const month = ui.month;
   const item = kind === 'sub' ? subAsRecurring(byId('subs', id)) : byId('bills', id);
   if (!item) return;
   commit(s => {
-    s.billPaid[month] = s.billPaid[month] || {};
-    s.txns = s.txns.filter(t => !(t.billRef && t.billRef.id === id && t.billRef.month === month));
-    if (checked) {
-      s.billPaid[month][id] = true;
-      const hits = occurrences(item, D.monthStart(month), D.monthEnd(month));
-      s.txns.push({ id: uid(), date: hits[0] || D.monthStart(month), month, type: 'expense', description: item.name, owner: item.owner || 'p1', paymentMethod: '', notes: hits.length > 1 ? `${hits.length} payments this month` : '', splits: [{ category: item.category || 'Other', amount: round2(hits.length * num(item.amount)) }], billRef: { id, month } });
-    } else delete s.billPaid[month][id];
+    if (checked) { markBillPaid(s, item, month); delete s.skipped['bill|' + id + '|' + month]; }
+    else { s.billPaid[month] = s.billPaid[month] || {}; delete s.billPaid[month][id]; s.txns = s.txns.filter(t => !(t.billRef && t.billRef.id === id && t.billRef.month === month)); s.skipped['bill|' + id + '|' + month] = true; }
   });
 }

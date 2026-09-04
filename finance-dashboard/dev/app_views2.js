@@ -35,14 +35,15 @@ views.income = {
     return `
       <div class="grid grid-4">
         ${kpi('Expected ' + D.monthLabel(month), fmt0(expected), 'from income sources')}
-        ${kpi('Recorded', fmt0(recorded), 'income transactions', recorded < expected && month <= D.thisMonth() ? 'warn' : '')}
+        ${kpi('Recorded', fmt0(recorded), S().autoPostIncome !== false ? 'posted automatically on pay day' : 'income transactions', recorded < expected && month < D.thisMonth() ? 'warn' : '')}
         ${kpi('Monthly average', fmt0(annual / 12), 'annual ÷ 12')}
         ${kpi('Annual', fmt0(annual), `${list.filter(i => i.active !== false).length} active source${list.length === 1 ? '' : 's'}`)}
       </div>
-      <div class="card mt"><div class="card-head"><h3>Income sources</h3><button class="btn primary" data-action="incomeAdd">+ Add income</button></div>
-        ${list.length ? `<div class="table-wrap"><table><thead><tr><th>Source</th>${isCouple() ? '<th>Owner</th>' : ''}<th class="right">Amount</th><th>Frequency</th><th>Next pay day</th><th class="right">${esc(D.monthLabel(month))}</th><th class="right">Monthly avg</th><th class="actions"></th></tr></thead>
-          <tbody>${list.map(i => { const next = nextDue(i, month === D.thisMonth() ? D.today() : D.monthStart(month)); const im = expandRecurring(i, month, month)[0]; return `<tr class="${i.active === false ? 'row-muted' : ''}"><td><b>${esc(i.source)}</b>${i.active === false ? ' <span class="chip">inactive</span>' : ''}<div class="tiny muted">${esc(i.type || '')}</div></td>${isCouple() ? `<td>${ownerChip(i.owner)}</td>` : ''}<td class="right num">${fmt(i.amount)}</td><td class="small">${esc(freqLabel(i))}</td><td class="small nowrap">${next ? esc(D.dateLabel(next)) : '—'}</td><td class="right num">${im.occurrences ? fmt(im.amount) + (im.occurrences > 1 ? ` <span class="tiny muted">×${im.occurrences}</span>` : '') : '<span class="muted">—</span>'}</td><td class="right num muted">${fmt(monthlyEquivalent(i))}</td><td class="actions"><button class="btn sm ghost icon" data-action="incomeEdit" data-id="${i.id}">✎</button></td></tr>`; }).join('')}</tbody>
-          <tfoot><tr><td>Total</td>${isCouple() ? '<td></td>' : ''}<td></td><td></td><td></td><td class="right num">${fmt(expected)}</td><td class="right num">${fmt(annual / 12)}</td><td></td></tr></tfoot></table></div>` : emptyBox('No income sources yet', 'Add salaries, freelance income, benefits — the forecast and safe-to-spend use these.', '<button class="btn primary" data-action="incomeAdd">+ Add income</button>')}
+      ${S().autoPostIncome !== false ? `<div class="callout good mt small flex between flex-wrap"><span>✓ <b>Enter each source once.</b> On every pay day it posts itself as an income transaction — no re-entering. Edit or delete a posted one if a pay differs.</span><a href="#" data-action="goto" data-view="settings" data-anchor="automation">Automation settings</a></div>` : `<div class="callout mt small flex between flex-wrap"><span>Automatic posting is off — record each pay as an income transaction.</span><a href="#" data-action="goto" data-view="settings" data-anchor="automation">Turn on</a></div>`}
+      <div class="card mt" data-anchor="sources"><div class="card-head"><h3>Income sources</h3><button class="btn primary" data-action="incomeAdd">+ Add income</button></div>
+        ${list.length ? `<div class="table-wrap"><table><thead><tr><th>Source</th>${isCouple() ? '<th>Owner</th>' : ''}<th class="right">Amount</th><th>Frequency</th><th>Next pay day</th><th class="right">${esc(D.monthLabel(month))}</th><th>Received</th><th class="right">Monthly avg</th><th class="actions"></th></tr></thead>
+          <tbody>${list.map(i => { const next = nextDue(i, month === D.thisMonth() ? D.today() : D.monthStart(month)); const im = expandRecurring(i, month, month)[0]; const got = state.txns.filter(t => t.incomeRef && t.incomeRef.id === i.id && t.month === month); return `<tr class="${i.active === false ? 'row-muted' : ''}"><td><b>${esc(i.source)}</b>${i.active === false ? ' <span class="chip">inactive</span>' : ''}<div class="tiny muted">${esc(i.type || '')}</div></td>${isCouple() ? `<td>${ownerChip(i.owner)}</td>` : ''}<td class="right num">${fmt(i.amount)}</td><td class="small">${esc(freqLabel(i))}</td><td class="small nowrap">${next ? esc(D.dateLabel(next)) : '—'}</td><td class="right num">${im.occurrences ? fmt(im.amount) + (im.occurrences > 1 ? ` <span class="tiny muted">×${im.occurrences}</span>` : '') : '<span class="muted">—</span>'}</td><td>${got.length ? `<span class="chip good">${got.length === im.occurrences ? '✓ all' : got.length + ' of ' + im.occurrences}</span>` : im.occurrences && month <= D.thisMonth() ? '<span class="chip">pending</span>' : ''}</td><td class="right num muted">${fmt(monthlyEquivalent(i))}</td><td class="actions"><button class="btn sm ghost icon" data-action="incomeEdit" data-id="${i.id}">✎</button></td></tr>`; }).join('')}</tbody>
+          <tfoot><tr><td>Total</td>${isCouple() ? '<td></td>' : ''}<td></td><td></td><td></td><td class="right num">${fmt(expected)}</td><td></td><td class="right num">${fmt(annual / 12)}</td><td></td></tr></tfoot></table></div>` : emptyBox('No income sources yet', 'Add salaries, freelance income, benefits — the forecast and safe-to-spend use these.', '<button class="btn primary" data-action="incomeAdd">+ Add income</button>')}
       </div>
       ${list.length ? `<div class="card mt"><div class="card-head"><h3>Expected income by month</h3><span class="tiny muted">Weekly and fortnightly pay produce 5- and 3-payday months — shown exactly, not averaged</span></div>
         ${svgBarChart({ groups: months12.map(m => ({ label: D.MONTHS[D.parse(m).m - 1] + (D.parse(m).m === 1 ? ' ' + String(D.parse(m).y).slice(2) : ''), values: isCouple() ? ['p1', 'p2', 'joint'].map(o => sum(list.filter(i => (i.owner || 'p1') === o), i => amountInMonth(i, m))) : [sum(list, i => amountInMonth(i, m))] })), seriesNames: isCouple() ? [S().person1Name, S().person2Name, 'Joint'] : ['Expected income'], colors: isCouple() ? [C.p1, C.p2, C.joint] : [C.good], stacked: true, height: 200 })}</div>` : ''}`;
@@ -100,7 +101,7 @@ views.savings = {
       <div class="grid grid-3 mt">
         <div style="grid-column:span 2">
           <div class="flex between mb"><h2>Goals</h2><button class="btn primary" data-action="goalAdd">+ Add goal</button></div>
-          ${goals.length ? `<div class="grid grid-2">${goals.map(g => { const p = goalProjection(g, D.thisMonth()); const done = p.remaining === 0 && num(g.target) > 0; return `<div class="card">
+          ${goals.length ? `<div class="grid grid-2" data-anchor="goals">${goals.map(g => { const p = goalProjection(g, D.thisMonth()); const done = p.remaining === 0 && num(g.target) > 0; return `<div class="card">
             <div class="flex between"><div><h3>${esc(g.name)}</h3><div class="tiny muted mt-s">${ownerChip(g.owner)} <span class="chip ${g.priority === 'high' ? 'bad' : g.priority === 'low' ? '' : 'warn'}">${esc(g.priority || 'medium')} priority</span> ${done ? '<span class="chip good">complete</span>' : p.behind ? '<span class="chip warn">behind schedule</span>' : ''}</div></div><button class="btn sm ghost icon" data-action="goalEdit" data-id="${g.id}">✎</button></div>
             <div class="mt"><div class="flex between small"><b class="num">${fmt(g.current)}</b><span class="muted num">${fmt(g.target)}</span></div>${progressBar(p.pct, done ? '' : 'accent')}<div class="flex between tiny muted mt-s"><span>${fmtPct(p.pct)} complete</span><span>${fmt(p.remaining)} to go</span></div></div>
             <table class="small mt"><tbody>
@@ -113,7 +114,7 @@ views.savings = {
         </div>
         <div>
           <div class="flex between mb"><h2>Emergency fund</h2></div>
-          <div class="card">
+          <div class="card" data-anchor="emergency">
             <div class="kpi" style="padding:0"><div class="k">Months of expenses covered</div><div class="v ${covered >= efMonths ? 'good' : covered >= 1 ? 'warn' : 'bad'}">${covered.toFixed(1)}</div></div>
             ${progressBar(efMonths ? covered / efMonths * 100 : 0, covered >= efMonths ? '' : 'warn')}
             <table class="small mt"><tbody>
@@ -192,7 +193,7 @@ views.debt = {
       <div class="grid grid-3 mt">
         <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Paydown curve</h3><span class="tiny muted">Total balance by month, both strategies</span></div>${chart}
           ${cur.neverPaysOff ? `<div class="callout bad mt small"><b>These payments never clear the debt.</b> Interest each month is more than the minimum payments on at least one debt. Increase the extra payment or the minimums to see a payoff date.</div>` : ''}</div>
-        <div class="card"><div class="card-head"><h3>Strategy comparison</h3></div>
+        <div class="card" data-anchor="comparison"><div class="card-head"><h3>Strategy comparison</h3></div>
           <table class="small"><thead><tr><th></th><th class="right">Snowball</th><th class="right">Avalanche</th></tr></thead><tbody>
             ${cmpRow('Debt-free in', sn.monthsToDebtFree, av.monthsToDebtFree, monthsFmt)}
             ${cmpRow('Total interest', sn.totalInterest, av.totalInterest, fmt)}
@@ -203,7 +204,7 @@ views.debt = {
         </div>
       </div>
       <div class="section-title"><h2>Your debts</h2><span class="tiny muted">Payoff order (${esc(ui.debtStrategy)}): ${order.map((d, i) => `${i + 1}. ${esc(d.name)}`).join(' → ') || '—'}</span></div>
-      <div class="grid grid-3">${debts.sort((a, b) => (cur.payoffByDebt[a.id] || '9999') < (cur.payoffByDebt[b.id] || '9999') ? -1 : 1).map(d => { const orig = Math.max(num(d.originalBalance), num(d.currentBalance)); const paid = orig - num(d.currentBalance); const payoff = cur.payoffByDebt[d.id]; const firstMonth = cur.schedule[0] && cur.schedule[0].perDebt[d.id]; const interestOnDebt = round2(sum(cur.schedule, s => s.perDebt[d.id] ? s.perDebt[d.id].interest : 0)); return `<div class="card">
+      <div class="grid grid-3" data-anchor="debts">${debts.sort((a, b) => (cur.payoffByDebt[a.id] || '9999') < (cur.payoffByDebt[b.id] || '9999') ? -1 : 1).map(d => { const orig = Math.max(num(d.originalBalance), num(d.currentBalance)); const paid = orig - num(d.currentBalance); const payoff = cur.payoffByDebt[d.id]; const firstMonth = cur.schedule[0] && cur.schedule[0].perDebt[d.id]; const interestOnDebt = round2(sum(cur.schedule, s => s.perDebt[d.id] ? s.perDebt[d.id].interest : 0)); return `<div class="card">
         <div class="flex between"><div><h3>${esc(d.name)}</h3><div class="tiny muted mt-s">${esc(d.debtType || '')} ${ownerChip(d.owner)}</div></div><button class="btn sm ghost icon" data-action="debtEdit" data-id="${d.id}">✎</button></div>
         <div class="kpi mt" style="padding:0"><div class="v">${fmt(d.currentBalance)}</div><div class="s">${fmtPct(d.apr, 2)} APR · min ${fmt(d.minPayment)}${num(d.extraPayment) ? ` + ${fmt(d.extraPayment)} extra` : ''}</div></div>
         <div class="mt-s">${progressBar(orig ? paid / orig * 100 : 0, 'ink thin')}<div class="flex between tiny muted mt-s"><span>${fmtPct(orig ? paid / orig * 100 : 0)} paid off</span><span>of ${fmt(orig)}</span></div></div>
@@ -214,7 +215,7 @@ views.debt = {
           <tr><td class="muted">Interest until paid</td><td class="right num">${fmt(interestOnDebt)}</td></tr>
         </tbody></table>
         <div class="mt-s"><button class="btn sm" data-action="debtPayment" data-id="${d.id}">Record a payment</button></div></div>`; }).join('')}</div>
-      <div class="card mt"><div class="card-head"><h3>Schedule (${esc(ui.debtStrategy)})</h3><button class="btn sm" data-action="debtScheduleCsv">Export schedule CSV</button></div>
+      <div class="card mt" data-anchor="schedule"><div class="card-head"><h3>Schedule (${esc(ui.debtStrategy)})</h3><button class="btn sm" data-action="debtScheduleCsv">Export schedule CSV</button></div>
         <div class="table-wrap" style="max-height:360px;overflow:auto"><table class="small"><thead><tr><th>Month</th>${debts.map(d => `<th class="right">${esc(d.name)}</th>`).join('')}<th class="right">Payment</th><th class="right">Interest</th><th class="right">Balance</th></tr></thead>
         <tbody>${cur.schedule.slice(0, 120).map(s => `<tr><td class="nowrap">${esc(D.monthLabel(s.month))}</td>${debts.map(d => `<td class="right num ${s.perDebt[d.id] ? '' : 'muted'}">${s.perDebt[d.id] ? fmt(s.perDebt[d.id].balance) : '—'}</td>`).join('')}<td class="right num">${fmt(s.totalPayment)}</td><td class="right num muted">${fmt(sum(Object.values(s.perDebt), p => p.interest))}</td><td class="right num"><b>${fmt(s.totalBalance)}</b></td></tr>`).join('')}${cur.schedule.length > 120 ? `<tr><td colspan="${debts.length + 4}" class="muted center">… ${cur.schedule.length - 120} more months (export for the full schedule)</td></tr>` : ''}</tbody></table></div></div>`
       : emptyBox('No debts tracked', 'Add credit cards, loans and anything else with an interest rate to plan a payoff.', '<button class="btn primary" data-action="debtAdd">+ Add a debt</button>')}`;
@@ -248,7 +249,7 @@ views.networth = {
     const assets = state.accounts.filter(a => !a.isLiability).sort((a, b) => b.balance - a.balance), liabs = state.accounts.filter(a => a.isLiability).sort((a, b) => b.balance - a.balance);
     const snaps = state.snapshots.slice().sort((a, b) => a.date < b.date ? -1 : 1);
     const first = snaps[0], prev = snaps.length > 1 ? snaps[snaps.length - 2] : null, last = snaps[snaps.length - 1];
-    const table = (list, title, addLabel) => `<div class="card"><div class="card-head"><h3>${title}</h3><button class="btn sm" data-action="accountAdd">${addLabel}</button></div>
+    const table = (list, title, addLabel) => `<div class="card" data-anchor="${title.toLowerCase()}"><div class="card-head"><h3>${title}</h3><button class="btn sm" data-action="accountAdd">${addLabel}</button></div>
       ${list.length ? `<div class="table-wrap"><table><thead><tr><th>Account</th><th>Type</th>${isCouple() ? '<th>Owner</th>' : ''}<th class="right">Balance</th><th class="actions"></th></tr></thead><tbody>${list.map(a => `<tr><td><b>${esc(a.name)}</b>${a.notes ? `<div class="tiny muted">${esc(a.notes)}</div>` : ''}</td><td class="small muted">${esc(accountType(a.type).l)}</td>${isCouple() ? `<td>${ownerChip(a.owner)}</td>` : ''}<td class="right"><input class="inline-input" type="number" step="0.01" inputmode="decimal" value="${a.balance}" data-change="accountBalance" data-id="${a.id}" title="Edit balance inline"></td><td class="actions"><button class="btn sm ghost icon" data-action="accountEdit" data-id="${a.id}">✎</button></td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td></td>${isCouple() ? '<td></td>' : ''}<td class="right num">${fmt(sum(list, a => a.balance))}</td><td></td></tr></tfoot></table></div>` : `<div class="muted small">None yet.</div>`}</div>`;
     return `
       <div class="grid grid-4">
@@ -258,11 +259,11 @@ views.networth = {
         ${kpi('Since first snapshot', first && last && first !== last ? fmt0(last.net - first.net, { sign: true }) : '—', first ? `since ${esc(D.dateLabel(first.date))}` : 'No snapshots yet', first && last ? signCls(last.net - first.net) : '')}
       </div>
       ${isCouple() ? `<div class="card mt flat"><div class="flex flex-wrap" style="gap:24px">${['p1', 'p2', 'joint'].map(o => { const a = sum(state.accounts.filter(x => !x.isLiability && (x.owner || 'p1') === o), x => x.balance), l = sum(state.accounts.filter(x => x.isLiability && (x.owner || 'p1') === o), x => x.balance) + sum(state.debts.filter(x => (x.owner || 'p1') === o), x => x.currentBalance); return `<div class="small">${ownerChip(o)} <b class="num ${signCls(a - l)}">${fmt0(a - l)}</b> <span class="muted">(${fmt0(a)} − ${fmt0(l)})</span></div>`; }).join('')}</div></div>` : ''}
-      <div class="card mt"><div class="card-head"><h3>Net worth over time</h3><div class="flex"><span class="tiny muted">A snapshot is stored automatically each month you make changes</span><button class="btn sm" data-action="snapshotNow">Snapshot now</button></div></div>
+      <div class="card mt" data-anchor="history"><div class="card-head"><h3>Net worth over time</h3><div class="flex"><span class="tiny muted">A snapshot is stored automatically each month you make changes</span><button class="btn sm" data-action="snapshotNow">Snapshot now</button></div></div>
         ${snaps.length >= 2 ? svgLineChart({ labels: snaps.map(s => D.monthLabel(D.monthOf(s.date))), series: [{ name: 'Net worth', color: C.ink, points: snaps.map(s => s.net), area: true }, { name: 'Assets', color: C.good, points: snaps.map(s => s.assets), dash: '4 4', width: 1.5 }, { name: 'Liabilities', color: C.accent, points: snaps.map(s => s.liabilities), dash: '4 4', width: 1.5 }], height: 220, maxLabels: 8 }) : `<div class="muted small">The chart appears once there are two or more monthly snapshots. ${snaps.length === 1 ? 'First snapshot recorded ' + esc(D.dateLabel(snaps[0].date)) + '.' : ''}</div>`}
       </div>
       <div class="grid grid-2 mt">${table(assets, 'Assets', '+ Add')}${table(liabs, 'Liabilities', '+ Add')}</div>
-      ${state.debts.length ? `<div class="callout mt small">Debts from the <a href="#" data-action="goto" data-view="debt">Debt view</a> (${fmt(nw.debts)}) are included in liabilities automatically — don't add them here as well.</div>` : ''}
+      ${state.debts.length ? `<div class="callout mt small">Debts from the <a href="#" data-action="goto" data-view="debt" data-anchor="debts">Debt view</a> (${fmt(nw.debts)}) are included in liabilities automatically — don't add them here as well.</div>` : ''}
       ${snaps.length ? `<div class="card mt"><div class="card-head"><h3>Snapshots</h3></div><div class="table-wrap"><table class="small"><thead><tr><th>Date</th><th class="right">Assets</th><th class="right">Liabilities</th><th class="right">Net worth</th><th class="right">Change</th><th class="actions"></th></tr></thead><tbody>${snaps.slice().reverse().map((s, i, arr) => { const p = arr[i + 1]; return `<tr><td>${esc(D.dateLabel(s.date))}</td><td class="right num">${fmt(s.assets)}</td><td class="right num">${fmt(s.liabilities)}</td><td class="right num"><b>${fmt(s.net)}</b></td><td class="right num ${p ? signCls(s.net - p.net) : ''}">${p ? fmt(s.net - p.net, { sign: true }) : '—'}</td><td class="actions"><button class="btn sm ghost icon" data-action="snapshotDelete" data-date="${s.date}" title="Delete">×</button></td></tr>`; }).join('')}</tbody></table></div></div>` : ''}`;
   }
 };
@@ -312,7 +313,7 @@ views.reports = {
           </tbody></table>` : '<div class="muted small">No transactions recorded in this year.</div>'}
         </div>
       </div>
-      <div class="card mt"><div class="card-head"><h3>Monthly summary</h3></div><div class="table-wrap"><table class="small"><thead><tr><th>Month</th><th class="right">Income</th><th class="right">Expenses</th><th class="right">Net</th><th class="right">Savings rate</th><th class="right">Expected income</th><th class="right">Bills due</th></tr></thead>
+      <div class="card mt" data-anchor="monthly"><div class="card-head"><h3>Monthly summary</h3></div><div class="table-wrap"><table class="small"><thead><tr><th>Month</th><th class="right">Income</th><th class="right">Expenses</th><th class="right">Net</th><th class="right">Savings rate</th><th class="right">Expected income</th><th class="right">Bills due</th></tr></thead>
         <tbody>${sums.map(s => `<tr class="${!s.income && !s.expenses ? 'row-muted' : ''}"><td>${esc(D.monthLabel(s.month))}</td><td class="right num">${fmt(s.income)}</td><td class="right num">${fmt(s.expenses)}</td><td class="right num ${signCls(s.net)}">${fmt(s.net, { sign: true })}</td><td class="right num">${fmtPct(s.savingsRate)}</td><td class="right num muted">${fmt(s.expectedIncome)}</td><td class="right num muted">${fmt(s.expectedBills)}</td></tr>`).join('')}</tbody>
         <tfoot><tr><td>Total</td><td class="right num">${fmt(totInc)}</td><td class="right num">${fmt(totExp)}</td><td class="right num ${signCls(totNet)}">${fmt(totNet, { sign: true })}</td><td class="right num">${totInc ? fmtPct(totNet / totInc * 100) : '—'}</td><td class="right num muted">${fmt(sum(sums, s => s.expectedIncome))}</td><td class="right num muted">${fmt(sum(sums, s => s.expectedBills))}</td></tr></tfoot></table></div></div>
       <div class="grid grid-2 mt">
@@ -323,7 +324,7 @@ views.reports = {
       ${ms ? `<div class="page-break"></div><div class="section-title"><h2>Monthly report · ${esc(D.monthLabel(selMonth, true))}</h2></div>
       <div class="grid grid-4">${kpi('Income', fmt0(ms.income))}${kpi('Expenses', fmt0(ms.expenses))}${kpi('Net', fmt0(ms.net), '', signCls(ms.net))}${kpi('Savings rate', fmtPct(ms.savingsRate))}</div>
       <div class="grid grid-2 mt">
-        <div class="card"><div class="card-head"><h3>Categories</h3></div>${mcats.length ? `<table class="small"><thead><tr><th>Category</th><th class="right">Spent</th><th class="right">Budget</th><th class="right">Diff</th></tr></thead><tbody>${mcats.map(([c, v]) => { const b = mBudget.find(x => x.category === c); return `<tr><td>${esc(c)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${b ? fmt(b.planned) : '—'}</td><td class="right num ${b ? signCls(num(b.planned) - v) : ''}">${b ? fmt(num(b.planned) - v, { sign: true }) : ''}</td></tr>`; }).join('')}</tbody></table>` : '<div class="muted small">No spending this month.</div>'}</div>
+        <div class="card" data-anchor="categories"><div class="card-head"><h3>Categories</h3></div>${mcats.length ? `<table class="small"><thead><tr><th>Category</th><th class="right">Spent</th><th class="right">Budget</th><th class="right">Diff</th></tr></thead><tbody>${mcats.map(([c, v]) => { const b = mBudget.find(x => x.category === c); return `<tr><td>${esc(c)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${b ? fmt(b.planned) : '—'}</td><td class="right num ${b ? signCls(num(b.planned) - v) : ''}">${b ? fmt(num(b.planned) - v, { sign: true }) : ''}</td></tr>`; }).join('')}</tbody></table>` : '<div class="muted small">No spending this month.</div>'}</div>
         <div class="card"><div class="card-head"><h3>Transactions</h3></div><div class="table-wrap" style="max-height:420px;overflow:auto"><table class="small"><tbody>${state.txns.filter(t => t.month === selMonth).sort((a, b) => a.date < b.date ? -1 : 1).map(t => `<tr><td class="nowrap">${esc(D.dateLabel(t.date).slice(0, 6))}</td><td>${esc(t.description)}<div class="tiny muted">${esc(t.splits.map(s => s.category).join(', '))}</div></td><td class="right num ${t.type === 'income' ? 'good' : ''}">${t.type === 'income' ? '+' : t.type === 'expense' ? '−' : ''}${fmt(txnTotal(t))}</td></tr>`).join('') || '<tr><td class="muted">None</td></tr>'}</tbody></table></div></div>
       </div>` : ''}`;
   }
@@ -345,16 +346,16 @@ views.settings = {
       : `<div><b>Manual backup only in this browser.</b><div class="tiny muted mt-s">Automatic file backup needs Chrome or Edge. Here, export a JSON backup regularly — you'll get a reminder every ${REMIND_EVERY_SESSIONS} sessions (${sessions} so far).</div></div>`;
     return `
       <div class="grid grid-2">
-        <div class="card"><div class="card-head"><h3>Household</h3></div>
+        <div class="card" data-anchor="household"><div class="card-head"><h3>Household</h3></div>
           <div class="field"><label>Mode</label><div class="seg"><button class="${!isCouple() ? 'active' : ''}" data-action="setMode" data-mode="single">Just me</button><button class="${isCouple() ? 'active' : ''}" data-action="setMode" data-mode="couple">Couple</button></div><div class="hint">Couple mode adds an owner to every income, bill, debt, goal and transaction, with per-person breakdowns. Switching back hides the owner — nothing is deleted.</div></div>
           <div class="form-grid"><div class="field"><label>${isCouple() ? 'Person 1' : 'Your name'}</label><input type="text" value="${attr(s.person1Name)}" data-change="setting" data-key="person1Name" maxlength="24"></div>${isCouple() ? `<div class="field"><label>Person 2</label><input type="text" value="${attr(s.person2Name)}" data-change="setting" data-key="person2Name" maxlength="24"></div>` : ''}</div>
         </div>
-        <div class="card"><div class="card-head"><h3>Currency</h3><span class="chip">display only</span></div>
+        <div class="card" data-anchor="currency"><div class="card-head"><h3>Currency</h3><span class="chip">display only</span></div>
           <div class="form-grid"><div class="field"><label>Currency</label><select data-change="currency">${CURRENCIES.map(x => `<option value="${x.code}"${x.code === c.code ? ' selected' : ''}>${x.code === 'CUSTOM' ? 'Custom symbol…' : `${x.code} · ${esc(x.name)}`}</option>`).join('')}</select></div>
           ${c.code === 'CUSTOM' ? `<div class="field"><label>Symbol</label><input type="text" value="${attr(c.symbol)}" data-change="currencySymbol" maxlength="5"></div>` : `<div class="field"><label>Preview</label><div style="padding:8px 0" class="num">${fmt(1234.56)} · ${fmt(-89.5)}</div></div>`}</div>
           <div class="hint">Changes the symbol and number format only. Amounts are never converted between currencies.</div>
         </div>
-        <div class="card"><div class="card-head"><h3>Planning</h3></div>
+        <div class="card" data-anchor="planning"><div class="card-head"><h3>Planning</h3></div>
           <div class="form-grid">
             <div class="field"><label>Tracking starts</label><input type="month" value="${attr(s.startMonth)}" placeholder="YYYY-MM" data-change="setting" data-key="startMonth"><div class="hint">Budget rollover chains don't reach before this month.</div></div>
             <div class="field"><label>Safety buffer</label><input type="number" step="1" min="0" value="${s.safetyBuffer}" data-change="setting" data-key="safetyBuffer" data-num="1"><div class="hint">Subtracted from safe-to-spend.</div></div>
@@ -364,17 +365,24 @@ views.settings = {
             <div class="field full"><label>Spendable account types (used for safe-to-spend)</label><div class="flex flex-wrap">${ACCOUNT_TYPES.filter(t => !t.liability).map(t => `<label class="check small"><input type="checkbox" data-change="spendable" data-type="${t.v}" ${(s.spendableTypes || []).includes(t.v) ? 'checked' : ''}> ${esc(t.l)}</label>`).join('')}</div></div>
           </div>
         </div>
-        <div class="card"><div class="card-head"><h3>Categories</h3><button class="btn sm" data-action="catAdd">+ Add</button></div>
+        <div class="card" data-anchor="categories"><div class="card-head"><h3>Categories</h3><button class="btn sm" data-action="catAdd">+ Add</button></div>
           <div class="flex flex-wrap">${s.categories.map(cat => `<span class="chip" style="padding:5px 6px 5px 10px;font-size:13px;font-weight:500">${esc(cat)} <button class="x" style="font-size:14px;padding:0 4px" data-action="catRename" data-cat="${attr(cat)}" title="Rename">✎</button><button class="x" style="font-size:16px;padding:0 4px" data-action="catRemove" data-cat="${attr(cat)}" title="Remove">×</button></span>`).join('')}</div>
           <div class="hint mt-s">Renaming a category updates existing transactions and budgets. Removing one keeps the transactions but they show as unbudgeted.</div>
         </div>
       </div>
-      <div class="card mt"><div class="card-head"><h3>Appearance</h3><span class="tiny muted">Pick a colour theme — charts and every page follow it</span></div>
+      <div class="card mt" data-anchor="automation"><div class="card-head"><h3>Automation</h3><span class="tiny muted">Enter recurring things once</span></div>
+        <div class="grid grid-3">
+          <label class="check" style="align-items:flex-start"><input type="checkbox" data-change="setting" data-key="autoPostIncome" ${s.autoPostIncome !== false ? 'checked' : ''}><span><b>Post income on pay day</b><div class="tiny muted">Each income source creates its own income transaction on every pay date (from your tracking start month). Delete one and that pay day stays deleted.</div></span></label>
+          <label class="check" style="align-items:flex-start"><input type="checkbox" data-change="setting" data-key="autoPayBills" ${s.autoPayBills ? 'checked' : ''}><span><b>Mark bills paid on their due date</b><div class="tiny muted">Ticks bills and subscriptions automatically once the due date arrives. Untick one to undo for that month. Off by default, for people who prefer to confirm each payment.</div></span></label>
+          <label class="check" style="align-items:flex-start"><input type="checkbox" data-change="setting" data-key="autoCopyBudget" ${s.autoCopyBudget !== false ? 'checked' : ''}><span><b>Carry the budget into each new month</b><div class="tiny muted">When a month starts with no budget, last month's planned amounts are copied in. Edit any of them as usual.</div></span></label>
+        </div>
+      </div>
+      <div class="card mt" data-anchor="appearance"><div class="card-head"><h3>Appearance</h3><span class="tiny muted">Pick a colour theme — charts and every page follow it</span></div>
         ${themeCardsHtml(s.theme === 'auto' ? currentThemeId() : (s.theme || 'cream'), 'data-action="setTheme" data-theme')}
         <label class="check mt small"><input type="checkbox" data-change="themeAuto" ${s.theme === 'auto' ? 'checked' : ''}> Follow my device's light / dark setting (Cream by day, Charcoal at night)</label>
       </div>
-      <div class="card mt"><div class="card-head"><h3>Automatic backup</h3><span class="chip ${bf.status === 'linked' ? 'good' : bf.status === 'needs-permission' || bf.status === 'error' ? 'warn' : ''}">${esc(bf.statusText())}</span></div>${backupHtml}</div>
-      <div class="card mt"><div class="card-head"><h3>Your data</h3><span class="tiny muted">${state.savedAt ? 'Last saved ' + esc(fmtDateTime(state.savedAt)) : ''}</span></div>
+      <div class="card mt" data-anchor="backup"><div class="card-head"><h3>Automatic backup</h3><span class="chip ${bf.status === 'linked' ? 'good' : bf.status === 'needs-permission' || bf.status === 'error' ? 'warn' : ''}">${esc(bf.statusText())}</span></div>${backupHtml}</div>
+      <div class="card mt" data-anchor="data"><div class="card-head"><h3>Your data</h3><span class="tiny muted">${state.savedAt ? 'Last saved ' + esc(fmtDateTime(state.savedAt)) : ''}</span></div>
         <div class="flex flex-wrap">
           <button class="btn primary" data-action="exportJson">Export backup (JSON)</button>
           <label class="btn">Restore from backup… <input type="file" accept=".json,application/json" class="hidden" data-change="importJson"></label>
@@ -388,7 +396,7 @@ views.settings = {
         <div class="tiny muted mt">${countsLabel(recordCounts(state))} · ${(serialize().length / 1024).toFixed(0)} KB in browser storage. A JSON backup contains everything and restores on any device.</div>
         <div id="testResults" class="mt"></div>
       </div>
-      <div class="card mt" style="border-color:#e6b9b5"><div class="card-head"><h3 class="bad">Danger zone</h3></div>
+      <div class="card mt" data-anchor="danger" style="border-color:var(--bad-soft)"><div class="card-head"><h3 class="bad">Danger zone</h3></div>
         <div class="flex flex-wrap"><button class="btn danger" data-action="clearTxns">Delete all transactions</button><button class="btn danger" data-action="resetAll">Erase everything</button></div>
         <div class="tiny muted mt">Export a backup first. Erasing removes all data from this browser and turns off the linked backup (the file itself is not deleted).</div>
       </div>

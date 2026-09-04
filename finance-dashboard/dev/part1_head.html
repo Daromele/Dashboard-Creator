@@ -275,6 +275,10 @@ textarea{min-height:70px;resize:vertical}
 .fresh .card,.fresh .kpi,.fresh .insight,.fresh .steps-card{animation:rise .35s ease-out both}
 .fresh .grid > .card:nth-child(2),.fresh .insight:nth-child(2){animation-delay:.05s}.fresh .grid > .card:nth-child(3),.fresh .insight:nth-child(3){animation-delay:.1s}.fresh .grid > .card:nth-child(4),.fresh .insight:nth-child(4){animation-delay:.15s}.fresh .grid > .card:nth-child(5){animation-delay:.2s}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:300}
+[data-anchor]{scroll-margin-top:84px}
+@keyframes flash{0%{box-shadow:0 0 0 0 var(--accent)}30%{box-shadow:0 0 0 4px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+.flash{animation:flash 1.6s ease-out}
+.storage-pill{margin-bottom:8px;padding:8px 10px;border-radius:10px;background:var(--bad-soft);color:var(--bad);font-size:12px;font-weight:600;cursor:pointer}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* Print */
@@ -301,7 +305,8 @@ textarea{min-height:70px;resize:vertical}
     <nav class="nav" id="nav"></nav>
     <div class="side-foot">
       <div class="theme-dots" id="themeDots" title="Colour theme"></div>
-      <div class="backup-pill" id="backupPill" data-action="goto" data-view="settings" title="Backup status"><span class="dot"></span><span id="backupPillText">Backup off</span></div>
+      <div class="storage-pill hidden" id="storagePill" data-action="goto" data-view="settings" data-anchor="backup" title="Export a backup"></div>
+      <div class="backup-pill" id="backupPill" data-action="goto" data-view="settings" data-anchor="backup" title="Backup status"><span class="dot"></span><span id="backupPillText">Backup off</span></div>
       <div class="mt-s tiny">v<span id="verLabel"></span> · Your data stays in this browser.</div>
     </div>
   </aside>
