@@ -34,24 +34,27 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .nowrap{white-space:nowrap}
 .hidden{display:none!important}
 .mt{margin-top:12px}.mb{margin-bottom:12px}.mt-s{margin-top:8px}.mb-s{margin-bottom:8px}.mt-l{margin-top:28px}
-.flex{display:flex;gap:10px;align-items:center}.flex-wrap{flex-wrap:wrap}.between{justify-content:space-between}.col{flex-direction:column;align-items:stretch}.grow{flex:1}
+.flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.flex.nowrap-row{flex-wrap:nowrap}.flex-wrap{flex-wrap:wrap}.between{justify-content:space-between}.col{flex-direction:column;align-items:stretch}.grow{flex:1}
 .grid{display:grid;gap:12px;align-items:stretch}
 .grid > .card,.grid > .empty{display:flex;flex-direction:column}
 .grid > .card > .table-wrap:last-child,.grid > .card > table:last-child{margin-bottom:auto}
+.table-wrap.mt{margin-top:12px}
 .push-b{margin-top:auto;padding-top:10px}
 .grid > .card > .donut-wrap,.grid > .card > svg{margin-top:auto;margin-bottom:auto}
 .grid.ragged{align-items:start}
 .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-5{grid-template-columns:repeat(5,minmax(0,1fr))}
-@media(max-width:1100px){.grid-5{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:761px){.grid-5{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}}
+@media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}}
 @media(max-width:480px){.grid-4,.grid-5{grid-template-columns:1fr 1fr;gap:10px}.kpi{padding:12px 14px}.kpi .v{font-size:21px}.kpi .s{font-size:11px}}
 
 /* Layout */
 #app{display:flex;min-height:100vh}
-.sidebar{width:var(--sidebar);flex:0 0 var(--sidebar);background:var(--surface);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 14px;z-index:20}
+.sidebar{width:var(--sidebar);flex:0 0 var(--sidebar);position:relative;transition:width .18s,flex-basis .18s;background:var(--surface);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 14px;z-index:20}
 .brand{display:flex;align-items:center;gap:10px;padding:2px 8px 18px}
 .brand .logo{width:34px;height:34px;border-radius:var(--r-sm);background:var(--accent);color:#fff;display:grid;place-items:center}.brand .logo svg{width:22px;height:22px;display:block}
-.brand b{font-family:var(--serif);font-size:17px;font-weight:600;display:block;line-height:1.1}
+.brand .txt{min-width:0}
+.brand b{font-family:var(--serif);font-size:17px;font-weight:600;display:block;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand span{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
 .nav{display:flex;flex-direction:column;gap:2px}
 .nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;padding:9px 10px;border-radius:var(--r);cursor:pointer;color:var(--ink2);font-size:14.5px}
@@ -59,6 +62,19 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .nav button:hover{background:var(--surface2);color:var(--ink)}
 .nav button.active{background:var(--ink);color:var(--bg)}
 .side-foot{margin-top:auto;padding:12px 8px 0;font-size:12px;color:var(--muted)}
+.rail-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm);cursor:pointer;color:var(--muted);font-size:12px;line-height:1;padding:7px;margin-bottom:10px}
+.rail-btn:hover{color:var(--ink);background:var(--surface2)}
+body.rail{--sidebar:68px}
+body.rail .brand{justify-content:center;padding:2px 0 18px}
+body.rail .brand .txt,body.rail #backupPillText,body.rail .side-foot .ver,body.rail .storage-pill span{display:none}
+body.rail .rail-btn{width:38px;padding:7px 0}
+body.rail .theme-dots{display:none}
+body.rail .nav button{justify-content:center;padding:10px 0}
+body.rail .nav button > span{display:none}
+body.rail .nav button svg{width:20px;height:20px;flex:0 0 20px}
+body.rail .side-foot{padding:12px 0 0;display:flex;flex-direction:column;align-items:center}
+body.rail .backup-pill,body.rail .storage-pill{justify-content:center;padding:8px;width:38px}
+@media(max-width:900px){.rail-btn{display:none}body.rail .theme-dots{display:flex}body.rail{--sidebar:240px}body.rail .brand .txt,body.rail #backupPillText,body.rail .side-foot .ver{display:block}body.rail .nav button > span{display:inline}body.rail .nav button{justify-content:flex-start;padding:9px 10px}body.rail .side-foot{align-items:stretch}body.rail .backup-pill{width:auto}}
 .backup-pill{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);background:var(--surface2);border:1px solid var(--line);font-size:12px;color:var(--ink2);cursor:pointer}
 .backup-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--line2);flex:0 0 8px}
 .backup-pill.linked .dot{background:var(--good)}.backup-pill.needs-permission .dot{background:var(--warn)}.backup-pill.error .dot{background:var(--bad)}
@@ -82,7 +98,7 @@ main{flex:1;min-width:0;display:flex;flex-direction:column}
 }
 
 /* Cards */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);container-type:inline-size}
 .card.inverse{background:var(--ink);color:var(--bg);border-color:var(--ink)}.card.inverse h3,.card.inverse .kpi .v,.card.inverse b{color:var(--bg)}.card.inverse .muted,.card.inverse .kpi .s,.card.inverse .tiny,.card.inverse .dim{color:var(--bg);opacity:.62}.card.inverse td{border-color:rgba(128,128,128,.28)}.card.inverse .chip{background:rgba(128,128,128,.28);color:var(--bg);border-color:transparent}.card.inverse a{color:var(--bg)}.card.inverse .good{color:var(--good)}.card.inverse .kpi .v.good{color:var(--good)}
 .card.flat{box-shadow:none}
 .card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
@@ -176,8 +192,27 @@ input.inline-input:hover,input.inline-input:focus{border-color:var(--accent)}
 .chart .axis{stroke:var(--line2)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--ink2);margin-top:8px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
-.donut-wrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
-.donut-wrap .list{flex:1;min-width:180px;font-size:13.5px}
+.donut-wrap{display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap}
+.donut-wrap .list{flex:1 1 200px;min-width:0;font-size:13.5px}
+/* Narrow card: stack and centre the chart, shrink the type, drop tables to two lines. */
+@container (max-width:400px){
+  .donut-wrap{flex-direction:column;align-items:center}
+  .donut-wrap .list{width:100%;flex:1 1 auto}
+  .card-head{flex-wrap:wrap;gap:6px 10px}
+  table{font-size:13px}
+  .kpi .v{font-size:22px}
+}
+@container (max-width:330px){
+  table{font-size:12.5px}
+  .t-stack thead{display:none}
+  .t-stack tr{display:grid;grid-template-columns:1fr auto;gap:0 10px;padding:7px 0}
+  .t-stack td{border:0;padding:0;white-space:normal}
+  .t-stack td:nth-child(1){grid-column:1;grid-row:1;font-size:11.5px;color:var(--muted)}
+  .t-stack td:nth-child(2){grid-column:1;grid-row:2}
+  .t-stack td:nth-child(3){grid-column:2;grid-row:1/3;align-self:center;text-align:right}
+  .t-stack tbody tr{border-bottom:1px solid var(--line)}
+  .t-stack tbody tr:last-child{border-bottom:0}
+}
 .donut-wrap .list div{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}
 .donut-wrap .list div:last-child{border-bottom:0}
 
@@ -283,6 +318,25 @@ input.inline-input:hover,input.inline-input:focus{border-color:var(--accent)}
 .tour-dots i{width:8px;height:8px;border-radius:50%;background:var(--line2);transition:all .2s}.tour-dots i.on{background:var(--accent);width:22px;border-radius:4px}
 @media(max-width:640px){.tour-body{grid-template-columns:1fr}.tour-art{min-height:150px;border-radius:var(--r-lg) var(--r-lg) 0 0}.tour-art .big{font-size:64px}.tour-text{padding:22px}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+/* Household split */
+.split-bars{display:grid;grid-template-columns:1fr 1fr;gap:16px 26px;margin-bottom:18px}
+.sbar-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;margin-bottom:6px}
+.sbar-head b{font-family:var(--serif);font-size:18px}
+.stack{display:flex;height:10px;border-radius:2px;overflow:hidden;background:rgba(128,128,128,.28)}
+.stack i{display:block;height:100%;transition:width .3s}
+.stack-key{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:7px;font-size:12px;opacity:.8}
+.stack-key span{display:inline-flex;align-items:center;gap:6px}
+.stack-key i{width:9px;height:9px;border-radius:2px;flex:0 0 9px}
+.split-people{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border-top:1px solid rgba(128,128,128,.28);padding-top:16px}
+.sp{min-width:0}
+.sp-top{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;margin-bottom:4px}
+.sp-top i{width:9px;height:9px;border-radius:2px;flex:0 0 9px}
+.sp-net{font-family:var(--serif);font-size:25px;font-weight:600;line-height:1.15;margin-bottom:2px}
+.sp-sub{font-size:12px;opacity:.7;margin-bottom:9px}
+.sp-rows{font-size:12.5px}
+.sp-rows div{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid rgba(128,128,128,.22)}
+.sp-rows div:last-child{border-bottom:0}
+@container (max-width:620px){.split-bars{grid-template-columns:1fr}.split-people{grid-template-columns:1fr;gap:16px}}
 /* Month in review */
 .story{max-width:620px;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:min(600px,86vh);background:var(--surface)}
 .story-top{display:flex;align-items:center;gap:10px;padding:12px 14px 0}
@@ -342,6 +396,7 @@ input.inline-input:hover,input.inline-input:focus{border-color:var(--accent)}
   .sidebar,.topbar,.no-print,#toasts,.modal-bg{display:none!important}
   #app{display:block}#view{padding:0}
   .card{box-shadow:none;border-color:#ccc;break-inside:avoid;page-break-inside:avoid}
+  .card.inverse{background:#fff!important;color:#111!important;border-color:#ccc!important}.card.inverse *{color:#111!important}
   .page-break{page-break-before:always;break-before:page}
   .print-only{display:block}
   h1{font-size:22px}
@@ -353,13 +408,14 @@ input.inline-input:hover,input.inline-input:focus{border-color:var(--accent)}
 <body>
 <div id="app">
   <aside class="sidebar" id="sidebar">
-    <div class="brand"><div class="logo" id="brandLogo"></div><div><b>Finance Dashboard</b><span>Designs by Darowan</span></div></div>
+    <div class="brand"><div class="logo" id="brandLogo"></div><div class="txt"><b>Finance Dashboard</b><span>Designs by Darowan</span></div></div>
     <nav class="nav" id="nav"></nav>
     <div class="side-foot">
+      <button class="rail-btn" id="railBtn" data-action="toggleRail" aria-label="Collapse sidebar" title="Collapse sidebar">‹</button>
       <div class="theme-dots" id="themeDots" title="Colour theme"></div>
       <div class="storage-pill hidden" id="storagePill" data-action="goto" data-view="settings" data-anchor="backup" title="Export a backup"></div>
       <div class="backup-pill" id="backupPill" data-action="goto" data-view="settings" data-anchor="backup" title="Backup status"><span class="dot"></span><span id="backupPillText">Backup off</span></div>
-      <div class="mt-s tiny">v<span id="verLabel"></span> · Your data stays in this browser.</div>
+      <div class="mt-s tiny ver">v<span id="verLabel"></span> · Your data stays in this browser.</div>
     </div>
   </aside>
   <div class="scrim hidden" id="scrim" data-action="closeSidebar"></div>
@@ -955,8 +1011,10 @@ function commit(fn, opts) {
   persist();
   if (!opts || !opts.silent) render();
 }
-function saveUi() { storage.set(LS_UI, JSON.stringify({ view: ui.view, month: ui.month, debtStrategy: ui.debtStrategy, calendarMode: ui.calendarMode })); }
-function loadUi() { try { const u = JSON.parse(storage.get(LS_UI) || '{}'); if (u.view) ui.view = u.view; if (u.debtStrategy) ui.debtStrategy = u.debtStrategy; if (u.calendarMode) ui.calendarMode = u.calendarMode; } catch (e) { } }
+function saveUi() { storage.set(LS_UI, JSON.stringify({ view: ui.view, month: ui.month, debtStrategy: ui.debtStrategy, calendarMode: ui.calendarMode, rail: !!ui.rail })); }
+function loadUi() { try { const u = JSON.parse(storage.get(LS_UI) || '{}'); if (u.view) ui.view = u.view; if (u.debtStrategy) ui.debtStrategy = u.debtStrategy; if (u.calendarMode) ui.calendarMode = u.calendarMode; ui.rail = !!u.rail; } catch (e) { } applyRail(); }
+/** Collapses the sidebar to an icon rail. Mobile keeps the full off-canvas menu. */
+function applyRail() { document.body.classList.toggle('rail', !!ui.rail); const b = document.getElementById('railBtn'); if (b) { b.innerHTML = ui.rail ? '›' : '‹ <span>Collapse</span>'; b.title = b.ariaLabel = ui.rail ? 'Expand sidebar ([)' : 'Collapse sidebar ([)'; } }
 
 // ---------- Derived helpers ----------
 const S = () => state.settings;
@@ -1619,9 +1677,19 @@ views.overview = {
       for (const t of incomeTxnsInMonth(month)) incBy[t.owner || 'p1'] += txnTotal(t);
       for (const t of expenseTxnsInMonth(month)) expBy[t.owner || 'p1'] += txnTotal(t);
       const expInc = { p1: 0, p2: 0, joint: 0 }; for (const i of state.income) expInc[i.owner || 'p1'] += amountInMonth(i, month);
-      const row = (k) => `<tr><td>${ownerChip(k)}</td><td class="right num">${fmt(incBy[k])}</td><td class="right num muted">${fmt(expInc[k])}</td><td class="right num">${fmt(expBy[k])}</td><td class="right num ${signCls(incBy[k] - expBy[k])}">${fmt(incBy[k] - expBy[k], { sign: true })}</td><td class="right num">${sm.income ? fmtPct(incBy[k] / sm.income * 100) : '—'}</td></tr>`;
-      coupleHtml = `<div class="card"><div class="card-head"><h3>Household split</h3><span class="tiny muted">${esc(D.monthLabel(month))}</span></div><div class="table-wrap"><table><thead><tr><th>Person</th><th class="right">Income</th><th class="right">Expected</th><th class="right">Expenses</th><th class="right">Net</th><th class="right">Share of income</th></tr></thead><tbody>${['p1', 'p2', 'joint'].map(row).join('')}</tbody></table></div>
-        <div class="grid grid-2 mt"><div><div class="tiny muted mb-s">CONTRIBUTION BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: incBy.p1, color: C.p1 }, { label: S().person2Name, value: incBy.p2, color: C.p2 }, { label: 'Joint', value: incBy.joint, color: C.joint }] })}</div><div><div class="tiny muted mb-s">EXPENSES BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: expBy.p1, color: C.p1 }, { label: S().person2Name, value: expBy.p2, color: C.p2 }, { label: 'Joint', value: expBy.joint, color: C.joint }] })}</div></div></div>`;
+      const who = { p1: { name: S().person1Name, color: C.p1 }, p2: { name: S().person2Name, color: C.p2 }, joint: { name: 'Joint', color: C.joint } };
+      const keys = ['p1', 'p2', 'joint'];
+      const shareBar = (label, total, by) => `<div class="sbar"><div class="sbar-head"><span>${esc(label)}</span><b>${fmt0(total)}</b></div>
+        <div class="stack">${keys.map(k => total > 0 ? `<i style="width:${(by[k] / total * 100).toFixed(2)}%;background:${who[k].color}" title="${attr(who[k].name)}: ${attr(fmt(by[k]))}"></i>` : '').join('')}</div>
+        <div class="stack-key">${keys.filter(k => by[k] > 0).map(k => `<span><i style="background:${who[k].color}"></i>${esc(who[k].name)} ${total > 0 ? fmtPct(by[k] / total * 100) : '—'}</span>`).join('') || '<span class="muted">Nothing recorded yet</span>'}</div></div>`;
+      const person = (k) => { const net = round2(incBy[k] - expBy[k]); return `<div class="sp">
+        <div class="sp-top"><i style="background:${who[k].color}"></i>${esc(who[k].name)}</div>
+        <div class="sp-net ${signCls(net)}">${fmt0(net, { sign: true })}</div>
+        <div class="sp-sub">net this month${sm.income ? ' · ' + fmtPct(incBy[k] / sm.income * 100) + ' of household income' : ''}</div>
+        <div class="sp-rows"><div><span>Income</span><span class="num">${fmt(incBy[k])}</span></div><div><span>Expected</span><span class="num">${fmt(expInc[k])}</span></div><div><span>Expenses</span><span class="num">${fmt(expBy[k])}</span></div></div></div>`; };
+      coupleHtml = `<div class="card inverse" data-anchor="split"><div class="card-head"><h3>Household split</h3><span class="chip">${esc(D.monthLabel(month))}</span></div>
+        <div class="split-bars">${shareBar('Income', sm.income, incBy)}${shareBar('Expenses', sm.expenses, expBy)}</div>
+        <div class="split-people">${keys.map(person).join('')}</div></div>`;
     }
     return top + `
       <div class="grid grid-5">
@@ -1637,12 +1705,12 @@ views.overview = {
         </div>
         <div class="card inverse"><div class="card-head"><h3>Safe to spend</h3><span class="chip">estimate</span></div>
           <div class="kpi" style="padding:0"><div class="v ${sts.result >= 0 ? 'good' : ''}" style="font-size:34px">${fmt0(sts.result)}</div><div class="s">${month === D.thisMonth() ? 'For the rest of this month' : 'For ' + D.monthLabel(month)}</div></div>
-          <table class="small mt"><tbody>
+          <div class="table-wrap mt"><table class="small"><tbody>
             <tr><td>Available in ${sts.accounts.length} spendable account${sts.accounts.length === 1 ? '' : 's'}</td><td class="right num">${fmt(sts.available)}</td></tr>
             <tr><td>Bills & subs still due (${sts.upcomingList.length})</td><td class="right num dim">−${fmt(sts.upcomingBills)}</td></tr>
             <tr><td>Goal contributions</td><td class="right num dim">−${fmt(sts.goals)}</td></tr>
             <tr><td>Safety buffer</td><td class="right num dim">−${fmt(sts.buffer)}</td></tr>
-          </tbody></table>
+          </tbody></table></div>
           <div class="tiny dim push-b">Spendable: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'} · <a href="#" data-action="goto" data-view="settings" data-anchor="planning">change</a></div>
         </div>
       </div>
@@ -1651,7 +1719,7 @@ views.overview = {
         <div class="card"><div class="card-head"><h3>Fixed vs variable</h3></div>${svgDonut({ size: 130, slices: [{ label: 'Fixed (bills & subs)', value: fixed, color: C.ink }, { label: 'Variable', value: variable, color: C.accent }] })}
           <div class="tiny muted push-b">Fixed = payments marked paid from Bills, or in a bill category.</div></div>
         <div class="card"><div class="card-head"><h3>Due in the next 14 days</h3><button class="btn sm ghost" data-action="goto" data-view="bills" data-anchor="bills">All bills</button></div>
-          ${upcoming.length ? `<table class="small"><tbody>${upcoming.slice(0, 8).map(u => `<tr class="${u.paid ? 'row-muted' : ''}"><td class="nowrap">${esc(D.dateLabel(u.date).slice(0, 6))}</td><td>${esc(u.name)}${u.isSub ? ' <span class="tiny muted">sub</span>' : ''} ${ownerChip(u.owner)}</td><td class="right num">${u.paid ? '<span class="chip good">paid</span>' : fmt(u.amount)}</td></tr>`).join('')}</tbody></table>` : '<div class="muted small">Nothing due in the next two weeks.</div>'}
+          ${upcoming.length ? `<div class="table-wrap"><table class="small t-stack"><tbody>${upcoming.slice(0, 8).map(u => `<tr class="${u.paid ? 'row-muted' : ''}"><td class="nowrap">${esc(D.dateLabel(u.date).slice(0, 6))}</td><td>${esc(u.name)}${u.isSub ? ' <span class="tiny muted">sub</span>' : ''} ${ownerChip(u.owner)}</td><td class="right num">${u.paid ? '<span class="chip good">paid</span>' : fmt(u.amount)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="muted small">Nothing due in the next two weeks.</div>'}
         </div>
       </div>
       <div class="grid grid-2 mt">
@@ -1865,7 +1933,7 @@ function openCsvImport() {
     }
     const toImport = preview.filter(p => !p.skip).length;
     stage.querySelector('#csvPreview').innerHTML = `<div class="callout mt small">${data.length} rows read · <b>${toImport}</b> to import · ${dups} duplicate${dups === 1 ? '' : 's'}${skipDup ? ' (skipped)' : ' (will be imported)'} · ${bad} unreadable row${bad === 1 ? '' : 's'} ignored</div>
-      <div class="table-wrap mt"><table class="small"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th class="right">Amount</th><th></th></tr></thead><tbody>${preview.slice(0, 12).map(p => `<tr class="${p.skip ? 'row-muted' : ''}"><td>${p.date}</td><td>${esc(p.description)}</td><td>${esc(p.splits[0].category)}</td><td>${p.type}</td><td class="right num">${fmt(p.splits[0].amount)}</td><td>${p.dup ? '<span class="chip warn">duplicate</span>' : ''}</td></tr>`).join('')}${preview.length > 12 ? `<tr><td colspan="6" class="muted center">… ${preview.length - 12} more</td></tr>` : ''}</tbody></table></div>`;
+      <div class="table-wrap mt"><div class="table-wrap"><table class="small"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th class="right">Amount</th><th></th></tr></thead><tbody>${preview.slice(0, 12).map(p => `<tr class="${p.skip ? 'row-muted' : ''}"><td>${p.date}</td><td>${esc(p.description)}</td><td>${esc(p.splits[0].category)}</td><td>${p.type}</td><td class="right num">${fmt(p.splits[0].amount)}</td><td>${p.dup ? '<span class="chip warn">duplicate</span>' : ''}</td></tr>`).join('')}${preview.length > 12 ? `<tr><td colspan="6" class="muted center">… ${preview.length - 12} more</td></tr>` : ''}</tbody></table></div></div>`;
     go.disabled = toImport === 0;
   }
   m.bg.querySelector('#csvFile').addEventListener('change', async e => {
@@ -2106,12 +2174,12 @@ views.savings = {
           ${goals.length ? `<div class="grid grid-2" data-anchor="goals">${goals.map(g => { const p = goalProjection(g, D.thisMonth()); const done = p.remaining === 0 && num(g.target) > 0; return `<div class="card">
             <div class="flex between"><div><h3>${esc(g.name)}</h3><div class="tiny muted mt-s">${ownerChip(g.owner)} <span class="chip ${g.priority === 'high' ? 'bad' : g.priority === 'low' ? '' : 'warn'}">${esc(g.priority || 'medium')} priority</span> ${done ? '<span class="chip good">complete</span>' : p.behind ? '<span class="chip warn">behind schedule</span>' : ''}</div></div><button class="btn sm ghost icon" data-action="goalEdit" data-id="${g.id}">✎</button></div>
             <div class="mini mt" style="margin-bottom:0"><div class="mini-head"><b class="num">${fmt(g.current)}</b><span class="muted num">${fmt(g.target)}</span></div>${progressBar(p.pct, done ? '' : 'accent')}<div class="flex between tiny muted" style="margin-top:6px"><span>${fmtPct(p.pct)} complete</span><span>${fmt(p.remaining)} to go</span></div></div>
-            <table class="small mt"><tbody>
+            <div class="table-wrap mt"><table class="small"><tbody>
               <tr><td class="muted">Monthly contribution</td><td class="right num">${fmt(g.monthlyContribution)}</td></tr>
               <tr><td class="muted">Projected finish</td><td class="right nowrap">${done ? 'Done' : p.projectedMonth ? D.monthLabel(p.projectedMonth) + ` <span class="tiny muted">· ${p.monthsNeeded} mo</span>` : '<span class="warn">No contribution set</span>'}</td></tr>
               ${g.targetDate ? `<tr><td class="muted">Target date</td><td class="right nowrap ${p.behind ? 'bad' : 'good'}">${esc(D.dateLabel(g.targetDate))}</td></tr>` : ''}
               ${p.behind && p.requiredMonthly ? `<tr><td class="muted">Needed per month</td><td class="right num bad">${fmt(p.requiredMonthly)}</td></tr>` : ''}
-            </tbody></table>
+            </tbody></table></div>
             <div class="mt-s flex"><button class="btn sm" data-action="goalAddAmount" data-id="${g.id}">+ Add to savings</button></div></div>`; }).join('')}</div>` : emptyBox('No goals yet', 'Emergency fund, holiday, new car, house deposit — give every pound a purpose.', '<button class="btn primary" data-action="goalAdd">+ Add a goal</button>')}
         </div>
         <div>
@@ -2119,15 +2187,15 @@ views.savings = {
           <div class="card" data-anchor="emergency">
             <div class="kpi" style="padding:0"><div class="k">Months of expenses covered</div><div class="v ${covered >= efMonths ? 'good' : covered >= 1 ? 'warn' : 'bad'}">${covered.toFixed(1)}</div></div>
             ${progressBar(efMonths ? covered / efMonths * 100 : 0, covered >= efMonths ? '' : 'warn')}
-            <table class="small mt"><tbody>
+            <div class="table-wrap mt"><table class="small"><tbody>
               <tr><td class="muted">Average monthly expenses</td><td class="right num">${fmt(avgExp)}</td></tr>
               <tr><td class="muted">${efGoal ? `In "${esc(efGoal.name)}" goal` : `In savings & cash accounts`}</td><td class="right num">${fmt(efHave)}</td></tr>
               <tr><td class="muted">${efMonths}-month target</td><td class="right num">${fmt(efTarget)}</td></tr>
               <tr><td class="muted">Shortfall</td><td class="right num ${efTarget - efHave > 0 ? 'bad' : 'good'}">${fmt(Math.max(0, efTarget - efHave))}</td></tr>
-            </tbody></table>
+            </tbody></table></div>
             <div class="tiny muted mt">Average uses the last 3 months of recorded expenses, excluding the Savings category (or your recurring bills if there are none). ${efGoal ? '' : 'Name a goal "Emergency fund" to track it there instead.'} Change the target months in Settings.</div>
           </div>
-          ${savingsAccts.length ? `<div class="card mt"><div class="card-head"><h3>Savings accounts</h3></div><table class="small"><tbody>${savingsAccts.map(a => `<tr><td>${esc(a.name)} ${ownerChip(a.owner)}</td><td class="right num">${fmt(a.balance)}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="right num">${fmt(savingsBal)}</td></tr></tfoot></table></div>` : ''}
+          ${savingsAccts.length ? `<div class="card mt"><div class="card-head"><h3>Savings accounts</h3></div><div class="table-wrap"><table class="small"><tbody>${savingsAccts.map(a => `<tr><td>${esc(a.name)} ${ownerChip(a.owner)}</td><td class="right num">${fmt(a.balance)}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="right num">${fmt(savingsBal)}</td></tr></tfoot></table></div></div>` : ''}
         </div>
       </div>`;
   }
@@ -2196,11 +2264,11 @@ views.debt = {
         <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Paydown curve</h3><span class="tiny muted">Total balance by month, both strategies</span></div>${chart}
           ${cur.neverPaysOff ? `<div class="callout bad mt small"><b>These payments never clear the debt.</b> Interest each month is more than the minimum payments on at least one debt. Increase the extra payment or the minimums to see a payoff date.</div>` : ''}</div>
         <div class="card" data-anchor="comparison"><div class="card-head"><h3>Strategy comparison</h3></div>
-          <table class="small"><thead><tr><th></th><th class="right">Snowball</th><th class="right">Avalanche</th></tr></thead><tbody>
+          <div class="table-wrap"><table class="small"><thead><tr><th></th><th class="right">Snowball</th><th class="right">Avalanche</th></tr></thead><tbody>
             ${cmpRow('Debt-free in', sn.monthsToDebtFree, av.monthsToDebtFree, monthsFmt)}
             ${cmpRow('Total interest', sn.totalInterest, av.totalInterest, fmt)}
             ${cmpRow('Total paid', sn.totalPaid, av.totalPaid, fmt)}
-          </tbody></table>
+          </tbody></table></div>
           <div class="callout mt small">${interestSaved > 0 ? `<b>${esc(ui.debtStrategy)}</b> saves <b>${fmt(interestSaved)}</b> in interest${monthsSaved ? ` and ${monthsSaved} month${monthsSaved === 1 ? '' : 's'}` : ''} versus ${esc(ui.debtStrategy === 'snowball' ? 'avalanche' : 'snowball')}.` : interestSaved < 0 ? `<b>${esc(ui.debtStrategy === 'snowball' ? 'Avalanche' : 'Snowball')}</b> would save <b>${fmt(-interestSaved)}</b> in interest${monthsSaved ? ` and ${-monthsSaved} month${-monthsSaved === 1 ? '' : 's'}` : ''}. Snowball's advantage is motivation: small wins first.` : 'Both strategies cost the same here.'}</div>
           <div class="tiny muted mt"><b>Snowball</b>: smallest balance first. <b>Avalanche</b>: highest APR first. Both pay every minimum, then send the extra pool to the target; when a debt clears, its payment rolls into the pool.</div>
         </div>
@@ -2210,16 +2278,16 @@ views.debt = {
         <div class="flex between"><div><h3>${esc(d.name)}</h3><div class="tiny muted mt-s">${esc(d.debtType || '')} ${ownerChip(d.owner)}</div></div><button class="btn sm ghost icon" data-action="debtEdit" data-id="${d.id}">✎</button></div>
         <div class="kpi mt" style="padding:0"><div class="v">${fmt(d.currentBalance)}</div><div class="s">${fmtPct(d.apr, 2)} APR · min ${fmt(d.minPayment)}${num(d.extraPayment) ? ` + ${fmt(d.extraPayment)} extra` : ''}</div></div>
         <div class="mt">${progressBar(orig ? paid / orig * 100 : 0, 'ink thin')}<div class="flex between tiny muted" style="margin-top:6px"><span>${fmtPct(orig ? paid / orig * 100 : 0)} paid off</span><span>of ${fmt(orig)}</span></div></div>
-        <table class="small mt"><tbody>
+        <div class="table-wrap mt"><table class="small"><tbody>
           <tr><td class="muted">Paid off</td><td class="right">${payoff ? D.monthLabel(payoff) : '<span class="bad">never</span>'}</td></tr>
           <tr><td class="muted">This month's payment</td><td class="right num">${firstMonth ? fmt(firstMonth.payment) : '—'}</td></tr>
           <tr><td class="muted">Interest this month</td><td class="right num">${firstMonth ? fmt(firstMonth.interest) : '—'}</td></tr>
           <tr><td class="muted">Interest until paid</td><td class="right num">${fmt(interestOnDebt)}</td></tr>
-        </tbody></table>
+        </tbody></table></div>
         <div class="mt-s"><button class="btn sm" data-action="debtPayment" data-id="${d.id}">Record a payment</button></div></div>`; }).join('')}</div>
       <div class="card mt" data-anchor="schedule"><div class="card-head"><h3>Schedule (${esc(ui.debtStrategy)})</h3><button class="btn sm" data-action="debtScheduleCsv">Export schedule CSV</button></div>
-        <div class="table-wrap" style="max-height:360px;overflow:auto"><table class="small"><thead><tr><th>Month</th>${debts.map(d => `<th class="right">${esc(d.name)}</th>`).join('')}<th class="right">Payment</th><th class="right">Interest</th><th class="right">Balance</th></tr></thead>
-        <tbody>${cur.schedule.slice(0, 120).map(s => `<tr><td class="nowrap">${esc(D.monthLabel(s.month))}</td>${debts.map(d => `<td class="right num ${s.perDebt[d.id] ? '' : 'muted'}">${s.perDebt[d.id] ? fmt(s.perDebt[d.id].balance) : '—'}</td>`).join('')}<td class="right num">${fmt(s.totalPayment)}</td><td class="right num muted">${fmt(sum(Object.values(s.perDebt), p => p.interest))}</td><td class="right num"><b>${fmt(s.totalBalance)}</b></td></tr>`).join('')}${cur.schedule.length > 120 ? `<tr><td colspan="${debts.length + 4}" class="muted center">… ${cur.schedule.length - 120} more months (export for the full schedule)</td></tr>` : ''}</tbody></table></div></div>`
+        <div class="table-wrap" style="max-height:360px;overflow:auto"><div class="table-wrap"><table class="small"><thead><tr><th>Month</th>${debts.map(d => `<th class="right">${esc(d.name)}</th>`).join('')}<th class="right">Payment</th><th class="right">Interest</th><th class="right">Balance</th></tr></thead>
+        <tbody>${cur.schedule.slice(0, 120).map(s => `<tr><td class="nowrap">${esc(D.monthLabel(s.month))}</td>${debts.map(d => `<td class="right num ${s.perDebt[d.id] ? '' : 'muted'}">${s.perDebt[d.id] ? fmt(s.perDebt[d.id].balance) : '—'}</td>`).join('')}<td class="right num">${fmt(s.totalPayment)}</td><td class="right num muted">${fmt(sum(Object.values(s.perDebt), p => p.interest))}</td><td class="right num"><b>${fmt(s.totalBalance)}</b></td></tr>`).join('')}${cur.schedule.length > 120 ? `<tr><td colspan="${debts.length + 4}" class="muted center">… ${cur.schedule.length - 120} more months (export for the full schedule)</td></tr>` : ''}</tbody></table></div></div></div>`
       : emptyBox('No debts tracked', 'Add credit cards, loans and anything else with an interest rate to plan a payoff.', '<button class="btn primary" data-action="debtAdd">+ Add a debt</button>')}`;
   }
 };
@@ -2306,13 +2374,13 @@ views.reports = {
       <div class="grid grid-3 mt">
         <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Month by month</h3></div>${svgBarChart({ groups: sums.map(s => ({ label: D.MONTHS[D.parse(s.month).m - 1], values: [s.income, s.expenses] })), seriesNames: ['Income', 'Expenses'], colors: [C.good, C.accent], height: 200 })}</div>
         <div class="card"><div class="card-head"><h3>Highlights</h3></div>
-          ${best ? `<table class="small"><tbody>
+          ${best ? `<div class="table-wrap"><table class="small"><tbody>
             <tr><td class="muted">Best month</td><td class="right"><b>${esc(D.monthLabel(best.month))}</b><div class="tiny good">${fmt(best.net, { sign: true })} net</div></td></tr>
             <tr><td class="muted">Toughest month</td><td class="right"><b>${esc(D.monthLabel(worst.month))}</b><div class="tiny ${signCls(worst.net)}">${fmt(worst.net, { sign: true })} net</div></td></tr>
             <tr><td class="muted">Highest spending</td><td class="right"><b>${esc(D.monthLabel(highSpend.month))}</b><div class="tiny">${fmt(highSpend.expenses)}</div></td></tr>
             <tr><td class="muted">Top category</td><td class="right"><b>${catRows[0] ? esc(catRows[0][0]) : '—'}</b><div class="tiny">${catRows[0] ? fmt(catRows[0][1]) : ''}</div></td></tr>
             <tr><td class="muted">Months in surplus</td><td class="right"><b>${withData.filter(s => s.net > 0).length} of ${withData.length}</b></td></tr>
-          </tbody></table>` : '<div class="muted small">No transactions recorded in this year.</div>'}
+          </tbody></table></div>` : '<div class="muted small">No transactions recorded in this year.</div>'}
         </div>
       </div>
       <div class="card mt" data-anchor="monthly"><div class="card-head"><h3>Monthly summary</h3></div><div class="table-wrap"><table class="small"><thead><tr><th>Month</th><th class="right">Income</th><th class="right">Expenses</th><th class="right">Net</th><th class="right">Savings rate</th><th class="right">Expected income</th><th class="right">Bills due</th></tr></thead>
@@ -2321,13 +2389,13 @@ views.reports = {
       <div class="grid grid-2 mt">
         <div class="card"><div class="card-head"><h3>Spending by category · ${year}</h3></div>${catRows.length ? `<div class="table-wrap"><table class="small"><thead><tr><th>Category</th><th class="right">Total</th><th class="right">Per month</th><th class="right">Share</th>${isCouple() ? `<th class="right">${esc(S().person1Name)}</th><th class="right">${esc(S().person2Name)}</th><th class="right">Joint</th>` : ''}</tr></thead><tbody>${catRows.map(([c, v]) => `<tr><td>${esc(c)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${fmt(v / Math.max(1, withData.length))}</td><td class="right num">${fmtPct(totExp ? v / totExp * 100 : 0)}</td>${isCouple() ? ['p1', 'p2', 'joint'].map(o => `<td class="right num muted">${fmt((catByOwner[o] || {})[c] || 0)}</td>`).join('') : ''}</tr>`).join('')}</tbody></table></div>` : '<div class="muted small">No spending recorded.</div>'}</div>
         <div class="card"><div class="card-head"><h3>Where it went</h3></div>${svgDonut({ slices: catRows.slice(0, 9).map(([label, value], i) => ({ label, value, color: PALETTE[(i + 1) % PALETTE.length] })).concat(catRows.length > 9 ? [{ label: 'Everything else', value: sum(catRows.slice(9), r => r[1]), color: C.rest }] : []), centre: fmt0(totExp), centreLabel: year })}
-          ${Object.keys(incByType).length ? `<div class="mt"><div class="tiny muted mb-s">INCOME BY TYPE</div><table class="small"><tbody>${Object.entries(incByType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${fmtPct(totInc ? v / totInc * 100 : 0)}</td></tr>`).join('')}</tbody></table></div>` : ''}</div>
+          ${Object.keys(incByType).length ? `<div class="mt"><div class="tiny muted mb-s">INCOME BY TYPE</div><div class="table-wrap"><table class="small"><tbody>${Object.entries(incByType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${fmtPct(totInc ? v / totInc * 100 : 0)}</td></tr>`).join('')}</tbody></table></div></div>` : ''}</div>
       </div>
       ${ms ? `<div class="page-break"></div><div class="section-title"><h2>Monthly report · ${esc(D.monthLabel(selMonth, true))}</h2></div>
       <div class="grid grid-4">${kpi('Income', fmt0(ms.income))}${kpi('Expenses', fmt0(ms.expenses))}${kpi('Net', fmt0(ms.net), '', signCls(ms.net))}${kpi('Savings rate', fmtPct(ms.savingsRate))}</div>
       <div class="grid grid-2 mt">
-        <div class="card" data-anchor="categories"><div class="card-head"><h3>Categories</h3></div>${mcats.length ? `<table class="small"><thead><tr><th>Category</th><th class="right">Spent</th><th class="right">Budget</th><th class="right">Diff</th></tr></thead><tbody>${mcats.map(([c, v]) => { const b = mBudget.find(x => x.category === c); return `<tr><td>${esc(c)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${b ? fmt(b.planned) : '—'}</td><td class="right num ${b ? signCls(num(b.planned) - v) : ''}">${b ? fmt(num(b.planned) - v, { sign: true }) : ''}</td></tr>`; }).join('')}</tbody></table>` : '<div class="muted small">No spending this month.</div>'}</div>
-        <div class="card"><div class="card-head"><h3>Transactions</h3></div><div class="table-wrap" style="max-height:420px;overflow:auto"><table class="small"><tbody>${state.txns.filter(t => t.month === selMonth).sort((a, b) => a.date < b.date ? -1 : 1).map(t => `<tr><td class="nowrap">${esc(D.dateLabel(t.date).slice(0, 6))}</td><td>${esc(t.description)}<div class="tiny muted">${esc(t.splits.map(s => s.category).join(', '))}</div></td><td class="right num ${t.type === 'income' ? 'good' : ''}">${t.type === 'income' ? '+' : t.type === 'expense' ? '−' : ''}${fmt(txnTotal(t))}</td></tr>`).join('') || '<tr><td class="muted">None</td></tr>'}</tbody></table></div></div>
+        <div class="card" data-anchor="categories"><div class="card-head"><h3>Categories</h3></div>${mcats.length ? `<div class="table-wrap"><table class="small"><thead><tr><th>Category</th><th class="right">Spent</th><th class="right">Budget</th><th class="right">Diff</th></tr></thead><tbody>${mcats.map(([c, v]) => { const b = mBudget.find(x => x.category === c); return `<tr><td>${esc(c)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${b ? fmt(b.planned) : '—'}</td><td class="right num ${b ? signCls(num(b.planned) - v) : ''}">${b ? fmt(num(b.planned) - v, { sign: true }) : ''}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="muted small">No spending this month.</div>'}</div>
+        <div class="card"><div class="card-head"><h3>Transactions</h3></div><div class="table-wrap" style="max-height:420px;overflow:auto"><div class="table-wrap"><table class="small"><tbody>${state.txns.filter(t => t.month === selMonth).sort((a, b) => a.date < b.date ? -1 : 1).map(t => `<tr><td class="nowrap">${esc(D.dateLabel(t.date).slice(0, 6))}</td><td>${esc(t.description)}<div class="tiny muted">${esc(t.splits.map(s => s.category).join(', '))}</div></td><td class="right num ${t.type === 'income' ? 'good' : ''}">${t.type === 'income' ? '+' : t.type === 'expense' ? '−' : ''}${fmt(txnTotal(t))}</td></tr>`).join('') || '<tr><td class="muted">None</td></tr>'}</tbody></table></div></div></div>
       </div>` : ''}`;
   }
 };
@@ -2589,7 +2657,7 @@ function openStory(month) {
 function render() {
   const v = views[ui.view] || views.overview;
   document.getElementById('viewTitle').textContent = v.title;
-  document.getElementById('nav').innerHTML = NAV.map(([k, l]) => `<button class="${ui.view === k ? 'active' : ''}" data-action="goto" data-view="${k}">${ICONS[k] || ''}<span>${esc(l)}</span></button>`).join('');
+  document.getElementById('nav').innerHTML = NAV.map(([k, l]) => `<button class="${ui.view === k ? 'active' : ''}" data-action="goto" data-view="${k}" title="${attr(l)}">${ICONS[k] || ''}<span>${esc(l)}</span></button>`).join('');
   document.getElementById('monthLabel').textContent = window.innerWidth < 640 ? D.monthLabel(ui.month) : D.monthLabel(ui.month, true);
   document.getElementById('monthNav').style.visibility = ['settings'].includes(ui.view) ? 'hidden' : 'visible';
   const el = document.getElementById('view');
@@ -2619,6 +2687,7 @@ function renderFresh() { const el = document.getElementById('view'); el.classLis
 const actions = {
   goto: d => goto(d.view, { anchor: d.anchor, cat: d.cat, month: d.month }),
   toggleSidebar: () => { const sb = document.getElementById('sidebar'); sb.classList.toggle('open'); document.getElementById('scrim').classList.toggle('hidden', !sb.classList.contains('open')); },
+  toggleRail: () => { ui.rail = !ui.rail; applyRail(); saveUi(); },
   closeSidebar: () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.add('hidden'); },
   monthShift: d => { ui.month = D.addMonths(ui.month, +d.n); if (ui.txnFilter.month !== undefined && ui.txnFilter.month !== '') ui.txnFilter.month = ui.month; if (ui.view === 'reports') ui.reportYear = ui.month.slice(0, 4); render(); },
   monthPick: () => {
@@ -2717,7 +2786,7 @@ document.addEventListener('change', e => { const el = e.target.closest('[data-ch
 document.addEventListener('input', e => { const el = e.target; if (el.matches && el.matches('input[type=search][data-change="txnFilter"]')) { clearTimeout(el._t); el._t = setTimeout(() => changes.txnFilter(el), 250); } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTopModal(); if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { const f = document.getElementById('genForm'); if (f) f.requestSubmit(); } });
 document.addEventListener('keydown', e => { const el = e.target; if (e.key === 'Enter' && el.matches && el.matches('.inline-input')) { el.blur(); } });
-document.addEventListener('keydown', e => { if (e.ctrlKey || e.metaKey || e.altKey) return; const tag = (e.target.tagName || '').toLowerCase(); if (['input', 'select', 'textarea'].includes(tag) || e.target.isContentEditable || modalStack.length) return; if (e.key === 'n' || e.key === 'N') { e.preventDefault(); actions.quickAdd(); } if (e.key === '?') openTour(); });
+document.addEventListener('keydown', e => { if (e.ctrlKey || e.metaKey || e.altKey) return; const tag = (e.target.tagName || '').toLowerCase(); if (['input', 'select', 'textarea'].includes(tag) || e.target.isContentEditable || modalStack.length) return; if (e.key === 'n' || e.key === 'N') { e.preventDefault(); actions.quickAdd(); } if (e.key === '[') actions.toggleRail(); if (e.key === '?') openTour(); });
 if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (state && state.settings.theme === 'auto') { applyTheme(); render(); } });
 
 // ---------- Sample data ----------

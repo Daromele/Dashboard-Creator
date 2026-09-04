@@ -142,8 +142,10 @@ function commit(fn, opts) {
   persist();
   if (!opts || !opts.silent) render();
 }
-function saveUi() { storage.set(LS_UI, JSON.stringify({ view: ui.view, month: ui.month, debtStrategy: ui.debtStrategy, calendarMode: ui.calendarMode })); }
-function loadUi() { try { const u = JSON.parse(storage.get(LS_UI) || '{}'); if (u.view) ui.view = u.view; if (u.debtStrategy) ui.debtStrategy = u.debtStrategy; if (u.calendarMode) ui.calendarMode = u.calendarMode; } catch (e) { } }
+function saveUi() { storage.set(LS_UI, JSON.stringify({ view: ui.view, month: ui.month, debtStrategy: ui.debtStrategy, calendarMode: ui.calendarMode, rail: !!ui.rail })); }
+function loadUi() { try { const u = JSON.parse(storage.get(LS_UI) || '{}'); if (u.view) ui.view = u.view; if (u.debtStrategy) ui.debtStrategy = u.debtStrategy; if (u.calendarMode) ui.calendarMode = u.calendarMode; ui.rail = !!u.rail; } catch (e) { } applyRail(); }
+/** Collapses the sidebar to an icon rail. Mobile keeps the full off-canvas menu. */
+function applyRail() { document.body.classList.toggle('rail', !!ui.rail); const b = document.getElementById('railBtn'); if (b) { b.innerHTML = ui.rail ? '›' : '‹ <span>Collapse</span>'; b.title = b.ariaLabel = ui.rail ? 'Expand sidebar ([)' : 'Collapse sidebar ([)'; } }
 
 // ---------- Derived helpers ----------
 const S = () => state.settings;

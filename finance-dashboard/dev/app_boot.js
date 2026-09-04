@@ -5,7 +5,7 @@
 function render() {
   const v = views[ui.view] || views.overview;
   document.getElementById('viewTitle').textContent = v.title;
-  document.getElementById('nav').innerHTML = NAV.map(([k, l]) => `<button class="${ui.view === k ? 'active' : ''}" data-action="goto" data-view="${k}">${ICONS[k] || ''}<span>${esc(l)}</span></button>`).join('');
+  document.getElementById('nav').innerHTML = NAV.map(([k, l]) => `<button class="${ui.view === k ? 'active' : ''}" data-action="goto" data-view="${k}" title="${attr(l)}">${ICONS[k] || ''}<span>${esc(l)}</span></button>`).join('');
   document.getElementById('monthLabel').textContent = window.innerWidth < 640 ? D.monthLabel(ui.month) : D.monthLabel(ui.month, true);
   document.getElementById('monthNav').style.visibility = ['settings'].includes(ui.view) ? 'hidden' : 'visible';
   const el = document.getElementById('view');
@@ -35,6 +35,7 @@ function renderFresh() { const el = document.getElementById('view'); el.classLis
 const actions = {
   goto: d => goto(d.view, { anchor: d.anchor, cat: d.cat, month: d.month }),
   toggleSidebar: () => { const sb = document.getElementById('sidebar'); sb.classList.toggle('open'); document.getElementById('scrim').classList.toggle('hidden', !sb.classList.contains('open')); },
+  toggleRail: () => { ui.rail = !ui.rail; applyRail(); saveUi(); },
   closeSidebar: () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.add('hidden'); },
   monthShift: d => { ui.month = D.addMonths(ui.month, +d.n); if (ui.txnFilter.month !== undefined && ui.txnFilter.month !== '') ui.txnFilter.month = ui.month; if (ui.view === 'reports') ui.reportYear = ui.month.slice(0, 4); render(); },
   monthPick: () => {
@@ -133,7 +134,7 @@ document.addEventListener('change', e => { const el = e.target.closest('[data-ch
 document.addEventListener('input', e => { const el = e.target; if (el.matches && el.matches('input[type=search][data-change="txnFilter"]')) { clearTimeout(el._t); el._t = setTimeout(() => changes.txnFilter(el), 250); } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTopModal(); if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { const f = document.getElementById('genForm'); if (f) f.requestSubmit(); } });
 document.addEventListener('keydown', e => { const el = e.target; if (e.key === 'Enter' && el.matches && el.matches('.inline-input')) { el.blur(); } });
-document.addEventListener('keydown', e => { if (e.ctrlKey || e.metaKey || e.altKey) return; const tag = (e.target.tagName || '').toLowerCase(); if (['input', 'select', 'textarea'].includes(tag) || e.target.isContentEditable || modalStack.length) return; if (e.key === 'n' || e.key === 'N') { e.preventDefault(); actions.quickAdd(); } if (e.key === '?') openTour(); });
+document.addEventListener('keydown', e => { if (e.ctrlKey || e.metaKey || e.altKey) return; const tag = (e.target.tagName || '').toLowerCase(); if (['input', 'select', 'textarea'].includes(tag) || e.target.isContentEditable || modalStack.length) return; if (e.key === 'n' || e.key === 'N') { e.preventDefault(); actions.quickAdd(); } if (e.key === '[') actions.toggleRail(); if (e.key === '?') openTour(); });
 if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (state && state.settings.theme === 'auto') { applyTheme(); render(); } });
 
 // ---------- Sample data ----------

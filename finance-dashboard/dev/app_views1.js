@@ -111,9 +111,19 @@ views.overview = {
       for (const t of incomeTxnsInMonth(month)) incBy[t.owner || 'p1'] += txnTotal(t);
       for (const t of expenseTxnsInMonth(month)) expBy[t.owner || 'p1'] += txnTotal(t);
       const expInc = { p1: 0, p2: 0, joint: 0 }; for (const i of state.income) expInc[i.owner || 'p1'] += amountInMonth(i, month);
-      const row = (k) => `<tr><td>${ownerChip(k)}</td><td class="right num">${fmt(incBy[k])}</td><td class="right num muted">${fmt(expInc[k])}</td><td class="right num">${fmt(expBy[k])}</td><td class="right num ${signCls(incBy[k] - expBy[k])}">${fmt(incBy[k] - expBy[k], { sign: true })}</td><td class="right num">${sm.income ? fmtPct(incBy[k] / sm.income * 100) : '—'}</td></tr>`;
-      coupleHtml = `<div class="card"><div class="card-head"><h3>Household split</h3><span class="tiny muted">${esc(D.monthLabel(month))}</span></div><div class="table-wrap"><table><thead><tr><th>Person</th><th class="right">Income</th><th class="right">Expected</th><th class="right">Expenses</th><th class="right">Net</th><th class="right">Share of income</th></tr></thead><tbody>${['p1', 'p2', 'joint'].map(row).join('')}</tbody></table></div>
-        <div class="grid grid-2 mt"><div><div class="tiny muted mb-s">CONTRIBUTION BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: incBy.p1, color: C.p1 }, { label: S().person2Name, value: incBy.p2, color: C.p2 }, { label: 'Joint', value: incBy.joint, color: C.joint }] })}</div><div><div class="tiny muted mb-s">EXPENSES BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: expBy.p1, color: C.p1 }, { label: S().person2Name, value: expBy.p2, color: C.p2 }, { label: 'Joint', value: expBy.joint, color: C.joint }] })}</div></div></div>`;
+      const who = { p1: { name: S().person1Name, color: C.p1 }, p2: { name: S().person2Name, color: C.p2 }, joint: { name: 'Joint', color: C.joint } };
+      const keys = ['p1', 'p2', 'joint'];
+      const shareBar = (label, total, by) => `<div class="sbar"><div class="sbar-head"><span>${esc(label)}</span><b>${fmt0(total)}</b></div>
+        <div class="stack">${keys.map(k => total > 0 ? `<i style="width:${(by[k] / total * 100).toFixed(2)}%;background:${who[k].color}" title="${attr(who[k].name)}: ${attr(fmt(by[k]))}"></i>` : '').join('')}</div>
+        <div class="stack-key">${keys.filter(k => by[k] > 0).map(k => `<span><i style="background:${who[k].color}"></i>${esc(who[k].name)} ${total > 0 ? fmtPct(by[k] / total * 100) : '—'}</span>`).join('') || '<span class="muted">Nothing recorded yet</span>'}</div></div>`;
+      const person = (k) => { const net = round2(incBy[k] - expBy[k]); return `<div class="sp">
+        <div class="sp-top"><i style="background:${who[k].color}"></i>${esc(who[k].name)}</div>
+        <div class="sp-net ${signCls(net)}">${fmt0(net, { sign: true })}</div>
+        <div class="sp-sub">net this month${sm.income ? ' · ' + fmtPct(incBy[k] / sm.income * 100) + ' of household income' : ''}</div>
+        <div class="sp-rows"><div><span>Income</span><span class="num">${fmt(incBy[k])}</span></div><div><span>Expected</span><span class="num">${fmt(expInc[k])}</span></div><div><span>Expenses</span><span class="num">${fmt(expBy[k])}</span></div></div></div>`; };
+      coupleHtml = `<div class="card inverse" data-anchor="split"><div class="card-head"><h3>Household split</h3><span class="chip">${esc(D.monthLabel(month))}</span></div>
+        <div class="split-bars">${shareBar('Income', sm.income, incBy)}${shareBar('Expenses', sm.expenses, expBy)}</div>
+        <div class="split-people">${keys.map(person).join('')}</div></div>`;
     }
     return top + `
       <div class="grid grid-5">
@@ -129,12 +139,12 @@ views.overview = {
         </div>
         <div class="card inverse"><div class="card-head"><h3>Safe to spend</h3><span class="chip">estimate</span></div>
           <div class="kpi" style="padding:0"><div class="v ${sts.result >= 0 ? 'good' : ''}" style="font-size:34px">${fmt0(sts.result)}</div><div class="s">${month === D.thisMonth() ? 'For the rest of this month' : 'For ' + D.monthLabel(month)}</div></div>
-          <table class="small mt"><tbody>
+          <div class="table-wrap mt"><table class="small"><tbody>
             <tr><td>Available in ${sts.accounts.length} spendable account${sts.accounts.length === 1 ? '' : 's'}</td><td class="right num">${fmt(sts.available)}</td></tr>
             <tr><td>Bills & subs still due (${sts.upcomingList.length})</td><td class="right num dim">−${fmt(sts.upcomingBills)}</td></tr>
             <tr><td>Goal contributions</td><td class="right num dim">−${fmt(sts.goals)}</td></tr>
             <tr><td>Safety buffer</td><td class="right num dim">−${fmt(sts.buffer)}</td></tr>
-          </tbody></table>
+          </tbody></table></div>
           <div class="tiny dim push-b">Spendable: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'} · <a href="#" data-action="goto" data-view="settings" data-anchor="planning">change</a></div>
         </div>
       </div>
@@ -143,7 +153,7 @@ views.overview = {
         <div class="card"><div class="card-head"><h3>Fixed vs variable</h3></div>${svgDonut({ size: 130, slices: [{ label: 'Fixed (bills & subs)', value: fixed, color: C.ink }, { label: 'Variable', value: variable, color: C.accent }] })}
           <div class="tiny muted push-b">Fixed = payments marked paid from Bills, or in a bill category.</div></div>
         <div class="card"><div class="card-head"><h3>Due in the next 14 days</h3><button class="btn sm ghost" data-action="goto" data-view="bills" data-anchor="bills">All bills</button></div>
-          ${upcoming.length ? `<table class="small"><tbody>${upcoming.slice(0, 8).map(u => `<tr class="${u.paid ? 'row-muted' : ''}"><td class="nowrap">${esc(D.dateLabel(u.date).slice(0, 6))}</td><td>${esc(u.name)}${u.isSub ? ' <span class="tiny muted">sub</span>' : ''} ${ownerChip(u.owner)}</td><td class="right num">${u.paid ? '<span class="chip good">paid</span>' : fmt(u.amount)}</td></tr>`).join('')}</tbody></table>` : '<div class="muted small">Nothing due in the next two weeks.</div>'}
+          ${upcoming.length ? `<div class="table-wrap"><table class="small t-stack"><tbody>${upcoming.slice(0, 8).map(u => `<tr class="${u.paid ? 'row-muted' : ''}"><td class="nowrap">${esc(D.dateLabel(u.date).slice(0, 6))}</td><td>${esc(u.name)}${u.isSub ? ' <span class="tiny muted">sub</span>' : ''} ${ownerChip(u.owner)}</td><td class="right num">${u.paid ? '<span class="chip good">paid</span>' : fmt(u.amount)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="muted small">Nothing due in the next two weeks.</div>'}
         </div>
       </div>
       <div class="grid grid-2 mt">
@@ -357,7 +367,7 @@ function openCsvImport() {
     }
     const toImport = preview.filter(p => !p.skip).length;
     stage.querySelector('#csvPreview').innerHTML = `<div class="callout mt small">${data.length} rows read · <b>${toImport}</b> to import · ${dups} duplicate${dups === 1 ? '' : 's'}${skipDup ? ' (skipped)' : ' (will be imported)'} · ${bad} unreadable row${bad === 1 ? '' : 's'} ignored</div>
-      <div class="table-wrap mt"><table class="small"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th class="right">Amount</th><th></th></tr></thead><tbody>${preview.slice(0, 12).map(p => `<tr class="${p.skip ? 'row-muted' : ''}"><td>${p.date}</td><td>${esc(p.description)}</td><td>${esc(p.splits[0].category)}</td><td>${p.type}</td><td class="right num">${fmt(p.splits[0].amount)}</td><td>${p.dup ? '<span class="chip warn">duplicate</span>' : ''}</td></tr>`).join('')}${preview.length > 12 ? `<tr><td colspan="6" class="muted center">… ${preview.length - 12} more</td></tr>` : ''}</tbody></table></div>`;
+      <div class="table-wrap mt"><div class="table-wrap"><table class="small"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th class="right">Amount</th><th></th></tr></thead><tbody>${preview.slice(0, 12).map(p => `<tr class="${p.skip ? 'row-muted' : ''}"><td>${p.date}</td><td>${esc(p.description)}</td><td>${esc(p.splits[0].category)}</td><td>${p.type}</td><td class="right num">${fmt(p.splits[0].amount)}</td><td>${p.dup ? '<span class="chip warn">duplicate</span>' : ''}</td></tr>`).join('')}${preview.length > 12 ? `<tr><td colspan="6" class="muted center">… ${preview.length - 12} more</td></tr>` : ''}</tbody></table></div></div>`;
     go.disabled = toImport === 0;
   }
   m.bg.querySelector('#csvFile').addEventListener('change', async e => {

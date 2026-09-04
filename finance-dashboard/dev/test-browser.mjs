@@ -215,6 +215,52 @@ expect(rows.length > 0 && rows.every(d => d <= 1), `every card row is level (max
 const radii = await page.evaluate(() => { const v = getComputedStyle(document.documentElement); return { r: v.getPropertyValue('--r').trim(), card: getComputedStyle(document.querySelector('#view .card')).borderTopLeftRadius }; });
 expect(radii.r === '6px' && radii.card === '6px', `cards use the tightened radius (${radii.card})`);
 
+step('collapsible sidebar rail');
+await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(150);
+const wideNav = await page.evaluate(() => document.getElementById('sidebar').getBoundingClientRect().width);
+await page.click('#railBtn'); await page.waitForTimeout(300);
+const railed = await page.evaluate(() => ({ w: document.getElementById('sidebar').getBoundingClientRect().width, label: getComputedStyle(document.querySelector('#nav button span')).display, icon: !!document.querySelector('#nav button svg'), cls: document.body.classList.contains('rail') }));
+expect(railed.cls && railed.w < wideNav / 2, `sidebar collapses to a rail (${Math.round(wideNav)} → ${Math.round(railed.w)}px)`);
+expect(railed.label === 'none' && railed.icon, 'rail shows icons only');
+await page.reload(); await page.waitForTimeout(500);
+expect(await page.evaluate(() => document.body.classList.contains('rail')), 'rail state survives a reload');
+await page.click('#railBtn'); await page.waitForTimeout(300);
+expect(!(await page.evaluate(() => document.body.classList.contains('rail'))), 'rail expands again');
+
+step('household split band');
+const split = await page.evaluate(() => {
+  const c = document.querySelector('[data-anchor=split]'); if (!c) return null;
+  const segs = [...c.querySelectorAll('.stack i')].map(i => i.style.width);
+  return { inverse: c.classList.contains('inverse'), bars: c.querySelectorAll('.stack').length, people: c.querySelectorAll('.sp').length, segs };
+});
+expect(split && split.inverse && split.bars === 2 && split.people === 3, `split band renders (${split && split.people} people, ${split && split.bars} share bars)`);
+
+step('responsive: no overflow and charts stay centred');
+for (const [w, h] of [[1600, 1000], [1024, 900], [820, 900], [390, 844]]) {
+  await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(300);
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  const off = await page.evaluate(() => [...document.querySelectorAll('#view .card')].filter(c => c.scrollWidth > c.clientWidth + 1).length);
+  const centred = await page.evaluate(() => [...document.querySelectorAll('#view .donut-wrap')].every(d => { const r = d.getBoundingClientRect(); const svg = d.querySelector('svg').getBoundingClientRect(); const stacked = getComputedStyle(d).flexDirection === 'column'; return !stacked || Math.abs((svg.left + svg.right) / 2 - (r.left + r.right) / 2) < 2; }));
+  expect(over === 0 && off === 0 && centred, `${w}px: no page or card overflow, donuts centred when stacked`);
+}
+const sweep = [];
+for (const [w, h] of [[1024, 900], [390, 844]]) {
+  await page.setViewportSize({ width: w, height: h });
+  for (const v of ['overview', 'income', 'budget', 'transactions', 'bills', 'savings', 'debt', 'networth', 'reports', 'settings']) {
+    await page.click('.hamburger', { force: true }).catch(() => {});
+    await page.evaluate(view => goto(view), v); await page.waitForTimeout(180);
+    const bad = await page.evaluate(() => {
+      const page2 = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+      // a table may scroll inside .table-wrap; a card itself must never overflow
+      const cards = [...document.querySelectorAll('#view .card')].filter(c => c.scrollWidth > c.clientWidth + 1).length;
+      return { page2, cards };
+    });
+    if (bad.page2 > 0 || bad.cards > 0) sweep.push(`${v}@${w}px (page +${bad.page2}, ${bad.cards} cards)`);
+  }
+}
+expect(sweep.length === 0, `all 10 views fit at 1024px and 390px${sweep.length ? ': ' + sweep.join(', ') : ''}`);
+await page.setViewportSize({ width: 1380, height: 900 }); await page.evaluate(() => goto('overview')); await page.waitForTimeout(250);
+
 step('deep links land on the right card');
 await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(150);
 await page.click('.insight[data-anchor]'); await page.waitForTimeout(400);
