@@ -1,0 +1,50 @@
+PERSONAL FINANCE DASHBOARD  -  Designs by Darowan
+=================================================
+
+Thank you for your purchase. Everything you need is in this folder.
+
+WHAT IS IN THE ZIP
+------------------
+  Personal_Finance_Dashboard.html   The app. This is the only file you need to open.
+  Quick_Start_Guide.pdf             Two pages to get you going in ten minutes.
+  User_Guide.pdf                    Every screen and every calculation, explained.
+  LICENCE.txt                       Personal-use licence.
+  OPEN-ME-FIRST.txt                 This file.
+
+HOW TO OPEN IT
+--------------
+  1. Unzip the download (right-click > Extract All on Windows, double-click on Mac).
+  2. Move Personal_Finance_Dashboard.html somewhere permanent, for example
+     Documents > Finance. Do not run it from inside the ZIP or from Downloads,
+     because your browser ties your saved data to where the file lives.
+  3. Double-click the file. It opens in your default browser.
+     Best experience: Google Chrome or Microsoft Edge (these also support
+     automatic backup). Firefox and Safari work too, with manual backup.
+  4. Follow the three-step setup. Choose "Load the sample household" if you want
+     to explore first - you can wipe it and start fresh from Settings at any time.
+
+  Tip: bookmark the page, or pin it to your taskbar/dock, so it is one click away.
+
+WHERE YOUR DATA LIVES
+---------------------
+  Your data is stored inside your browser on this computer (browser storage),
+  tied to the location of the HTML file. Nothing is uploaded anywhere. There is
+  no account and no internet connection needed.
+
+  Because of that, two things matter:
+    * Keep the file where it is. Moving or renaming it later starts a fresh,
+      empty dashboard (export a backup first, then restore it after moving).
+    * Back up. In Chrome or Edge, go to Settings > Automatic backup and choose a
+      file - every change is then written there (put it in a Dropbox, Drive or
+      OneDrive folder and it travels with you). In any browser you can export a
+      JSON backup with one click. Restoring on another computer takes one click too.
+
+  Clearing your browser's site data or "cookies and site data" also clears the
+  dashboard, so export a backup before doing that.
+
+NEED HELP?
+----------
+  Read the Quick Start Guide first, then the User Guide's FAQ. If something is
+  still unclear, message the shop through Etsy and include which browser you use.
+
+Enjoy taking charge of your money.

@@ -1,0 +1,67 @@
+TITLE
+Personal Finance Dashboard Template (Offline Budget Planner, Debt Payoff, Bill Calendar, Net Worth Tracker, Couple Mode, HTML Digital Download)
+
+KEYWORDS (13, 20 characters max each)
+finance dashboard, budget planner, digital budget, debt payoff planner, bill tracker, net worth tracker, savings goal tracker, couples budget, expense tracker, money management, budget template, offline budget app, subscription tracker
+
+DESCRIPTION
+
+A complete personal finance manager that lives in one file on your own computer. No subscription, no account, no bank connection - open it in your browser and your money is finally in one place.
+
+You get ten connected screens: an overview with safe-to-spend, income, budget with rollover, transactions with CSV import, bills & subscriptions with a due-date calendar, savings goals with an emergency fund calculator, a debt payoff planner with snowball vs avalanche comparison, net worth over time, printable reports, and settings. Built for couples as much as singles: tag every item to a person or "joint" and see who contributes and who spends.
+
+How It Works:
+1. Download the ZIP and open Personal_Finance_Dashboard.html in Chrome, Edge, Firefox or Safari.
+2. Answer three setup questions (single or couple, currency, start month), or load the sample household to explore first.
+3. Follow the welcome tour and the first-steps checklist: income, bills, accounts, budget. The calendar, cash-flow forecast and safe-to-spend figure build themselves from those.
+4. Log spending as you go or import a CSV from your bank. Tick bills as paid. Watch the budget bars fill.
+5. Turn on automatic backup in Settings (Chrome/Edge) or export a JSON backup any time.
+
+WHAT YOU'LL GET:
+• One self-contained HTML file - the whole app, works completely offline
+• Overview: income, expenses, net cash flow, savings rate, net worth, safe-to-spend, trends
+• Budget: planned vs actual per category, overspend flags, optional surplus or full rollover
+• Transactions: search, filters, split receipts across categories, CSV import with duplicate detection, CSV export
+• Bills & Subscriptions: weekly, fortnightly, monthly, quarterly, annual or custom frequencies, paid checkboxes, month calendar, true monthly and annual cost
+• Savings: goals with progress, projected finish date, behind-schedule warnings, emergency fund months-of-cover
+• Debt: snowball and avalanche simulation, payoff dates, total interest, side-by-side comparison, month-by-month schedule
+• Net worth: assets, liabilities, automatic monthly snapshots and a history chart
+• Reports: monthly and annual summaries, best and worst months, category totals, print-to-PDF layout
+• Couple mode with per-person breakdowns (also works perfectly for one person)
+• Enter recurring things once: income posts itself on every pay day, bills can auto-tick on their due date, and your budget carries into each new month
+• Six colour themes including two dark modes, plus eight tab icons - switch with one click
+• Welcome tour and a guided first-steps checklist so you always know what to do next
+• One "Add" button for everything, with simple forms that hide the advanced options until you need them
+• Smart insights on the overview: next pay day, budget pace, biggest category change, debt-free date, emergency cover
+• Automatic backup to a file you choose (Chrome/Edge) plus one-click JSON backup and restore in every browser
+• 24 currencies plus a custom symbol option (display only - no conversion)
+• Sample data and a guided first-run setup
+• Quick Start Guide and detailed User Guide (PDF), personal-use licence
+• Works on desktop, laptop and tablet; the layout adapts to phones too
+
+PERFECT FOR:
+monthly budgeting, couples merging finances, paying off credit cards and loans, tracking subscriptions, saving for a house deposit or holiday, building an emergency fund, anyone who wants a spreadsheet's honesty without the spreadsheet.
+
+PRIVACY, IN PLAIN WORDS:
+The dashboard never connects to the internet. Your data is stored in your own browser and, if you choose, in a backup file on your own computer. Nothing is sent to us or to anyone else.
+
+PLEASE NOTE:
+• This is a digital file, not a mobile app from an app store. Open it from the folder where you save it and keep it there.
+• Automatic file backup uses a feature available in Chrome and Edge. In Firefox and Safari, use the one-click JSON export instead.
+• Currency setting changes the symbol and number format only; amounts are not converted.
+• Figures such as safe-to-spend and payoff dates are estimates based on what you enter. Not financial advice.
+
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
+
+👍 You Can
+✔ Use it for your own household finances on all your devices
+✔ Make unlimited copies and backups for yourself
+✔ Print any report for your own use
+
+👎 You Cannot
+❌ Resell, share or redistribute the file
+❌ Upload it to any website or marketplace
+❌ Return it - digital downloads cannot be refunded
+
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order!
