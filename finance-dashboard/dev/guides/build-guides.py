@@ -46,7 +46,9 @@ qs.append(f"""
 <div class="box"><b>Log spending</b> Split one receipt across categories with <b>+ Add split</b>. Or <b>Import CSV</b> from your bank — duplicates are flagged automatically.</div>
 <div class="box"><b>Bills and pay days take care of themselves</b> Income posts itself on every pay day. Tick bills <b>Paid</b> (or press <b>✓ Mark all due as paid</b>, or switch on auto-pay in Settings → Automation) and the payment is recorded as a transaction, so the budget and safe-to-spend update instantly.</div>
 <div class="box"><b>Change the month</b> Use ‹ › in the top bar, or click the month name to jump. Every page follows it.</div>
+<div class="box"><b>More room when you need it</b> <b>‹ Collapse</b> at the bottom of the sidebar shrinks it to an icon rail (or press <b>[</b>). Every page also reflows for laptops, tablets and phones.</div>
 <div class="box"><b>Print a report</b> Reports → <b>Print / Save PDF</b> for a monthly or annual summary.</div>
+<div class="box"><b>See the month as a story</b> <b>✨ Month in review</b> on the Overview turns the selected month into a full-screen recap — what came in, where it went, what changed, what you kept — and ends with one suggestion for next month.</div>
 </div>
 <h2>5. Protect your data</h2>
 <div class="box good"><b>Chrome or Edge: turn on automatic backup</b> Settings → Automatic backup → <b>Choose backup file…</b>. Pick a location (a Dropbox, Drive or OneDrive folder works well). Every change is written there two seconds later and verified. Nothing is sent anywhere.</div>
@@ -88,7 +90,7 @@ ug.append(f"""
 <p>Three questions: household mode and names, currency and start month, and whether to load sample data. Re-run it any time from Settings → <b>Re-run setup</b>.</p>
 <h3>Household mode</h3>
 <p><b>Just me</b> keeps every form short. <b>Couple</b> adds an <b>Owner</b> field (Person 1, Person 2 or Joint) to income, bills, subscriptions, transactions, accounts, debts and goals, and switches on:</p>
-<ul><li>a Household split card on the Overview (income, expected income, expenses, net and share of income per person, with contribution and expense donuts);</li>
+<ul><li>a Household split band on the Overview — two stacked share bars (income and expenses, split by person) and a block per person showing net for the month, share of household income, and income, expected and expenses;</li>
 <li>owner chips and owner filters throughout; per-person columns in the annual category report; per-person net worth.</li></ul>
 <p>Switching from Couple back to Just me only hides the owner field — nothing is deleted, and switching back restores every tag.</p>
 <h3>Currency</h3>
@@ -105,6 +107,12 @@ ug.append(f"""
 <p>Six themes: Cream, Charcoal (dark), Midnight (dark navy), Sage, Blush and Slate. Choose one in Settings → Appearance, from the dots at the bottom of the sidebar, or during setup. Charts, chips and every page follow the theme. Tick <b>Follow my device's light / dark setting</b> to switch automatically between Cream and Charcoal. Reports always print in black on white.</p>
 <h3>Tab icon</h3>
 <p>Choose one of eight icons for the browser tab, bookmarks and the sidebar logo, in Settings → Appearance or during setup. The coin icon shows your currency symbol, and every icon takes the accent colour of your theme.</p>
+<h3>Collapsing the sidebar</h3>
+<p><b>‹ Collapse</b> at the bottom of the sidebar shrinks it to a narrow rail of icons, giving the dashboard more room on a laptop screen; click <b>›</b> (or press <b>[</b>) to bring the labels back. The choice is remembered. On a phone the sidebar stays a full menu behind the ☰ button.</p>
+<h3>Checklist</h3>
+<p>Also in Settings → Appearance: <b>Show the "your first steps" checklist</b> puts the onboarding checklist back on the Overview after you have hidden it.</p>
+<h3>Month in review</h3>
+<p>The <b>✨ Month in review</b> button on the Overview (and in Reports) opens a full-screen recap of the month showing in the top bar: what came in, what went out, where it went, the biggest change since last month, how the budget held, bills, what you kept, net worth, debt and any goal you finished — followed by one suggestion for next month. Move with the <b>Next</b>/<b>Back</b> buttons, the arrow keys, a swipe, or by tapping the left and right edges; <b>Esc</b> closes it. Slides with nothing to say are left out, so a quiet month is a short story. Everything on it is read from your own entries — nothing is sent anywhere.</p>
 <h3>The welcome tour and first steps</h3>
 <p>The tour (the <b>?</b> button, or Settings → Welcome tour) is seven short slides: what the dashboard does, then income, bills, accounts, budget, everyday logging and backup, each with a button that opens the relevant form. The <b>Your first steps</b> card on the Overview tracks the same six steps and highlights the next one; hide it with × once you're done.</p>
 <h3>Automation: enter recurring things once</h3>
@@ -120,13 +128,17 @@ ug.append(f"""
 """)
 ug.append(f"""
 <h2>3. Overview & safe-to-spend</h2>
-<p>The Overview follows the month selected in the top bar. The five KPI cards:</p>
-<table><tr><th>Card</th><th>Calculation</th></tr>
+<p>The Overview follows the month selected in the top bar, and reads top to bottom: the headline, then four stat tiles, then the charts, then what needs doing.</p>
+<h3>The headline band</h3>
+<p>The big figure is <b>net cash flow</b> — income minus expenses for the selected month — with the change against last month beside it, plus a pay-day countdown and how many bills fall due this week. To its right: <b>safe to spend</b>, your <b>savings rate</b> and your <b>net worth</b>.</p>
+<h3>The four stat tiles</h3>
+<p>Each shows this month's figure, the change against last month (green when the change is in your favour) and a 12-month trend line.</p>
+<table><tr><th>Tile</th><th>Calculation</th></tr>
 <tr><td>Income</td><td>Sum of income transactions in the month. Underneath: expected income from your income sources.</td></tr>
-<tr><td>Expenses</td><td>Sum of expense transactions in the month. Underneath: bills & subscriptions due that month.</td></tr>
-<tr><td>Net cash flow</td><td>Income − expenses.</td></tr>
-<tr><td>Savings rate</td><td>(Net cash flow + anything logged in the <b>Savings</b> category) ÷ income. Money you moved into savings counts as saved, not spent.</td></tr>
-<tr><td>Net worth</td><td>Assets − liability accounts − debts (section 10).</td></tr></table>
+<tr><td>Expenses</td><td>Sum of expense transactions in the month.</td></tr>
+<tr><td>Bills &amp; subs</td><td>What your recurring items come to in this month, whether or not they are ticked paid.</td></tr>
+<tr><td>Into savings</td><td>Anything logged in the <b>Savings</b> category, and what share of income that is.</td></tr></table>
+<p>Two other figures sit in the headline band: <b>savings rate</b> is (net cash flow + anything logged to Savings) ÷ income — money moved into savings counts as saved, not spent — and <b>net worth</b> is assets − liability accounts − debts (section 10).</p>
 <h3>Safe to spend</h3>
 <p>An estimate of what you can spend for the rest of the month without touching bills, goals or your buffer:</p>
 <div class="box"><b>Safe to spend =</b> balances of spendable accounts − bills & subscriptions still due (not yet ticked paid, due today or later) − monthly goal contributions − safety buffer</div>
@@ -134,12 +146,14 @@ ug.append(f"""
 {shot('safe-to-spend.jpg', 'The safe-to-spend card shows every component of the calculation.')}
 <h3>Insights</h3>
 <p>Up to four short statements at the top of the Overview, computed from your data: days until the next pay day, budget used versus month elapsed, the biggest category swing between the last two complete months, bills due in the next seven days, annual subscription cost, your debt-free date (and which strategy saves more), emergency-fund cover, and any goal that is almost funded. Click one to jump to the page behind it.</p>
-<h3>Other Overview cards</h3>
-<ul><li><b>Income vs expenses</b> — recorded transactions for the last 12 months.</li>
-<li><b>Spending by category</b> — the month's expenses; more than eight categories are grouped as "Other categories".</li>
-<li><b>Fixed vs variable</b> — fixed = transactions created by ticking a bill paid, or in a category used by a bill or subscription; everything else is variable.</li>
-<li><b>Due in the next 14 days</b> — from today, always, regardless of the selected month.</li>
-<li><b>Budget snapshot</b> and <b>Goals</b> — the six largest budget lines and the top four goals by priority.</li></ul>
+<h3>The charts and lists</h3>
+<ul><li><b>Cash flow</b> — income against expenses for the last 12 months. Hover any month for the exact pair.</li>
+<li><b>Spending pace</b> — your running total of spending day by day this month, laid over the same days last month, with a line underneath saying whether you are ahead or behind.</li>
+<li><b>Where the money went</b> — the month's biggest categories as bars, longest first, with a marker showing that category's budget and a note when you are over it. Click a bar to see those transactions.</li>
+<li><b>Due next</b> — bills and subscriptions falling due in the next three weeks, from today, regardless of the selected month. The next three days are highlighted.</li>
+<li><b>Goals</b> and <b>Debt</b> — progress meters: how much of each goal is funded, and how much of each debt is paid off.</li>
+<li><b>Latest activity</b> — your six most recent transactions.</li></ul>
+<p>Every chart with two series has a legend, and hovering one shows a tooltip with the values at that point. Charts follow your theme; the colours are chosen so that the series stay distinguishable for colour-blind readers.</p>
 """)
 ug.append(f"""
 <h2>4. Income and the frequency rules</h2>

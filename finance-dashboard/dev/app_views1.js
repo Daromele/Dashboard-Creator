@@ -26,7 +26,8 @@ function greetingHtml() {
   const name = S().person1Name && S().person1Name !== 'Me' ? S().person1Name : '';
   const d = new Date(); const dateStr = d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
   const today = D.today(); const dim = D.dim(D.parse(today).y, D.parse(today).m); const left = dim - D.parse(today).d;
-  return `<div class="greet"><div><h2>${esc(g)}${name ? ', ' + esc(name) : ''}.</h2><div class="sub">${esc(dateStr)} · ${left === 0 ? 'last day of the month' : left + ' day' + (left === 1 ? '' : 's') + ' left in ' + D.MONTHS_LONG[d.getMonth()]}</div></div></div>`;
+  return `<div class="greet"><div><h2>${esc(g)}${name ? ', ' + esc(name) : ''}.</h2><div class="sub">${esc(dateStr)} · ${left === 0 ? 'last day of the month' : left + ' day' + (left === 1 ? '' : 's') + ' left in ' + D.MONTHS_LONG[d.getMonth()]}</div></div>
+    <button class="btn accent no-print" data-action="monthStory" data-month="${attr(ui.month)}">✨ ${esc(D.monthLabel(ui.month))} in review</button></div>`;
 }
 function insightsHtml(month) {
   const out = []; const today = D.today(); const thisMonth = D.thisMonth();
@@ -77,83 +78,178 @@ function firstStepsHtml() {
     <div class="steps-head"><div><div class="kicker tiny" style="letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:4px">Your first steps</div><h3 style="font-size:20px">${next ? esc('Next: ' + next.title.toLowerCase()) : 'All done'}</h3><div class="small muted mt-s">Do these in order and every page comes alive. ${done} of ${steps.length} done.</div></div>
       <div class="flex"><button class="btn sm ghost" data-action="help">Tour</button><button class="btn sm ghost" data-action="checklistDismiss" title="Hide">×</button></div></div>
     ${progressBar(done / steps.length * 100, 'accent thin')}
-    <div class="steps-list">${steps.map((st, i) => `<div class="step-item ${st.done ? 'done' : ''} ${st === next ? 'next' : ''}"><div class="n">${st.done ? '✓' : i + 1}</div><div class="grow"><b>${st.icon} ${esc(st.title)}</b><span>${esc(st.sub)}</span>${st.done ? '' : `<button class="btn sm ${st === next ? 'accent' : ''}" data-action="${st.action}" ${st.view ? `data-view="${st.view}"` : ''} ${st.anchor ? `data-anchor="${st.anchor}"` : ''}>${esc(st.label)}</button>`}</div></div>`).join('')}</div>
+    <div class="steps-list">${steps.map((st, i) => `<div class="step-item ${st.done ? 'done' : ''} ${st === next ? 'next' : ''}"><div class="n">${st.done ? '✓' : i + 1}</div><div class="grow"><b>${st.icon} ${esc(st.title)}</b><span>${esc(st.sub)}</span></div>${st.done ? '' : `<button class="btn sm ${st === next ? 'accent' : ''}" data-action="${st.action}" ${st.view ? `data-view="${st.view}"` : ''} ${st.anchor ? `data-anchor="${st.anchor}"` : ''}>${esc(st.label)}</button>`}</div>`).join('')}</div>
   </div>`;
 }
 
 // ================= OVERVIEW =================
+/** Signed change against a named comparison period, coloured by whether up is good. */
+function deltaHtml(cur, prev, opts) {
+  const o = opts || {};
+  if (prev === null || prev === undefined || !Number.isFinite(prev) || (!prev && !cur)) return '';
+  const diff = round2(cur - prev);
+  if (Math.abs(diff) < 0.005) return `<span class="delta"><span class="w">level vs ${esc(o.vs || 'last month')}</span></span>`;
+  const up = diff > 0, goodUp = o.goodUp !== false;
+  const pct = prev ? Math.abs(diff / prev * 100) : null;
+  const body = o.pct ? `${up ? '+' : '−'}${Math.abs(diff).toFixed(1)} pts` : `${up ? '+' : '−'}${fmt0(Math.abs(diff))}${pct !== null && pct < 300 ? ` (${pct.toFixed(0)}%)` : ''}`;
+  return `<span class="delta ${up === goodUp ? 'up' : 'down'}">${up ? '▲' : '▼'} ${body}<span class="w"> vs ${esc(o.vs || 'last month')}</span></span>`;
+}
+/** Running total of spending, day by day, for pacing this month against the last one. */
+function dailyCumulative(month, upToDay) {
+  const { y, m } = D.parse(month + '-01'), days = D.dim(y, m);
+  const per = new Array(days).fill(0);
+  for (const t of expenseTxnsInMonth(month)) { const d = D.parse(t.date).d; if (d >= 1 && d <= days) per[d - 1] += txnTotal(t); }
+  let run = 0;
+  return per.map((v, i) => (upToDay && i + 1 > upToDay) ? null : round2(run += v));
+}
 views.overview = {
   title: 'Overview',
   render() {
-    const month = ui.month;
-    const sm = monthSummary(month);
+    const month = ui.month, thisMonth = D.thisMonth();
+    const sm = monthSummary(month), pm = monthSummary(D.addMonths(month, -1));
     const nw = netWorth();
     const hasData = state.txns.length || state.income.length || state.bills.length || state.accounts.length;
-    const top = greetingHtml() + insightsHtml(month) + firstStepsHtml();
-    if (!hasData) return top;
+    const top = greetingHtml() + firstStepsHtml();
+    if (!hasData) return top + insightsHtml(month);
     const sts = safeToSpend(month);
     const months12 = D.monthsBetween(D.addMonths(month, -11), month);
     const trend = months12.map(monthSummary);
     const firstTxnMonth = state.txns.length ? state.txns.reduce((a, t) => t.month < a ? t.month : a, '9999') : month;
     const gap = (m, v) => m < firstTxnMonth && m < S().startMonth ? null : v;
+    const spark = key => months12.map(m => gap(m, null)).map((_, i) => gap(trend[i].month, trend[i][key]));
     const cats = categoryActuals(month);
-    const catSlices = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([label, value], i) => ({ label, value, color: PALETTE[(i + 1) % PALETTE.length] }));
-    const billCats = new Set(billItems().map(b => b.category));
-    let fixed = 0, variable = 0;
-    for (const t of expenseTxnsInMonth(month)) for (const s of t.splits) { if (t.billRef || billCats.has(s.category)) fixed += num(s.amount); else variable += num(s.amount); }
-    const upcoming = billItems().flatMap(b => occurrences(b, D.today(), D.addDays(D.today(), 14)).map(d => ({ date: d, name: b.name, amount: b.amount, isSub: !!b._isSub, paid: isBillPaid(D.monthOf(d), b.id), owner: b.owner }))).sort((a, b) => a.date < b.date ? -1 : 1);
-    const budgets = state.budgets.filter(b => b.month === month && num(b.planned) > 0).map(b => ({ cat: b.category, planned: num(b.planned), actual: cats[b.category] || 0 })).sort((a, b) => b.planned - a.planned).slice(0, 6);
-    const goals = state.goals.slice().sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.priority] || 1) - ({ high: 0, medium: 1, low: 2 }[b.priority] || 1)).slice(0, 4);
+    const catRows = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+    const budgetFor = c => { const b = state.budgets.find(x => x.month === month && x.category === c); return b ? num(b.planned) : null; };
+    // month progress, so every "so far" number has a denominator
+    const { y: cy, m: cm } = D.parse(month + '-01'), dim = D.dim(cy, cm);
+    const dayNow = month === thisMonth ? D.parse(D.today()).d : (month < thisMonth ? dim : 0);
+    const monthPct = dayNow / dim * 100;
+    // pace: this month's running spend against last month's, day by day
+    const paceCur = dailyCumulative(month, dayNow || dim), pacePrev = dailyCumulative(D.addMonths(month, -1));
+    const paceLabels = Array.from({ length: Math.max(paceCur.length, pacePrev.length) }, (_, i) => String(i + 1));
+    const paceNow = paceCur.filter(v => v !== null).slice(-1)[0] || 0;
+    const paceThen = pacePrev[Math.min(pacePrev.length - 1, (dayNow || dim) - 1)] || 0;
+    // bills due next
+    const upcoming = billItems().flatMap(b => occurrences(b, D.today(), D.addDays(D.today(), 21)).map(d => ({ date: d, name: b.name, amount: b.amount, isSub: !!b._isSub, paid: isBillPaid(D.monthOf(d), b.id), owner: b.owner }))).sort((a, b) => a.date < b.date ? -1 : 1);
+    const goals = state.goals.slice().sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.priority] || 1) - ({ high: 0, medium: 1, low: 2 }[b.priority] || 1)).slice(0, 5);
+    const debts = state.debts.filter(d => num(d.currentBalance) > 0);
+    const sim = debts.length ? simulateDebt(state.debts, ui.debtStrategy, num(S().debtExtraPool), thisMonth) : null;
+    const nextPay = state.income.filter(i => i.active !== false).map(i => ({ i, d: nextDue(i, D.today()) })).filter(x => x.d).sort((a, b) => a.d < b.d ? -1 : 1)[0];
+    const nwSeries = state.snapshots.slice(-12).map(s => s.net);
+    const recent = state.txns.slice().sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0).slice(0, 6);
+    const savedThis = sm.saved, savedPrev = pm.saved;
+    const billsDue = sm.expectedBills, billsPrev = pm.expectedBills;
+
+    const hero = `<div class="hero" data-anchor="hero">
+      <div>
+        <div class="kick">Net cash flow · ${esc(D.monthLabel(month, true))}</div>
+        <span class="hero-fig ${sm.net >= 0 ? 'good' : 'bad'}">${fmt0(sm.net, { sign: true })}</span>
+        <div class="hero-meta">${deltaHtml(sm.net, pm.net, { vs: D.monthLabel(D.addMonths(month, -1)) })}
+          ${nextPay ? `<span class="hero-chip">💵 ${D.daysBetween(D.today(), nextPay.d) === 0 ? 'Pay day today' : `Pay day in ${D.daysBetween(D.today(), nextPay.d)}d`}</span>` : ''}
+          ${upcoming.filter(u => !u.paid && u.date <= D.addDays(D.today(), 7)).length ? `<span class="hero-chip">📅 ${upcoming.filter(u => !u.paid && u.date <= D.addDays(D.today(), 7)).length} bills due this week</span>` : ''}
+          ${month === thisMonth ? `<span class="hero-chip">${fmtPct(monthPct)} of the month gone</span>` : ''}
+        </div>
+        <div class="hero-sub">${fmt0(sm.income)} came in, ${fmt0(sm.expenses)} went out${sm.saved ? `, and ${fmt0(sm.saved)} of that moved into savings` : ''}. <a href="#" data-action="monthStory" data-month="${attr(month)}">See the month in review →</a></div>
+      </div>
+      <div class="hero-side">
+        <div class="hero-tile">
+          <div class="t"><span>Safe to spend</span><span class="chip">estimate</span></div>
+          <div class="n ${sts.result >= 0 ? 'good' : 'bad'}">${fmt0(sts.result)}</div>
+          <div class="d">${month === thisMonth ? 'for the rest of this month' : 'for ' + esc(D.monthLabel(month))} · after ${fmt0(sts.upcomingBills)} of bills, ${fmt0(sts.goals)} to goals and a ${fmt0(sts.buffer)} buffer</div>
+        </div>
+        <div class="hero-tile row">
+          <div><div class="t">Savings rate</div><div class="n">${fmtPct(sm.savingsRate)}</div><div class="d">${pm.savingsRate !== null && sm.savingsRate !== null ? (sm.savingsRate >= pm.savingsRate ? '▲' : '▼') + ' ' + Math.abs(sm.savingsRate - pm.savingsRate).toFixed(1) + ' pts vs last month' : 'of income kept'}</div></div>
+          <div><div class="t">Net worth</div><div class="n">${fmt0(nw.net)}</div><div class="d">${fmt0(nw.assets)} assets · ${fmt0(nw.liabilities + nw.debts)} owed</div></div>
+        </div>
+      </div>
+    </div>`;
+
+    const statTile = (label, value, sub, points, color, deltaEl) => `<div class="card stat">
+      <div class="lbl">${esc(label)}</div>
+      <div class="val">${value}</div>
+      <div class="d tiny muted">${sub}</div>
+      <div class="foot">${deltaEl || ''}<div class="sprk">${svgSpark(points, color)}</div></div>
+    </div>`;
+
+    const kpis = `<div class="grid grid-4">
+      ${statTile('Income', fmt0(sm.income), `expected ${fmt0(sm.expectedIncome)}`, spark('income'), C.good, deltaHtml(sm.income, pm.income))}
+      ${statTile('Expenses', fmt0(sm.expenses), `${catRows.length} categor${catRows.length === 1 ? 'y' : 'ies'} used`, spark('expenses'), C.accent, deltaHtml(sm.expenses, pm.expenses, { goodUp: false }))}
+      ${statTile('Bills & subs', fmt0(billsDue), `${billItems().length} recurring items`, months12.map(m => expectedBills(m)), PALETTE[2], deltaHtml(billsDue, billsPrev, { goodUp: false }))}
+      ${statTile('Into savings', fmt0(savedThis), sm.income ? `${fmtPct(savedThis / sm.income * 100)} of income` : 'Savings category', months12.map(m => monthSummary(m).saved), PALETTE[3], deltaHtml(savedThis, savedPrev))}
+    </div>`;
+
+    const charts = `<div class="grid grid-3 mt">
+      <div class="card" style="grid-column:span 2" data-anchor="cashflow">
+        <div class="card-head"><h3>Cash flow</h3><span class="tiny muted">Last 12 months · recorded transactions</span></div>
+        ${svgBarChart({ groups: months12.map((m, i) => ({ label: D.MONTHS[D.parse(m + '-01').m - 1], values: [trend[i].income, trend[i].expenses] })), seriesNames: ['Income', 'Expenses'], colors: [C.good, C.accent], height: 240 })}
+      </div>
+      <div class="card" data-anchor="pace">
+        <div class="card-head"><h3>Spending pace</h3></div>
+        ${svgLineChart({ labels: paceLabels, dots: false, maxLabels: 6, width: 340, height: 200, series: [{ name: esc(D.monthLabel(month)), color: C.accent, points: paceCur, area: true }, { name: D.monthLabel(D.addMonths(month, -1)), color: C.ink, width: 1.6, points: pacePrev }] })}
+        <div class="tiny ${paceNow > paceThen ? 'bad' : 'good'} push-b">${paceNow > paceThen ? `${fmt0(paceNow - paceThen)} ahead of` : `${fmt0(paceThen - paceNow)} behind`} last month by day ${dayNow || dim}.</div>
+      </div>
+    </div>`;
+
+    const catBars = catRows.slice(0, 7).map(([label, value], i) => ({ label, value, share: sm.expenses ? value / sm.expenses * 100 : 0, cap: budgetFor(label), color: PALETTE[i % PALETTE.length] }));
+    const where = `<div class="grid grid-3 mt">
+      <div class="card" style="grid-column:span 2" data-anchor="categories">
+        <div class="card-head"><h3>Where the money went</h3><div class="flex"><span class="tiny muted">Marker = budget</span><button class="btn sm ghost" data-action="goto" data-view="budget" data-anchor="table">Budget</button></div></div>
+        ${hBars(catBars, { action: 'catDrill' })}
+        ${catRows.length > 7 ? `<div class="tiny muted push-b">+ ${catRows.length - 7} smaller categories, ${fmt0(sum(catRows.slice(7), r => r[1]))} in total.</div>` : ''}
+      </div>
+      <div class="card" data-anchor="due">
+        <div class="card-head"><h3>Due next</h3><button class="btn sm ghost" data-action="goto" data-view="bills" data-anchor="bills">All</button></div>
+        ${upcoming.length ? `<div class="tl">${upcoming.slice(0, 7).map(u => { const days = D.daysBetween(D.today(), u.date); const { d, m } = D.parse(u.date); return `<div class="tl-row ${u.paid ? 'paid' : days <= 3 ? 'soon' : ''}">
+          <div class="day"><b>${d}</b><span>${esc(D.MONTHS[m - 1])}</span></div>
+          <div class="nm"><b>${esc(u.name)}</b><span class="tiny muted">${u.isSub ? 'subscription · ' : ''}${days === 0 ? 'today' : days === 1 ? 'tomorrow' : 'in ' + days + ' days'}</span> ${ownerChip(u.owner)}</div>
+          <div class="amt num">${u.paid ? '<span class="chip good">paid</span>' : fmt(u.amount)}</div></div>`; }).join('')}</div>
+        <div class="tiny muted push-b">${fmt0(sum(upcoming.filter(u => !u.paid), u => u.amount))} unpaid in the next three weeks.</div>` : '<div class="muted small">Nothing due in the next three weeks.</div>'}
+      </div>
+    </div>`;
+
+    const goalRows = goals.map((g, i) => { const p = goalProjection(g, thisMonth); return { label: g.name, value: num(g.current), cap: num(g.target), color: p.pct >= 100 ? C.good : PALETTE[i % PALETTE.length], display: `${fmt0(g.current)} / ${fmt0(g.target)}`, note: p.pct >= 100 ? 'fully funded 🎉' : `${fmt0(p.remaining)} to go${p.projectedMonth ? ' · ' + D.monthLabel(p.projectedMonth) : ''}` }; });
+    const debtRows = debts.slice(0, 5).map((d, i) => { const orig = Math.max(num(d.originalBalance), num(d.currentBalance)); const paid = orig - num(d.currentBalance); return { label: d.name, value: paid, cap: orig, color: PALETTE[(i + 4) % PALETTE.length], display: `${fmtPct(orig ? paid / orig * 100 : 0)} paid off`, note: `${fmt0(d.currentBalance)} left at ${num(d.apr).toFixed(2)}% APR` }; });
+    const progress = `<div class="grid grid-2 mt">
+      <div class="card" data-anchor="goals">
+        <div class="card-head"><h3>Goals</h3><button class="btn sm ghost" data-action="goto" data-view="savings" data-anchor="goals">All goals</button></div>
+        ${goalRows.length ? hBars(goalRows, { meter: true }) : emptyBox('No savings goals yet', 'A goal turns spare money into a plan — holiday, deposit, emergency fund.', '<button class="btn primary" data-action="goalAdd">+ Add a goal</button>')}
+      </div>
+      <div class="card" data-anchor="debts">
+        <div class="card-head"><h3>Debt</h3>${sim ? `<span class="chip ${sim.neverPaysOff ? 'warn' : 'good'}">${sim.neverPaysOff ? 'no payoff date yet' : 'debt-free ' + esc(D.monthLabel(sim.debtFreeMonth))}</span>` : ''}</div>
+        ${debtRows.length ? hBars(debtRows, { meter: true }) : emptyBox('No debts tracked', 'Add a card or loan to see a payoff date and what the interest really costs.', '<button class="btn primary" data-action="debtAdd">+ Add a debt</button>')}
+      </div>
+    </div>`;
+
+    const activity = recent.length ? `<div class="card mt" data-anchor="recent">
+      <div class="card-head"><h3>Latest activity</h3><button class="btn sm ghost" data-action="goto" data-view="transactions">All transactions</button></div>
+      <div class="table-wrap"><table class="small t-stack"><tbody>${recent.map(t => `<tr>
+        <td class="nowrap muted" style="width:72px">${esc(D.dateLabel(t.date).slice(0, 6))}</td>
+        <td><b>${esc(t.description)}</b> ${ownerChip(t.owner)}<div class="tiny muted">${esc(t.splits.map(s => s.category).join(', '))}</div></td>
+        <td class="right num ${t.type === 'income' ? 'good' : ''}">${t.type === 'income' ? '+' : '−'}${fmt(txnTotal(t))}</td></tr>`).join('')}</tbody></table></div>
+    </div>` : '';
+
     let coupleHtml = '';
     if (isCouple()) {
       const incBy = { p1: 0, p2: 0, joint: 0 }, expBy = { p1: 0, p2: 0, joint: 0 };
       for (const t of incomeTxnsInMonth(month)) incBy[t.owner || 'p1'] += txnTotal(t);
       for (const t of expenseTxnsInMonth(month)) expBy[t.owner || 'p1'] += txnTotal(t);
       const expInc = { p1: 0, p2: 0, joint: 0 }; for (const i of state.income) expInc[i.owner || 'p1'] += amountInMonth(i, month);
-      const row = (k) => `<tr><td>${ownerChip(k)}</td><td class="right num">${fmt(incBy[k])}</td><td class="right num muted">${fmt(expInc[k])}</td><td class="right num">${fmt(expBy[k])}</td><td class="right num ${signCls(incBy[k] - expBy[k])}">${fmt(incBy[k] - expBy[k], { sign: true })}</td><td class="right num">${sm.income ? fmtPct(incBy[k] / sm.income * 100) : '—'}</td></tr>`;
-      coupleHtml = `<div class="card"><div class="card-head"><h3>Household split</h3><span class="tiny muted">${esc(D.monthLabel(month))}</span></div><div class="table-wrap"><table><thead><tr><th>Person</th><th class="right">Income</th><th class="right">Expected</th><th class="right">Expenses</th><th class="right">Net</th><th class="right">Share of income</th></tr></thead><tbody>${['p1', 'p2', 'joint'].map(row).join('')}</tbody></table></div>
-        <div class="grid grid-2 mt"><div><div class="tiny muted mb-s">CONTRIBUTION BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: incBy.p1, color: C.p1 }, { label: S().person2Name, value: incBy.p2, color: C.p2 }, { label: 'Joint', value: incBy.joint, color: C.joint }] })}</div><div><div class="tiny muted mb-s">EXPENSES BY PERSON</div>${svgDonut({ size: 120, slices: [{ label: S().person1Name, value: expBy.p1, color: C.p1 }, { label: S().person2Name, value: expBy.p2, color: C.p2 }, { label: 'Joint', value: expBy.joint, color: C.joint }] })}</div></div></div>`;
+      const who = { p1: { name: S().person1Name, color: C.p1 }, p2: { name: S().person2Name, color: C.p2 }, joint: { name: 'Joint', color: C.joint } };
+      const keys = ['p1', 'p2', 'joint'];
+      const shareBar = (label, total, by) => `<div class="sbar"><div class="sbar-head"><span>${esc(label)}</span><b>${fmt0(total)}</b></div>
+        <div class="stack">${keys.map(k => total > 0 ? `<i style="width:${(by[k] / total * 100).toFixed(2)}%;background:${who[k].color}" title="${attr(who[k].name)}: ${attr(fmt(by[k]))}"></i>` : '').join('')}</div>
+        <div class="stack-key">${keys.filter(k => by[k] > 0).map(k => `<span><i style="background:${who[k].color}"></i>${esc(who[k].name)} ${total > 0 ? fmtPct(by[k] / total * 100) : '—'}</span>`).join('') || '<span class="muted">Nothing recorded yet</span>'}</div></div>`;
+      const person = (k) => { const net = round2(incBy[k] - expBy[k]); return `<div class="sp">
+        <div class="sp-top"><i style="background:${who[k].color}"></i>${esc(who[k].name)}</div>
+        <div class="sp-net ${signCls(net)}">${fmt0(net, { sign: true })}</div>
+        <div class="sp-sub">net this month${sm.income ? ' · ' + fmtPct(incBy[k] / sm.income * 100) + ' of household income' : ''}</div>
+        <div class="sp-rows"><div><span>Income</span><span class="num">${fmt(incBy[k])}</span></div><div><span>Expected</span><span class="num">${fmt(expInc[k])}</span></div><div><span>Expenses</span><span class="num">${fmt(expBy[k])}</span></div></div></div>`; };
+      coupleHtml = `<div class="card inverse mt" data-anchor="split"><div class="card-head"><h3>Household split</h3><span class="chip">${esc(D.monthLabel(month))}</span></div>
+        <div class="split-bars">${shareBar('Income', sm.income, incBy)}${shareBar('Expenses', sm.expenses, expBy)}</div>
+        <div class="split-people">${keys.map(person).join('')}</div></div>`;
     }
-    return top + `
-      <div class="grid grid-5">
-        ${kpi('Income', fmt0(sm.income), `Expected ${fmt0(sm.expectedIncome)}`)}
-        ${kpi('Expenses', fmt0(sm.expenses), `Bills & subs due ${fmt0(sm.expectedBills)}`)}
-        ${kpi('Net cash flow', fmt0(sm.net), sm.net >= 0 ? 'Income minus expenses' : 'Spending exceeded income', signCls(sm.net))}
-        ${kpi('Savings rate', fmtPct(sm.savingsRate), sm.saved ? `Net + ${fmt0(sm.saved)} saved ÷ income` : 'Net ÷ income', sm.savingsRate === null ? '' : sm.savingsRate >= 20 ? 'good' : sm.savingsRate < 0 ? 'bad' : '')}
-        ${kpi('Net worth', fmt0(nw.net), `Assets ${fmt0(nw.assets)} · Owed ${fmt0(nw.liabilities + nw.debts)}`, signCls(nw.net))}
-      </div>
-      <div class="grid grid-3 mt">
-        <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Income vs expenses</h3><span class="tiny muted">Last 12 months · recorded transactions</span></div>
-          ${svgLineChart({ labels: months12.map(m => D.MONTHS[D.parse(m).m - 1]), series: [{ name: 'Income', color: C.good, points: trend.map(t => gap(t.month, t.income)), area: true }, { name: 'Expenses', color: C.accent, points: trend.map(t => gap(t.month, t.expenses)), area: true }], height: 230 })}
-        </div>
-        <div class="card inverse"><div class="card-head"><h3>Safe to spend</h3><span class="chip">estimate</span></div>
-          <div class="kpi" style="padding:0"><div class="v ${sts.result >= 0 ? 'good' : ''}" style="font-size:34px">${fmt0(sts.result)}</div><div class="s">${month === D.thisMonth() ? 'For the rest of this month' : 'For ' + D.monthLabel(month)}</div></div>
-          <table class="small mt"><tbody>
-            <tr><td>Available in ${sts.accounts.length} spendable account${sts.accounts.length === 1 ? '' : 's'}</td><td class="right num">${fmt(sts.available)}</td></tr>
-            <tr><td>Bills & subs still due (${sts.upcomingList.length})</td><td class="right num dim">−${fmt(sts.upcomingBills)}</td></tr>
-            <tr><td>Goal contributions</td><td class="right num dim">−${fmt(sts.goals)}</td></tr>
-            <tr><td>Safety buffer</td><td class="right num dim">−${fmt(sts.buffer)}</td></tr>
-          </tbody></table>
-          <div class="tiny mt-s dim">Spendable: ${(S().spendableTypes || []).map(t => accountType(t).l).join(', ') || 'none set'} · <a href="#" data-action="goto" data-view="settings" data-anchor="planning">change</a></div>
-        </div>
-      </div>
-      <div class="grid grid-3 mt">
-        <div class="card"><div class="card-head"><h3>Spending by category</h3></div>${svgDonut({ slices: catSlices.slice(0, 8).concat(catSlices.length > 8 ? [{ label: 'Other categories', value: sum(catSlices.slice(8), s => s.value), color: C.rest }] : []), centre: fmt0(sm.expenses), centreLabel: 'spent' })}</div>
-        <div class="card"><div class="card-head"><h3>Fixed vs variable</h3></div>${svgDonut({ size: 130, slices: [{ label: 'Fixed (bills & subs)', value: fixed, color: C.ink }, { label: 'Variable', value: variable, color: C.accent }] })}
-          <div class="tiny muted mt">Fixed = payments marked paid from Bills, or in a bill category.</div></div>
-        <div class="card"><div class="card-head"><h3>Due in the next 14 days</h3><button class="btn sm ghost" data-action="goto" data-view="bills" data-anchor="bills">All bills</button></div>
-          ${upcoming.length ? `<table class="small"><tbody>${upcoming.slice(0, 8).map(u => `<tr class="${u.paid ? 'row-muted' : ''}"><td class="nowrap">${esc(D.dateLabel(u.date).slice(0, 6))}</td><td>${esc(u.name)}${u.isSub ? ' <span class="tiny muted">sub</span>' : ''} ${ownerChip(u.owner)}</td><td class="right num">${u.paid ? '<span class="chip good">paid</span>' : fmt(u.amount)}</td></tr>`).join('')}</tbody></table>` : '<div class="muted small">Nothing due in the next two weeks.</div>'}
-        </div>
-      </div>
-      <div class="grid grid-2 mt">
-        <div class="card"><div class="card-head"><h3>Budget snapshot</h3><button class="btn sm ghost" data-action="goto" data-view="budget" data-anchor="table">Open budget</button></div>
-          ${budgets.length ? budgets.map(b => `<div class="mini"><div class="mini-head"><span class="l"><span>${esc(b.cat)}</span></span><span class="v ${b.actual > b.planned ? 'bad' : ''}">${fmt0(b.actual)} <span class="muted">/ ${fmt0(b.planned)}</span></span></div>${progressBar(b.actual / b.planned * 100, b.actual > b.planned ? 'over' : b.actual > b.planned * 0.85 ? 'warn' : '')}</div>`).join('') : `<div class="muted small">No budget set for ${esc(D.monthLabel(month))}.</div>`}
-        </div>
-        <div class="card"><div class="card-head"><h3>Goals</h3><button class="btn sm ghost" data-action="goto" data-view="savings" data-anchor="goals">All goals</button></div>
-          ${goals.length ? goals.map(g => { const p = goalProjection(g, D.thisMonth()); return `<div class="mini"><div class="mini-head"><span class="l"><span>${esc(g.name)}</span>${ownerChip(g.owner)}${p.behind ? '<span class="chip warn">behind</span>' : ''}</span><span class="v">${fmt0(g.current)} <span class="muted">/ ${fmt0(g.target)}</span></span></div>${progressBar(p.pct, 'accent')}</div>`; }).join('') : '<div class="muted small">No savings goals yet.</div>'}
-        </div>
-      </div>
-      ${coupleHtml ? `<div class="mt">${coupleHtml}</div>` : ''}`;
+
+    return top + hero + kpis + insightsHtml(month) + charts + where + progress + activity + coupleHtml;
   }
 };
 
@@ -356,7 +452,7 @@ function openCsvImport() {
     }
     const toImport = preview.filter(p => !p.skip).length;
     stage.querySelector('#csvPreview').innerHTML = `<div class="callout mt small">${data.length} rows read · <b>${toImport}</b> to import · ${dups} duplicate${dups === 1 ? '' : 's'}${skipDup ? ' (skipped)' : ' (will be imported)'} · ${bad} unreadable row${bad === 1 ? '' : 's'} ignored</div>
-      <div class="table-wrap mt"><table class="small"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th class="right">Amount</th><th></th></tr></thead><tbody>${preview.slice(0, 12).map(p => `<tr class="${p.skip ? 'row-muted' : ''}"><td>${p.date}</td><td>${esc(p.description)}</td><td>${esc(p.splits[0].category)}</td><td>${p.type}</td><td class="right num">${fmt(p.splits[0].amount)}</td><td>${p.dup ? '<span class="chip warn">duplicate</span>' : ''}</td></tr>`).join('')}${preview.length > 12 ? `<tr><td colspan="6" class="muted center">… ${preview.length - 12} more</td></tr>` : ''}</tbody></table></div>`;
+      <div class="table-wrap mt"><div class="table-wrap"><table class="small"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th class="right">Amount</th><th></th></tr></thead><tbody>${preview.slice(0, 12).map(p => `<tr class="${p.skip ? 'row-muted' : ''}"><td>${p.date}</td><td>${esc(p.description)}</td><td>${esc(p.splits[0].category)}</td><td>${p.type}</td><td class="right num">${fmt(p.splits[0].amount)}</td><td>${p.dup ? '<span class="chip warn">duplicate</span>' : ''}</td></tr>`).join('')}${preview.length > 12 ? `<tr><td colspan="6" class="muted center">… ${preview.length - 12} more</td></tr>` : ''}</tbody></table></div></div>`;
     go.disabled = toImport === 0;
   }
   m.bg.querySelector('#csvFile').addEventListener('change', async e => {

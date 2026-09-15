@@ -104,12 +104,12 @@ views.savings = {
           ${goals.length ? `<div class="grid grid-2" data-anchor="goals">${goals.map(g => { const p = goalProjection(g, D.thisMonth()); const done = p.remaining === 0 && num(g.target) > 0; return `<div class="card">
             <div class="flex between"><div><h3>${esc(g.name)}</h3><div class="tiny muted mt-s">${ownerChip(g.owner)} <span class="chip ${g.priority === 'high' ? 'bad' : g.priority === 'low' ? '' : 'warn'}">${esc(g.priority || 'medium')} priority</span> ${done ? '<span class="chip good">complete</span>' : p.behind ? '<span class="chip warn">behind schedule</span>' : ''}</div></div><button class="btn sm ghost icon" data-action="goalEdit" data-id="${g.id}">✎</button></div>
             <div class="mini mt" style="margin-bottom:0"><div class="mini-head"><b class="num">${fmt(g.current)}</b><span class="muted num">${fmt(g.target)}</span></div>${progressBar(p.pct, done ? '' : 'accent')}<div class="flex between tiny muted" style="margin-top:6px"><span>${fmtPct(p.pct)} complete</span><span>${fmt(p.remaining)} to go</span></div></div>
-            <table class="small mt"><tbody>
+            <div class="table-wrap mt"><table class="small"><tbody>
               <tr><td class="muted">Monthly contribution</td><td class="right num">${fmt(g.monthlyContribution)}</td></tr>
               <tr><td class="muted">Projected finish</td><td class="right nowrap">${done ? 'Done' : p.projectedMonth ? D.monthLabel(p.projectedMonth) + ` <span class="tiny muted">· ${p.monthsNeeded} mo</span>` : '<span class="warn">No contribution set</span>'}</td></tr>
               ${g.targetDate ? `<tr><td class="muted">Target date</td><td class="right nowrap ${p.behind ? 'bad' : 'good'}">${esc(D.dateLabel(g.targetDate))}</td></tr>` : ''}
               ${p.behind && p.requiredMonthly ? `<tr><td class="muted">Needed per month</td><td class="right num bad">${fmt(p.requiredMonthly)}</td></tr>` : ''}
-            </tbody></table>
+            </tbody></table></div>
             <div class="mt-s flex"><button class="btn sm" data-action="goalAddAmount" data-id="${g.id}">+ Add to savings</button></div></div>`; }).join('')}</div>` : emptyBox('No goals yet', 'Emergency fund, holiday, new car, house deposit — give every pound a purpose.', '<button class="btn primary" data-action="goalAdd">+ Add a goal</button>')}
         </div>
         <div>
@@ -117,15 +117,15 @@ views.savings = {
           <div class="card" data-anchor="emergency">
             <div class="kpi" style="padding:0"><div class="k">Months of expenses covered</div><div class="v ${covered >= efMonths ? 'good' : covered >= 1 ? 'warn' : 'bad'}">${covered.toFixed(1)}</div></div>
             ${progressBar(efMonths ? covered / efMonths * 100 : 0, covered >= efMonths ? '' : 'warn')}
-            <table class="small mt"><tbody>
+            <div class="table-wrap mt"><table class="small"><tbody>
               <tr><td class="muted">Average monthly expenses</td><td class="right num">${fmt(avgExp)}</td></tr>
               <tr><td class="muted">${efGoal ? `In "${esc(efGoal.name)}" goal` : `In savings & cash accounts`}</td><td class="right num">${fmt(efHave)}</td></tr>
               <tr><td class="muted">${efMonths}-month target</td><td class="right num">${fmt(efTarget)}</td></tr>
               <tr><td class="muted">Shortfall</td><td class="right num ${efTarget - efHave > 0 ? 'bad' : 'good'}">${fmt(Math.max(0, efTarget - efHave))}</td></tr>
-            </tbody></table>
+            </tbody></table></div>
             <div class="tiny muted mt">Average uses the last 3 months of recorded expenses, excluding the Savings category (or your recurring bills if there are none). ${efGoal ? '' : 'Name a goal "Emergency fund" to track it there instead.'} Change the target months in Settings.</div>
           </div>
-          ${savingsAccts.length ? `<div class="card mt"><div class="card-head"><h3>Savings accounts</h3></div><table class="small"><tbody>${savingsAccts.map(a => `<tr><td>${esc(a.name)} ${ownerChip(a.owner)}</td><td class="right num">${fmt(a.balance)}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="right num">${fmt(savingsBal)}</td></tr></tfoot></table></div>` : ''}
+          ${savingsAccts.length ? `<div class="card mt"><div class="card-head"><h3>Savings accounts</h3></div><div class="table-wrap"><table class="small"><tbody>${savingsAccts.map(a => `<tr><td>${esc(a.name)} ${ownerChip(a.owner)}</td><td class="right num">${fmt(a.balance)}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="right num">${fmt(savingsBal)}</td></tr></tfoot></table></div></div>` : ''}
         </div>
       </div>`;
   }
@@ -194,11 +194,11 @@ views.debt = {
         <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Paydown curve</h3><span class="tiny muted">Total balance by month, both strategies</span></div>${chart}
           ${cur.neverPaysOff ? `<div class="callout bad mt small"><b>These payments never clear the debt.</b> Interest each month is more than the minimum payments on at least one debt. Increase the extra payment or the minimums to see a payoff date.</div>` : ''}</div>
         <div class="card" data-anchor="comparison"><div class="card-head"><h3>Strategy comparison</h3></div>
-          <table class="small"><thead><tr><th></th><th class="right">Snowball</th><th class="right">Avalanche</th></tr></thead><tbody>
+          <div class="table-wrap"><table class="small"><thead><tr><th></th><th class="right">Snowball</th><th class="right">Avalanche</th></tr></thead><tbody>
             ${cmpRow('Debt-free in', sn.monthsToDebtFree, av.monthsToDebtFree, monthsFmt)}
             ${cmpRow('Total interest', sn.totalInterest, av.totalInterest, fmt)}
             ${cmpRow('Total paid', sn.totalPaid, av.totalPaid, fmt)}
-          </tbody></table>
+          </tbody></table></div>
           <div class="callout mt small">${interestSaved > 0 ? `<b>${esc(ui.debtStrategy)}</b> saves <b>${fmt(interestSaved)}</b> in interest${monthsSaved ? ` and ${monthsSaved} month${monthsSaved === 1 ? '' : 's'}` : ''} versus ${esc(ui.debtStrategy === 'snowball' ? 'avalanche' : 'snowball')}.` : interestSaved < 0 ? `<b>${esc(ui.debtStrategy === 'snowball' ? 'Avalanche' : 'Snowball')}</b> would save <b>${fmt(-interestSaved)}</b> in interest${monthsSaved ? ` and ${-monthsSaved} month${-monthsSaved === 1 ? '' : 's'}` : ''}. Snowball's advantage is motivation: small wins first.` : 'Both strategies cost the same here.'}</div>
           <div class="tiny muted mt"><b>Snowball</b>: smallest balance first. <b>Avalanche</b>: highest APR first. Both pay every minimum, then send the extra pool to the target; when a debt clears, its payment rolls into the pool.</div>
         </div>
@@ -208,16 +208,16 @@ views.debt = {
         <div class="flex between"><div><h3>${esc(d.name)}</h3><div class="tiny muted mt-s">${esc(d.debtType || '')} ${ownerChip(d.owner)}</div></div><button class="btn sm ghost icon" data-action="debtEdit" data-id="${d.id}">✎</button></div>
         <div class="kpi mt" style="padding:0"><div class="v">${fmt(d.currentBalance)}</div><div class="s">${fmtPct(d.apr, 2)} APR · min ${fmt(d.minPayment)}${num(d.extraPayment) ? ` + ${fmt(d.extraPayment)} extra` : ''}</div></div>
         <div class="mt">${progressBar(orig ? paid / orig * 100 : 0, 'ink thin')}<div class="flex between tiny muted" style="margin-top:6px"><span>${fmtPct(orig ? paid / orig * 100 : 0)} paid off</span><span>of ${fmt(orig)}</span></div></div>
-        <table class="small mt"><tbody>
+        <div class="table-wrap mt"><table class="small"><tbody>
           <tr><td class="muted">Paid off</td><td class="right">${payoff ? D.monthLabel(payoff) : '<span class="bad">never</span>'}</td></tr>
           <tr><td class="muted">This month's payment</td><td class="right num">${firstMonth ? fmt(firstMonth.payment) : '—'}</td></tr>
           <tr><td class="muted">Interest this month</td><td class="right num">${firstMonth ? fmt(firstMonth.interest) : '—'}</td></tr>
           <tr><td class="muted">Interest until paid</td><td class="right num">${fmt(interestOnDebt)}</td></tr>
-        </tbody></table>
+        </tbody></table></div>
         <div class="mt-s"><button class="btn sm" data-action="debtPayment" data-id="${d.id}">Record a payment</button></div></div>`; }).join('')}</div>
       <div class="card mt" data-anchor="schedule"><div class="card-head"><h3>Schedule (${esc(ui.debtStrategy)})</h3><button class="btn sm" data-action="debtScheduleCsv">Export schedule CSV</button></div>
-        <div class="table-wrap" style="max-height:360px;overflow:auto"><table class="small"><thead><tr><th>Month</th>${debts.map(d => `<th class="right">${esc(d.name)}</th>`).join('')}<th class="right">Payment</th><th class="right">Interest</th><th class="right">Balance</th></tr></thead>
-        <tbody>${cur.schedule.slice(0, 120).map(s => `<tr><td class="nowrap">${esc(D.monthLabel(s.month))}</td>${debts.map(d => `<td class="right num ${s.perDebt[d.id] ? '' : 'muted'}">${s.perDebt[d.id] ? fmt(s.perDebt[d.id].balance) : '—'}</td>`).join('')}<td class="right num">${fmt(s.totalPayment)}</td><td class="right num muted">${fmt(sum(Object.values(s.perDebt), p => p.interest))}</td><td class="right num"><b>${fmt(s.totalBalance)}</b></td></tr>`).join('')}${cur.schedule.length > 120 ? `<tr><td colspan="${debts.length + 4}" class="muted center">… ${cur.schedule.length - 120} more months (export for the full schedule)</td></tr>` : ''}</tbody></table></div></div>`
+        <div class="table-wrap" style="max-height:360px;overflow:auto"><div class="table-wrap"><table class="small"><thead><tr><th>Month</th>${debts.map(d => `<th class="right">${esc(d.name)}</th>`).join('')}<th class="right">Payment</th><th class="right">Interest</th><th class="right">Balance</th></tr></thead>
+        <tbody>${cur.schedule.slice(0, 120).map(s => `<tr><td class="nowrap">${esc(D.monthLabel(s.month))}</td>${debts.map(d => `<td class="right num ${s.perDebt[d.id] ? '' : 'muted'}">${s.perDebt[d.id] ? fmt(s.perDebt[d.id].balance) : '—'}</td>`).join('')}<td class="right num">${fmt(s.totalPayment)}</td><td class="right num muted">${fmt(sum(Object.values(s.perDebt), p => p.interest))}</td><td class="right num"><b>${fmt(s.totalBalance)}</b></td></tr>`).join('')}${cur.schedule.length > 120 ? `<tr><td colspan="${debts.length + 4}" class="muted center">… ${cur.schedule.length - 120} more months (export for the full schedule)</td></tr>` : ''}</tbody></table></div></div></div>`
       : emptyBox('No debts tracked', 'Add credit cards, loans and anything else with an interest rate to plan a payoff.', '<button class="btn primary" data-action="debtAdd">+ Add a debt</button>')}`;
   }
 };
@@ -291,7 +291,7 @@ views.reports = {
     return `
       <div class="flex between flex-wrap mb no-print">
         <div class="flex"><label class="small">Year</label><select data-change="reportYear" style="width:auto">${years.map(y => `<option value="${y}"${y === year ? ' selected' : ''}>${y}</option>`).join('')}</select><span class="tiny muted">Monthly report follows the month picker above.</span></div>
-        <div class="flex"><button class="btn" data-action="exportYearCsv">Export ${year} CSV</button><button class="btn primary" data-action="print">Print / Save PDF</button></div>
+        <div class="flex"><button class="btn accent" data-action="monthStory" data-month="${attr(ui.month)}">✨ Month in review</button><button class="btn" data-action="exportYearCsv">Export ${year} CSV</button><button class="btn primary" data-action="print">Print / Save PDF</button></div>
       </div>
       <div class="print-only mb"><h1>Finance report · ${year}</h1><div class="small muted">${esc(isCouple() ? S().person1Name + ' & ' + S().person2Name : S().person1Name)} · generated ${esc(D.dateLabel(D.today()))} · amounts in ${esc(S().currency.code)}</div></div>
       <div class="section-title"><h2>Annual summary ${year}</h2></div>
@@ -304,13 +304,13 @@ views.reports = {
       <div class="grid grid-3 mt">
         <div class="card" style="grid-column:span 2"><div class="card-head"><h3>Month by month</h3></div>${svgBarChart({ groups: sums.map(s => ({ label: D.MONTHS[D.parse(s.month).m - 1], values: [s.income, s.expenses] })), seriesNames: ['Income', 'Expenses'], colors: [C.good, C.accent], height: 200 })}</div>
         <div class="card"><div class="card-head"><h3>Highlights</h3></div>
-          ${best ? `<table class="small"><tbody>
+          ${best ? `<div class="table-wrap"><table class="small"><tbody>
             <tr><td class="muted">Best month</td><td class="right"><b>${esc(D.monthLabel(best.month))}</b><div class="tiny good">${fmt(best.net, { sign: true })} net</div></td></tr>
             <tr><td class="muted">Toughest month</td><td class="right"><b>${esc(D.monthLabel(worst.month))}</b><div class="tiny ${signCls(worst.net)}">${fmt(worst.net, { sign: true })} net</div></td></tr>
             <tr><td class="muted">Highest spending</td><td class="right"><b>${esc(D.monthLabel(highSpend.month))}</b><div class="tiny">${fmt(highSpend.expenses)}</div></td></tr>
             <tr><td class="muted">Top category</td><td class="right"><b>${catRows[0] ? esc(catRows[0][0]) : '—'}</b><div class="tiny">${catRows[0] ? fmt(catRows[0][1]) : ''}</div></td></tr>
             <tr><td class="muted">Months in surplus</td><td class="right"><b>${withData.filter(s => s.net > 0).length} of ${withData.length}</b></td></tr>
-          </tbody></table>` : '<div class="muted small">No transactions recorded in this year.</div>'}
+          </tbody></table></div>` : '<div class="muted small">No transactions recorded in this year.</div>'}
         </div>
       </div>
       <div class="card mt" data-anchor="monthly"><div class="card-head"><h3>Monthly summary</h3></div><div class="table-wrap"><table class="small"><thead><tr><th>Month</th><th class="right">Income</th><th class="right">Expenses</th><th class="right">Net</th><th class="right">Savings rate</th><th class="right">Expected income</th><th class="right">Bills due</th></tr></thead>
@@ -319,13 +319,13 @@ views.reports = {
       <div class="grid grid-2 mt">
         <div class="card"><div class="card-head"><h3>Spending by category · ${year}</h3></div>${catRows.length ? `<div class="table-wrap"><table class="small"><thead><tr><th>Category</th><th class="right">Total</th><th class="right">Per month</th><th class="right">Share</th>${isCouple() ? `<th class="right">${esc(S().person1Name)}</th><th class="right">${esc(S().person2Name)}</th><th class="right">Joint</th>` : ''}</tr></thead><tbody>${catRows.map(([c, v]) => `<tr><td>${esc(c)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${fmt(v / Math.max(1, withData.length))}</td><td class="right num">${fmtPct(totExp ? v / totExp * 100 : 0)}</td>${isCouple() ? ['p1', 'p2', 'joint'].map(o => `<td class="right num muted">${fmt((catByOwner[o] || {})[c] || 0)}</td>`).join('') : ''}</tr>`).join('')}</tbody></table></div>` : '<div class="muted small">No spending recorded.</div>'}</div>
         <div class="card"><div class="card-head"><h3>Where it went</h3></div>${svgDonut({ slices: catRows.slice(0, 9).map(([label, value], i) => ({ label, value, color: PALETTE[(i + 1) % PALETTE.length] })).concat(catRows.length > 9 ? [{ label: 'Everything else', value: sum(catRows.slice(9), r => r[1]), color: C.rest }] : []), centre: fmt0(totExp), centreLabel: year })}
-          ${Object.keys(incByType).length ? `<div class="mt"><div class="tiny muted mb-s">INCOME BY TYPE</div><table class="small"><tbody>${Object.entries(incByType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${fmtPct(totInc ? v / totInc * 100 : 0)}</td></tr>`).join('')}</tbody></table></div>` : ''}</div>
+          ${Object.keys(incByType).length ? `<div class="mt"><div class="tiny muted mb-s">INCOME BY TYPE</div><div class="table-wrap"><table class="small"><tbody>${Object.entries(incByType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${fmtPct(totInc ? v / totInc * 100 : 0)}</td></tr>`).join('')}</tbody></table></div></div>` : ''}</div>
       </div>
       ${ms ? `<div class="page-break"></div><div class="section-title"><h2>Monthly report · ${esc(D.monthLabel(selMonth, true))}</h2></div>
       <div class="grid grid-4">${kpi('Income', fmt0(ms.income))}${kpi('Expenses', fmt0(ms.expenses))}${kpi('Net', fmt0(ms.net), '', signCls(ms.net))}${kpi('Savings rate', fmtPct(ms.savingsRate))}</div>
       <div class="grid grid-2 mt">
-        <div class="card" data-anchor="categories"><div class="card-head"><h3>Categories</h3></div>${mcats.length ? `<table class="small"><thead><tr><th>Category</th><th class="right">Spent</th><th class="right">Budget</th><th class="right">Diff</th></tr></thead><tbody>${mcats.map(([c, v]) => { const b = mBudget.find(x => x.category === c); return `<tr><td>${esc(c)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${b ? fmt(b.planned) : '—'}</td><td class="right num ${b ? signCls(num(b.planned) - v) : ''}">${b ? fmt(num(b.planned) - v, { sign: true }) : ''}</td></tr>`; }).join('')}</tbody></table>` : '<div class="muted small">No spending this month.</div>'}</div>
-        <div class="card"><div class="card-head"><h3>Transactions</h3></div><div class="table-wrap" style="max-height:420px;overflow:auto"><table class="small"><tbody>${state.txns.filter(t => t.month === selMonth).sort((a, b) => a.date < b.date ? -1 : 1).map(t => `<tr><td class="nowrap">${esc(D.dateLabel(t.date).slice(0, 6))}</td><td>${esc(t.description)}<div class="tiny muted">${esc(t.splits.map(s => s.category).join(', '))}</div></td><td class="right num ${t.type === 'income' ? 'good' : ''}">${t.type === 'income' ? '+' : t.type === 'expense' ? '−' : ''}${fmt(txnTotal(t))}</td></tr>`).join('') || '<tr><td class="muted">None</td></tr>'}</tbody></table></div></div>
+        <div class="card" data-anchor="categories"><div class="card-head"><h3>Categories</h3></div>${mcats.length ? `<div class="table-wrap"><table class="small"><thead><tr><th>Category</th><th class="right">Spent</th><th class="right">Budget</th><th class="right">Diff</th></tr></thead><tbody>${mcats.map(([c, v]) => { const b = mBudget.find(x => x.category === c); return `<tr><td>${esc(c)}</td><td class="right num">${fmt(v)}</td><td class="right num muted">${b ? fmt(b.planned) : '—'}</td><td class="right num ${b ? signCls(num(b.planned) - v) : ''}">${b ? fmt(num(b.planned) - v, { sign: true }) : ''}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="muted small">No spending this month.</div>'}</div>
+        <div class="card"><div class="card-head"><h3>Transactions</h3></div><div class="table-wrap" style="max-height:420px;overflow:auto"><div class="table-wrap"><table class="small"><tbody>${state.txns.filter(t => t.month === selMonth).sort((a, b) => a.date < b.date ? -1 : 1).map(t => `<tr><td class="nowrap">${esc(D.dateLabel(t.date).slice(0, 6))}</td><td>${esc(t.description)}<div class="tiny muted">${esc(t.splits.map(s => s.category).join(', '))}</div></td><td class="right num ${t.type === 'income' ? 'good' : ''}">${t.type === 'income' ? '+' : t.type === 'expense' ? '−' : ''}${fmt(txnTotal(t))}</td></tr>`).join('') || '<tr><td class="muted">None</td></tr>'}</tbody></table></div></div></div>
       </div>` : ''}`;
   }
 };
@@ -353,11 +353,11 @@ views.settings = {
         <div class="card" data-anchor="currency"><div class="card-head"><h3>Currency</h3><span class="chip">display only</span></div>
           <div class="form-grid"><div class="field"><label>Currency</label><select data-change="currency">${CURRENCIES.map(x => `<option value="${x.code}"${x.code === c.code ? ' selected' : ''}>${x.code === 'CUSTOM' ? 'Custom symbol…' : `${x.code} · ${esc(x.name)}`}</option>`).join('')}</select></div>
           ${c.code === 'CUSTOM' ? `<div class="field"><label>Symbol</label><input type="text" value="${attr(c.symbol)}" data-change="currencySymbol" maxlength="5"></div>` : `<div class="field"><label>Preview</label><div style="padding:8px 0" class="num">${fmt(1234.56)} · ${fmt(-89.5)}</div></div>`}</div>
-          <div class="hint">Changes the symbol and number format only. Amounts are never converted between currencies.</div>
+          <div class="hint push-b">Changes the symbol and number format only. Amounts are never converted between currencies.</div>
         </div>
         <div class="card" data-anchor="planning"><div class="card-head"><h3>Planning</h3></div>
           <div class="form-grid">
-            <div class="field"><label>Tracking starts</label><input type="month" value="${attr(s.startMonth)}" placeholder="YYYY-MM" data-change="setting" data-key="startMonth"><div class="hint">Budget rollover chains don't reach before this month.</div></div>
+            <div class="field"><label>Tracking starts</label>${monthInputHtml('data-change="setting" data-key="startMonth"', s.startMonth)}<div class="hint">Budget rollover chains don't reach before this month.</div></div>
             <div class="field"><label>Safety buffer</label><input type="number" step="1" min="0" value="${s.safetyBuffer}" data-change="setting" data-key="safetyBuffer" data-num="1"><div class="hint">Subtracted from safe-to-spend.</div></div>
             <div class="field"><label>Budget rollover</label><select data-change="setting" data-key="budgetRollover"><option value="off"${s.budgetRollover === 'off' ? ' selected' : ''}>Off — each month stands alone</option><option value="surplus"${s.budgetRollover === 'surplus' ? ' selected' : ''}>Surplus only — unspent money carries forward</option><option value="full"${s.budgetRollover === 'full' ? ' selected' : ''}>Full — overspend reduces next month too</option></select></div>
             <div class="field"><label>Emergency fund target</label><select data-change="setting" data-key="emergencyMonths" data-num="1">${[1, 2, 3, 4, 6, 9, 12].map(n => `<option value="${n}"${s.emergencyMonths === n ? ' selected' : ''}>${n} month${n > 1 ? 's' : ''} of expenses</option>`).join('')}</select></div>
@@ -381,7 +381,8 @@ views.settings = {
       <div class="card mt" data-anchor="appearance"><div class="card-head"><h3>Appearance</h3><span class="tiny muted">Pick a colour theme — charts and every page follow it</span></div>
         ${themeCardsHtml(s.theme === 'auto' ? currentThemeId() : (s.theme || 'cream'), 'data-action="setTheme" data-theme')}
         <label class="check mt small"><input type="checkbox" data-change="themeAuto" ${s.theme === 'auto' ? 'checked' : ''}> Follow my device's light / dark setting (Cream by day, Charcoal at night)</label>
-        <div class="field mt" style="margin-bottom:0"><label>Tab icon</label>${iconRowHtml(s.icon || 'coin', 'data-action="setIcon" data-icon')}<div class="hint">Shows in the browser tab, bookmarks and the sidebar. The coin uses your currency symbol.</div></div>
+        <div class="field mt"><label>Tab icon</label>${iconRowHtml(s.icon || 'coin', 'data-action="setIcon" data-icon')}<div class="hint">Shows in the browser tab, bookmarks and the sidebar. The coin uses your currency symbol.</div></div>
+        <label class="check small" style="margin-bottom:0"><input type="checkbox" data-change="showChecklist" ${s.checklistDismissed ? '' : 'checked'}> Show the "your first steps" checklist on the Overview</label>
       </div>
       <div class="card mt" data-anchor="backup"><div class="card-head"><h3>Automatic backup</h3><span class="chip ${bf.status === 'linked' ? 'good' : bf.status === 'needs-permission' || bf.status === 'error' ? 'warn' : ''}">${esc(bf.statusText())}</span></div>${backupHtml}</div>
       <div class="card mt" data-anchor="data"><div class="card-head"><h3>Your data</h3><span class="tiny muted">${state.savedAt ? 'Last saved ' + esc(fmtDateTime(state.savedAt)) : ''}</span></div>

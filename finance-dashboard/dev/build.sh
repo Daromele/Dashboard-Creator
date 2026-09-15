@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
   cat dev/engine.js
   echo '</script>'
   echo '<script>'
-  cat dev/app_core.js dev/app_views1.js dev/app_views2.js dev/app_boot.js
+  cat dev/app_core.js dev/app_views1.js dev/app_views2.js dev/app_story.js dev/app_boot.js
   echo '</script>'
   echo '</body>'
   echo '</html>'

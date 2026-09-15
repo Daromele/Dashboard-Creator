@@ -142,8 +142,10 @@ function commit(fn, opts) {
   persist();
   if (!opts || !opts.silent) render();
 }
-function saveUi() { storage.set(LS_UI, JSON.stringify({ view: ui.view, month: ui.month, debtStrategy: ui.debtStrategy, calendarMode: ui.calendarMode })); }
-function loadUi() { try { const u = JSON.parse(storage.get(LS_UI) || '{}'); if (u.view) ui.view = u.view; if (u.debtStrategy) ui.debtStrategy = u.debtStrategy; if (u.calendarMode) ui.calendarMode = u.calendarMode; } catch (e) { } }
+function saveUi() { storage.set(LS_UI, JSON.stringify({ view: ui.view, month: ui.month, debtStrategy: ui.debtStrategy, calendarMode: ui.calendarMode, rail: !!ui.rail })); }
+function loadUi() { try { const u = JSON.parse(storage.get(LS_UI) || '{}'); if (u.view) ui.view = u.view; if (u.debtStrategy) ui.debtStrategy = u.debtStrategy; if (u.calendarMode) ui.calendarMode = u.calendarMode; ui.rail = !!u.rail; } catch (e) { } applyRail(); }
+/** Collapses the sidebar to an icon rail. Mobile keeps the full off-canvas menu. */
+function applyRail() { document.body.classList.toggle('rail', !!ui.rail); const b = document.getElementById('railBtn'); if (b) { b.innerHTML = ui.rail ? '›' : '‹ <span>Collapse</span>'; b.title = b.ariaLabel = ui.rail ? 'Expand sidebar ([)' : 'Collapse sidebar ([)'; } }
 
 // ---------- Derived helpers ----------
 const S = () => state.settings;
@@ -365,29 +367,29 @@ function countsLabel(c) { return `${c.txns} transactions, ${c.bills} bills, ${c.
 // ---------- Themes ----------
 const THEMES = {
   cream: { name: 'Cream', tag: 'Warm & calm', dark: false,
-    vars: { bg: '#f5f0e6', bg2: '#ede6d8', surface: '#fffdf9', surface2: '#faf6ee', line: '#e4dccb', line2: '#d3c9b4', ink: '#2a2824', ink2: '#5d574c', muted: '#8a8374', accent: '#b8643a', accent2: '#a0532d', 'accent-soft': '#f3e3d7', good: '#5a7f54', 'good-soft': '#e6eee2', bad: '#b4463f', 'bad-soft': '#f5e3e1', warn: '#c48f2c', 'warn-soft': '#f7ecd6', info: '#5b7a8c', 'info-soft': '#e2ebf0', input: '#ffffff', p1: '#3e5b6b', 'p1-soft': '#e2ebf0', p2: '#6b4d6e', 'p2-soft': '#eee3ef', joint: '#3f5c3a', 'joint-soft': '#e6eee2', 'shadow-c': 'rgba(42,40,36,.12)' },
-    chart: ['#2a2824', '#b8643a', '#7a8f6a', '#c9a24e', '#8b6f8e', '#5b7a8c', '#b58a6b', '#9aa69a', '#d4a373', '#6d6875', '#a3b18a', '#e0a458'],
-    series: { ink: '#2a2824', accent: '#b8643a', good: '#7a8f6a', p1: '#5b7a8c', p2: '#8b6f8e', joint: '#7a8f6a', rest: '#c9c2b2' } },
+    vars: { bg: '#f5f0e6', bg2: '#ede6d8', surface: '#fffdf9', surface2: '#faf6ee', line: '#e4dccb', line2: '#d3c9b4', ink: '#2a2824', ink2: '#5d574c', muted: '#8a8374', accent: '#b8643a', accent2: '#a0532d', 'accent-soft': '#f3e3d7', good: '#5a7f54', 'good-soft': '#e6eee2', bad: '#b4463f', 'bad-soft': '#f5e3e1', warn: '#c48f2c', 'warn-soft': '#f7ecd6', info: '#5b7a8c', 'info-soft': '#e2ebf0', input: '#ffffff', p1: '#647acd', 'p1-soft': '#e9ebf3', p2: '#9b7c0b', 'p2-soft': '#f1ebd8', joint: '#129484', 'joint-soft': '#deeee9', 'shadow-c': 'rgba(42,40,36,.12)' },
+    chart: ['#be6436', '#9b7c0b', '#5b913d', '#129484', '#008db4', '#647acd', '#9e66b4', '#bd5b7c'],
+    series: { ink: '#2a2824', accent: '#be6436', good: '#008db4', p1: '#647acd', p2: '#9b7c0b', joint: '#129484', rest: '#c9c2b2' } },
   charcoal: { name: 'Charcoal', tag: 'Dark', dark: true,
-    vars: { bg: '#1b1a17', bg2: '#26241f', surface: '#232119', surface2: '#2c2a24', line: '#37342d', line2: '#4a463e', ink: '#f1ece1', ink2: '#cdc6b7', muted: '#948c7d', accent: '#d98b5c', accent2: '#e39a6d', 'accent-soft': '#3d2c21', good: '#8fb686', 'good-soft': '#26332a', bad: '#e07c73', 'bad-soft': '#3d2626', warn: '#dcb05a', 'warn-soft': '#3c3222', info: '#8fb0c2', 'info-soft': '#22303a', input: '#1f1d18', p1: '#9fc0d2', 'p1-soft': '#22303a', p2: '#cba8ce', 'p2-soft': '#352a37', joint: '#a9c79f', 'joint-soft': '#26332a', 'shadow-c': 'rgba(0,0,0,.5)' },
-    chart: ['#f1ece1', '#d98b5c', '#8fb686', '#dcb05a', '#cba8ce', '#8fb0c2', '#c9a186', '#a9b5a4', '#e3b48a', '#9e97ab', '#b8c6a0', '#e6b36d'],
-    series: { ink: '#f1ece1', accent: '#d98b5c', good: '#8fb686', p1: '#8fb0c2', p2: '#cba8ce', joint: '#a9c79f', rest: '#5a554b' } },
+    vars: { bg: '#1b1a17', bg2: '#26241f', surface: '#232119', surface2: '#2c2a24', line: '#37342d', line2: '#4a463e', ink: '#f1ece1', ink2: '#cdc6b7', muted: '#948c7d', accent: '#d98b5c', accent2: '#e39a6d', 'accent-soft': '#3d2c21', good: '#8fb686', 'good-soft': '#26332a', bad: '#e07c73', 'bad-soft': '#3d2626', warn: '#dcb05a', 'warn-soft': '#3c3222', info: '#8fb0c2', 'info-soft': '#22303a', input: '#1f1d18', p1: '#6c77cd', 'p1-soft': '#2d2d32', p2: '#977f00', 'p2-soft': '#332e16', joint: '#01948a', 'joint-soft': '#1e3129', 'shadow-c': 'rgba(0,0,0,.5)' },
+    chart: ['#bc662d', '#977f00', '#509346', '#01948a', '#068cba', '#6c77cd', '#a364af', '#bf5b74'],
+    series: { ink: '#f1ece1', accent: '#bc662d', good: '#068cba', p1: '#6c77cd', p2: '#977f00', joint: '#01948a', rest: '#5a554b' } },
   midnight: { name: 'Midnight', tag: 'Dark · navy', dark: true,
-    vars: { bg: '#0f1522', bg2: '#161d2e', surface: '#151c2c', surface2: '#1c2436', line: '#26304a', line2: '#34405d', ink: '#e9eef8', ink2: '#c3cbdc', muted: '#8590a8', accent: '#7cc0e4', accent2: '#96cdea', 'accent-soft': '#1c3140', good: '#7fcaa0', 'good-soft': '#173229', bad: '#ef8585', 'bad-soft': '#3a2230', warn: '#f0c26b', 'warn-soft': '#3a3120', info: '#a2a8f0', 'info-soft': '#252a4c', input: '#101827', p1: '#8fd0f5', 'p1-soft': '#1c3140', p2: '#e0a3d6', 'p2-soft': '#3a2540', joint: '#a5d9b8', 'joint-soft': '#173229', 'shadow-c': 'rgba(0,0,0,.55)' },
-    chart: ['#e9eef8', '#7cc0e4', '#7fcaa0', '#f0c26b', '#e0a3d6', '#a2a8f0', '#f2a07b', '#9fb3c8', '#f4d59a', '#8b93b8', '#b3e2c5', '#ffb4a2'],
-    series: { ink: '#e9eef8', accent: '#7cc0e4', good: '#7fcaa0', p1: '#7cc0e4', p2: '#e0a3d6', joint: '#a5d9b8', rest: '#3b4666' } },
+    vars: { bg: '#0f1522', bg2: '#161d2e', surface: '#151c2c', surface2: '#1c2436', line: '#26304a', line2: '#34405d', ink: '#e9eef8', ink2: '#c3cbdc', muted: '#8590a8', accent: '#7cc0e4', accent2: '#96cdea', 'accent-soft': '#1c3140', good: '#7fcaa0', 'good-soft': '#173229', bad: '#ef8585', 'bad-soft': '#3a2230', warn: '#f0c26b', 'warn-soft': '#3a3120', info: '#a2a8f0', 'info-soft': '#252a4c', input: '#101827', p1: '#6e77cc', 'p1-soft': '#212942', p2: '#a463ad', 'p2-soft': '#29263e', joint: '#00948b', 'joint-soft': '#122d39', 'shadow-c': 'rgba(0,0,0,.55)' },
+    chart: ['#108bbb', '#6e77cc', '#a463ad', '#bf5b72', '#bb672b', '#958000', '#4d9348', '#00948b'],
+    series: { ink: '#e9eef8', accent: '#bb672b', good: '#108bbb', p1: '#6e77cc', p2: '#a463ad', joint: '#00948b', rest: '#3b4666' } },
   sage: { name: 'Sage', tag: 'Fresh green', dark: false,
-    vars: { bg: '#eef1e8', bg2: '#e2e7d9', surface: '#fbfcf8', surface2: '#f3f6ee', line: '#d9e0cf', line2: '#c3ccb6', ink: '#22302a', ink2: '#4c5c52', muted: '#7d8a80', accent: '#4f7d5a', accent2: '#3f6849', 'accent-soft': '#dcebdf', good: '#4f7d5a', 'good-soft': '#dcebdf', bad: '#b8564e', 'bad-soft': '#f4e1de', warn: '#c4952f', 'warn-soft': '#f6edd6', info: '#5b7d8c', 'info-soft': '#dfeaef', input: '#ffffff', p1: '#3f5f75', 'p1-soft': '#dfeaef', p2: '#7a5a7e', 'p2-soft': '#ece2ee', joint: '#4f7d5a', 'joint-soft': '#dcebdf', 'shadow-c': 'rgba(34,48,42,.12)' },
-    chart: ['#22302a', '#4f7d5a', '#c4952f', '#8fa88a', '#7a5a7e', '#5b7d8c', '#b8836a', '#a7b5a0', '#d9b26b', '#6d7f74', '#c9d3b8', '#e0a458'],
-    series: { ink: '#22302a', accent: '#c4952f', good: '#4f7d5a', p1: '#5b7d8c', p2: '#7a5a7e', joint: '#8fa88a', rest: '#c3ccb6' } },
+    vars: { bg: '#eef1e8', bg2: '#e2e7d9', surface: '#fbfcf8', surface2: '#f3f6ee', line: '#d9e0cf', line2: '#c3ccb6', ink: '#22302a', ink2: '#4c5c52', muted: '#7d8a80', accent: '#4f7d5a', accent2: '#3f6849', 'accent-soft': '#dcebdf', good: '#4f7d5a', 'good-soft': '#dcebdf', bad: '#b8564e', 'bad-soft': '#f4e1de', warn: '#c4952f', 'warn-soft': '#f6edd6', info: '#5b7d8c', 'info-soft': '#dfeaef', input: '#ffffff', p1: '#7a73ca', 'p1-soft': '#e9e9f2', p2: '#0e9294', 'p2-soft': '#daedea', joint: '#399656', 'joint-soft': '#e0eee1', 'shadow-c': 'rgba(34,48,42,.12)' },
+    chart: ['#399656', '#0e9294', '#1e88c6', '#7a73ca', '#ab61a4', '#c15c65', '#b76b1a', '#8b840b'],
+    series: { ink: '#22302a', accent: '#b76b1a', good: '#1e88c6', p1: '#7a73ca', p2: '#0e9294', joint: '#399656', rest: '#c3ccb6' } },
   blush: { name: 'Blush', tag: 'Soft rose', dark: false,
-    vars: { bg: '#f8ede9', bg2: '#f0e0da', surface: '#fffaf8', surface2: '#fbf1ee', line: '#ead8d2', line2: '#d9c0b8', ink: '#3a282c', ink2: '#6a5257', muted: '#9a8286', accent: '#c26a70', accent2: '#ad575d', 'accent-soft': '#f6dfe0', good: '#5f8a6a', 'good-soft': '#e3efe4', bad: '#b8474b', 'bad-soft': '#f6dfe0', warn: '#c9922e', 'warn-soft': '#f8ecd8', info: '#6f7fa0', 'info-soft': '#e6e9f2', input: '#ffffff', p1: '#4f5f88', 'p1-soft': '#e6e9f2', p2: '#8e5468', 'p2-soft': '#f3e0e6', joint: '#5f8a6a', 'joint-soft': '#e3efe4', 'shadow-c': 'rgba(58,40,44,.12)' },
-    chart: ['#3a282c', '#c26a70', '#5f8a6a', '#d9a55a', '#8e5468', '#6f7fa0', '#c4917a', '#b0a3a5', '#e5b8a0', '#7d6a70', '#a8c0aa', '#e0a458'],
-    series: { ink: '#3a282c', accent: '#c26a70', good: '#5f8a6a', p1: '#6f7fa0', p2: '#8e5468', joint: '#5f8a6a', rest: '#d9c0b8' } },
+    vars: { bg: '#f8ede9', bg2: '#f0e0da', surface: '#fffaf8', surface2: '#fbf1ee', line: '#ead8d2', line2: '#d9c0b8', ink: '#3a282c', ink2: '#6a5257', muted: '#9a8286', accent: '#c26a70', accent2: '#ad575d', 'accent-soft': '#f6dfe0', good: '#5f8a6a', 'good-soft': '#e3efe4', bad: '#b8474b', 'bad-soft': '#f6dfe0', warn: '#c9922e', 'warn-soft': '#f8ecd8', info: '#6f7fa0', 'info-soft': '#e6e9f2', input: '#ffffff', p1: '#7b72c9', 'p1-soft': '#ede7f1', p2: '#ac61a3', 'p2-soft': '#f3e5ec', joint: '#379657', 'joint-soft': '#e3ece1', 'shadow-c': 'rgba(58,40,44,.12)' },
+    chart: ['#c15c65', '#b66b19', '#8a840d', '#379657', '#0e9294', '#2088c6', '#7b72c9', '#ac61a3'],
+    series: { ink: '#3a282c', accent: '#b66b19', good: '#2088c6', p1: '#7b72c9', p2: '#ac61a3', joint: '#379657', rest: '#d9c0b8' } },
   slate: { name: 'Slate', tag: 'Cool & crisp', dark: false,
-    vars: { bg: '#eef0f3', bg2: '#e2e5ea', surface: '#ffffff', surface2: '#f6f7f9', line: '#dfe3e9', line2: '#c8ced7', ink: '#1f2733', ink2: '#4a5563', muted: '#7b8594', accent: '#3f6bb0', accent2: '#345b98', 'accent-soft': '#e0e9f6', good: '#3f8f6b', 'good-soft': '#dff0e8', bad: '#c2453f', 'bad-soft': '#f7e1df', warn: '#c48a1f', 'warn-soft': '#f8edd3', info: '#5a7391', 'info-soft': '#e3eaf2', input: '#ffffff', p1: '#3f6bb0', 'p1-soft': '#e0e9f6', p2: '#8b5aa8', 'p2-soft': '#ede3f4', joint: '#3f8f6b', 'joint-soft': '#dff0e8', 'shadow-c': 'rgba(31,39,51,.12)' },
-    chart: ['#1f2733', '#3f6bb0', '#3f8f6b', '#e0a83a', '#8b5aa8', '#5a7391', '#d3775a', '#94a0ae', '#f0c580', '#6b7280', '#9fc7b5', '#e0a458'],
-    series: { ink: '#1f2733', accent: '#3f6bb0', good: '#3f8f6b', p1: '#3f6bb0', p2: '#8b5aa8', joint: '#3f8f6b', rest: '#c8ced7' } },
+    vars: { bg: '#eef0f3', bg2: '#e2e5ea', surface: '#ffffff', surface2: '#f6f7f9', line: '#dfe3e9', line2: '#c8ced7', ink: '#1f2733', ink2: '#4a5563', muted: '#7b8594', accent: '#3f6bb0', accent2: '#345b98', 'accent-soft': '#e0e9f6', good: '#3f8f6b', 'good-soft': '#dff0e8', bad: '#c2453f', 'bad-soft': '#f7e1df', warn: '#c48a1f', 'warn-soft': '#f8edd3', info: '#5a7391', 'info-soft': '#e3eaf2', input: '#ffffff', p1: '#916abf', 'p1-soft': '#f0eaf6', p2: '#b85d8c', 'p2-soft': '#f5e8ef', joint: '#a87600', 'joint-soft': '#f3ecdb', 'shadow-c': 'rgba(31,39,51,.12)' },
+    chart: ['#4e80cd', '#916abf', '#b85d8c', '#c16049', '#a87600', '#708d28', '#009774', '#0390a6'],
+    series: { ink: '#1f2733', accent: '#c16049', good: '#4e80cd', p1: '#916abf', p2: '#b85d8c', joint: '#a87600', rest: '#c8ced7' } },
 };
 let PALETTE = THEMES.cream.chart.slice();
 let C = Object.assign({}, THEMES.cream.series);
@@ -456,6 +458,8 @@ function fmt(n, opts) {
 const fmt0 = n => fmt(n, { dec0: true });
 const fmtPct = (n, d) => n === null || n === undefined || !Number.isFinite(n) ? '—' : `${n.toFixed(d === undefined ? 0 : d)}%`;
 function fmtDateTime(iso) { try { return new Date(iso).toLocaleString(); } catch (e) { return iso; } }
+/** Firefox and Safari have no month picker — the input falls back to text there, so it gets a format hint and a pattern. */
+function monthInputHtml(extra, value) { return `<input type="month" pattern="[0-9]{4}-[0-9]{2}" inputmode="numeric" placeholder="YYYY-MM" value="${attr(value)}" ${extra || ''}><span class="month-hint hint">Type it as YYYY-MM, e.g. 2026-03.</span>`; }
 function esc(s) { return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 const attr = s => esc(s);
 const cls = (...a) => a.filter(Boolean).join(' ');
@@ -612,11 +616,13 @@ function svgLineChart(cfg) {
     pts.forEach(p => { if (p) cur.push(p); else { if (cur.length) segs.push(cur); cur = []; } }); if (cur.length) segs.push(cur);
     const path = segs.map(seg => seg.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ')).join(' ');
     if (s.area && segs.length) g += segs.map(seg => `<path d="${seg.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ')} L${seg[seg.length - 1][0].toFixed(1)} ${y(Math.max(lo, 0))} L${seg[0][0].toFixed(1)} ${y(Math.max(lo, 0))} Z" class="ar" fill="${s.color}" opacity="0.10"></path>`).join('');
-    g += `<path class="${s.dash ? '' : 'ln'}" pathLength="1" d="${path}" fill="none" stroke="${s.color}" stroke-width="${s.width || 2.2}" stroke-linejoin="round" stroke-linecap="round"${s.dash ? ` stroke-dasharray="${s.dash}"` : ''}></path>`;
+    g += `<path class="${s.dash ? '' : 'ln'}" pathLength="1" vector-effect="non-scaling-stroke" d="${path}" fill="none" stroke="${s.color}" stroke-width="${s.width || 2.2}" stroke-linejoin="round" stroke-linecap="round"${s.dash ? ` stroke-dasharray="${s.dash}"` : ''}></path>`;
     if (cfg.dots !== false) g += pts.map((p, i) => p ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${n > 30 ? 2 : 3.2}" fill="${s.color}"><title>${esc(labels[i] || '')} · ${esc(s.name)}: ${esc((cfg.fmt || fmt)(s.points[i]))}</title></circle>` : '').join('');
   }
   const legend = series.length > 1 || cfg.legend ? `<div class="legend">${series.map(s => `<span><i style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>` : '';
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${attr(cfg.aria || 'Line chart')}">${g}</svg>${legend}`;
+  const cross = `<g class="cross" opacity="0"><line x1="${pl}" x2="${pl}" y1="${pt}" y2="${H - pb}"></line></g>`;
+  const hover = chartHoverData({ W, pl, pr, n, labels, pct: !!cfg.pct, series: series.map(s => ({ name: s.name, color: s.color, vals: s.points })) });
+  return `<div class="chart-wrap" data-chart="${hover}"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${attr(cfg.aria || 'Line chart')}">${g}${cross}</svg><div class="ctip" hidden></div></div>${legend}`;
 }
 function svgBarChart(cfg) {
   const W = cfg.width || 720, H = cfg.height || 220, pl = 48, pr = 14, pt = 12, pb = 28;
@@ -644,7 +650,65 @@ function svgBarChart(cfg) {
     });
   });
   const legend = k > 1 ? `<div class="legend">${cfg.seriesNames.map((s, j) => `<span><i style="background:${cfg.colors[j % cfg.colors.length]}"></i>${esc(s)}</span>`).join('')}</div>` : '';
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${attr(cfg.aria || 'Bar chart')}">${g}</svg>${legend}`;
+  const hoverB = chartHoverData({ W, pl: pl + gw / 2, pr: pr + gw / 2, n, labels: groups.map(gp => gp.label), series: cfg.seriesNames.map((nm, j) => ({ name: nm, color: cfg.colors[j % cfg.colors.length], vals: groups.map(gp => gp.values[j]) })) });
+  return `<div class="chart-wrap" data-chart="${hoverB}"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${attr(cfg.aria || 'Bar chart')}">${g}</svg><div class="ctip" hidden></div></div>${legend}`;
+}
+/** Tiny 12-point trend line for a stat tile. No axes, no labels — the number beside it carries the value. */
+function svgSpark(points, color, opts) {
+  const o = opts || {}, W = o.width || 120, H = o.height || 34, pad = 3;
+  const pts = points.filter(p => p !== null && p !== undefined && Number.isFinite(p));
+  if (pts.length < 2) return '';
+  const lo = Math.min(...pts, 0), hi = Math.max(...pts, 0) || 1;
+  const x = i => pad + i / (points.length - 1) * (W - pad * 2);
+  const y = v => pad + (1 - (v - lo) / ((hi - lo) || 1)) * (H - pad * 2);
+  const seen = points.map((p, i) => Number.isFinite(p) ? [x(i), y(p)] : null).filter(Boolean);
+  const d = seen.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const last = seen[seen.length - 1];
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+    <path d="${d} L${last[0].toFixed(1)} ${H} L${seen[0][0].toFixed(1)} ${H} Z" fill="${color}" opacity=".10"></path>
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+  </svg>`;
+}
+/** Horizontal bars — the right form for comparing category magnitudes (a donut hides close values). */
+function hBars(rows, opts) {
+  const o = opts || {};
+  if (!rows.length) return `<div class="empty small">Nothing to chart yet.</div>`;
+  const meter = !!o.meter;
+  const max = Math.max(...rows.map(r => Math.max(num(r.value), num(r.cap) || 0))) || 1;
+  return `<div class="hbars">${rows.map(r => {
+    const pct = meter ? (num(r.cap) ? num(r.value) / num(r.cap) * 100 : 0) : num(r.value) / max * 100;
+    const capPct = !meter && r.cap ? num(r.cap) / max * 100 : null;
+    const over = r.cap && num(r.value) > num(r.cap);
+    return `<div class="hbar${o.action ? ' act' : ''}"${o.action ? ` data-action="${attr(o.action)}" data-cat="${attr(r.label)}" tabindex="0"` : ''}>
+      <div class="hbar-l"><span class="nm">${esc(r.label)}</span><span class="vl num">${esc(r.display || fmt0(r.value))}${r.share !== undefined ? ` <span class="muted">${fmtPct(r.share)}</span>` : ''}</span></div>
+      <div class="hbar-t"><i style="width:${Math.min(100, Math.max(1.5, pct)).toFixed(1)}%;background:${r.color}"></i>${capPct !== null ? `<u style="left:${Math.min(100, capPct).toFixed(1)}%" title="Budget ${attr(fmt(r.cap))}"></u>` : ''}</div>
+      ${r.note || over ? `<div class="hbar-n ${over ? 'bad' : 'muted'}">${over ? `${esc(fmt0(num(r.value) - num(r.cap)))} over the ${esc(fmt0(r.cap))} budget` : esc(r.note)}</div>` : ''}
+    </div>`;
+  }).join('')}</div>`;
+}
+/** Shared crosshair + tooltip for line and bar charts. One delegated listener, set up at boot. */
+function chartHoverData(cfg) { return attr(JSON.stringify(cfg)); }
+function initChartHover() {
+  const move = e => {
+    const wrap = e.target.closest ? e.target.closest('.chart-wrap[data-chart]') : null;
+    document.querySelectorAll('.chart-wrap.on').forEach(w => { if (w !== wrap) { w.classList.remove('on'); const t = w.querySelector('.ctip'); if (t) t.hidden = true; const c = w.querySelector('.cross'); if (c) c.setAttribute('opacity', '0'); } });
+    if (!wrap) return;
+    let d; try { d = JSON.parse(wrap.dataset.chart); } catch (err) { return; }
+    const svg = wrap.querySelector('svg.chart'); if (!svg) return;
+    const r = svg.getBoundingClientRect();
+    const rel = (e.clientX - r.left) / r.width * d.W;
+    const i = Math.max(0, Math.min(d.n - 1, Math.round((rel - d.pl) / ((d.W - d.pl - d.pr) || 1) * (d.n - 1))));
+    const tip = wrap.querySelector('.ctip'), cross = wrap.querySelector('.cross');
+    const xPix = (d.pl + (d.n === 1 ? (d.W - d.pl - d.pr) / 2 : i / (d.n - 1) * (d.W - d.pl - d.pr))) / d.W * r.width;
+    if (cross) { cross.setAttribute('opacity', '1'); cross.setAttribute('transform', `translate(${(xPix / r.width * d.W - d.pl).toFixed(1)} 0)`); }
+    tip.innerHTML = `<b>${esc(d.labels[i] || '')}</b>${d.series.map(s => s.vals[i] === null || s.vals[i] === undefined ? '' : `<span><i style="background:${s.color}"></i>${esc(s.name)}<b class="num">${esc(d.pct ? fmtPct(s.vals[i]) : fmt(s.vals[i]))}</b></span>`).join('')}`;
+    tip.hidden = false;
+    const tw = tip.offsetWidth || 150;
+    tip.style.left = Math.max(4, Math.min(r.width - tw - 4, xPix - tw / 2)) + 'px';
+    wrap.classList.add('on');
+  };
+  document.addEventListener('mousemove', move);
+  document.addEventListener('mouseleave', () => document.querySelectorAll('.chart-wrap.on').forEach(w => { w.classList.remove('on'); const t = w.querySelector('.ctip'); if (t) t.hidden = true; const c = w.querySelector('.cross'); if (c) c.setAttribute('opacity', '0'); }), true);
 }
 function svgDonut(cfg) {
   const size = cfg.size || 150, r = size / 2 - 10, c = 2 * Math.PI * r, cx = size / 2;
