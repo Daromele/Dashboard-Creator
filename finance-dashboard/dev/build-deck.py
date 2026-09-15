@@ -77,8 +77,8 @@ S.append(slide(f"""
     </div>
   </div>
   <div style="flex:1;display:flex;flex-direction:column;gap:26px">
-    <div class="frame" style="padding:10px"><img src="{img('kpis.jpg')}" alt="KPIs"></div>
-    <div class="frame" style="padding:10px;width:520px;align-self:center"><img src="{img('safe-to-spend.jpg')}" alt="Safe to spend"></div>
+    <div class="frame" style="padding:10px"><img src="{img('hero.jpg')}" alt="Headline figures"></div>
+    <div class="frame" style="padding:10px"><img src="{img('kpis.jpg')}" alt="Stat tiles"></div>
   </div>
 </div>""" + foot(3)))
 # 4 Bills calendar

@@ -47,6 +47,7 @@ const actions = {
   monthToday: () => { ui.month = D.thisMonth(); if (ui.txnFilter.month) ui.txnFilter.month = ui.month; render(); },
   openWizard: () => openWizard(),
   monthStory: d => openStory(d && d.month),
+  catDrill: d => goto('transactions', { cat: d.cat, month: ui.month }),
   help: () => openTour(),
   setTheme: d => { commit(s => { s.settings.theme = d.theme; }, { silent: true }); applyTheme(); render(); toast(`${THEMES[d.theme].name} theme`, 'default', 1500); },
   setIcon: d => { commit(s => { s.settings.icon = d.icon; }, { silent: true }); applyIcon(); render(); },
@@ -301,6 +302,7 @@ async function boot() {
   if (!views[ui.view]) ui.view = 'overview';
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => { });
   renderFresh();
+  initChartHover();
   await backupFile.init();
   backupFile.renderStatus();
   const sessions = +(storage.get(LS_SESS) || 0) + 1; storage.set(LS_SESS, String(sessions));

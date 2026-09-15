@@ -53,11 +53,14 @@ await page.click('[data-action=calMode][data-mode=list]');
 step('toggle bill paid creates/removes transaction');
 const before = await page.evaluate(() => window.__pfd.state.txns.length);
 const cb = await page.$('input[data-change=togglePaid]:not(:checked):not([disabled])');
+let untickedBillId = null;
 if (cb) {
+  const billId = untickedBillId = await cb.getAttribute('data-id');
   await cb.click(); await page.waitForTimeout(100);
   const after = await page.evaluate(() => window.__pfd.state.txns.length);
   expect(after === before + 1, 'paid tick added a transaction');
-  const cb2 = await page.$('input[data-change=togglePaid]:checked'); await cb2.click(); await page.waitForTimeout(100);
+  // untick the same bill (the node is replaced on re-render, so re-query it)
+  await page.click(`input[data-change=togglePaid][data-id="${billId}"]`); await page.waitForTimeout(100);
 } else console.log('  (all bills already paid this month — skipped)');
 
 step('add transaction with splits via form');
@@ -165,7 +168,8 @@ const bm = await page.evaluate(() => { const s = window.__pfd.state; const m = n
 await page.click('#nav button[data-view=settings]'); await page.click('input[data-key=autoPayBills]'); await page.waitForTimeout(150);
 const carried = await page.evaluate((m) => window.__pfd.state.budgets.filter(b => b.month === m).length, bm);
 expect(carried > 5, `budget copied into ${bm} (${carried} lines)`);
-const unpaid = await page.evaluate(() => { const m = new Date().toISOString().slice(0, 7); const today = new Date().toISOString().slice(0, 10); return billItems().filter(b => !isBillPaid(m, b.id) && occurrences(b, m + '-01', today).length).length; });
+// a bill the user unticked stays unticked on purpose, so it is excluded here
+const unpaid = await page.evaluate((skip) => { const m = new Date().toISOString().slice(0, 7); const today = new Date().toISOString().slice(0, 10); return billItems().filter(b => b.id !== skip && !isBillPaid(m, b.id) && occurrences(b, m + '-01', today).length).length; }, untickedBillId);
 expect(unpaid === 0, 'auto-pay ticked every bill already due this month');
 await page.click('input[data-key=autoPayBills]'); await page.waitForTimeout(100);
 step('month in review story');
@@ -214,6 +218,43 @@ const rows = await page.evaluate(() => [...document.querySelectorAll('#view .gri
 expect(rows.length > 0 && rows.every(d => d <= 1), `every card row is level (max drift ${rows.length ? Math.max(...rows) : 'n/a'}px across ${rows.length} rows)`);
 const radii = await page.evaluate(() => { const v = getComputedStyle(document.documentElement); return { r: v.getPropertyValue('--r').trim(), card: getComputedStyle(document.querySelector('#view .card')).borderTopLeftRadius }; });
 expect(radii.r === '6px' && radii.card === '6px', `cards use the tightened radius (${radii.card})`);
+
+step('home screen: hero, stat tiles, charts');
+await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(300);
+const home = await page.evaluate(() => ({
+  heroes: document.querySelectorAll('.hero-fig').length,
+  heroSize: parseFloat(getComputedStyle(document.querySelector('.hero-fig')).fontSize),
+  tiles: document.querySelectorAll('.card.stat').length,
+  sparks: document.querySelectorAll('.card.stat .spark').length,
+  deltas: document.querySelectorAll('.card.stat .delta').length,
+  bars: document.querySelectorAll('[data-anchor=categories] .hbar').length,
+  meters: document.querySelectorAll('[data-anchor=goals] .hbar, [data-anchor=debts] .hbar').length,
+  timeline: document.querySelectorAll('[data-anchor=due] .tl-row').length,
+  legends: document.querySelectorAll('#view .legend').length,
+  activity: document.querySelectorAll('[data-anchor=recent] tbody tr').length,
+}));
+expect(home.heroes === 1 && home.heroSize >= 48, `exactly one hero figure, ${Math.round(home.heroSize)}px`);
+expect(home.tiles === 4 && home.sparks === 4 && home.deltas >= 3, `4 stat tiles with sparklines and deltas`);
+expect(home.bars >= 3 && home.meters >= 2 && home.timeline >= 3 && home.activity >= 3, `bars, meters, timeline and activity table all present`);
+expect(home.legends >= 2, 'multi-series charts carry a legend');
+step('chart hover tooltip');
+const cwEl = await page.$('[data-anchor=cashflow] .chart-wrap');
+await cwEl.scrollIntoViewIfNeeded(); await page.waitForTimeout(120);
+const cwBox = await cwEl.boundingBox();
+await page.mouse.move(cwBox.x + cwBox.width * 0.7, cwBox.y + cwBox.height * 0.5); await page.waitForTimeout(220);
+const tip = await page.evaluate(() => { const t = document.querySelector('[data-anchor=cashflow] .ctip'); return t && !t.hidden ? t.textContent : null; });
+expect(!!tip && /Income/.test(tip) && /Expenses/.test(tip), `crosshair tooltip names both series (${(tip || '').slice(0, 40)})`);
+await page.mouse.move(5, 5); await page.waitForTimeout(150);
+step('category bar drills into transactions');
+await page.click('[data-anchor=categories] .hbar'); await page.waitForTimeout(250);
+expect(await page.evaluate(() => window.__pfd.ui.view === 'transactions' && !!window.__pfd.ui.txnFilter.category), 'a category bar filters the transaction list');
+await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(200);
+step('reduced motion still draws the lines');
+await page.emulateMedia({ reducedMotion: 'reduce' });
+await page.evaluate(() => renderFresh()); await page.waitForTimeout(200);
+const strokes = await page.evaluate(() => [...document.querySelectorAll('#view .chart path.ln')].map(p => getComputedStyle(p).strokeDasharray));
+expect(strokes.length > 0 && strokes.every(d => d === 'none' || d === ''), `line charts are visible with reduced motion (${strokes[0]})`);
+await page.emulateMedia({ reducedMotion: null }); await page.waitForTimeout(100);
 
 step('collapsible sidebar rail');
 await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(150);

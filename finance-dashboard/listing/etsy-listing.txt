@@ -20,7 +20,7 @@ How It Works:
 
 WHAT YOU'LL GET:
 • One self-contained HTML file - the whole app, works completely offline
-• Overview: income, expenses, net cash flow, savings rate, net worth, safe-to-spend, trends
+• Bold dashboard home screen: a headline net cash flow figure, safe-to-spend, savings rate and net worth, four stat tiles with 12-month trend lines, a cash flow chart, a day-by-day spending pace chart against last month, category bars with budget markers, a bills timeline, goal and debt progress meters and your latest activity
 • Budget: planned vs actual per category, overspend flags, optional surplus or full rollover
 • Transactions: search, filters, split receipts across categories, CSV import with duplicate detection, CSV export
 • Bills & Subscriptions: weekly, fortnightly, monthly, quarterly, annual or custom frequencies, paid checkboxes, month calendar, true monthly and annual cost

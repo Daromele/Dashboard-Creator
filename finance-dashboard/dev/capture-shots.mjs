@@ -32,8 +32,10 @@ await page.click('#nav button[data-view=income]'); await page.waitForTimeout(100
 await page.click('#nav button[data-view=settings]'); await page.waitForTimeout(100); await shot('settings');
 await page.click('#nav button[data-view=overview]'); await page.waitForTimeout(100);
 // close-ups
-const kpis = await page.$('.grid.grid-5'); await kpis.screenshot({ path: path.join(out, 'kpis.jpg'), type: 'jpeg', quality: 85 });
-await page.locator('.card', { hasText: 'Safe to spend' }).first().screenshot({ path: path.join(out, 'safe-to-spend.jpg'), type: 'jpeg', quality: 85 });
+const kpis = await page.$('.grid.grid-4'); await kpis.screenshot({ path: path.join(out, 'kpis.jpg'), type: 'jpeg', quality: 85 });
+await (await page.$('.hero')).screenshot({ path: path.join(out, 'hero.jpg'), type: 'jpeg', quality: 88 });
+await (await page.$('[data-anchor=categories]')).screenshot({ path: path.join(out, 'categories.jpg'), type: 'jpeg', quality: 86 });
+await (await page.$('[data-anchor=pace]')).screenshot({ path: path.join(out, 'pace.jpg'), type: 'jpeg', quality: 86 });
 await page.locator('.card', { hasText: 'Household split' }).first().screenshot({ path: path.join(out, 'household-split.jpg'), type: 'jpeg', quality: 85 });
 await page.click('#nav button[data-view=transactions]'); await page.click('[data-action=txnAdd]'); await page.fill('#genForm [name=description]', 'Weekly shop — Costco'); await page.fill('#genForm [name=split_amt_0]', '150'); await page.click('#genForm [data-action=splitAdd]'); await page.selectOption('#genForm [name=split_cat_1]', 'Pets'); await page.fill('#genForm [name=split_amt_1]', '22'); await page.waitForTimeout(100);
 await (await page.$('.modal')).screenshot({ path: path.join(out, 'txn-form.jpg'), type: 'jpeg', quality: 85 }); await page.keyboard.press('Escape');

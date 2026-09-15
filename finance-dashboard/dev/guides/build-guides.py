@@ -128,13 +128,17 @@ ug.append(f"""
 """)
 ug.append(f"""
 <h2>3. Overview & safe-to-spend</h2>
-<p>The Overview follows the month selected in the top bar. The five KPI cards:</p>
-<table><tr><th>Card</th><th>Calculation</th></tr>
+<p>The Overview follows the month selected in the top bar, and reads top to bottom: the headline, then four stat tiles, then the charts, then what needs doing.</p>
+<h3>The headline band</h3>
+<p>The big figure is <b>net cash flow</b> — income minus expenses for the selected month — with the change against last month beside it, plus a pay-day countdown and how many bills fall due this week. To its right: <b>safe to spend</b>, your <b>savings rate</b> and your <b>net worth</b>.</p>
+<h3>The four stat tiles</h3>
+<p>Each shows this month's figure, the change against last month (green when the change is in your favour) and a 12-month trend line.</p>
+<table><tr><th>Tile</th><th>Calculation</th></tr>
 <tr><td>Income</td><td>Sum of income transactions in the month. Underneath: expected income from your income sources.</td></tr>
-<tr><td>Expenses</td><td>Sum of expense transactions in the month. Underneath: bills & subscriptions due that month.</td></tr>
-<tr><td>Net cash flow</td><td>Income − expenses.</td></tr>
-<tr><td>Savings rate</td><td>(Net cash flow + anything logged in the <b>Savings</b> category) ÷ income. Money you moved into savings counts as saved, not spent.</td></tr>
-<tr><td>Net worth</td><td>Assets − liability accounts − debts (section 10).</td></tr></table>
+<tr><td>Expenses</td><td>Sum of expense transactions in the month.</td></tr>
+<tr><td>Bills &amp; subs</td><td>What your recurring items come to in this month, whether or not they are ticked paid.</td></tr>
+<tr><td>Into savings</td><td>Anything logged in the <b>Savings</b> category, and what share of income that is.</td></tr></table>
+<p>Two other figures sit in the headline band: <b>savings rate</b> is (net cash flow + anything logged to Savings) ÷ income — money moved into savings counts as saved, not spent — and <b>net worth</b> is assets − liability accounts − debts (section 10).</p>
 <h3>Safe to spend</h3>
 <p>An estimate of what you can spend for the rest of the month without touching bills, goals or your buffer:</p>
 <div class="box"><b>Safe to spend =</b> balances of spendable accounts − bills & subscriptions still due (not yet ticked paid, due today or later) − monthly goal contributions − safety buffer</div>
@@ -142,12 +146,14 @@ ug.append(f"""
 {shot('safe-to-spend.jpg', 'The safe-to-spend card shows every component of the calculation.')}
 <h3>Insights</h3>
 <p>Up to four short statements at the top of the Overview, computed from your data: days until the next pay day, budget used versus month elapsed, the biggest category swing between the last two complete months, bills due in the next seven days, annual subscription cost, your debt-free date (and which strategy saves more), emergency-fund cover, and any goal that is almost funded. Click one to jump to the page behind it.</p>
-<h3>Other Overview cards</h3>
-<ul><li><b>Income vs expenses</b> — recorded transactions for the last 12 months.</li>
-<li><b>Spending by category</b> — the month's expenses; more than eight categories are grouped as "Other categories".</li>
-<li><b>Fixed vs variable</b> — fixed = transactions created by ticking a bill paid, or in a category used by a bill or subscription; everything else is variable.</li>
-<li><b>Due in the next 14 days</b> — from today, always, regardless of the selected month.</li>
-<li><b>Budget snapshot</b> and <b>Goals</b> — the six largest budget lines and the top four goals by priority.</li></ul>
+<h3>The charts and lists</h3>
+<ul><li><b>Cash flow</b> — income against expenses for the last 12 months. Hover any month for the exact pair.</li>
+<li><b>Spending pace</b> — your running total of spending day by day this month, laid over the same days last month, with a line underneath saying whether you are ahead or behind.</li>
+<li><b>Where the money went</b> — the month's biggest categories as bars, longest first, with a marker showing that category's budget and a note when you are over it. Click a bar to see those transactions.</li>
+<li><b>Due next</b> — bills and subscriptions falling due in the next three weeks, from today, regardless of the selected month. The next three days are highlighted.</li>
+<li><b>Goals</b> and <b>Debt</b> — progress meters: how much of each goal is funded, and how much of each debt is paid off.</li>
+<li><b>Latest activity</b> — your six most recent transactions.</li></ul>
+<p>Every chart with two series has a legend, and hovering one shows a tooltip with the values at that point. Charts follow your theme; the colours are chosen so that the series stay distinguishable for colour-blind readers.</p>
 """)
 ug.append(f"""
 <h2>4. Income and the frequency rules</h2>
