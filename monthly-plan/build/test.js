@@ -1,3 +1,7 @@
+// N = the budget edition as built today, O = the frozen v1.8 module it must keep matching.
+const {extractTo}=require('./extract.js'),path=require('path'),fs=require('fs');
+extractTo(path.join(__dirname,'../app/MonthlyBudgetPlanner.html'),path.join(__dirname,'budget.new.js'));
+fs.copyFileSync(path.join(__dirname,'baseline/budget-v1.8.js'),path.join(__dirname,'budget.old.js'));
 const N=require('./budget.new.js'), O=require('./budget.old.js');
 let fail=0, pass=0;
 const eq=(name,a,b)=>{const x=JSON.stringify(a),y=JSON.stringify(b);
@@ -96,17 +100,29 @@ ok('stale memory pruned not fatal', !('ghost' in v.quickMemory) && v.quickMemory
 s=mk(); s.quickMemory={}; for(let i=0;i<700;i++)s.quickMemory['k'+i]='dining';
 const kept=Object.keys(N.validate(s).quickMemory);
 ok('memory capped at 500', kept.length===500 && kept[0]==='k200', kept.length+' first='+kept[0]);
-// old build would have thrown on all five of the above
+// the same tolerant migrations, applied identically by v1.8
 for(const [name,mut] of Object.entries({theme:s=>s.settings.theme='mint-2099',nav:s=>s.settings.hiddenNav=['bogus'],
    mem:s=>s.quickMemory={ghost:'deleted-category-id'}})){
-  const t=mk();mut(t);let threw=false;try{O.validate(t)}catch{threw=true}ok('old build did reject '+name,threw);
+  const a=mk(),b=mk();mut(a);mut(b);eq('migration matches v1.8: '+name,N.validate(a),O.validate(b));
 }
 
 // ---- parseQuick / csv-adjacent helpers untouched ----
 for(const q of ['coffee 4.50','rent 1200','salary 2400','refund groceries 12','uber 8,50','netflix 15.99'])
   eq('parseQuick '+q, (()=>{try{return N.parseQuick(q,sn.categories,sn.quickMemory)}catch(e){return 'ERR:'+e.message}})(),
                      (()=>{try{return O.parseQuick(q,so.categories,so.quickMemory)}catch(e){return 'ERR:'+e.message}})());
-eq('THEMES exported', N.THEMES.length, 7);
+eq('THEMES exported', N.THEMES, O.THEMES);
+eq('GROUPS unchanged', N.GROUPS, O.GROUPS);
+eq('blank unchanged', N.blank(), O.blank());
+for(const c of [...N.blank().categories,{group:'nope'}])eq('type '+c.group, N.type(c), O.type(c));
+// the sample household: same records in the same order (ids are random, so compare without them)
+const noIds=s=>JSON.parse(JSON.stringify(s,(k,v)=>k==='id'?undefined:v));
+for(const m of ['2026-01','2026-09','2026-12'])eq('sample '+m, noIds(N.sample(m)), noIds(O.sample(m)));
+eq('budget edition has no business screens', [N.P.features.pl,N.P.features.tax], [false,false]);
+
+// ---- business edition, and the shared build ----
+require('./test_business.js')({eq,ok});
+const stale=require('child_process').spawnSync(process.execPath,[path.join(__dirname,'build_app.js'),'--check'],{encoding:'utf8'});
+ok('built files match core + packs', stale.status===0, stale.stdout);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail?1:0);
