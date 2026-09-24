@@ -5,7 +5,7 @@ digital download (JPS Digital Pages). Everything needed to rebuild the listing i
 
 ## Layout
 
-- `app/MonthlyBudgetPlanner.html` — the product, v1.8. One self-contained file:
+- `app/MonthlyBudgetPlanner.html` — the product, v1.9. One self-contained file:
   inline CSS/JS, localStorage, optional folder backups via the File System Access API.
   Live copy: https://claude.ai/artifact/A1MLRsPrH9ytRtaX6rnfyM
 - `listing-kit/` — buyer files (`START_HERE.txt`, `LICENCE.txt`, `Monthly_Plan_Guide.pdf`)
@@ -23,7 +23,7 @@ digital download (JPS Digital Pages). Everything needed to rebuild the listing i
 The planner is built, not hand-edited. Edit the source, then rebuild:
 
 - `app/src/core.html` — the shared engine and UI. Never shipped as-is.
-- `app/packs/budget.js` → `app/MonthlyBudgetPlanner.html` (Monthly Plan v1.8, household budget)
+- `app/packs/budget.js` → `app/MonthlyBudgetPlanner.html` (Monthly Plan v1.9, household budget)
 - `app/packs/business.js` → `app/ProfitPlanBusiness.html` (Profit Plan v1.0, freelancer / small business)
 
 A niche pack is one `const NICHE = {...}` block, inlined as the first script at the top of the
