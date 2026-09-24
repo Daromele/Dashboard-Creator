@@ -10,7 +10,7 @@ usage: python3 make_demo.py            -> MonthlyPlanDemo.html
 import io,sys
 
 SRC='MonthlyBudgetPlanner.html'; OUT='MonthlyPlanDemo.html'
-BUY_URL='https://www.jpsdigitalpages.com/monthly-plan'   # <-- paste the Etsy listing URL here
+BUY_URL='https://jpsdigitalpages.etsy.com/listing/4581352270'   # the Etsy listing
 DEMO_MAX=20
 
 s=io.open(SRC,encoding='utf-8').read(); n=0
