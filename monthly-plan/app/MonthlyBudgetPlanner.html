@@ -263,6 +263,17 @@ const NICHE = {
   --ch-in:#56765F; --ch-out:#B17A30;
   color-scheme:light;
 }
+:root[data-theme="ledger"]{
+  --paper:#F6F7F5; --card:#FFFFFF; --sunk:#EEF1EE;
+  --ink:#141A1F; --ink-2:#4B5660; --ink-3:#7B858D;
+  --rule:#E4E8E5; --rule-2:#D2D8D4;
+  --accent:#1F7A5C; --accent-ink:#FFFFFF; --accent-soft:#E8F3EE; --accent-line:#CFE4DA;
+  --calm:#1F7A5C; --flag:#8E5A1C; --flag-soft:#F8F0E4;
+  --bold:#182635; --bold-2:#111C28; --on-bold:#EEF3F7; --on-bold-dim:#A6B6C4;
+  --pop:#E3A73B; --pop-ink:#2B1C04; --pos:var(--ok); --neg:var(--over);
+  --ch-in:#1F7A5C; --ch-out:#B5652A;
+  color-scheme:light;
+}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 var(--ui);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -1082,6 +1093,57 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 @media(max-width:700px){.mapping-grid,.category-map-top,.category-defaults{grid-template-columns:1fr}.compare-bar-row{grid-template-columns:minmax(72px,104px) minmax(0,1fr)}.cb-val{min-width:56px;font-size:10px}.money-layout label{grid-template-columns:1fr;gap:8px}.source-map-list label{grid-template-columns:1fr;gap:6px}.map-details summary span{display:none}.import-next{align-items:flex-start;flex-direction:column}.import-next .btn{width:100%}.compare-bar-row{grid-template-columns:100px 1fr}.category-chart-picker{width:100%;align-items:stretch;flex-direction:column;gap:4px}.category-chart-picker select{width:100%;min-width:0}.chart-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.chart-summary span{text-align:left;min-width:0}.annual-category-matrix .cardhead{align-items:stretch;flex-direction:column}.annual-category-matrix .actions{justify-content:flex-start}.welcome-left{gap:6px}.welcome-folder{font-size:11px;padding-left:9px!important;padding-right:9px!important}}
 @media(max-width:360px){.topbar-in{flex-wrap:wrap}.topbar .top-left{flex:1 1 100%}.month-control{flex:1}.month-switch{justify-content:space-between}.topbar .actions{width:100%;justify-content:flex-end}.kpis{grid-template-columns:1fr}.donut-wrap,.activity-charts .donut-wrap{flex-direction:column;align-items:center;gap:15px}.donut-key{width:100%}}
 @media(max-width:900px){.app.rail-min .brand{flex-direction:row;justify-content:flex-start;align-items:center;gap:11px;padding:0 10px 31px}}
+/* business editions: P&L statement, profit ladder, tax quarters */
+.neg{color:var(--over)}
+.pl-controls{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;justify-content:space-between;margin-bottom:var(--s4)}
+.pl-range{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:flex-end}
+.pl-range label{display:flex;flex-direction:column;font-size:11px;color:var(--ink-3);gap:2px}
+.pl-range input{min-height:32px;padding:var(--s1) var(--s2)}
+.statement-head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s4);padding-bottom:var(--s3);border-bottom:2px solid var(--ink);margin-bottom:var(--s2)}
+.statement-head h2{font-size:22px;margin-top:2px}
+.statement-head small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
+.statement-meta{text-align:right}
+.statement-table th{background:none;border-bottom:1px solid var(--rule-2)}
+.statement-table td{padding:7px var(--s3)}
+.statement-table tr.st-section td{padding-top:var(--s4);border-bottom:0;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.statement-table tr.st-group td{padding-top:var(--s3);border-bottom:0;font-weight:650;color:var(--ink-2);padding-left:22px}
+.statement-table tr.st-line td:first-child{padding-left:22px}
+.statement-table tr.st-gline td:first-child{padding-left:38px}
+.statement-table tr.st-gsub td{color:var(--ink-2);font-size:12px}
+.statement-table tr.st-gsub td:first-child{padding-left:38px;font-style:italic}
+.statement-table tr.st-sub td{font-weight:650;border-top:1px solid var(--rule-2)}
+.statement-table tr.st-key td{font-weight:750;background:var(--accent-soft);border-bottom:0}
+.statement-table tr.st-net td{font-weight:800;font-size:15px;background:var(--bold);color:var(--on-bold);border-bottom:0}
+.statement-table tr.st-net .neg{color:#FFB4A8}
+.statement-table td.pct{color:var(--ink-3);font-size:12px;width:1%}
+.statement-table tr.st-net td.pct{color:var(--on-bold-dim)}
+.statement-memo{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--rule)}
+.statement-memo>div>b{display:block;font-size:13px}
+.statement-memo>div>small{display:block;color:var(--ink-3);margin-bottom:var(--s2)}
+.taxline-table td.line-no{width:52px;color:var(--ink-3);font-family:var(--num);font-weight:650;white-space:nowrap}
+.taxline-table tr.is-zero td{color:var(--ink-3)}
+.taxline-table tr.is-note td{font-size:12px;color:var(--ink-3);font-style:italic}
+.taxline-table .line-cats,.taxline-table .line-note{display:block;color:var(--ink-3);font-size:11px;margin-top:2px}
+.taxline-table .line-note{color:var(--flag)}
+.quarter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s4);margin-bottom:var(--s4)}
+.quarter-grid .card{margin:0}
+.quarter h2{margin:var(--s2) 0 var(--s2)}
+.quarter.is-next{box-shadow:0 0 0 2px var(--accent),var(--shadow-sm)}
+.ladder{display:grid;gap:var(--s3)}
+.ladder-step{display:grid;grid-template-columns:minmax(118px,1fr) minmax(0,2.4fr) auto;gap:var(--s3);align-items:center;font-size:13px}
+.ladder-label small{display:block;color:var(--ink-3);font-size:11px}
+.ladder-bar{position:relative;height:14px;border-radius:7px;background:var(--sunk);overflow:hidden}
+.ladder-bar i{position:absolute;top:0;bottom:0;border-radius:7px;background:var(--ch-in)}
+.ladder-step.cost .ladder-bar i{background:var(--ch-out)}
+.ladder-step.key .ladder-bar i{background:var(--accent)}
+.ladder-step.key{font-weight:700}
+.ladder-step.net{padding-top:var(--s2);border-top:1px solid var(--rule)}
+.ladder-step b{min-width:92px;text-align:right}
+.biz-strip .row button.link{font-weight:650}
+.nw{white-space:nowrap}
+@media(max-width:900px){.quarter-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.quarter-grid,.statement-memo{grid-template-columns:1fr}.statement-head{flex-direction:column;align-items:flex-start}.statement-meta{text-align:left}.ladder-step{grid-template-columns:1fr auto}.ladder-bar{grid-column:1/-1;grid-row:2}}
+@media print{.statement{box-shadow:none;padding:0}.statement-table tr.st-key td,.statement-table tr.st-net td{-webkit-print-color-adjust:exact;print-color-adjust:exact}.statement-table td{padding:4px 8px}.quarter-grid{grid-template-columns:repeat(4,1fr)}.statement-memo{break-inside:avoid}}
 </style></head>
 <body>
 <a href="#content" style="position:absolute;left:-9999px" onfocus="this.style.left='10px'" onblur="this.style.left='-9999px'">Skip to content</a>
@@ -1611,7 +1673,7 @@ const dateName=d=>{const f=state.settings.dateFormat||'auto',dt=new Date(d+'T12:
  return dt.toLocaleDateString(undefined,{month:'short',day:'numeric'});};
 const percent=(a,b)=>b>0?Math.round(a/b*100):0;
 const category=id=>state.categories.find(c=>c.id===id);
-const categoryUsed=id=>state.transactions.some(t=>t.category===id)||Object.values(state.months).some(m=>m.plan[id])||state.goals.some(g=>g.category===id)||(state.schedules||[]).some(r=>r.category===id);
+const categoryUsed=id=>state.transactions.some(t=>t.category===id)||Object.values(state.months).some(m=>m.plan[id])||state.goals.some(g=>g.category===id)||(state.schedules||[]).some(r=>r.category===id)||(state.invoices||[]).some(v=>v.category===id);
 const writable=m=>!Budget.month(state,m).closed;
 const ensure=m=>state.months[m]||(state.months[m]={plan:{},opening:0,note:'',closed:false});
 const ico=name=>ICON[name]||ICON.wallet;
@@ -1694,6 +1756,7 @@ function dashboardView(){
  const greeting=state.settings.name?`${esc(state.settings.name)}${L.greeting}`:L.greetingPlain;
  return pagehead(monthName(selected),greeting,'',button('Print summary','print','quiet')+button('Edit budget','go-budget'))+
  (!hasPlan&&!hasTx?onboarding():'')+
+ (P.features.pl?Biz.dashboard():'')+
  (state.seededFrom?`<div class="notice seeded-note"><div class="carry-icon">${ico('history')}</div><span><b>Your ${monthName(state.seededFrom)} amounts now repeat every month.</b><br>Every month starts from them, so there is nothing to re-enter. Change a figure for one month only, or make it the new usual from the plan screen.</span><div class="actions">${button('Review my plan','go-budget','small primary')}${button('Got it','dismiss-seeded','small')}</div></div>`:'')+
  `<section class="hero"><div><div class="eyebrow">After your commitments</div><h2 class="number${r.after<0?' alert':''}" data-count="${r.after}">${fmt(r.after)}</h2><p>${hasPlan||hasTx?`What is left of your tracked spending balance once unpaid bills, debt payments and planned contributions are set aside. Based on entries through ${r.cutoff.endsWith('-00')?'the start of this month':dateName(r.cutoff)} — an estimate from your records, not a bank balance.`:'Set a plan and log what happens, and this shows what is genuinely uncommitted this month.'}</p><div class="hero-foot">${button('View monthly plan →','go-budget','pop small')}${button('Review payments','go-scheduled','quiet small')}</div></div><div class="hero-side"><div class="hero-fact"><span>Tracked spending balance</span><strong>${fmt(r.cash)}</strong></div><div class="hero-fact"><span>Unpaid fixed commitments</span><strong>−${fmt(r.fixed)}</strong></div><div class="hero-fact"><span>Contributions still planned</span><strong>−${fmt(r.saving)}</strong></div><div class="hero-meter"><i style="width:${Math.max(0,Math.min(100,percent(r.fixed+r.saving,Math.max(r.cash,r.fixed+r.saving))))}%"></i></div><div class="hero-fact"><span>Expense budget ${t.remaining<0?'overspent':'remaining'}</span><strong>${fmt(Math.abs(t.remaining))}</strong></div></div></section>
  <div class="kpis">${kpi(L.incomeReceived,t.income.actual,`of ${fmt(t.income.plan)} planned`,'down')}${kpi(L.expensesPaid,t.expense.actual,`of ${fmt(t.expense.plan)} planned`,'up')}${kpi(L.savedInvested,t.saving.actual,savingRate===null?L.savingRateEmpty:savingRate+L.savingRate,'umbrella')}${kpi('Net cash flow',t.net,L.netHint,'wallet',t.net<0?'warn':'')}</div>
@@ -1889,7 +1952,7 @@ function folderBackupSupported(){return typeof globalThis!=='undefined'&&!!globa
 function autoBackupCard(){const supported=folderBackupSupported(),disabled=demo||!supported?'disabled':'';return `<div class="backup-block"><h3 class="sub-head is-first">Automatic backups</h3><div class="row"><div><strong>Daily folder backup</strong><small>Keep today’s dated JSON backup current after each change.</small></div><span class="pill" id="auto-backup-status">${!supported?'Not available here':demo?L.demoOnly:esc(autoBackupStatus)}</span></div><div class="backup-visual"><div class="goal-icon">${ico('shield')}</div><div><b>Choose a cloud-synced folder</b><small>Use a local iCloud Drive, Dropbox, OneDrive or Google Drive folder. Your sync provider handles the cloud copy.</small></div></div><div class="actions" style="margin-top:18px">${button(backupFolder?'Change folder':'Choose backup folder','choose-backup-folder','primary',disabled)}${backupFolder?button('Back up now','backup-now','',disabled)+button('Disconnect','disconnect-backup','quiet',disabled):''}</div><p class="small muted" style="margin-top:14px">${!supported?'This browser cannot write to a folder for you. Safari and Firefox do not offer it; Chrome or Edge on a computer does. <b>Download backup</b> below works everywhere and keeps the same file.':demo?'Return to your budget before connecting a backup folder.':'The browser may ask you to reconnect after a restart. Changes update today’s backup after a short pause. Keep the tab open long enough for the write to finish.'}</p></div>`;}
 function settingsView(){return pagehead('Make it yours','Settings & backup','')+`<div class="grid2 equal"><section class="card"><h2>Your preferences</h2><form id="settings-form" style="margin-top:20px"><div class="fields"><label class="full">${L.yourName}<input name="name" maxlength="100" value="${esc(state.settings.name)}" placeholder="${L.yourNameHint}"></label><label class="full">Planner currency<select name="currency">${Budget.CURRENCIES.map(c=>`<option ${state.settings.currency===c?'selected':''}>${c}</option>`).join('')}</select><small>One currency per planner. Changing this label does not convert existing amounts.</small></label>
     <label>Symbol shown (optional)<input name="symbol" maxlength="6" value="${esc(state.settings.symbol||'')}" placeholder="e.g. ₮ or Br"><small>Leave empty to use the currency code above. Set this if your currency is not listed.</small></label>
-    <label>Date format<select name="dateFormat">${Object.entries(Budget.DATE_FORMATS).map(([v,l])=>`<option value="${v}" ${(state.settings.dateFormat||'auto')===v?'selected':''}>${esc(l)}</option>`).join('')}</select><small>Applies to dates shown around the planner.</small></label></div><div class="formfoot"><button class="btn primary">Save preferences</button></div></form><h3 class="sub-head">Choose your palette</h3><div class="theme-grid">${[['ledger','Ledger','#F7F8F6','#1F6F5C','#16362F','#E8B04B'],['lavender','Lavender','#FAF9FC','#5C3F8F','#2E2040','#F0B98F'],['sage','Sage','#FAFAF8','#2F5D50','#1F4A3E','#F2B441'],['linen','Linen','#F7F4ED','#6B5B45','#45392A','#E8A24A'],['fjord','Fjord','#F6F8FA','#2C5470','#1C3C52','#F0A93C'],['blush','Blush','#FBF6F8','#7C3560','#63304A','#E9A85C'],['slate','Slate','#F8F9FA','#3F4A55','#2E3841','#EFA93F'],['night','Night','#141218','#C3A9E8','#221C2C','#F0B98F'],['midnight','Midnight','#0C1720','#9DB8F5','#0B303D','#F5C382']].filter(([id])=>Budget.THEMES.includes(id)).sort((a,b)=>Budget.THEMES.indexOf(a[0])-Budget.THEMES.indexOf(b[0])).map(([id,label,paper,accent,bold,pop])=>`<button class="theme-card" data-theme="${id}" aria-pressed="${state.settings.theme===id}" aria-label="${label} palette"><span class="theme-chip" style="background:${paper}"><i style="background:${bold}"></i><i style="background:${accent}"></i><i style="background:${pop}"></i></span><b>${label}</b></button>`).join('')}</div></section><section class="card"><div class="goal-icon">${ico('shield')}</div><h2>Keep your progress safe</h2><p class="subtitle">Changes save in this browser on this device. The HTML file itself does not contain your entries. Clearing browser data can erase them.</p>${autoBackupCard()}<h3 class="sub-head">Manual backup</h3><div class="row"><div><strong>Download a full backup</strong><small>Includes every month, category, goal, review, schedule and wealth snapshot.</small></div></div><div class="actions" style="margin:17px 0">${button('Download backup','backup','primary')}${button('Restore backup','restore')}</div><p class="small muted">To move devices, restore your downloaded JSON backup in the new browser. The app does not connect to a cloud account; the optional daily folder backup below can use a locally synced cloud folder. Keep backups private.</p><h3 class="sub-head">Move your data</h3><div class="row"><div><strong>Transactions as CSV</strong><small>Export the selected month for your records.</small></div>${button('Export','csv','small')}</div><div class="row"><div><strong>Import your bank CSV</strong><small>Map columns, review categories, then import.</small></div>${button('Import','import','small')}</div></section></div>${sidebarSettingsCard()}<section class="card"><div class="cardhead"><div><h2>Your categories</h2><p>Edit any category. Delete is available until a category has budget or transaction history.</p></div>${button('Add category','add-category','small')}</div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Group</th><th>Status</th><th class="num">Actions</th></tr></thead><tbody>${state.categories.map(c=>{const used=categoryUsed(c.id);return `<tr><td>${esc(c.name)}</td><td>${Budget.GROUPS[c.group]}</td><td>${c.archived?'Archived':'Active'}</td><td class="num"><div class="category-actions"><button class="icon-action" data-action="edit-category" data-id="${c.id}" title="Edit ${esc(c.name)}" aria-label="Edit ${esc(c.name)}">${ico('edit')}</button><button class="icon-action danger" data-action="delete-category" data-id="${c.id}" title="${used?'Archive this category to keep its history':'Delete '+esc(c.name)}" aria-label="Delete ${esc(c.name)}" ${used?'disabled':''}>${ico('trash')}</button></div></td></tr>`;}).join('')}</tbody></table></div></section><section class="card"><div class="cardhead"><div><h2>Getting started</h2><p>A guided tour, and a fictional year to explore.</p></div>${button(demo?'Return to my budget':'Open sample mode',demo?'exit-demo':'demo')}</div><h3 class="sub-head">Welcome tour</h3><div class="row"><div><strong>Show the welcome tour again</strong><small>Four short slides covering planning, logging and backups.</small></div>${button('Show tour','replay-tour','small')}</div><p class="small muted">${P.product.name} by <a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages</a> · <a href="mailto:hello@jpsdigitalpages.com">hello@jpsdigitalpages.com</a> · Personal use only.</p></section>`;}
+    <label>Date format<select name="dateFormat">${Object.entries(Budget.DATE_FORMATS).map(([v,l])=>`<option value="${v}" ${(state.settings.dateFormat||'auto')===v?'selected':''}>${esc(l)}</option>`).join('')}</select><small>Applies to dates shown around the planner.</small></label></div><div class="formfoot"><button class="btn primary">Save preferences</button></div></form><h3 class="sub-head">Choose your palette</h3><div class="theme-grid">${[['ledger','Ledger','#F7F8F6','#1F6F5C','#16362F','#E8B04B'],['lavender','Lavender','#FAF9FC','#5C3F8F','#2E2040','#F0B98F'],['sage','Sage','#FAFAF8','#2F5D50','#1F4A3E','#F2B441'],['linen','Linen','#F7F4ED','#6B5B45','#45392A','#E8A24A'],['fjord','Fjord','#F6F8FA','#2C5470','#1C3C52','#F0A93C'],['blush','Blush','#FBF6F8','#7C3560','#63304A','#E9A85C'],['slate','Slate','#F8F9FA','#3F4A55','#2E3841','#EFA93F'],['night','Night','#141218','#C3A9E8','#221C2C','#F0B98F'],['midnight','Midnight','#0C1720','#9DB8F5','#0B303D','#F5C382']].filter(([id])=>Budget.THEMES.includes(id)).sort((a,b)=>Budget.THEMES.indexOf(a[0])-Budget.THEMES.indexOf(b[0])).map(([id,label,paper,accent,bold,pop])=>`<button class="theme-card" data-theme="${id}" aria-pressed="${state.settings.theme===id}" aria-label="${label} palette"><span class="theme-chip" style="background:${paper}"><i style="background:${bold}"></i><i style="background:${accent}"></i><i style="background:${pop}"></i></span><b>${label}</b></button>`).join('')}</div></section><section class="card"><div class="goal-icon">${ico('shield')}</div><h2>Keep your progress safe</h2><p class="subtitle">Changes save in this browser on this device. The HTML file itself does not contain your entries. Clearing browser data can erase them.</p>${autoBackupCard()}<h3 class="sub-head">Manual backup</h3><div class="row"><div><strong>Download a full backup</strong><small>Includes every month, category, goal, review, schedule and wealth snapshot.</small></div></div><div class="actions" style="margin:17px 0">${button('Download backup','backup','primary')}${button('Restore backup','restore')}</div><p class="small muted">To move devices, restore your downloaded JSON backup in the new browser. The app does not connect to a cloud account; the optional daily folder backup below can use a locally synced cloud folder. Keep backups private.</p><h3 class="sub-head">Move your data</h3><div class="row"><div><strong>Transactions as CSV</strong><small>Export the selected month for your records.</small></div>${button('Export','csv','small')}</div><div class="row"><div><strong>Import your bank CSV</strong><small>Map columns, review categories, then import.</small></div>${button('Import','import','small')}</div></section></div>${sidebarSettingsCard()}<section class="card"><div class="cardhead"><div><h2>Your categories</h2><p>Edit any category. Delete is available until a category has budget or transaction history.</p></div>${button('Add category','add-category','small')}</div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Group</th><th>Status</th><th class="num">Actions</th></tr></thead><tbody>${state.categories.map(c=>{const used=categoryUsed(c.id);return `<tr><td>${esc(c.name)}</td><td>${Budget.GROUPS[c.group]}</td><td>${c.archived?'Archived':'Active'}</td><td class="num"><div class="category-actions"><button class="icon-action" data-action="edit-category" data-id="${c.id}" title="Edit ${esc(c.name)}" aria-label="Edit ${esc(c.name)}">${ico('edit')}</button><button class="icon-action danger" data-action="delete-category" data-id="${c.id}" title="${used?'Archive this category to keep its history':'Delete '+esc(c.name)}" aria-label="Delete ${esc(c.name)}" ${used?'disabled':''}>${ico('trash')}</button></div></td></tr>`;}).join('')}</tbody></table></div></section>${P.features.tax||P.features.mileage?Biz.settingsCard():''}<section class="card"><div class="cardhead"><div><h2>Getting started</h2><p>A guided tour, and a fictional year to explore.</p></div>${button(demo?L.exitDemo:'Open sample mode',demo?'exit-demo':'demo')}</div><h3 class="sub-head">Welcome tour</h3><div class="row"><div><strong>Show the welcome tour again</strong><small>Four short slides covering planning, logging and backups.</small></div>${button('Show tour','replay-tour','small')}</div><p class="small muted">${P.product.name} by <a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages</a> · <a href="mailto:hello@jpsdigitalpages.com">hello@jpsdigitalpages.com</a> · Personal use only.</p></section>`;}
 function modal(title,sub,body){returnFocus=document.activeElement;$('#modal-body').innerHTML=`<div class="dialog-head"><h2 id="modal-title">${title}</h2><button class="ibtn" data-action="dismiss" aria-label="Close dialog">${ico('cross')}</button></div><p class="subtitle">${sub}</p><div id="form-error" class="error" role="alert" hidden></div>${body}`;if(!$('#modal').open)$('#modal').showModal();}
 function closeModal(){$('#modal').close();returnFocus?.focus?.();}
 function formError(e){$('#form-error').hidden=false;$('#form-error').textContent=e.message||e;}
@@ -1901,7 +1964,7 @@ function transactionForm(id='',cat='',date=''){if(screen==='budget'&&budgetDirty
        <input id="inline-cat-name" maxlength="80" placeholder="Category name" aria-label="New category name">
        <select id="inline-cat-group" aria-label="Group for the new category">${Object.entries(Budget.GROUPS).map(([g,l])=>`<option value="${g}">${l}</option>`).join('')}</select>
        <button type="button" class="btn small primary" data-action="save-category-inline">Add</button></div></div><label class="full">Entry direction<select name="direction"><option value="normal">${L.directionNormal}</option><option value="reverse" ${t?.amount<0?'selected':''}>Refund / withdrawal / reversal</option></select><small>A reversal reduces the actual amount in this category.</small></label><label class="full">Description or note<input name="note" maxlength="500" value="${esc(t?.note||'')}" placeholder="${L.notePlaceholder}"></label></div>${formFoot(t?'Save changes':'Add transaction',t?`<button type="button" class="btn danger" data-action="delete-transaction" data-id="${id}">Delete</button>`:'')}</form>`);}
-function categoryForm(id='',presetGroup=''){const c=category(id),used=c&&(state.transactions.some(t=>t.category===id)||Object.values(state.months).some(m=>m.plan[id])||state.goals.some(g=>g.category===id)||(state.schedules||[]).some(r=>r.category===id));modal(c?'Edit category':'Add a category',L.categorySub,`<form id="category-form" data-id="${id}"><div class="fields"><label class="full">Category name<input name="name" maxlength="80" required value="${esc(c?.name||'')}" placeholder="${L.categoryPlaceholder}"></label><label class="full">Group<select name="group" ${used?'disabled':''}>${Object.entries(Budget.GROUPS).map(([g,l])=>`<option value="${g}" ${(c?.group||presetGroup)===g?'selected':''}>${l}</option>`).join('')}</select>${used?'<small>The group stays fixed once used, so historical totals remain consistent. Create a new category to use another group.</small>':''}</label>${c?`<label class="checkline full"><input name="archived" type="checkbox" ${c.archived?'checked':''}><span>Archive this category. Existing plans and history remain available.</span></label>`:''}</div>${formFoot()}</form>`);}
+function categoryForm(id='',presetGroup=''){const c=category(id),used=c&&(state.transactions.some(t=>t.category===id)||Object.values(state.months).some(m=>m.plan[id])||state.goals.some(g=>g.category===id)||(state.schedules||[]).some(r=>r.category===id));modal(c?'Edit category':'Add a category',L.categorySub,`<form id="category-form" data-id="${id}"><div class="fields"><label class="full">Category name<input name="name" maxlength="80" required value="${esc(c?.name||'')}" placeholder="${L.categoryPlaceholder}"></label><label class="full">Group<select name="group" ${used?'disabled':''}>${Object.entries(Budget.GROUPS).map(([g,l])=>`<option value="${g}" ${(c?.group||presetGroup)===g?'selected':''}>${l}</option>`).join('')}</select>${used?'<small>The group stays fixed once used, so historical totals remain consistent. Create a new category to use another group.</small>':''}</label>${P.features.taxLines?Biz.taxLineField(c):''}${c?`<label class="checkline full"><input name="archived" type="checkbox" ${c.archived?'checked':''}><span>Archive this category. Existing plans and history remain available.</span></label>`:''}</div>${formFoot()}</form>`);}
 function goalStall(g,p,debt){
  if(!debt||p.counted||selected+'-01'<g.start)return '';
  const name=esc(category(g.category).name);
@@ -1990,7 +2053,8 @@ function repeatPlan(){if(!Object.values(Budget.month(state,selected).plan).some(
 function dayDetail(date){const occurrences=Budget.occurrences(state,selected),scheduledCats=new Set(occurrences.map(o=>o.category));const scheduled=[...Budget.due(state,selected).filter(c=>!scheduledCats.has(c.id)),...occurrences.map(o=>({...o,planned:o.amount,remaining:o.transaction?0:o.amount}))].filter(c=>c.date===date),tx=state.transactions.filter(t=>t.date===date);modal(dateName(date)+', '+date.slice(0,4),'Planned reminders and recorded transactions.',`<h3>Planned</h3>${scheduled.map(c=>`<div class="row"><div><strong>${esc(c.name)}</strong><small>${c.key?(c.transaction?'Matched transaction':fmt(c.remaining)+' scheduled; record or match in Recurring payments'):fmt(c.remaining)+' still to record against monthly plan'}</small></div><span class="number">${fmt(c.planned)}</span></div>`).join('')||'<p class="subtitle">No reminders for this day.</p>'}<h3 style="margin-top:23px">Recorded</h3>${tx.map(t=>`<div class="row"><div><strong>${esc(category(t.category).name)}</strong><small>${esc(t.note)}</small></div><span class="number">${fmt(t.amount)}</span></div>`).join('')||'<p class="subtitle">No transactions recorded.</p>'}<div class="formfoot">${button('Close','dismiss')}${date<=Budget.today()&&writable(date.slice(0,7))?button('Add on this date','add-date','primary',`data-date="${date}"`):''}</div>`);}
 function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),30000);}
 function backup(){download(`${P.storage.file}-${demo?'sample-':''}${Budget.today()}.json`,JSON.stringify(state,null,2),'application/json');if(!demo){try{localStorage.setItem(MANUAL_BACKUP_KEY,String(Date.now()));}catch{}}renderBackupBanner();toast('Backup download requested. Keep the file somewhere safe.');}
-function exportCSV(){const quote=x=>'"'+String(x).replace(/"/g,'""')+'"';const safe=s=>/^[\s]*[=+\-@]/.test(s)?"'"+s:s;const rows=[['Date','Description','Category','Group','Amount','Currency'],...[...Budget.transactions(state,selected)].sort((a,b)=>a.date.localeCompare(b.date)).map(t=>[t.date,safe(t.note),safe(category(t.category).name),category(t.category).group,val(t.amount),state.settings.currency])];download(`${P.storage.file}-${selected}.csv`,'\ufeff'+rows.map(r=>r.map(quote).join(',')).join('\r\n'),'text/csv;charset=utf-8');toast('Monthly CSV download requested.');}
+function exportCSV(){const quote=x=>'"'+String(x).replace(/"/g,'""')+'"';const safe=s=>/^[\s]*[=+\-@]/.test(s)?"'"+s:s;const tl=P.features.taxLines,line=t=>{const l=Budget.TAX_LINES?.[Budget.taxLineFor(category(t.category))];return Budget.type(category(t.category))==='saving'?'Transfer':l?l.line:'';};
+ const rows=[['Date','Description','Category','Group','Amount','Currency',...(tl?[P.taxForm.name+' line']:[])],...[...Budget.transactions(state,selected)].sort((a,b)=>a.date.localeCompare(b.date)).map(t=>[t.date,safe(t.note),safe(category(t.category).name),category(t.category).group,val(t.amount),state.settings.currency,...(tl?[line(t)]:[])])];download(`${P.storage.file}-${selected}.csv`,'\ufeff'+rows.map(r=>r.map(quote).join(',')).join('\r\n'),'text/csv;charset=utf-8');toast('Monthly CSV download requested.');}
 function restoreFile(file){if(!file)return;if(file.size>20e6)return toast('Backup is too large (maximum 20 MB).');file.text().then(raw=>{restorePending=Budget.validate(JSON.parse(raw));modal('Review your backup','Restoring replaces the current planner. Download your current backup first if you need it.',`<div class="row"><span>Transactions</span><b>${restorePending.transactions.length}</b></div><div class="row"><span>Saved months</span><b>${Object.keys(restorePending.months).length}</b></div><div class="row"><span>Goals</span><b>${restorePending.goals.length}</b></div><div class="row"><span>Currency</span><b>${restorePending.settings.currency}</b></div><div class="formfoot">${button('Back up current data','backup')}${button('Cancel','dismiss')}${button('Restore this backup','confirm-restore','primary')}</div>`);}).catch(e=>toast('Could not restore: '+e.message));}
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.go)return go(b.dataset.go);if(b.dataset.theme)return commit(()=>state.settings.theme=b.dataset.theme,'Palette updated');const a=b.dataset.action,id=b.dataset.id;if(!a)return;if(screen==='budget'&&budgetDirty&&!['save-budget','menu','dismiss'].includes(a)&&!saveBudgetInputs())return;
  if(a.startsWith('go-'))return go(a.slice(3));
@@ -2080,7 +2144,7 @@ document.addEventListener('input',e=>{if(e.target.dataset.plan||e.target.dataset
 document.addEventListener('submit',e=>{const form=e.target;if(!['transaction-form','category-form','goal-form','repeat-form','note-form','review-form','settings-form'].includes(form.id))return;e.preventDefault();const f=new FormData(form),id=form.dataset.id;try{
  switch(form.id){
  case 'transaction-form':{if(!id&&state.transactions.length>=MAX_TRANSACTIONS)throw Error(LIMIT_MESSAGE);const date=f.get('date'),cat=f.get('category');if(!Budget.validDate(date)||date>Budget.today())throw Error('Use a valid date today or earlier.');if(!writable(date.slice(0,7)))throw Error('That month is closed. Reopen it before adding or moving a transaction.');if(!category(cat))throw Error('Choose a category.');const amount=Budget.cents(f.get('amount'))*(f.get('direction')==='reverse'?-1:1);if(!amount)throw Error('Enter an amount greater than zero.');const old=state.transactions.find(t=>t.id===id);if(old?.scheduleKey&&!writable(old.scheduleKey.split('@')[1].slice(0,7)))throw Error('Reopen the scheduled month before editing this linked transaction.');const t={id:id||Budget.uid(),date,category:cat,amount,note:f.get('note').trim()};if(old?.scheduleKey&&old.category===cat&&amount>0)t.scheduleKey=old.scheduleKey;closeModal();commit(()=>{if(id)state.transactions=state.transactions.map(x=>x.id===id?t:x);else state.transactions.push(t);selected=date.slice(0,7);},'Transaction saved');break;}
- case 'category-form':{const name=f.get('name').trim(),existing=category(id);if(!name)throw Error('Give the category a name.');if(state.categories.some(c=>c.id!==id&&c.name.toLowerCase()===name.toLowerCase()))throw Error('A category already uses that name.');if(!id&&state.categories.length>=300)throw Error('This planner supports up to 300 categories.');closeModal();commit(()=>{if(existing){existing.name=name;existing.archived=f.get('archived')==='on';if(f.get('group'))existing.group=f.get('group');}else state.categories.push({id:Budget.uid(),name,group:f.get('group'),archived:false});},'Category saved');break;}
+ case 'category-form':{const name=f.get('name').trim(),existing=category(id);if(!name)throw Error('Give the category a name.');if(state.categories.some(c=>c.id!==id&&c.name.toLowerCase()===name.toLowerCase()))throw Error('A category already uses that name.');if(!id&&state.categories.length>=300)throw Error('This planner supports up to 300 categories.');closeModal();const taxLine=P.features.taxLines&&Budget.TAX_LINES[f.get('taxLine')]?f.get('taxLine'):'';commit(()=>{let saved=existing;if(existing){existing.name=name;existing.archived=f.get('archived')==='on';if(f.get('group'))existing.group=f.get('group');}else state.categories.push(saved={id:Budget.uid(),name,group:f.get('group'),archived:false});if(P.features.taxLines){if(taxLine)saved.taxLine=taxLine;else delete saved.taxLine;}},'Category saved');break;}
  case 'goal-form':{const cat=category(f.get('category'));
   const g={id:id||Budget.uid(),name:f.get('name').trim(),category:f.get('category'),kind:cat&&Budget.isDebt(cat)?'debt':'saving',target:Budget.cents(f.get('target')),opening:Budget.cents(f.get('opening')),start:f.get('start'),due:f.get('due')};
   if(goalImage&&g.kind!=='debt')g.image=goalImage;if(!g.name||!g.category||!g.target)throw Error('Enter a name, a target, and an available category.');if(!Budget.validDate(g.start)||!Budget.validDate(g.due)||g.due<g.start)throw Error('Target date must be on or after the start date.');closeModal();commit(()=>{if(id)state.goals=state.goals.map(x=>x.id===id?g:x);else state.goals.push(g);},'Goal saved');break;}
@@ -2684,6 +2748,298 @@ document.addEventListener('click',e=>{const b=e.target.closest('button[data-acti
 });
 /* Business editions: profit & loss, tax set-aside, tax-line summary, mileage and invoices.
    Each screen only appears when the niche pack switches its feature on. */
-const Biz={views:{}};
+const Biz=(()=>{
+ const F=P.features,today=()=>Budget.today();
+ const bizName=()=>state.settings.name||'Your business';
+ const pct=(n,d)=>d>0?(Math.round(n/d*1000)/10).toFixed(1)+'%':'—';
+ const rateText=bp=>(bp/100).toLocaleString(undefined,{maximumFractionDigits:2})+'%';
+ const miles=n=>(n/10).toLocaleString(undefined,{minimumFractionDigits:n%10?1:0,maximumFractionDigits:1});
+ const fullDate=d=>`${dateName(d)}, ${d.slice(0,4)}`;
+ const acct=n=>n<0?`<span class="neg">(${fmt(-n)})</span>`:fmt(n);
+ const safe=s=>/^[\s]*[=+\-@]/.test(String(s))?"'"+s:String(s);
+ const csv=rows=>'﻿'+rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ const quarterOf=m=>Math.floor((+m.slice(5,7)-1)/3);
+ const lineLabel=id=>{const l=Budget.TAX_LINES?.[id];return l?(l.line==='—'?l.label:`Line ${l.line} · ${l.label}`):'Not mapped';};
+
+ // ---------- Profit & loss ----------
+ let period={kind:'month',from:'',to:''};
+ function range(kind=period.kind){
+  const y=selected.slice(0,4),m=selected,t=today();
+  if(kind==='month')return {from:m+'-01',to:Budget.endOf(m),label:monthName(m)};
+  if(kind==='quarter'){const q=quarterOf(m),a=`${y}-${String(q*3+1).padStart(2,'0')}`,b=Budget.shift(a,2);return {from:a+'-01',to:Budget.endOf(b),label:`Q${q+1} ${y} · ${shortMonth(a)} – ${shortMonth(b)}`};}
+  if(kind==='ytd'){const end=m===t.slice(0,7)?t:Budget.endOf(m);return {from:y+'-01-01',to:end,label:`Year to date · ${dateName(y+'-01-01')} – ${fullDate(end)}`};}
+  if(kind==='year')return {from:y+'-01-01',to:y+'-12-31',label:`Full year ${y}`};
+  const from=Budget.validDate(period.from)?period.from:y+'-01-01',to=Budget.validDate(period.to)&&period.to>=from?period.to:(t>=from?t:from);
+  return {from,to,label:`${fullDate(from)} – ${fullDate(to)}`};
+ }
+ // a quarter shows its months; a longer span inside one year shows its quarters
+ function columns(r,kind){
+  const months=Budget.monthsBetween(r.from,r.to),clip=(a,b)=>({from:a<r.from?r.from:a,to:b>r.to?r.to:b});
+  let cols=[];
+  if(months.length>1&&months.length<=3&&kind!=='month')cols=months.map(m=>({label:shortMonth(m),...clip(m+'-01',Budget.endOf(m))}));
+  else if(months.length>3&&months.length<=12&&months[0].slice(0,4)===months.at(-1).slice(0,4))
+   cols=[...new Set(months.map(quarterOf))].map(q=>{const a=`${months[0].slice(0,4)}-${String(q*3+1).padStart(2,'0')}`;return {label:'Q'+(q+1),...clip(a+'-01',Budget.endOf(Budget.shift(a,2)))};});
+  return [...cols.map(c=>({...c,pl:Budget.pl(state,c.from,c.to)})),{label:cols.length?'Total':'Amount',from:r.from,to:r.to,pl:Budget.pl(state,r.from,r.to)}];
+ }
+ function statementRows(all){
+  const T=all.at(-1).pl,rows=[],v=f=>all.map(c=>f(c.pl));
+  const find=(pl,sect,id)=>(sect==='opex'?pl.opex.groups.flatMap(g=>g.lines):pl[sect].lines).find(l=>l.id===id)?.amount||0;
+  const lines=(sect,list,k='line')=>list.forEach(l=>rows.push({k,label:l.name,values:all.map(c=>find(c.pl,sect,l.id))}));
+  rows.push({k:'section',label:L.income});lines('revenue',T.revenue.lines);
+  rows.push({k:'sub',label:`Total ${L.income.toLowerCase()}`,values:v(p=>p.revenue.total)});
+  rows.push({k:'section',label:'Cost of goods sold'});lines('cogs',T.cogs.lines);
+  rows.push({k:'sub',label:'Total cost of goods sold',values:v(p=>p.cogs.total)});
+  rows.push({k:'key',label:'Gross profit',values:v(p=>p.gross)});
+  rows.push({k:'section',label:'Operating expenses'});
+  const many=T.opex.groups.length>1;
+  T.opex.groups.forEach(g=>{if(many)rows.push({k:'group',label:g.label});lines('opex',g.lines,many?'gline':'line');
+   if(many&&g.lines.length>1)rows.push({k:'gsub',label:g.label+' total',values:all.map(c=>c.pl.opex.groups.find(x=>x.id===g.id)?.total||0)});});
+  rows.push({k:'sub',label:'Total operating expenses',values:v(p=>p.opex.total)});
+  rows.push({k:'key',label:'Operating profit',values:v(p=>p.operating)});
+  if(T.other.lines.length){rows.push({k:'section',label:'Other income'});lines('other',T.other.lines);rows.push({k:'sub',label:'Total other income',values:v(p=>p.other.total)});}
+  rows.push({k:'net',label:T.net<0?'Net loss':'Net profit',values:v(p=>p.net)});
+  return rows;
+ }
+ function statementTable(all){
+  const rows=statementRows(all),rev=all.at(-1).pl.revenue.total,span=all.length+2;
+  const head=`<thead><tr><th>${esc(all.length>1?'':'')}</th>${all.map(c=>`<th class="num">${esc(c.label)}</th>`).join('')}<th class="num">% of ${esc(L.income.toLowerCase())}</th></tr></thead>`;
+  const body=rows.map(r=>r.values
+   ?`<tr class="st-${r.k}"><td>${esc(r.label)}</td>${r.values.map(n=>`<td class="num">${acct(n)}</td>`).join('')}<td class="num pct">${rev>0?pct(r.values.at(-1),rev):'—'}</td></tr>`
+   :`<tr class="st-${r.k}"><td colspan="${span}">${esc(r.label)}</td></tr>`).join('');
+  return `<div class="table-wrap"><table class="statement-table">${head}<tbody>${body}</tbody></table></div>`;
+ }
+ function plView(){
+  const r=range(),all=columns(r,period.kind),T=all.at(-1).pl,rate=state.settings.taxRate||0,has=T.revenue.total||T.cogs.total||T.opex.total||T.other.total;
+  const kinds=[['month','Month'],['quarter','Quarter'],['ytd','Year to date'],['year','Full year'],['custom','Custom dates']];
+  const controls=`<div class="pl-controls no-print"><div class="segment" aria-label="Statement period">${kinds.map(([k,l])=>`<button data-action="biz-period" data-kind="${k}" aria-pressed="${period.kind===k}">${l}</button>`).join('')}</div>`+
+   (period.kind==='custom'?`<form id="biz-range" class="pl-range"><label>From<input type="date" name="from" value="${r.from}" min="1900-01-01" max="9998-12-31" required></label><label>To<input type="date" name="to" value="${r.to}" min="1900-01-01" max="9998-12-31" required></label><button class="btn small primary">Show</button></form>`
+    :`<span class="small muted">${period.kind==='year'||period.kind==='ytd'?'Follows the year of the month picker':'Follows the month picker'}</span>`)+`</div>`;
+  const memo=`<div class="statement-memo"><div><b>Not part of profit</b><small>Money moved aside or paid to yourself in this period</small>${T.transfers.lines.map(l=>`<div class="row"><span>${esc(l.name)}</span><span class="number">${fmt(l.amount)}</span></div>`).join('')||'<p class="small muted">Nothing recorded.</p>'}</div>`+
+   (F.tax?`<div><b>Tax to set aside on this profit</b><small>Your set-aside rate is ${rateText(rate)} of net profit</small><div class="row"><span>${T.net>0?'Set aside for this period':'No profit, nothing to set aside'}</span><span class="number">${fmt(Math.max(0,Math.round(T.net*rate/10000)))}</span></div><button class="link no-print" data-go="tax">Quarterly tax →</button></div>`:'')+`</div>`;
+  const y=selected.slice(0,4),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),cutoff=today().slice(0,7),pm=months.map(m=>m<=cutoff?Budget.plMonth(state,m):null);
+  return pagehead('Profit & loss','What the business actually made','Cash basis: sales count when the money arrives, costs when you pay them.',button('Download CSV','biz-pl-csv','quiet')+button('Print statement','print','primary'))+controls+
+   `<div class="kpis no-print">${kpi(L.income,T.revenue.total,esc(r.label),'down')}${kpi('Gross profit',T.gross,T.grossMargin===null?`No ${L.income.toLowerCase()} in this period`:pct(T.gross,T.revenue.total)+' gross margin','insights')}${kpi('Operating expenses',T.opex.total,`${T.opex.groups.reduce((n,g)=>n+g.lines.length,0)} categories`,'up')}${kpi(T.net<0?'Net loss':'Net profit',T.net,T.netMargin===null?'—':pct(T.net,T.revenue.total)+' net margin','wallet',T.net<0?'warn':'')}</div>`+
+   `<section class="card statement"><div class="statement-head"><div><div class="eyebrow">Profit &amp; loss statement</div><h2>${esc(bizName())}</h2><small>${esc(r.label)}</small></div><div class="statement-meta"><small>Cash basis · ${esc(state.settings.currency)}</small><small>Prepared ${fullDate(today())}</small></div></div>`+
+   (has?statementTable(all):empty('Nothing recorded in this period','Log sales and costs, or choose another period.','add','Add a transaction'))+memo+`</section>`+
+   (pm.some(p=>p&&(p.revenue.total||p.net))?`<section class="card no-print"><div class="cardhead"><div><h2>Month by month in ${y}</h2><p>${L.income} and net profit · future months are blank</p></div></div>${areaChart([{name:L.income,values:pm.map(p=>p?p.revenue.total:null),color:'var(--ch-in)'},{name:'Net profit',values:pm.map(p=>p?p.net:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and net profit by month`)}</section>`:'');
+ }
+ function plCSV(){
+  const r=range(),all=columns(r,period.kind),rev=all.at(-1).pl.revenue.total,out=[[safe(bizName())+' · Profit & loss'],[r.label+' · cash basis · '+state.settings.currency],[],['',...all.map(c=>c.label),'% of '+L.income.toLowerCase()]];
+  statementRows(all).forEach(x=>out.push(x.values?[(/line/.test(x.k)?'   ':'')+safe(x.label),...x.values.map(val),rev>0?pct(x.values.at(-1),rev):'']:[x.label.toUpperCase()]));
+  download(`${P.storage.file}-profit-loss-${r.from}-to-${r.to}.csv`,csv(out),'text/csv;charset=utf-8');toast('Profit & loss download requested.');
+ }
+
+ // ---------- Quarterly tax set-aside ----------
+ const taxCats=()=>state.categories.filter(c=>Budget.group(c).tax&&!c.archived);
+ const aheadPill=b=>b>=0?`<span class="pill good">${fmt(b)} ahead</span>`:`<span class="pill warn">${fmt(-b)} behind</span>`;
+ function taxView(){
+  const y=selected.slice(0,4),t=Budget.taxSetAside(state,y),t0=today(),next=t.quarters.find(q=>q.due>=t0),thisYear=t0.slice(0,4)===y,past=y<t0.slice(0,4);
+  const upto=past?`all of ${y}`:thisYear?`${monthName(t0.slice(0,7))}`:'this point';
+  const quarter=q=>{const started=q.from<=t0.slice(0,7),done=q.due<t0;
+   return `<section class="card quarter${q===next?' is-next':''}"><div class="flex" style="justify-content:space-between;align-items:center"><div class="eyebrow">${q.label} · ${shortMonth(q.from)} – ${shortMonth(q.to)}</div>${q===next?'<span class="pill">Next due</span>':done?'<span class="pill">Due date passed</span>':''}</div>
+    <h2>Due ${fullDate(q.due)}</h2>
+    ${started?`<div class="row"><span>Net profit</span><span class="number">${acct(q.net)}</span></div><div class="row"><span>Should set aside</span><span class="number">${fmt(q.should)}</span></div><div class="row"><span>Set aside</span><span class="number">${fmt(q.have)}</span></div><div class="row"><span>Pot at period end</span>${aheadPill(q.balance)}</div>`:'<p class="small muted" style="margin-top:12px">This period has not started.</p>'}</section>`;};
+  const rows=t.months.map(m=>`<tr><td><button class="link" data-action="select-month" data-month="${m.month}">${shortMonth(m.month)}</button></td>${m.future?'<td class="num dim" colspan="5">Not started</td>':`<td class="num">${fmt(m.revenue)}</td><td class="num">${acct(m.net)}</td><td class="num">${m.should<0?`<span title="A loss this month lowers what the year needs">−${fmt(-m.should)}</span>`:fmt(m.should)}</td><td class="num">${fmt(m.have)}</td><td class="num">${aheadPill(m.balance)}</td>`}</tr>`).join('');
+  const cat=taxCats()[0];
+  return pagehead(`Tax set-aside · ${y}`,'Put the tax money aside as you go',`A rule of thumb: ${rateText(t.rate)} of net profit goes to your tax pot.`,(cat?button('Log a set-aside','biz-log-tax','primary',`data-id="${cat.id}"`):'')+button('Change rate','biz-rate','quiet'))+
+   `<div class="kpis">${kpi(`Net profit to ${past?'year end':'date'}`,t.ytdNet,`Through ${upto}`,'insights',t.ytdNet<0?'warn':'')}${kpi('Should have set aside',t.ytdShould,`${rateText(t.rate)} of net profit so far`,'shield')}${kpi('Set aside so far',t.ytdHave,taxCats().map(c=>esc(c.name)).join(' + ')||'No tax categories','umbrella')}${kpi(t.balance>=0?'Ahead by':'Behind by',Math.abs(t.balance),t.balance>=0?'Your pot covers the rule of thumb':'Top up the pot to catch up','wallet',t.balance<0?'warn':'')}</div>`+
+   `<div class="quarter-grid">${t.quarters.map(quarter).join('')}</div>`+
+   `<section class="card"><div class="cardhead"><div><h2>Should have vs have, month by month</h2><p>A month's share is the change in what the year needs. A loss month lowers it.</p></div></div>${compareBarChart([{name:'Should set aside',values:t.months.map(m=>m.future?null:m.should),color:'var(--pop)'},{name:'Set aside',values:t.months.map(m=>m.future?null:m.have),color:'var(--accent)'}],t.months.map(m=>shortMonth(m.month)),'Tax that should have been set aside against what was set aside, by month')}</section>`+
+   `<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">${esc(L.income)}</th><th class="num">Net profit</th><th class="num">Should set aside</th><th class="num">Set aside</th><th class="num">Tax pot so far</th></tr></thead><tbody>${rows}<tr class="group-total"><td><b>${past?'Year':'To date'}</b></td><td class="num"><b>${fmt(t.months.filter(m=>!m.future).reduce((n,m)=>n+m.revenue,0))}</b></td><td class="num"><b>${acct(t.ytdNet)}</b></td><td class="num"><b>${fmt(t.ytdShould)}</b></td><td class="num"><b>${fmt(t.ytdHave)}</b></td><td class="num">${aheadPill(t.balance)}</td></tr></tbody></table></div></section>`+
+   `<div class="notice"><span><b>This is a savings rule, not a tax bill.</b><br>Your rate should cover income tax and self-employment tax on what you make; ask your accountant for the right figure. Due dates follow the US estimated-tax calendar (Form 1040-ES); a date on a weekend or holiday moves to the next business day. Set-asides are the ${taxCats().map(c=>esc(c.name)).join(' and ')} categories.</span></div>`;
+ }
+
+ // ---------- Schedule C summary ----------
+ function taxlinesView(){
+  const y=selected.slice(0,4),S=Budget.taxSummary(state,y+'-01-01',y+'-12-31'),T=S.totals,form=P.taxForm,thisYear=today().slice(0,4)===y;
+  const byId=Object.fromEntries(S.lines.map(l=>[l.id,l]));
+  const who=l=>l.items.length?`<small class="line-cats">${l.items.map(i=>esc(i.name)).join(' · ')}</small>`:'';
+  const line=(l,cls='')=>`<tr class="${cls}${l.amount?'':' is-zero'}"><td class="line-no">${l.line}</td><td>${esc(l.label)}${who(l)}${l.note&&l.amount?`<small class="line-note">${esc(l.note)}</small>`:''}</td><td class="num">${l.amount?acct(l.amount):'—'}</td></tr>`;
+  const calc=(no,label,n)=>`<tr class="st-key"><td class="line-no">${no}</td><td>${label}</td><td class="num">${acct(n)}</td></tr>`;
+  const part=part=>S.lines.filter(l=>l.part===part);
+  const fuel=S.lines.find(l=>l.id===P.mileageLine)?.items.filter(i=>!i.mileage)||[];
+  const warnings=[
+   S.unmapped.length&&`<b>${S.unmapped.length} ${S.unmapped.length===1?'category has':'categories have'} no ${form.name} line</b> and ${S.unmapped.length===1?'is':'are'} left out: ${S.unmapped.map(l=>`${esc(l.name)} (${fmt(l.amount)})`).join(', ')}. Choose a line below.`,
+   S.mileage?.amount&&fuel.length&&`<b>Standard mileage and car costs are both on line ${Budget.TAX_LINES[P.mileageLine].line}.</b> The standard mileage rate replaces fuel and most running costs; parking and tolls can still be added. Check ${fuel.map(i=>esc(i.name)).join(', ')} with your accountant.`,
+  ].filter(Boolean);
+  const mapRows=state.categories.filter(c=>Budget.type(c)!=='saving'&&(!c.archived||S.pl&&[...S.unmapped,...S.excluded].some(l=>l.id===c.id))).map(c=>`<tr><td><b>${esc(c.name)}</b><small class="dim"> · ${esc(Budget.GROUPS[c.group])}</small></td><td><select data-taxline="${c.id}" aria-label="${esc(form.name)} line for ${esc(c.name)}">${lineOptions(c.taxLine||'',Budget.taxLineFor(c))}</select></td></tr>`).join('');
+  return pagehead(`${form.name} · ${y}`,'A summary your accountant can work from',`${esc(form.long)}. ${thisYear?'Recorded through '+fullDate(today())+'.':'Recorded for the full year.'} Cash basis.`,button('Summary CSV','biz-sc-csv','quiet')+button('Transactions by line CSV','biz-sc-detail','quiet')+button('Print','print','primary'))+
+   (warnings.length?`<div class="notice warning no-print"><span>${warnings.join('<br><br>')}</span></div>`:'')+
+   `<div class="kpis">${kpi('Gross receipts',T.gross,`Line 1 · ${y}`,'down')}${kpi('Gross profit',T.grossProfit,`Line 5 · after ${fmt(T.cogs)} cost of goods`,'insights')}${kpi('Total expenses',T.expenses,'Line 28','up')}${kpi(T.net<0?'Tentative loss':'Tentative profit',T.net,'Line 29 · before home office','wallet',T.net<0?'warn':'')}</div>`+
+   `<section class="card statement taxline-card"><div class="statement-head"><div><div class="eyebrow">${esc(form.name)} worksheet · tax year ${y}</div><h2>${esc(bizName())}</h2><small>Prepared ${fullDate(today())} from ${esc(P.product.name)}. Organised records, not a filed return.</small></div><div class="statement-meta"><small>Cash basis · ${esc(state.settings.currency)}</small></div></div>`+
+   `<div class="table-wrap"><table class="statement-table taxline-table"><tbody>`+
+   `<tr class="st-section"><td colspan="3">Part I · Income</td></tr>${part('income').map(l=>line(l)).join('')}<tr class="${T.cogs?'':'is-zero'}"><td class="line-no">4</td><td>Cost of goods sold (from line 42)</td><td class="num">${T.cogs?acct(T.cogs):'—'}</td></tr>${calc(5,'Gross profit',T.grossProfit)}${part('other').map(l=>line(l)).join('')}${calc(7,'Gross income',T.grossIncome)}`+
+   `<tr class="st-section"><td colspan="3">Part II · Expenses</td></tr>${part('expense').map(l=>line(l)).join('')}${calc(28,'Total expenses',T.expenses)}${calc(29,'Tentative profit or (loss)',T.net)}<tr class="is-note"><td class="line-no">30</td><td colspan="2">Business use of home is worked out on Form 8829 or the simplified method. Tell your accountant about any home office.</td></tr>`+
+   `<tr class="st-section"><td colspan="3">Part III · Cost of goods sold</td></tr><tr class="is-note"><td class="line-no">35</td><td colspan="2">Inventory at the start of the year: count it and give the figure to your accountant.</td></tr>${part('cogs').map(l=>line(l)).join('')}<tr class="is-note"><td class="line-no">41</td><td colspan="2">Inventory at the end of the year: count it on the last day.</td></tr>${calc(42,'Cost of goods sold (before inventory change)',T.cogs)}`+
+   (byId.L27b?.items.length?`<tr class="st-section"><td colspan="3">Part V · Other expenses (line 27b)</td></tr>${byId.L27b.items.map(i=>`<tr><td class="line-no"></td><td>${esc(i.name)}</td><td class="num">${acct(i.amount)}</td></tr>`).join('')}`:'')+
+   `</tbody></table></div>`+
+   (S.mileage?.trips?`<div class="statement-memo"><div><b>Vehicle</b><small>From the mileage log</small><div class="row"><span>${S.mileage.trips} business trips · ${miles(S.mileage.miles)} mi</span><span class="number">${fmt(S.mileage.amount)}</span></div><small>At ${(S.mileage.rate/10).toLocaleString(undefined,{maximumFractionDigits:1})}¢ a mile, included on line ${Budget.TAX_LINES[P.mileageLine].line}.</small></div><div><b>Left out</b><small>Transfers never appear here</small>${S.excluded.map(l=>`<div class="row"><span>${esc(l.name)}</span><span class="number">${fmt(l.amount)}</span></div>`).join('')||'<p class="small muted">Only transfers: owner’s draws, tax set-asides, savings and loan principal.</p>'}</div></div>`:'')+
+   `</section>`+
+   `<section class="card table-card no-print"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Category → ${esc(form.name)} line</h2><p>Every income and expense category lands on one line. Transfers are never on the form.</p></div></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Line</th></tr></thead><tbody>${mapRows}</tbody></table></div></section>`+
+   `<div class="notice"><span><b>Before you hand it over.</b><br>Check every line against the form for the tax year, count inventory if you sell products, and include receipts your accountant asks for. Meals appear at the full amount spent. This summary organises your own records; it is not tax advice.</span></div>`;
+ }
+ function lineOptions(chosen,effective){
+  const groups=[['income','Part I · Income'],['other','Part I · Other income'],['cogs','Part III · Cost of goods sold'],['expense','Part II · Expenses'],['none','Not on the form']];
+  return `<option value="" ${chosen?'':'selected'}>Group’s usual line${effective&&!chosen?' · '+esc(lineLabel(effective)):''}</option>`+groups.map(([part,label])=>`<optgroup label="${label}">${P.taxLines.filter(l=>l.part===part).map(l=>`<option value="${l.id}" ${chosen===l.id?'selected':''}>${esc(l.line==='—'?l.label:l.line+' · '+l.label)}</option>`).join('')}</optgroup>`).join('');
+ }
+ function summaryCSV(){
+  const y=selected.slice(0,4),S=Budget.taxSummary(state,y+'-01-01',y+'-12-31'),T=S.totals,r=[[safe(bizName())+` · ${P.taxForm.name} summary · tax year ${y}`],[`Cash basis · ${state.settings.currency} · prepared ${today()} with ${P.product.name}`],[],['Line','Description','Amount','Categories included']];
+  const add=l=>r.push([l.line,l.label,val(l.amount),l.items.map(i=>`${i.name} (${val(i.amount)})`).join('; ')]);
+  S.lines.filter(l=>l.part==='income').forEach(add);r.push(['4','Cost of goods sold (line 42)',val(T.cogs),'']);r.push(['5','Gross profit',val(T.grossProfit),'']);
+  S.lines.filter(l=>l.part==='other').forEach(add);r.push(['7','Gross income',val(T.grossIncome),'']);
+  S.lines.filter(l=>l.part==='expense').forEach(add);r.push(['28','Total expenses',val(T.expenses),'']);r.push(['29','Tentative profit or (loss)',val(T.net),'']);
+  r.push([],['Part III','Cost of goods sold','','']);S.lines.filter(l=>l.part==='cogs').forEach(add);r.push(['42','Cost of goods sold (before inventory change)',val(T.cogs),'']);
+  const other=S.lines.find(l=>l.id==='L27b');if(other?.items.length){r.push([],['Part V','Other expenses','','']);other.items.forEach(i=>r.push(['',safe(i.name),val(i.amount),'']));}
+  r.push([],['Notes']);
+  if(S.mileage?.trips)r.push(['',`Standard mileage: ${miles(S.mileage.miles)} mi across ${S.mileage.trips} trips at ${S.mileage.rate/10} cents/mi, included on line ${Budget.TAX_LINES[P.mileageLine].line}`,val(S.mileage.amount),'']);
+  if(S.lines.find(l=>l.id==='L24b')?.amount)r.push(['','Meals are listed at the full amount spent (usually 50% deductible)','','']);
+  S.unmapped.forEach(l=>r.push(['','Not mapped to a line: '+safe(l.name),val(l.amount),'']));
+  S.excluded.forEach(l=>r.push(['','Left off the form: '+safe(l.name),val(l.amount),'']));
+  S.pl.transfers.lines.forEach(l=>r.push(['','Transfer, not an expense: '+safe(l.name),val(l.amount),'']));
+  r.push(['','Inventory at the start and end of the year (lines 35 and 41) and home office use (line 30) are not tracked in this planner.','','']);
+  download(`${P.storage.file}-${P.taxForm.name.toLowerCase().replace(/\W+/g,'-')}-summary-${y}.csv`,csv(r),'text/csv;charset=utf-8');toast('Summary download requested.');
+ }
+ function detailCSV(){
+  const y=selected.slice(0,4),rows=[['Date','Description','Category','Group',`${P.taxForm.name} line`,'Line description','Amount','Currency']],order=Object.fromEntries(P.taxLines.map((l,i)=>[l.id,i]));
+  const list=state.transactions.filter(t=>t.date.slice(0,4)===y&&Budget.type(category(t.category))!=='saving').map(t=>({t,c:category(t.category),line:Budget.taxLineFor(category(t.category))}))
+   .sort((a,b)=>(order[a.line]??999)-(order[b.line]??999)||a.t.date.localeCompare(b.t.date));
+  list.forEach(({t,c,line})=>rows.push([t.date,safe(t.note),safe(c.name),Budget.GROUPS[c.group],Budget.TAX_LINES[line]?.line||'',line?Budget.TAX_LINES[line].label:'Not mapped',val(t.amount),state.settings.currency]));
+  (state.mileage||[]).filter(t=>t.date.slice(0,4)===y).forEach(t=>rows.push([t.date,safe(t.purpose+(t.route?' · '+t.route:'')),'Mileage log','',Budget.TAX_LINES[P.mileageLine]?.line||'',`Standard mileage · ${miles(t.miles)} mi`,val(Budget.mileageAmount(t.miles,state.settings.mileageRate||0)),state.settings.currency]));
+  download(`${P.storage.file}-transactions-by-line-${y}.csv`,csv(rows),'text/csv;charset=utf-8');toast('Transactions download requested.');
+ }
+
+ // ---------- Mileage log ----------
+ function mileageView(){
+  const y=selected.slice(0,4),m=selected,rate=state.settings.mileageRate||0,yt=Budget.mileageTotals(state,y+'-01-01',y+'-12-31'),mt=Budget.mileageTotals(state,m+'-01',Budget.endOf(m));
+  const list=(state.mileage||[]).filter(t=>t.date.slice(0,7)===m).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
+  const months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),per=months.map(k=>Budget.mileageTotals(state,k+'-01',Budget.endOf(k)).miles);
+  return pagehead(monthName(m),'Business miles, logged as you drive',`Each trip is worth ${(rate/10).toLocaleString(undefined,{maximumFractionDigits:1})}¢ a mile at your standard mileage rate.`,button('Export year CSV','biz-mileage-csv','quiet')+button('Log a trip','biz-add-trip','primary'))+
+   `<div class="kpis">${kpi(`Miles in ${shortMonth(m)}`,0,`${mt.trips} trip${mt.trips===1?'':'s'} · worth ${fmt(mt.amount)}`,'compass').replace(/<b([^>]*)>[^<]*<\/b>/,`<b$1>${miles(mt.miles)}</b>`)}${kpi(`Miles in ${y}`,0,`${yt.trips} trips`,'compass').replace(/<b([^>]*)>[^<]*<\/b>/,`<b$1>${miles(yt.miles)}</b>`)}${kpi(`Deduction value, ${y}`,yt.amount,`At ${(rate/10).toLocaleString(undefined,{maximumFractionDigits:1})}¢ a mile`,'wallet')}${kpi('Average trip',yt.trips?Budget.mileageAmount(Math.round(yt.miles/yt.trips),rate):0,yt.trips?miles(Math.round(yt.miles/yt.trips))+' mi each':'No trips yet','history')}</div>`+
+   `<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Purpose</th><th>Route</th><th class="num">Miles</th><th class="num">Value</th><th class="no-print">Edit</th></tr></thead><tbody>${list.map(t=>`<tr><td>${dateName(t.date)}</td><td><b>${esc(t.purpose)}</b></td><td class="dim">${esc(t.route||'')}</td><td class="num">${miles(t.miles)}</td><td class="num">${fmt(Budget.mileageAmount(t.miles,rate))}</td><td class="no-print"><button class="ibtn" data-action="biz-edit-trip" data-id="${t.id}" aria-label="Edit ${esc(t.purpose)}">${ico('tags')}</button></td></tr>`).join('')}</tbody></table></div>${list.length?'':empty(`No trips logged in ${monthName(m)}`,'Log each business journey: the date, why you went, and the miles.','biz-add-trip','Log a trip')}</section>`+
+   `<section class="card no-print"><div class="cardhead"><div><h2>Miles by month, ${y}</h2><p>Business miles logged</p></div></div>${compareBarChart([{name:'Miles',values:per,color:'var(--accent)'}],months.map(shortMonth),'Business miles by month',undefined,n=>miles(n)+' mi')}</section>`+
+   `<div class="notice"><span><b>Keep the log as you go.</b><br>A record made at the time, with the date, purpose and miles, is what supports the deduction. Commuting from home to a regular workplace does not count. The standard mileage rate replaces fuel and most running costs, so do not deduct both; set the rate for your tax year in Settings.</span></div>`;
+ }
+ function tripForm(id=''){
+  const t=(state.mileage||[]).find(x=>x.id===id),d=t?.date||(selected===today().slice(0,7)?today():selected+'-01');
+  modal(t?'Edit trip':'Log a business trip','One journey per entry. Use the round-trip box for there and back.',`<form id="biz-trip-form" data-id="${id}"><div class="fields"><label>Date<input type="date" name="date" required value="${d}" max="${today()}" min="1900-01-01"></label><label>Miles<input type="number" name="miles" min="0.1" max="999999.9" step="0.1" required value="${t?(t.miles/10).toFixed(1):''}" placeholder="0.0"></label><label class="full">Business purpose<input name="purpose" maxlength="200" required value="${esc(t?.purpose||'')}" placeholder="e.g. Client workshop · Acme Studio"></label><label class="full">Route (optional)<input name="route" maxlength="200" value="${esc(t?.route||'')}" placeholder="e.g. Studio → Acme HQ"></label>${t?'':`<label class="checkline full"><input type="checkbox" name="round"><span>Round trip: double the miles</span></label>`}</div>${formFoot(t?'Save trip':'Log trip',t?`<button type="button" class="btn danger" data-action="biz-delete-trip" data-id="${id}">Delete</button>`:'')}</form>`);
+ }
+ function mileageCSV(){
+  const y=selected.slice(0,4),rate=state.settings.mileageRate||0,list=(state.mileage||[]).filter(t=>t.date.slice(0,4)===y).sort((a,b)=>a.date.localeCompare(b.date));
+  const rows=[['Date','Business purpose','Route','Miles',`Value at ${rate/10} cents/mi`,'Currency'],...list.map(t=>[t.date,safe(t.purpose),safe(t.route||''),(t.miles/10).toFixed(1),val(Budget.mileageAmount(t.miles,rate)),state.settings.currency])];
+  const tot=Budget.mileageTotals(state,y+'-01-01',y+'-12-31');rows.push(['Total','','',(tot.miles/10).toFixed(1),val(tot.amount),state.settings.currency]);
+  download(`${P.storage.file}-mileage-${y}.csv`,csv(rows),'text/csv;charset=utf-8');toast('Mileage log download requested.');
+ }
+
+ // ---------- Invoices & receivables ----------
+ let invFilter='open';
+ const nextNumber=()=>{const nums=(state.invoices||[]).map(i=>+String(i.number).replace(/\D/g,'')).filter(Number.isFinite);return String(nums.length?Math.max(...nums)+1:1001);};
+ const daysBetween=(a,b)=>Math.round((Date.UTC(+b.slice(0,4),+b.slice(5,7)-1,+b.slice(8))-Date.UTC(+a.slice(0,4),+a.slice(5,7)-1,+a.slice(8)))/864e5);
+ function invoicesView(){
+  const R=Budget.receivables(state),all=state.invoices||[],t0=today(),open=new Map(R.open.map(i=>[i.id,i]));
+  const paidHere=all.filter(i=>i.paid&&i.paid.date.slice(0,7)===selected),recent=all.filter(i=>i.paid&&daysBetween(i.paid.date,t0)<=365),avg=recent.length?Math.round(recent.reduce((n,i)=>n+daysBetween(i.issued,i.paid.date),0)/recent.length):null;
+  const shown=all.filter(i=>invFilter==='all'||(invFilter==='open'?!i.paid:!!i.paid)).sort((a,b)=>(!!a.paid-!!b.paid)||(a.paid?b.paid.date.localeCompare(a.paid.date):a.due.localeCompare(b.due))||b.number.localeCompare(a.number));
+  const status=i=>{if(i.paid)return `<span class="pill good">Paid ${dateName(i.paid.date)}</span>`;const o=open.get(i.id).overdue;return o?`<span class="pill warn">${o} day${o===1?'':'s'} late</span>`:`<span class="pill">Due in ${daysBetween(t0,i.due)} day${daysBetween(t0,i.due)===1?'':'s'}</span>`;};
+  const max=Math.max(1,...R.buckets.map(b=>b.amount));
+  return pagehead('Money owed to you','Invoices & receivables','An invoice becomes revenue on the day you mark it paid.',button('Add invoice','biz-add-invoice','primary'))+
+   `<div class="kpis">${kpi('Outstanding',R.total,`${R.open.length} open invoice${R.open.length===1?'':'s'}`,'table')}${kpi('Overdue',R.overdue,`${R.open.filter(i=>i.overdue).length} past their due date`,'history',R.overdue?'warn':'')}${kpi(`Paid in ${shortMonth(selected)}`,paidHere.reduce((n,i)=>n+i.amount,0),`${paidHere.length} invoice${paidHere.length===1?'':'s'}`,'down')}<div class="kpi"><div class="label">Average days to get paid</div><b>${avg===null?'—':avg}</b><small>${recent.length?'From issue to payment, last 12 months':'Mark invoices paid to see this'}</small></div></div>`+
+   `<div class="grid2"><section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Invoices</h2><p>${shown.length} shown</p></div><div class="segment no-print" aria-label="Invoice filter">${[['open','Open'],['paid','Paid'],['all','All']].map(([v,l])=>`<button data-action="biz-inv-filter" data-filter="${v}" aria-pressed="${invFilter===v}">${l}</button>`).join('')}</div></div><div class="table-wrap"><table><thead><tr><th>No.</th><th>Client</th><th>Issued</th><th>Due</th><th class="num">Amount</th><th>Status</th><th class="no-print"></th></tr></thead><tbody>${shown.map(i=>`<tr><td><b>${esc(i.number)}</b></td><td>${esc(i.client)}${i.note?`<small class="dim" style="display:block">${esc(i.note)}</small>`:''}</td><td class="nw">${dateName(i.issued)}</td><td class="nw">${dateName(i.due)}</td><td class="num">${fmt(i.amount)}</td><td>${status(i)}</td><td class="no-print nw">${i.paid?button('Undo paid','biz-unpay','small quiet',`data-id="${i.id}"`):button('Mark paid','biz-pay','small',`data-id="${i.id}"`)}<button class="ibtn" data-action="biz-edit-invoice" data-id="${i.id}" aria-label="Edit invoice ${esc(i.number)}">${ico('tags')}</button></td></tr>`).join('')}</tbody></table></div>${shown.length?'':empty(invFilter==='open'?'Nothing waiting to be paid':'No invoices here yet','Add the invoices you send; mark each paid when the money arrives.','biz-add-invoice','Add invoice')}</section>`+
+   `<section class="card"><div class="cardhead"><div><h2>How late is the money?</h2><p>Open invoices by days past due</p></div></div>${R.buckets.map(b=>`<div class="budget-row"><div class="row"><strong>${b.label}</strong><span class="number">${fmt(b.amount)} <span class="dim">· ${b.count}</span></span></div><div class="meter"><i class="${b.id!=='current'&&b.amount?'over':''}" style="width:${b.amount/max*100}%"></i></div></div>`).join('')}<p class="small muted" style="margin-top:14px">Open invoices are not in your profit yet. Profit is on a cash basis: revenue counts when you are paid.</p></section></div>`;
+ }
+ function invoiceForm(id=''){
+  const v=(state.invoices||[]).find(x=>x.id===id),t0=today(),issued=v?.issued||(selected===t0.slice(0,7)?t0:selected+'-01');
+  const clients=[...new Set((state.invoices||[]).map(i=>i.client))].sort();
+  const incomeCats=c=>Budget.type(c)==='income'&&!Budget.group(c).other;
+  modal(v?`Invoice ${esc(v.number)}`:'Add an invoice',v?.paid?'This invoice is paid. Undo paid first to change its amount or category.':'Record an invoice you have sent. It becomes revenue when you mark it paid.',`<form id="biz-invoice-form" data-id="${id}"><div class="fields"><label>Invoice number<input name="number" maxlength="40" required value="${esc(v?.number||nextNumber())}"></label><label>Amount (${state.settings.currency})<input type="number" name="amount" min="0.01" max="99999999.99" step="0.01" required value="${v?val(v.amount):''}" ${v?.paid?'disabled':''}></label><label class="full">Client<input name="client" maxlength="100" required list="biz-clients" value="${esc(v?.client||'')}" placeholder="Who you billed"><datalist id="biz-clients">${clients.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label><label>Issued<input type="date" name="issued" required min="1900-01-01" max="9998-12-31" value="${issued}"></label><label>Due<input type="date" name="due" required min="1900-01-01" max="9998-12-31" value="${v?.due||Budget.plusDays(issued,30)}"></label><label class="full">Revenue category<select name="category" ${v?.paid?'disabled':''}>${categoryOptions(v?.category||P.defaults.category,incomeCats)}</select></label><label class="full">Note (optional)<input name="note" maxlength="500" value="${esc(v?.note||'')}" placeholder="e.g. Brand refresh, phase 2"></label></div>${formFoot(v?'Save invoice':'Add invoice',v&&!v.paid?`<button type="button" class="btn danger" data-action="biz-delete-invoice" data-id="${id}">Delete</button>`:'')}</form>`);
+ }
+ function payForm(id){
+  const v=state.invoices.find(x=>x.id===id);if(!v||v.paid)return;const d=today();
+  modal(`Invoice ${esc(v.number)} paid`,`Adds ${fmt(v.amount)} of revenue from ${esc(v.client)} on the day the money arrived.`,`<form id="biz-pay-form" data-id="${id}"><div class="fields"><label class="full">Date paid<input type="date" name="date" required value="${d}" max="${d}" min="${v.issued}"></label></div>${formFoot('Mark paid')}</form>`);
+ }
+
+ // ---------- Dashboard strip & settings ----------
+ function dashboard(){
+  const m=selected,p=Budget.plMonth(state,m),y=m.slice(0,4),t0=today(),ytdEnd=m===t0.slice(0,7)?t0:Budget.endOf(m),Y=Budget.pl(state,y+'-01-01',ytdEnd);
+  const base=Math.max(1,p.revenue.total+p.other.total,p.cogs.total+p.opex.total);
+  const step=(label,n,from,kind,note='')=>{const w=Math.abs(n)/base*100,left=Math.max(0,Math.min(100-w,from/base*100));
+   return `<div class="ladder-step ${kind}"><span class="ladder-label">${label}${note?`<small>${note}</small>`:''}</span><span class="ladder-bar"><i style="left:${left}%;width:${w}%"></i></span><b class="number">${kind==='cost'?'−'+fmt(n):acct(n)}</b></div>`;};
+  const ladder=`<div class="ladder">${step(L.income,p.revenue.total,0,'in')}${step('Cost of goods sold',p.cogs.total,Math.max(0,p.revenue.total-p.cogs.total),'cost')}${step('Gross profit',p.gross,0,'key',p.grossMargin===null?'':pct(p.gross,p.revenue.total)+' margin')}${step('Operating expenses',p.opex.total,Math.max(0,p.gross-p.opex.total),'cost')}${p.other.total?step('Other income',p.other.total,Math.max(0,p.operating),'in'):''}${step(p.net<0?'Net loss':'Net profit',p.net,0,'key net',p.netMargin===null?'':pct(p.net,p.revenue.total)+' margin')}</div>`;
+  let side='';
+  if(F.tax){const t=Budget.taxSetAside(state,y,undefined,m===t0.slice(0,7)?t0:Budget.endOf(m)),mm=t.months[+m.slice(5,7)-1],next=t.quarters.find(q=>q.due>=t0);
+   side+=`<div class="row"><div><strong>Tax set-aside this month</strong><small>${rateText(t.rate)} of net profit</small></div><span class="number">${fmt(mm.have)} <span class="dim">/ ${fmt(Math.max(0,mm.should))}</span></span></div><div class="row"><div><strong>Tax pot, ${y} so far</strong><small>${fmt(t.ytdHave)} set aside of ${fmt(t.ytdShould)}</small></div>${aheadPill(t.balance)}</div>${next&&y===t0.slice(0,4)?`<div class="row"><div><strong>Next estimated payment</strong><small>${next.label} · ${shortMonth(next.from)} – ${shortMonth(next.to)}</small></div><span class="number">${fullDate(next.due)}</span></div>`:''}`;}
+  if(F.invoices){const R=Budget.receivables(state);side+=`<div class="row"><div><strong>Unpaid invoices</strong><small>${R.open.length} open${R.overdue?' · '+fmt(R.overdue)+' overdue':''}</small></div><button class="link number" data-go="invoices">${fmt(R.total)}</button></div>`;}
+  return `<div class="grid2 biz-strip"><section class="card"><div class="cardhead"><div><h2>Profit this month</h2><p>${monthName(m)} · year to date ${acct(Y.net)} net on ${fmt(Y.revenue.total)} ${esc(L.income.toLowerCase())}</p></div><button class="link" data-go="pl">Full P&amp;L</button></div>${p.revenue.total||p.cogs.total||p.opex.total?ladder:empty('No sales or costs yet this month','Log a payment you received or a cost you paid.','add','Add a transaction')}</section>`+
+   `<section class="card"><div class="cardhead"><div><h2>Tax &amp; money owed</h2><p>What to put aside, and what is still to come in</p></div><button class="link" data-go="tax">Quarterly tax</button></div>${side}</section></div>`;
+ }
+ function settingsCard(){
+  return `<section class="card"><div class="goal-icon">${ico('shield')}</div><h2>Tax &amp; mileage</h2><p class="subtitle">Used by Quarterly tax, the ${esc(P.taxForm?.name||'tax')} summary and the mileage log.</p><form id="biz-settings-form" style="margin-top:20px"><div class="fields">${F.tax?`<label>Tax set-aside rate (%)<input type="number" name="taxRate" min="0" max="90" step="0.5" required value="${(state.settings.taxRate||0)/100}"><small>A share of net profit to put aside for income and self-employment tax. Ask your accountant; 25–30% is a common starting point.</small></label>`:''}${F.mileage?`<label>Mileage rate (cents a mile)<input type="number" name="mileageRate" min="0" max="1000" step="0.1" required value="${(state.settings.mileageRate||0)/10}"><small>Use the IRS standard mileage rate for the tax year you are recording.</small></label>`:''}</div><div class="formfoot"><button class="btn primary">Save tax settings</button></div></form></section>`;
+ }
+ function taxLineField(c){
+  if(!F.taxLines)return '';
+  return `<label class="full">${esc(P.taxForm.name)} line<select name="taxLine">${lineOptions(c?.taxLine||'',c?Budget.taxLineFor(c):'')}</select><small>Where this category lands on your ${esc(P.taxForm.name)} summary. Transfers are never on it.</small></label>`;
+ }
+
+ // ---------- events ----------
+ const guarded=()=>screen==='budget'&&budgetDirty;
+ document.addEventListener('click',e=>{const b=e.target.closest('button[data-action^="biz-"]');if(!b||guarded())return;const a=b.dataset.action,id=b.dataset.id;try{switch(a){
+  case 'biz-period':period={...period,kind:b.dataset.kind};if(period.kind==='custom'&&!period.from){const r=range('ytd');period.from=r.from;period.to=r.to;}render();break;
+  case 'biz-pl-csv':plCSV();break;
+  case 'biz-log-tax':transactionForm('',id);break;
+  case 'biz-rate':go('settings');setTimeout(()=>document.querySelector('#biz-settings-form input')?.focus(),60);break;
+  case 'biz-sc-csv':summaryCSV();break;
+  case 'biz-sc-detail':detailCSV();break;
+  case 'biz-add-trip':tripForm();break;
+  case 'biz-edit-trip':tripForm(id);break;
+  case 'biz-delete-trip':confirmation('Delete this trip?','It will be removed from the mileage log and your tax summary. You can undo this change.','biz-confirm-delete-trip','Delete trip',`data-id="${id}"`);break;
+  case 'biz-confirm-delete-trip':closeModal();commit(()=>state.mileage=state.mileage.filter(t=>t.id!==id),'Trip deleted');break;
+  case 'biz-mileage-csv':mileageCSV();break;
+  case 'biz-inv-filter':invFilter=['open','paid','all'].includes(b.dataset.filter)?b.dataset.filter:'open';render();break;
+  case 'biz-add-invoice':invoiceForm();break;
+  case 'biz-edit-invoice':invoiceForm(id);break;
+  case 'biz-pay':payForm(id);break;
+  case 'biz-unpay':{const v=state.invoices.find(x=>x.id===id),t=v?.paid?.tx&&state.transactions.find(x=>x.id===v.paid.tx);
+   if(t&&!writable(t.date.slice(0,7)))return toast('Reopen '+monthName(t.date.slice(0,7))+' to undo this payment.');
+   confirmation('Mark this invoice unpaid?',t?`The ${fmt(t.amount)} revenue entry on ${fullDate(t.date)} will be removed too. You can undo this change.`:'It goes back to your open invoices.','biz-confirm-unpay','Mark unpaid',`data-id="${id}"`);break;}
+  case 'biz-confirm-unpay':{closeModal();commit(()=>{const v=state.invoices.find(x=>x.id===id);if(!v?.paid)return;const tx=v.paid.tx;if(tx)state.transactions=state.transactions.filter(t=>t.id!==tx);delete v.paid;},'Invoice marked unpaid');break;}
+  case 'biz-delete-invoice':confirmation('Delete this invoice?','It is removed from your receivables. You can undo this change.','biz-confirm-delete-invoice','Delete invoice',`data-id="${id}"`);break;
+  case 'biz-confirm-delete-invoice':closeModal();commit(()=>state.invoices=state.invoices.filter(v=>v.id!==id||v.paid),'Invoice deleted');break;
+ }}catch(err){toast(err.message);}});
+ document.addEventListener('change',e=>{const id=e.target.dataset?.taxline;if(!id)return;const c=category(id);if(!c)return;
+  const v=e.target.value;if(v&&!Budget.TAX_LINES[v])return;commit(()=>{if(v)c.taxLine=v;else delete c.taxLine;},`${c.name} → ${lineLabel(v||Budget.taxLineFor({...c,taxLine:undefined}))}`);});
+ document.addEventListener('submit',e=>{const form=e.target;if(!form.id?.startsWith('biz-'))return;e.preventDefault();const f=new FormData(form),id=form.dataset.id;try{switch(form.id){
+  case 'biz-range':{const from=f.get('from'),to=f.get('to');if(!Budget.validDate(from)||!Budget.validDate(to))throw Error('Choose two valid dates.');if(to<from)throw Error('The end date is before the start date.');if(Budget.monthsBetween(from,to).length>120)throw Error('Choose a range of ten years or less.');period={kind:'custom',from,to};render();break;}
+  case 'biz-settings-form':{const next={};
+   if(F.tax){const r=Math.round(Number(f.get('taxRate'))*100);if(!Number.isFinite(r)||r<0||r>9000)throw Error('Use a set-aside rate from 0 to 90%.');next.taxRate=r;}
+   if(F.mileage){const r=Math.round(Number(f.get('mileageRate'))*10);if(!Number.isFinite(r)||r<0||r>10000)throw Error('Use a mileage rate from 0 to 1,000 cents.');next.mileageRate=r;}
+   commit(()=>Object.assign(state.settings,next),'Tax settings saved');break;}
+  case 'biz-trip-form':{const date=f.get('date'),purpose=f.get('purpose').trim(),route=f.get('route').trim();
+   if(!Budget.validDate(date)||date>today())throw Error('Use a valid date today or earlier.');if(!purpose)throw Error('Say what the trip was for.');
+   if(!/^\d{1,6}(\.\d)?$/.test(String(f.get('miles')).trim()))throw Error('Enter the miles with up to one decimal place.');
+   let m=Math.round(Number(f.get('miles'))*10)*(f.get('round')==='on'?2:1);if(!m)throw Error('Enter the miles driven.');
+   const t={id:id||Budget.uid(),date,purpose,route,miles:m};closeModal();
+   commit(()=>{state.mileage??=[];if(id)state.mileage=state.mileage.map(x=>x.id===id?t:x);else state.mileage.push(t);selected=date.slice(0,7);},'Trip saved');break;}
+  case 'biz-invoice-form':{const old=(state.invoices||[]).find(x=>x.id===id),number=f.get('number').trim(),client=f.get('client').trim(),issued=f.get('issued'),due=f.get('due'),note=f.get('note').trim();
+   if(!number)throw Error('Give the invoice a number.');if(!client)throw Error('Add the client’s name.');
+   if(!Budget.validDate(issued)||!Budget.validDate(due))throw Error('Use valid dates.');if(due<issued)throw Error('The due date is before the issue date.');
+   if((state.invoices||[]).some(x=>x.id!==id&&x.number===number))throw Error('Another invoice already uses that number.');
+   const amount=old?.paid?old.amount:Budget.cents(f.get('amount')),cat=old?.paid?old.category:f.get('category');
+   if(!amount)throw Error('Enter an amount greater than zero.');if(!category(cat)||Budget.type(category(cat))!=='income')throw Error('Choose a revenue category.');
+   const v={...(old||{}),id:id||Budget.uid(),number,client,issued,due,amount,category:cat,note};closeModal();
+   commit(()=>{state.invoices??=[];if(id)state.invoices=state.invoices.map(x=>x.id===id?v:x);else state.invoices.push(v);},old?'Invoice saved':'Invoice added');break;}
+  case 'biz-pay-form':{const v=state.invoices.find(x=>x.id===id),date=f.get('date');if(!v||v.paid)throw Error('This invoice is already paid.');
+   if(!Budget.validDate(date)||date>today()||date<v.issued)throw Error('Use a date between the issue date and today.');
+   if(!writable(date.slice(0,7)))throw Error(monthName(date.slice(0,7))+' is closed. Reopen it first.');
+   if(state.transactions.length>=MAX_TRANSACTIONS)throw Error(LIMIT_MESSAGE);
+   const t={id:Budget.uid(),date,category:v.category,amount:v.amount,note:`Invoice ${v.number} · ${v.client}`};closeModal();
+   commit(()=>{state.transactions.push(t);state.invoices.find(x=>x.id===id).paid={date,tx:t.id};},`Invoice ${v.number} paid · ${fmt(v.amount)} added to ${L.income.toLowerCase()}`);break;}
+ }}catch(err){if($('#modal').open)formError(err);else toast(err.message);}});
+
+ const views={};
+ if(F.pl)views.pl=plView;
+ if(F.tax)views.tax=taxView;
+ if(F.taxLines)views.taxlines=taxlinesView;
+ if(F.mileage)views.mileage=mileageView;
+ if(F.invoices)views.invoices=invoicesView;
+ return {views,dashboard,settingsCard,taxLineField,range,columns,statementRows};
+})();
 render();
 </script></body></html>

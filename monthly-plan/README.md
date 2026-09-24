@@ -18,18 +18,47 @@ digital download (JPS Digital Pages). Everything needed to rebuild the listing i
 - `../.claude/skills/html-app-mockup-deck/` — the mockup-deck build, generalized into a
   reusable skill (config-driven; `assets/example-deck.json` is this product's deck).
 
-## Architecture worth knowing before re-skinning
+## One core, two editions
 
-State lives in one object (see `blank()`): `settings`, `baseline`, `categories`,
-`months`, `transactions`, `goals`, `reviews`, `schedules`, `snapshots`. Categories are
-`{id, name, group, archived}`, and nearly every view derives from the `group` field —
-so a different niche is mostly different category defaults, labels and a few new views,
-not a different engine. `Budget` and `CSV` are separate modules with unit tests in
-`build/test.js`.
+The planner is built, not hand-edited. Edit the source, then rebuild:
 
-## Planned re-skins
+- `app/src/core.html` — the shared engine and UI. Never shipped as-is.
+- `app/packs/budget.js` → `app/MonthlyBudgetPlanner.html` (Monthly Plan v1.8, household budget)
+- `app/packs/business.js` → `app/ProfitPlanBusiness.html` (Profit Plan v1.0, freelancer / small business)
 
-Same engine, niche-specific config: small-business / freelancer P&L (revenue, COGS,
-gross margin, tax set-aside, Schedule C mapping) and rental property (Schedule E,
-per-property P&L). The intended approach is one shared core with a niche pack at the
-top of the file, rather than forked copies.
+A niche pack is one `const NICHE = {...}` block, inlined as the first script at the top of the
+shipped file. It holds product identity, category **groups and their flags**, default categories,
+tax-line mapping, Quick Log words, labels, tour and guide copy, themes, storage keys, features
+and the sample data. Group flags drive everything:
+
+| flag | effect |
+|---|---|
+| `type` | `income`, `expense`, or `saving` (a transfer: neither income nor expense, never in profit) |
+| `cogs` | cost of goods sold: sits between revenue and gross profit |
+| `other` | non-operating income, below operating profit |
+| `tax` | counts as money set aside for tax |
+| `fixed` / `debt` / `subscription` | reserved on the dashboard / can be a payoff goal / insights total |
+| `taxLine` | the tax-form line new categories in the group start on |
+
+Features (`pl`, `tax`, `taxLines`, `mileage`, `invoices`, `wealth`, `goals`) switch screens on.
+Each edition uses its own storage keys and tags its backups, so both can run in one browser and
+a backup only restores into its own edition.
+
+State lives in one object (see `blank()`): `settings`, `baseline`, `categories`, `months`,
+`transactions`, `goals`, `reviews`, `schedules`, `snapshots`, plus `mileage` and `invoices` in
+the business edition. `Budget` (pure calculations, incl. `pl`, `taxSetAside`, `taxSummary`,
+`receivables`) and `CSV` are separate modules; `Biz` holds the business screens.
+
+## Build and test
+
+```
+node build/build_app.js          # rebuild both editions from core + packs
+node build/test.js               # module tests: budget vs frozen v1.8, business maths, build is current
+node build/ui_parity.js          # budget edition renders exactly like v1.8 (needs git history)
+node build/biz_smoke.js [shots]  # drives every business screen and flow in Chromium
+```
+
+## Next re-skin
+
+Rental property (Schedule E, per-property P&L): a new pack with property groups and Schedule E
+lines. Per-property reporting would need a property tag on transactions in the core.
