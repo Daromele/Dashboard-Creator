@@ -72,6 +72,20 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   // saved books survive a reload and pass validation
   await p.reload();await p.waitForTimeout(300);
   check('reload keeps books',await p.evaluate(()=>state.invoices.length===1&&state.mileage.length===1&&state.niche==='business'));
+  await p.evaluate(()=>{state.transactions.push({id:'keep1',date:'2026-09-01',category:'client-work',amount:100,note:''});});
+  // Start fresh: keep setup, undo, then erase everything
+  await p.evaluate(()=>go('settings'));await p.click('[data-action="start-fresh"]');
+  await p.click('#fresh-form button[type=submit]');
+  check('start fresh needs the confirm box',await p.evaluate(()=>document.querySelector('#modal').open&&state.invoices.length===1));
+  await p.check('#fresh-form input[name=sure]');await p.click('#fresh-form button[type=submit]');await p.waitForTimeout(150);
+  check('keep setup clears entries, keeps categories and rates',await p.evaluate(()=>state.transactions.length===0&&state.invoices.length===0&&state.mileage.length===0&&state.categories.some(c=>c.name==='Stock photos')&&state.settings.taxRate===3000&&state.niche==='business'));
+  await p.click('#toast [data-action="undo"]');
+  check('undo brings it all back',await p.evaluate(()=>state.invoices.length===1&&state.mileage.length===1));
+  await p.evaluate(()=>go('settings'));await p.click('[data-action="start-fresh"]');await p.check('#fresh-form input[value=none]');
+  await p.check('#fresh-form input[name=sure]');await p.click('#fresh-form button[type=submit]');await p.waitForTimeout(150);
+  check('erase everything is a new planner',await p.evaluate(()=>JSON.stringify(state)===JSON.stringify(Budget.blank())));
+  await p.reload();await p.waitForTimeout(300);
+  check('erase survives reload',await p.evaluate(()=>state.invoices.length===0&&!state.categories.some(c=>c.name==='Stock photos')));
   // narrow screen
   await p.setViewportSize({width:390,height:844});for(const s of ['dashboard','pl','tax','taxlines','invoices','mileage']){await p.evaluate(s=>go(s),s);await shot('phone-'+s);
     const over=await p.evaluate(()=>document.documentElement.scrollWidth-innerWidth);check('no sideways scroll on phone: '+s,over<=1,String(over));}
