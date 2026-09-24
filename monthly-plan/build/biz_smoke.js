@@ -9,9 +9,13 @@ const SCREENS=['dashboard','pl','budget','activity','invoices','tax','taxlines',
 let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL:',name,extra);}};
 (async()=>{
   const b=await chromium.launch(),ctx=await b.newContext({viewport:{width:1440,height:1000},locale:'en-US',timezoneId:'UTC',acceptDownloads:true,reducedMotion:'reduce'});
-  await ctx.addInitScript(()=>{try{localStorage.setItem('jps-profit-plan-welcome-v1','1');localStorage.setItem('jps-profit-plan-manual-backup',String(Date.now()));}catch{}});
   const p=await ctx.newPage();await p.clock.setFixedTime(new Date('2026-09-24T10:00:00Z'));
   const errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());
+  // Mark the welcome tour and backup reminder as seen with an ordinary page script, then load
+  // again. Do not use addInitScript for this: an init script that touches localStorage on a
+  // file:// page makes headless Chromium intermittently drop the whole store on the next
+  // reload (reproduced on a bare page), which looks like the planner losing data. It does not.
+  await p.goto(FILE);await p.evaluate(()=>{localStorage.setItem('jps-profit-plan-welcome-v1','1');localStorage.setItem('jps-profit-plan-manual-backup',String(Date.now()));});
   await p.goto(FILE);await p.waitForTimeout(300);
   const shot=async name=>{if(OUT){fs.mkdirSync(OUT,{recursive:true});await p.screenshot({path:path.join(OUT,name+'.png'),fullPage:true});}};
   const text=()=>p.locator('#content').innerText();

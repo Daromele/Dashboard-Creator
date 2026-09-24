@@ -23,6 +23,8 @@ const DIALOGS={
 };
 async function capture(file){
   const b=await chromium.launch(),ctx=await b.newContext({viewport:{width:1440,height:1000},locale:'en-US',timezoneId:'UTC',reducedMotion:'reduce'});
+  // This init script also writes localStorage. That is safe here only because each page is
+  // loaded once and never reloaded; see biz_smoke.js for why reloads need another approach.
   await ctx.addInitScript(()=>{let n=0;Object.defineProperty(crypto,'randomUUID',{value:()=>'id-'+(++n),configurable:true});
     let seed=7;Math.random=()=>(seed=(seed*16807)%2147483647)/2147483647;
     try{localStorage.setItem('jps-monthly-plan-welcome-v1','1');localStorage.setItem('jps-monthly-plan-manual-backup',String(Date.now()));}catch{}});

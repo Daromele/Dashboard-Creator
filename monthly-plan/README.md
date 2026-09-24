@@ -58,6 +58,12 @@ node build/ui_parity.js          # budget edition renders exactly like v1.8 (nee
 node build/biz_smoke.js [shots]  # drives every business screen and flow in Chromium
 ```
 
+Test harnesses must not touch `localStorage` from Playwright's `addInitScript` on a page they
+later reload: on file:// pages that makes headless Chromium intermittently drop the whole store,
+which looks like the planner losing data. It is not the app. The same flow without an init
+script kept its data in 180 of 180 runs (v1.8, v1.9 and Profit Plan, normal and incognito-style
+profiles). `biz_smoke.js` seeds its storage with an ordinary page script instead.
+
 ## Next re-skin
 
 Rental property (Schedule E, per-property P&L): a new pack with property groups and Schedule E
