@@ -36,7 +36,11 @@ h2{font-family:var(--display);font-size:60px;line-height:1.05;letter-spacing:-.0
    slide instead of pushing the caption off the bottom */
 .shot{position:relative;z-index:1;margin-top:28px;width:100%;min-height:0;border-radius:4px;overflow:hidden;
   box-shadow:0 26px 60px rgba(26,18,42,.26);background:#fff;flex:1 1 0;display:flex}
-.dark .shot{box-shadow:0 34px 80px rgba(0,0,0,.45)}
+.dark .shot{box-shadow:0 34px 80px rgba(0,0,0,.45);outline:1px solid rgba(255,255,255,.17);outline-offset:-1px}
+/* A dark screenshot on a dark slide loses its edge and stops reading as a
+   screenshot at thumbnail size. The hairline gives it back; keep the slide
+   background a shade lighter than the app's own for the same reason. */
+.dark .look .box{outline:1px solid rgba(255,255,255,.14);outline-offset:-1px}
 .shot .swap-wrap{width:100%;height:100%}
 .shot img{display:block;width:100%;height:100%;object-fit:cover;object-position:top center}
 .pills{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:24px}
