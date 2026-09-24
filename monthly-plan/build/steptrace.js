@@ -1,0 +1,20 @@
+const {chromium}=require(require.resolve('playwright',{paths:['/opt/node22/lib/node_modules']}));
+const path=require('path');
+(async()=>{const b=await chromium.launch();const p=await (await b.newContext({viewport:{width:1440,height:1000}})).newPage();
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+path.resolve('MonthlyBudgetPlanner.html'));await p.waitForTimeout(900);
+const x=p.locator('[data-action="welcome-close"]');if(await x.isVisible().catch(()=>0))await x.click();
+const probe=l=>p.evaluate(l=>({at:l,demo,storageProblem,tx:state.transactions.length,
+  stored:(()=>{const r=localStorage.getItem(KEY);return r?JSON.parse(r).transactions.length:'NO KEY';})()}),l);
+await p.evaluate(()=>{for(let i=0;i<6;i++)state.transactions.push({id:Budget.uid(),date:Budget.today(),category:'groceries',amount:1000+i,note:'x'});save();render();});
+console.log(await probe('after seed'));
+await p.evaluate(()=>go('settings'));await p.waitForTimeout(400);
+await p.locator('[data-action="start-fresh"]').click();await p.waitForTimeout(300);
+await p.locator('[data-action="confirm-fresh"]').click();await p.waitForTimeout(700);
+console.log(await probe('after reset'));
+await p.locator('[data-action="undo"]').click();await p.waitForTimeout(600);
+console.log(await probe('after undo'));
+await p.reload();await p.waitForTimeout(900);
+console.log(await probe('after reload'));
+console.log('errors',errs);
+await b.close();})();

@@ -1,0 +1,71 @@
+MONTHLY PLAN — LICENCE
+======================
+
+Monthly Plan
+Copyright (c) 2026 JPS Digital Pages · https://jpsdigitalpages.com/
+
+This is a commercial template. Buying it gives you the rights set out
+below. The full terms, which take precedence over this summary, are at
+https://jpsdigitalpages.com/terms-of-service
+
+
+WHAT YOU MAY DO
+---------------
+
+You bought a single-user personal licence. You may:
+
+  · Use Monthly Plan for your own household's money, for as long as you like.
+  · Keep it on as many of your own computers as you own.
+  · Keep as many backup copies of your own file and your own data as you want.
+  · Change the file however you like for your own use — colours, category
+    names, wording, code.
+  · Print any page for your own records.
+  · Keep using it forever. There is no subscription and no expiry, and
+    because the file is self-contained it will keep working whether or
+    not this product is still sold.
+
+
+WHAT YOU MAY NOT DO
+-------------------
+
+  · Resell, sublicense, rent or redistribute the file, modified or not.
+  · Share the file, or your download link, with anyone outside your
+    household.
+  · Publish it anywhere it can be downloaded by others, including free
+    file hosts, template galleries, marketplaces or public repositories.
+  · Sell anything derived from it, or use it as the basis of another
+    product, template or app you distribute.
+  · Remove or replace the maker's name, website or terms link and pass
+    the result off as your own work.
+
+An extended or commercial licence — for client work, for teams, or to
+build on this file in something you distribute — is available. Get in
+touch through the website.
+
+
+YOUR DATA
+---------
+
+Monthly Plan runs entirely on your device. It has no accounts, no server
+and no analytics, and it never sends your financial information
+anywhere. That also means nobody else holds a copy for you: your data
+is yours to keep, and yours to back up. Download backup writes a file
+you choose, and the optional daily folder backup writes to a folder you
+control.
+
+
+NO WARRANTY
+-----------
+
+This software is provided "as is", without warranty of any kind, express
+or implied, including but not limited to the warranties of
+merchantability, fitness for a particular purpose and non-infringement.
+
+Monthly Plan is a budgeting tool, not financial advice. Its totals and
+"after your commitments" figures are arithmetic applied to the figures
+you enter — they are only ever as good as those figures, and they
+cannot know about anything you have not told it. Always check important
+decisions against your actual bank balance.
+
+In no event shall the author be liable for any claim, damages or other
+liability arising from the use of this software.
