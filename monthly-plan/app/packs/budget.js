@@ -8,7 +8,7 @@
 const NICHE = {
   id: 'budget',
   product: {
-    name: 'Monthly Plan', mark: 'M', publisher: 'JPS DIGITAL PAGES', version: '1.9',
+    name: 'Monthly Plan', mark: 'M', publisher: 'JPS DIGITAL PAGES', version: '2.0',
     tagline: 'Monthly & annual budget', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Monthly Plan · Monthly & Annual Budget', themeColor: '#382750',
     description: 'Monthly Plan by JPS Digital Pages. Plan your monthly budget, track your spending, and see the whole year clearly. Works offline.',
