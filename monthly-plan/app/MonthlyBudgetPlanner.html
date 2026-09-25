@@ -1463,7 +1463,7 @@ const Budget = ((P) => {
     s.transactions.forEach(t=>{const r=s.schedules.find(r=>r.category===t.category);if(r)t.scheduleKey=r.id+'@'+t.date;});
     if(S.snapshots)for(let i=1;i<=+m.slice(5,7);i++){const credit=Math.max(0,198000-i*22000),personal=Math.max(0,240000-i*18000),car=Math.max(0,510000-i*30000),loans=personal+car,mortgage=Math.max(0,300000-i*10000),debts=credit+loans+mortgage;s.snapshots[year+'-'+String(i).padStart(2,'0')]={cash:120000+i*18000,savings:190000+i*70000,investments:600000+i*41000,other:150000,debts,debtMix:{credit,loans,mortgage,other:0},note:'Fictional month-end statement balances.'};}
     s.goals=S.goals.map(g=>({id:uid(),category:g.category,kind:g.kind,name:g.name,target:g.target,opening:g.opening,start:year+'-01-01',due:(+year+g.due[0])+'-'+g.due[1],...(g.image?{image:SAMPLE_GOAL_IMAGES[g.image]}:{})}));
-    if(S.extras)S.extras(s,{m,year,now,uid,days,shift,plusDays});
+    if(S.extras)S.extras(s,{m,year,now,uid,days,shift,plusDays,totals:(st,mm)=>{invalidate(st);return totals(st,mm);}});
     return s;
   }
   return {P,GROUP_DEFS,group,isDebt,counted,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
@@ -1840,7 +1840,7 @@ function annualView(){
  ${P.features.pl?Biz.annualCharts(year):annualIncomeExpense(all,cutoff)+`<section class="card"><div class="cardhead"><div><h2>Annual plan vs actual</h2><p>${seriesLabel} by month · future actuals are not shown</p></div><div class="segment no-print" aria-label="Annual comparison category">${[['income',L.income],['expense',L.expense],['saving',L.savingShort]].map(([v,l])=>`<button data-action="annual-series" data-series="${v}" aria-pressed="${annualSeries===v}">${l}</button>`).join('')}</div></div>${areaChart([{name:'Planned',values:all.map(m=>m[annualSeries].plan),color:'var(--pop)'},{name:'Actual',values:all.map(m=>m.month<=cutoff?m[annualSeries].actual:null),color:'var(--accent)'}],all.map(m=>shortMonth(m.month)),seriesLabel+' planned versus actual by month')}<p class="small muted" style="margin-top:12px">Choose ${L.income}, ${L.expense} or ${L.savingShort} above. A blank future month has no recorded result yet.</p></section>
  ${annualCategoryChart(year)}`}
  <section class="card table-card"><div class="cardhead"><div><h2>Month by month</h2><p>Recorded activity through ${monthName(cutoff)}. Future plans stay separate from actuals.</p></div><span class="pill">${all.filter(m=>m.hasPlan).length} months planned</span></div><div class="table-wrap"><table class="annual-table"><thead><tr><th>Month</th><th class="num">${L.income}</th><th class="num">${L.expense}</th><th class="num">${L.savedCol}</th><th class="num">Net cash flow</th><th class="num">Expense plan − actual</th><th>Status</th></tr></thead><tbody>${all.map(m=>`<tr><td><button class="link" data-action="select-month" data-month="${m.month}">${shortMonth(m.month)}</button></td><td class="num">${actualOrBlank(m,'income')}</td><td class="num">${actualOrBlank(m,'expense')}</td><td class="num">${actualOrBlank(m,'saving')}</td><td class="num ${m.month<=cutoff&&m.net<0?'warn':''}">${m.month>cutoff?'—':fmt(m.net)}</td><td class="num ${m.month<=cutoff&&m.remaining<0?'warn':''}">${m.month>cutoff||!m.hasPlan?'—':fmt(m.remaining)}</td><td><span class="pill">${m.month>cutoff?'Upcoming':m.closed?'Closed':m.hasPlan?'Planned':'Not planned'}</span></td></tr>`).join('')}<tr><td><b>To date</b></td><td class="num"><b>${fmt(income)}</b></td><td class="num"><b>${fmt(expense)}</b></td><td class="num"><b>${fmt(saving)}</b></td><td class="num"><b>${fmt(income-expense-saving)}</b></td><td class="num">${fmt(sum('expense','plan',elapsed)-expense)}</td><td></td></tr></tbody></table></div></section>
- <div class="notice"><span><b>Plan ahead without retyping.</b><br>Copy a monthly budget into unplanned months, then adjust the months that need something different.</span>${button('Repeat this budget','repeat','small')}</div>`+annualMatrix();
+ <div class="notice"><span><b>Plan ahead without retyping.</b><br>Copy a monthly budget into unplanned months, then adjust the months that need something different.</span>${button('Repeat this budget','repeat','small')}</div>`+(P.features.pl?Biz.cashflowAnnual(year):annualMatrix());
 }
 function budgetView(){
  const t=Budget.totals(state,selected),rows=Budget.rows(state,selected),locked=!writable(selected);
@@ -3055,6 +3055,24 @@ const Biz=(()=>{
    `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Where the ${esc(L.income.toLowerCase())} came from</h2><p>${when} · by category</p></div></div>${revMix.length?donutMarkup(revMix,Y.revenue.total,L.income.toLowerCase()):empty(`No ${L.income.toLowerCase()} recorded`,'Log a payment you received to see the mix.')}</section>`+
    `<section class="card"><div class="cardhead"><div><h2>Where the money went</h2><p>${when} · largest expense categories</p></div></div>${costMix.length?donutMarkup(costMix,costTotal,'expenses'):empty('No expenses recorded','Log a cost you paid to see the mix.')}</section></div>`;
  }
+ // Cash flow for the year: where cash started, what came in and went out, and where it ended.
+ // A month's recorded opening balance restarts the running total; otherwise the balance carries on.
+ // Card payoffs and moves between own accounts are left out: the purchases already count.
+ function cashflowAnnual(y){
+  const cutoff=today().slice(0,7);let bal=null;
+  const rows=Array.from({length:12},(_,i)=>{const m=`${y}-${String(i+1).padStart(2,'0')}`,rec=state.months[m],t=Budget.totals(state,m);
+   const opening=rec&&rec.opening?rec.opening:(bal??(rec?.opening||0));
+   const r={month:m,future:m>cutoff,opening,in:t.income.actual,out:t.expense.actual,moved:t.saving.actual};
+   r.operating=r.in-r.out;r.net=r.operating-r.moved;r.closing=opening+r.net;if(!r.future)bal=r.closing;return r;});
+  const past=rows.filter(r=>!r.future),sum=k=>past.reduce((n,r)=>n+r[k],0),last=past.at(-1);
+  const cell=(r,k)=>r.future?'<td class="num dim">—</td>':`<td class="num">${acct(r[k])}</td>`;
+  return `<section class="card"><div class="cardhead"><div><h2>Cash flow</h2><p>Operating cash flow is ${esc(L.income.toLowerCase())} received minus costs paid. Owner and tax transfers are the draws, tax-pot moves, savings and loan principal that leave the business account.</p></div></div>`+
+   (past.length?areaChart([{name:'Closing cash',values:rows.map(r=>r.future?null:r.closing),color:'var(--accent)'},{name:'Net cash flow',values:rows.map(r=>r.future?null:r.net),color:'var(--pop)'}],rows.map(r=>shortMonth(r.month)),'Closing cash and net cash flow by month'):'')+
+   `<div class="table-wrap" style="margin-top:16px"><table class="cashflow-table"><thead><tr><th>Month</th><th class="num">Opening cash</th><th class="num">Money in</th><th class="num">Money out</th><th class="num">Operating cash flow</th><th class="num">Owner &amp; tax transfers</th><th class="num">Net cash flow</th><th class="num">Closing cash</th></tr></thead><tbody>`+
+   rows.map(r=>`<tr><td><button class="link" data-action="select-month" data-month="${r.month}">${shortMonth(r.month)}</button></td>${cell(r,'opening')}${cell(r,'in')}${cell(r,'out')}${cell(r,'operating')}${cell(r,'moved')}${cell(r,'net')}<td class="num"><b>${r.future?'—':acct(r.closing)}</b></td></tr>`).join('')+
+   `<tr class="group-total"><td><b>${y===cutoff.slice(0,4)?'Year to date':'Year'}</b></td><td class="num">${past.length?fmt(past[0].opening):'—'}</td><td class="num"><b>${fmt(sum('in'))}</b></td><td class="num"><b>${fmt(sum('out'))}</b></td><td class="num"><b>${acct(sum('operating'))}</b></td><td class="num"><b>${fmt(sum('moved'))}</b></td><td class="num"><b>${acct(sum('net'))}</b></td><td class="num"><b>${last?acct(last.closing):'—'}</b></td></tr></tbody></table></div>`+
+   `<p class="small muted" style="margin-top:12px">Opening cash comes from each month’s opening balance on the Monthly targets screen; a month without one carries on from the month before. Cash basis, so unpaid invoices are not included until they are paid.</p></section>`;
+ }
  function taxLineField(c){
   if(!F.taxLines)return '';
   return `<label class="full">${esc(P.taxForm.name)} line<select name="taxLine">${lineOptions(c?.taxLine||'',c?Budget.taxLineFor(c):'')}</select><small>Where this category lands on your ${esc(P.taxForm.name)} summary. Transfers are never on it.</small></label>`;
@@ -3121,7 +3139,7 @@ const Biz=(()=>{
  if(F.taxLines)views.taxlines=taxlinesView;
  if(F.mileage)views.mileage=mileageView;
  if(F.invoices)views.invoices=invoicesView;
- return {views,dashboard,settingsCard,taxLineField,annualCharts,range,columns,statementRows};
+ return {views,dashboard,settingsCard,taxLineField,annualCharts,cashflowAnnual,range,columns,statementRows};
 })();
 render();
 </script></body></html>

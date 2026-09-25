@@ -164,7 +164,7 @@ const NICHE = {
   sample: {
     name: 'Juniper Studio', opening: 420000, settings: { goalImages: true, goalsLayout: 'grid' },
     note: 'Chase the late invoices and keep the tax pot topped up before the September payment.',
-    amounts: { 'client-work': 5600, 'product-sales': 1600, retainers: 900, materials: 260, postage: 180, software: 95, 'phone-internet': 80, workspace: 350, insurance: 45, website: 25, advertising: 220, 'platform-fees': 120, office: 40, professional: 60, contractors: 600, meals: 70, 'owner-draw': 3000, 'tax-reserve': 1400, 'biz-savings': 200 },
+    amounts: { 'client-work': 5600, 'product-sales': 1600, retainers: 900, materials: 260, postage: 180, software: 95, 'phone-internet': 80, workspace: 350, insurance: 45, website: 25, advertising: 220, 'platform-fees': 120, office: 40, professional: 60, contractors: 600, meals: 70, 'owner-draw': 2000, 'tax-reserve': 1400, 'biz-savings': 200 },
     days: { retainers: 1, workspace: 1, software: 3, website: 4, 'phone-internet': 12, insurance: 15, 'owner-draw': 28, 'tax-reserve': 28, 'biz-savings': 28, professional: 20, contractors: 25 },
     undated: ['client-work', 'product-sales', 'materials', 'postage', 'advertising', 'platform-fees', 'office', 'meals'],
     unscheduled: ['client-work', 'product-sales', 'office', 'meals'],
@@ -184,7 +184,7 @@ const NICHE = {
       { category: 'tax-reserve', kind: 'saving', name: 'Tax pot for this year', target: 1600000, opening: 0, due: [0, '12-31'], image: 'emergency' },
       { category: 'biz-savings', kind: 'saving', name: 'Three months of costs in reserve', target: 700000, opening: 250000, due: [1, '06-30'], image: 'investing' },
     ],
-    extras: (s, { m, year, now, uid }) => {
+    extras: (s, { m, year, now, uid, totals }) => {
       // a few invoices: paid ones already sit in revenue, open ones are receivables
       const clients = ['Acme Studio', 'Northwind Co.', 'Fable & Finch', 'Orchard Health', 'Bright Harbor'];
       const monthNo = +m.slice(5, 7);
@@ -215,6 +215,11 @@ const NICHE = {
           const [purpose, route, miles] = trips[(i + j) % trips.length];
           s.mileage.push({ id: uid(), date, purpose, route, miles });
         });
+      }
+      // cash carries forward: each month opens with the month before's closing balance
+      for (let i = 2; i <= 12; i++) {
+        const prev = `${year}-${String(i - 1).padStart(2, '0')}`, key = `${year}-${String(i).padStart(2, '0')}`;
+        s.months[key].opening = totals(s, prev).cash;
       }
     },
   },
