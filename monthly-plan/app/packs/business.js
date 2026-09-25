@@ -22,7 +22,7 @@ const NICHE = {
   storage: { key: 'jps-profit-plan', file: 'profit-plan' },
   editions: { budget: 'Monthly Plan, the household budget edition' },
   themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
-  features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: true, invoices: true },
+  features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: true, invoices: true, channels: true },
   // taxRate in basis points (2500 = 25%). mileageRate in thousandths of the currency per distance unit
   // (700 = 0.70 per mile or km); it starts at 0 because the allowed rate differs by country and year.
   settings: { taxRate: 2500, mileageRate: 0, distanceUnit: 'mi' },
@@ -159,6 +159,7 @@ const NICHE = {
       ['Outside the US', 'Profit, cash flow, transactions, invoices and the mileage log work anywhere: set your currency in Settings, and choose miles or kilometres. The <b>Schedule C summary</b> uses US line numbers and the <b>Quarterly tax</b> due dates follow the US estimated-tax calendar. Elsewhere, treat the category totals and set-aside figures as a starting point for your own return and your own payment dates.'],
       ['Mileage rate', 'The mileage rate starts at zero because every country sets its own, and it changes most years (for example the IRS rate in the US, or HMRC’s in the UK). Enter the rate that applies to you in <b>Settings → Tax &amp; mileage</b>. Trips logged before you set it are valued at the new rate.'],
       ['Importing from your bank', 'On the import screen, filter by status to see only the rows that are not ready, fix their category or date, and import them from the button at the top or bottom. When you change a category, Profit Plan offers to update similar transactions and to remember the choice for future imports. Remembered rules are listed in Settings, where you can remove them.'],
+      ['Selling in more than one place', 'Add a sales channel for each place you sell (Etsy, Shopify, YouTube, client work…) in <b>Settings → Sales channels</b>, or just type a new one on a transaction. Tag sales and the costs that clearly belong to a channel, such as its fees and postage. Leave shared costs like software untagged. Profit &amp; loss then shows profit for each channel before shared costs, and you can view the statement for one channel at a time. On import, tag rows in bulk; Profit Plan offers to remember the channel for similar descriptions.'],
       ['Owner’s draws, tax money and retirement', 'Paying yourself, moving money to your tax pot, income tax you pay, your own retirement contributions and loan principal are not business expenses, so they never reduce profit. Loan interest is an expense; record it separately. Your accountant will want the totals for retirement contributions and tax paid, which appear under Transfers.'],
       ['Business credit cards and your own transfers', 'If you log or import the card’s purchases, those are the expenses. Paying the card from the business account is then a transfer: use <b>Business card payoff (purchases already logged)</b>, which is never counted. Moving money between your own business accounts is a transfer too.'],
       ['Tax pot and tax payments', 'Log each move into your tax pot as a Tax savings transfer. If you later pay the tax from that pot, do not log the payment again; log Estimated tax payments only when you pay straight from the business account.'],
@@ -224,6 +225,21 @@ const NICHE = {
           s.mileage.push({ id: uid(), date, purpose, route, miles });
         });
       }
+      // three sales channels: design clients, an Etsy shop and the studio's own web shop.
+      // Their sales and direct costs are tagged; rent, software and the like stay shared.
+      s.channels = [{ id: 'ch-clients', name: 'Design clients' }, { id: 'ch-etsy', name: 'Etsy' }, { id: 'ch-web', name: 'Web shop' }];
+      s.channelRules = { 'etsy': 'ch-etsy', 'invoice': 'ch-clients' };
+      // product sales and their costs split roughly 60/40 between Etsy and the web shop
+      const seen = {};
+      s.transactions.forEach(t => {
+        if (['client-work', 'retainers', 'contractors'].includes(t.category)) t.channel = 'ch-clients';
+        else if (t.category === 'platform-fees') t.channel = 'ch-etsy';
+        else if (['product-sales', 'materials', 'postage', 'advertising'].includes(t.category)) {
+          const n = seen[t.category] = (seen[t.category] || 0) + 1;
+          t.channel = n % 5 === 1 || n % 5 === 3 ? 'ch-web' : 'ch-etsy';
+        }
+      });
+      s.invoices.forEach(v => { v.channel = 'ch-clients'; });
       // cash carries forward: each month opens with the month before's closing balance
       for (let i = 2; i <= 12; i++) {
         const prev = `${year}-${String(i - 1).padStart(2, '0')}`, key = `${year}-${String(i).padStart(2, '0')}`;

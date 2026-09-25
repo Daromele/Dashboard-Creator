@@ -127,4 +127,30 @@ module.exports=({eq,ok})=>{
   eq('quick: software', q('canva 12.99').category, 'software');
   eq('quick: postage', q('usps postage 8.40').category, 'postage');
   eq('quick: refund', q('refund etsy order 25').amount, -2500);
+
+  // ---- sales channels ----
+  {const c=B.blank();eq('channels start empty', [c.channels,c.channelRules], [[],{}]);
+   c.channels=[{id:'e',name:'Etsy'},{id:'y',name:'YouTube'}];
+   c.transactions=[
+    {id:'t1',date:'2026-03-02',category:'product-sales',amount:100000,note:'Etsy payout',channel:'e'},
+    {id:'t2',date:'2026-03-03',category:'platform-fees',amount:12000,note:'Etsy fees',channel:'e'},
+    {id:'t3',date:'2026-03-04',category:'client-work',amount:50000,note:'Sponsor',channel:'y'},
+    {id:'t4',date:'2026-03-05',category:'software',amount:8000,note:'Canva'},
+    {id:'t5',date:'2026-03-06',category:'owner-draw',amount:20000,note:'Draw'}];
+   B.invalidate(c);
+   const all=B.pl(c,'2026-03-01','2026-03-31'),e=B.pl(c,'2026-03-01','2026-03-31','e'),sh=B.pl(c,'2026-03-01','2026-03-31','');
+   eq('channel P&L: Etsy only', [e.revenue.total,e.net], [100000,88000]);
+   eq('channel P&L: shared only', [sh.revenue.total,sh.net], [0,-8000]);
+   const C=B.channelProfit(c,'2026-03-01','2026-03-31');
+   eq('channel profits', C.channels.map(x=>[x.name,x.revenue,x.costs,x.profit]), [['Etsy',100000,12000,88000],['YouTube',50000,0,50000]]);
+   eq('channels + shared = whole business', C.channels.reduce((n,x)=>n+x.profit,0)+C.shared.profit, all.net);
+   eq('transfers stay out of channel profit', C.shared.profit, -8000);
+   c.channelRules={'etsy':'e','etsy fees':'y'};
+   eq('channel rule: most specific wins', [B.channelFor(c,'ETSY FEES 123'),B.channelFor(c,'Etsy payout 88'),B.channelFor(c,'Shopify')], ['y','e','']);
+   const x=JSON.parse(JSON.stringify(c));x.transactions[0].channel='gone';x.channelRules.zz='gone';x.channels.push({id:'d',name:'etsy'},{id:'bad id!',name:'X'});
+   const v=B.validate(x);
+   eq('unknown channel tag dropped, not fatal', 'channel' in v.transactions[0], false);
+   eq('bad channels and rules dropped', [v.channels.map(c=>c.id),Object.keys(v.channelRules)], [['e','y'],['etsy','etsy fees']]);
+   const old=JSON.parse(JSON.stringify(c));delete old.channels;delete old.channelRules;
+   eq('older backups gain empty channels', [B.validate(old).channels,B.validate(old).channelRules], [[],{}]);}
 };

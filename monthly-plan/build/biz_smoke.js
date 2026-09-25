@@ -27,7 +27,18 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());await p.waitForTimeout(200);
   for(const s of SCREENS){await p.evaluate(s=>go(s),s);await p.waitForTimeout(60);await shot('sample-'+s);}
   await p.evaluate(()=>go('dashboard'));
-  const dash=await text();check('dashboard ladder',dash.includes('Profit this month')&&dash.includes('Gross profit')&&dash.includes('Tax pot'),dash.slice(0,300));
+  const dash=await text();check('dashboard glance',dash.includes('Profit this month')&&dash.includes('Money in')&&dash.includes('You keep')&&dash.includes('Tax pot')&&dash.includes('by channel'),dash.slice(0,300));
+  check('dashboard order: kpis, hero, profit',await p.evaluate(()=>{const c=document.querySelector('#content'),k=c.querySelector('.kpis-lead'),h=c.querySelector('.hero'),g=c.querySelector('.glance');return !!(k&&h&&g)&&!!(k.compareDocumentPosition(h)&Node.DOCUMENT_POSITION_FOLLOWING)&&!!(h.compareDocumentPosition(g)&Node.DOCUMENT_POSITION_FOLLOWING);}));
+  // sales channels: profit by channel adds up to the whole business
+  await p.evaluate(()=>go('pl'));await p.click('[data-action="biz-period"][data-kind="ytd"]');
+  check('profit by channel card',(await text()).includes('Profit by channel')&&(await text()).includes('Etsy'));
+  check('channels + shared = net',await p.evaluate(()=>{const r=Biz.range(),C=Budget.channelProfit(state,r.from,r.to);return C.channels.reduce((n,c)=>n+c.profit,0)+C.shared.profit===C.net&&C.channels.every(c=>c.revenue>0);}));
+  await p.selectOption('#biz-pl-channel',{label:'Etsy only'});const etsy=await text();
+  check('P&L filtered to Etsy',etsy.includes('Only transactions tagged Etsy')&&!etsy.includes('Profit by channel')&&!etsy.includes('Tax to set aside'),etsy.slice(0,300));
+  await p.selectOption('#biz-pl-channel','all');
+  await p.evaluate(()=>go('activity'));await p.selectOption('#channel-filter',{label:'Etsy'});
+  check('transactions channel filter',await p.evaluate(()=>[...document.querySelectorAll('.channel-chip')].length>0&&[...document.querySelectorAll('.channel-chip')].every(e=>e.textContent==='Etsy')));
+  await p.click('[data-action="clear-filters"]');
   // P&L periods
   await p.evaluate(()=>go('pl'));
   for(const k of ['month','quarter','ytd','year','custom']){await p.click(`[data-action="biz-period"][data-kind="${k}"]`);const t=await text();check('pl '+k,/Net (profit|loss)/.test(t)&&t.includes('Gross profit'),t.slice(0,200));await shot('pl-'+k);}
@@ -53,12 +64,19 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.evaluate(()=>document.querySelector('[data-action="exit-demo"]').click());
   await p.evaluate(()=>go('invoices'));await p.click('[data-action="biz-add-invoice"]');
   await p.fill('#biz-invoice-form input[name=client]','Acme Studio');await p.fill('#biz-invoice-form input[name=amount]','1500');
-  await p.fill('#biz-invoice-form input[name=issued]','2026-08-01');await p.fill('#biz-invoice-form input[name=due]','2026-08-31');
+  await p.fill('#biz-invoice-form input[name=channel]','Consulting');await p.fill('#biz-invoice-form input[name=issued]','2026-08-01');await p.fill('#biz-invoice-form input[name=due]','2026-08-31');
   await p.click('#biz-invoice-form button[type=submit]');
   check('invoice saved as overdue',(await text()).includes('days late'));
   await p.click('[data-action="biz-pay"]');await p.click('#biz-pay-form button[type=submit]');
   const st=await p.evaluate(()=>({tx:state.transactions.length,paid:!!state.invoices[0].paid,rev:Budget.plMonth(state,'2026-09').revenue.total}));
   check('paid invoice becomes revenue',st.tx===1&&st.paid&&st.rev===150000,JSON.stringify(st));
+  check('typed channel is created and the payment inherits it',await p.evaluate(()=>state.channels.length===1&&state.channels[0].name==='Consulting'&&state.transactions[0].channel===state.channels[0].id));
+  await p.evaluate(()=>go('settings'));check('channels card',(await text()).includes('Sales channels')&&(await text()).includes('Consulting'));
+  await p.fill('#biz-channel-form input[name=name]','consulting');await p.click('#biz-channel-form button');
+  check('duplicate channel name refused',await p.evaluate(()=>state.channels.length===1));
+  await p.fill('#biz-channel-form input[name=name]','YouTube');await p.click('#biz-channel-form button');
+  check('channel added in settings',await p.evaluate(()=>state.channels.map(c=>c.name).join()==='Consulting,YouTube'));
+  await p.evaluate(()=>go('invoices'));
   check('paid invoice leaves the open list',(await text()).includes('Nothing waiting to be paid'));
   await p.click('[data-action="biz-inv-filter"][data-filter="all"]');await p.click('[data-action="biz-unpay"]');await p.click('[data-action="biz-confirm-unpay"]');
   check('undo paid removes revenue',await p.evaluate(()=>state.transactions.length===0&&!state.invoices[0].paid));
