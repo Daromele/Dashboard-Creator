@@ -1,4 +1,4 @@
-// Prints every screen of both editions to PDF (sample data, Letter and A4) and reports how full
+// Prints every screen of every edition to PDF (sample data, Letter and A4) and reports how full
 // page 1 is. A screen whose first page holds only its heading, with the content pushed to
 // page 2, fails. Needs pdfjs-dist:  npm i pdfjs-dist@4  (here or in PDFJS_DIR).
 //   node print_audit.js [out-dir-for-pdfs]
@@ -8,6 +8,7 @@ const OUT=process.argv[2];
 const EDITIONS=[
   {file:'MonthlyBudgetPlanner.html',key:'jps-monthly-plan',screens:['dashboard','annual','budget','activity','goals','scheduled','calendar','wealth','insights','review','settings','guide']},
   {file:'ProfitPlanBusiness.html',key:'jps-profit-plan',screens:['dashboard','pl','pl:quarter','pl:ytd','pl:year','budget','activity','invoices','tax','taxlines','mileage','annual','goals','scheduled','calendar','insights','review','settings','guide']},
+  {file:'ShopInsightsEtsy.html',key:'jps-shop-insights',screens:['dashboard','shops','pl','pl:year','fees','fees:month','products','coupons','customers','reviews','seasonality','tax','taxlines','annual','etsy-import','settings','guide']},
 ];
 const FORMATS=['Letter','A4'],MIN_FILL=0.45;   // page 1 must be at least this full when there is a page 2
 (async()=>{
@@ -22,7 +23,7 @@ const FORMATS=['Letter','A4'],MIN_FILL=0.45;   // page 1 must be at least this f
     await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());
     for(const s of ed.screens){
       const [screen,kind]=s.split(':');
-      await p.evaluate(([screen,kind])=>{go(screen);if(kind)document.querySelector(`[data-action="biz-period"][data-kind="${kind}"]`)?.click();},[screen,kind]);
+      await p.evaluate(([screen,kind])=>{go(screen);if(kind)document.querySelector(`[data-action="biz-period"][data-kind="${kind}"],[data-action="etsy-span"][data-span="${kind}"]`)?.click();},[screen,kind]);
       await p.waitForTimeout(80);
       for(const format of FORMATS){
         const pdf=await p.pdf({format,margin:{top:'0.4in',bottom:'0.4in',left:'0.4in',right:'0.4in'},printBackground:true});

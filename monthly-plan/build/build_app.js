@@ -2,6 +2,7 @@
 //
 //   app/src/core.html     the shared engine and UI (never shipped as-is)
 //   app/packs/<id>.js     one niche: categories, labels, tax lines, theme, copy
+//   app/src/<module>.js   extra screens a pack asks for (pack.build.modules)
 //   app/<file>.html       the built product, with its niche pack inlined at the top
 //
 //   node build_app.js            build every pack
@@ -23,6 +24,10 @@ function build(file){
   let html=fs.readFileSync(CORE,'utf8');
   if(!html.includes('<!--@@NICHE_PACK@@-->'))throw Error('core.html is missing the niche pack marker');
   html=html.replace('<!--@@NICHE_PACK@@-->',()=>`<script>\n${src}\n</script>`);
+  // a pack can add screens of its own: app/src/<name>.js, inlined just before the app starts
+  if(!html.includes('/*@@NICHE_MODULES@@*/'))throw Error('core.html is missing the niche modules marker');
+  const modules=(pack.build.modules||[]).map(m=>fs.readFileSync(path.join(APP,'src',m+'.js'),'utf8').trim()+'\n').join('');
+  html=html.replace('/*@@NICHE_MODULES@@*/',()=>modules);
   html=html.replace(/\{\{(raw:)?([a-zA-Z.]+)\}\}/g,(m,raw,key)=>{
     const v=get(pack,key);if(v==null)throw Error(`${path.basename(file)}: no value for {{${key}}}`);
     return raw?String(v):attr(v);});

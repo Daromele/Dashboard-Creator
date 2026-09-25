@@ -15,7 +15,11 @@ function extract(html){
   if(start<0||end<0)throw Error('Budget module boundaries not found');
   const body=main.slice(start,end+endMark.length)
     .replace(/const SAMPLE_GOAL_IMAGES=\{[^\n]*\};/,'const SAMPLE_GOAL_IMAGES={travel:"",emergency:"",investing:""};');
-  return pack.trim()+'\n'+body+'\n';
+  // editions with their own data module (e.g. EtsyData) also need the CSV reader it uses
+  const data=main.match(/\n(const [A-Z][A-Za-z]*Data=\(\([\s\S]*?\nif\(typeof module!=='undefined'\)module\.exports\.[A-Za-z]+=[A-Za-z]+;)/);
+  if(!data)return pack.trim()+'\n'+body+'\n';
+  const csv=main.slice(main.indexOf('const CSV'),main.indexOf("if(typeof module!=='undefined')module.exports=CSV;"));
+  return pack.trim()+'\n'+body+'\n'+csv.replace(/\n$/,'')+'\nBudget.CSV=CSV;\n'+data[1]+'\n';
 }
 function extractTo(htmlFile,outFile){fs.writeFileSync(outFile,extract(fs.readFileSync(htmlFile,'utf8')));return outFile;}
 

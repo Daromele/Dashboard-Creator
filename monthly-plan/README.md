@@ -18,13 +18,14 @@ digital download (JPS Digital Pages). Everything needed to rebuild the listing i
 - `../.claude/skills/html-app-mockup-deck/` — the mockup-deck build, generalized into a
   reusable skill (config-driven; `assets/example-deck.json` is this product's deck).
 
-## One core, two editions
+## One core, three editions
 
 The planner is built, not hand-edited. Edit the source, then rebuild:
 
 - `app/src/core.html` — the shared engine and UI. Never shipped as-is.
 - `app/packs/budget.js` → `app/MonthlyBudgetPlanner.html` (Monthly Plan v1.9, household budget)
 - `app/packs/business.js` → `app/ProfitPlanBusiness.html` (Profit Plan v1.0, freelancer / small business)
+- `app/packs/etsy.js` + `app/src/etsy.js` → `app/ShopInsightsEtsy.html` (Shop Insights v1.0, Etsy sellers with one or several shops)
 
 A niche pack is one `const NICHE = {...}` block, inlined as the first script at the top of the
 shipped file. It holds product identity, category **groups and their flags**, default categories,
@@ -49,13 +50,37 @@ State lives in one object (see `blank()`): `settings`, `baseline`, `categories`,
 the business edition. `Budget` (pure calculations, incl. `pl`, `taxSetAside`, `taxSummary`,
 `receivables`) and `CSV` are separate modules; `Biz` holds the business screens.
 
+## The Etsy edition (Shop Insights)
+
+A pack can ask for extra screens with `build.modules`: each `app/src/<name>.js` is inlined just before
+the app starts and fills the core's `Ext` hooks (extra views, the top-bar shop picker, the shop name on
+printouts, the shop tag on new transactions). Budget and Profit Plan list no modules, so their built files
+do not change.
+
+- **Shops.** `state.shops` lists them; `settings.shop` is the one on screen (`''` = all shops). Every
+  transaction may carry `shop`, and `Budget.transactions` reads only the chosen shop, so the P&L, tax,
+  cash flow and every total follow the picker. Costs logged with All shops picked have no shop: they are
+  shared and count in the combined view only.
+- **Etsy data.** `state.etsy` holds `orders`, `items`, `listings`, `reviews` and an `imports` log, each
+  tagged with its shop. `Budget.validate` checks all of it.
+- **Importers** (`EtsyData` in `app/src/etsy.js`, pure and tested) recognise the payment account statement,
+  sold order items, listings and reviews.json by their columns. Statement lines become transactions with an
+  order or listing reference (`ref`) and a duplicate key (`src`). The sale keeps the buyer's full payment; the
+  sales tax / VAT Etsy takes back is a minus line under revenue, so revenue is net of it and it is never income
+  or a cost. Credits reduce the fee they belong to; deposits are transfers. Orders, items and reviews are keyed
+  by Etsy's IDs, and a file whose orders belong to another shop is refused. A listings file replaces that
+  shop's listings. Buyer names and addresses are never stored: only country and a hashed buyer key.
+- **Test data.** `build/etsy_fixtures.js` writes synthetic files in Etsy's layouts. Never commit a seller's
+  real exports: the sold order items file holds buyers' names and addresses.
+
 ## Build and test
 
 ```
-node build/build_app.js          # rebuild both editions from core + packs
-node build/test.js               # module tests: budget vs frozen v1.8, business maths, build is current
+node build/build_app.js          # rebuild every edition from core + packs
+node build/test.js               # module tests: budget vs frozen v1.8, business and Etsy maths, build is current
 node build/ui_parity.js          # budget edition renders exactly like v1.8 (needs git history)
 node build/biz_smoke.js [shots]  # drives every business screen and flow in Chromium
+node build/etsy_smoke.js [shots] # drives the Etsy edition: shops, the four imports, the shop picker, sample
 node build/print_audit.js [pdfs]  # prints every screen (Letter + A4); fails on near-empty pages (needs pdfjs-dist)
 ```
 

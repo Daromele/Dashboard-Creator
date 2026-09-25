@@ -1,74 +1,78 @@
 <!doctype html>
-<!-- Profit Plan. Copyright (c) 2026 JPS Digital Pages. All rights reserved.
-     Built on the Monthly Plan core. Personal-use customer edition. -->
-<html lang="en" data-theme="{{themes.0}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#182635"><meta name="description" content="Profit Plan by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline."><title>Profit Plan · Sales, Expenses, P&amp;L &amp; Quarterly Tax</title><link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%23182635"/><path d="M22 48V16h12a9 9 0 0 1 0 18H22" fill="none" stroke="%23E3A73B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
+<!-- Shop Insights for Etsy sellers. Copyright (c) 2026 JPS Digital Pages. All rights reserved.
+     Built on the Monthly Plan core. Personal-use customer edition. Not affiliated with, or endorsed by, Etsy, Inc. -->
+<html lang="en" data-theme="{{themes.0}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#3A2419"><meta name="description" content="Shop Insights by JPS Digital Pages. Drop in your Etsy exports and see true take-home after every Etsy fee, product and listing performance, coupons, customers, reviews and quarterly tax, for one shop or several. Works offline. Not affiliated with Etsy, Inc."><title>Shop Insights · Etsy take-home, fees, products &amp; reviews</title><link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%233A2419"/><path d="M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 22 6 22 17 0 5-5 8-11 8-5 0-9-2-12-5" fill="none" stroke="%23F2B441" stroke-width="6" stroke-linecap="round"/></svg>'>
 <script>
 /* ===================================================================================
-   NICHE PACK · Profit Plan (freelancer & small-business edition)
-   Everything that makes this edition a set of business books lives in this block:
-   product identity, category groups and their flags (revenue, cost of goods sold,
-   overheads, tax set-aside), default categories and their Schedule C lines, the
-   estimated-tax calendar, Quick Log words, labels, theme choices and the sample
-   business. The engine below is shared with the budget edition.
+   NICHE PACK · Shop Insights for Etsy sellers
+   The Profit Plan books, re-skinned for people who sell on Etsy, often from several shops.
+   Etsy's own exports (payment account statement, sold order items, listings, reviews) are
+   read by app/src/etsy.js; this block holds identity, categories and their Schedule C lines,
+   labels, navigation, copy and the two fictional sample shops.
    =================================================================================== */
 const NICHE = {
-  id: 'business',
+  id: 'etsy',
   product: {
-    name: 'Profit Plan', mark: 'P', publisher: 'JPS DIGITAL PAGES', version: '1.0',
-    tagline: 'Freelance & small-business books', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
-    title: 'Profit Plan · Sales, Expenses, P&amp;L &amp; Quarterly Tax', themeColor: '#182635',
-    description: 'Profit Plan by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%23182635"/><path d="M22 48V16h12a9 9 0 0 1 0 18H22" fill="none" stroke="%23E3A73B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    notice: 'Profit Plan. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
-    railNote: '<b>Know what you really made.</b>Log sales and costs. Watch profit. Put tax money aside before it is due.',
-    printTitle: 'Profit Plan · JPS Digital Pages',
+    name: 'Shop Insights', mark: 'S', publisher: 'JPS DIGITAL PAGES', version: '1.0',
+    tagline: 'Profit & shop analytics for Etsy sellers', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
+    title: 'Shop Insights · Etsy take-home, fees, products &amp; reviews', themeColor: '#3A2419',
+    description: 'Shop Insights by JPS Digital Pages. Drop in your Etsy exports and see true take-home after every Etsy fee, product and listing performance, coupons, customers, reviews and quarterly tax, for one shop or several. Works offline. Not affiliated with Etsy, Inc.',
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%233A2419"/><path d="M42 20c-3-3-7-4-11-4-6 0-10 3-10 8 0 11 22 6 22 17 0 5-5 8-11 8-5 0-9-2-12-5" fill="none" stroke="%23F2B441" stroke-width="6" stroke-linecap="round"/></svg>',
+    notice: 'Shop Insights for Etsy sellers. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition. Not affiliated with, or endorsed by, Etsy, Inc.',
+    railNote: '<b>Know what each shop really keeps.</b>Import your Etsy files. See take-home after every fee, what sells and what buyers say.',
+    printTitle: 'Shop Insights · JPS Digital Pages',
   },
-  build: { file: 'ProfitPlanBusiness.html' },
-  storage: { key: 'jps-profit-plan', file: 'profit-plan' },
-  editions: { budget: 'Monthly Plan, the household budget edition' },
-  themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
-  features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: true, invoices: true },
-  // taxRate in basis points (2500 = 25%); mileageRate in tenths of a cent per mile (700 = 70.0¢)
-  settings: { taxRate: 2500, mileageRate: 700 },
+  build: { file: 'ShopInsightsEtsy.html', modules: ['etsy'] },
+  storage: { key: 'jps-shop-insights', file: 'shop-insights' },
+  editions: { budget: 'Monthly Plan, the household budget edition', business: 'Profit Plan, the small-business edition' },
+  themes: ['kiln', 'ledger', 'sage', 'linen', 'fjord', 'slate', 'night', 'midnight'],
+  features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: false, invoices: false, shops: true, etsy: true },
+  // taxRate in basis points (2500 = 25%) · shop: '' shows every shop together
+  settings: { taxRate: 2500, shop: '' },
 
-  // type: income | expense | saving (money moved aside: not income, not an expense)
-  // cogs: cost of goods sold, sits between revenue and gross profit
-  // other: income below operating profit · tax: counts as tax set aside
-  // fixed: a commitment the dashboard reserves for · debt: can be a payoff goal
-  // taxLine: the Schedule C line a new category in this group starts on
   groups: [
-    { id: 'revenue', label: 'Sales & revenue', type: 'income', taxLine: 'L1' },
+    { id: 'revenue', label: 'Etsy sales', type: 'income', taxLine: 'L1' },
     { id: 'other-income', label: 'Other income', type: 'income', other: true, taxLine: 'L6' },
     { id: 'cogs', label: 'Cost of goods sold', type: 'expense', cogs: true, taxLine: 'L38' },
-    { id: 'overhead', label: 'Overheads', type: 'expense', fixed: true, subscription: true, taxLine: 'L27b' },
-    { id: 'marketing', label: 'Marketing & selling', type: 'expense', taxLine: 'L8' },
-    { id: 'operations', label: 'Running the business', type: 'expense', taxLine: 'L22' },
-    { id: 'people', label: 'Contractors & staff', type: 'expense', taxLine: 'L11' },
-    { id: 'travel', label: 'Vehicle, travel & meals', type: 'expense', taxLine: 'L24a' },
+    { id: 'etsy-fees', label: 'Etsy fees', type: 'expense', etsy: true, taxLine: 'L10' },
+    { id: 'etsy-marketing', label: 'Etsy Ads & Etsy Plus', type: 'expense', etsy: true, taxLine: 'L8' },
+    { id: 'overhead', label: 'Tools & overheads', type: 'expense', fixed: true, subscription: true, taxLine: 'L27b' },
+    { id: 'operations', label: 'Running the shop', type: 'expense', taxLine: 'L22' },
     { id: 'owner', label: 'Owner’s pay & draws', type: 'saving' },
     { id: 'tax', label: 'Tax set-aside & payments', type: 'saving', tax: true, icon: 'shield' },
     { id: 'reserve', label: 'Business savings', type: 'saving', icon: 'umbrella' },
-    { id: 'loans', label: 'Loan repayments', type: 'saving', fixed: true, debt: true },
-    // money moving between the business's own accounts: never income, expense or saving
-    { id: 'transfer', label: 'Card payments & own transfers', type: 'transfer', debt: true },
+    // Etsy paying out to your bank, and moves between your own accounts: never counted
+    { id: 'transfer', label: 'Etsy deposits & own transfers', type: 'transfer', debt: true },
   ],
-  // [id, name, group, Schedule C line]
+  // [id, name, group, Schedule C line]. The ids in the first two blocks are what the Etsy importer writes to.
   categories: [
-    ['client-work', 'Client projects', 'revenue', 'L1'], ['product-sales', 'Product sales', 'revenue', 'L1'], ['retainers', 'Retainers & subscriptions', 'revenue', 'L1'],
+    ['etsy-sales', 'Etsy order payments', 'revenue', 'L1'], ['etsy-refunds', 'Refunds to buyers', 'revenue', 'L1'],
+    ['buyer-tax', 'Sales tax & VAT paid by buyers (Etsy remits it)', 'revenue', 'L1'], ['other-sales', 'Other sales (markets, wholesale)', 'revenue', 'L1'],
     ['other-biz-income', 'Other business income', 'other-income', 'L6'], ['interest', 'Bank interest', 'other-income', 'N'],
-    ['materials', 'Materials & supplies for products', 'cogs', 'L38'], ['inventory', 'Stock bought for resale', 'cogs', 'L36'], ['postage', 'Packaging & postage to customers', 'cogs', 'L39'],
-    ['software', 'Software & subscriptions', 'overhead', 'L18'], ['phone-internet', 'Phone & internet', 'overhead', 'L25'], ['workspace', 'Workspace rent', 'overhead', 'L20b'], ['insurance', 'Business insurance', 'overhead', 'L15'], ['website', 'Website & hosting', 'overhead', 'L27b'],
-    ['advertising', 'Advertising & promotion', 'marketing', 'L8'], ['platform-fees', 'Platform & payment fees', 'marketing', 'L10'],
-    ['office', 'Office supplies', 'operations', 'L18'], ['equipment', 'Equipment & computers', 'operations', 'L13'], ['professional', 'Accountant & legal', 'operations', 'L17'], ['licences', 'Licences & business taxes', 'operations', 'L23'], ['training', 'Training & education', 'operations', 'L27b'], ['bank-fees', 'Bank charges', 'operations', 'L27b'], ['loan-interest', 'Loan interest', 'operations', 'L16b'],
-    ['contractors', 'Contractors & freelancers', 'people', 'L11'], ['wages', 'Wages', 'people', 'L26'],
-    ['fuel', 'Fuel, parking & tolls', 'travel', 'L9'], ['business-travel', 'Business travel', 'travel', 'L24a'], ['meals', 'Business meals', 'travel', 'L24b'],
+    ['materials', 'Materials & supplies for products', 'cogs', 'L38'], ['packaging', 'Packaging', 'cogs', 'L38'], ['printing', 'Printing & production', 'cogs', 'L39'], ['shipping-labels', 'Shipping labels & postage', 'cogs', 'L39'],
+    ['transaction-fees', 'Transaction fees', 'etsy-fees', 'L10'], ['processing-fees', 'Payment processing fees', 'etsy-fees', 'L10'], ['listing-fees', 'Listing fees', 'etsy-fees', 'L10'],
+    ['fee-tax', 'Tax on Etsy fees', 'etsy-fees', 'L23'], ['other-etsy-fees', 'Other Etsy fees & adjustments', 'etsy-fees', 'L10'],
+    ['etsy-ads', 'Etsy Ads', 'etsy-marketing', 'L8'], ['offsite-ads', 'Offsite Ads fees', 'etsy-marketing', 'L8'], ['etsy-plus', 'Etsy Plus subscription', 'etsy-marketing', 'L8'], ['other-marketing', 'Other marketing', 'etsy-marketing', 'L8'],
+    ['software', 'Software & apps', 'overhead', 'L18'], ['phone-internet', 'Phone & internet', 'overhead', 'L25'], ['website', 'Website & domain', 'overhead', 'L27b'],
+    ['equipment', 'Equipment & tools', 'operations', 'L13'], ['office', 'Office supplies', 'operations', 'L18'], ['photography', 'Photography & props', 'operations', 'L27b'],
+    ['professional', 'Accountant & legal', 'operations', 'L17'], ['licences', 'Licences & business taxes', 'operations', 'L23'], ['bank-fees', 'Bank charges', 'operations', 'L27b'],
     ['owner-draw', 'Owner’s draw', 'owner'], ['owner-retirement', 'Owner retirement (SEP-IRA / Solo 401k)', 'owner'],
     ['tax-reserve', 'Tax savings transfer', 'tax'], ['est-tax', 'Income tax paid (estimated & year-end)', 'tax'],
-    ['biz-savings', 'Rainy-day fund', 'reserve'], ['equipment-fund', 'Equipment fund', 'reserve'],
-    ['loan-repay', 'Business loan repayment', 'loans'],
-    ['card-payoff', 'Business card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between business accounts', 'transfer'],
+    ['biz-savings', 'Rainy-day fund', 'reserve'],
+    ['etsy-deposit', 'Etsy deposit to your bank', 'transfer'], ['card-payoff', 'Business card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between own accounts', 'transfer'],
   ],
-  // US Schedule C (Form 1040). part: income | other | cogs (Part III) | expense (Part II)
+  // what the dashboard and fee screens call "Etsy revenue", "Etsy costs" and "ads"
+  etsy: {
+    revenue: ['etsy-sales', 'etsy-refunds', 'buyer-tax'],
+    ads: ['etsy-ads', 'offsite-ads'],
+    // where each export lives, for the import screen
+    exports: [
+      ['statement', 'Payment account statement', 'Shop Manager → Finances → Payment account → Download CSV (one month at a time)', 'etsy_statement_2026_9.csv'],
+      ['orders', 'Sold order items', 'Shop Manager → Settings → Options → Download data → Orders: “Order items”', 'EtsySoldOrderItems2026.csv'],
+      ['listings', 'Listings', 'Shop Manager → Settings → Options → Download data → Listings', 'EtsyListingsDownload.csv'],
+      ['reviews', 'Reviews', 'Your Etsy account data download (Privacy settings → Download data)', 'reviews.json'],
+    ],
+  },
   taxForm: { name: 'Schedule C', long: 'Schedule C (Form 1040) · Profit or Loss From Business' },
   taxLines: [
     { id: 'L1', line: '1', label: 'Gross receipts or sales', part: 'income' },
@@ -78,52 +82,41 @@ const NICHE = {
     { id: 'L38', line: '38', label: 'Materials and supplies', part: 'cogs' },
     { id: 'L39', line: '39', label: 'Other costs', part: 'cogs' },
     { id: 'L8', line: '8', label: 'Advertising', part: 'expense' },
-    { id: 'L9', line: '9', label: 'Car and truck expenses', part: 'expense' },
     { id: 'L10', line: '10', label: 'Commissions and fees', part: 'expense' },
     { id: 'L11', line: '11', label: 'Contract labor', part: 'expense' },
     { id: 'L13', line: '13', label: 'Depreciation and section 179 expense', part: 'expense', note: 'Your accountant decides what to expense now and what to depreciate.' },
-    { id: 'L14', line: '14', label: 'Employee benefit programs', part: 'expense' },
     { id: 'L15', line: '15', label: 'Insurance (other than health)', part: 'expense' },
-    { id: 'L16a', line: '16a', label: 'Mortgage interest (paid to banks)', part: 'expense' },
     { id: 'L16b', line: '16b', label: 'Other interest', part: 'expense' },
     { id: 'L17', line: '17', label: 'Legal and professional services', part: 'expense' },
     { id: 'L18', line: '18', label: 'Office expense', part: 'expense' },
-    { id: 'L19', line: '19', label: 'Pension and profit-sharing plans', part: 'expense' },
-    { id: 'L20a', line: '20a', label: 'Rent or lease: vehicles, machinery, equipment', part: 'expense' },
     { id: 'L20b', line: '20b', label: 'Rent or lease: other business property', part: 'expense' },
-    { id: 'L21', line: '21', label: 'Repairs and maintenance', part: 'expense' },
     { id: 'L22', line: '22', label: 'Supplies', part: 'expense' },
     { id: 'L23', line: '23', label: 'Taxes and licenses', part: 'expense' },
-    { id: 'L24a', line: '24a', label: 'Travel', part: 'expense' },
-    { id: 'L24b', line: '24b', label: 'Deductible meals', part: 'expense', note: 'Shown at the full amount spent. Business meals are usually 50% deductible.' },
     { id: 'L25', line: '25', label: 'Utilities', part: 'expense' },
-    { id: 'L26', line: '26', label: 'Wages (less employment credits)', part: 'expense' },
     { id: 'L27b', line: '27b', label: 'Other expenses (itemised in Part V)', part: 'expense' },
     { id: 'N', line: '—', label: 'Not on Schedule C (personal, or reported elsewhere)', part: 'none', exclude: true },
   ],
-  mileageLine: 'L9',
-  // US estimated-tax periods (Form 1040-ES): months covered and the payment due date
   taxQuarters: [
     { label: 'Q1', months: [1, 3], due: '04-15' },
     { label: 'Q2', months: [4, 5], due: '06-15' },
     { label: 'Q3', months: [6, 8], due: '09-15' },
     { label: 'Q4', months: [9, 12], due: '01-15', nextYear: true },
   ],
-  // Quick Log: a word in the description → category id. Earlier words win, so costs come first.
-  aliases: { lunch: 'meals', dinner: 'meals', coffee: 'meals', meal: 'meals', restaurant: 'meals', fuel: 'fuel', petrol: 'fuel', parking: 'fuel', toll: 'fuel', flight: 'business-travel', hotel: 'business-travel', train: 'business-travel', uber: 'business-travel', taxi: 'business-travel', postage: 'postage', shipping: 'postage', usps: 'postage', stamps: 'postage', packaging: 'postage', fabric: 'materials', yarn: 'materials', materials: 'materials', beads: 'materials', stock: 'inventory', inventory: 'inventory', wholesale: 'inventory', adobe: 'software', canva: 'software', figma: 'software', notion: 'software', software: 'software', subscription: 'software', phone: 'phone-internet', internet: 'phone-internet', cowork: 'workspace', studio: 'workspace', insurance: 'insurance', hosting: 'website', domain: 'website', squarespace: 'website', ads: 'advertising', advert: 'advertising', promo: 'advertising', stripe: 'platform-fees', paypal: 'platform-fees', fees: 'platform-fees', etsyfee: 'platform-fees', printer: 'office', ink: 'office', paper: 'office', laptop: 'equipment', camera: 'equipment', accountant: 'professional', bookkeeper: 'professional', lawyer: 'professional', licence: 'licences', license: 'licences', course: 'training', contractor: 'contractors', freelancer: 'contractors', assistant: 'contractors', payroll: 'wages', draw: 'owner-draw', irs: 'est-tax', estimated: 'est-tax', taxpot: 'tax-reserve', setaside: 'tax-reserve', retainer: 'retainers', autopay: 'card-payoff', cardpayment: 'card-payoff', transfer: 'own-transfer', sep: 'owner-retirement', solo401k: 'owner-retirement', retirement: 'owner-retirement', invoice: 'client-work', client: 'client-work', project: 'client-work', sale: 'product-sales', order: 'product-sales', etsy: 'product-sales', shopify: 'product-sales', interest: 'interest' },
+  aliases: { market: 'other-sales', craftfair: 'other-sales', fair: 'other-sales', wholesale: 'other-sales', postage: 'shipping-labels', shipping: 'shipping-labels', usps: 'shipping-labels', label: 'shipping-labels', stamps: 'shipping-labels', packaging: 'packaging', mailers: 'packaging', boxes: 'packaging', tissue: 'packaging', clay: 'materials', glaze: 'materials', fabric: 'materials', yarn: 'materials', beads: 'materials', paper: 'materials', materials: 'materials', supplies: 'materials', print: 'printing', printing: 'printing', printful: 'printing', printify: 'printing', canva: 'software', adobe: 'software', erank: 'software', marmalead: 'software', software: 'software', app: 'software', phone: 'phone-internet', internet: 'phone-internet', domain: 'website', camera: 'photography', props: 'photography', photo: 'photography', kiln: 'equipment', printer: 'equipment', equipment: 'equipment', accountant: 'professional', bookkeeper: 'professional', licence: 'licences', license: 'licences', pinterest: 'other-marketing', instagram: 'other-marketing', etsyads: 'etsy-ads', ads: 'etsy-ads', draw: 'owner-draw', irs: 'est-tax', estimated: 'est-tax', taxpot: 'tax-reserve', setaside: 'tax-reserve', deposit: 'etsy-deposit', transfer: 'own-transfer', sale: 'other-sales', interest: 'interest' },
   importHints: {
-    'credit card payment': 'card-payoff', 'credit card payments': 'card-payoff', 'card payment': 'card-payoff', payment: 'card-payoff', payments: 'card-payoff',
-    transfer: 'own-transfer', transfers: 'own-transfer', 'internal transfer': 'own-transfer',
-    taxes: 'est-tax', tax: 'est-tax', 'federal tax': 'est-tax', retirement: 'owner-retirement',
-    advertising: 'advertising', software: 'software', 'office supplies': 'office', shipping: 'postage', postage: 'postage',
-    travel: 'business-travel', 'dining out': 'meals', restaurants: 'meals', fuel: 'fuel', gas: 'fuel', insurance: 'insurance',
-    fees: 'bank-fees', 'bank fees': 'bank-fees', income: 'client-work', deposit: 'client-work', sales: 'product-sales',
+    'credit card payment': 'card-payoff', 'card payment': 'card-payoff', payment: 'card-payoff', transfer: 'own-transfer', transfers: 'own-transfer',
+    taxes: 'est-tax', tax: 'est-tax', advertising: 'other-marketing', software: 'software', 'office supplies': 'office', shipping: 'shipping-labels', postage: 'shipping-labels',
+    supplies: 'materials', fees: 'bank-fees', 'bank fees': 'bank-fees', income: 'other-sales', sales: 'other-sales', deposit: 'etsy-deposit', etsy: 'etsy-deposit',
   },
-  defaults: { category: 'client-work', schedule: 'software', annualCategory: 'client-work', quickSetup: ['client-work', 'product-sales', 'materials', 'software', 'advertising', 'tax-reserve'] },
+  defaults: { category: 'materials', schedule: 'software', annualCategory: 'etsy-sales', quickSetup: ['materials', 'packaging', 'shipping-labels', 'software', 'tax-reserve', 'other-sales'] },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['pl', 'Profit & loss', 'insights'], ['budget', 'Monthly targets', 'plan'], ['activity', 'Transactions', 'log'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['annual', 'Annual overview', 'outlook'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Insights', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['invoices', 'mileage', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
-  navGroups: [['Your business', ['dashboard', 'pl', 'budget', 'activity', 'invoices']], ['Tax time', ['tax', 'taxlines', 'mileage']], ['Your rhythm', ['annual', 'goals', 'scheduled', 'calendar', 'insights', 'review']]],
+  nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import Etsy files', 'up'], ['shops', 'Shops', 'globe'],
+    ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'], ['annual', 'Year & cash flow', 'outlook'],
+    ['products', 'Products & listings', 'tags'], ['coupons', 'Coupons & discounts', 'wallet'], ['customers', 'Customers', 'compass'], ['reviews', 'Reviews', 'review'], ['seasonality', 'Seasonality', 'calendar'],
+    ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'table'],
+    ['budget', 'Monthly targets', 'plan'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  optionalNav: ['shops', 'coupons', 'customers', 'seasonality', 'annual', 'budget', 'goals', 'scheduled', 'guide'],
+  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['pl', 'fees', 'activity', 'annual']], ['What sells', ['products', 'coupons', 'customers', 'reviews', 'seasonality']], ['Tax time', ['tax', 'taxlines']]],
   navGroupRest: 'Make it yours',
 
   labels: {
@@ -131,101 +124,126 @@ const NICHE = {
     incomePlanned: 'Expected revenue', incomeReceived: 'Revenue received', expensesPaid: 'Expenses paid', savedInvested: 'Transfers & draws',
     plannedContributions: 'Planned transfers', savingsFilter: 'Transfers & draws', incomeAllocated: 'Your revenue, allocated',
     plannedIncome: 'PLANNED REVENUE', subscriptionKpi: 'Overheads plan', yourName: 'Business name', yourNameHint: 'Shown on your statements and exports',
-    greeting: ' · the month at a glance', greetingPlain: 'Your business at a glance', planTitle: 'Your monthly targets', categoryPlaceholder: 'e.g. Stock photography',
-    categorySub: 'Shape the categories around how your business really runs.', directionNormal: 'Money in / cost paid / transfer',
-    exitDemo: 'Return to my books', demoOnly: 'Your books only', notePlaceholder: 'e.g. Invoice 1042 · Acme Studio',
+    greeting: ' · the month at a glance', greetingPlain: 'Your shops at a glance', planTitle: 'Your monthly targets', categoryPlaceholder: 'e.g. Craft fair stall fees',
+    categorySub: 'Etsy lines arrive in their own categories. Add your own for costs Etsy does not see.', directionNormal: 'Money in / cost paid / transfer',
+    exitDemo: 'Return to my shops', demoOnly: 'Your shops only', notePlaceholder: 'e.g. Clay order · 25 lb',
     incomeOne: 'Revenue', savedCol: 'Transfers', netHint: 'Revenue − expenses − transfers',
     savingRateEmpty: 'Log revenue to see the share moved aside', savingRate: '% of revenue received',
-    transfer: 'Card payments & own transfers', transferOne: 'Transfer',
+    transfer: 'Etsy deposits & own transfers', transferOne: 'Transfer',
   },
-  quickLog: { placeholder: 'client invoice 1200', help: 'Try “client invoice 1200”, “canva 12.99”, “postage 8.40” or “lunch with client 32”.', demo: ['postage', '8.40', 'Packaging & postage to customers'] },
+  quickLog: { placeholder: 'clay order 42.50', help: 'For costs Etsy does not see. Try “clay order 42.50”, “mailers 18”, “canva 12.99” or “craft fair sale 240”.', demo: ['mailers', '18.00', 'Packaging'] },
 
   welcome: [
-    { icon: 'today', step: 'WELCOME', title: 'Your business books, in one calm place', text: '<p>Log what comes in and what goes out. Profit, tax money and your year-end summary build themselves.</p><p>Everything stays in this browser. No bank login, no subscription.</p>' },
-    { icon: 'insights', step: 'PROFIT', title: 'See what you actually made', text: '<p>Sales, minus what the products cost you, minus the costs of running the business. <b>Profit &amp; loss</b> shows it for a month, a quarter, the year so far or any dates you choose.</p>' },
-    { icon: 'shield', step: 'TAX', title: 'Put tax money aside as you go', text: '<p>Choose a set-aside rate. <b>Quarterly tax</b> shows what you should have put aside against what you have, before each estimated payment is due.</p>' },
+    { icon: 'today', step: 'WELCOME', title: 'Every Etsy shop you run, in one calm place', text: '<p>Drop in the files Etsy already gives you. See what each shop really keeps after every fee, what sells, and what buyers say.</p><p>Everything stays in this browser. No Etsy login, no server, no subscription.</p>' },
+    { icon: 'up', step: 'IMPORT', title: 'Four Etsy files, read for you', text: '<p>Your <b>payment account statement</b>, <b>sold order items</b>, <b>listings</b> and <b>reviews</b>. Choose which shop they belong to and drop them in together. Anything already imported is skipped.</p>' },
+    { icon: 'coins', step: 'TAKE-HOME', title: 'The money after Etsy', text: '<p>Sales tax buyers paid is taken back out, then transaction, processing and listing fees, Etsy Ads and Etsy Plus. What is left is your <b>take-home</b>, order by order and month by month.</p>' },
     'backup',
-    { icon: 'check', step: 'START', title: 'Start with one sale or one cost', text: '<p>Log a payment you received or something you paid for today. Your dashboard fills in from there.</p>', cta: { label: 'Add a transaction', action: 'welcome-log' } },
+    { icon: 'check', step: 'START', title: 'Start with this month’s statement', text: '<p>Add your shop, then import one payment account statement. The dashboard fills in from there.</p>', cta: { label: 'Import Etsy files', action: 'go-etsy-import' } },
   ],
   guide: {
-    title: 'Four moves. Books you can hand over.',
+    title: 'Four moves. Every shop, understood.',
     cards: [
-      ['spark', '1. Log', 'Quick Log sales and costs as they happen, or import a bank CSV each month.', 'Transactions', 'activity'],
-      ['insights', '2. Check profit', 'Read the P&L for the month, the quarter or the year so far. Print it when you need it.', 'Profit & loss', 'pl'],
-      ['shield', '3. Set tax aside', 'Move your set-aside each month and see it against each quarterly due date.', 'Quarterly tax', 'tax'],
-      ['tags', '4. Hand over', 'Check the Schedule C lines, then download the summary and detail for your accountant.', 'Schedule C summary', 'taxlines'],
+      ['up', '1. Import', 'Each month, download the payment account statement and sold order items for every shop and drop them in.', 'Import Etsy files', 'etsy-import'],
+      ['coins', '2. Check take-home', 'See revenue after buyer tax, every Etsy fee and ad, and what each order left you.', 'Fees & ads', 'fees'],
+      ['tags', '3. Improve listings', 'Find best sellers, listings that never sell, and listings short of photos or tags.', 'Products & listings', 'products'],
+      ['shield', '4. Set tax aside', 'Put money aside as you go and hand your accountant a Schedule C summary.', 'Quarterly tax', 'tax'],
     ],
-    meanings: [['Revenue', 'Money in from sales'], ['Gross profit', 'Revenue − cost of goods'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, draws, savings']],
+    meanings: [['Revenue', 'Order payments − sales tax buyers paid − refunds'], ['Etsy costs', 'Fees, Etsy Ads, Offsite Ads and Etsy Plus, after credits'], ['Take-home', 'Revenue − Etsy costs'], ['Net profit', 'Take-home − your own costs']],
     details: [
-      ['Owner’s draws, tax money and loans', 'Paying yourself, moving money to your tax pot, income tax you pay, your own retirement contributions and loan principal are not business expenses, so they never reduce profit. Loan interest is an expense; record it separately. Retirement contributions for yourself are deducted outside Schedule C, so your accountant will want the total.'],
-      ['Business credit cards', 'If you log or import the card’s purchases, those are the expenses. Paying the card from the business account is then a transfer: use <b>Business card payoff (purchases already logged)</b>, which is never counted.'],
-      ['Tax pot and estimated payments', 'Log each move into your tax pot as a Tax savings transfer. If you later pay the IRS from that pot, do not log the payment again; log Estimated tax payments only when you pay straight from the business account.'],
-      ['Cash basis, refunds and invoices', 'A sale counts when the money arrives and a cost when you pay it. Record a refund you give as a reversal on the sale’s category. An invoice becomes revenue when you mark it paid.'],
-      ['Tax lines and your accountant', 'Each category carries a Schedule C line. The summary groups your year by line so your accountant can check it quickly. It is an organised record, not tax advice or a filed return.'],
+      ['Sales tax and VAT buyers pay', 'Etsy adds sales tax or VAT to the buyer’s payment and then takes it straight back to pay the state. The statement shows both. Shop Insights records the tax as a minus line under revenue, so it is never counted as income or as a cost.'],
+      ['Several shops', 'Every import belongs to one shop. The shop picker at the top shows one shop or all of them together; every screen and printout follows it. Costs you log with <b>All shops</b> selected are shared costs: they appear in the combined view only.'],
+      ['Importing twice is safe', 'Each statement line, order, item and review is recognised when it comes back, so an overlapping or repeated file never counts twice. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
+      ['Privacy', 'The sold order items file includes buyer names and addresses. Shop Insights keeps only the country and a scrambled key to count repeat buyers. Names and addresses are never stored.'],
+      ['Listings and sales', 'Etsy’s listings file has no listing number, so listings are matched to sales by the start of their title. A listing you renamed may show as unsold.'],
+      ['Tax lines and your accountant', 'Each category carries a Schedule C line. It is an organised record, not tax advice or a filed return. Shop Insights is not affiliated with Etsy, Inc.'],
     ],
   },
 
-  // the fictional studio behind "Explore sample data": a designer who also sells prints
+  // two fictional shops: an art-print shop with Etsy Plus and a pottery studio that buys its labels on Etsy
   sample: {
-    name: 'Juniper Studio', opening: 420000, settings: { goalImages: true, goalsLayout: 'grid' },
-    note: 'Chase the late invoices and keep the tax pot topped up before the September payment.',
-    amounts: { 'client-work': 5600, 'product-sales': 1600, retainers: 900, materials: 260, postage: 180, software: 95, 'phone-internet': 80, workspace: 350, insurance: 45, website: 25, advertising: 220, 'platform-fees': 120, office: 40, professional: 60, contractors: 600, meals: 70, 'owner-draw': 2000, 'tax-reserve': 1400, 'biz-savings': 200 },
-    days: { retainers: 1, workspace: 1, software: 3, website: 4, 'phone-internet': 12, insurance: 15, 'owner-draw': 28, 'tax-reserve': 28, 'biz-savings': 28, professional: 20, contractors: 25 },
-    undated: ['client-work', 'product-sales', 'materials', 'postage', 'advertising', 'platform-fees', 'office', 'meals'],
-    unscheduled: ['client-work', 'product-sales', 'office', 'meals'],
-    spread: { groups: ['cogs', 'marketing'], days: [4, 11, 18, 25], notes: ['Order batch', 'Restock', 'Order batch', 'Month end'], share: { default: .26 } },
-    // client work and print sales rise and fall through the year; costs follow sales
-    actual: (id, month, planned) => {
-      const season = [0.7, 0.8, 1.0, 1.1, 0.95, 0.9, 0.75, 0.85, 1.15, 1.2, 1.35, 1.5][month - 1];
-      // the rest of client revenue arrives as invoice payments (see extras)
-      if (id === 'client-work') return Math.round(planned * 0.46 * [0.9, 1.1, 1.25, 0.8, 1.3, 1.05, 0.6, 0.95, 1.2, 1, 1.1, 1.3][month - 1]);
-      if (['product-sales', 'materials', 'postage', 'platform-fees'].includes(id)) return Math.round(planned * season);
-      if (id === 'meals') return month % 2 ? planned : Math.round(planned * 0.6);
-      if (id === 'office') return month % 3 === 0 ? planned * 2 : 0;
-      return planned;
-    },
+    name: 'Fern & Kiln Studio', opening: 150000, settings: { goalImages: false, goalsLayout: 'grid', shop: '' },
+    note: 'Holiday stock: reorder mailers before November and raise the mug price.',
+    amounts: { printing: 180, materials: 240, packaging: 90, software: 25, 'owner-draw': 900, 'tax-reserve': 400 },
+    days: { software: 3, 'owner-draw': 28, 'tax-reserve': 28 },
+    undated: ['printing', 'materials', 'packaging'],
+    unscheduled: ['printing', 'materials', 'packaging'],
+    spread: { groups: ['cogs'], days: [4, 11, 18, 25], notes: ['Restock', 'Supplies run', 'Restock', 'Month end'], share: { default: .26 } },
+    actual: (id, month, planned) => ['printing', 'materials', 'packaging'].includes(id) ? Math.round(planned * [0.7, 0.75, 0.85, 0.9, 1, 0.9, 0.85, 0.9, 1, 1.2, 1.6, 1.9][month - 1]) : planned,
     snapshots: false,
-    goals: [
-      { category: 'tax-reserve', kind: 'saving', name: 'Tax pot for this year', target: 1600000, opening: 0, due: [0, '12-31'], image: 'emergency' },
-      { category: 'biz-savings', kind: 'saving', name: 'Three months of costs in reserve', target: 700000, opening: 250000, due: [1, '06-30'], image: 'investing' },
-    ],
-    extras: (s, { m, year, now, uid, totals }) => {
-      // a few invoices: paid ones already sit in revenue, open ones are receivables
-      const clients = ['Acme Studio', 'Northwind Co.', 'Fable & Finch', 'Orchard Health', 'Bright Harbor'];
-      const monthNo = +m.slice(5, 7);
-      s.invoices = [];
-      let n = 1040;
-      for (let i = Math.max(1, monthNo - 4); i <= monthNo; i++) {
-        const key = `${year}-${String(i).padStart(2, '0')}`;
-        [6, 19].forEach((d, j) => {
-          const issued = `${key}-${String(d).padStart(2, '0')}`; if (issued > now) return;
-          const due = new Date(Date.UTC(+year, i - 1, d + 30)).toISOString().slice(0, 10);
-          const amount = [180000, 95000, 240000, 60000, 135000][(i + j) % 5];
-          const inv = { id: uid(), number: String(++n), client: clients[(i * 2 + j) % 5], issued, due, amount, category: 'client-work', note: j ? 'Design sprint' : 'Brand refresh, phase ' + (i % 3 + 1) };
-          // older invoices are paid; the last five are still open, three of them late
-          if (i < monthNo - 2 || (i === monthNo - 2 && j === 0)) {
-            const paidOn = new Date(Date.UTC(+year, i - 1, d + 21)).toISOString().slice(0, 10);
-            if (paidOn <= now) { const t = { id: uid(), date: paidOn, category: 'client-work', amount, note: `Invoice ${inv.number} · ${inv.client}` }; s.transactions.push(t); inv.paid = { date: paidOn, tx: t.id }; }
+    goals: [{ category: 'tax-reserve', kind: 'saving', name: 'Tax pot for this year', target: 600000, opening: 0, due: [0, '12-31'] }],
+    extras: (s, { year, now, uid, days, plusDays }) => {
+      let seed = 20260924; const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+      const pick = (list, w) => { let r = rnd() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < list.length; i++) { r -= w[i]; if (r <= 0) return list[i]; } return list[list.length - 1]; };
+      const pad = n => String(n).padStart(2, '0'), cents = n => Math.round(n * 100);
+      s.shops = [{ id: 'fern', name: 'Fern & Fable Prints' }, { id: 'kiln', name: 'Copper Kiln Ceramics' }];
+      // the shared costs from the plan belong to one shop or the other; software and draws stay shared
+      s.transactions.forEach(t => { if (t.category === 'printing') t.shop = 'fern'; if (['materials', 'packaging'].includes(t.category)) t.shop = 'kiln'; });
+      const E = s.etsy = { orders: [], items: [], listings: [], reviews: [], imports: [] };
+      const season = [0.7, 0.75, 0.85, 0.9, 1, 0.9, 0.85, 0.9, 1, 1.2, 1.6, 1.9];
+      const countries = [['United States', 68, 0.065], ['United Kingdom', 9, 0.2], ['Canada', 8, 0], ['Australia', 5, 0], ['Germany', 4, 0.19], ['France', 2, 0.2], ['Netherlands', 2, 0.21], ['Ireland', 2, 0.23]];
+      const words = { 5: ['Beautiful, even better in person!', 'Arrived quickly and so well packed.', 'Perfect gift, my sister loved it.', 'Gorgeous quality. Will order again.', 'Exactly as pictured.', ''], 4: ['Lovely, took a little longer to arrive.', 'Nice, colours slightly different to the photos.'], 3: ['Fine, but the corner was bent.'], 2: ['Smaller than I expected.'], 1: ['Arrived broken. The seller did offer a refund.'] };
+      const shops = [
+        { id: 'fern', orders: 34, ship: 4.5, freeOver: 35, label: 0, ads: [1.2, 2.8], plus: true, codes: [['WELCOME10', 0.1], ['FALL20', 0.2], ['THANKYOU15', 0.15]],
+          list: [['Botanical Fern Print, Vintage Style Wall Art, Green Leaf Poster', 18, 9, 10, 13], ['Mushroom Art Print, Cottagecore Forest Illustration', 16, 8, 10, 13], ['Wildflower Meadow Print, Watercolor Botanical Poster', 22, 6, 9, 13],
+            ['Moth Art Print Set of 3, Dark Academia Wall Decor', 38, 5, 10, 12], ['Lemon Tree Kitchen Print, Mediterranean Wall Art', 14, 4, 8, 13], ['Printable Fern Wall Art, Instant Download Botanical Set of 6', 6.5, 7, 10, 13, true],
+            ['Frog on Toadstool Greeting Card, Blank Inside', 4.5, 6, 6, 9], ['Birch Forest Print, Minimalist Nature Poster', 20, 3, 10, 13], ['Herb Garden Chart Print, Kitchen Botanical Poster', 18, 3, 7, 11],
+            ['Personalized Birth Flower Print, Custom Name Art', 28, 5, 10, 13], ['Ocean Waves Printable Art, Digital Download', 5.5, 2, 5, 13, true], ['Pressed Flower Bookmark, Handmade Botanical Gift', 9, 3, 10, 13],
+            ['Snail and Strawberry Art Print, Whimsical Nursery Decor', 15, 2, 4, 8], ['Autumn Leaves Print Set of 2, Fall Decor', 26, 0, 10, 13]] },
+        { id: 'kiln', orders: 12, ship: 9, freeOver: 75, label: 8.25, ads: [0.8, 1.8], plus: false, codes: [['KILN10', 0.1], ['SPRING15', 0.15]],
+          list: [['Handmade Ceramic Mug, Speckled Stoneware Coffee Cup', 38, 9, 10, 13], ['Stoneware Planter with Drainage, Small Handmade Pot', 34, 5, 10, 13], ['Ceramic Ring Dish, Speckled Jewelry Tray', 18, 6, 8, 13],
+            ['Handmade Pottery Bowl, Rustic Ramen Bowl', 46, 4, 10, 12], ['Ceramic Vase, Minimalist Bud Vase, Wheel Thrown', 42, 3, 10, 13], ['Set of 2 Espresso Cups, Handmade Stoneware', 52, 3, 9, 13],
+            ['Ceramic Spoon Rest, Kitchen Gift for Cook', 22, 4, 6, 10], ['Large Serving Platter, Handmade Stoneware Dish', 68, 1, 10, 13], ['Ceramic Incense Holder, Handmade Pottery', 20, 2, 7, 13],
+            ['Custom Name Mug, Personalized Pottery Gift', 48, 1, 10, 13], ['Terracotta Butter Dish, Handmade Kitchen Pottery', 44, 0, 3, 6]] },
+      ];
+      let orderNo = 2900000000, txNo = 3100000000;
+      for (const sh of shops) {
+        const tx = (date, category, amount, note, ref) => { if (amount && date <= now && date.slice(0, 4) === year) s.transactions.push({ id: uid(), date, category, amount, note, shop: sh.id, ...(ref ? { ref } : {}) }); };
+        sh.list.forEach(([title, price, , photos, tags, digital], i) => E.listings.push({ id: `${sh.id}-l${i}`, shop: sh.id, title, price: cents(price), qty: digital ? 999 : 3 + (i * 7) % 20, photos, tags, sku: '', variations: i % 3 === 0 ? 1 : 0 }));
+        const buyers = []; let balance = 0;
+        for (const y of [String(+year - 1), year]) for (let mo = 1; mo <= 12; mo++) {
+          const m = `${y}-${pad(mo)}`, dim = days(m);
+          if (m + '-01' > now) break;
+          const n = Math.round(sh.orders * season[mo - 1] * (0.85 + rnd() * 0.3) * (y === year ? 1.15 : 1));
+          for (let k = 0; k < n; k++) {
+            const date = `${m}-${pad(1 + Math.floor(rnd() * dim))}`; if (date > now) continue;
+            const id = String(++orderNo), lines = rnd() < 0.8 ? 1 : 2, chosen = [];
+            for (let j = 0; j < lines; j++) chosen.push(pick(sh.list.map((l, i) => i), sh.list.map(l => l[2])));
+            let list = 0, physical = false, units = 0;
+            chosen.forEach(i => { const [name, price, , , , digital] = sh.list[i], qty = rnd() < 0.9 ? 1 : 2; list += cents(price) * qty; units += qty; physical = physical || !digital;
+              E.items.push({ id: String(++txNo), order: id, shop: sh.id, listing: String(1400000000 + i + (sh.id === 'kiln' ? 500 : 0)), name, qty, price: cents(price), total: cents(price) * qty, sku: '' }); });
+            const code = rnd() < 0.2 ? sh.codes[Math.floor(rnd() * sh.codes.length)] : null, discount = code ? Math.round(list * code[1]) : 0;
+            const shipping = physical && list - discount < cents(sh.freeOver) ? cents(sh.ship) : 0;
+            const [country, , rate] = pick(countries, countries.map(c => c[1])), tax = Math.round((list - discount + shipping) * rate);
+            let buyer; if (buyers.length && rnd() < 0.14) buyer = buyers[Math.floor(rnd() * buyers.length)]; else { buyer = sh.id[0] + (buyers.length + 1).toString(36); buyers.push(buyer); }
+            E.orders.push({ id, shop: sh.id, date, buyer, country, coupon: code ? code[0] : '', discount, shipDiscount: 0, shipping, tax, list, units });
+            // the payment account statement for the same order
+            const paid = list - discount + shipping, first = sh.list[chosen[0]][0];
+            tx(date, 'etsy-sales', paid + tax, `Payment for Order #${id}`, 'o' + id);
+            if (tax) tx(date, 'buyer-tax', -tax, country === 'United States' ? 'Sales tax paid by buyer' : 'VAT paid by buyer', 'o' + id);
+            tx(date, 'transaction-fees', Math.round(paid * 0.065), `Transaction fee: ${first}`, 'o' + id);
+            tx(date, 'processing-fees', Math.round((paid + tax) * 0.03) + 25, 'Processing fee', 'o' + id);
+            chosen.forEach(i => tx(date, 'listing-fees', 20, 'Listing fee', 'l' + (1400000000 + i + (sh.id === 'kiln' ? 500 : 0))));
+            if (sh.label && physical) tx(date, 'shipping-labels', cents(sh.label), 'USPS shipping label', 'o' + id);
+            if (sh.id === 'kiln' && rnd() < 0.06) tx(date, 'offsite-ads', Math.round(paid * 0.15), `Offsite Ads fee: ${first}`, 'o' + id);
+            if (y === year && date <= now) balance += paid - Math.round(paid * 0.065) - Math.round((paid + tax) * 0.03) - 25;
+            if (rnd() < 0.3) { const d = plusDays(date, 8 + Math.floor(rnd() * 16)); if (d <= now) { const stars = pick([5, 4, 3, 2, 1], [86, 9, 3, 1, 1]), w = words[stars];
+              E.reviews.push({ id: 'r' + id, shop: sh.id, date: d, stars, message: w[Math.floor(rnd() * w.length)], order: id }); } }
           }
-          s.invoices.push(inv);
-        });
+          if (y !== year) continue;
+          for (let d = 1; d <= dim; d++) { const date = `${m}-${pad(d)}`; if (date > now) break;
+            const ads = cents(sh.ads[0] + rnd() * (sh.ads[1] - sh.ads[0])); tx(date, 'etsy-ads', ads, 'Etsy Ads'); balance -= ads;
+            // Etsy pays out every Monday
+            if (new Date(date + 'T12:00:00').getDay() === 1 && balance > 2000) { const out = Math.floor(balance * 0.9); tx(date, 'etsy-deposit', out, `$${(out / 100).toFixed(2)} sent to your bank account`); balance -= out; } }
+          if (sh.plus) { tx(m + '-01', 'etsy-plus', 1000, 'Etsy Plus subscription fee'); tx(m + '-01', 'listing-fees', -300, 'Credit for listing fee'); tx(m + '-01', 'etsy-ads', -500, 'Credit for Etsy Ads fee'); balance -= 200; }
+          if (sh.id === 'kiln') tx(`${m}-${pad(Math.min(28, m === now.slice(0, 7) ? +now.slice(8) : 28))}`, 'fee-tax', 60 + Math.round(rnd() * 40), 'Tax: Transaction');
+          if (mo % 3 === 0) tx(`${m}-15`, 'transaction-fees', -Math.round(200 + rnd() * 300), 'Share & Save refund');
+        }
+        const stamp = now;
+        [['statement', `etsy_statement_${year}_${+now.slice(5, 7)}.csv`, s.transactions.filter(t => t.shop === sh.id && t.ref).length], ['orders', `EtsySoldOrderItems${year}.csv`, E.items.filter(i => i.shop === sh.id).length],
+          ['listings', 'EtsyListingsDownload.csv', sh.list.length], ['reviews', 'reviews.json', E.reviews.filter(r => r.shop === sh.id).length]]
+          .forEach(([kind, name, rows]) => E.imports.push({ shop: sh.id, kind, name, at: stamp, rows }));
       }
-      // business mileage: client visits and supply runs
-      s.mileage = [];
-      const trips = [['Client workshop · Acme Studio', 'Studio → Acme HQ → Studio', 286], ['Print shop pick-up', 'Studio → Riverside Print → Studio', 94], ['Photo shoot on location', 'Studio → Harbor Park → Studio', 412], ['Craft fair stall', 'Studio → Fairgrounds → Studio', 238]];
-      for (let i = 1; i <= monthNo; i++) {
-        const key = `${year}-${String(i).padStart(2, '0')}`;
-        [5, 14, 22].forEach((d, j) => {
-          const date = `${key}-${String(d).padStart(2, '0')}`; if (date > now) return;
-          const [purpose, route, miles] = trips[(i + j) % trips.length];
-          s.mileage.push({ id: uid(), date, purpose, route, miles });
-        });
-      }
-      // cash carries forward: each month opens with the month before's closing balance
-      for (let i = 2; i <= 12; i++) {
-        const prev = `${year}-${String(i - 1).padStart(2, '0')}`, key = `${year}-${String(i).padStart(2, '0')}`;
-        s.months[key].opening = totals(s, prev).cash;
-      }
+      s.transactions.sort((a, b) => a.date.localeCompare(b.date));
     },
   },
 };
@@ -1289,14 +1307,14 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 <a href="#content" style="position:absolute;left:-9999px" onfocus="this.style.left='10px'" onblur="this.style.left='-9999px'">Skip to content</a>
 <div class="app" id="app"><aside class="rail" id="rail" aria-label="Main navigation">
   <button class="mobile-close" aria-label="Close menu" data-action="menu">×</button>
-  <div class="brand"><div class="brand-mark">P</div><div class="brand-txt"><b>Profit Plan</b><small>JPS DIGITAL PAGES</small></div><button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
+  <div class="brand"><div class="brand-mark">S</div><div class="brand-txt"><b>Shop Insights</b><small>JPS DIGITAL PAGES</small></div><button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
   <nav id="nav"></nav>
-  <div class="rail-foot"><div class="rail-note"><b>Know what you really made.</b>Log sales and costs. Watch profit. Put tax money aside before it is due.</div><button class="btn small rail-demo" id="demo-toggle" data-action="demo">Explore sample data</button><a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages ↗</a><br><span>Freelance &amp; small-business books · v1.0</span></div>
+  <div class="rail-foot"><div class="rail-note"><b>Know what each shop really keeps.</b>Import your Etsy files. See take-home after every fee, what sells and what buyers say.</div><button class="btn small rail-demo" id="demo-toggle" data-action="demo">Explore sample data</button><a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages ↗</a><br><span>Profit &amp; shop analytics for Etsy sellers · v1.0</span></div>
 </aside><button class="scrim" data-action="menu" aria-label="Close navigation"></button>
-<div class="main"><header class="topbar"><div class="topbar-in"><div class="top-left"><button class="ibtn mobile-menu" data-action="menu" aria-label="Open navigation">☰</button><div class="month-control"><span class="month-control-label">Viewing month</span><div class="month-switch"><button class="ibtn" data-action="prev" aria-label="Previous month">‹</button><span class="month-label" id="month-label" aria-hidden="true"></span><input id="month-picker" type="month" aria-label="Selected month" min="1900-01" max="9998-12"><button class="ibtn" data-action="next" aria-label="Next month">›</button></div></div></div><div class="actions"><span id="save-status" class="status" role="status">Saved on this device</span><button class="btn" data-action="quick-log" aria-label="Quick log">Quick log</button><button class="btn primary" data-action="add" aria-label="＋ Add transaction"><span class="add-full">＋ Add transaction</span><span class="add-short">＋ Add</span></button></div></div><div id="month-tabs" class="month-tabs" aria-label="Months of the selected year"></div><div id="demo-banner" class="demo-banner" hidden><span><b>Sample mode</b> · Fictional numbers. Your own budget stays separate.</span><button class="btn small" data-action="exit-demo">Return to my books</button></div><div id="storage-warning" class="notice warning" hidden></div><div id="backup-banner" class="notice backup-banner no-print" role="status" hidden></div></header><main id="content" class="page" tabindex="-1"></main></div></div>
+<div class="main"><header class="topbar"><div class="topbar-in"><div class="top-left"><button class="ibtn mobile-menu" data-action="menu" aria-label="Open navigation">☰</button><div class="month-control"><span class="month-control-label">Viewing month</span><div class="month-switch"><button class="ibtn" data-action="prev" aria-label="Previous month">‹</button><span class="month-label" id="month-label" aria-hidden="true"></span><input id="month-picker" type="month" aria-label="Selected month" min="1900-01" max="9998-12"><button class="ibtn" data-action="next" aria-label="Next month">›</button></div></div></div><div class="actions"><span id="save-status" class="status" role="status">Saved on this device</span><button class="btn" data-action="quick-log" aria-label="Quick log">Quick log</button><button class="btn primary" data-action="add" aria-label="＋ Add transaction"><span class="add-full">＋ Add transaction</span><span class="add-short">＋ Add</span></button></div></div><div id="month-tabs" class="month-tabs" aria-label="Months of the selected year"></div><div id="demo-banner" class="demo-banner" hidden><span><b>Sample mode</b> · Fictional numbers. Your own budget stays separate.</span><button class="btn small" data-action="exit-demo">Return to my shops</button></div><div id="storage-warning" class="notice warning" hidden></div><div id="backup-banner" class="notice backup-banner no-print" role="status" hidden></div></header><main id="content" class="page" tabindex="-1"></main></div></div>
 <dialog id="modal" aria-labelledby="modal-title"><div class="dialog-in" id="modal-body"></div></dialog>
 <dialog id="welcome-tour" class="welcome-tour" aria-labelledby="welcome-title"><div class="welcome-box"><button class="ibtn welcome-close" data-action="welcome-close" aria-label="Close welcome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="welcome-art" id="welcome-art"></div><div class="welcome-body"><span class="welcome-step" id="welcome-step"></span><h2 id="welcome-title"></h2><div id="welcome-text"></div></div><div class="welcome-dots" id="welcome-dots"></div><div class="welcome-foot"><div class="welcome-left"><button class="btn" data-action="welcome-back">Back</button><button class="btn pop welcome-folder" data-action="welcome-folder" hidden>Choose backup folder</button></div><button class="btn primary" data-action="welcome-next">Next</button></div></div></dialog>
-<div id="toast" class="toast" role="status" aria-live="polite" hidden></div><input type="file" id="restore-file" accept="application/json,.json" hidden><noscript><p>Enable JavaScript to use Profit Plan. Your data stays in this browser.</p></noscript><script>/* Shared planner core — pure calculations. All amounts are integer minor units.
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div><input type="file" id="restore-file" accept="application/json,.json" hidden><noscript><p>Enable JavaScript to use Shop Insights. Your data stays in this browser.</p></noscript><script>/* Shared planner core — pure calculations. All amounts are integer minor units.
    Everything niche-specific (groups, categories, tax lines, labels) comes from the pack P. */
 const Budget = ((P) => {
   const THEMES=P.themes.slice();
@@ -3300,6 +3318,500 @@ const Biz=(()=>{
  if(F.mileage)views.mileage=mileageView;
  if(F.invoices)views.invoices=invoicesView;
  return {views,dashboard,settingsCard,taxLineField,annualCharts,cashflowAnnual,range,columns,statementRows,acct,pct,csv,safe,fullDate};
+})();
+/* Etsy edition, part 1: reading Etsy's exports and the shop analytics built on them.
+   Pure functions over the planner state; no DOM. Amounts are integer cents.
+   Four exports: payment account statement (CSV), sold order items (CSV), listings (CSV), reviews (JSON). */
+const EtsyData=((P,B,CSV)=>{
+ const X=P.etsy,ALL={from:'1900-01-01',to:'9998-12-31'};
+ // short, stable keys for duplicate checks and for buyers (a buyer's name is never stored)
+ const hash=(str,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0;i<str.length;i++){const ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
+  h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);
+  return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);};
+ const norm=s=>String(s??'').trim().toLowerCase().replace(/\s+/g,' ');
+ const head=h=>norm(h).replace(/[^a-z0-9]+/g,' ').trim();
+ // listings carry no listing number, so they meet their sales on the start of the title
+ const titleKey=s=>norm(s).replace(/&amp;/g,'&').replace(/&#39;|&quot;/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+ const sameTitle=(a,b)=>{const n=Math.min(a.length,b.length,40);return n>=12&&a.slice(0,n)===b.slice(0,n);};
+ const KINDS={statement:'Payment account statement',orders:'Sold order items',listings:'Listings',reviews:'Reviews'};
+ const SIGNS={statement:['date','type','title','info','currency','amount','fees taxes','net'],
+  orders:['sale date','item name','quantity','price','item total','order id'],
+  listings:['title','price','quantity','tags']};
+ const kindOf=headers=>{const h=new Set(headers.map(head));return Object.keys(SIGNS).find(k=>SIGNS[k].every(x=>h.has(x)))||null;};
+ // "$16.08", "-$0.20", "CA$1,234.50", "(3.10)", "12,50 €" → cents; "--" and blanks → null
+ function money(raw){
+  const s=String(raw??'').trim();if(!s||/^[-–—]+$/.test(s))return null;
+  const neg=/^\(.*\)$/.test(s)||/^[^\d]*[-−–]/.test(s);let d=s.replace(/[^\d.,]/g,'');
+  if(/,\d{1,2}$/.test(d)&&!/\.\d{1,2}$/.test(d))d=d.replace(/\./g,'').replace(',','.');else d=d.replace(/,/g,'');
+  if(!/^\d+(\.\d+)?$/.test(d))throw Error(`Could not read "${s.slice(0,20)}" as an amount`);
+  const n=Math.round(parseFloat(d)*100);return neg?-n:n;}
+ const when=v=>CSV.date(String(v).trim(),'mdy');
+
+ // ---------- payment account statement ----------
+ // Type + Title → category. Sales tax / VAT the buyer paid is a minus line under revenue, so it is
+ // never income or a cost; credits and refunds of fees reduce the fee they belong to.
+ function classify(type,title){
+  const T=norm(type),t=norm(title);
+  const fee=()=>/offsite/.test(t)?'offsite-ads':/etsy ads|ads fee|advertis/.test(t)?'etsy-ads':/etsy plus|plus subscription/.test(t)?'etsy-plus':/share (&|and) save/.test(t)?'transaction-fees'
+   :/transaction/.test(t)?'transaction-fees':/processing/.test(t)?'processing-fees':/listing|renew/.test(t)?'listing-fees':/shipping|postage|label/.test(t)?'shipping-labels':'other-etsy-fees';
+  switch(T){
+   case 'sale':return {category:'etsy-sales'};
+   case 'refund':return {category:/fee/.test(t)?fee():'etsy-refunds'};
+   case 'fee':case 'fees':return {category:fee()};
+   case 'tax':case 'vat':case 'gst':case 'sales tax':return {category:/buyer/.test(t)?'buyer-tax':'fee-tax'};
+   case 'marketing':return {category:/offsite/.test(t)?'offsite-ads':/plus/.test(t)?'etsy-plus':/ads/.test(t)?'etsy-ads':'other-marketing'};
+   case 'deposit':return {category:'etsy-deposit',deposit:true};
+   case 'shipping':case 'shipping label':case 'postage':return {category:'shipping-labels'};
+   case 'payment':case 'reserve':case 'disbursement':return {category:'own-transfer'};
+  }
+  return {category:fee(),unknown:true};
+ }
+ const refOf=text=>{let m=text.match(/order\s*#?\s*(\d{4,})/i);if(m)return 'o'+m[1];m=text.match(/listing\s*#?\s*(\d{4,})/i);return m?'l'+m[1]:'';};
+ function statement(rows,headers){
+  const ix=k=>headers.findIndex(h=>head(h)===k),c={date:ix('date'),type:ix('type'),title:ix('title'),info:ix('info'),currency:ix('currency'),amount:ix('amount'),fees:ix('fees taxes'),net:ix('net')};
+  const lines=new Map(),issues=[],unknown=new Set(),currencies=new Set(),cats=Object.fromEntries(P.categories.map(([id,,g])=>[id,P.groups.find(x=>x.id===g).type]));
+  rows.forEach(r=>{const g=k=>c[k]>=0?String(r.cells[c[k]]??'').trim():'';
+   try{const date=when(g('date')),type=g('type'),title=g('title'),info=g('info'),cls=classify(type,title);
+    if(cls.unknown)unknown.add(type||'(blank)');
+    let v;
+    if(cls.deposit){const m=title.match(/[-−(]?[^\s\d]{0,4}\d[\d.,]*/);v=m?money(m[0]):null;if(v===null)v=money(g('net'))??money(g('amount'));if(v===null)throw Error('No amount in this deposit line');}
+    else if(['etsy-sales','etsy-refunds'].includes(cls.category))v=money(g('amount'))??money(g('net'));
+    else v=money(g('net'))??money(g('fees'))??money(g('amount'));
+    if(!v)return;
+    if(g('currency'))currencies.add(g('currency').toUpperCase());
+    const kind=cats[cls.category],amount=kind==='income'?v:kind==='expense'?-v:Math.abs(v),ref=refOf(title+' '+info);
+    const key=[date,cls.category,ref,norm(title)].join('|'),hit=lines.get(key);
+    if(hit)hit.amount+=amount;else lines.set(key,{date,category:cls.category,amount,ref,note:[title,info].filter(Boolean).join(' · ').slice(0,160),key,type});
+   }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
+  const records=[...lines.values()].filter(x=>x.amount);
+  return {records,issues,currencies,notes:unknown.size?[`Unrecognised line types filed under Other Etsy fees: ${[...unknown].join(', ')}`]:[]};
+ }
+ // ---------- sold order items ----------
+ // Discount, shipping and sales tax are order-level: Etsy writes them once per order, not per item.
+ const once=vals=>{const v=vals.filter(Boolean);return !v.length?0:v.every(x=>x===v[0])?v[0]:v.reduce((a,b)=>a+b,0);};
+ function soldItems(rows,headers){
+  const ix=k=>headers.findIndex(h=>head(h)===k),col=['sale date','item name','buyer','quantity','price','coupon code','discount amount','shipping discount','order shipping','order sales tax','item total','currency','transaction id','listing id','ship country','order id','sku','vat paid by buyer'];
+  const c=Object.fromEntries(col.map(k=>[k,ix(k)])),orders=new Map(),items=[],issues=[],currencies=new Set();
+  rows.forEach((r,n)=>{const g=k=>c[k]>=0?String(r.cells[c[k]]??'').trim():'';
+   try{const order=g('order id').replace(/\D/g,'');if(!order)throw Error('No order ID');
+    const date=when(g('sale date')),qty=Math.max(1,parseInt(g('quantity'),10)||1),price=money(g('price'))??0,total=money(g('item total'))??price*qty,name=g('item name').slice(0,300)||'Untitled item';
+    if(g('currency'))currencies.add(g('currency').toUpperCase());
+    let o=orders.get(order);if(!o)orders.set(order,o={id:order,date,buyer:g('buyer')?hash(norm(g('buyer'))).slice(0,12):'',country:g('ship country').slice(0,60),coupon:g('coupon code').slice(0,80),d:[],sd:[],sh:[],tx:[],vat:[],list:0,units:0});
+    if(date<o.date)o.date=date;if(!o.coupon&&g('coupon code'))o.coupon=g('coupon code').slice(0,80);
+    o.d.push(Math.abs(money(g('discount amount'))??0));o.sd.push(Math.abs(money(g('shipping discount'))??0));o.sh.push(money(g('order shipping'))??0);o.tx.push(money(g('order sales tax'))??0);o.vat.push(money(g('vat paid by buyer'))??0);
+    o.list+=total;o.units+=qty;
+    const id=g('transaction id').replace(/\D/g,'')||'h'+hash([order,g('listing id'),name,n].join('|'));
+    items.push({id,order,listing:g('listing id').replace(/\D/g,'').slice(0,40),name,qty,price,total,sku:g('sku').slice(0,80)});
+   }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
+  const list=[...orders.values()].map(o=>({id:o.id,date:o.date,buyer:o.buyer,country:o.country,coupon:o.coupon,discount:once(o.d),shipDiscount:once(o.sd),shipping:once(o.sh),tax:once(o.tx)+once(o.vat),list:o.list,units:o.units}));
+  return {records:list,items,issues,currencies,notes:[]};
+ }
+ // ---------- listings ----------
+ function listings(rows,headers){
+  const h=headers.map(head),ix=k=>h.indexOf(k),issues=[],currencies=new Set(),records=[];
+  const images=h.map((x,i)=>/^image\s?\d+$/.test(x)?i:-1).filter(i=>i>=0),variations=h.map((x,i)=>/^variation \d type$/.test(x)?i:-1).filter(i=>i>=0);
+  rows.forEach(r=>{const g=i=>i>=0?String(r.cells[i]??'').trim():'';
+   try{const title=g(ix('title')).slice(0,300);if(!title)throw Error('No title');
+    if(g(ix('currency code')))currencies.add(g(ix('currency code')).toUpperCase());
+    records.push({title,price:Math.abs(money(g(ix('price')))??0),qty:Math.max(0,Math.min(1e7,parseInt(g(ix('quantity')),10)||0)),photos:Math.min(10,images.filter(i=>g(i)).length),
+     tags:Math.min(13,g(ix('tags')).split(',').filter(t=>t.trim()).length),sku:g(ix('sku')).slice(0,80),variations:Math.min(3,variations.filter(i=>g(i)).length)});
+   }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
+  return {records,issues,currencies,notes:[]};
+ }
+ // ---------- reviews.json ----------
+ function reviews(json){
+  const list=Array.isArray(json)?json:Array.isArray(json?.reviews)?json.reviews:null;if(!list)throw Error('This JSON file is not a list of reviews.');
+  const records=[],issues=[];
+  list.forEach((r,i)=>{try{const stars=Math.round(Number(r.star_rating??r.rating));if(!(stars>=1&&stars<=5))throw Error('No star rating');
+   const date=when(r.date_reviewed??r.date),message=String(r.message??r.review??'').trim().slice(0,2000),order=String(r.order_id??'').replace(/\D/g,'').slice(0,40);
+   records.push({id:'r'+hash([order,date,stars,message].join('|')),date,stars,message,order});}catch(e){issues.push(`Review ${i+1}: ${e.message}`);}});
+  return {records,issues,currencies:new Set(),notes:[]};
+ }
+ // One file in, one parsed file out. The kind comes from the header row, never from the file name.
+ function read(name,text){
+  const out={name:String(name||'file').slice(0,160),kind:null,records:[],items:[],issues:[],notes:[],currency:'',from:'',to:''};
+  try{const t=String(text).replace(/^﻿/,'').trim();let r;
+   if(/^[[{]/.test(t)){out.kind='reviews';r=reviews(JSON.parse(t));}
+   else{const d=CSV.detect(t),rows=CSV.parse(d.text,d.delimiter),at=rows.slice(0,5).findIndex(x=>kindOf(x.cells));
+    if(at<0){out.error=`Not an Etsy export this app reads. First row: ${(rows[0]?.cells||[]).slice(0,6).join(', ').slice(0,120)}`;return out;}
+    const headers=rows[at].cells;out.kind=kindOf(headers);r={statement,orders:soldItems,listings}[out.kind](rows.slice(at+1),headers);}
+   Object.assign(out,{records:r.records,items:r.items||[],issues:r.issues,notes:r.notes});
+   if(r.currencies.size>1)out.error=`This file mixes currencies (${[...r.currencies].join(', ')}).`;out.currency=[...r.currencies][0]||'';
+   const dates=out.records.map(x=>x.date).filter(Boolean).sort();out.from=dates[0]||'';out.to=dates.at(-1)||'';
+   if(!out.records.length&&!out.error)out.error=out.issues[0]||'No rows to import in this file.';
+  }catch(e){out.error=e.message;}
+  return out;
+ }
+
+ // ---------- merging into the planner ----------
+ // Everything is keyed so a repeated or overlapping file adds nothing twice. A file whose orders
+ // already belong to another shop is refused whole. dry:true counts without changing anything.
+ function merge(s,shop,file,{uid=B.uid,today=B.today(),dry=false}={}){
+  const E=s.etsy,r={kind:file.kind,name:file.name,added:0,updated:0,same:0,replaced:0,items:0,months:new Set(),error:''};
+  const shopName=id=>(s.shops.find(x=>x.id===id)||{}).name||'another shop';
+  if(file.error){r.error=file.error;return r;}
+  if(!s.shops.some(x=>x.id===shop)){r.error='Choose a shop first.';return r;}
+  if(file.currency&&file.currency!==s.settings.currency){
+   const emptyBooks=!s.transactions.length&&!E.orders.length&&!E.listings.length;
+   if(!emptyBooks||!B.CURRENCIES.includes(file.currency)){r.error=`This file is in ${file.currency}, but Shop Insights is set to ${s.settings.currency}. Change the currency in Settings, or use one planner file per currency.`;return r;}
+   r.currency=file.currency;if(!dry)s.settings.currency=file.currency;}
+  const ownerOf=new Map();E.orders.forEach(o=>ownerOf.set('o'+o.id,o.shop));s.transactions.forEach(t=>{if(t.shop&&t.ref&&t.ref[0]==='o'&&!ownerOf.has(t.ref))ownerOf.set(t.ref,t.shop);});
+  const clash=refs=>{for(const x of refs){const o=ownerOf.get(x);if(o&&o!==shop)return o;}return '';};
+  if(file.kind==='statement'){
+   const other=clash(file.records.map(x=>x.ref).filter(x=>x[0]==='o'));if(other){r.error=`These orders are already in ${shopName(other)}. Choose that shop, or check the file.`;return r;}
+   const bySrc=new Map();s.transactions.forEach(t=>{if(t.src)bySrc.set(t.src,t);});
+   for(const x of file.records){const src=hash(shop+'|'+x.key),old=bySrc.get(src);
+    if(old){if(old.amount===x.amount)r.same++;else{r.updated++;r.months.add(x.date.slice(0,7));if(!dry)old.amount=x.amount;}continue;}
+    r.added++;r.months.add(x.date.slice(0,7));if(!dry)s.transactions.push({id:uid(),date:x.date,category:x.category,amount:x.amount,note:x.note,shop,...(x.ref?{ref:x.ref}:{}),src});}
+  }else if(file.kind==='orders'){
+   const other=clash(file.records.map(o=>'o'+o.id));if(other){r.error=`These orders are already in ${shopName(other)}. Choose that shop, or check the file.`;return r;}
+   const orders=new Map(E.orders.map(o=>[o.id,o])),itemIds=new Set(E.items.map(i=>i.id)),touched=new Set();
+   for(const o of file.records){if(orders.has(o.id))r.same++;else{r.added++;if(!dry){const n={...o,shop};E.orders.push(n);orders.set(o.id,n);}}}
+   for(const i of file.items){if(itemIds.has(i.id))continue;r.items++;itemIds.add(i.id);if(!dry){E.items.push({...i,shop});touched.add(i.order);}}
+   // an order seen before with new item lines: its totals come from all of its items
+   if(!dry)for(const id of touched){const o=orders.get(id),its=E.items.filter(i=>i.order===id);if(o&&its.length){o.list=its.reduce((n,i)=>n+i.total,0);o.units=its.reduce((n,i)=>n+i.qty,0);}}
+  }else if(file.kind==='listings'){
+   // a listings export is the shop as it is today, so it replaces that shop's listings
+   const sig=list=>JSON.stringify(list.map(({title,price,qty,photos,tags,sku,variations})=>[title,price,qty,photos,tags,sku,variations]));
+   const mine=E.listings.filter(l=>l.shop===shop);if(sig(mine)===sig(file.records)){r.same=mine.length;}
+   else{r.replaced=mine.length;r.added=file.records.length;}
+   if(!dry&&r.added)E.listings=E.listings.filter(l=>l.shop!==shop).concat(file.records.map((l,i)=>({id:'L'+hash([shop,l.title,l.sku,i].join('|')),shop,...l})));
+  }else if(file.kind==='reviews'){
+   const other=clash(file.records.filter(x=>x.order).map(x=>'o'+x.order));if(other){r.error=`These reviews are for orders in ${shopName(other)}. Choose that shop, or check the file.`;return r;}
+   const ids=new Set(E.reviews.map(x=>x.id));
+   for(const x of file.records){if(ids.has(x.id)){r.same++;continue;}ids.add(x.id);r.added++;if(!dry)E.reviews.push({...x,shop});}
+  }
+  if(!dry){E.imports.push({shop,kind:file.kind,name:file.name,at:today,rows:file.records.length});if(E.imports.length>2000)E.imports.splice(0,E.imports.length-2000);}
+  return r;
+ }
+
+ // ---------- analytics (all follow the shop selection in settings.shop) ----------
+ const scoped=(s,list)=>{const shop=B.scopeOf(s);return shop?list.filter(x=>x.shop===shop):list;};
+ const inRange=(x,from,to)=>x.date>=from&&x.date<=to;
+ const isEtsyGroup=g=>!!(B.GROUP_DEFS[g]&&B.GROUP_DEFS[g].etsy);
+ // "all time" is clamped to the dates actually recorded, so month-by-month reads stay short
+ const clamp=(s,from,to)=>{let a='9999',z='0000';for(const t of s.transactions){if(t.date<a)a=t.date;if(t.date>z)z=t.date;}return [from>a?from:a,to<z?to:z];};
+ function txIn(s,from,to){const [a,z]=clamp(s,from,to),out=[];for(const m of B.monthsBetween(a,z))for(const t of B.transactions(s,m))if(inRange(t,a,z))out.push(t);return out;}
+ // Take-home: revenue after buyer tax and refunds, minus every Etsy fee, ad and subscription
+ function summary(s,from=ALL.from,to=ALL.to){
+  const [a,z]=clamp(s,from,to),p=a<=z?B.pl(s,a,z):B.pl(s,B.today(),B.today()),by=new Map([...p.revenue.lines,...p.cogs.lines,...p.opex.groups.flatMap(g=>g.lines),...p.other.lines,...p.transfers.lines].map(l=>[l.id,l.amount])),amt=id=>by.get(id)||0;
+  const sales=amt('etsy-sales'),buyerTax=-amt('buyer-tax'),refunds=-amt('etsy-refunds'),revenue=sales-buyerTax-refunds;
+  const grp=id=>(p.opex.groups.find(g=>g.id===id)||{total:0}).total,fees=grp('etsy-fees'),marketing=grp('etsy-marketing'),etsyCosts=P.groups.filter(g=>g.etsy).reduce((n,g)=>n+grp(g.id),0);
+  const ads=X.ads.reduce((n,id)=>n+amt(id),0),tx=txIn(s,from,to);
+  const credits=-tx.filter(t=>t.amount<0&&feeGroup(s,t.category)).reduce((n,t)=>n+t.amount,0);
+  const orders=new Set(tx.filter(t=>t.category==='etsy-sales'&&t.amount>0).map(t=>t.ref||t.id)).size,takeHome=revenue-etsyCosts;
+  return {from,to,sales,buyerTax,refunds,revenue,fees,marketing,etsyCosts,ads,plus:amt('etsy-plus'),labels:amt('shipping-labels'),credits,deposits:amt('etsy-deposit'),takeHome,orders,
+   aov:orders?Math.round(revenue/orders):0,costShare:revenue>0?etsyCosts/revenue:null,adsShare:revenue>0?ads/revenue:null,profit:p.net,pl:p,lines:by};
+ }
+ const catGroup=(s,id)=>(s.categories.find(c=>c.id===id)||{}).group;
+ const feeGroup=(s,id)=>isEtsyGroup(catGroup(s,id));
+ // Each order rebuilt from its statement lines: what the buyer paid, less tax, fees and labels
+ function orderBook(s,from,to){
+  const by=new Map();
+  for(const t of txIn(s,from,to)){if(!t.ref||t.ref[0]!=='o')continue;let o=by.get(t.ref);if(!o)by.set(t.ref,o={id:t.ref.slice(1),date:t.date,shop:t.shop||'',sale:0,tax:0,refund:0,fees:0,labels:0});
+   if(t.category==='etsy-sales'){o.sale+=t.amount;if(t.date<o.date||!o.seen)o.date=t.date;o.seen=true;}
+   else if(t.category==='buyer-tax')o.tax-=t.amount;else if(t.category==='etsy-refunds')o.refund-=t.amount;
+   else if(t.category==='shipping-labels')o.labels+=t.amount;else if(feeGroup(s,t.category))o.fees+=t.amount;}
+  const names=new Map();(s.etsy?.items||[]).forEach(i=>{if(!names.has(i.order))names.set(i.order,i.name);});
+  return [...by.values()].map(o=>{const revenue=o.sale-o.tax-o.refund;return {...o,revenue,takeHome:revenue-o.fees,afterLabels:revenue-o.fees-o.labels,item:names.get(o.id)||''};}).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
+ }
+ function ordersIn(s,from,to){return scoped(s,s.etsy?.orders||[]).filter(o=>inRange(o,from,to));}
+ function products(s,from=ALL.from,to=ALL.to){
+  const orders=ordersIn(s,from,to),om=new Map(orders.map(o=>[o.id,o])),by=new Map();
+  for(const i of scoped(s,s.etsy.items)){const o=om.get(i.order);if(!o)continue;const k=i.listing||'n:'+titleKey(i.name);
+   let p=by.get(k);if(!p)by.set(k,p={key:k,listing:i.listing,shop:i.shop,name:i.name,units:0,list:0,net:0,orders:new Set(),last:''});
+   p.units+=i.qty;p.list+=i.total;p.net+=i.total-(o.list?Math.round(o.discount*i.total/o.list):0);p.orders.add(i.order);if(o.date>=p.last){p.last=o.date;p.name=i.name;}}
+  const list=[...by.values()].map(p=>({...p,orders:p.orders.size,tkey:titleKey(p.name)})).sort((a,b)=>b.list-a.list||b.units-a.units||a.name.localeCompare(b.name));
+  const total=list.reduce((n,p)=>n+p.list,0),units=list.reduce((n,p)=>n+p.units,0),top=n=>total?list.slice(0,n).reduce((a,p)=>a+p.list,0)/total:0;
+  const ls=scoped(s,s.etsy.listings).map(l=>{const k=titleKey(l.title),sold=list.filter(p=>p.shop===l.shop&&sameTitle(k,p.tkey));
+   const flags=[l.photos<10&&`${l.photos} of 10 photos`,l.tags<13&&`${l.tags} of 13 tags`,l.title.length<40&&'Short title'].filter(Boolean);
+   return {...l,units:sold.reduce((n,p)=>n+p.units,0),list:sold.reduce((n,p)=>n+p.list,0),matched:sold.length>0,flags};});
+  const bands=[[0,1000,'Under 10'],[1000,2000,'10 – 20'],[2000,4000,'20 – 40'],[4000,8000,'40 – 80'],[8000,Infinity,'80 and over']].map(([a,b,label])=>{const inBand=ls.filter(l=>l.price>=a&&l.price<b);
+   return {label,from:a,listings:inBand.length,selling:inBand.filter(l=>l.units).length,units:inBand.reduce((n,l)=>n+l.units,0),list:inBand.reduce((n,l)=>n+l.list,0)};}).filter(b=>b.listings);
+  return {list,total,units,orders:orders.length,top,listings:ls,unsold:ls.filter(l=>!l.units),bands,health:{photos:ls.filter(l=>l.photos<10).length,tags:ls.filter(l=>l.tags<13).length,title:ls.filter(l=>l.title.length<40).length,ok:ls.filter(l=>!l.flags.length).length}};
+ }
+ function coupons(s,from=ALL.from,to=ALL.to){
+  const orders=ordersIn(s,from,to),disc=orders.filter(o=>o.discount>0||o.shipDiscount>0),sum=(l,k)=>l.reduce((n,o)=>n+(o[k]||0),0),codes=new Map(),months=new Map();
+  disc.forEach(o=>{const k=o.coupon||'';let c=codes.get(k);if(!c)codes.set(k,c={code:k,orders:0,discount:0,list:0});c.orders++;c.discount+=o.discount+o.shipDiscount;c.list+=o.list;});
+  orders.forEach(o=>{const m=o.date.slice(0,7);let x=months.get(m);if(!x)months.set(m,x={month:m,orders:0,discounted:0,discount:0});x.orders++;if(o.discount>0||o.shipDiscount>0){x.discounted++;x.discount+=o.discount+o.shipDiscount;}});
+  const list=sum(orders,'list'),discount=sum(orders,'discount');
+  return {orders:orders.length,discounted:disc.length,share:orders.length?disc.length/orders.length:null,list,discount,shipDiscount:sum(orders,'shipDiscount'),paid:list-discount,
+   codes:[...codes.values()].sort((a,b)=>b.discount-a.discount),months:[...months.values()].sort((a,b)=>a.month.localeCompare(b.month))};
+ }
+ function customers(s,from=ALL.from,to=ALL.to){
+  const orders=ordersIn(s,from,to),countries=new Map(),buyers=new Map();
+  orders.forEach(o=>{const k=o.country||'Not recorded';let c=countries.get(k);if(!c)countries.set(k,c={country:k,orders:0,paid:0});c.orders++;c.paid+=o.list-o.discount;if(o.buyer)buyers.set(o.buyer,(buyers.get(o.buyer)||0)+1);});
+  const counts=[...buyers.values()],repeat=counts.filter(n=>n>1);
+  return {orders:orders.length,buyers:buyers.size,repeat:repeat.length,repeatOrders:repeat.reduce((a,b)=>a+b,0),countries:[...countries.values()].sort((a,b)=>b.orders-a.orders||a.country.localeCompare(b.country)),
+   spread:[['1 order',counts.filter(n=>n===1).length],['2 orders',counts.filter(n=>n===2).length],['3 orders',counts.filter(n=>n===3).length],['4 or more',counts.filter(n=>n>=4).length]]};
+ }
+ function reviewStats(s,from=ALL.from,to=ALL.to){
+  const list=scoped(s,s.etsy.reviews).filter(r=>inRange(r,from,to)),dist=[1,2,3,4,5].map(n=>list.filter(r=>r.stars===n).length),sum=list.reduce((n,r)=>n+r.stars,0);
+  const group=len=>{const m=new Map();list.forEach(r=>{const k=r.date.slice(0,len);let x=m.get(k);if(!x)m.set(k,x={key:k,count:0,sum:0});x.count++;x.sum+=r.stars;});return [...m.values()].sort((a,b)=>a.key.localeCompare(b.key)).map(x=>({...x,avg:x.sum/x.count}));};
+  return {count:list.length,avg:list.length?sum/list.length:null,dist,months:group(7),years:group(4),low:list.filter(r=>r.stars<=3).sort((a,b)=>b.date.localeCompare(a.date)),recent:[...list].sort((a,b)=>b.date.localeCompare(a.date))};
+ }
+ // Seasonality from sold orders (usually the longest history); from the statement when there are none
+ function seasonality(s){
+  const orders=scoped(s,s.etsy.orders),years=new Map();
+  const cell=y=>{if(!years.has(y))years.set(y,Array.from({length:12},()=>({paid:0,orders:0})));return years.get(y);};
+  let source='orders';
+  if(orders.length)orders.forEach(o=>{const c=cell(o.date.slice(0,4))[+o.date.slice(5,7)-1];c.paid+=o.list-o.discount;c.orders++;});
+  else{source='statement';const tx=txIn(s,ALL.from,ALL.to);tx.forEach(t=>{if(!X.revenue.includes(t.category))return;const c=cell(t.date.slice(0,4))[+t.date.slice(5,7)-1];c.paid+=t.amount;if(t.category==='etsy-sales'&&t.amount>0)c.orders++;});}
+  return {source,years:[...years.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([year,months])=>({year,months,paid:months.reduce((n,m)=>n+m.paid,0),orders:months.reduce((n,m)=>n+m.orders,0)}))};
+ }
+ const forShop=(s,id)=>({...s,settings:{...s.settings,shop:id}});
+ function compare(s,from=ALL.from,to=ALL.to){
+  return s.shops.map(shop=>{const v=forShop(s,shop.id),m=summary(v,from,to),r=reviewStats(v,from,to);
+   return {...shop,...m,soldOrders:ordersIn(v,from,to).length,listings:v.etsy.listings.filter(l=>l.shop===shop.id).length,reviews:r.count,rating:r.avg};});
+ }
+ return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,compare,forShop,scoped};
+})(NICHE,Budget,CSV);
+if(typeof module!=='undefined')module.exports.EtsyData=EtsyData;
+
+/* Etsy edition, part 2: the screens. Shop switcher, import, dashboard, fees, products, coupons,
+   customers, reviews, seasonality and the shop comparison. */
+const Etsy=(()=>{
+ const D=EtsyData,X=P.etsy,today=()=>Budget.today();
+ const pc=(n,d=1)=>n===null||n===undefined||!Number.isFinite(n)?'—':(n*100).toFixed(d).replace(/\.0$/,'')+'%';
+ const num=n=>Number(n||0).toLocaleString();
+ const stat=(label,text,note,cls='')=>`<div class="kpi"><div class="label">${label}</div><b class="${cls}">${text}</b><small>${note}</small></div>`;
+ const change=(now,before,money=true)=>{if(!before)return now?'New this month':'Nothing last month';const d=(now-before)/Math.abs(before);return `${d>=0?'+':'−'}${Math.abs(Math.round(d*100))}% vs last month${money?' ('+fmt(before)+')':' ('+num(before)+')'}`;};
+ const shopName=id=>(state.shops.find(x=>x.id===id)||{}).name||'';
+ const scopeName=()=>state.settings.shop?shopName(state.settings.shop):state.shops.length>1?'All shops':state.shops[0]?.name||'Your shop';
+ const hasData=()=>state.transactions.some(t=>t.ref)||state.etsy.orders.length||state.etsy.listings.length||state.etsy.reviews.length;
+ // one period control for the analysis screens: the picked month, its year, or everything
+ let span='all',ordersAll=false,productsAll=false;
+ function range(kind=span){const m=selected,y=m.slice(0,4);
+  if(kind==='month')return {from:m+'-01',to:Budget.endOf(m),label:monthName(m)};
+  if(kind==='year')return {from:y+'-01-01',to:y+'-12-31',label:'Full year '+y};
+  return {...D.ALL,label:'All time'};}
+ const spanControl=()=>`<div class="pl-controls no-print"><div class="segment" aria-label="Period">${[['month','Month'],['year','Year'],['all','All time']].map(([k,l])=>`<button data-action="etsy-span" data-span="${k}" aria-pressed="${span===k}">${l}</button>`).join('')}</div><span class="small muted">${span==='all'?'Everything imported':'Follows the month picker'}</span></div>`;
+ const scopeNote=()=>`<span class="pill">${esc(scopeName())}</span>`;
+ const noData=(what,action='go-etsy-import',label='Import Etsy files')=>empty(`No ${what} yet`,`Import your Etsy ${what} to see this${state.settings.shop?' for '+esc(shopName(state.settings.shop)):''}.`,action,label);
+ const bars=(rows,max,fmtv=fmt)=>`<div class="etsy-bars">${rows.map(([label,n,note])=>`<div class="etsy-bar"><span>${esc(label)}</span><i><b style="width:${max>0?Math.max(0,Math.min(100,n/max*100)):0}%"></b></i><strong class="number">${fmtv(n)}</strong>${note?`<small>${note}</small>`:''}</div>`).join('')}</div>`;
+ const colors=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)'];
+
+ // ---------- dashboard ----------
+ function dashboardView(){
+  const m=selected,prev=Budget.shift(m,-1),S=D.summary(state,m+'-01',Budget.endOf(m)),L0=D.summary(state,prev+'-01',Budget.endOf(prev));
+  const y=m.slice(0,4),cutoff=today().slice(0,7),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),series=months.map(x=>x<=cutoff?D.summary(state,x+'-01',Budget.endOf(x)):null);
+  const orders=D.orderBook(state,m+'-01',Budget.endOf(m)),parts=[['Etsy fees',S.fees,'var(--cat-2)'],['Ads & Etsy Plus',S.marketing,'var(--cat-4)'],['Shipping labels',S.labels,'var(--cat-3)'],['Take-home after labels',Math.max(0,S.takeHome-S.labels),'var(--ok)']];
+  const split=S.revenue>0?`<div class="etsy-split" role="img" aria-label="Where each sale went">${parts.map(([n,v,c])=>v>0?`<i style="width:${v/S.revenue*100}%;background:${c}" title="${esc(n)} ${fmt(v)}"></i>`:'').join('')}</div><div class="legend">${parts.map(([n,v,c])=>`<span><i class="dot" style="background:${c}"></i>${esc(n)} <b class="number">${pc(S.revenue>0?v/S.revenue:null,0)}</b></span>`).join('')}</div>`:'';
+  const fresh=['statement','orders','listings','reviews'].map(k=>{const last=D.scoped(state,state.etsy.imports).filter(x=>x.kind===k).map(x=>x.at).sort().at(-1);return `<span class="pill">${D.KINDS[k]}: ${last?dateName(last):'not yet'}</span>`;}).join(' ');
+  const multi=!state.settings.shop&&state.shops.length>1?D.compare(state,m+'-01',Budget.endOf(m)):null;
+  return pagehead(monthName(m),`${esc(scopeName())} at a glance`,'Take-home is revenue after sales tax buyers paid, refunds and every Etsy fee, ad and subscription.',button('Import Etsy files','go-etsy-import','primary')+button('Print summary','print','quiet'))+
+   (!hasData()?`<section class="card"><div class="cardhead"><div><h2>Three steps to your first numbers</h2><p>Everything stays in this browser.</p></div></div><div class="grid3">${[['1','Add your shop','Name each Etsy shop you run. You can add more later.','etsy-add-shop','Add a shop'],['2','Download from Etsy','Your payment account statement and sold order items, plus listings and reviews if you like.','go-etsy-import','Where to find them'],['3','Drop them in','Choose the shop and drop the files together. Duplicates are skipped.','go-etsy-import','Import files']].map(([n,t,b,a,l])=>`<div class="etsy-step"><span class="pill">${n}</span><h3>${t}</h3><p class="small muted">${b}</p>${button(l,a,'small')}</div>`).join('')}</div></section>`:'')+
+   `<div class="kpis etsy-kpis">${kpi('Take-home',S.takeHome,change(S.takeHome,L0.takeHome),'coins',S.takeHome<0?'warn':'')}${kpi(L.income,S.revenue,`${fmt(S.sales)} paid − ${fmt(S.buyerTax)} buyer tax${S.refunds?' − '+fmt(S.refunds)+' refunds':''}`,'down')}${stat('Etsy costs',pc(S.costShare),`${fmt(S.etsyCosts)} of ${L.income.toLowerCase()} · last month ${pc(L0.costShare)}`)}${stat('Ads',pc(S.adsShare),`${fmt(S.ads)} Etsy &amp; Offsite Ads · last month ${pc(L0.adsShare)}`)}${stat('Orders',num(S.orders),change(S.orders,L0.orders,false))}${kpi('Average order',S.aov,L0.aov?'Last month '+fmt(L0.aov):'After buyer tax','wallet')}</div>`+
+   (S.revenue>0?`<section class="card"><div class="cardhead"><div><h2>Where each sale went</h2><p>${monthName(m)} · share of ${fmt(S.revenue)} ${L.income.toLowerCase()}</p></div><button class="link" data-go="fees">Fees &amp; ads</button></div>${split}</section>`:'')+
+   Biz.dashboard()+
+   (multi?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${monthName(m)}</p></div><button class="link" data-go="shops">Compare shops</button></div><div class="table-wrap"><table><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Etsy costs</th><th class="num">Take-home</th><th class="num">Orders</th></tr></thead><tbody>${multi.map(x=>`<tr><td><button class="link" data-action="etsy-scope" data-shop="${x.id}">${esc(x.name)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${num(x.orders)}</td></tr>`).join('')}</tbody></table></div></section>`:'')+
+   (series.some(x=>x&&(x.revenue||x.takeHome))?`<section class="card"><div class="cardhead"><div><h2>${y} month by month</h2><p>${L.income} and take-home · future months are blank</p></div></div>${areaChart([{name:L.income,values:series.map(x=>x?x.revenue:null),color:'var(--ch-in)'},{name:'Take-home',values:series.map(x=>x?x.takeHome:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and take-home by month`)}</section>`:'')+
+   `<section class="card table-card"><div class="cardhead"><div><h2>Latest orders</h2><p>${monthName(m)} · rebuilt from the payment account statement</p></div><button class="link" data-go="fees">All orders</button></div>${orders.length?orderTable(orders.slice(0,8)):empty('No orders this month','Import this month’s payment account statement.','go-etsy-import','Import Etsy files')}</section>`+
+   `<div class="notice no-print"><span><b>Last imports</b><br>${fresh}</span>${button('Import Etsy files','go-etsy-import','small')}</div>`;
+ }
+ function orderTable(list){
+  return `<div class="table-wrap"><table class="etsy-orders"><thead><tr><th>Order</th><th>Date</th>${state.settings.shop||state.shops.length<2?'':'<th>Shop</th>'}<th class="num">Buyer paid</th><th class="num">Buyer tax</th><th class="num">Etsy fees</th><th class="num">Take-home</th><th class="num">Kept</th></tr></thead><tbody>${list.map(o=>`<tr><td><b>#${esc(o.id)}</b>${o.item?`<small class="dim etsy-item">${esc(o.item)}</small>`:''}</td><td>${dateName(o.date)}</td>${state.settings.shop||state.shops.length<2?'':`<td>${esc(shopName(o.shop))}</td>`}<td class="num">${fmt(o.sale-o.refund)}</td><td class="num">${o.tax?'−'+fmt(o.tax):'—'}</td><td class="num">−${fmt(o.fees)}</td><td class="num"><b>${Biz.acct(o.takeHome)}</b></td><td class="num">${pc(o.revenue>0?o.takeHome/o.revenue:null,0)}</td></tr>`).join('')}</tbody></table></div>`;
+ }
+ // ---------- fees & ads ----------
+ function feesView(){
+  const r=range(),S=D.summary(state,r.from,r.to),y=selected.slice(0,4),cutoff=today().slice(0,7),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`);
+  const ms=months.map(m=>m<=cutoff?D.summary(state,m+'-01',Budget.endOf(m)):null);
+  const lines=[...S.pl.opex.groups.filter(g=>Budget.GROUP_DEFS[g.id]?.etsy).flatMap(g=>g.lines)].filter(l=>l.amount>0).sort((a,b)=>b.amount-a.amount);
+  const mix=lines.slice(0,5).map((l,i)=>[l.name,l.amount,colors[i],`${pc(l.amount/S.etsyCosts,0)} of Etsy costs · ${pc(S.revenue>0?l.amount/S.revenue:null)} of ${L.income.toLowerCase()}`]),rest=lines.slice(5).reduce((n,l)=>n+l.amount,0);if(rest)mix.push(['Other Etsy costs',rest,colors[5],'']);
+  const orders=span==='month'?D.orderBook(state,r.from,r.to):[];
+  return pagehead('Fees & ads',`What Etsy kept · ${esc(r.label)}`,'Fee credits, Etsy Plus credits and Share &amp; Save refunds are taken off the fee they belong to.',button('Print','print','quiet'))+spanControl()+
+   `<div class="kpis">${kpi('Etsy costs',S.etsyCosts,`${pc(S.costShare)} of ${fmt(S.revenue)} ${L.income.toLowerCase()}`,'up')}${kpi('Etsy &amp; Offsite Ads',S.ads,`${pc(S.adsShare)} of ${L.income.toLowerCase()}`,'spark')}${kpi('Credits &amp; refunds of fees',S.credits,'Already taken off the fees','check')}${kpi('Take-home',S.takeHome,`${pc(S.revenue>0?S.takeHome/S.revenue:null)} of ${L.income.toLowerCase()} · deposits ${fmt(S.deposits)}`,'coins',S.takeHome<0?'warn':'')}</div>`+
+   `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Fee breakdown</h2><p>${esc(r.label)} · after credits</p></div></div>${mix.length?donutMarkup(mix,S.etsyCosts,'Etsy costs'):noData('statement lines')}</section>`+
+   `<section class="card"><div class="cardhead"><div><h2>Statement lines</h2><p>${esc(r.label)}</p></div></div>${[['Order payments',S.sales],['Sales tax &amp; VAT buyers paid',-S.buyerTax],['Refunds to buyers',-S.refunds],[`<b>${L.income}</b>`,S.revenue],...lines.map(l=>[esc(l.name),-l.amount]),['<b>Take-home</b>',S.takeHome],['Shipping labels bought on Etsy',-S.labels],['Paid out to your bank',S.deposits]].filter(([,n],i)=>n||i===3).map(([k,n])=>`<div class="row"><span>${k}</span><span class="number">${Biz.acct(n)}</span></div>`).join('')}</section></div>`+
+   (ms.some(x=>x&&(x.revenue||x.ads))?`<section class="card"><div class="cardhead"><div><h2>Ad spend against ${L.income.toLowerCase()}, ${y}</h2><p>Hover a month for ads as a share of ${L.income.toLowerCase()}</p></div></div>${compareBarChart([{name:L.income,values:ms.map(x=>x?x.revenue:null),color:'var(--ch-in)'},{name:'Etsy & Offsite Ads',values:ms.map(x=>x?x.ads:null),color:'var(--cat-4)'}],months.map(shortMonth),'Revenue and ad spend by month')}</section>`+
+    `<section class="card table-card"><div class="cardhead"><div><h2>Month by month, ${y}</h2><p>Costs as a share of ${L.income.toLowerCase()}</p></div></div><div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">${L.income}</th><th class="num">Etsy fees</th><th class="num">Ads &amp; Plus</th><th class="num">Etsy costs</th><th class="num">Ads %</th><th class="num">Take-home</th></tr></thead><tbody>${months.map((m,i)=>{const x=ms[i];return x?`<tr><td><button class="link" data-action="select-month" data-month="${m}">${shortMonth(m)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.fees)}</td><td class="num">${fmt(x.marketing)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num">${pc(x.adsShare)}</td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td></tr>`:`<tr><td>${shortMonth(m)}</td><td class="num dim" colspan="6">—</td></tr>`;}).join('')}</tbody></table></div></section>`:'')+
+   (span==='month'?`<section class="card table-card"><div class="cardhead"><div><h2>Every order in ${monthName(selected)}</h2><p>${orders.length} order${orders.length===1?'':'s'} · what the buyer paid, less tax and Etsy’s fees</p></div>${orders.length>25?button(ordersAll?'Show fewer':'Show all','etsy-orders-all','small quiet'):''}</div>${orders.length?orderTable(ordersAll?orders:orders.slice(0,25)):noData('statement lines')}</section>`:
+    `<div class="notice no-print"><span>Choose <b>Month</b> to see every order rebuilt from the statement: sale − buyer tax − fees = take-home.</span></div>`);
+ }
+ // ---------- products & listings ----------
+ function productsView(){
+  const r=range(),R=D.products(state,r.from,r.to),shown=productsAll?R.list:R.list.slice(0,25);
+  const health=R.listings.filter(l=>l.flags.length).sort((a,b)=>b.flags.length-a.flags.length||a.title.localeCompare(b.title));
+  return pagehead('What sells',`Products &amp; listings · ${esc(r.label)}`,'From sold order items. Revenue is at list price before discounts, then after each order’s discount is shared across its items.',scopeNote())+spanControl()+
+   (R.list.length?`<div class="kpis">${stat('Products sold',num(R.list.length),`${num(R.units)} units in ${num(R.orders)} orders`)}${kpi('Sales at list price',R.total,'Before discounts','tags')}${stat('Top 5 share',pc(R.top(5),0),`Top 10: ${pc(R.top(10),0)} of list-price sales`)}${stat('Listings never sold',R.listings.length?num(R.unsold.length):'—',R.listings.length?`of ${num(R.listings.length)} listings in this period`:'Import your listings file')}</div>`+
+    `<section class="card table-card"><div class="cardhead"><div><h2>Best sellers</h2><p>${esc(r.label)} · by list-price sales</p></div>${R.list.length>25?button(productsAll?'Show top 25':`Show all ${R.list.length}`,'etsy-products-all','small quiet'):''}</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Product</th><th class="num">Units</th><th class="num">Orders</th><th class="num">List price sales</th><th class="num">After discounts</th><th class="num">Share</th></tr></thead><tbody>${shown.map((p,i)=>`<tr><td class="dim">${i+1}</td><td>${esc(p.name)}${!state.settings.shop&&state.shops.length>1?`<small class="dim etsy-item">${esc(shopName(p.shop))}</small>`:''}</td><td class="num">${num(p.units)}</td><td class="num">${num(p.orders)}</td><td class="num">${fmt(p.list)}</td><td class="num">${fmt(p.net)}</td><td class="num">${pc(R.total?p.list/R.total:null)}</td></tr>`).join('')}</tbody></table></div></section>`:noData('sold order items'))+
+   (R.listings.length?`<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Price against sales</h2><p>Your listings by today’s price · sales in this period</p></div></div><div class="table-wrap"><table><thead><tr><th>Price</th><th class="num">Listings</th><th class="num">Selling</th><th class="num">Units</th><th class="num">Sales</th></tr></thead><tbody>${R.bands.map(b=>`<tr><td>${esc(b.label)}</td><td class="num">${b.listings}</td><td class="num">${b.selling}</td><td class="num">${num(b.units)}</td><td class="num">${fmt(b.list)}</td></tr>`).join('')}</tbody></table></div></section>`+
+    `<section class="card"><div class="cardhead"><div><h2>Listing health</h2><p>${R.listings.length} listings · Etsy allows 10 photos, 13 tags and a 140-character title</p></div></div>${bars([['Full marks',R.health.ok],['Fewer than 10 photos',R.health.photos],['Fewer than 13 tags',R.health.tags],['Title under 40 characters',R.health.title]],R.listings.length,num)}</section></div>`+
+    `<section class="card table-card"><div class="cardhead"><div><h2>Listings with no sales</h2><p>${esc(r.label)} · ${R.unsold.length} of ${R.listings.length}. Listings meet their sales on the start of the title (Etsy’s listings file has no listing number), so a renamed listing can show here.</p></div></div>${R.unsold.length?`<div class="table-wrap"><table><thead><tr><th>Listing</th><th class="num">Price</th><th class="num">In stock</th><th>Could be better</th></tr></thead><tbody>${R.unsold.slice(0,60).map(l=>`<tr><td>${esc(l.title)}</td><td class="num">${fmt(l.price)}</td><td class="num">${num(l.qty)}</td><td>${l.flags.map(f=>`<span class="pill">${esc(f)}</span>`).join(' ')||'<span class="dim">—</span>'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="small muted">Every listing sold at least once in this period.</p>'}</section>`+
+    `<section class="card table-card"><div class="cardhead"><div><h2>Listings to improve</h2><p>${health.length} listing${health.length===1?'':'s'} short of photos, tags or title words</p></div></div>${health.length?`<div class="table-wrap"><table><thead><tr><th>Listing</th><th class="num">Photos</th><th class="num">Tags</th><th class="num">Title length</th><th class="num">Units sold</th></tr></thead><tbody>${health.slice(0,60).map(l=>`<tr><td>${esc(l.title)}</td><td class="num ${l.photos<10?'warn':''}">${l.photos}</td><td class="num ${l.tags<13?'warn':''}">${l.tags}</td><td class="num ${l.title.length<40?'warn':''}">${l.title.length}</td><td class="num">${num(l.units)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="small muted">Every listing uses all 10 photos, all 13 tags and a full title.</p>'}</section>`
+    :`<section class="card">${noData('listings')}</section>`);
+ }
+ // ---------- coupons & discounts ----------
+ function couponsView(){
+  const r=range(),C=D.coupons(state,r.from,r.to),y=selected.slice(0,4),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),mm=new Map(C.months.map(x=>[x.month,x]));
+  return pagehead('What sells',`Coupons &amp; discounts · ${esc(r.label)}`,'From sold order items. A discount is counted once per order, however many items it had.',scopeNote())+spanControl()+
+   (C.orders?`<div class="kpis">${stat('Orders discounted',pc(C.share,0),`${num(C.discounted)} of ${num(C.orders)} orders`)}${kpi('Discounts given',C.discount+C.shipDiscount,C.shipDiscount?`incl. ${fmt(C.shipDiscount)} off shipping`:`${pc(C.list?C.discount/C.list:null)} of list price`,'tags')}${kpi('List price',C.list,'Items before any discount','wallet')}${kpi('Paid for items',C.paid,'List price − discounts','down')}</div>`+
+    `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>List price against paid</h2><p>${esc(r.label)}</p></div></div>${bars([['List price',C.list],['Discounts',C.discount],['Paid for items',C.paid]],C.list)}</section>`+
+    `<section class="card table-card"><div class="cardhead"><div><h2>By coupon code</h2><p>Sales and offers without a code are grouped together</p></div></div>${C.codes.length?`<div class="table-wrap"><table><thead><tr><th>Code</th><th class="num">Orders</th><th class="num">Discount</th><th class="num">Average</th></tr></thead><tbody>${C.codes.map(c=>`<tr><td>${c.code?`<b>${esc(c.code)}</b>`:'<span class="dim">No code (sale or offer)</span>'}</td><td class="num">${num(c.orders)}</td><td class="num">${fmt(c.discount)}</td><td class="num">${fmt(Math.round(c.discount/c.orders))}</td></tr>`).join('')}</tbody></table></div>`:'<p class="small muted">No discounted orders in this period.</p>'}</section></div>`+
+    (months.some(m=>mm.get(m))?`<section class="card"><div class="cardhead"><div><h2>Discounted orders by month, ${y}</h2><p>Hover a month for the share discounted</p></div></div>${compareBarChart([{name:'Orders',values:months.map(m=>mm.get(m)?.orders??null),color:'var(--ch-in)'},{name:'Discounted',values:months.map(m=>mm.get(m)?.discounted??null),color:'var(--cat-2)'}],months.map(shortMonth),'Orders and discounted orders by month','vertical',num)}</section>`:'')
+   :`<section class="card">${noData('sold order items')}</section>`);
+ }
+ // ---------- customers ----------
+ function customersView(){
+  const r=range(),C=D.customers(state,r.from,r.to),top=C.countries.slice(0,15);
+  return pagehead('What sells',`Customers · ${esc(r.label)}`,'Only the country and a scrambled buyer key are kept from the sold order items file. Names and addresses are never stored.',scopeNote())+spanControl()+
+   (C.orders?`<div class="kpis">${stat('Buyers',num(C.buyers),`${num(C.orders)} orders`)}${stat('Repeat buyers',num(C.repeat),`${pc(C.buyers?C.repeat/C.buyers:null,0)} of buyers came back`)}${stat('Orders from repeat buyers',pc(C.orders?C.repeatOrders/C.orders:null,0),`${num(C.repeatOrders)} orders`)}${stat('Countries',num(C.countries.length),`Top: ${esc(C.countries[0]?.country||'—')} ${pc(C.orders?C.countries[0].orders/C.orders:null,0)}`)}</div>`+
+    `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Where orders go</h2><p>${esc(r.label)} · by orders</p></div></div>${bars(top.map(c=>[c.country,c.orders,`${pc(c.orders/C.orders,0)} · ${fmt(c.paid)}`]),top[0]?.orders||1,num)}</section>`+
+    `<section class="card"><div class="cardhead"><div><h2>How often buyers come back</h2><p>Buyers by number of orders in this period</p></div></div>${bars(C.spread,Math.max(...C.spread.map(x=>x[1]),1),num)}<p class="small muted" style="margin-top:12px">Buyers are matched on their Etsy name as it appears in the export, so a buyer who changed it counts twice.</p></section></div>`
+   :`<section class="card">${noData('sold order items')}</section>`);
+ }
+ // ---------- reviews ----------
+ function reviewsView(){
+  const r=range(),R=D.reviewStats(state,r.from,r.to),stars=n=>'★'.repeat(n)+'☆'.repeat(5-n),recentMonths=R.months.slice(-24);
+  return pagehead('What buyers say',`Reviews · ${esc(r.label)}`,'From reviews.json.',scopeNote())+spanControl()+
+   (R.count?`<div class="kpis">${stat('Average rating',R.avg.toFixed(2),`${num(R.count)} reviews`)}${stat('5 stars',pc(R.dist[4]/R.count,0),`${num(R.dist[4])} reviews`)}${stat('4 stars',pc(R.dist[3]/R.count,0),`${num(R.dist[3])} reviews`)}${stat('3 stars or fewer',num(R.low.length),pc(R.low.length/R.count)+' of reviews',R.low.length?'warn':'')}</div>`+
+    `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Star ratings</h2><p>${esc(r.label)}</p></div></div>${bars([5,4,3,2,1].map(n=>[stars(n),R.dist[n-1],pc(R.dist[n-1]/R.count,0)]),Math.max(...R.dist),num)}</section>`+
+    `<section class="card table-card"><div class="cardhead"><div><h2>Year by year</h2><p>Average rating and number of reviews</p></div></div><div class="table-wrap"><table><thead><tr><th>Year</th><th class="num">Reviews</th><th class="num">Average</th></tr></thead><tbody>${R.years.map(x=>`<tr><td>${x.key}</td><td class="num">${num(x.count)}</td><td class="num"><b>${x.avg.toFixed(2)}</b></td></tr>`).join('')}</tbody></table></div></section></div>`+
+    (recentMonths.length>1?`<section class="card"><div class="cardhead"><div><h2>Reviews by month</h2><p>Hover a month for its average rating</p></div></div>${compareBarChart([{name:'Reviews',values:recentMonths.map(x=>x.count),color:'var(--accent)'}],recentMonths.map(x=>shortMonth(x.key)+(recentMonths.length>12?' '+x.key.slice(2,4):'')),'Reviews by month','vertical',num)}<div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>Month</th>${recentMonths.slice(-12).map(x=>`<th class="num">${shortMonth(x.key)}</th>`).join('')}</tr></thead><tbody><tr><td>Average</td>${recentMonths.slice(-12).map(x=>`<td class="num">${x.avg.toFixed(2)}</td>`).join('')}</tr></tbody></table></div></section>`:'')+
+    `<section class="card table-card"><div class="cardhead"><div><h2>Reviews of 3 stars or fewer</h2><p>Newest first</p></div></div>${R.low.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Stars</th><th>Review</th><th>Order</th></tr></thead><tbody>${R.low.slice(0,50).map(x=>`<tr><td class="nw">${dateName(x.date)} ${x.date.slice(0,4)}</td><td class="nw warn">${stars(x.stars)}</td><td>${esc(x.message)||'<span class="dim">No comment</span>'}</td><td class="dim">${x.order?'#'+esc(x.order):''}</td></tr>`).join('')}</tbody></table></div>`:'<p class="small muted">No reviews under 4 stars in this period.</p>'}</section>`
+   :`<section class="card">${noData('reviews')}</section>`);
+ }
+ // ---------- seasonality ----------
+ function seasonalityView(){
+  const Z=D.seasonality(state),years=Z.years.slice(-3),labels=Array.from({length:12},(_,i)=>shortMonth(`2026-${String(i+1).padStart(2,'0')}`)),yc=['var(--cat-6)','var(--cat-3)','var(--accent)'].slice(-years.length);
+  const avg=labels.map((_,i)=>{const v=Z.years.filter(y=>y.paid).map(y=>y.months[i].paid);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;}),yearAvg=avg.reduce((a,b)=>a+b,0)/12||1;
+  return pagehead('What sells','Seasonality',Z.source==='orders'?'Sales by calendar month, from sold order items (list price after discounts, before shipping and tax).':'Revenue by calendar month, from the payment account statement.',scopeNote())+
+   (Z.years.length?`<section class="card"><div class="cardhead"><div><h2>Month against month</h2><p>${years.map(y=>y.year).join(' · ')}</p></div></div>${compareBarChart(years.map((y,i)=>({name:y.year,values:y.months.map(m=>m.paid),color:yc[i]})),labels,'Sales by calendar month')}</section>`+
+    `<section class="card table-card"><div class="cardhead"><div><h2>Busy and quiet months</h2><p>Each month against an average month, across every year imported</p></div></div><div class="table-wrap"><table><thead><tr><th>Month</th>${Z.years.map(y=>`<th class="num">${y.year}</th>`).join('')}<th class="num">Against an average month</th></tr></thead><tbody>${labels.map((l,i)=>`<tr><td>${l}</td>${Z.years.map(y=>`<td class="num">${y.months[i].paid?fmt(y.months[i].paid):'<span class="dim">—</span>'}<small class="dim etsy-item">${y.months[i].orders?num(y.months[i].orders)+' orders':''}</small></td>`).join('')}<td class="num ${avg[i]>=yearAvg*1.2?'pos':avg[i]<=yearAvg*.8?'warn':''}"><b>${pc(avg[i]/yearAvg-1,0).replace(/^(?!-)/,'+')}</b></td></tr>`).join('')}<tr class="group-total"><td><b>Year</b></td>${Z.years.map(y=>`<td class="num"><b>${fmt(y.paid)}</b><small class="dim etsy-item">${num(y.orders)} orders</small></td>`).join('')}<td></td></tr></tbody></table></div></section>`
+   :`<section class="card">${noData('sold order items')}</section>`);
+ }
+ // ---------- shops ----------
+ function shopsView(){
+  const r=range(span==='all'?'all':span),rows=D.compare(state,r.from,r.to),T=D.summary({...state,settings:{...state.settings,shop:''}},r.from,r.to);
+  return pagehead('Your shops','Shops',`Every import belongs to one shop. Costs you log with All shops selected are shared, and count in the combined view only.`,button('＋ Add a shop','etsy-add-shop','primary'))+spanControl()+
+   (rows.length?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${esc(r.label)}</p></div></div><div class="table-wrap"><table class="etsy-compare"><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Etsy costs</th><th class="num">Ads</th><th class="num">Take-home</th><th class="num">Net profit</th><th class="num">Orders</th><th class="num">Average order</th><th class="num">Listings</th><th class="num">Rating</th></tr></thead><tbody>${rows.map(x=>`<tr><td><button class="link" data-action="etsy-scope" data-shop="${x.id}"><b>${esc(x.name)}</b></button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num">${fmt(x.ads)} <span class="dim">${pc(x.adsShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${Biz.acct(x.profit)}</td><td class="num">${num(x.orders||x.soldOrders)}</td><td class="num">${x.aov?fmt(x.aov):'—'}</td><td class="num">${num(x.listings)}</td><td class="num">${x.rating?x.rating.toFixed(2):'—'}</td></tr>`).join('')}<tr class="group-total"><td><b>All shops</b><small class="dim etsy-item">incl. shared costs</small></td><td class="num"><b>${fmt(T.revenue)}</b></td><td class="num"><b>${fmt(T.etsyCosts)}</b></td><td class="num"><b>${fmt(T.ads)}</b></td><td class="num"><b>${Biz.acct(T.takeHome)}</b></td><td class="num"><b>${Biz.acct(T.profit)}</b></td><td class="num"><b>${num(T.orders)}</b></td><td class="num">${T.aov?fmt(T.aov):'—'}</td><td></td><td></td></tr></tbody></table></div></section>`+
+    (rows.filter(x=>x.revenue>0).length>1?`<section class="card"><div class="cardhead"><div><h2>Take-home by shop</h2><p>${esc(r.label)}</p></div></div>${compareBarChart([{name:L.income,values:rows.map(x=>x.revenue),color:'var(--ch-in)'},{name:'Take-home',values:rows.map(x=>x.takeHome),color:'var(--accent)'}],rows.map(x=>x.name),'Revenue and take-home by shop','horizontal')}</section>`:''):'')+
+   `<section class="card no-print"><div class="cardhead"><div><h2>Manage shops</h2><p>Rename a shop at any time. Deleting a shop removes everything imported into it.</p></div></div>${state.shops.map(x=>`<div class="row"><div><strong>${esc(x.name)}</strong><small>${num(state.transactions.filter(t=>t.shop===x.id).length)} statement lines · ${num(state.etsy.orders.filter(o=>o.shop===x.id).length)} orders · ${num(state.etsy.listings.filter(l=>l.shop===x.id).length)} listings · ${num(state.etsy.reviews.filter(v=>v.shop===x.id).length)} reviews</small></div><div class="actions">${button('Rename','etsy-rename-shop','small',`data-id="${x.id}"`)}${button('Delete','etsy-delete-shop','small danger',`data-id="${x.id}"`)}</div></div>`).join('')||empty('No shops yet','Add each Etsy shop you run, then import its files.','etsy-add-shop','Add a shop')}</section>`;
+ }
+ // ---------- import ----------
+ let session=null;   // {shop, files:[parsed]}
+ function importView(){
+  const shops=state.shops,target=session?.shop||state.settings.shop||shops[0]?.id||'';
+  const where=X.exports.map(([k,label,path,example])=>`<div class="row"><div><strong>${label}</strong><small>${esc(path)}</small></div><span class="pill">${esc(example)}</span></div>`).join('');
+  const shopPick=shops.length?`<label>Import into<select id="etsy-import-shop">${shops.map(x=>`<option value="${x.id}" ${x.id===target?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>`:`<form id="etsy-shop-form" class="etsy-first-shop"><label>Name your shop<input name="name" maxlength="60" required placeholder="e.g. Fern &amp; Fable Prints"></label><button class="btn primary">Add shop</button></form>`;
+  let preview='';
+  if(session?.files.length){
+   const rows=session.files.map(f=>({f,r:D.merge(clone(state),target,f,{dry:true})}));
+   const ready=rows.filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items)).length;
+   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognised as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.KINDS[f.kind]:'<span class="warn">Not recognised</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  }
+  return pagehead('Bring in your Etsy files','Import Etsy files','Choose the shop, then drop in any of Etsy’s four exports together. Each is recognised by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
+   `<section class="card"><div class="grid2 equal etsy-import-top"><div>${shopPick}${shops.length?`<p class="small muted">Files go into this shop, whatever the shop picker at the top shows. ${button('＋ Add a shop','etsy-add-shop','small')}</p>`:''}</div>`+
+   `<label class="etsy-drop${shops.length?'':' disabled'}" id="etsy-drop"><span>${ico('up')}</span><b>Drop Etsy files here</b><small>or choose them · .csv and reviews.json · several at once</small><input type="file" id="etsy-files" accept=".csv,.json,text/csv,application/json" multiple ${shops.length?'':'disabled'}></label></div></section>`+
+   preview+
+   `<section class="card"><div class="cardhead"><div><h2>Where to find each file</h2><p>Download them from Etsy on a computer. Nothing is sent anywhere: the files are read in this browser.</p></div></div>${where}<p class="small muted" style="margin-top:12px">Buyer names and addresses in the sold order items file are not stored. Only the country and a scrambled key (to count repeat buyers) are kept.</p></section>`+
+   recentImports();
+ }
+ function outcome(r){
+  if(r.kind==='listings')return r.added?`Replaces ${r.replaced} listing${r.replaced===1?'':'s'} with ${r.added}`:`No change · ${r.same} listings already here`;
+  const parts=[r.added&&`${num(r.added)} new ${r.kind==='statement'?'line':r.kind==='orders'?'order':'review'}${r.added===1?'':'s'}`,r.items&&`${num(r.items)} new item${r.items===1?'':'s'}`,r.updated&&`${num(r.updated)} updated`,r.same&&`${num(r.same)} already here`,r.currency&&`currency set to ${r.currency}`].filter(Boolean);
+  return parts.length?parts.join(' · '):'Nothing new';
+ }
+ function recentImports(){
+  const list=D.scoped(state,state.etsy.imports).slice(-12).reverse();if(!list.length)return '';
+  return `<section class="card table-card"><div class="cardhead"><div><h2>Recent imports</h2><p>${esc(scopeName())}</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th class="num">Rows</th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${esc(shopName(x.shop))}</td><td>${esc(x.name)}</td><td>${D.KINDS[x.kind]}</td><td class="num">${num(x.rows)}</td></tr>`).join('')}</tbody></table></div></section>`;
+ }
+ async function readFiles(list){
+  const files=[...list].slice(0,24);if(!files.length)return;
+  const parsed=[];for(const f of files){if(f.size>10e6){parsed.push({name:f.name,kind:null,records:[],items:[],issues:[],notes:[],error:'Files must be smaller than 10 MB.'});continue;}parsed.push(D.read(f.name,await f.text()));}
+  const shop=$('#etsy-import-shop')?.value||session?.shop||state.settings.shop||state.shops[0]?.id||'';
+  session={shop,files:[...(session?.files||[]),...parsed]};render();
+ }
+ function runImport(){
+  const s=session;if(!s?.files.length)return;const shop=s.shop||state.shops[0]?.id;if(!shop)return toast('Add a shop first.');
+  const plan=s.files.map(f=>({f,r:D.merge(clone(state),shop,f,{dry:true})})).filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items));
+  if(!plan.length)return toast('Nothing new to import.');
+  const newLines=plan.filter(x=>x.f.kind==='statement').reduce((n,x)=>n+x.r.added,0);
+  if(state.transactions.length+newLines>MAX_TRANSACTIONS)return toast(LIMIT_MESSAGE);
+  const summary=`${shopName(shop)}: `+plan.map(({r})=>`${D.KINDS[r.kind].toLowerCase()} ${r.kind==='listings'?r.added+' listings':num(r.added+(r.items||0))+' new'+(r.updated?', '+num(r.updated)+' updated':'')}`).join(' · ');
+  let latest='';
+  commit(()=>{for(const {f} of plan){const r=D.merge(state,shop,f,{uid:Budget.uid,today:today()});if(r.error)continue;
+    // months that receive Etsy lines open again, as with any import
+    r.months.forEach(m=>{if(state.months[m]?.closed)state.months[m].closed=false;});
+    if(['statement','orders'].includes(f.kind)&&f.to>latest)latest=f.to;}
+   state.settings.shop=state.shops.length>1?state.settings.shop:'';
+   if(latest)selected=(latest>today()?today():latest).slice(0,7);session=null;},summary);
+ }
+ // ---------- shop picker in the top bar ----------
+ function afterRender(){
+  const host=document.querySelector('.top-left');if(!host)return;let box=document.getElementById('shop-switch');
+  if(!box){box=document.createElement('label');box.id='shop-switch';box.className='shop-control';host.appendChild(box);}
+  const cur=state.settings.shop,opts=`${state.shops.length!==1?`<option value="">${state.shops.length?'All shops':'No shops yet'}</option>`:''}${state.shops.map(x=>`<option value="${x.id}" ${x.id===cur?'selected':''}>${esc(x.name)}</option>`).join('')}<option value="__add">＋ Add a shop…</option>`;
+  box.innerHTML=`<span class="month-control-label">Shop</span><select id="shop-picker" aria-label="Shop to show">${opts}</select>`;
+  const sel=box.querySelector('select');sel.value=state.shops.length===1&&!cur?state.shops[0].id:cur;
+ }
+ function shopForm(id=''){const x=state.shops.find(s=>s.id===id);
+  modal(x?'Rename shop':'Add a shop',x?'The new name shows everywhere, including earlier imports.':'One entry per Etsy shop you run. Imports, screens and printouts can then show one shop or all of them.',`<form id="etsy-shop-form" data-id="${id}"><div class="fields"><label class="full">Shop name<input name="name" maxlength="60" required value="${esc(x?.name||'')}" placeholder="e.g. Copper Kiln Ceramics"></label></div>${formFoot(x?'Save':'Add shop')}</form>`);}
+
+ // ---------- events ----------
+ document.addEventListener('change',e=>{
+  if(e.target.id==='shop-picker'){const v=e.target.value;if(v==='__add'){e.target.value=state.settings.shop;return shopForm();}
+   if(v&&!state.shops.some(x=>x.id===v))return;commit(()=>state.settings.shop=state.shops.length===1?'':v,v?`Showing ${shopName(v)}`:'Showing all shops');return;}
+  if(e.target.id==='etsy-import-shop'){session={...(session||{files:[]}),shop:e.target.value};render();return;}
+  if(e.target.id==='etsy-files'){readFiles(e.target.files).catch(err=>toast(err.message));}
+ });
+ document.addEventListener('dragover',e=>{const z=e.target.closest?.('#etsy-drop');if(!z)return;e.preventDefault();z.classList.add('over');});
+ document.addEventListener('dragleave',e=>{e.target.closest?.('#etsy-drop')?.classList.remove('over');});
+ document.addEventListener('drop',e=>{const z=e.target.closest?.('#etsy-drop');if(!z)return;e.preventDefault();z.classList.remove('over');if(state.shops.length)readFiles(e.dataTransfer.files).catch(err=>toast(err.message));});
+ document.addEventListener('click',e=>{const b=e.target.closest('button[data-action^="etsy-"],button[data-action="go-etsy-import"]');if(!b)return;const a=b.dataset.action,id=b.dataset.id;try{switch(a){
+  case 'go-etsy-import':if($('#welcome-tour')?.open)closeWelcome();break;
+  case 'etsy-span':span=['month','year','all'].includes(b.dataset.span)?b.dataset.span:'all';render();break;
+  case 'etsy-orders-all':ordersAll=!ordersAll;render();break;
+  case 'etsy-products-all':productsAll=!productsAll;render();break;
+  case 'etsy-scope':if(state.shops.some(x=>x.id===b.dataset.shop))commit(()=>state.settings.shop=b.dataset.shop,`Showing ${shopName(b.dataset.shop)}`);break;
+  case 'etsy-add-shop':shopForm();break;
+  case 'etsy-rename-shop':shopForm(id);break;
+  case 'etsy-delete-shop':{const x=state.shops.find(s=>s.id===id);if(!x)break;confirmation(`Delete ${esc(x.name)}?`,'Its statement lines, orders, listings and reviews are removed from this planner. Shared costs are kept. You can undo this change.','etsy-confirm-delete-shop','Delete shop',`data-id="${id}"`);break;}
+  case 'etsy-confirm-delete-shop':{const x=state.shops.find(s=>s.id===id);if(!x)break;closeModal();commit(()=>{state.shops=state.shops.filter(s=>s.id!==id);state.transactions=state.transactions.filter(t=>t.shop!==id);
+   for(const k of ['orders','items','listings','reviews','imports'])state.etsy[k]=state.etsy[k].filter(r=>r.shop!==id);if(state.settings.shop===id||state.shops.length<2)state.settings.shop='';},`${x.name} deleted`);break;}
+  case 'etsy-clear':session=null;render();break;
+  case 'etsy-import':runImport();break;
+ }}catch(err){toast(err.message);}});
+ document.addEventListener('submit',e=>{if(e.target.id!=='etsy-shop-form')return;e.preventDefault();const f=new FormData(e.target),id=e.target.dataset.id,name=String(f.get('name')||'').trim();
+  try{if(!name)throw Error('Give the shop a name.');if(state.shops.some(x=>x.id!==id&&x.name.toLowerCase()===name.toLowerCase()))throw Error('Another shop already uses that name.');
+   if(!id&&state.shops.length>=24)throw Error('Shop Insights holds up to 24 shops.');
+   if($('#modal').open)closeModal();
+   if(id)commit(()=>state.shops.find(x=>x.id===id).name=name,'Shop renamed');
+   else{const nid='shop-'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,10);commit(()=>{state.shops.push({id:nid,name});if(session)session.shop=nid;},`${name} added`);}
+  }catch(err){if($('#modal').open)formError(err);else toast(err.message);}});
+
+ document.head.insertAdjacentHTML('beforeend',`<style>
+ .shop-control{display:flex;flex-direction:column;gap:2px;margin-left:14px;min-width:0}
+ .shop-control select{height:36px;border-radius:10px;border:1px solid var(--rule-2);background:var(--card);color:var(--ink);font:600 14px var(--ui);padding:0 30px 0 10px;max-width:220px}
+ .etsy-split{display:flex;height:22px;border-radius:8px;overflow:hidden;background:var(--sunk);margin:6px 0 12px}
+ .etsy-split i{display:block;height:100%}
+ .etsy-bars{display:grid;gap:10px}
+ .etsy-bar{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;align-items:center;gap:10px;font-size:14px}
+ .etsy-bar>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .etsy-bar i{display:block;height:10px;border-radius:5px;background:var(--sunk);overflow:hidden}
+ .etsy-bar i b{display:block;height:100%;background:var(--accent);border-radius:5px}
+ .etsy-bar small{grid-column:2/4;margin-top:-6px;color:var(--ink-3)}
+ .etsy-item{display:block;font-weight:400;max-width:420px;white-space:normal}
+ .etsy-drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px dashed var(--rule-2);border-radius:var(--r-md);padding:26px 16px;text-align:center;cursor:pointer;background:var(--sunk)}
+ .etsy-drop.over{border-color:var(--accent);background:var(--accent-soft)}
+ .etsy-drop.disabled{opacity:.5;cursor:not-allowed}
+ .etsy-drop span svg{width:28px;height:28px;color:var(--accent)}
+ .etsy-drop input{max-width:100%;margin-top:8px}
+ .etsy-first-shop{display:grid;gap:10px}
+ .etsy-step h3{margin:10px 0 4px}
+ .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+ .etsy-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ @media (max-width:760px){.grid3,.etsy-kpis{grid-template-columns:1fr}.top-left{flex-wrap:wrap;row-gap:6px}.shop-control{order:3;flex-basis:100%;margin-left:0}.shop-control .month-control-label{display:none}.shop-control select{max-width:none;width:100%;height:34px}}
+ @media print{.shop-control{display:none}}
+ </style>`);
+
+ Object.assign(Ext,{
+  views:{dashboard:dashboardView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
+  afterRender,
+  printScope:()=>` · ${esc(scopeName())}`,
+  txTag:()=>state.settings.shop?{shop:state.settings.shop}:{},
+ });
+ return {range,orderTable,shopForm,readFiles,runImport,get session(){return session;}};
 })();
 render();
 </script></body></html>

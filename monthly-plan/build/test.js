@@ -144,8 +144,9 @@ eq('matchKey drops numbers and codes', ['WHOLE FOODS #123','AMAZON MKTP US*2K4AB
  eq('sameMerchant is on whole words', [N.sameMerchant('whole foods','whole foods market'),N.sameMerchant('amazon','amazonia'),N.sameMerchant('','x')], [true,false,false]);
  v.categories.find(c=>c.id==='groceries').archived=true;eq('ruleFor skips archived categories', N.ruleFor(v,'WHOLE FOODS #987'), '');}
 
-// ---- business edition, and the shared build ----
+// ---- business and Etsy editions, and the shared build ----
 require('./test_business.js')({eq,ok});
+require('./test_etsy.js')({eq,ok});
 const stale=require('child_process').spawnSync(process.execPath,[path.join(__dirname,'build_app.js'),'--check'],{encoding:'utf8'});
 ok('built files match core + packs', stale.status===0, stale.stdout);
 
