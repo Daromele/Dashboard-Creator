@@ -9,7 +9,7 @@
 const NICHE = {
   id: 'business',
   product: {
-    name: 'Profit Plan', mark: 'P', publisher: 'JPS DIGITAL PAGES', version: '1.0',
+    name: 'Profit Plan', mark: 'P', publisher: 'JPS DIGITAL PAGES', version: '1.1',
     tagline: 'Freelance & small-business books', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Profit Plan · Sales, Expenses, P&amp;L &amp; Quarterly Tax', themeColor: '#182635',
     description: 'Profit Plan by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',
@@ -118,7 +118,7 @@ const NICHE = {
   },
   defaults: { category: 'client-work', schedule: 'software', annualCategory: 'client-work', quickSetup: ['client-work', 'product-sales', 'materials', 'software', 'advertising', 'tax-reserve'] },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['pl', 'Profit & loss', 'insights'], ['budget', 'Monthly targets', 'plan'], ['activity', 'Transactions', 'log'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['annual', 'Annual overview', 'outlook'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Insights', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  nav: [['dashboard', 'Dashboard', 'today'], ['pl', 'Profit & loss', 'insights'], ['budget', 'Monthly targets', 'plan'], ['activity', 'Transactions', 'log'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['annual', 'Annual overview', 'outlook'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   optionalNav: ['invoices', 'mileage', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
   navGroups: [['Your business', ['dashboard', 'pl', 'budget', 'activity', 'invoices']], ['Tax time', ['tax', 'taxlines', 'mileage']], ['Your rhythm', ['annual', 'goals', 'scheduled', 'calendar', 'insights', 'review']]],
   navGroupRest: 'Make it yours',
@@ -126,7 +126,7 @@ const NICHE = {
   labels: {
     income: 'Revenue', expense: 'Expenses', saving: 'Transfers & draws', savingShort: 'Transfers', savingOne: 'Transfer',
     incomePlanned: 'Expected revenue', incomeReceived: 'Revenue received', expensesPaid: 'Expenses paid', savedInvested: 'Transfers & draws',
-    plannedContributions: 'Planned transfers', savingsFilter: 'Transfers & draws', incomeAllocated: 'Your revenue, allocated',
+    plannedContributions: 'Planned transfers', savingsFilter: 'Transfers & draws',
     plannedIncome: 'PLANNED REVENUE', subscriptionKpi: 'Overheads plan', yourName: 'Business name', yourNameHint: 'Shown on your statements and exports',
     greeting: ' · the month at a glance', greetingPlain: 'Your business at a glance', planTitle: 'Your monthly targets', categoryPlaceholder: 'e.g. Stock photography',
     categorySub: 'Shape the categories around how your business really runs.', directionNormal: 'Money in / cost paid / transfer',
@@ -134,7 +134,10 @@ const NICHE = {
     incomeOne: 'Revenue', savedCol: 'Transfers', netHint: 'Revenue − expenses − transfers',
     savingRateEmpty: 'Log revenue to see the share moved aside', savingRate: '% of revenue received',
     transfer: 'Card payments & own transfers', transferOne: 'Transfer',
-    noPlan: 'No monthly target set', heroBills: 'Unpaid bills & fixed costs', heroSave: 'Planned transfers to make', heroFree: 'Free to use',
+    noPlan: 'No monthly target set', editPlan: 'Edit targets',
+    rhythmPlan: 'Set this month’s revenue and cost targets', incomeWeek: 'Revenue this week', reviewDaysNote: 'Days with at least one sale or cost logged.',
+    reviewChecks: ['I matched this week’s entries to my bank and card statements.', 'I followed up on invoices that are due or late.', 'I moved this week’s tax set-aside and checked the bills coming next.'],
+    goalsEyebrow: 'Build a cushion', goalsTitle: 'Reserves, goals & loan payoff', goalsPlanTitle: 'This month’s transfers', goalsPlanSub: 'Draws, tax pot and reserves planned for', heroBills: 'Unpaid bills & fixed costs', heroSave: 'Planned transfers to make', heroFree: 'Free to use',
     heroLead: 'Free to use once unpaid fixed costs and planned transfers, like the tax pot and your draw, are covered.',
   },
   quickLog: { placeholder: 'client invoice 1200', help: 'Try “client invoice 1200”, “canva 12.99”, “postage 8.40” or “lunch with client 32”.', demo: ['postage', '8.40', 'Packaging & postage to customers'] },
@@ -157,6 +160,9 @@ const NICHE = {
     ],
     meanings: [['Revenue', 'Money in from sales'], ['Gross profit', 'Revenue − cost of goods'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, draws, card payoffs']],
     details: [
+      ['Dig into any number', 'Click a card at the top of the dashboard to see the transactions behind it; <b>Avg. monthly cash flow</b> opens the Annual overview. Click a slice of any donut to list its transactions. On Transactions, pick a group and then a category, sort any column, and read the total of what is shown at the bottom.'],
+      ['Business health', 'Shows your <b>cash runway</b> (how many months your tracked cash would cover costs if sales stopped), your <b>break-even revenue</b> (what you need to sell each month to cover running costs at your gross margin), margins month by month, costs against their usual level, and whether one client or channel carries too much of the business. Averages use up to three recent complete months. It reads only what you record and is not financial advice.'],
+      ['Chasing late invoices', 'On Invoices, overdue ones get a <b>Reminder</b> button. It writes a polite reminder with the invoice number, amount and dates; edit it if you like, copy it, and paste it into an email.'],
       ['Not tax, legal or financial advice', 'Profit Plan organises your own records. Every tax figure it shows, from the set-aside to the mileage value and the form lines, comes from the rates, categories and rules you enter. It does not know your tax position, and tax rules differ by country and change every year. Check with a qualified tax professional or accountant before you file, claim or pay tax.'],
       ['Outside the US', 'Profit, cash flow, transactions, invoices and the mileage log work anywhere: set your currency in Settings, and choose miles or kilometres. The <b>Schedule C summary</b> uses US line numbers and the <b>Quarterly tax</b> due dates follow the US estimated-tax calendar. Elsewhere, treat the category totals and set-aside figures as a starting point for your own return and your own payment dates.'],
       ['Mileage rate', 'The mileage rate starts at zero because every country sets its own, and it changes most years (for example the IRS rate in the US, or HMRC’s in the UK). Enter the rate that applies to you in <b>Settings → Tax &amp; mileage</b>. Trips logged before you set it are valued at the new rate.'],
@@ -232,15 +238,22 @@ const NICHE = {
       s.channels = [{ id: 'ch-clients', name: 'Design clients' }, { id: 'ch-etsy', name: 'Etsy' }, { id: 'ch-web', name: 'Web shop' }];
       s.channelRules = { 'etsy': 'ch-etsy', 'invoice': 'ch-clients' };
       // product sales and their costs split roughly 60/40 between Etsy and the web shop
-      const seen = {};
+      const seen = {}, split = [];
       s.transactions.forEach(t => {
         if (['client-work', 'retainers', 'contractors'].includes(t.category)) t.channel = 'ch-clients';
         else if (t.category === 'platform-fees') t.channel = 'ch-etsy';
-        else if (['product-sales', 'materials', 'postage', 'advertising'].includes(t.category)) {
+        else if (t.category === 'product-sales') {
+          // each month's print sales arrive as an Etsy payout and a smaller web-shop payout
+          const web = Math.round(t.amount * 0.38);
+          t.amount -= web; t.channel = 'ch-etsy'; t.note = 'Etsy payout';
+          split.push({ id: uid(), date: t.date.slice(0, 8) + String(Math.min(28, +t.date.slice(8) + 12)).padStart(2, '0'), category: 'product-sales', amount: web, note: 'Web shop payout', channel: 'ch-web' });
+        }
+        else if (['materials', 'postage', 'advertising'].includes(t.category)) {
           const n = seen[t.category] = (seen[t.category] || 0) + 1;
           t.channel = n % 5 === 1 || n % 5 === 3 ? 'ch-web' : 'ch-etsy';
         }
       });
+      s.transactions.push(...split.filter(t => t.date <= now));
       s.invoices.forEach(v => { v.channel = 'ch-clients'; });
       // cash carries forward: each month opens with the month before's closing balance
       for (let i = 2; i <= 12; i++) {

@@ -153,4 +153,23 @@ module.exports=({eq,ok})=>{
    eq('bad channels and rules dropped', [v.channels.map(c=>c.id),Object.keys(v.channelRules)], [['e','y'],['etsy','etsy fees']]);
    const old=JSON.parse(JSON.stringify(c));delete old.channels;delete old.channelRules;
    eq('older backups gain empty channels', [B.validate(old).channels,B.validate(old).channelRules], [[],{}]);}
+
+  // ---- business health ----
+  {const h=B.blank(),tx=(date,category,amount,extra={})=>h.transactions.push({id:'h'+h.transactions.length,date,category,amount,note:'',...extra});
+   h.months['2026-06']={opening:600000,closed:false,note:'',plan:{}};
+   for(const m of ['06','07','08']){tx(`2026-${m}-05`,'client-work',500000);tx(`2026-${m}-06`,'materials',100000);tx(`2026-${m}-07`,'software',150000);}
+   tx('2026-09-02','client-work',400000);tx('2026-09-03','software',300000);tx('2026-09-04','materials',100000);
+   h.invoices=[{id:'i1',number:'1',client:'Acme',issued:'2026-06-01',due:'2026-07-01',amount:300000,category:'client-work',note:'',paid:{date:'2026-07-01'}},{id:'i2',number:'2',client:'Beta',issued:'2026-06-01',due:'2026-07-01',amount:100000,category:'client-work',note:'',paid:{date:'2026-07-02'}}];
+   B.invalidate(h);
+   const H=B.health(h,'2026-09','2026-09-20');
+   eq('health: basis is the complete months before the current one', H.basis, ['2026-06','2026-07','2026-08']);
+   eq('health: monthly averages', [H.rev,H.cogs,H.opex,H.costs], [500000,100000,150000,250000]);
+   eq('health: gross and net margin', [H.gm,H.netMargin], [0.8,0.5]);
+   eq('health: break-even = running costs / gross margin', H.breakEven, 187500);
+   const cash=B.totals(h,'2026-09').cash;eq('health: runway = tracked cash / monthly costs', H.runway, cash/250000);
+   eq('health: cost change against the usual', H.changes.find(c=>c.id==='software'), {id:'software',name:h.categories.find(c=>c.id==='software').name,now:300000,avg:150000,diff:150000});
+   eq('health: largest client share of invoiced revenue', [H.topClient.name,H.topClient.share], ['Acme',0.75]);
+   eq('health: six months of margins, oldest first', [H.margins.length,H.margins[0].month,H.margins[5].month,H.margins[5].margin], [6,'2026-04','2026-09',0]);
+   eq('health: a past month uses itself as the end of its basis', B.health(h,'2026-07','2026-09-20').basis, ['2026-06','2026-07']);
+   const e=B.blank();eq('health: empty books', [B.health(e,'2026-09','2026-09-20').n,B.health(e,'2026-09','2026-09-20').runway], [0,null]);}
 };

@@ -8,7 +8,7 @@
 const NICHE = {
   id: 'budget',
   product: {
-    name: 'Monthly Plan', mark: 'M', publisher: 'JPS DIGITAL PAGES', version: '2.0',
+    name: 'Monthly Plan', mark: 'M', publisher: 'JPS DIGITAL PAGES', version: '2.1',
     tagline: 'Monthly & annual budget', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Monthly Plan · Monthly & Annual Budget', themeColor: '#382750',
     description: 'Monthly Plan by JPS Digital Pages. Plan your monthly budget, track your spending, and see the whole year clearly. Works offline.',
@@ -83,7 +83,7 @@ const NICHE = {
   labels: {
     income: 'Income', expense: 'Expenses', saving: 'Savings & investing', savingShort: 'Contributions', savingOne: 'Contribution',
     incomePlanned: 'Expected income', incomeReceived: 'Income received', expensesPaid: 'Expenses paid', savedInvested: 'Saved & invested',
-    plannedContributions: 'Planned contributions', savingsFilter: 'Savings & investments', incomeAllocated: 'Your income, allocated',
+    plannedContributions: 'Planned contributions', savingsFilter: 'Savings & investments',
     plannedIncome: 'PLANNED INCOME', subscriptionKpi: 'Subscription plan', yourName: 'Your name (optional)', yourNameHint: 'What should we call you?',
     greeting: '’s month at a glance', greetingPlain: 'Your month at a glance', planTitle: 'Your monthly plan', categoryPlaceholder: 'e.g. Childcare',
     categorySub: 'Make your budget fit your life.', directionNormal: 'Income received / expense paid / contribution',
@@ -112,6 +112,7 @@ const NICHE = {
     ],
     meanings: [['Plan', 'What you intend'], ['Actual', 'What you logged'], ['Cash flow', 'Income − outgoings'], ['Wealth', 'Assets − debt']],
     details: [
+      ['Dig into any number', 'Click a card at the top of the dashboard to see the transactions behind it; <b>Avg. monthly cash flow</b> opens the Annual dashboard. Click a slice of any donut to list its transactions. On Transactions, pick a group and then a category, sort any column, and read the total of what is shown at the bottom.'],
       ['Transfers, refunds and credit cards', 'If you log or import your credit-card purchases, those are the expenses. The payment from your checking account to the card is then a transfer: put it in <b>Credit card payoff (purchases already logged)</b>, which is never counted as spending. If you do not track the card’s purchases, use <b>Credit card payment</b> instead, so the payment counts as the expense. Moves between your own accounts go in <b>Transfer between my accounts</b>. Record a savings transfer once, and use reversal for a refund or withdrawal.'],
       ['Recurring payments and closed months', 'Schedules are reminders, never automatic payments. Record or match the actual entry. Closing a month protects its budget, transactions and scheduled history until you reopen it.'],
     ],
