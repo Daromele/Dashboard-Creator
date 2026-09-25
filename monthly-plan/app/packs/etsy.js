@@ -113,7 +113,8 @@ const NICHE = {
     ['products', 'Products & listings', 'tags'], ['coupons', 'Coupons & discounts', 'wallet'], ['customers', 'Customers', 'compass'], ['reviews', 'Reviews', 'review'], ['seasonality', 'Seasonality', 'calendar'],
     ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'table'],
     ['budget', 'Monthly targets', 'plan'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['shops', 'coupons', 'customers', 'seasonality', 'annual', 'budget', 'goals', 'scheduled', 'guide'],
+  // everything can be hidden from the sidebar except the dashboard, importing and settings (where views come back)
+  optionalNav: ['shops', 'pl', 'fees', 'activity', 'annual', 'products', 'coupons', 'customers', 'reviews', 'seasonality', 'tax', 'taxlines', 'budget', 'goals', 'scheduled', 'guide'],
   navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['pl', 'fees', 'activity', 'annual']], ['What sells', ['products', 'coupons', 'customers', 'reviews', 'seasonality']], ['Tax time', ['tax', 'taxlines']]],
   navGroupRest: 'Make it yours',
 
