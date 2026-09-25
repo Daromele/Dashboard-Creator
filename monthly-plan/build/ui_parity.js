@@ -40,7 +40,7 @@ async function capture(file){
     // everything else must match v1.8
     const norm=h=>h.replace(/ data-count="[^"]*"/g,'').replace(/animation-delay:[^;"]*;?/g,'').replace(/<!--fresh-->[\s\S]*?<!--\/fresh-->/,'').replace(/class="eyebrow period"/g,'class="eyebrow"').replace(/<span class="pt-month">([^<]*)<\/span>/,'$1').replace(/(id="|url\(#)g\d+-/g,'$1g#-');   // chart gradient ids are a running counter
     return {content:norm(document.querySelector('#content').innerHTML),nav:document.querySelector('#nav').innerHTML,
-      title:document.title+[...document.head.querySelectorAll('meta,link,title')].map(e=>e.outerHTML).join(''),rail:document.querySelector('.rail').innerHTML.replace(/ · v(1\.[89]|2\.[01])</,' · v<'),modal:document.querySelector('#modal').open?document.querySelector('#modal-body').innerHTML:''};});};
+      title:document.title+[...document.head.querySelectorAll('meta,link,title')].map(e=>e.outerHTML).join(''),rail:document.querySelector('.rail').innerHTML.replace(/ · v(1\.[89]|2\.[012])</,' · v<'),modal:document.querySelector('#modal').open?document.querySelector('#modal-body').innerHTML:''};});};
   for(const mode of ['blank','sample']){
     if(mode==='sample')await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());
     for(const s of SCREENS){await p.evaluate(s=>{go(s);},s);await grab(mode+':'+s);}

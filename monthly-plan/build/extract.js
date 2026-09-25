@@ -18,8 +18,19 @@ function extract(html){
   return pack.trim()+'\n'+body+'\n';
 }
 function extractTo(htmlFile,outFile){fs.writeFileSync(outFile,extract(fs.readFileSync(htmlFile,'utf8')));return outFile;}
+// Budget plus the CSV and platform-statement modules, for import tests: {Budget,CSV,Platforms}
+function extractImport(html){
+  const main=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>/\bconst Platforms\s*=/.test(s));
+  if(!main)throw Error('No Platforms module found');
+  const cut=(from,mark)=>{const a=main.indexOf(from),b=main.indexOf(mark);if(a<0||b<0)throw Error(from+' boundaries not found');return main.slice(a,b);};
+  return extract(html).replace("if(typeof module!=='undefined')module.exports=Budget;",'')
+    +cut('const CSV = (()=>{',"if(typeof module!=='undefined')module.exports=CSV;")
+    +cut('const Platforms = (()=>{',"if(typeof module!=='undefined')module.exports=Platforms;")
+    +'\nmodule.exports={Budget,CSV,Platforms};\n';
+}
+function extractImportTo(htmlFile,outFile){fs.writeFileSync(outFile,extractImport(fs.readFileSync(htmlFile,'utf8')));return outFile;}
 
-module.exports={extract,extractTo};
+module.exports={extract,extractTo,extractImport,extractImportTo};
 if(require.main===module){
   const [src,out]=process.argv.slice(2);
   if(!src||!out){console.error('usage: node extract.js <planner.html> <out.js>');process.exit(2);}

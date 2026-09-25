@@ -8,7 +8,7 @@
 const NICHE = {
   id: 'creator',
   product: {
-    name: 'Creator Plan', mark: 'C', publisher: 'JPS DIGITAL PAGES', version: '1.0',
+    name: 'Creator Plan', mark: 'C', publisher: 'JPS DIGITAL PAGES', version: '1.1',
     tagline: 'Books for YouTubers, streamers & online creators', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Creator Plan · Income Streams, Brand Deals, P&amp;L &amp; Tax Set-Aside', themeColor: '#2A1F3D',
     description: 'Creator Plan by JPS Digital Pages. Track ad revenue, brand deals, memberships, affiliates and product sales in one place, see profit for each income stream, chase late sponsor invoices and set money aside for tax. Works offline.',
@@ -66,6 +66,7 @@ const NICHE = {
     ['biz-savings', 'Rainy-day fund', 'reserve'], ['gear-fund', 'Gear upgrade fund', 'reserve'],
     ['loan-repay', 'Business loan repayment', 'loans'],
     ['card-payoff', 'Business card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between business accounts', 'transfer'],
+    ['platform-payout', 'Platform payouts & top-ups (already imported)', 'transfer'],
   ],
   // US Schedule C (Form 1040). part: income | other | cogs (Part III) | expense (Part II)
   taxForm: { name: 'Schedule C', long: 'Schedule C (Form 1040) · Profit or Loss From Business' },
@@ -119,7 +120,11 @@ const NICHE = {
     travel: 'content-travel', 'dining out': 'meals', restaurants: 'meals', insurance: 'insurance',
     fees: 'bank-fees', 'bank fees': 'bank-fees', income: 'sponsorships', deposit: 'ad-revenue', sales: 'digital-products',
   },
-  defaults: { category: 'ad-revenue', schedule: 'software', annualCategory: 'ad-revenue', quickSetup: ['ad-revenue', 'sponsorships', 'memberships', 'editors', 'software', 'tax-reserve'] },
+  // platform statements: where each kind of entry starts, per platform where it differs
+  platformDefaults: { sale: 'digital-products', refund: 'digital-products', fees: 'platform-fees', ads: 'advertising', shipping: 'postage', feeTax: 'platform-fees', payout: '__skip', conversion: '__skip', taxWithheld: 'est-tax', purchase: '', other: '',
+    platforms: { youtube: { sale: 'ad-revenue', refund: 'ad-revenue' }, tiktok: { sale: 'ad-revenue', refund: 'ad-revenue' }, patreon: { sale: 'memberships', refund: 'memberships' }, substack: { sale: 'memberships', refund: 'memberships' }, twitch: { sale: 'memberships', refund: 'memberships' },
+      kofi: { sale: 'tips', refund: 'tips' }, buymeacoffee: { sale: 'tips', refund: 'tips' }, shopify: { sale: 'merch', refund: 'merch' }, paypal: { sale: 'sponsorships', refund: 'sponsorships' } } },
+  defaults: { category: 'ad-revenue', schedule: 'software', annualCategory: 'ad-revenue', payout: 'platform-payout', quickSetup: ['ad-revenue', 'sponsorships', 'memberships', 'editors', 'software', 'tax-reserve'] },
 
   nav: [['dashboard', 'Dashboard', 'today'], ['pl', 'Profit & loss', 'insights'], ['budget', 'Monthly targets', 'plan'], ['activity', 'Transactions', 'log'], ['invoices', 'Brand deals & invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['annual', 'Annual overview', 'outlook'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Creator health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   optionalNav: ['invoices', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
@@ -151,7 +156,7 @@ const NICHE = {
     { icon: 'table', step: 'BRAND DEALS', title: 'Get paid for every sponsorship', text: '<p>Log each brand deal as an invoice. <b>Brand deals &amp; invoices</b> shows what is owed and how late it is, and writes a polite reminder when a sponsor pays late.</p>' },
     { icon: 'umbrella', step: 'TAX', title: 'Put tax money aside as the payouts land', text: '<p>Choose a set-aside rate. <b>Quarterly tax</b> compares what you should have put aside with what you have.</p><p><b>Not tax, legal or financial advice.</b> The rates and form lines use the figures you enter. Tax rules differ by country and change every year, so confirm them with a tax professional.</p>' },
     'backup',
-    { icon: 'check', step: 'START', title: 'Start with your last payout', text: '<p>Add your most recent AdSense, Patreon or sponsor payment, or import a month of bank transactions. Your dashboard fills in from there.</p>', cta: { label: 'Add a transaction', action: 'welcome-log' } },
+    { icon: 'check', step: 'START', title: 'Start with your last payout', text: '<p>Add your most recent AdSense, Patreon or sponsor payment, or import a platform statement or a month of bank transactions. Your dashboard fills in from there.</p>', cta: { label: 'Add a transaction', action: 'welcome-log' } },
   ],
   guide: {
     title: 'Four moves. Every stream accounted for.',
@@ -164,13 +169,14 @@ const NICHE = {
     meanings: [['Income', 'Every payout, deal and sale'], ['Gross profit', 'Income − merch costs'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, your pay, card payoffs']],
     details: [
       ['Income streams', 'Add a stream for each place you earn in <b>Settings → Income streams</b> (one click for YouTube, TikTok, Patreon and more), or type a new one on a transaction. Tag payouts and the costs that clearly belong to a stream, such as Patreon fees or a shoot for one sponsor. Leave shared costs like software untagged. Profit &amp; loss shows profit for each stream, and you can view the statement for one stream at a time. On import, tag rows in bulk; Creator Plan offers to remember the stream for similar descriptions.'],
-      ['Payouts and platform fees', 'Most platforms pay you after taking their cut. If you log only the payout, your income is what landed in the bank and the fee never appears; that is fine for a simple picture. To see what each platform costs you, log the gross amount as income and the platform’s fee under <b>Platform &amp; payment fees</b>, tagged with the same stream.'],
+      ['Platform statements: YouTube, Patreon, Etsy and more', 'Import each platform’s own statement on the Import screen: YouTube (AdSense) transactions, a Patreon earnings export, an Etsy monthly statement, a PayPal activity download, Stripe or Shopify Payments exports, or any file with gross and fee columns (Gumroad, Ko-fi, Substack and similar). Creator Plan recognises it, splits each payout into what you earned and the platform’s cut, and tags the entries with that platform’s stream if you have one. Tax a platform withholds, such as YouTube’s US withholding, lands in tax paid. After that, bank deposits from that platform go to <b>Platform payouts &amp; top-ups (already imported)</b>, a transfer, so nothing is counted twice.'],
       ['Brand deals', 'Log each sponsorship as an invoice when you agree it, with the brand as the client. It becomes income on the day you mark it paid. Overdue deals get a <b>Reminder</b> button that writes a polite chase-up you can copy into an email.'],
       ['Creator health', 'Shows your <b>cash runway</b> (how many months your tracked cash would cover costs if payouts stopped), your <b>break-even income</b>, margins month by month, costs against their usual level, and whether one platform, brand or client carries too much of your income. It reads only what you record and is not financial advice.'],
       ['Dig into any number', 'Click a card at the top of the dashboard to see the transactions behind it; <b>Avg. monthly cash flow</b> opens the Annual overview. Click a slice of any donut to list its transactions. On Transactions, pick a group and then a category, sort any column, and read the total of what is shown at the bottom.'],
       ['Gear, gifted products and big purchases', 'Log cameras, lenses and lighting under <b>Cameras, mics &amp; lighting</b>. Your accountant decides what is expensed now and what is depreciated. Products brands send you for free may count as income where you live; ask your tax professional and log them as <b>Other business income</b> if so.'],
       ['Not tax, legal or financial advice', 'Creator Plan organises your own records. Every tax figure it shows, from the set-aside to the form lines, comes from the rates, categories and rules you enter. It does not know your tax position, and tax rules differ by country and change every year. Check with a qualified tax professional or accountant before you file, claim or pay tax.'],
-      ['Outside the US', 'Income, streams, profit, cash flow and brand deals work anywhere: set your currency in Settings. The <b>Schedule C summary</b> uses US line numbers and the <b>Quarterly tax</b> due dates follow the US estimated-tax calendar. Elsewhere, treat the category totals and set-aside figures as a starting point for your own return and your own payment dates. If a platform pays in another currency, log the amount that arrived in your account.'],
+      ['Outside the US', 'Income, streams, profit, cash flow and brand deals work anywhere: set your currency in Settings. The <b>Schedule C summary</b> uses US line numbers and the <b>Quarterly tax</b> due dates follow the US estimated-tax calendar. Elsewhere, treat the category totals and set-aside figures as a starting point for your own return and your own payment dates. Money in other currencies is covered too: see below.'],
+      ['Money in other currencies', 'Record what reached or left your account in your own currency, and open <b>In another currency?</b> on the transaction to keep the original amount; the rate you enter works the amount out for you and is remembered. Imports convert rows in another currency at a rate you set on the review screen. Brand deals can be invoiced in any currency: when one is paid, enter what actually arrived. The rates you use are listed in <b>Settings → Other currencies</b>.'],
       ['Importing from your bank', 'On the import screen, filter by status to see only the rows that are not ready, fix their category or stream, and import them from the button at the top or bottom. When you change a category or stream, Creator Plan offers to update similar rows and remember the choice for future imports.'],
       ['Paying yourself, tax money and retirement', 'Paying yourself, moving money to your tax pot, income tax you pay and your own retirement contributions are not business expenses, so they never reduce profit. Your accountant will want the totals, which appear under Transfers.'],
       ['Business credit cards and your own transfers', 'If you log or import the card’s purchases, those are the expenses. Paying the card from the business account is then a transfer: use <b>Business card payoff (purchases already logged)</b>, which is never counted.'],

@@ -9,7 +9,7 @@
 const NICHE = {
   id: 'business',
   product: {
-    name: 'Profit Plan', mark: 'P', publisher: 'JPS DIGITAL PAGES', version: '1.1',
+    name: 'Profit Plan', mark: 'P', publisher: 'JPS DIGITAL PAGES', version: '1.2',
     tagline: 'Freelance & small-business books', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Profit Plan · Sales, Expenses, P&amp;L &amp; Quarterly Tax', themeColor: '#182635',
     description: 'Profit Plan by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',
@@ -64,6 +64,7 @@ const NICHE = {
     ['biz-savings', 'Rainy-day fund', 'reserve'], ['equipment-fund', 'Equipment fund', 'reserve'],
     ['loan-repay', 'Business loan repayment', 'loans'],
     ['card-payoff', 'Business card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between business accounts', 'transfer'],
+    ['platform-payout', 'Platform payouts & top-ups (already imported)', 'transfer'],
   ],
   // US Schedule C (Form 1040). part: income | other | cogs (Part III) | expense (Part II)
   taxForm: { name: 'Schedule C', long: 'Schedule C (Form 1040) · Profit or Loss From Business' },
@@ -116,7 +117,12 @@ const NICHE = {
     travel: 'business-travel', 'dining out': 'meals', restaurants: 'meals', fuel: 'fuel', gas: 'fuel', insurance: 'insurance',
     fees: 'bank-fees', 'bank fees': 'bank-fees', income: 'client-work', deposit: 'client-work', sales: 'product-sales',
   },
-  defaults: { category: 'client-work', schedule: 'software', annualCategory: 'client-work', quickSetup: ['client-work', 'product-sales', 'materials', 'software', 'advertising', 'tax-reserve'] },
+  defaults: { category: 'client-work', schedule: 'software', annualCategory: 'client-work', payout: 'platform-payout', quickSetup: ['client-work', 'product-sales', 'materials', 'software', 'advertising', 'tax-reserve'] },
+  // platform statements (Etsy, Shopify, PayPal, Stripe, YouTube, Patreon…): where each kind of entry
+  // starts. 'payout' rows move money to your bank, so they are skipped; the bank side is a transfer.
+  platformDefaults: { sale: 'product-sales', refund: 'product-sales', fees: 'platform-fees', ads: 'advertising', shipping: 'postage', feeTax: 'platform-fees', payout: '__skip', conversion: '__skip', taxWithheld: 'est-tax', purchase: '', other: '',
+    platforms: { paypal: { sale: 'client-work', refund: 'client-work' }, stripe: { sale: 'client-work', refund: 'client-work' }, youtube: { sale: 'other-biz-income', refund: 'other-biz-income' }, patreon: { sale: 'retainers', refund: 'retainers' }, substack: { sale: 'retainers', refund: 'retainers' } } },
+
 
   nav: [['dashboard', 'Dashboard', 'today'], ['pl', 'Profit & loss', 'insights'], ['budget', 'Monthly targets', 'plan'], ['activity', 'Transactions', 'log'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['annual', 'Annual overview', 'outlook'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   optionalNav: ['invoices', 'mileage', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
@@ -146,7 +152,7 @@ const NICHE = {
     { icon: 'today', step: 'WELCOME', title: 'Your business books, in one calm place', text: '<p>Log what comes in and what goes out, or import your bank CSV. Profit, cash flow, tax money and a year-end summary build themselves.</p><p>Everything stays in this browser. No bank login, no subscription.</p>' },
     { icon: 'insights', step: 'PROFIT', title: 'See what you made, and where the cash went', text: '<p><b>Profit &amp; loss</b> shows sales, minus what the products cost you, minus running costs, for a month, a quarter, the year so far or any dates you choose. Print it when you need it.</p><p>The <b>Annual overview</b> adds a cash flow statement: what came in, what went out and what you moved aside.</p>' },
     { icon: 'umbrella', step: 'TAX', title: 'Put tax money aside as you go', text: '<p>Choose a set-aside rate. <b>Quarterly tax</b> compares what you should have put aside with what you have.</p><p><b>Not tax, legal or financial advice.</b> The rates, mileage values and form lines use the figures you enter. Tax rules differ by country and change every year, so confirm them with a tax professional.</p>' },
-    { icon: 'table', step: 'IMPORT', title: 'Bring in a month of bank transactions', text: '<p>Import a CSV from your bank. Filter by status to fix anything not ready, then import from the top of the list.</p><p>Correct a category once and Profit Plan offers to fix similar transactions and remember the choice.</p>', cta: { label: 'Import a bank CSV', action: 'welcome-import' } },
+    { icon: 'table', step: 'IMPORT', title: 'Bring in a month of bank transactions', text: '<p>Import a CSV from your bank, or a statement from Etsy, Shopify, PayPal or Stripe: each sale comes in at its full price, with the platform’s fees as costs of their own.</p><p>Correct a category once and Profit Plan offers to fix similar transactions and remember the choice.</p>', cta: { label: 'Import a bank CSV', action: 'welcome-import' } },
     'backup',
     { icon: 'check', step: 'START', title: 'Start with one sale or one cost', text: '<p>Log a payment you received or something you paid for today. Your dashboard fills in from there.</p><p>Want a clean slate later? <b>Settings → Start fresh</b> clears the books in one step.</p>', cta: { label: 'Add a transaction', action: 'welcome-log' } },
   ],
@@ -166,6 +172,8 @@ const NICHE = {
       ['Not tax, legal or financial advice', 'Profit Plan organises your own records. Every tax figure it shows, from the set-aside to the mileage value and the form lines, comes from the rates, categories and rules you enter. It does not know your tax position, and tax rules differ by country and change every year. Check with a qualified tax professional or accountant before you file, claim or pay tax.'],
       ['Outside the US', 'Profit, cash flow, transactions, invoices and the mileage log work anywhere: set your currency in Settings, and choose miles or kilometres. The <b>Schedule C summary</b> uses US line numbers and the <b>Quarterly tax</b> due dates follow the US estimated-tax calendar. Elsewhere, treat the category totals and set-aside figures as a starting point for your own return and your own payment dates.'],
       ['Mileage rate', 'The mileage rate starts at zero because every country sets its own, and it changes most years (for example the IRS rate in the US, or HMRC’s in the UK). Enter the rate that applies to you in <b>Settings → Tax &amp; mileage</b>. Trips logged before you set it are valued at the new rate.'],
+      ['Statements from Etsy, Shopify, PayPal and Stripe', 'Import the platform’s own statement on the Import screen: an Etsy monthly statement, a Shopify Payments or Stripe balance export, a PayPal activity download, a YouTube (AdSense) transactions file, or any file with gross and fee columns such as Patreon, Gumroad or Ko-fi. Profit Plan recognises it and splits every sale into the full price and the platform’s fees, ads and shipping labels, each in a category you choose. Payouts to your bank are skipped. After that, when you import your bank statement, deposits from that platform go to <b>Platform payouts &amp; top-ups (already imported)</b>, a transfer, so nothing is counted twice.'],
+      ['Money in other currencies', 'Record what reached or left your account in your own currency, and open <b>In another currency?</b> on the transaction to keep the original amount; the rate you enter works the amount out for you and is remembered. Imports convert rows in another currency at a rate you set on the review screen. Invoices can be in any currency: when one is paid, enter what actually arrived. The rates you use are listed in <b>Settings → Other currencies</b>.'],
       ['Importing from your bank', 'On the import screen, filter by status to see only the rows that are not ready, fix their category or date, and import them from the button at the top or bottom. When you change a category, Profit Plan offers to update similar transactions and to remember the choice for future imports. Remembered rules are listed in Settings, where you can remove them.'],
       ['Selling in more than one place', 'Add a sales channel for each place you sell (Etsy, Shopify, YouTube, client work…) in <b>Settings → Sales channels</b>, or just type a new one on a transaction. Tag sales and the costs that clearly belong to a channel, such as its fees and postage. Leave shared costs like software untagged. Profit &amp; loss then shows profit for each channel before shared costs, and you can view the statement for one channel at a time. On import, tag rows in bulk; Profit Plan offers to remember the channel for similar descriptions.'],
       ['Owner’s draws, tax money and retirement', 'Paying yourself, moving money to your tax pot, income tax you pay, your own retirement contributions and loan principal are not business expenses, so they never reduce profit. Loan interest is an expense; record it separately. Your accountant will want the totals for retirement contributions and tax paid, which appear under Transfers.'],

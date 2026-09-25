@@ -8,7 +8,7 @@
 const NICHE = {
   id: 'budget',
   product: {
-    name: 'Monthly Plan', mark: 'M', publisher: 'JPS DIGITAL PAGES', version: '2.1',
+    name: 'Monthly Plan', mark: 'M', publisher: 'JPS DIGITAL PAGES', version: '2.2',
     tagline: 'Monthly & annual budget', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Monthly Plan · Monthly & Annual Budget', themeColor: '#382750',
     description: 'Monthly Plan by JPS Digital Pages. Plan your monthly budget, track your spending, and see the whole year clearly. Works offline.',
@@ -51,6 +51,8 @@ const NICHE = {
     // added in v1.9
     ['taxes', 'Taxes paid', 'bills'], ['retirement', 'Retirement contributions', 'investment'],
     ['card-payoff', 'Credit card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between my accounts', 'transfer'],
+    // added in v2.2
+    ['platform-payout', 'Platform payouts & top-ups (already imported)', 'transfer'],
   ],
   // Quick Log: a word in the description → category id
   aliases: { coffee: 'dining', cafe: 'dining', lunch: 'dining', dinner: 'dining', restaurant: 'dining', takeaway: 'dining', groceries: 'groceries', grocery: 'groceries', supermarket: 'groceries', food: 'groceries', rent: 'housing', mortgage: 'housing', electric: 'utilities', water: 'utilities', gas: 'utilities', utility: 'utilities', phone: 'internet', internet: 'internet', netflix: 'streaming', spotify: 'streaming', streaming: 'streaming', subscription: 'memberships', fuel: 'transport', petrol: 'transport', uber: 'transport', taxi: 'transport', bus: 'transport', train: 'transport', salary: 'salary', paycheck: 'salary', payday: 'salary', freelance: 'side', client: 'side', sidehustle: 'side', partner: 'spouse', spouse: 'spouse', creditcard: 'credit', loan: 'loan', travel: 'travel', holiday: 'travel', emergency: 'emergency', invest: 'investing', investment: 'investing', autopay: 'card-payoff', cardpayment: 'card-payoff', transfer: 'own-transfer', retirement: 'retirement', '401k': 'retirement', ira: 'retirement', pension: 'retirement', irs: 'taxes', taxes: 'taxes', propertytax: 'taxes' },
@@ -71,7 +73,10 @@ const NICHE = {
     taxes: 'taxes', tax: 'taxes', 'federal tax': 'taxes', 'state tax': 'taxes',
     retirement: 'retirement', '401k': 'retirement', ira: 'retirement', 'retirement contributions': 'retirement',
   },
-  defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
+  // platform statements (Etsy, PayPal, Patreon…): sales and the platform's cut both land in side income,
+  // so it shows what actually reached you; payouts to your bank are skipped
+  platformDefaults: { sale: 'side', refund: 'side', fees: 'side', ads: 'side', shipping: 'side', feeTax: 'side', payout: '__skip', conversion: '__skip', taxWithheld: 'taxes', purchase: '', other: 'side' },
+  defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', payout: 'platform-payout', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
 
   // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
   nav: [['dashboard', 'Monthly dashboard', 'today'], ['annual', 'Annual dashboard', 'insights'], ['budget', 'Monthly budget', 'plan'], ['activity', 'Transactions', 'log'], ['goals', 'Savings & goals', 'umbrella'], ['scheduled', 'Recurring payments', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['wealth', 'Wealth snapshots', 'outlook'], ['insights', 'Insights', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
@@ -112,6 +117,8 @@ const NICHE = {
     ],
     meanings: [['Plan', 'What you intend'], ['Actual', 'What you logged'], ['Cash flow', 'Income − outgoings'], ['Wealth', 'Assets − debt']],
     details: [
+      ['A side hustle on Etsy, PayPal or Patreon', 'On the Import screen, a statement from Etsy, Shopify, PayPal, Stripe, YouTube, Patreon or a similar platform is recognised automatically. Sales and the platform’s fees both land in <b>Side hustle</b>, so it shows what actually reached you, and payouts to your bank are skipped. After that, deposits from that platform in your bank file go to <b>Platform payouts &amp; top-ups (already imported)</b>, which is never counted, so nothing is counted twice.'],
+      ['Money in other currencies', 'Record what reached or left your account in your own currency, and open <b>In another currency?</b> on the transaction to keep the original amount; the rate you enter works the amount out for you and is remembered. Imports convert rows in another currency at a rate you set on the review screen. The rates you use are listed in <b>Settings → Other currencies</b>.'],
       ['Dig into any number', 'Click a card at the top of the dashboard to see the transactions behind it; <b>Avg. monthly cash flow</b> opens the Annual dashboard. Click a slice of any donut to list its transactions. On Transactions, pick a group and then a category, sort any column, and read the total of what is shown at the bottom.'],
       ['Transfers, refunds and credit cards', 'If you log or import your credit-card purchases, those are the expenses. The payment from your checking account to the card is then a transfer: put it in <b>Credit card payoff (purchases already logged)</b>, which is never counted as spending. If you do not track the card’s purchases, use <b>Credit card payment</b> instead, so the payment counts as the expense. Moves between your own accounts go in <b>Transfer between my accounts</b>. Record a savings transfer once, and use reversal for a refund or withdrawal.'],
       ['Recurring payments and closed months', 'Schedules are reminders, never automatic payments. Record or match the actual entry. Closing a month protects its budget, transactions and scheduled history until you reopen it.'],

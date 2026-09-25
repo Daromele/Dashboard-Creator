@@ -31,7 +31,7 @@ const amts2=await p.evaluate(()=>activityList.map(t=>t.amount));ok(tag+' sort am
 await p.click('[data-action="sort-tx"][data-key="category"]');
 const cats=await p.evaluate(()=>activityList.map(t=>category(t.category).name.toLowerCase()));ok(tag+' sort category a-z',cats.every((v,i)=>!i||cats[i-1].localeCompare(v)<=0));
 ok(tag+' aria-sort set',await p.evaluate(()=>document.querySelector('th[aria-sort="ascending"]')?.textContent.includes('Category')));
-await p.screenshot({path:`${OUT}/${tag}-activity.png`});
+if(OUT)await p.screenshot({path:`${OUT}/${tag}-activity.png`});
 // activity donut slice
 await p.evaluate(()=>document.querySelector('.activity-charts [data-slice]')?.dispatchEvent(new MouseEvent('click',{bubbles:true})));
 ok(tag+' activity slice dialog',await p.evaluate(()=>document.querySelector('#modal').open&&document.querySelectorAll('.slice-row').length>0));
@@ -41,11 +41,11 @@ if(tag==='mp'){await p.evaluate(()=>go('dashboard'));await p.waitForTimeout(200)
  const d=await p.evaluate(()=>{const el=document.querySelector('#content circle[data-slice]');const spec=JSON.parse(el.dataset.slice);el.dispatchEvent(new MouseEvent('click',{bubbles:true}));
   const want=Budget.rows(state,selected).find(c=>c.id===spec.cats[0]).actual;return {open:document.querySelector('#modal').open,sub:document.querySelector('#modal').innerText,want:fmt(want)};});
  ok('mp dashboard slice lists that category, totals match',d.open&&d.sub.includes(d.want),JSON.stringify(d).slice(0,300));
- await p.screenshot({path:`${OUT}/mp-slice.png`});
+ if(OUT)await p.screenshot({path:`${OUT}/mp-slice.png`});
  await p.click('[data-action="slice-open"]');ok('mp slice opens in Transactions',await p.evaluate(()=>screen==='activity'&&filterCategory!=='all'));
 }else{await p.evaluate(()=>go('annual'));await p.waitForTimeout(200);
  const d=await p.evaluate(()=>{const els=[...document.querySelectorAll('circle[data-slice]')];const el=els[els.length-1];el.dispatchEvent(new MouseEvent('click',{bubbles:true}));return {open:document.querySelector('#modal').open,n:document.querySelectorAll('.slice-row').length,title:document.querySelector('#modal').innerText.slice(0,120)};});
- ok('pp annual expense slice dialog',d.open&&d.n>0,JSON.stringify(d));await p.screenshot({path:`${OUT}/pp-slice.png`});}
+ ok('pp annual expense slice dialog',d.open&&d.n>0,JSON.stringify(d));if(OUT)await p.screenshot({path:`${OUT}/pp-slice.png`});}
 // average cash flow card: matches the months with entries, opens the annual screen
 await p.evaluate(()=>{closeModal();go('dashboard');});
 const avg=await p.evaluate(()=>{const y=selected.slice(0,4),ms=Budget.annual(state,y).filter(m=>m.month<=selected&&Budget.transactions(state,m.month).length);return {want:Math.round(ms.reduce((a,m)=>a+m.net,0)/ms.length),got:+document.querySelector('[data-type="annual"] b').dataset.count};});

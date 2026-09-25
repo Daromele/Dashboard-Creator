@@ -118,7 +118,7 @@ eq('THEMES exported', N.THEMES, O.THEMES);
 eq('GROUPS = v1.8 + Transfers', N.GROUPS, {...O.GROUPS,transfer:'Transfers (not counted)'});
 {const nb=N.blank(),ob=O.blank();
  eq('blank = v1.8 + added categories', {...nb,categories:nb.categories.filter(c=>V18_IDS.has(c.id))}, ob);
- eq('added categories', nb.categories.filter(c=>!V18_IDS.has(c.id)).map(c=>c.id+':'+N.type(c)), ['taxes:expense','retirement:saving','card-payoff:transfer','own-transfer:transfer']);}
+ eq('added categories', nb.categories.filter(c=>!V18_IDS.has(c.id)).map(c=>c.id+':'+N.type(c)), ['taxes:expense','retirement:saving','card-payoff:transfer','own-transfer:transfer','platform-payout:transfer']);}
 for(const c of [...O.blank().categories,{group:'nope'}])eq('type '+c.group, N.type(c), O.type(c));
 // a transfer is never income, expense or saving, so a card payoff cannot double-count purchases
 {const t=N.blank();t.transactions.push({id:'a',date:'2026-05-02',category:'groceries',amount:5000,note:''},{id:'b',date:'2026-05-20',category:'card-payoff',amount:5000,note:''});
@@ -147,6 +147,7 @@ eq('matchKey drops numbers and codes', ['WHOLE FOODS #123','AMAZON MKTP US*2K4AB
 // ---- business edition, and the shared build ----
 require('./test_business.js')({eq,ok});
 require('./test_creator.js')({eq,ok});
+require('./test_import.js')({eq,ok});
 const stale=require('child_process').spawnSync(process.execPath,[path.join(__dirname,'build_app.js'),'--check'],{encoding:'utf8'});
 ok('built files match core + packs', stale.status===0, stale.stdout);
 
