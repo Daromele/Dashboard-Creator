@@ -9,7 +9,8 @@ module.exports=({eq,ok})=>{
   const b=B.blank();
   eq('business blank is tagged', b.niche, 'business');
   eq('business default theme', b.settings.theme, 'ledger');
-  eq('business defaults', [b.settings.taxRate,b.settings.mileageRate,b.mileage,b.invoices], [2500,700,[],[]]);
+  eq('business defaults', [b.settings.taxRate,b.settings.mileageRate,b.settings.distanceUnit,b.mileage,b.invoices], [2500,0,'mi',[],[]]);
+  {const x=JSON.parse(JSON.stringify(b));x.settings.distanceUnit='furlong';eq('bad distance unit falls back', B.validate(x).settings.distanceUnit, 'mi');x.settings.distanceUnit='km';eq('km kept', B.validate(x).settings.distanceUnit, 'km');}
   ok('every default category has a group', b.categories.every(c=>B.GROUPS[c.group]));
   ok('every default tax line exists', b.categories.every(c=>!c.taxLine||B.TAX_LINES[c.taxLine]));
   ok('every income/expense group has a usual line', B.P.groups.filter(g=>['income','expense'].includes(g.type)).every(g=>B.TAX_LINES[g.taxLine]));
@@ -70,6 +71,7 @@ module.exports=({eq,ok})=>{
   eq('rate defaults to settings', B.taxSetAside(s,'2026',undefined,'2026-06-15').rate, 2500);
 
   // ---- Schedule C summary ----
+  s.settings.mileageRate=700;
   s.mileage=[{id:'m1',date:'2026-03-04',purpose:'Client visit',route:'A → B',miles:1005},{id:'m2',date:'2026-07-04',purpose:'Fair',miles:200}];
   const S=B.taxSummary(s,'2026-01-01','2026-12-31'),line=id=>S.lines.find(l=>l.id===id)?.amount||0;
   eq('mileage amount (100.5 mi at 70¢)', B.mileageAmount(1005,700), 7035);

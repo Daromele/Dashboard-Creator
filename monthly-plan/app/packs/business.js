@@ -23,8 +23,10 @@ const NICHE = {
   editions: { budget: 'Monthly Plan, the household budget edition' },
   themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
   features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: true, invoices: true },
-  // taxRate in basis points (2500 = 25%); mileageRate in tenths of a cent per mile (700 = 70.0¢)
-  settings: { taxRate: 2500, mileageRate: 700 },
+  // taxRate in basis points (2500 = 25%). mileageRate in thousandths of the currency per distance unit
+  // (700 = 0.70 per mile or km); it starts at 0 because the allowed rate differs by country and year.
+  settings: { taxRate: 2500, mileageRate: 0, distanceUnit: 'mi' },
+  tourTopics: 'profit, tax set-asides, imports and backups',
 
   // type: income | expense | saving (money moved aside: not income, not an expense)
   // cogs: cost of goods sold, sits between revenue and gross profit
@@ -136,33 +138,39 @@ const NICHE = {
   quickLog: { placeholder: 'client invoice 1200', help: 'Try “client invoice 1200”, “canva 12.99”, “postage 8.40” or “lunch with client 32”.', demo: ['postage', '8.40', 'Packaging & postage to customers'] },
 
   welcome: [
-    { icon: 'today', step: 'WELCOME', title: 'Your business books, in one calm place', text: '<p>Log what comes in and what goes out. Profit, tax money and your year-end summary build themselves.</p><p>Everything stays in this browser. No bank login, no subscription.</p>' },
-    { icon: 'insights', step: 'PROFIT', title: 'See what you actually made', text: '<p>Sales, minus what the products cost you, minus the costs of running the business. <b>Profit &amp; loss</b> shows it for a month, a quarter, the year so far or any dates you choose.</p>' },
-    { icon: 'shield', step: 'TAX', title: 'Put tax money aside as you go', text: '<p>Choose a set-aside rate. <b>Quarterly tax</b> shows what you should have put aside against what you have, before each estimated payment is due.</p>' },
+    { icon: 'today', step: 'WELCOME', title: 'Your business books, in one calm place', text: '<p>Log what comes in and what goes out, or import your bank CSV. Profit, cash flow, tax money and a year-end summary build themselves.</p><p>Everything stays in this browser. No bank login, no subscription.</p>' },
+    { icon: 'insights', step: 'PROFIT', title: 'See what you made, and where the cash went', text: '<p><b>Profit &amp; loss</b> shows sales, minus what the products cost you, minus running costs, for a month, a quarter, the year so far or any dates you choose. Print it when you need it.</p><p>The <b>Annual overview</b> adds a cash flow statement: what came in, what went out and what you moved aside.</p>' },
+    { icon: 'umbrella', step: 'TAX', title: 'Put tax money aside as you go', text: '<p>Choose a set-aside rate. <b>Quarterly tax</b> compares what you should have put aside with what you have.</p><p><b>Not tax, legal or financial advice.</b> The rates, mileage values and form lines use the figures you enter. Tax rules differ by country and change every year, so confirm them with a tax professional.</p>' },
+    { icon: 'table', step: 'IMPORT', title: 'Bring in a month of bank transactions', text: '<p>Import a CSV from your bank. Filter by status to fix anything not ready, then import from the top of the list.</p><p>Correct a category once and Profit Plan offers to fix similar transactions and remember the choice.</p>', cta: { label: 'Import a bank CSV', action: 'welcome-import' } },
     'backup',
-    { icon: 'check', step: 'START', title: 'Start with one sale or one cost', text: '<p>Log a payment you received or something you paid for today. Your dashboard fills in from there.</p>', cta: { label: 'Add a transaction', action: 'welcome-log' } },
+    { icon: 'check', step: 'START', title: 'Start with one sale or one cost', text: '<p>Log a payment you received or something you paid for today. Your dashboard fills in from there.</p><p>Want a clean slate later? <b>Settings → Start fresh</b> clears the books in one step.</p>', cta: { label: 'Add a transaction', action: 'welcome-log' } },
   ],
   guide: {
     title: 'Four moves. Books you can hand over.',
     cards: [
-      ['spark', '1. Log', 'Quick Log sales and costs as they happen, or import a bank CSV each month.', 'Transactions', 'activity'],
-      ['insights', '2. Check profit', 'Read the P&L for the month, the quarter or the year so far. Print it when you need it.', 'Profit & loss', 'pl'],
-      ['shield', '3. Set tax aside', 'Move your set-aside each month and see it against each quarterly due date.', 'Quarterly tax', 'tax'],
-      ['tags', '4. Hand over', 'Check the Schedule C lines, then download the summary and detail for your accountant.', 'Schedule C summary', 'taxlines'],
+      ['spark', '1. Log', 'Quick Log sales and costs as they happen, or import a bank CSV each month and fix anything marked not ready.', 'Transactions', 'activity'],
+      ['insights', '2. Check profit', 'Read the P&L for the month, the quarter or the year so far, and the cash flow in the Annual overview. Print either.', 'Profit & loss', 'pl'],
+      ['shield', '3. Set tax aside', 'Move your set-aside each month and see it against each due date. A savings rule, not tax advice.', 'Quarterly tax', 'tax'],
+      ['tags', '4. Hand over', 'Download a line-by-line summary and every transaction for your accountant or tax preparer.', 'Schedule C summary', 'taxlines'],
     ],
-    meanings: [['Revenue', 'Money in from sales'], ['Gross profit', 'Revenue − cost of goods'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, draws, savings']],
+    meanings: [['Revenue', 'Money in from sales'], ['Gross profit', 'Revenue − cost of goods'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, draws, card payoffs']],
     details: [
-      ['Owner’s draws, tax money and loans', 'Paying yourself, moving money to your tax pot, income tax you pay, your own retirement contributions and loan principal are not business expenses, so they never reduce profit. Loan interest is an expense; record it separately. Retirement contributions for yourself are deducted outside Schedule C, so your accountant will want the total.'],
-      ['Business credit cards', 'If you log or import the card’s purchases, those are the expenses. Paying the card from the business account is then a transfer: use <b>Business card payoff (purchases already logged)</b>, which is never counted.'],
-      ['Tax pot and estimated payments', 'Log each move into your tax pot as a Tax savings transfer. If you later pay the IRS from that pot, do not log the payment again; log Estimated tax payments only when you pay straight from the business account.'],
+      ['Not tax, legal or financial advice', 'Profit Plan organises your own records. Every tax figure it shows, from the set-aside to the mileage value and the form lines, comes from the rates, categories and rules you enter. It does not know your tax position, and tax rules differ by country and change every year. Check with a qualified tax professional or accountant before you file, claim or pay tax.'],
+      ['Outside the US', 'Profit, cash flow, transactions, invoices and the mileage log work anywhere: set your currency in Settings, and choose miles or kilometres. The <b>Schedule C summary</b> uses US line numbers and the <b>Quarterly tax</b> due dates follow the US estimated-tax calendar. Elsewhere, treat the category totals and set-aside figures as a starting point for your own return and your own payment dates.'],
+      ['Mileage rate', 'The mileage rate starts at zero because every country sets its own, and it changes most years (for example the IRS rate in the US, or HMRC’s in the UK). Enter the rate that applies to you in <b>Settings → Tax &amp; mileage</b>. Trips logged before you set it are valued at the new rate.'],
+      ['Importing from your bank', 'On the import screen, filter by status to see only the rows that are not ready, fix their category or date, and import them from the button at the top or bottom. When you change a category, Profit Plan offers to update similar transactions and to remember the choice for future imports. Remembered rules are listed in Settings, where you can remove them.'],
+      ['Owner’s draws, tax money and retirement', 'Paying yourself, moving money to your tax pot, income tax you pay, your own retirement contributions and loan principal are not business expenses, so they never reduce profit. Loan interest is an expense; record it separately. Your accountant will want the totals for retirement contributions and tax paid, which appear under Transfers.'],
+      ['Business credit cards and your own transfers', 'If you log or import the card’s purchases, those are the expenses. Paying the card from the business account is then a transfer: use <b>Business card payoff (purchases already logged)</b>, which is never counted. Moving money between your own business accounts is a transfer too.'],
+      ['Tax pot and tax payments', 'Log each move into your tax pot as a Tax savings transfer. If you later pay the tax from that pot, do not log the payment again; log Estimated tax payments only when you pay straight from the business account.'],
       ['Cash basis, refunds and invoices', 'A sale counts when the money arrives and a cost when you pay it. Record a refund you give as a reversal on the sale’s category. An invoice becomes revenue when you mark it paid.'],
-      ['Tax lines and your accountant', 'Each category carries a Schedule C line. The summary groups your year by line so your accountant can check it quickly. It is an organised record, not tax advice or a filed return.'],
+      ['Tax lines and your accountant', 'Each category carries a Schedule C line, which you can change. The summary groups your year by line so your accountant can check it quickly. It is an organised record, not tax advice or a filed return.'],
+      ['Starting over', 'Settings → <b>Start fresh</b> clears the books in one step. Keep your categories and settings, or erase everything. Download a backup first if you might want the data again.'],
     ],
   },
 
   // the fictional studio behind "Explore sample data": a designer who also sells prints
   sample: {
-    name: 'Juniper Studio', opening: 420000, settings: { goalImages: true, goalsLayout: 'grid' },
+    name: 'Juniper Studio', opening: 420000, settings: { goalImages: true, goalsLayout: 'grid', mileageRate: 700, distanceUnit: 'mi' },
     note: 'Chase the late invoices and keep the tax pot topped up before the September payment.',
     amounts: { 'client-work': 5600, 'product-sales': 1600, retainers: 900, materials: 260, postage: 180, software: 95, 'phone-internet': 80, workspace: 350, insurance: 45, website: 25, advertising: 220, 'platform-fees': 120, office: 40, professional: 60, contractors: 600, meals: 70, 'owner-draw': 2000, 'tax-reserve': 1400, 'biz-savings': 200 },
     days: { retainers: 1, workspace: 1, software: 3, website: 4, 'phone-internet': 12, insurance: 15, 'owner-draw': 28, 'tax-reserve': 28, 'biz-savings': 28, professional: 20, contractors: 25 },

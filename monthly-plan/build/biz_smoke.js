@@ -66,8 +66,10 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.fill('#biz-trip-form input[name=miles]','12.5');await p.fill('#biz-trip-form input[name=purpose]','Supplier visit');await p.check('#biz-trip-form input[name=round]');
   await p.click('#biz-trip-form button[type=submit]');
   check('round trip doubles miles',await p.evaluate(()=>state.mileage[0]?.miles===250));
-  await p.evaluate(()=>go('settings'));await p.fill('#biz-settings-form input[name=taxRate]','30');await p.fill('#biz-settings-form input[name=mileageRate]','72.5');
-  await p.click('#biz-settings-form button');check('settings saved',await p.evaluate(()=>state.settings.taxRate===3000&&state.settings.mileageRate===725));
+  await p.evaluate(()=>go('settings'));await p.fill('#biz-settings-form input[name=taxRate]','30');await p.fill('#biz-settings-form input[name=mileageRate]','0.725');await p.selectOption('#biz-settings-form select[name=distanceUnit]','km');
+  await p.click('#biz-settings-form button');check('settings saved',await p.evaluate(()=>state.settings.taxRate===3000&&state.settings.mileageRate===725&&state.settings.distanceUnit==='km'));
+  await p.evaluate(()=>go('mileage'));check('mileage shows km and rate',await p.evaluate(()=>/Kilometres in/.test(document.querySelector('#content').innerText)&&/0\.725 per kilometre/.test(document.querySelector('#content').innerText)&&/Not tax, legal or financial advice/.test(document.querySelector('#content').innerText)));
+  for(const v of ['tax','taxlines','pl']){await p.evaluate(v=>go(v),v);check(v+' carries the disclaimer',await p.evaluate(()=>/not tax(, legal or financial)? advice/i.test(document.querySelector('#content').innerText)));}
   // category form carries the tax line
   await p.evaluate(()=>categoryForm());await p.fill('#category-form input[name=name]','Stock photos');
   await p.selectOption('#category-form select[name=group]','marketing');await p.selectOption('#category-form select[name=taxLine]','L27b');
