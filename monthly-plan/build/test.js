@@ -8,8 +8,12 @@ const eq=(name,a,b)=>{const x=JSON.stringify(a),y=JSON.stringify(b);
   if(x===y){pass++;}else{fail++;console.log("MISMATCH:",name,"\n  new:",String(x).slice(0,300),"\n  old:",String(y).slice(0,300));}};
 const ok=(name,cond,extra='')=>{if(cond){pass++;}else{fail++;console.log("FAIL:",name,extra);}};
 
+// v1.9 adds a Transfers group and four default categories. The v1.8 comparisons below run on the
+// v1.8 category set; the additions are checked on their own further down.
+const V18_IDS=new Set(O.blank().categories.map(c=>c.id));
+const ADDED=['taxes','retirement','card-payoff','own-transfer'];
 function fixture(B){
-  const s=B.blank();
+  const s=B.blank();s.categories=s.categories.filter(c=>V18_IDS.has(c.id));
   s.settings.name='Test';
   const amounts={salary:300000,housing:150000,groceries:50000,dining:20000,emergency:40000,investing:25000,credit:18000,streaming:1500};
   for(const m of ['2026-07','2026-08','2026-09']){
@@ -111,12 +115,22 @@ for(const q of ['coffee 4.50','rent 1200','salary 2400','refund groceries 12','u
   eq('parseQuick '+q, (()=>{try{return N.parseQuick(q,sn.categories,sn.quickMemory)}catch(e){return 'ERR:'+e.message}})(),
                      (()=>{try{return O.parseQuick(q,so.categories,so.quickMemory)}catch(e){return 'ERR:'+e.message}})());
 eq('THEMES exported', N.THEMES, O.THEMES);
-eq('GROUPS unchanged', N.GROUPS, O.GROUPS);
-eq('blank unchanged', N.blank(), O.blank());
-for(const c of [...N.blank().categories,{group:'nope'}])eq('type '+c.group, N.type(c), O.type(c));
+eq('GROUPS = v1.8 + Transfers', N.GROUPS, {...O.GROUPS,transfer:'Transfers (not counted)'});
+{const nb=N.blank(),ob=O.blank();
+ eq('blank = v1.8 + added categories', {...nb,categories:nb.categories.filter(c=>V18_IDS.has(c.id))}, ob);
+ eq('added categories', nb.categories.filter(c=>!V18_IDS.has(c.id)).map(c=>c.id+':'+N.type(c)), ['taxes:expense','retirement:saving','card-payoff:transfer','own-transfer:transfer']);}
+for(const c of [...O.blank().categories,{group:'nope'}])eq('type '+c.group, N.type(c), O.type(c));
+// a transfer is never income, expense or saving, so a card payoff cannot double-count purchases
+{const t=N.blank();t.transactions.push({id:'a',date:'2026-05-02',category:'groceries',amount:5000,note:''},{id:'b',date:'2026-05-20',category:'card-payoff',amount:5000,note:''});
+ const tt=N.totals(t,'2026-05');eq('card payoff not counted', [tt.expense.actual,tt.saving.actual,tt.income.actual,tt.net], [5000,0,0,-5000]);
+ eq('card payoff can be a payoff goal', N.isDebt(t.categories.find(c=>c.id==='card-payoff')), true);
+ ok('v1.9 backup with transfers validates', !!N.validate(JSON.parse(JSON.stringify(t))));
+ eq('quick log: autopay', N.parseQuick('card autopay 250',t.categories,{}).category, 'card-payoff');
+ eq('quick log: 401k', N.parseQuick('401k 300',t.categories,{}).category, 'retirement');}
 // the sample household: same records in the same order (ids are random, so compare without them)
 const noIds=s=>JSON.parse(JSON.stringify(s,(k,v)=>k==='id'?undefined:v));
-for(const m of ['2026-01','2026-09','2026-12'])eq('sample '+m, noIds(N.sample(m)), noIds(O.sample(m)));
+const v18cats=s=>({...s,categories:s.categories.filter(c=>V18_IDS.has(c.id)||c.id==='car-loan')});
+for(const m of ['2026-01','2026-09','2026-12'])eq('sample '+m, noIds(v18cats(N.sample(m))), noIds(O.sample(m)));
 eq('budget edition has no business screens', [N.P.features.pl,N.P.features.tax], [false,false]);
 
 // ---- business edition, and the shared build ----

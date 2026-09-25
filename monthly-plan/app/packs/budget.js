@@ -37,6 +37,9 @@ const NICHE = {
     { id: 'sinking', label: 'Sinking funds', type: 'saving' },
     { id: 'savings', label: 'Savings', type: 'saving' },
     { id: 'investment', label: 'Investments', type: 'saving', icon: 'outlook' },
+    // money moving between your own accounts: never income, spending or saving. A card payoff from
+    // checking belongs here when the card's purchases are already logged as expenses.
+    { id: 'transfer', label: 'Transfers (not counted)', type: 'transfer', debt: true },
   ],
   // [id, name, group]
   categories: [
@@ -45,9 +48,29 @@ const NICHE = {
     ['streaming', 'Streaming', 'subscriptions'], ['memberships', 'Memberships', 'subscriptions'], ['credit', 'Credit card payment', 'debt'], ['loan', 'Loan payment', 'debt'],
     ['groceries', 'Groceries', 'variable'], ['transport', 'Transport', 'variable'], ['dining', 'Dining & coffee', 'variable'], ['personal', 'Personal & family', 'variable'],
     ['travel', 'Travel fund', 'sinking'], ['annual-bills', 'Annual bills fund', 'sinking'], ['emergency', 'Emergency savings', 'savings'], ['investing', 'Investment contributions', 'investment'],
+    // added in v1.9
+    ['taxes', 'Taxes paid', 'bills'], ['retirement', 'Retirement contributions', 'investment'],
+    ['card-payoff', 'Credit card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between my accounts', 'transfer'],
   ],
   // Quick Log: a word in the description → category id
-  aliases: { coffee: 'dining', cafe: 'dining', lunch: 'dining', dinner: 'dining', restaurant: 'dining', takeaway: 'dining', groceries: 'groceries', grocery: 'groceries', supermarket: 'groceries', food: 'groceries', rent: 'housing', mortgage: 'housing', electric: 'utilities', water: 'utilities', gas: 'utilities', utility: 'utilities', phone: 'internet', internet: 'internet', netflix: 'streaming', spotify: 'streaming', streaming: 'streaming', subscription: 'memberships', fuel: 'transport', petrol: 'transport', uber: 'transport', taxi: 'transport', bus: 'transport', train: 'transport', salary: 'salary', paycheck: 'salary', payday: 'salary', freelance: 'side', client: 'side', sidehustle: 'side', partner: 'spouse', spouse: 'spouse', creditcard: 'credit', loan: 'loan', travel: 'travel', holiday: 'travel', emergency: 'emergency', invest: 'investing', investment: 'investing' },
+  aliases: { coffee: 'dining', cafe: 'dining', lunch: 'dining', dinner: 'dining', restaurant: 'dining', takeaway: 'dining', groceries: 'groceries', grocery: 'groceries', supermarket: 'groceries', food: 'groceries', rent: 'housing', mortgage: 'housing', electric: 'utilities', water: 'utilities', gas: 'utilities', utility: 'utilities', phone: 'internet', internet: 'internet', netflix: 'streaming', spotify: 'streaming', streaming: 'streaming', subscription: 'memberships', fuel: 'transport', petrol: 'transport', uber: 'transport', taxi: 'transport', bus: 'transport', train: 'transport', salary: 'salary', paycheck: 'salary', payday: 'salary', freelance: 'side', client: 'side', sidehustle: 'side', partner: 'spouse', spouse: 'spouse', creditcard: 'credit', loan: 'loan', travel: 'travel', holiday: 'travel', emergency: 'emergency', invest: 'investing', investment: 'investing', autopay: 'card-payoff', cardpayment: 'card-payoff', transfer: 'own-transfer', retirement: 'retirement', '401k': 'retirement', ira: 'retirement', pension: 'retirement', irs: 'taxes', taxes: 'taxes', propertytax: 'taxes' },
+  // import: words a bank statement's own category column uses → category id
+  importHints: {
+    groceries: 'groceries', grocery: 'groceries', supermarket: 'groceries', 'food & drink': 'dining', food: 'dining',
+    dining: 'dining', restaurants: 'dining', restaurant: 'dining', coffee: 'dining', 'dining out': 'dining',
+    gas: 'transport', fuel: 'transport', automotive: 'transport', auto: 'transport', transport: 'transport',
+    transportation: 'transport', travel: 'transport', rideshare: 'transport', parking: 'transport',
+    'bills & utilities': 'utilities', utilities: 'utilities', bills: 'utilities', 'bills and utilities': 'utilities',
+    shopping: 'personal', personal: 'personal', entertainment: 'personal', 'health & wellness': 'personal',
+    health: 'personal', fees: 'personal', 'personal care': 'personal',
+    rent: 'housing', mortgage: 'housing', home: 'housing', housing: 'housing',
+    insurance: 'insurance', phone: 'internet', internet: 'internet',
+    salary: 'salary', payroll: 'salary', income: 'salary', paycheck: 'salary',
+    'credit card payment': 'card-payoff', 'credit card payments': 'card-payoff', 'card payment': 'card-payoff', payment: 'card-payoff', payments: 'card-payoff',
+    transfer: 'own-transfer', transfers: 'own-transfer', 'internal transfer': 'own-transfer',
+    taxes: 'taxes', tax: 'taxes', 'federal tax': 'taxes', 'state tax': 'taxes',
+    retirement: 'retirement', '401k': 'retirement', ira: 'retirement', 'retirement contributions': 'retirement',
+  },
   defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
 
   // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
@@ -65,7 +88,7 @@ const NICHE = {
     greeting: '’s month at a glance', greetingPlain: 'Your month at a glance', planTitle: 'Your monthly plan', categoryPlaceholder: 'e.g. Childcare',
     categorySub: 'Make your budget fit your life.', directionNormal: 'Income received / expense paid / contribution',
     exitDemo: 'Return to my budget', demoOnly: 'Your budget only', notePlaceholder: 'e.g. Weekly groceries',
-    incomeOne: 'Income', savedCol: 'Saved', netHint: 'Income − expenses − savings',
+    incomeOne: 'Income', savedCol: 'Saved', transfer: 'Transfers (not counted)', transferOne: 'Transfer', netHint: 'Income − expenses − savings',
     savingRateEmpty: 'Log income to see your savings rate', savingRate: '% of income received',
   },
   quickLog: { placeholder: 'coffee 4.50', help: 'Try “coffee 4.50”, “rent 1200”, or “salary 2400”.', demo: ['coffee', '4.50', 'Dining & coffee'] },
@@ -89,7 +112,7 @@ const NICHE = {
     ],
     meanings: [['Plan', 'What you intend'], ['Actual', 'What you logged'], ['Cash flow', 'Income − outgoings'], ['Wealth', 'Assets − debt']],
     details: [
-      ['Transfers, refunds and credit cards', 'Skip transfers between your own spending accounts. Record a savings transfer once. Use reversal for a refund or withdrawal. If individual credit-card purchases are expenses, do not count repayment of those same purchases as another expense.'],
+      ['Transfers, refunds and credit cards', 'If you log or import your credit-card purchases, those are the expenses. The payment from your checking account to the card is then a transfer: put it in <b>Credit card payoff (purchases already logged)</b>, which is never counted as spending. If you do not track the card’s purchases, use <b>Credit card payment</b> instead, so the payment counts as the expense. Moves between your own accounts go in <b>Transfer between my accounts</b>. Record a savings transfer once, and use reversal for a refund or withdrawal.'],
       ['Recurring payments and closed months', 'Schedules are reminders, never automatic payments. Record or match the actual entry. Closing a month protects its budget, transactions and scheduled history until you reopen it.'],
     ],
   },

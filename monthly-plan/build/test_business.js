@@ -12,7 +12,11 @@ module.exports=({eq,ok})=>{
   eq('business defaults', [b.settings.taxRate,b.settings.mileageRate,b.mileage,b.invoices], [2500,700,[],[]]);
   ok('every default category has a group', b.categories.every(c=>B.GROUPS[c.group]));
   ok('every default tax line exists', b.categories.every(c=>!c.taxLine||B.TAX_LINES[c.taxLine]));
-  ok('every income/expense group has a usual line', B.P.groups.filter(g=>g.type!=='saving').every(g=>B.TAX_LINES[g.taxLine]));
+  ok('every income/expense group has a usual line', B.P.groups.filter(g=>['income','expense'].includes(g.type)).every(g=>B.TAX_LINES[g.taxLine]));
+  {const t=B.blank();t.transactions.push({id:'a',date:'2026-05-02',category:'software',amount:5000,note:''},{id:'b',date:'2026-05-20',category:'card-payoff',amount:5000,note:''},{id:'c',date:'2026-05-21',category:'owner-retirement',amount:20000,note:''});
+   const p=B.plMonth(t,'2026-05');eq('business card payoff stays off the P&L', [p.opex.total,p.net], [5000,-5000]);
+   eq('card payoff and owner retirement listed as not part of profit', p.transfers.lines.map(l=>l.id).sort(), ['card-payoff','owner-retirement']);
+   eq('transfers never reach the tax summary', B.taxSummary(t,'2026-01-01','2026-12-31').totals.expenses, 5000);}
   ok('aliases point at real categories', Object.values(B.P.aliases).every(id=>b.categories.some(c=>c.id===id)));
   ok('quick setup and defaults are real', [...B.P.defaults.quickSetup,B.P.defaults.category,B.P.defaults.schedule,B.P.defaults.annualCategory].every(id=>b.categories.some(c=>c.id===id)));
   eq('types from group flags', ['client-work','materials','software','owner-draw','tax-reserve','interest'].map(id=>B.type(b.categories.find(c=>c.id===id))), ['income','expense','expense','saving','saving','income']);

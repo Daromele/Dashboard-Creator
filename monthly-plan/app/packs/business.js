@@ -44,6 +44,8 @@ const NICHE = {
     { id: 'tax', label: 'Tax set-aside & payments', type: 'saving', tax: true, icon: 'shield' },
     { id: 'reserve', label: 'Business savings', type: 'saving', icon: 'umbrella' },
     { id: 'loans', label: 'Loan repayments', type: 'saving', fixed: true, debt: true },
+    // money moving between the business's own accounts: never income, expense or saving
+    { id: 'transfer', label: 'Card payments & own transfers', type: 'transfer', debt: true },
   ],
   // [id, name, group, Schedule C line]
   categories: [
@@ -55,10 +57,11 @@ const NICHE = {
     ['office', 'Office supplies', 'operations', 'L18'], ['equipment', 'Equipment & computers', 'operations', 'L13'], ['professional', 'Accountant & legal', 'operations', 'L17'], ['licences', 'Licences & business taxes', 'operations', 'L23'], ['training', 'Training & education', 'operations', 'L27b'], ['bank-fees', 'Bank charges', 'operations', 'L27b'], ['loan-interest', 'Loan interest', 'operations', 'L16b'],
     ['contractors', 'Contractors & freelancers', 'people', 'L11'], ['wages', 'Wages', 'people', 'L26'],
     ['fuel', 'Fuel, parking & tolls', 'travel', 'L9'], ['business-travel', 'Business travel', 'travel', 'L24a'], ['meals', 'Business meals', 'travel', 'L24b'],
-    ['owner-draw', 'Owner’s draw', 'owner'],
-    ['tax-reserve', 'Tax savings transfer', 'tax'], ['est-tax', 'Estimated tax payments', 'tax'],
+    ['owner-draw', 'Owner’s draw', 'owner'], ['owner-retirement', 'Owner retirement (SEP-IRA / Solo 401k)', 'owner'],
+    ['tax-reserve', 'Tax savings transfer', 'tax'], ['est-tax', 'Income tax paid (estimated & year-end)', 'tax'],
     ['biz-savings', 'Rainy-day fund', 'reserve'], ['equipment-fund', 'Equipment fund', 'reserve'],
     ['loan-repay', 'Business loan repayment', 'loans'],
+    ['card-payoff', 'Business card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between business accounts', 'transfer'],
   ],
   // US Schedule C (Form 1040). part: income | other | cogs (Part III) | expense (Part II)
   taxForm: { name: 'Schedule C', long: 'Schedule C (Form 1040) · Profit or Loss From Business' },
@@ -102,7 +105,15 @@ const NICHE = {
     { label: 'Q4', months: [9, 12], due: '01-15', nextYear: true },
   ],
   // Quick Log: a word in the description → category id. Earlier words win, so costs come first.
-  aliases: { lunch: 'meals', dinner: 'meals', coffee: 'meals', meal: 'meals', restaurant: 'meals', fuel: 'fuel', petrol: 'fuel', parking: 'fuel', toll: 'fuel', flight: 'business-travel', hotel: 'business-travel', train: 'business-travel', uber: 'business-travel', taxi: 'business-travel', postage: 'postage', shipping: 'postage', usps: 'postage', stamps: 'postage', packaging: 'postage', fabric: 'materials', yarn: 'materials', materials: 'materials', beads: 'materials', stock: 'inventory', inventory: 'inventory', wholesale: 'inventory', adobe: 'software', canva: 'software', figma: 'software', notion: 'software', software: 'software', subscription: 'software', phone: 'phone-internet', internet: 'phone-internet', cowork: 'workspace', studio: 'workspace', insurance: 'insurance', hosting: 'website', domain: 'website', squarespace: 'website', ads: 'advertising', advert: 'advertising', promo: 'advertising', stripe: 'platform-fees', paypal: 'platform-fees', fees: 'platform-fees', etsyfee: 'platform-fees', printer: 'office', ink: 'office', paper: 'office', laptop: 'equipment', camera: 'equipment', accountant: 'professional', bookkeeper: 'professional', lawyer: 'professional', licence: 'licences', license: 'licences', course: 'training', contractor: 'contractors', freelancer: 'contractors', assistant: 'contractors', payroll: 'wages', draw: 'owner-draw', irs: 'est-tax', estimated: 'est-tax', taxpot: 'tax-reserve', setaside: 'tax-reserve', retainer: 'retainers', invoice: 'client-work', client: 'client-work', project: 'client-work', sale: 'product-sales', order: 'product-sales', etsy: 'product-sales', shopify: 'product-sales', interest: 'interest' },
+  aliases: { lunch: 'meals', dinner: 'meals', coffee: 'meals', meal: 'meals', restaurant: 'meals', fuel: 'fuel', petrol: 'fuel', parking: 'fuel', toll: 'fuel', flight: 'business-travel', hotel: 'business-travel', train: 'business-travel', uber: 'business-travel', taxi: 'business-travel', postage: 'postage', shipping: 'postage', usps: 'postage', stamps: 'postage', packaging: 'postage', fabric: 'materials', yarn: 'materials', materials: 'materials', beads: 'materials', stock: 'inventory', inventory: 'inventory', wholesale: 'inventory', adobe: 'software', canva: 'software', figma: 'software', notion: 'software', software: 'software', subscription: 'software', phone: 'phone-internet', internet: 'phone-internet', cowork: 'workspace', studio: 'workspace', insurance: 'insurance', hosting: 'website', domain: 'website', squarespace: 'website', ads: 'advertising', advert: 'advertising', promo: 'advertising', stripe: 'platform-fees', paypal: 'platform-fees', fees: 'platform-fees', etsyfee: 'platform-fees', printer: 'office', ink: 'office', paper: 'office', laptop: 'equipment', camera: 'equipment', accountant: 'professional', bookkeeper: 'professional', lawyer: 'professional', licence: 'licences', license: 'licences', course: 'training', contractor: 'contractors', freelancer: 'contractors', assistant: 'contractors', payroll: 'wages', draw: 'owner-draw', irs: 'est-tax', estimated: 'est-tax', taxpot: 'tax-reserve', setaside: 'tax-reserve', retainer: 'retainers', autopay: 'card-payoff', cardpayment: 'card-payoff', transfer: 'own-transfer', sep: 'owner-retirement', solo401k: 'owner-retirement', retirement: 'owner-retirement', invoice: 'client-work', client: 'client-work', project: 'client-work', sale: 'product-sales', order: 'product-sales', etsy: 'product-sales', shopify: 'product-sales', interest: 'interest' },
+  importHints: {
+    'credit card payment': 'card-payoff', 'credit card payments': 'card-payoff', 'card payment': 'card-payoff', payment: 'card-payoff', payments: 'card-payoff',
+    transfer: 'own-transfer', transfers: 'own-transfer', 'internal transfer': 'own-transfer',
+    taxes: 'est-tax', tax: 'est-tax', 'federal tax': 'est-tax', retirement: 'owner-retirement',
+    advertising: 'advertising', software: 'software', 'office supplies': 'office', shipping: 'postage', postage: 'postage',
+    travel: 'business-travel', 'dining out': 'meals', restaurants: 'meals', fuel: 'fuel', gas: 'fuel', insurance: 'insurance',
+    fees: 'bank-fees', 'bank fees': 'bank-fees', income: 'client-work', deposit: 'client-work', sales: 'product-sales',
+  },
   defaults: { category: 'client-work', schedule: 'software', annualCategory: 'client-work', quickSetup: ['client-work', 'product-sales', 'materials', 'software', 'advertising', 'tax-reserve'] },
 
   nav: [['dashboard', 'Dashboard', 'today'], ['pl', 'Profit & loss', 'insights'], ['budget', 'Monthly targets', 'plan'], ['activity', 'Transactions', 'log'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['annual', 'Annual overview', 'outlook'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Insights', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
@@ -120,6 +131,7 @@ const NICHE = {
     exitDemo: 'Return to my books', demoOnly: 'Your books only', notePlaceholder: 'e.g. Invoice 1042 · Acme Studio',
     incomeOne: 'Revenue', savedCol: 'Transfers', netHint: 'Revenue − expenses − transfers',
     savingRateEmpty: 'Log revenue to see the share moved aside', savingRate: '% of revenue received',
+    transfer: 'Card payments & own transfers', transferOne: 'Transfer',
   },
   quickLog: { placeholder: 'client invoice 1200', help: 'Try “client invoice 1200”, “canva 12.99”, “postage 8.40” or “lunch with client 32”.', demo: ['postage', '8.40', 'Packaging & postage to customers'] },
 
@@ -140,7 +152,8 @@ const NICHE = {
     ],
     meanings: [['Revenue', 'Money in from sales'], ['Gross profit', 'Revenue − cost of goods'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, draws, savings']],
     details: [
-      ['Owner’s draws, tax money and loans', 'Paying yourself, moving money to your tax pot, estimated tax payments and loan principal are transfers, not business expenses, so they never reduce profit. Loan interest is an expense; record it separately.'],
+      ['Owner’s draws, tax money and loans', 'Paying yourself, moving money to your tax pot, income tax you pay, your own retirement contributions and loan principal are not business expenses, so they never reduce profit. Loan interest is an expense; record it separately. Retirement contributions for yourself are deducted outside Schedule C, so your accountant will want the total.'],
+      ['Business credit cards', 'If you log or import the card’s purchases, those are the expenses. Paying the card from the business account is then a transfer: use <b>Business card payoff (purchases already logged)</b>, which is never counted.'],
       ['Tax pot and estimated payments', 'Log each move into your tax pot as a Tax savings transfer. If you later pay the IRS from that pot, do not log the payment again; log Estimated tax payments only when you pay straight from the business account.'],
       ['Cash basis, refunds and invoices', 'A sale counts when the money arrives and a cost when you pay it. Record a refund you give as a reversal on the sale’s category. An invoice becomes revenue when you mark it paid.'],
       ['Tax lines and your accountant', 'Each category carries a Schedule C line. The summary groups your year by line so your accountant can check it quickly. It is an organised record, not tax advice or a filed return.'],

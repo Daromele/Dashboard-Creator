@@ -7,9 +7,12 @@
 const {chromium}=require(require.resolve('playwright',{paths:['/opt/node22/lib/node_modules',__dirname]}));
 const fs=require('fs'),path=require('path'),os=require('os'),{execSync}=require('child_process');
 
-const BASE_COMMIT='bc76a13',REL='monthly-plan/app/MonthlyBudgetPlanner.html';
+// Baseline: the budget edition as last committed (git HEAD). Intended changes show up here once;
+// review them, commit, and the next run compares against the new version. BASE=bc76a13 compares
+// with the original v1.8 instead.
+const BASE_COMMIT=process.env.BASE||'HEAD',REL='monthly-plan/app/MonthlyBudgetPlanner.html';
 function baseline(){
-  const out=path.join(os.tmpdir(),'mp-v1.8.html');
+  const out=path.join(os.tmpdir(),'mp-baseline.html');
   const root=execSync('git rev-parse --show-toplevel',{cwd:__dirname}).toString().trim();
   fs.writeFileSync(out,execSync(`git show ${BASE_COMMIT}:${REL}`,{cwd:root,maxBuffer:64<<20}));
   return out;
