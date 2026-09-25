@@ -138,6 +138,30 @@ module.exports=({eq,ok})=>{
    z.categoryRules={'etsy inc payout':'other-sales'};
    eq('a rule you made wins over the edition', C.preview(rows.slice(1),h,m,{mode:'bank',incomeCategory:'other-sales',expenseCategory:'software',refine,categoryMap:{}},z)[0].category, 'other-sales');}
 
+  // ---- a file imported into the wrong shop can be moved ----
+  {const z=books();for(const [n,t] of [['s.csv',F.statement],['o.csv',F.orders],['l.csv',F.listings],['r.json',F.reviews]])load(z,'fern',n,t);
+   const at=k=>z.etsy.imports.findIndex(x=>x.kind===k),lines=z.transactions.length;
+   eq('every import has an id', z.etsy.imports.every(x=>/^i[A-Za-z0-9]+$/.test(x.id)), true);
+   eq('move: what would go', ['lines','orders','items'].map(k=>D.moveImport(copy(z),at('statement'),'kiln',{dry:true})[k]).concat(D.moveImport(copy(z),at('orders'),'kiln',{dry:true}).items), [lines,0,0,4]);
+   eq('cannot move to its own shop', /already in Fern Prints/.test(D.moveImport(z,at('statement'),'fern').error), true);
+   for(const k of ['statement','orders','listings','reviews'])D.moveImport(z,at(k),'kiln');
+   eq('everything moved to Kiln', [z.transactions.every(t=>t.shop==='kiln'),z.etsy.orders.every(o=>o.shop==='kiln'),z.etsy.items.every(i=>i.shop==='kiln'),z.etsy.listings.every(l=>l.shop==='kiln'),z.etsy.reviews.every(v=>v.shop==='kiln'),z.etsy.imports.every(x=>x.shop==='kiln')], [true,true,true,true,true,true]);
+   ok('moved books validate', !throws(()=>B.validate(copy(z))));
+   eq('the moved statement still matches itself in its new shop', [load(z,'kiln','s.csv',F.statement).added,z.transactions.length], [0,lines]);
+   eq('and its orders are now refused for the old shop', /already in Kiln Pots/.test(load(z,'fern','s.csv',F.statement).error), true);
+   D.removeImport(z,at('statement'));eq('then delete it', z.transactions.length, 0);
+   // lines imported before keys left the shop out are still recognised
+   const y=books();load(y,'fern','s.csv',F.statement);y.transactions.forEach(t=>{t.src=D.hash('fern|'+st.records.find(r=>r.note===t.note&&r.date===t.date).key);});
+   eq('older imports still match', load(y,'fern','s.csv',F.statement).added, 0);
+   // a bank import can move between shops and back to shared
+   y.etsy.imports.push({id:'ibank1',shop:'',kind:'bank',name:'bank.csv',at:'2026-09-30',rows:2,from:'2026-09-01',to:'2026-09-02'});
+   y.transactions.push({id:'b1',date:'2026-09-01',category:'other-sales',amount:1000,note:'Zelle',imp:'ibank1'},{id:'b2',date:'2026-09-02',category:'software',amount:500,note:'Canva',imp:'ibank1'});
+   const bi=y.etsy.imports.findIndex(x=>x.id==='ibank1');
+   D.moveImport(y,bi,'kiln');eq('bank import moved to a shop', y.transactions.filter(t=>t.imp).map(t=>t.shop), ['kiln','kiln']);
+   D.moveImport(y,bi,'');eq('and back to shared', y.transactions.filter(t=>t.imp).map(t=>t.shop), [undefined,undefined]);
+   ok('bank import validates', !throws(()=>B.validate(copy(y))));
+   D.removeImport(y,bi);eq('bank import deleted, statement untouched', [y.transactions.some(t=>t.imp),y.transactions.length], [false,st.records.length]);}
+
   // ---- several shops ----
   const m=copy(v);load(m,'kiln','k.csv',F.statement.replace(/38123456/g,'99123456').replace(/140000000/g,'150000000'));
   m.transactions.push({id:'shared1',date:'2026-09-05',category:'software',amount:1299,note:'Canva'});

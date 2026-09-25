@@ -114,6 +114,10 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.click(`[data-action="etsy-remove-import"][data-i="${ri}"]`);check('delete import asks first',(await p.locator('#modal').innerText()).includes('4 reviews'));
   await p.click('[data-action="etsy-confirm-remove-import"]');check('deleting an import removes its rows',await st(()=>state.etsy.reviews.length===0&&!state.etsy.imports.some(x=>x.kind==='reviews')));
   await p.click('#toast [data-action="undo"]');check('undo restores the import',await st(()=>state.etsy.reviews.length===4));
+  const oi=await st(()=>state.etsy.imports.findIndex(x=>x.kind==='orders'&&x.shop===state.shops[0].id));
+  await p.click(`[data-action="etsy-move-import"][data-i="${oi}"]`);await p.selectOption('#etsy-move-form select[name=to]',kilnId);await p.click('#etsy-move-form button[type=submit]');
+  check('moving an import moves its orders',await st(id=>state.etsy.orders.every(o=>o.shop===id)&&state.etsy.items.every(i=>i.shop===id),kilnId));
+  await p.click('#toast [data-action="undo"]');check('undo puts them back',await st(id=>state.etsy.orders.every(o=>o.shop!==id),kilnId));
   // ---- narrow screens ----
   await p.setViewportSize({width:390,height:844});
   for(const s of ['dashboard','etsy-import','fees','products','coupons','customers','reviews','seasonality','shops','pl']){await p.evaluate(s=>go(s),s);await shot('phone-'+s);

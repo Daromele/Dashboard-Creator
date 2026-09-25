@@ -12,7 +12,7 @@ const EtsyData=((P,B,CSV)=>{
  // listings carry no listing number, so they meet their sales on the start of the title
  const titleKey=s=>norm(s).replace(/&amp;/g,'&').replace(/&#39;|&quot;/g,'').replace(/[^a-z0-9]+/g,' ').trim();
  const sameTitle=(a,b)=>{const n=Math.min(a.length,b.length,40);return n>=12&&a.slice(0,n)===b.slice(0,n);};
- const KINDS={statement:'Payment account statement',orders:'Sold order items',listings:'Listings',reviews:'Reviews',deposits:'Etsy Payments Deposits'};
+ const KINDS={statement:'Payment account statement',orders:'Sold order items',listings:'Listings',reviews:'Reviews',deposits:'Etsy Payments Deposits',bank:'Bank CSV'};
  const SIGNS={statement:['date','type','title','info','currency','amount','fees taxes','net'],
   orders:['sale date','item name','quantity','price','item total','order id'],
   listings:['title','price','quantity','tags']};
@@ -167,8 +167,10 @@ const EtsyData=((P,B,CSV)=>{
   const clashMsg=(refs,other,what)=>whole(refs,other)?`Every ${what} in this file is already in ${shopName(other)}, so this is ${shopName(other)}’s download again, whatever the file is called. Etsy downloads the shop that is open in Shop Manager: switch to the other shop there first, then download it again.`:`Some ${what}s in this file are already in ${shopName(other)}. Choose that shop, or check the file.`;
   if(file.kind==='statement'){
    const refs=[...new Set(file.records.map(x=>x.ref).filter(x=>x[0]==='o'))],other=clash(refs);if(other){r.error=clashMsg(refs,other,'order');return r;}
-   const bySrc=new Map();s.transactions.forEach(t=>{if(t.src)bySrc.set(t.src,t);});
-   for(const x of file.records){const src=hash(shop+'|'+x.key),old=bySrc.get(src);
+   // a line's key leaves the shop out, so a statement moved to another shop still matches itself;
+   // lines imported before that carry hash(shop|key) and are found through every shop's name
+   const bySrc=new Map();s.transactions.forEach(t=>{if(t.src&&!t.est)bySrc.set((t.shop||'')+'|'+t.src,t);});
+   for(const x of file.records){const src=hash(x.key),old=[src,...s.shops.map(v=>hash(v.id+'|'+x.key))].map(c=>bySrc.get(shop+'|'+c)).find(Boolean);
     if(old){if(old.amount===x.amount)r.same++;else{r.updated++;r.months.add(x.date.slice(0,7));if(!dry)old.amount=x.amount;}continue;}
     r.added++;r.months.add(x.date.slice(0,7));if(!dry)s.transactions.push({id:uid(),date:x.date,category:x.category,amount:x.amount,note:x.note,shop,...(x.ref?{ref:x.ref}:{}),src});}
   }else if(file.kind==='orders'){
@@ -185,14 +187,16 @@ const EtsyData=((P,B,CSV)=>{
    else{r.replaced=mine.length;r.added=file.records.length;}
    if(!dry&&r.added)E.listings=E.listings.filter(l=>l.shop!==shop).concat(file.records.map((l,i)=>({id:'L'+hash([shop,l.title,l.sku,i].join('|')),shop,...l})));
   }else if(file.kind==='deposits'){
-   E.deposits??=[];const ids=new Set(E.deposits.map(x=>x.id));
-   for(const x of file.records){const id='d'+hash(shop+'|'+x.key);if(ids.has(id)){r.same++;continue;}ids.add(id);r.added++;if(!dry)E.deposits.push({id,shop,date:x.date,amount:x.amount});}
+   E.deposits??=[];const have=new Map();E.deposits.forEach(d=>{if(d.shop!==shop)return;const k=d.date+'|'+d.amount;have.set(k,(have.get(k)||0)+1);});
+   const seen=new Map();
+   for(const x of file.records){const k=x.date+'|'+x.amount,n=(seen.get(k)||0)+1;seen.set(k,n);if(n<=(have.get(k)||0)){r.same++;continue;}
+    r.added++;if(!dry)E.deposits.push({id:'d'+uid().replace(/[^A-Za-z0-9]/g,'').slice(0,20),shop,date:x.date,amount:x.amount});}
   }else if(file.kind==='reviews'){
    const refs=file.records.filter(x=>x.order).map(x=>'o'+x.order),other=clash(refs);if(other){r.error=clashMsg(refs,other,'reviewed order');return r;}
    const ids=new Set(E.reviews.map(x=>x.id));
    for(const x of file.records){if(ids.has(x.id)){r.same++;continue;}ids.add(x.id);r.added++;if(!dry)E.reviews.push({...x,shop});}
   }
-  if(!dry){E.imports.push({shop,kind:file.kind,name:file.name,at:today,rows:file.records.length,...(file.from?{from:file.from,to:file.to}:{})});if(E.imports.length>2000)E.imports.splice(0,E.imports.length-2000);}
+  if(!dry){E.imports.push({id:'i'+uid().replace(/[^A-Za-z0-9]/g,'').slice(0,20),shop,kind:file.kind,name:file.name,at:today,rows:file.records.length,...(file.from?{from:file.from,to:file.to}:{})});if(E.imports.length>2000)E.imports.splice(0,E.imports.length-2000);}
   return r;
  }
 
@@ -217,20 +221,37 @@ const EtsyData=((P,B,CSV)=>{
   s.transactions=s.transactions.filter(t=>!t.est).concat(add);return add.length;
  }
  const estimatedMonths=(s,from,to)=>[...new Set(scoped(s,s.transactions).filter(t=>t.est&&t.date>=from&&t.date<=to).map(t=>t.date.slice(0,7)))].sort();
- // Undo one import: what that file brought in for its shop and dates. Statement lines you typed
- // yourself (no import key) are never touched. An older log entry without dates covers everything
- // of its kind for that shop. dry:true only counts.
+ // What one import brought in: its shop's rows of that kind within the file's dates (a bank file:
+ // the rows it created). An older log entry without dates covers all of its kind for that shop.
+ function importScope(s,x){const E=s.etsy,inR=d=>(!x.from||d>=x.from)&&(!x.to||d<=x.to);
+  if(x.kind==='bank')return {tx:x.id?s.transactions.filter(t=>t.imp===x.id):[]};
+  if(x.kind==='statement')return {tx:s.transactions.filter(t=>t.shop===x.shop&&t.src&&!t.est&&!t.imp&&inR(t.date))};
+  if(x.kind==='orders'){const o=E.orders.filter(v=>v.shop===x.shop&&inR(v.date)),ids=new Set(o.map(v=>v.id));return {orders:o,items:E.items.filter(it=>ids.has(it.order))};}
+  if(x.kind==='listings')return {listings:E.listings.filter(l=>l.shop===x.shop)};
+  if(x.kind==='deposits')return {deposits:(E.deposits||[]).filter(v=>v.shop===x.shop&&inR(v.date))};
+  return {reviews:E.reviews.filter(v=>v.shop===x.shop&&inR(v.date))};}
+ const scopeCounts=(x,sc)=>({kind:x.kind,shop:x.shop,lines:(sc.tx||[]).length,orders:(sc.orders||[]).length,items:(sc.items||[]).length,listings:(sc.listings||[]).length,reviews:(sc.reviews||[]).length,deposits:(sc.deposits||[]).length});
+ // Undo one import. Statement lines you typed yourself are never touched. dry:true only counts.
  function removeImport(s,i,{dry=false}={}){
-  const E=s.etsy,x=E.imports[i];if(!x)return null;
-  const inR=d=>(!x.from||d>=x.from)&&(!x.to||d<=x.to),r={kind:x.kind,shop:x.shop,lines:0,orders:0,items:0,listings:0,reviews:0,deposits:0};
-  if(x.kind==='statement'){const keep=s.transactions.filter(t=>!(t.shop===x.shop&&t.src&&inR(t.date)));r.lines=s.transactions.length-keep.length;if(!dry)s.transactions=keep;}
-  else if(x.kind==='orders'){const gone=new Set(E.orders.filter(o=>o.shop===x.shop&&inR(o.date)).map(o=>o.id));r.orders=gone.size;r.items=E.items.filter(it=>gone.has(it.order)).length;
-   if(!dry){E.orders=E.orders.filter(o=>!gone.has(o.id));E.items=E.items.filter(it=>!gone.has(it.order));}}
-  else if(x.kind==='deposits'){const keep=(E.deposits||[]).filter(v=>!(v.shop===x.shop&&inR(v.date)));r.deposits=(E.deposits||[]).length-keep.length;if(!dry)E.deposits=keep;}
-  else if(x.kind==='listings'){r.listings=E.listings.filter(l=>l.shop===x.shop).length;if(!dry)E.listings=E.listings.filter(l=>l.shop!==x.shop);}
-  else{const keep=E.reviews.filter(v=>!(v.shop===x.shop&&inR(v.date)));r.reviews=E.reviews.length-keep.length;if(!dry)E.reviews=keep;}
-  if(!dry)E.imports.splice(i,1);
+  const E=s.etsy,x=E.imports[i];if(!x)return null;const sc=importScope(s,x),r=scopeCounts(x,sc);
+  if(!dry){const gone=new Set(Object.values(sc).flat());s.transactions=s.transactions.filter(t=>!gone.has(t));
+   for(const k of ['orders','items','listings','reviews','deposits'])if(E[k])E[k]=E[k].filter(v=>!gone.has(v));E.imports.splice(i,1);}
   return r;
+ }
+ // Move one import to another shop (a bank file can also go back to shared, to=''). A listings
+ // file replaces the other shop's listings, as a listings import always does.
+ function moveImport(s,i,to,{dry=false}={}){
+  const E=s.etsy,x=E.imports[i];if(!x)return null;const name=id=>(s.shops.find(v=>v.id===id)||{}).name||'All shops (shared)';
+  if(to===x.shop)return {error:`It is already in ${name(to)}.`};
+  if(to?!s.shops.some(v=>v.id===to):x.kind!=='bank')return {error:'Choose the shop to move it to.'};
+  const sc=importScope(s,x),r=scopeCounts(x,sc);r.replaced=x.kind==='listings'?E.listings.filter(l=>l.shop===to).length:0;
+  const refs=new Set([...(sc.tx||[]).map(t=>t.ref).filter(v=>v&&v[0]==='o'),...(sc.orders||[]).map(o=>'o'+o.id)]);
+  // only the same kind of record can clash: a statement and an order file for the same orders belong together
+  if(refs.size&&(x.kind==='statement'?s.transactions.some(t=>t.shop===to&&t.src&&refs.has(t.ref)):E.orders.some(o=>o.shop===to&&refs.has('o'+o.id))))return {...r,error:`${name(to)} already has some of these orders. Delete one of the two imports instead.`};
+  if(dry)return r;
+  if(x.kind==='listings')E.listings=E.listings.filter(l=>l.shop!==to);
+  for(const v of Object.values(sc).flat()){if(to)v.shop=to;else delete v.shop;}
+  x.shop=to;return r;
  }
  // ---------- analytics (all follow the shop selection in settings.shop) ----------
  const scoped=(s,list)=>{const shop=B.scopeOf(s);return shop?list.filter(x=>x.shop===shop):list;};
@@ -319,7 +340,7 @@ const EtsyData=((P,B,CSV)=>{
   return s.shops.map(shop=>{const v=forShop(s,shop.id),m=summary(v,from,to),r=reviewStats(v,from,to);
    return {...shop,...m,soldOrders:ordersIn(v,from,to).length,listings:v.etsy.listings.filter(l=>l.shop===shop.id).length,reviews:r.count,rating:r.avg};});
  }
- return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,syncEstimates,estimatedMonths,compare,forShop,scoped};
+ return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,moveImport,importScope,syncEstimates,estimatedMonths,compare,forShop,scoped};
 })(NICHE,Budget,CSV);
 if(typeof module!=='undefined')module.exports.EtsyData=EtsyData;
 
@@ -562,6 +583,8 @@ const Etsy=(()=>{
   if(payouts.some(([d,a])=>a===amount&&date>=d&&date<=Budget.plusDays(d,6))||/\betsy\b/i.test(note||''))return 'etsy-deposit';
   return cat==='etsy-deposit'?(P.defaults.importIncome||cat):cat;
  }
+ // what an import holds, in words, for the move and delete dialogs
+ const whatOf=r=>[r.lines&&`${num(r.lines)} ${r.kind==='bank'?'bank':'statement'} line${r.lines===1?'':'s'}`,r.orders&&`${num(r.orders)} order${r.orders===1?'':'s'} (${num(r.items)} items)`,r.listings&&`${num(r.listings)} listings`,r.reviews&&`${num(r.reviews)} review${r.reviews===1?'':'s'}`,r.deposits&&`${num(r.deposits)} deposit${r.deposits===1?'':'s'}`].filter(Boolean).join(', ');
  // ---------- import ----------
  let session=null;   // {shop, files:[parsed]}
  function importView(){
@@ -595,8 +618,8 @@ const Etsy=(()=>{
   return parts.length?parts.join(' · '):'Nothing new';
  }
  function recentImports(){
-  const shop=state.settings.shop,list=state.etsy.imports.map((x,i)=>({...x,i})).filter(x=>!shop||x.shop===shop).slice(-40).reverse();if(!list.length)return '';
-  return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${esc(scopeName())} · Delete removes what a file brought in for its shop and dates. Costs you typed in yourself stay.</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${esc(shopName(x.shop))}</td><td>${esc(x.name)}</td><td>${D.KINDS[x.kind]}</td><td class="nw">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print">${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  const shop=state.settings.shop,list=state.etsy.imports.map((x,i)=>({...x,i})).filter(x=>!shop||x.shop===shop||(x.kind==='bank'&&!x.shop)).slice(-40).reverse();if(!list.length)return '';
+  return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${esc(scopeName())} · Move sends everything a file brought in to another shop. Delete removes it. Costs you typed in yourself are never touched.</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${x.shop?esc(shopName(x.shop)):'<span class="dim">Shared</span>'}</td><td>${esc(x.name)}</td><td>${D.KINDS[x.kind]}</td><td class="nw">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print nw etsy-row-actions">${button('Move','etsy-move-import','small quiet',`data-i="${x.i}"`)}${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
  }
  async function readFiles(list){
   const files=[...list].slice(0,24);if(!files.length)return;
@@ -654,12 +677,21 @@ const Etsy=(()=>{
   case 'etsy-confirm-delete-shop':{const x=state.shops.find(s=>s.id===id);if(!x)break;closeModal();commit(()=>{state.shops=state.shops.filter(s=>s.id!==id);state.transactions=state.transactions.filter(t=>t.shop!==id);
    for(const k of ['orders','items','listings','reviews','imports'])state.etsy[k]=state.etsy[k].filter(r=>r.shop!==id);if(state.settings.shop===id||state.shops.length<2)state.settings.shop='';},`${x.name} deleted`);break;}
   case 'etsy-remove-import':{const i=+b.dataset.i,x=state.etsy.imports[i],r=x&&D.removeImport(clone(state),i,{dry:true});if(!r)break;
-   const what=[r.lines&&`${num(r.lines)} statement line${r.lines===1?'':'s'}`,r.orders&&`${num(r.orders)} order${r.orders===1?'':'s'} (${num(r.items)} items)`,r.listings&&`${num(r.listings)} listings`,r.reviews&&`${num(r.reviews)} review${r.reviews===1?'':'s'}`,r.deposits&&`${num(r.deposits)} deposit${r.deposits===1?'':'s'}`].filter(Boolean).join(', ')||'nothing else (its data is already gone)';
-   confirmation(`Delete ${esc(x.name)}?`,`Removes ${what} from ${esc(shopName(x.shop))}${x.from&&x.kind!=='listings'?`, dated ${dateName(x.from)} – ${dateName(x.to)} ${x.to.slice(0,4)}`:''}. If another import covers the same dates, its rows go too; import that file again to bring them back. You can undo this change.`,'etsy-confirm-remove-import','Delete import',`data-i="${i}"`);break;}
+   const _w=whatOf(r)||'nothing else (its data is already gone)';
+   confirmation(`Delete ${esc(x.name)}?`,`Removes ${_w} from ${x.shop?esc(shopName(x.shop)):'your shared records'}${x.from&&x.kind!=='listings'?`, dated ${dateName(x.from)} – ${dateName(x.to)} ${x.to.slice(0,4)}`:''}.${x.kind==='bank'?'':' If another import covers the same dates, its rows go too; import that file again to bring them back.'} You can undo this change.`,'etsy-confirm-remove-import','Delete import',`data-i="${i}"`);break;}
+  case 'etsy-move-import':{const i=+b.dataset.i,x=state.etsy.imports[i];if(!x)break;
+   const opts=state.shops.filter(v=>v.id!==x.shop).map(v=>`<option value="${v.id}">${esc(v.name)}</option>`).join('')+(x.kind==='bank'&&x.shop?'<option value="">All shops (shared)</option>':'');
+   if(!opts)return toast('Add another shop first, then move this file to it.');
+   const c=D.moveImport(clone(state),i,state.shops.find(v=>v.id!==x.shop)?.id??'',{dry:true})||{},what=whatOf(c)||'nothing (its data is already gone)';
+   modal(`Move ${esc(x.name)}`,`Everything this file brought in moves with it: ${what}. Dashboards, estimates and totals follow. You can undo this change.`,`<form id="etsy-move-form" data-i="${i}"><div class="fields"><label class="full">From<input value="${x.shop?esc(shopName(x.shop)):'All shops (shared)'}" disabled></label><label class="full">Move to<select name="to">${opts}</select></label>${x.kind==='listings'?'<p class="small muted full">A listings file is a snapshot of a whole shop, so it replaces the listings already in the shop you move it to.</p>':''}</div>${formFoot('Move file')}</form>`);break;}
   case 'etsy-confirm-remove-import':{const i=+b.dataset.i,x=state.etsy.imports[i];if(!x)break;closeModal();commit(()=>{D.removeImport(state,i);D.syncEstimates(state,{today:today()});},`${x.name} deleted`);break;}
   case 'etsy-clear':session=null;render();break;
   case 'etsy-import':runImport();break;
  }}catch(err){toast(err.message);}});
+ document.addEventListener('submit',e=>{if(e.target.id!=='etsy-move-form')return;e.preventDefault();
+  const i=+e.target.dataset.i,to=new FormData(e.target).get('to')??'',x=state.etsy.imports[i];if(!x)return closeModal();
+  const test=D.moveImport(clone(state),i,to,{dry:true});if(test?.error)return formError(test.error);
+  closeModal();commit(()=>{D.moveImport(state,i,to);D.syncEstimates(state,{today:today()});},`${x.name} moved to ${to?shopName(to):'All shops (shared)'}`);});
  document.addEventListener('submit',e=>{if(e.target.id!=='etsy-shop-form')return;e.preventDefault();const f=new FormData(e.target),id=e.target.dataset.id,name=String(f.get('name')||'').trim();
   try{if(!name)throw Error('Give the shop a name.');if(state.shops.some(x=>x.id!==id&&x.name.toLowerCase()===name.toLowerCase()))throw Error('Another shop already uses that name.');
    if(!id&&state.shops.length>=24)throw Error('Shop Insights holds up to 24 shops.');
@@ -671,6 +703,7 @@ const Etsy=(()=>{
  document.head.insertAdjacentHTML('beforeend',`<style>
  .shop-control{display:flex;flex-direction:column;gap:2px;margin-left:14px;min-width:0}
  .shop-control select{height:36px;border-radius:10px;border:1px solid var(--rule-2);background:var(--card);color:var(--ink);font:600 14px var(--ui);padding:0 30px 0 10px;max-width:220px}
+ .etsy-row-actions .btn+.btn{margin-left:6px}
  .etsy-item{display:block;font-weight:400;max-width:420px;white-space:normal}
  .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
  .etsy-import-card{padding:0;overflow:hidden}
@@ -771,6 +804,9 @@ const Etsy=(()=>{
  Object.assign(Ext,{
   views:{dashboard:dashboardView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
   afterRender,annualTop,plNote,importRefine,
+  importTag:(name,rows)=>{const id='i'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,20),dates=rows.map(r=>r.date).sort();
+   state.etsy.imports.push({id,shop:state.settings.shop||'',kind:'bank',name:String(name||'Bank CSV').slice(0,160),at:today(),rows:rows.length,...(dates.length?{from:dates[0],to:dates.at(-1)}:{})});
+   if(state.etsy.imports.length>2000)state.etsy.imports.splice(0,state.etsy.imports.length-2000);return {imp:id};},
   printScope:()=>` · ${esc(scopeName())}`,
   txTag:()=>state.settings.shop?{shop:state.settings.shop}:{},
  });
