@@ -94,6 +94,7 @@ module.exports=({eq,ok})=>{
   const C=D.coupons(v);eq('coupons', [C.orders,C.discounted,C.discount,C.list,C.paid,C.codes[0].code], [3,1,800,7200,6400,'FALL20']);
   const U=D.customers(v);eq('customers', [U.buyers,U.repeat,U.repeatOrders,U.countries.map(c=>[c.country,c.orders])], [2,1,2,[['United States',2],['United Kingdom',1]]]);
   const R=D.reviewStats(v);eq('reviews', [R.count,R.avg.toFixed(2),R.dist,R.low.length,R.years.map(y=>y.key)], [4,'3.75',[0,1,0,2,1],1,['2026']]);
+  eq('order months: sales and statement coverage', D.orderMonths(v,'2026').slice(7,9).map(m=>[m.orders,m.sales,m.statement]), [[1,1600+450,false],[2,1600+4000-800,true]]);
   eq('seasonality from orders', D.seasonality(v).years.map(y=>[y.year,y.months[7].orders,y.months[8].orders]), [['2026',1,2]]);
 
   // ---- several shops ----

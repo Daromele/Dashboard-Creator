@@ -242,12 +242,20 @@ const EtsyData=((P,B,CSV)=>{
   else{source='statement';const tx=txIn(s,ALL.from,ALL.to);tx.forEach(t=>{if(!X.revenue.includes(t.category))return;const c=cell(t.date.slice(0,4))[+t.date.slice(5,7)-1];c.paid+=t.amount;if(t.category==='etsy-sales'&&t.amount>0)c.orders++;});}
   return {source,years:[...years.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([year,months])=>({year,months,paid:months.reduce((n,m)=>n+m.paid,0),orders:months.reduce((n,m)=>n+m.orders,0)}))};
  }
+ // Sales per month from sold orders (item price − discounts + shipping, before tax), and whether
+ // that month has any payment account statement lines yet: fees and take-home need the statement
+ function orderMonths(s,y){
+  const months=Array.from({length:12},(_,i)=>({month:`${y}-${String(i+1).padStart(2,'0')}`,orders:0,sales:0,statement:false}));
+  for(const o of scoped(s,s.etsy?.orders||[]))if(o.date.slice(0,4)===y){const m=months[+o.date.slice(5,7)-1];m.orders++;m.sales+=o.list-o.discount+(o.shipping||0);}
+  for(const m of months)m.statement=B.transactions(s,m.month).some(t=>t.ref||X.revenue.includes(t.category));
+  return months;
+ }
  const forShop=(s,id)=>({...s,settings:{...s.settings,shop:id}});
  function compare(s,from=ALL.from,to=ALL.to){
   return s.shops.map(shop=>{const v=forShop(s,shop.id),m=summary(v,from,to),r=reviewStats(v,from,to);
    return {...shop,...m,soldOrders:ordersIn(v,from,to).length,listings:v.etsy.listings.filter(l=>l.shop===shop.id).length,reviews:r.count,rating:r.avg};});
  }
- return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,compare,forShop,scoped};
+ return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,compare,forShop,scoped};
 })(NICHE,Budget,CSV);
 if(typeof module!=='undefined')module.exports.EtsyData=EtsyData;
 
@@ -286,6 +294,7 @@ const Etsy=(()=>{
    (!hasData()?`<section class="card"><div class="cardhead"><div><h2>Three steps to your first numbers</h2><p>Everything stays in this browser.</p></div></div><div class="grid3">${[['1','Add your shop','Name each Etsy shop you run. You can add more later.','etsy-add-shop','Add a shop'],['2','Download from Etsy','Your payment account statement and sold order items, plus listings and reviews if you like.','go-etsy-import','Where to find them'],['3','Drop them in','Choose the shop and drop the files together. Duplicates are skipped.','go-etsy-import','Import files']].map(([n,t,b,a,l])=>`<div class="etsy-step"><span class="pill">${n}</span><h3>${t}</h3><p class="small muted">${b}</p>${button(l,a,'small')}</div>`).join('')}</div></section>`:'')+
    `<div class="kpis etsy-kpis">${kpi('Take-home',S.takeHome,change(S.takeHome,L0.takeHome),'coins',S.takeHome<0?'warn':'')}${kpi(L.income,S.revenue,`${fmt(S.sales)} paid − ${fmt(S.buyerTax)} buyer tax${S.refunds?' − '+fmt(S.refunds)+' refunds':''}`,'down')}${stat('Etsy costs',pc(S.costShare),`${fmt(S.etsyCosts)} of ${L.income.toLowerCase()} · last month ${pc(L0.costShare)}`)}${stat('Ads',pc(S.adsShare),`${fmt(S.ads)} Etsy &amp; Offsite Ads · last month ${pc(L0.adsShare)}`)}${stat('Orders',num(S.orders),change(S.orders,L0.orders,false))}${kpi('Average order',S.aov,L0.aov?'Last month '+fmt(L0.aov):'After buyer tax','wallet')}</div>`+
    (S.revenue>0?`<section class="card"><div class="cardhead"><div><h2>Where each sale went</h2><p>${monthName(m)} · share of ${fmt(S.revenue)} ${L.income.toLowerCase()}</p></div><button class="link" data-go="fees">Fees &amp; ads</button></div>${split}</section>`:'')+
+   (()=>{const mm=D.orderMonths(state,y)[+m.slice(5,7)-1];return mm.orders&&!mm.statement?`<div class="notice"><span><b>${monthName(m)}: ${num(mm.orders)} orders, ${fmt(mm.sales)} in sales</b> from your sold order items. Import this month’s payment account statement to see fees and take-home.</span>${button('Import statement','go-etsy-import','small')}</div>`:'';})()+
    Biz.dashboard()+
    (multi?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${monthName(m)}</p></div><button class="link" data-go="shops">Compare shops</button></div><div class="table-wrap"><table><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Etsy costs</th><th class="num">Take-home</th><th class="num">Orders</th></tr></thead><tbody>${multi.map(x=>`<tr><td><button class="link" data-action="etsy-scope" data-shop="${x.id}">${esc(x.name)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${num(x.orders)}</td></tr>`).join('')}</tbody></table></div></section>`:'')+
    (series.some(x=>x&&(x.revenue||x.takeHome))?`<section class="card"><div class="cardhead"><div><h2>${y} month by month</h2><p>${L.income} and take-home · future months are blank</p></div></div>${areaChart([{name:L.income,values:series.map(x=>x?x.revenue:null),color:'var(--ch-in)'},{name:'Take-home',values:series.map(x=>x?x.takeHome:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and take-home by month`)}</section>`:'')+
@@ -370,6 +379,15 @@ const Etsy=(()=>{
    (rows.length?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${esc(r.label)}</p></div></div><div class="table-wrap"><table class="etsy-compare"><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Etsy costs</th><th class="num">Ads</th><th class="num">Take-home</th><th class="num">Net profit</th><th class="num">Orders</th><th class="num">Average order</th><th class="num">Listings</th><th class="num">Rating</th></tr></thead><tbody>${rows.map(x=>`<tr><td><button class="link" data-action="etsy-scope" data-shop="${x.id}"><b>${esc(x.name)}</b></button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num">${fmt(x.ads)} <span class="dim">${pc(x.adsShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${Biz.acct(x.profit)}</td><td class="num">${num(x.orders||x.soldOrders)}</td><td class="num">${x.aov?fmt(x.aov):'—'}</td><td class="num">${num(x.listings)}</td><td class="num">${x.rating?x.rating.toFixed(2):'—'}</td></tr>`).join('')}<tr class="group-total"><td><b>All shops</b><small class="dim etsy-item">incl. shared costs</small></td><td class="num"><b>${fmt(T.revenue)}</b></td><td class="num"><b>${fmt(T.etsyCosts)}</b></td><td class="num"><b>${fmt(T.ads)}</b></td><td class="num"><b>${Biz.acct(T.takeHome)}</b></td><td class="num"><b>${Biz.acct(T.profit)}</b></td><td class="num"><b>${num(T.orders)}</b></td><td class="num">${T.aov?fmt(T.aov):'—'}</td><td></td><td></td></tr></tbody></table></div></section>`+
     (rows.filter(x=>x.revenue>0).length>1?`<section class="card"><div class="cardhead"><div><h2>Take-home by shop</h2><p>${esc(r.label)}</p></div></div>${compareBarChart([{name:L.income,values:rows.map(x=>x.revenue),color:'var(--ch-in)'},{name:'Take-home',values:rows.map(x=>x.takeHome),color:'var(--accent)'}],rows.map(x=>x.name),'Revenue and take-home by shop','horizontal')}</section>`:''):'')+
    `<section class="card no-print"><div class="cardhead"><div><h2>Manage shops</h2><p>Rename a shop at any time. Deleting a shop removes everything imported into it.</p></div></div>${state.shops.map(x=>`<div class="row"><div><strong>${esc(x.name)}</strong><small>${num(state.transactions.filter(t=>t.shop===x.id).length)} statement lines · ${num(state.etsy.orders.filter(o=>o.shop===x.id).length)} orders · ${num(state.etsy.listings.filter(l=>l.shop===x.id).length)} listings · ${num(state.etsy.reviews.filter(v=>v.shop===x.id).length)} reviews</small></div><div class="actions">${button('Rename','etsy-rename-shop','small',`data-id="${x.id}"`)}${button('Delete','etsy-delete-shop','small danger',`data-id="${x.id}"`)}</div></div>`).join('')||empty('No shops yet','Add each Etsy shop you run, then import its files.','etsy-add-shop','Add a shop')}</section>`;
+ }
+ // ---------- year: sold orders fill the months that have no statement yet ----------
+ function annualTop(y){
+  const M=D.orderMonths(state,y),cutoff=today().slice(0,7),has=M.some(m=>m.orders);if(!has)return '';
+  const missing=M.filter(m=>m.orders&&!m.statement),tot=k=>M.reduce((n,m)=>n+m[k],0);
+  return `<section class="card"><div class="cardhead"><div><h2>Sales from your sold orders, ${y}</h2><p>From the sold order items file: item prices after discounts, plus shipping, before sales tax · ${num(tot('orders'))} orders · ${fmt(tot('sales'))}</p></div>${missing.length?button('Import statements','go-etsy-import','small'):''}</div>`+
+   compareBarChart([{name:'Sales from orders',values:M.map(m=>m.month<=cutoff?m.sales:null),color:'var(--ch-in)'}],M.map(m=>shortMonth(m.month)),`Sales from sold orders by month, ${y}`)+
+   `<div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>Month</th>${M.map(m=>`<th class="num">${shortMonth(m.month)}</th>`).join('')}</tr></thead><tbody><tr><td>Orders</td>${M.map(m=>`<td class="num">${m.orders?num(m.orders):'<span class="dim">—</span>'}</td>`).join('')}</tr><tr><td>Statement</td>${M.map(m=>`<td class="num">${m.statement?'<span class="pos">✓</span>':m.orders?'<span class="warn">missing</span>':'<span class="dim">—</span>'}</td>`).join('')}</tr></tbody></table></div>`+
+   (missing.length?`<p class="small muted" style="margin-top:12px"><b>${missing.length} month${missing.length===1?' has':'s have'} orders but no payment account statement.</b> Revenue, Etsy fees, take-home, profit and tax below only count months with a statement. Etsy lets you download one month at a time: Shop Manager → Finances → Payment account.</p>`:'')+`</section>`;
  }
  // ---------- import ----------
  let session=null;   // {shop, files:[parsed]}
@@ -490,7 +508,7 @@ const Etsy=(()=>{
 
  Object.assign(Ext,{
   views:{dashboard:dashboardView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
-  afterRender,
+  afterRender,annualTop,
   printScope:()=>` · ${esc(scopeName())}`,
   txTag:()=>state.settings.shop?{shop:state.settings.shop}:{},
  });
