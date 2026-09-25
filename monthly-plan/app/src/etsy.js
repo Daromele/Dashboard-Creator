@@ -12,7 +12,7 @@ const EtsyData=((P,B,CSV)=>{
  // listings carry no listing number, so they meet their sales on the start of the title
  const titleKey=s=>norm(s).replace(/&amp;/g,'&').replace(/&#39;|&quot;/g,'').replace(/[^a-z0-9]+/g,' ').trim();
  const sameTitle=(a,b)=>{const n=Math.min(a.length,b.length,40);return n>=12&&a.slice(0,n)===b.slice(0,n);};
- const KINDS={statement:'Payment account statement',orders:'Sold order items',listings:'Listings',reviews:'Reviews'};
+ const KINDS={statement:'Payment account statement',orders:'Sold order items',listings:'Listings',reviews:'Reviews',deposits:'Etsy Payments Deposits'};
  const SIGNS={statement:['date','type','title','info','currency','amount','fees taxes','net'],
   orders:['sale date','item name','quantity','price','item total','order id'],
   listings:['title','price','quantity','tags']};
@@ -97,6 +97,21 @@ const EtsyData=((P,B,CSV)=>{
    }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
   return {records,issues,currencies,notes:[]};
  }
+ // ---------- Etsy Payments Deposits ----------
+ // Payouts Etsy sent to the bank. They are not revenue (fees and tax are already gone); they let a
+ // bank import tell Etsy payouts apart from money that came from anywhere else.
+ const looksDeposits=(cells,name)=>{const h=cells.map(head);return h.some(x=>/date/.test(x))&&h.some(x=>/amount|^net$/.test(x))&&!h.includes('type')&&(/deposit/i.test(name)||h.some(x=>/deposit/.test(x)));};
+ function deposits(rows,headers){
+  const h=headers.map(head),col=re=>h.findIndex(x=>re.test(x)),d=col(/date/),a=[/^deposit amount$/,/^amount$/,/amount/,/^net$/].map(col).find(i=>i>=0)??-1,c=col(/currency/),st=col(/status/);
+  if(d<0||a<0)throw Error('This deposits file has no date or amount column.');
+  const records=[],issues=[],currencies=new Set(),seen=new Map();
+  rows.forEach(r=>{const g=i=>i>=0?String(r.cells[i]??'').trim():'';
+   try{if(st>=0&&/fail|return|cancel|revers/i.test(g(st)))return;
+    const date=when(g(d)),amount=Math.abs(money(g(a))??0);if(!amount)return;if(g(c))currencies.add(g(c).toUpperCase());
+    const base=date+'|'+amount,n=(seen.get(base)||0)+1;seen.set(base,n);records.push({date,amount,key:n>1?base+'#'+n:base});
+   }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
+  return {records,issues,currencies,notes:[]};
+ }
  // ---------- reviews.json ----------
  function reviews(json){
   const list=Array.isArray(json)?json:Array.isArray(json?.reviews)?json.reviews:null;if(!list)throw Error('This JSON file is not a list of reviews.');
@@ -113,7 +128,6 @@ const EtsyData=((P,B,CSV)=>{
  // Etsy's other download options, recognised so the import screen can say what to use instead
  function otherReport(rows){const has=(...k)=>rows.some(r=>k.every(x=>r.includes(x)));
   if(has('order id','number of items')||has('order id','order net'))return 'This is Etsy’s Orders report (one row per order). You don’t need it: the Order Items report has the same orders item by item, and the monthly payment account statement has every fee.';
-  if(has('deposit date')||(rows.some(r=>r.some(x=>/deposit/.test(x)))&&!rows.some(r=>r.includes('type'))))return 'This is Etsy’s Payments Deposits report. You don’t need it: deposits are already in the payment account statement.';
   if(rows.some(r=>r.some(x=>/gross amount|net amount|posted/.test(x))))return 'This is Etsy’s Payments Sales report (for 1099-K checks). You don’t need it: the payment account statement has the same payments plus every Etsy fee and ad.';
   return '';}
  // One file in, one parsed file out. The kind comes from the header row, never from the file name.
@@ -122,8 +136,10 @@ const EtsyData=((P,B,CSV)=>{
   try{const t=String(text).replace(/^﻿/,'').trim();let r;
    if(/^[[{]/.test(t)){out.kind='reviews';r=reviews(JSON.parse(t));}
    else{const d=CSV.detect(t),rows=CSV.parse(d.text,d.delimiter),at=rows.slice(0,5).findIndex(x=>kindOf(x.cells));
-    if(at<0){out.error=otherReport(rows.slice(0,5).map(x=>x.cells.map(head)))||`Not an Etsy export this app reads. First row: ${(rows[0]?.cells||[]).slice(0,6).join(', ').slice(0,120)}`;return out;}
-    const headers=rows[at].cells;out.kind=kindOf(headers);r={statement,orders:soldItems,listings}[out.kind](rows.slice(at+1),headers);}
+    if(at>=0){const headers=rows[at].cells;out.kind=kindOf(headers);r={statement,orders:soldItems,listings}[out.kind](rows.slice(at+1),headers);}
+    else{const dp=rows.slice(0,5).findIndex(x=>looksDeposits(x.cells,out.name));
+     if(dp<0){out.error=otherReport(rows.slice(0,5).map(x=>x.cells.map(head)))||`Not an Etsy export this app reads. First row: ${(rows[0]?.cells||[]).slice(0,6).join(', ').slice(0,120)}`;return out;}
+     out.kind='deposits';r=deposits(rows.slice(dp+1),rows[dp].cells);}}
    Object.assign(out,{records:r.records,items:r.items||[],issues:r.issues,notes:r.notes});
    if(r.currencies.size>1)out.error=`This file mixes currencies (${[...r.currencies].join(', ')}).`;out.currency=[...r.currencies][0]||'';
    const dates=out.records.map(x=>x.date).filter(Boolean).sort();out.from=dates[0]||'';out.to=dates.at(-1)||'';
@@ -168,6 +184,9 @@ const EtsyData=((P,B,CSV)=>{
    const mine=E.listings.filter(l=>l.shop===shop);if(sig(mine)===sig(file.records)){r.same=mine.length;}
    else{r.replaced=mine.length;r.added=file.records.length;}
    if(!dry&&r.added)E.listings=E.listings.filter(l=>l.shop!==shop).concat(file.records.map((l,i)=>({id:'L'+hash([shop,l.title,l.sku,i].join('|')),shop,...l})));
+  }else if(file.kind==='deposits'){
+   E.deposits??=[];const ids=new Set(E.deposits.map(x=>x.id));
+   for(const x of file.records){const id='d'+hash(shop+'|'+x.key);if(ids.has(id)){r.same++;continue;}ids.add(id);r.added++;if(!dry)E.deposits.push({id,shop,date:x.date,amount:x.amount});}
   }else if(file.kind==='reviews'){
    const refs=file.records.filter(x=>x.order).map(x=>'o'+x.order),other=clash(refs);if(other){r.error=clashMsg(refs,other,'reviewed order');return r;}
    const ids=new Set(E.reviews.map(x=>x.id));
@@ -203,10 +222,11 @@ const EtsyData=((P,B,CSV)=>{
  // of its kind for that shop. dry:true only counts.
  function removeImport(s,i,{dry=false}={}){
   const E=s.etsy,x=E.imports[i];if(!x)return null;
-  const inR=d=>(!x.from||d>=x.from)&&(!x.to||d<=x.to),r={kind:x.kind,shop:x.shop,lines:0,orders:0,items:0,listings:0,reviews:0};
+  const inR=d=>(!x.from||d>=x.from)&&(!x.to||d<=x.to),r={kind:x.kind,shop:x.shop,lines:0,orders:0,items:0,listings:0,reviews:0,deposits:0};
   if(x.kind==='statement'){const keep=s.transactions.filter(t=>!(t.shop===x.shop&&t.src&&inR(t.date)));r.lines=s.transactions.length-keep.length;if(!dry)s.transactions=keep;}
   else if(x.kind==='orders'){const gone=new Set(E.orders.filter(o=>o.shop===x.shop&&inR(o.date)).map(o=>o.id));r.orders=gone.size;r.items=E.items.filter(it=>gone.has(it.order)).length;
    if(!dry){E.orders=E.orders.filter(o=>!gone.has(o.id));E.items=E.items.filter(it=>!gone.has(it.order));}}
+  else if(x.kind==='deposits'){const keep=(E.deposits||[]).filter(v=>!(v.shop===x.shop&&inR(v.date)));r.deposits=(E.deposits||[]).length-keep.length;if(!dry)E.deposits=keep;}
   else if(x.kind==='listings'){r.listings=E.listings.filter(l=>l.shop===x.shop).length;if(!dry)E.listings=E.listings.filter(l=>l.shop!==x.shop);}
   else{const keep=E.reviews.filter(v=>!(v.shop===x.shop&&inR(v.date)));r.reviews=E.reviews.length-keep.length;if(!dry)E.reviews=keep;}
   if(!dry)E.imports.splice(i,1);
@@ -227,7 +247,7 @@ const EtsyData=((P,B,CSV)=>{
   const ads=X.ads.reduce((n,id)=>n+amt(id),0),tx=txIn(s,from,to);
   const credits=-tx.filter(t=>t.amount<0&&feeGroup(s,t.category)).reduce((n,t)=>n+t.amount,0);
   const orders=new Set(tx.filter(t=>t.category==='etsy-sales'&&t.amount>0&&!t.est).map(t=>t.ref||t.id)).size+tx.filter(t=>t.est&&t.n).reduce((n,t)=>n+t.n,0),takeHome=revenue-etsyCosts,estimated=tx.some(t=>t.est);
-  return {from,to,sales,buyerTax,refunds,revenue,fees,marketing,etsyCosts,ads,plus:amt('etsy-plus'),labels:amt('shipping-labels'),credits,deposits:amt('etsy-deposit'),takeHome,orders,
+  return {from,to,sales,buyerTax,refunds,revenue,fees,marketing,etsyCosts,ads,plus:amt('etsy-plus'),labels:amt('shipping-labels'),credits,deposits:tx.filter(t=>t.category==='etsy-deposit'&&t.src).reduce((n,t)=>n+t.amount,0),takeHome,orders,
    estimated,aov:orders?Math.round(revenue/orders):0,costShare:revenue>0?etsyCosts/revenue:null,adsShare:revenue>0?ads/revenue:null,profit:p.net,pl:p,lines:by};
  }
  const catGroup=(s,id)=>(s.categories.find(c=>c.id===id)||{}).group;
@@ -533,6 +553,15 @@ const Etsy=(()=>{
  }
  function plNote(from,to){const ms=D.estimatedMonths(state,from,to);if(!ms.length)return '';
   return `<div class="notice"><span><b>${ms.length===1?monthName(ms[0])+' is':ms.length+' months are'} estimated from sold orders</b>${ms.length>1?` (${ms.map(shortMonth).join(', ')})`:''}. Revenue is exact; Etsy’s transaction, processing and listing fees are at the standard rates. Etsy Ads, Etsy Plus and credits are not included until you import those months’ payment account statements, so profit and tax here are a little high.</span>${button('Import statements','go-etsy-import','small')}</div>`;}
+ // Bank imports: money in that matches an Etsy payout (same amount, up to six days after Etsy sent
+ // it, from a statement or the deposits file) or says "Etsy" is a transfer, because its sales are
+ // already counted. Anything else that came in is other revenue, never an Etsy payout by default.
+ function importRefine(cat,{date,amount,note}){
+  if(!(amount>0))return cat;
+  const payouts=[...(state.etsy.deposits||[]).map(d=>[d.date,d.amount]),...state.transactions.filter(t=>t.category==='etsy-deposit'&&t.src).map(t=>[t.date,t.amount])];
+  if(payouts.some(([d,a])=>a===amount&&date>=d&&date<=Budget.plusDays(d,6))||/\betsy\b/i.test(note||''))return 'etsy-deposit';
+  return cat==='etsy-deposit'?(P.defaults.importIncome||cat):cat;
+ }
  // ---------- import ----------
  let session=null;   // {shop, files:[parsed]}
  function importView(){
@@ -562,7 +591,7 @@ const Etsy=(()=>{
  }
  function outcome(r){
   if(r.kind==='listings')return r.added?`Replaces ${r.replaced} listing${r.replaced===1?'':'s'} with ${r.added}`:`No change · ${r.same} listings already here`;
-  const parts=[r.added&&`${num(r.added)} new ${r.kind==='statement'?'line':r.kind==='orders'?'order':'review'}${r.added===1?'':'s'}`,r.items&&`${num(r.items)} new item${r.items===1?'':'s'}`,r.updated&&`${num(r.updated)} updated`,r.same&&`${num(r.same)} already here`,r.currency&&`currency set to ${r.currency}`].filter(Boolean);
+  const parts=[r.added&&`${num(r.added)} new ${{statement:'line',orders:'order',deposits:'deposit'}[r.kind]||'review'}${r.added===1?'':'s'}`,r.items&&`${num(r.items)} new item${r.items===1?'':'s'}`,r.updated&&`${num(r.updated)} updated`,r.same&&`${num(r.same)} already here`,r.currency&&`currency set to ${r.currency}`].filter(Boolean);
   return parts.length?parts.join(' · '):'Nothing new';
  }
  function recentImports(){
@@ -625,7 +654,7 @@ const Etsy=(()=>{
   case 'etsy-confirm-delete-shop':{const x=state.shops.find(s=>s.id===id);if(!x)break;closeModal();commit(()=>{state.shops=state.shops.filter(s=>s.id!==id);state.transactions=state.transactions.filter(t=>t.shop!==id);
    for(const k of ['orders','items','listings','reviews','imports'])state.etsy[k]=state.etsy[k].filter(r=>r.shop!==id);if(state.settings.shop===id||state.shops.length<2)state.settings.shop='';},`${x.name} deleted`);break;}
   case 'etsy-remove-import':{const i=+b.dataset.i,x=state.etsy.imports[i],r=x&&D.removeImport(clone(state),i,{dry:true});if(!r)break;
-   const what=[r.lines&&`${num(r.lines)} statement line${r.lines===1?'':'s'}`,r.orders&&`${num(r.orders)} order${r.orders===1?'':'s'} (${num(r.items)} items)`,r.listings&&`${num(r.listings)} listings`,r.reviews&&`${num(r.reviews)} review${r.reviews===1?'':'s'}`].filter(Boolean).join(', ')||'nothing else (its data is already gone)';
+   const what=[r.lines&&`${num(r.lines)} statement line${r.lines===1?'':'s'}`,r.orders&&`${num(r.orders)} order${r.orders===1?'':'s'} (${num(r.items)} items)`,r.listings&&`${num(r.listings)} listings`,r.reviews&&`${num(r.reviews)} review${r.reviews===1?'':'s'}`,r.deposits&&`${num(r.deposits)} deposit${r.deposits===1?'':'s'}`].filter(Boolean).join(', ')||'nothing else (its data is already gone)';
    confirmation(`Delete ${esc(x.name)}?`,`Removes ${what} from ${esc(shopName(x.shop))}${x.from&&x.kind!=='listings'?`, dated ${dateName(x.from)} – ${dateName(x.to)} ${x.to.slice(0,4)}`:''}. If another import covers the same dates, its rows go too; import that file again to bring them back. You can undo this change.`,'etsy-confirm-remove-import','Delete import',`data-i="${i}"`);break;}
   case 'etsy-confirm-remove-import':{const i=+b.dataset.i,x=state.etsy.imports[i];if(!x)break;closeModal();commit(()=>{D.removeImport(state,i);D.syncEstimates(state,{today:today()});},`${x.name} deleted`);break;}
   case 'etsy-clear':session=null;render();break;
@@ -741,7 +770,7 @@ const Etsy=(()=>{
 
  Object.assign(Ext,{
   views:{dashboard:dashboardView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
-  afterRender,annualTop,plNote,
+  afterRender,annualTop,plNote,importRefine,
   printScope:()=>` · ${esc(scopeName())}`,
   txTag:()=>state.settings.shop?{shop:state.settings.shop}:{},
  });

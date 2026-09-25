@@ -69,6 +69,7 @@ const NICHE = {
       ['orders', 'Sold order items · what sold, discounts, countries', 'Shop Manager → Settings → Options → Download Data → Type: Order Items → the year. Not needed: the Orders, Etsy Payments Sales and Etsy Payments Deposits reports.', 'EtsySoldOrderItems2026.csv'],
       ['listings', 'Listings', 'Shop Manager → Settings → Options → Download data → Listings', 'EtsyListingsDownload.csv'],
       ['reviews', 'Reviews', 'Your Etsy account data download (Privacy settings → Download data)', 'reviews.json'],
+      ['deposits', 'Etsy Payments Deposits · to tell Etsy payouts apart in your bank', 'Shop Manager → Settings → Options → Download Data → Type: Etsy Payments Deposits. Optional when you import statements, which list the same payouts.', 'EtsyDeposits2026.csv'],
     ],
   },
   taxForm: { name: 'Schedule C', long: 'Schedule C (Form 1040) · Profit or Loss From Business' },
@@ -104,9 +105,10 @@ const NICHE = {
   importHints: {
     'credit card payment': 'card-payoff', 'card payment': 'card-payoff', payment: 'card-payoff', transfer: 'own-transfer', transfers: 'own-transfer',
     taxes: 'est-tax', tax: 'est-tax', advertising: 'other-marketing', software: 'software', 'office supplies': 'office', shipping: 'shipping-labels', postage: 'shipping-labels',
-    supplies: 'materials', fees: 'bank-fees', 'bank fees': 'bank-fees', income: 'other-sales', sales: 'other-sales', deposit: 'etsy-deposit', etsy: 'etsy-deposit',
+    supplies: 'materials', fees: 'bank-fees', 'bank fees': 'bank-fees', income: 'other-sales', sales: 'other-sales', deposit: 'other-sales', deposits: 'other-sales',
   },
-  defaults: { category: 'materials', schedule: 'software', annualCategory: 'etsy-sales', quickSetup: ['materials', 'packaging', 'shipping-labels', 'software', 'tax-reserve', 'other-sales'] },
+  // bank imports: money in is other revenue unless it is an Etsy payout (see app/src/etsy.js importRefine)
+  defaults: { importIncome: 'other-sales', category: 'materials', schedule: 'software', annualCategory: 'etsy-sales', quickSetup: ['materials', 'packaging', 'shipping-labels', 'software', 'tax-reserve', 'other-sales'] },
 
   nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import Etsy files', 'up'], ['shops', 'Shops', 'globe'],
     ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'], ['annual', 'Year & cash flow', 'outlook'],

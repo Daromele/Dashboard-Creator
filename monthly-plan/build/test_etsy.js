@@ -13,7 +13,7 @@ module.exports=({eq,ok})=>{
   // ---- the edition ----
   const b=B.blank();
   eq('etsy blank is tagged', [b.niche,b.settings.theme,b.settings.shop,b.shops], ['etsy','kiln','',[]]);
-  eq('etsy collections', Object.keys(b.etsy), ['orders','items','listings','reviews','imports']);
+  eq('etsy collections', Object.keys(b.etsy), ['orders','items','listings','reviews','deposits','imports']);
   ok('importer categories exist', ['etsy-sales','etsy-refunds','buyer-tax','transaction-fees','processing-fees','listing-fees','fee-tax','other-etsy-fees','etsy-ads','offsite-ads','etsy-plus','other-marketing','shipping-labels','etsy-deposit','own-transfer'].every(id=>b.categories.some(c=>c.id===id)));
   ok('aliases and defaults point at real categories', [...Object.values(B.P.aliases),...Object.values(B.P.importHints),...B.P.defaults.quickSetup].every(id=>b.categories.some(c=>c.id===id)));
   ok('every default tax line exists', b.categories.every(c=>!c.taxLine||B.TAX_LINES[c.taxLine]));
@@ -59,7 +59,7 @@ module.exports=({eq,ok})=>{
   eq('a changed line updates, never duplicates', [upd.added,upd.updated,s.transactions.find(t=>t.note==='Etsy Ads').amount], [0,1,275]);
   load(s,'fern','statement.csv',F.statement);
   eq('into the wrong shop is refused, and says it is the same download', /Every order in this file is already in Fern Prints, so this is Fern Prints’s download again/.test(load(s,'kiln','statement.csv',F.statement).error), true);
-  eq('Etsy’s other reports are named', [D.read('o.csv','Sale Date,Order ID,Buyer,Number of Items,Order Net\n01/01/26,1,a,1,2').error.slice(0,34),D.read('d.csv','Deposit Date,Amount\n01/01/26,2').error.slice(0,40)], ['This is Etsy’s Orders report (one ','This is Etsy’s Payments Deposits report.']);
+  eq('Etsy’s other reports are named', [D.read('o.csv','Sale Date,Order ID,Buyer,Number of Items,Order Net\n01/01/26,1,a,1,2').error.slice(0,34)], ['This is Etsy’s Orders report (one ']);
   eq('nothing reached the other shop', s.transactions.some(t=>t.shop==='kiln'), false);
   eq('orders import', [load(s,'fern','o.csv',F.orders).added,s.etsy.orders.length,s.etsy.items.length], [3,3,4]);
   eq('orders again', [load(s,'fern','o.csv',F.orders).same,s.etsy.items.length], [3,4]);
@@ -122,6 +122,21 @@ module.exports=({eq,ok})=>{
    z.transactions=z.transactions.filter(t=>!t.src||t.est);D.syncEstimates(z,{uid,today:'2026-09-30'});
    eq('without its statement, September is estimated too', D.estimatedMonths(z,'2026-01-01','2026-12-31'), ['2026-08','2026-09']);
    const bad=copy(z);bad.transactions.find(t=>t.est).est='yes';ok('rejects a bad estimate flag', throws(()=>B.validate(bad)));}
+
+  // ---- Etsy Payments Deposits: payouts, used to spot Etsy money in a bank import ----
+  {const dep=D.read('EtsyDeposits2026.csv','Date,Amount,Currency,Status\n"September 14, 2026",$37.35,USD,Deposited\n09/21/2026,$33.43,USD,Deposited\n09/22/2026,$5.00,USD,Failed\n09/21/2026,$33.43,USD,Deposited\n');
+   eq('deposits file read', [dep.kind,dep.records.map(x=>[x.date,x.amount]),dep.currency], ['deposits',[['2026-09-14',3735],['2026-09-21',3343],['2026-09-21',3343]],'USD']);
+   eq('a file without "deposit" in its name or columns is not taken for one', D.read('x.csv','Date,Amount\n09/14/2026,1').kind, null);
+   const z=books();eq('deposits import and repeat', [load(z,'fern','EtsyDeposits2026.csv',dep.records.length&&'Date,Amount,Currency,Status\n"September 14, 2026",$37.35,USD,Deposited\n09/21/2026,$33.43,USD,Deposited\n09/21/2026,$33.43,USD,Deposited\n').added,z.etsy.deposits.length], [3,3]);
+   ok('deposits validate', !throws(()=>B.validate(copy(z))));
+   D.removeImport(z,z.etsy.imports.findIndex(x=>x.kind==='deposits'));eq('deposits import can be deleted', z.etsy.deposits.length, 0);
+   // the bank-import hook in the core: an edition can re-file a row; your own rules still win
+   const C=B.CSV,rows=C.parse('Date,Description,Amount\n2026-09-15,ETSY INC PAYOUT,37.35\n2026-09-15,Craft fair cash,120.00\n2026-09-16,Canva,-12.99\n'),h=rows[0].cells,m=C.guess(h);
+   const refine=(cat,{amount,note})=>amount>0&&/etsy/i.test(note)?'etsy-deposit':cat;
+   const pv=C.preview(rows.slice(1),h,m,{mode:'bank',incomeCategory:'other-sales',expenseCategory:'software',refine,categoryMap:{}},z);
+   eq('bank import: Etsy payout vs other money in', pv.map(r=>r.category), ['etsy-deposit','other-sales','software']);
+   z.categoryRules={'etsy inc payout':'other-sales'};
+   eq('a rule you made wins over the edition', C.preview(rows.slice(1),h,m,{mode:'bank',incomeCategory:'other-sales',expenseCategory:'software',refine,categoryMap:{}},z)[0].category, 'other-sales');}
 
   // ---- several shops ----
   const m=copy(v);load(m,'kiln','k.csv',F.statement.replace(/38123456/g,'99123456').replace(/140000000/g,'150000000'));

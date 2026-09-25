@@ -1322,7 +1322,7 @@ const Budget = ((P) => {
   const cents = s => {if(!/^\d{1,8}(\.\d{1,2})?$/.test(String(s).trim())) throw Error('Use a positive amount with up to two decimal places.');return Math.round(Number(s)*100);};
   const blank = () => ({version:1,...(P.id!=='budget'?{niche:P.id}:{}),settings:{name:'',currency:'USD',symbol:'',dateFormat:'auto',theme:THEMES[0],hiddenNav:[],...JSON.parse(JSON.stringify(P.settings||{}))},baseline:{},
     categories:P.categories.map(([id,name,group,taxLine])=>({id,name,group,archived:false,...(taxLine?{taxLine}:{})})),
-    months:{},transactions:[],goals:[],reviews:{},schedules:[],snapshots:{},quickMemory:{},importMap:{},...(P.features.mileage?{mileage:[]}:{}),...(P.features.invoices?{invoices:[]}:{}),...(P.features.shops?{shops:[]}:{}),...(P.features.etsy?{etsy:{orders:[],items:[],listings:[],reviews:[],imports:[]}}:{})});
+    months:{},transactions:[],goals:[],reviews:{},schedules:[],snapshots:{},quickMemory:{},importMap:{},...(P.features.mileage?{mileage:[]}:{}),...(P.features.invoices?{invoices:[]}:{}),...(P.features.shops?{shops:[]}:{}),...(P.features.etsy?{etsy:{orders:[],items:[],listings:[],reviews:[],deposits:[],imports:[]}}:{})});
   const month = (s,m) => s.months[m] || {plan:{},opening:0,note:'',closed:false};
   // The usual amounts repeat every month; a month stores only the categories it changes.
   const planFor = (s,m) => ({...(s.baseline||{}),...(month(s,m).plan||{})});
@@ -1543,7 +1543,8 @@ const Budget = ((P) => {
       each('items',100000,i=>key(i.order)&&str(i.listing??'',40)&&str(i.name,300)&&count(i.qty,100000)&&i.qty>0&&money(i.price)&&money(i.total)&&str(i.sku??'',80));
       each('listings',20000,l=>str(l.title,300)&&money(l.price)&&count(l.qty,1e7)&&count(l.photos,10)&&count(l.tags,13)&&str(l.sku??'',80)&&count(l.variations??0,3));
       each('reviews',100000,r=>validDate(r.date)&&Number.isInteger(r.stars)&&r.stars>=1&&r.stars<=5&&str(r.message??'',2000)&&str(r.order??'',40));
-      list('imports',2000).forEach(x=>{if(!object(x)||!shops.has(x.shop)||!['statement','orders','listings','reviews'].includes(x.kind)||!str(x.name,160)||!validDate(x.at)||!count(x.rows,1e6)||(x.from!==undefined&&!validDate(x.from))||(x.to!==undefined&&!validDate(x.to)))fail();});}}
+      each('deposits',20000,d=>validDate(d.date)&&amount(d.amount)&&d.amount>0);
+      list('imports',2000).forEach(x=>{if(!object(x)||!shops.has(x.shop)||!['statement','orders','listings','reviews','deposits'].includes(x.kind)||!str(x.name,160)||!validDate(x.at)||!count(x.rows,1e6)||(x.from!==undefined&&!validDate(x.from))||(x.to!==undefined&&!validDate(x.to)))fail();});}}
     s.categories.forEach(c=>{if(c.taxLine!==undefined&&!(TAX_LINES&&typeof c.taxLine==='string'&&Object.hasOwn(TAX_LINES,c.taxLine)))delete c.taxLine;});
     if(P.features.tax){const r=s.settings.taxRate;if(r===undefined)s.settings.taxRate=P.settings.taxRate;else if(!Number.isInteger(r)||r<0||r>9000)fail();}
     if(P.features.mileage){const r=s.settings.mileageRate;if(r===undefined)s.settings.mileageRate=P.settings.mileageRate;else if(!Number.isInteger(r)||r<0||r>100000)fail();
@@ -1760,7 +1761,10 @@ const CSV = (()=>{
     const learned=state.importMap?.[source]||state.quickMemory?.[Budget.quickKey(result.note)];
     const match=options.categoryMap?.[source]||state.categories.find(c=>norm(c.name)===source&&!c.archived)?.id
      ||(learned&&state.categories.some(c=>c.id===learned&&!c.archived)?learned:'');
-    let catId=options.overrides?.[i]?.category||Budget.ruleFor(state,result.note)||match||(options.mode==='category'?options.defaultCategory:amount>0?options.incomeCategory:options.expenseCategory);
+    const rule=Budget.ruleFor(state,result.note);
+    let catId=options.overrides?.[i]?.category||rule||match||(options.mode==='category'?options.defaultCategory:amount>0?options.incomeCategory:options.expenseCategory);
+    // an edition can recognise rows itself (e.g. which deposits are Etsy payouts); your own choices and rules still win
+    if(options.refine&&!options.overrides?.[i]?.category&&!rule)catId=options.refine(catId,{date:result.date,amount,note:result.note})||catId;
     if(catId==='__skip'){result.skip=true;result.skipReason='Skipped';return result;}
     const c=state.categories.find(c=>c.id===catId&&!c.archived);
     if(!c)throw Error('Needs a category');
@@ -1817,7 +1821,7 @@ const ICON = {
 // Identity, storage keys and words come from the niche pack at the top of the file.
 const P=NICHE,L=P.labels,KEY=P.storage.key+'-v1';
 // Extension points a niche module fills in (packs list theirs under build.modules). Empty by default.
-const Ext={views:{},afterRender(){},printScope:()=>'',txTag:()=>({}),annualTop:()=>'',plNote:()=>''};
+const Ext={views:{},afterRender(){},printScope:()=>'',txTag:()=>({}),annualTop:()=>'',plNote:()=>'',importRefine:null};
 // an edited transaction keeps the shop and import reference it came with; a new one gets the current shop
 const txOrigin=t=>t?Object.fromEntries(['shop','ref','src'].filter(k=>t[k]!==undefined).map(k=>[k,t[k]])):Ext.txTag();
 const MAX_TRANSACTIONS=20000;
@@ -2890,7 +2894,7 @@ document.addEventListener('submit',e=>{if(e.target.id!=='csv-similar-form')retur
 function rowIncluded(r){if(r.skip)return false;
  if(r.duplicate&&!csvSession.options.allowDuplicates)return false;
  const flag=csvSession.include[r.index];return flag===undefined?!r.error&&!r.duplicate:flag;}
-function startCSV(text,name){try{const detected=CSV.detect(text);const parsed=CSV.parse(detected.text,detected.delimiter);if(parsed.length<2)throw Error('Include a header row and at least one data row.');let headerIndex=parsed.findIndex(r=>CSV.guess(r.cells).date>=0);if(headerIndex<0)headerIndex=0;csvSession={text:detected.text,name,delimiter:detected.delimiter,parsed,headerIndex,headers:[],rows:[],map:{},options:{mode:'bank',order:'auto',decimal:'auto',allowClosed:false,defaultCategory:'',incomeCategory:'',expenseCategory:'',categoryMap:{},overrides:{}},stage:'map',include:{},page:0,filter:'all'};prepareCSV();go('import');}catch(e){toast(e.message);}}
+function startCSV(text,name){try{const detected=CSV.detect(text);const parsed=CSV.parse(detected.text,detected.delimiter);if(parsed.length<2)throw Error('Include a header row and at least one data row.');let headerIndex=parsed.findIndex(r=>CSV.guess(r.cells).date>=0);if(headerIndex<0)headerIndex=0;csvSession={text:detected.text,name,delimiter:detected.delimiter,parsed,headerIndex,headers:[],rows:[],map:{},options:{mode:'bank',order:'auto',decimal:'auto',allowClosed:false,defaultCategory:'',incomeCategory:P.defaults.importIncome||'',expenseCategory:'',refine:Ext.importRefine,categoryMap:{},overrides:{}},stage:'map',include:{},page:0,filter:'all'};prepareCSV();go('import');}catch(e){toast(e.message);}}
 // Statement category names rarely match a planner's own. Suggest a match, never decide silently:
 // every suggestion appears pre-selected in a dropdown the reader confirms.
 // words a bank statement's own category column uses → this edition's category ids (from the pack)
