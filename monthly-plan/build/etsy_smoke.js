@@ -41,7 +41,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await shot('import-preview');
   await p.click('[data-action="etsy-import"]');await p.waitForTimeout(200);
   const after=await st(()=>({tx:state.transactions.length,orders:state.etsy.orders.length,items:state.etsy.items.length,listings:state.etsy.listings.length,reviews:state.etsy.reviews.length,sel:selected,shop:state.transactions.every(t=>t.shop===state.shops[0].id)}));
-  check('four files imported',after.tx>15&&after.orders===3&&after.items===4&&after.listings===3&&after.reviews===3&&after.shop,JSON.stringify(after));
+  check('four files imported',after.tx>15&&after.orders===3&&after.items===4&&after.listings===3&&after.reviews===4&&after.shop,JSON.stringify(after));
   check('month jumps to the statement',after.sel==='2026-09',after.sel);
   check('no buyer names or addresses kept',!/Placeholder|Example|Fictional Lane|Testville/.test(await st(()=>localStorage.getItem('jps-shop-insights-v1'))));
   // the same files again: nothing new
@@ -102,7 +102,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
 
   // ---- reload, delete a shop, undo ----
   await p.reload();await p.waitForTimeout(300);
-  check('reload keeps shops and imports',await st(()=>state.shops.length===2&&state.etsy.reviews.length===3&&state.niche==='etsy'));
+  check('reload keeps shops and imports',await st(()=>state.shops.length===2&&state.etsy.reviews.length===4&&state.niche==='etsy'));
   await p.evaluate(()=>go('shops'));await p.click(`[data-action="etsy-delete-shop"][data-id="${kilnId}"]`);await p.click('[data-action="etsy-confirm-delete-shop"]');
   check('deleting a shop removes its lines',await st(id=>state.shops.length===1&&!state.transactions.some(t=>t.shop===id),kilnId));
   await p.click('#toast [data-action="undo"]');check('undo brings the shop back',await st(()=>state.shops.length===2));

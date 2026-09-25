@@ -50,11 +50,13 @@ const reviews=JSON.stringify([
   {reviewer:'Jane Placeholder',date_reviewed:'09/28/2026',star_rating:5,message:'Lovely print!',order_id:3812345671},
   {reviewer:'Sam Example',date_reviewed:'09/30/2026',star_rating:4,message:'',order_id:3812345672},
   {reviewer:'Jane Placeholder',date_reviewed:'08/20/2026',star_rating:2,message:'Arrived bent.',order_id:3812345600},
+  // one review per item of a two-item order: identical apart from the item, which the export leaves out
+  {reviewer:'Sam Example',date_reviewed:'09/30/2026',star_rating:4,message:'',order_id:3812345672},
 ],null,1);
 const files={'etsy_statement_2026_9.csv':statement,'EtsySoldOrderItems2026.csv':orders,'EtsyListingsDownload.csv':listings,'reviews.json':reviews};
 module.exports={statement,orders,listings,reviews,files,
   // what the four files must add up to (cents)
   expect:{sales:5608,buyerTax:108,refunds:1200,revenue:4300,fees:473,marketing:1350,ads:350,etsyCosts:1823,takeHome:2477,credits:698,labels:525,deposits:3735,orders:2,
-    soldOrders:3,items:4,list:7200,discount:800,listings:3,reviews:3}};
+    soldOrders:3,items:4,list:7200,discount:800,listings:3,reviews:4}};
 if(require.main===module){const out=process.argv[2];if(!out){console.error('usage: node etsy_fixtures.js <out-dir>');process.exit(2);}
   fs.mkdirSync(out,{recursive:true});for(const [n,t] of Object.entries(files))fs.writeFileSync(path.join(out,n),t);console.log('wrote',Object.keys(files).length,'files to',out);}

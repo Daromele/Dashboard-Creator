@@ -43,7 +43,8 @@ module.exports=({eq,ok})=>{
   ok('buyer kept only as a scrambled key', so.records.every(o=>/^[a-z0-9]{1,12}$/.test(o.buyer))&&!JSON.stringify(so).match(/Placeholder|Example|Fictional|Testville|90000/));
   eq('same buyer, same key', so.records[0].buyer===so.records[2].buyer, true);
   eq('listings: photos, tags, variations, sku', sl.records.map(l=>[l.photos,l.tags,l.variations,l.sku,l.price]), [[10,13,1,'FERN-1',1600],[4,2,0,'',2000],[10,13,0,'',2600]]);
-  eq('reviews', sr.records.map(r=>[r.date,r.stars,r.order]), [['2026-09-28',5,'3812345671'],['2026-09-30',4,'3812345672'],['2026-08-20',2,'3812345600']]);
+  eq('reviews', sr.records.map(r=>[r.date,r.stars,r.order]), [['2026-09-28',5,'3812345671'],['2026-09-30',4,'3812345672'],['2026-08-20',2,'3812345600'],['2026-09-30',4,'3812345672']]);
+  eq('one review per item of an order is kept', new Set(sr.records.map(r=>r.id)).size, 4);
   ok('reviewer names are not kept', !JSON.stringify(sr.records).includes('Placeholder'));
   eq('junk is refused politely', [D.read('x.csv','a,b\n1,2').error.slice(0,10),D.read('x.json','{"a":1}').error], ['Not an Ets','This JSON file is not a list of reviews.']);
 
@@ -63,7 +64,7 @@ module.exports=({eq,ok})=>{
   eq('orders again', [load(s,'fern','o.csv',F.orders).same,s.etsy.items.length], [3,4]);
   eq('orders into another shop refused', /already in Fern Prints/.test(load(s,'kiln','o.csv',F.orders).error), true);
   eq('listings replace the shop’s listings', [load(s,'fern','l.csv',F.listings).added,load(s,'fern','l.csv',F.listings).same,load(s,'fern','l2.csv',F.listings.replace('16.00,USD,5','18.00,USD,5')).replaced,s.etsy.listings.length,s.etsy.listings[0].price], [3,3,3,3,1800]);
-  eq('reviews import and repeat', [load(s,'fern','r.json',F.reviews).added,load(s,'fern','r.json',F.reviews).same,s.etsy.reviews.length], [3,3,3]);
+  eq('reviews import and repeat', [load(s,'fern','r.json',F.reviews).added,load(s,'fern','r.json',F.reviews).same,s.etsy.reviews.length], [4,4,4]);
   eq('each import is logged', s.etsy.imports.map(x=>x.kind).filter((k,i,a)=>a.indexOf(k)===i), ['statement','orders','listings','reviews']);
   ok('no personal data stored', !/Placeholder|Example|Fictional Lane|Testville/.test(JSON.stringify(s)));
   {const e=books();e.settings.currency='USD';const gbp=D.read('s.csv',F.statement.replace(/,USD,/g,',GBP,'));
@@ -80,6 +81,7 @@ module.exports=({eq,ok})=>{
   eq('deposit is not counted', S.pl.transfers.lines.map(l=>l.id), ['etsy-deposit']);
   eq('Schedule C line 1 is revenue after buyer tax', B.taxSummary(v,'2026-01-01','2026-12-31').lines.find(l=>l.id==='L1').amount, x.revenue);
   eq('all time = the month here', D.summary(v).takeHome, x.takeHome);
+  eq('a month before the first line is empty', [D.summary(v,'2026-08-01','2026-08-31').takeHome,D.summary(v,'2026-10-01','2026-10-31').revenue], [0,0]);
   const ob=D.orderBook(v,'2026-09-01','2026-09-30'),o1=ob.find(o=>o.id==='3812345671');
   eq('order rebuilt: sale − buyer tax − fees', [o1.sale,o1.tax,o1.fees,o1.takeHome,o1.item], [1608,108,98+73+5,1608-108-176,'Botanical Fern Print, Vintage Style']);
   const P=D.products(v);
@@ -91,7 +93,7 @@ module.exports=({eq,ok})=>{
   eq('products in September only', D.products(v,'2026-09-01','2026-09-30').units, 4);
   const C=D.coupons(v);eq('coupons', [C.orders,C.discounted,C.discount,C.list,C.paid,C.codes[0].code], [3,1,800,7200,6400,'FALL20']);
   const U=D.customers(v);eq('customers', [U.buyers,U.repeat,U.repeatOrders,U.countries.map(c=>[c.country,c.orders])], [2,1,2,[['United States',2],['United Kingdom',1]]]);
-  const R=D.reviewStats(v);eq('reviews', [R.count,R.avg.toFixed(2),R.dist,R.low.length,R.years.map(y=>y.key)], [3,'3.67',[0,1,0,1,1],1,['2026']]);
+  const R=D.reviewStats(v);eq('reviews', [R.count,R.avg.toFixed(2),R.dist,R.low.length,R.years.map(y=>y.key)], [4,'3.75',[0,1,0,2,1],1,['2026']]);
   eq('seasonality from orders', D.seasonality(v).years.map(y=>[y.year,y.months[7].orders,y.months[8].orders]), [['2026',1,2]]);
 
   // ---- several shops ----
@@ -105,7 +107,7 @@ module.exports=({eq,ok})=>{
   eq('monthly totals follow it too', B.totals(m,'2026-09').income.actual, kiln.revenue);
   eq('lists follow it', [D.products(m).list.length,D.reviewStats(m).count], [0,0]);
   m.settings.shop='';
-  eq('compare', D.compare(m,'2026-09-01','2026-09-30').map(c=>[c.id,c.takeHome,c.reviews]), [['fern',fern.takeHome,2],['kiln',kiln.takeHome,0]]);
+  eq('compare', D.compare(m,'2026-09-01','2026-09-30').map(c=>[c.id,c.takeHome,c.reviews]), [['fern',fern.takeHome,3],['kiln',kiln.takeHome,0]]);
 
   // ---- validation ----
   eq('etsy roundtrip', B.validate(copy(m)).etsy.items.length, 4);

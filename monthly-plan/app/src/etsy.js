@@ -100,10 +100,14 @@ const EtsyData=((P,B,CSV)=>{
  // ---------- reviews.json ----------
  function reviews(json){
   const list=Array.isArray(json)?json:Array.isArray(json?.reviews)?json.reviews:null;if(!list)throw Error('This JSON file is not a list of reviews.');
-  const records=[],issues=[];
+  // a buyer can review each item of one order: same order, day, stars and words, and the export
+  // does not say which item. Repeats are numbered within the file so all of them count, and the
+  // same file imported again still matches itself.
+  const records=[],issues=[],seen=new Map();
   list.forEach((r,i)=>{try{const stars=Math.round(Number(r.star_rating??r.rating));if(!(stars>=1&&stars<=5))throw Error('No star rating');
    const date=when(r.date_reviewed??r.date),message=String(r.message??r.review??'').trim().slice(0,2000),order=String(r.order_id??'').replace(/\D/g,'').slice(0,40);
-   records.push({id:'r'+hash([order,date,stars,message].join('|')),date,stars,message,order});}catch(e){issues.push(`Review ${i+1}: ${e.message}`);}});
+   const base=[order,date,stars,message].join('|'),n=(seen.get(base)||0)+1;seen.set(base,n);
+   records.push({id:'r'+hash(n>1?base+'#'+n:base),date,stars,message,order});}catch(e){issues.push(`Review ${i+1}: ${e.message}`);}});
   return {records,issues,currencies:new Set(),notes:[]};
  }
  // One file in, one parsed file out. The kind comes from the header row, never from the file name.
@@ -173,7 +177,7 @@ const EtsyData=((P,B,CSV)=>{
  function txIn(s,from,to){const [a,z]=clamp(s,from,to),out=[];for(const m of B.monthsBetween(a,z))for(const t of B.transactions(s,m))if(inRange(t,a,z))out.push(t);return out;}
  // Take-home: revenue after buyer tax and refunds, minus every Etsy fee, ad and subscription
  function summary(s,from=ALL.from,to=ALL.to){
-  const [a,z]=clamp(s,from,to),p=a<=z?B.pl(s,a,z):B.pl(s,B.today(),B.today()),by=new Map([...p.revenue.lines,...p.cogs.lines,...p.opex.groups.flatMap(g=>g.lines),...p.other.lines,...p.transfers.lines].map(l=>[l.id,l.amount])),amt=id=>by.get(id)||0;
+  const [a,z]=clamp(s,from,to),p=B.pl(s,a,z),by=new Map([...p.revenue.lines,...p.cogs.lines,...p.opex.groups.flatMap(g=>g.lines),...p.other.lines,...p.transfers.lines].map(l=>[l.id,l.amount])),amt=id=>by.get(id)||0;
   const sales=amt('etsy-sales'),buyerTax=-amt('buyer-tax'),refunds=-amt('etsy-refunds'),revenue=sales-buyerTax-refunds;
   const grp=id=>(p.opex.groups.find(g=>g.id===id)||{total:0}).total,fees=grp('etsy-fees'),marketing=grp('etsy-marketing'),etsyCosts=P.groups.filter(g=>g.etsy).reduce((n,g)=>n+grp(g.id),0);
   const ads=X.ads.reduce((n,id)=>n+amt(id),0),tx=txIn(s,from,to);
@@ -377,7 +381,7 @@ const Etsy=(()=>{
   if(session?.files.length){
    const rows=session.files.map(f=>({f,r:D.merge(clone(state),target,f,{dry:true})}));
    const ready=rows.filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items)).length;
-   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognised as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.KINDS[f.kind]:'<span class="warn">Not recognised</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}</td></tr>`).join('')}</tbody></table></div></section>`;
+   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognised as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.KINDS[f.kind]:'<span class="warn">Not recognised</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}</td></tr>`).join('')}</tbody></table></div></section>`;
   }
   return pagehead('Bring in your Etsy files','Import Etsy files','Choose the shop, then drop in any of Etsy’s four exports together. Each is recognised by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
    `<section class="card"><div class="grid2 equal etsy-import-top"><div>${shopPick}${shops.length?`<p class="small muted">Files go into this shop, whatever the shop picker at the top shows. ${button('＋ Add a shop','etsy-add-shop','small')}</p>`:''}</div>`+
@@ -407,7 +411,7 @@ const Etsy=(()=>{
   if(!plan.length)return toast('Nothing new to import.');
   const newLines=plan.filter(x=>x.f.kind==='statement').reduce((n,x)=>n+x.r.added,0);
   if(state.transactions.length+newLines>MAX_TRANSACTIONS)return toast(LIMIT_MESSAGE);
-  const summary=`${shopName(shop)}: `+plan.map(({r})=>`${D.KINDS[r.kind].toLowerCase()} ${r.kind==='listings'?r.added+' listings':num(r.added+(r.items||0))+' new'+(r.updated?', '+num(r.updated)+' updated':'')}`).join(' · ');
+  const summary=`${shopName(shop)}: `+plan.map(({r})=>`${D.KINDS[r.kind].toLowerCase()} ${r.kind==='listings'?(r.added||r.same)+' listings':r.kind==='orders'?num(r.added)+' new orders, '+num(r.items)+' items':num(r.added)+' new'+(r.updated?', '+num(r.updated)+' updated':'')}`).join(' · ');
   let latest='';
   commit(()=>{for(const {f} of plan){const r=D.merge(state,shop,f,{uid:Budget.uid,today:today()});if(r.error)continue;
     // months that receive Etsy lines open again, as with any import
