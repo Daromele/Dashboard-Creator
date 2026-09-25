@@ -57,7 +57,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   const fees=await text();check('fees: every order',fees.includes('Every order in September 2026')&&fees.includes('$18.23'),fees.slice(0,500));
   await p.evaluate(()=>go('products'));const prod=await text();check('products',prod.includes('Botanical Fern Print')&&prod.includes('Autumn Leaves Print Set')&&prod.includes('Listing health'),prod.slice(0,400));
   await p.evaluate(()=>{selected='2026-08';go('dashboard');});const aug=await text();
-  check('a month with orders but no statement shows the orders',aug.includes('No payment account statement for August 2026')&&aug.includes('Sales from orders')&&aug.includes('#3812345600'),aug.slice(0,500));
+  check('a month with orders but no statement is estimated from them',aug.includes('August 2026 is estimated from your sold orders')&&aug.includes('$20.50')&&aug.includes('#3812345600'),aug.slice(0,700));
   await p.evaluate(()=>{selected='2026-09';render();});
   await p.evaluate(()=>go('reviews'));await p.click('[data-action="etsy-span"][data-span="all"]');check('reviews',(await text()).includes('Arrived bent.'));
   await p.evaluate(()=>go('pl'));check('P&L buyer tax line',(await text()).includes('Sales tax & VAT paid by buyers'));
