@@ -65,8 +65,8 @@ const NICHE = {
     estimate: { transaction: 650, processing: 300, processingFixed: 25, listing: 20 },
     // where each export lives, for the import screen
     exports: [
-      ['statement', 'Payment account statement', 'Shop Manager → Finances → Payment account → Download CSV (one month at a time)', 'etsy_statement_2026_9.csv'],
-      ['orders', 'Sold order items', 'Shop Manager → Settings → Options → Download data → Orders: “Order items”', 'EtsySoldOrderItems2026.csv'],
+      ['statement', 'Payment account statement · every fee, ad and deposit', 'Shop Manager → Finances → Payment account → choose a month → Download CSV. One file per month, per shop.', 'etsy_statement_2026_9.csv'],
+      ['orders', 'Sold order items · what sold, discounts, countries', 'Shop Manager → Settings → Options → Download Data → Type: Order Items → the year. Not needed: the Orders, Etsy Payments Sales and Etsy Payments Deposits reports.', 'EtsySoldOrderItems2026.csv'],
       ['listings', 'Listings', 'Shop Manager → Settings → Options → Download data → Listings', 'EtsyListingsDownload.csv'],
       ['reviews', 'Reviews', 'Your Etsy account data download (Privacy settings → Download data)', 'reviews.json'],
     ],

@@ -58,7 +58,8 @@ module.exports=({eq,ok})=>{
   const upd=load(s,'fern','statement2.csv',edited);
   eq('a changed line updates, never duplicates', [upd.added,upd.updated,s.transactions.find(t=>t.note==='Etsy Ads').amount], [0,1,275]);
   load(s,'fern','statement.csv',F.statement);
-  eq('into the wrong shop is refused', load(s,'kiln','statement.csv',F.statement).error, 'These orders are already in Fern Prints. Choose that shop, or check the file.');
+  eq('into the wrong shop is refused, and says it is the same download', /Every order in this file is already in Fern Prints, so this is Fern Prints’s download again/.test(load(s,'kiln','statement.csv',F.statement).error), true);
+  eq('Etsy’s other reports are named', [D.read('o.csv','Sale Date,Order ID,Buyer,Number of Items,Order Net\n01/01/26,1,a,1,2').error.slice(0,34),D.read('d.csv','Deposit Date,Amount\n01/01/26,2').error.slice(0,40)], ['This is Etsy’s Orders report (one ','This is Etsy’s Payments Deposits report.']);
   eq('nothing reached the other shop', s.transactions.some(t=>t.shop==='kiln'), false);
   eq('orders import', [load(s,'fern','o.csv',F.orders).added,s.etsy.orders.length,s.etsy.items.length], [3,3,4]);
   eq('orders again', [load(s,'fern','o.csv',F.orders).same,s.etsy.items.length], [3,4]);

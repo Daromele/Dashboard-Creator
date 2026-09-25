@@ -70,8 +70,8 @@ const NICHE = {
     estimate: { transaction: 650, processing: 300, processingFixed: 25, listing: 20 },
     // where each export lives, for the import screen
     exports: [
-      ['statement', 'Payment account statement', 'Shop Manager → Finances → Payment account → Download CSV (one month at a time)', 'etsy_statement_2026_9.csv'],
-      ['orders', 'Sold order items', 'Shop Manager → Settings → Options → Download data → Orders: “Order items”', 'EtsySoldOrderItems2026.csv'],
+      ['statement', 'Payment account statement · every fee, ad and deposit', 'Shop Manager → Finances → Payment account → choose a month → Download CSV. One file per month, per shop.', 'etsy_statement_2026_9.csv'],
+      ['orders', 'Sold order items · what sold, discounts, countries', 'Shop Manager → Settings → Options → Download Data → Type: Order Items → the year. Not needed: the Orders, Etsy Payments Sales and Etsy Payments Deposits reports.', 'EtsySoldOrderItems2026.csv'],
       ['listings', 'Listings', 'Shop Manager → Settings → Options → Download data → Listings', 'EtsyListingsDownload.csv'],
       ['reviews', 'Reviews', 'Your Etsy account data download (Privacy settings → Download data)', 'reviews.json'],
     ],
@@ -3439,13 +3439,19 @@ const EtsyData=((P,B,CSV)=>{
    records.push({id:'r'+hash(n>1?base+'#'+n:base),date,stars,message,order});}catch(e){issues.push(`Review ${i+1}: ${e.message}`);}});
   return {records,issues,currencies:new Set(),notes:[]};
  }
+ // Etsy's other download options, recognised so the import screen can say what to use instead
+ function otherReport(rows){const has=(...k)=>rows.some(r=>k.every(x=>r.includes(x)));
+  if(has('order id','number of items')||has('order id','order net'))return 'This is Etsy’s Orders report (one row per order). You don’t need it: the Order Items report has the same orders item by item, and the monthly payment account statement has every fee.';
+  if(has('deposit date')||(rows.some(r=>r.some(x=>/deposit/.test(x)))&&!rows.some(r=>r.includes('type'))))return 'This is Etsy’s Payments Deposits report. You don’t need it: deposits are already in the payment account statement.';
+  if(rows.some(r=>r.some(x=>/gross amount|net amount|posted/.test(x))))return 'This is Etsy’s Payments Sales report (for 1099-K checks). You don’t need it: the payment account statement has the same payments plus every Etsy fee and ad.';
+  return '';}
  // One file in, one parsed file out. The kind comes from the header row, never from the file name.
  function read(name,text){
   const out={name:String(name||'file').slice(0,160),kind:null,records:[],items:[],issues:[],notes:[],currency:'',from:'',to:''};
   try{const t=String(text).replace(/^﻿/,'').trim();let r;
    if(/^[[{]/.test(t)){out.kind='reviews';r=reviews(JSON.parse(t));}
    else{const d=CSV.detect(t),rows=CSV.parse(d.text,d.delimiter),at=rows.slice(0,5).findIndex(x=>kindOf(x.cells));
-    if(at<0){out.error=`Not an Etsy export this app reads. First row: ${(rows[0]?.cells||[]).slice(0,6).join(', ').slice(0,120)}`;return out;}
+    if(at<0){out.error=otherReport(rows.slice(0,5).map(x=>x.cells.map(head)))||`Not an Etsy export this app reads. First row: ${(rows[0]?.cells||[]).slice(0,6).join(', ').slice(0,120)}`;return out;}
     const headers=rows[at].cells;out.kind=kindOf(headers);r={statement,orders:soldItems,listings}[out.kind](rows.slice(at+1),headers);}
    Object.assign(out,{records:r.records,items:r.items||[],issues:r.issues,notes:r.notes});
    if(r.currencies.size>1)out.error=`This file mixes currencies (${[...r.currencies].join(', ')}).`;out.currency=[...r.currencies][0]||'';
@@ -3469,14 +3475,17 @@ const EtsyData=((P,B,CSV)=>{
    r.currency=file.currency;if(!dry)s.settings.currency=file.currency;}
   const ownerOf=new Map();E.orders.forEach(o=>ownerOf.set('o'+o.id,o.shop));s.transactions.forEach(t=>{if(t.shop&&t.ref&&t.ref[0]==='o'&&!ownerOf.has(t.ref))ownerOf.set(t.ref,t.shop);});
   const clash=refs=>{for(const x of refs){const o=ownerOf.get(x);if(o&&o!==shop)return o;}return '';};
+  // every order in the file already belongs to one other shop: it is that shop's download again
+  const whole=(refs,other)=>refs.length&&refs.every(x=>ownerOf.get(x)===other);
+  const clashMsg=(refs,other,what)=>whole(refs,other)?`Every ${what} in this file is already in ${shopName(other)}, so this is ${shopName(other)}’s download again, whatever the file is called. Etsy downloads the shop that is open in Shop Manager: switch to the other shop there first, then download it again.`:`Some ${what}s in this file are already in ${shopName(other)}. Choose that shop, or check the file.`;
   if(file.kind==='statement'){
-   const other=clash(file.records.map(x=>x.ref).filter(x=>x[0]==='o'));if(other){r.error=`These orders are already in ${shopName(other)}. Choose that shop, or check the file.`;return r;}
+   const refs=[...new Set(file.records.map(x=>x.ref).filter(x=>x[0]==='o'))],other=clash(refs);if(other){r.error=clashMsg(refs,other,'order');return r;}
    const bySrc=new Map();s.transactions.forEach(t=>{if(t.src)bySrc.set(t.src,t);});
    for(const x of file.records){const src=hash(shop+'|'+x.key),old=bySrc.get(src);
     if(old){if(old.amount===x.amount)r.same++;else{r.updated++;r.months.add(x.date.slice(0,7));if(!dry)old.amount=x.amount;}continue;}
     r.added++;r.months.add(x.date.slice(0,7));if(!dry)s.transactions.push({id:uid(),date:x.date,category:x.category,amount:x.amount,note:x.note,shop,...(x.ref?{ref:x.ref}:{}),src});}
   }else if(file.kind==='orders'){
-   const other=clash(file.records.map(o=>'o'+o.id));if(other){r.error=`These orders are already in ${shopName(other)}. Choose that shop, or check the file.`;return r;}
+   const refs=file.records.map(o=>'o'+o.id),other=clash(refs);if(other){r.error=clashMsg(refs,other,'order');return r;}
    const orders=new Map(E.orders.map(o=>[o.id,o])),itemIds=new Set(E.items.map(i=>i.id)),touched=new Set();
    for(const o of file.records){if(orders.has(o.id))r.same++;else{r.added++;if(!dry){const n={...o,shop};E.orders.push(n);orders.set(o.id,n);}}}
    for(const i of file.items){if(itemIds.has(i.id))continue;r.items++;itemIds.add(i.id);if(!dry){E.items.push({...i,shop});touched.add(i.order);}}
@@ -3489,7 +3498,7 @@ const EtsyData=((P,B,CSV)=>{
    else{r.replaced=mine.length;r.added=file.records.length;}
    if(!dry&&r.added)E.listings=E.listings.filter(l=>l.shop!==shop).concat(file.records.map((l,i)=>({id:'L'+hash([shop,l.title,l.sku,i].join('|')),shop,...l})));
   }else if(file.kind==='reviews'){
-   const other=clash(file.records.filter(x=>x.order).map(x=>'o'+x.order));if(other){r.error=`These reviews are for orders in ${shopName(other)}. Choose that shop, or check the file.`;return r;}
+   const refs=file.records.filter(x=>x.order).map(x=>'o'+x.order),other=clash(refs);if(other){r.error=clashMsg(refs,other,'reviewed order');return r;}
    const ids=new Set(E.reviews.map(x=>x.id));
    for(const x of file.records){if(ids.has(x.id)){r.same++;continue;}ids.add(x.id);r.added++;if(!dry)E.reviews.push({...x,shop});}
   }
