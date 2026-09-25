@@ -134,6 +134,8 @@ const NICHE = {
     incomeOne: 'Revenue', savedCol: 'Transfers', netHint: 'Revenue − expenses − transfers',
     savingRateEmpty: 'Log revenue to see the share moved aside', savingRate: '% of revenue received',
     transfer: 'Card payments & own transfers', transferOne: 'Transfer',
+    noPlan: 'No monthly target set', heroBills: 'Unpaid bills & fixed costs', heroSave: 'Planned transfers to make', heroFree: 'Free to use',
+    heroLead: 'Free to use once unpaid fixed costs and planned transfers, like the tax pot and your draw, are covered.',
   },
   quickLog: { placeholder: 'client invoice 1200', help: 'Try “client invoice 1200”, “canva 12.99”, “postage 8.40” or “lunch with client 32”.', demo: ['postage', '8.40', 'Packaging & postage to customers'] },
 
