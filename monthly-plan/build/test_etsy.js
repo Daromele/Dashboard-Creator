@@ -65,6 +65,18 @@ module.exports=({eq,ok})=>{
   eq('orders into another shop refused', /already in Fern Prints/.test(load(s,'kiln','o.csv',F.orders).error), true);
   eq('listings replace the shop’s listings', [load(s,'fern','l.csv',F.listings).added,load(s,'fern','l.csv',F.listings).same,load(s,'fern','l2.csv',F.listings.replace('16.00,USD,5','18.00,USD,5')).replaced,s.etsy.listings.length,s.etsy.listings[0].price], [3,3,3,3,1800]);
   eq('reviews import and repeat', [load(s,'fern','r.json',F.reviews).added,load(s,'fern','r.json',F.reviews).same,s.etsy.reviews.length], [4,4,4]);
+  {const z=copy(s),i=z.etsy.imports.findIndex(x=>x.kind==='orders');
+   eq('import log keeps the file dates', [z.etsy.imports[i].from,z.etsy.imports[i].to], ['2026-08-03','2026-09-24']);
+   z.transactions.push({id:'mine',date:'2026-09-10',category:'software',amount:500,note:'typed in',shop:'fern'});
+   const dry=D.removeImport(copy(z),z.etsy.imports.findIndex(x=>x.kind==='statement'),{dry:true});
+   eq('delete a statement import: counts', dry.lines, st.records.length);
+   D.removeImport(z,z.etsy.imports.findIndex(x=>x.kind==='statement'));
+   eq('statement lines gone, typed-in cost kept', z.transactions.map(t=>t.id), ['mine']);
+   D.removeImport(z,z.etsy.imports.findIndex(x=>x.kind==='orders'));eq('orders and their items gone', [z.etsy.orders.length,z.etsy.items.length], [0,0]);
+   D.removeImport(z,z.etsy.imports.findIndex(x=>x.kind==='listings'));D.removeImport(z,z.etsy.imports.findIndex(x=>x.kind==='reviews'));
+   eq('listings and reviews gone', [z.etsy.listings.length,z.etsy.reviews.length], [0,0]);
+   ok('still a valid backup', !throws(()=>B.validate(copy(z))));
+   eq('importing again brings it back', load(z,'fern','o.csv',F.orders).added, 3);}
   eq('each import is logged', s.etsy.imports.map(x=>x.kind).filter((k,i,a)=>a.indexOf(k)===i), ['statement','orders','listings','reviews']);
   ok('no personal data stored', !/Placeholder|Example|Fictional Lane|Testville/.test(JSON.stringify(s)));
   {const e=books();e.settings.currency='USD';const gbp=D.read('s.csv',F.statement.replace(/,USD,/g,',GBP,'));

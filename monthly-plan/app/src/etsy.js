@@ -164,10 +164,24 @@ const EtsyData=((P,B,CSV)=>{
    const ids=new Set(E.reviews.map(x=>x.id));
    for(const x of file.records){if(ids.has(x.id)){r.same++;continue;}ids.add(x.id);r.added++;if(!dry)E.reviews.push({...x,shop});}
   }
-  if(!dry){E.imports.push({shop,kind:file.kind,name:file.name,at:today,rows:file.records.length});if(E.imports.length>2000)E.imports.splice(0,E.imports.length-2000);}
+  if(!dry){E.imports.push({shop,kind:file.kind,name:file.name,at:today,rows:file.records.length,...(file.from?{from:file.from,to:file.to}:{})});if(E.imports.length>2000)E.imports.splice(0,E.imports.length-2000);}
   return r;
  }
 
+ // Undo one import: what that file brought in for its shop and dates. Statement lines you typed
+ // yourself (no import key) are never touched. An older log entry without dates covers everything
+ // of its kind for that shop. dry:true only counts.
+ function removeImport(s,i,{dry=false}={}){
+  const E=s.etsy,x=E.imports[i];if(!x)return null;
+  const inR=d=>(!x.from||d>=x.from)&&(!x.to||d<=x.to),r={kind:x.kind,shop:x.shop,lines:0,orders:0,items:0,listings:0,reviews:0};
+  if(x.kind==='statement'){const keep=s.transactions.filter(t=>!(t.shop===x.shop&&t.src&&inR(t.date)));r.lines=s.transactions.length-keep.length;if(!dry)s.transactions=keep;}
+  else if(x.kind==='orders'){const gone=new Set(E.orders.filter(o=>o.shop===x.shop&&inR(o.date)).map(o=>o.id));r.orders=gone.size;r.items=E.items.filter(it=>gone.has(it.order)).length;
+   if(!dry){E.orders=E.orders.filter(o=>!gone.has(o.id));E.items=E.items.filter(it=>!gone.has(it.order));}}
+  else if(x.kind==='listings'){r.listings=E.listings.filter(l=>l.shop===x.shop).length;if(!dry)E.listings=E.listings.filter(l=>l.shop!==x.shop);}
+  else{const keep=E.reviews.filter(v=>!(v.shop===x.shop&&inR(v.date)));r.reviews=E.reviews.length-keep.length;if(!dry)E.reviews=keep;}
+  if(!dry)E.imports.splice(i,1);
+  return r;
+ }
  // ---------- analytics (all follow the shop selection in settings.shop) ----------
  const scoped=(s,list)=>{const shop=B.scopeOf(s);return shop?list.filter(x=>x.shop===shop):list;};
  const inRange=(x,from,to)=>x.date>=from&&x.date<=to;
@@ -255,7 +269,7 @@ const EtsyData=((P,B,CSV)=>{
   return s.shops.map(shop=>{const v=forShop(s,shop.id),m=summary(v,from,to),r=reviewStats(v,from,to);
    return {...shop,...m,soldOrders:ordersIn(v,from,to).length,listings:v.etsy.listings.filter(l=>l.shop===shop.id).length,reviews:r.count,rating:r.avg};});
  }
- return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,compare,forShop,scoped};
+ return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,compare,forShop,scoped};
 })(NICHE,Budget,CSV);
 if(typeof module!=='undefined')module.exports.EtsyData=EtsyData;
 
@@ -290,17 +304,27 @@ const Etsy=(()=>{
   const split=S.revenue>0?`<div class="etsy-split" role="img" aria-label="Where each sale went">${parts.map(([n,v,c])=>v>0?`<i style="width:${v/S.revenue*100}%;background:${c}" title="${esc(n)} ${fmt(v)}"></i>`:'').join('')}</div><div class="legend">${parts.map(([n,v,c])=>`<span><i class="dot" style="background:${c}"></i>${esc(n)} <b class="number">${pc(S.revenue>0?v/S.revenue:null,0)}</b></span>`).join('')}</div>`:'';
   const fresh=['statement','orders','listings','reviews'].map(k=>{const last=D.scoped(state,state.etsy.imports).filter(x=>x.kind===k).map(x=>x.at).sort().at(-1);return `<span class="pill">${D.KINDS[k]}: ${last?dateName(last):'not yet'}</span>`;}).join(' ');
   const multi=!state.settings.shop&&state.shops.length>1?D.compare(state,m+'-01',Budget.endOf(m)):null;
+  // a month with sold orders but no statement shows what the orders say; fees and take-home wait for the statement
+  const om=D.orderMonths(state,y),cur=om[+m.slice(5,7)-1],pom=D.orderMonths(state,prev.slice(0,4))[+prev.slice(5,7)-1],noStmt=cur.orders>0&&!cur.statement;
+  const needs='Needs this month’s payment account statement';
+  const kpis=noStmt?`${kpi('Sales from orders',cur.sales,change(cur.sales,pom.sales),'down')}${stat('Orders',num(cur.orders),change(cur.orders,pom.orders,false))}${kpi('Average order',Math.round(cur.sales/cur.orders),'Items after discounts, plus shipping, before tax','wallet')}${stat('Take-home','—',needs)}${stat('Etsy costs','—',needs)}${stat('Ads','—',needs)}`
+   :`${kpi('Take-home',S.takeHome,change(S.takeHome,L0.takeHome),'coins',S.takeHome<0?'warn':'')}${kpi(L.income,S.revenue,`${fmt(S.sales)} paid − ${fmt(S.buyerTax)} buyer tax${S.refunds?' − '+fmt(S.refunds)+' refunds':''}`,'down')}${stat('Etsy costs',pc(S.costShare),`${fmt(S.etsyCosts)} of ${L.income.toLowerCase()} · last month ${pc(L0.costShare)}`)}${stat('Ads',pc(S.adsShare),`${fmt(S.ads)} Etsy &amp; Offsite Ads · last month ${pc(L0.adsShare)}`)}${stat('Orders',num(S.orders),change(S.orders,L0.orders,false))}${kpi('Average order',S.aov,L0.aov?'Last month '+fmt(L0.aov):'After buyer tax','wallet')}`;
+  const sold=noStmt?soldOrders(m):[];
   return pagehead(monthName(m),`${esc(scopeName())} at a glance`,'Take-home is revenue after sales tax buyers paid, refunds and every Etsy fee, ad and subscription.',button('Import Etsy files','go-etsy-import','primary')+button('Print summary','print','quiet'))+
    (!hasData()?`<section class="card"><div class="cardhead"><div><h2>Three steps to your first numbers</h2><p>Everything stays in this browser.</p></div></div><div class="grid3">${[['1','Add your shop','Name each Etsy shop you run. You can add more later.','etsy-add-shop','Add a shop'],['2','Download from Etsy','Your payment account statement and sold order items, plus listings and reviews if you like.','go-etsy-import','Where to find them'],['3','Drop them in','Choose the shop and drop the files together. Duplicates are skipped.','go-etsy-import','Import files']].map(([n,t,b,a,l])=>`<div class="etsy-step"><span class="pill">${n}</span><h3>${t}</h3><p class="small muted">${b}</p>${button(l,a,'small')}</div>`).join('')}</div></section>`:'')+
-   `<div class="kpis etsy-kpis">${kpi('Take-home',S.takeHome,change(S.takeHome,L0.takeHome),'coins',S.takeHome<0?'warn':'')}${kpi(L.income,S.revenue,`${fmt(S.sales)} paid − ${fmt(S.buyerTax)} buyer tax${S.refunds?' − '+fmt(S.refunds)+' refunds':''}`,'down')}${stat('Etsy costs',pc(S.costShare),`${fmt(S.etsyCosts)} of ${L.income.toLowerCase()} · last month ${pc(L0.costShare)}`)}${stat('Ads',pc(S.adsShare),`${fmt(S.ads)} Etsy &amp; Offsite Ads · last month ${pc(L0.adsShare)}`)}${stat('Orders',num(S.orders),change(S.orders,L0.orders,false))}${kpi('Average order',S.aov,L0.aov?'Last month '+fmt(L0.aov):'After buyer tax','wallet')}</div>`+
+   (noStmt?`<div class="notice"><span><b>No payment account statement for ${monthName(m)} yet.</b> These figures come from your sold order items. Import the month’s statement to add Etsy fees, ads, take-home and profit.</span>${button('Import statement','go-etsy-import','small')}</div>`:'')+
+   `<div class="kpis etsy-kpis">${kpis}</div>`+
    (S.revenue>0?`<section class="card"><div class="cardhead"><div><h2>Where each sale went</h2><p>${monthName(m)} · share of ${fmt(S.revenue)} ${L.income.toLowerCase()}</p></div><button class="link" data-go="fees">Fees &amp; ads</button></div>${split}</section>`:'')+
-   (()=>{const mm=D.orderMonths(state,y)[+m.slice(5,7)-1];return mm.orders&&!mm.statement?`<div class="notice"><span><b>${monthName(m)}: ${num(mm.orders)} orders, ${fmt(mm.sales)} in sales</b> from your sold order items. Import this month’s payment account statement to see fees and take-home.</span>${button('Import statement','go-etsy-import','small')}</div>`:'';})()+
-   Biz.dashboard()+
+   (noStmt?'':Biz.dashboard())+
    (multi?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${monthName(m)}</p></div><button class="link" data-go="shops">Compare shops</button></div><div class="table-wrap"><table><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Etsy costs</th><th class="num">Take-home</th><th class="num">Orders</th></tr></thead><tbody>${multi.map(x=>`<tr><td><button class="link" data-action="etsy-scope" data-shop="${x.id}">${esc(x.name)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${num(x.orders)}</td></tr>`).join('')}</tbody></table></div></section>`:'')+
-   (series.some(x=>x&&(x.revenue||x.takeHome))?`<section class="card"><div class="cardhead"><div><h2>${y} month by month</h2><p>${L.income} and take-home · future months are blank</p></div></div>${areaChart([{name:L.income,values:series.map(x=>x?x.revenue:null),color:'var(--ch-in)'},{name:'Take-home',values:series.map(x=>x?x.takeHome:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and take-home by month`)}</section>`:'')+
-   `<section class="card table-card"><div class="cardhead"><div><h2>Latest orders</h2><p>${monthName(m)} · rebuilt from the payment account statement</p></div><button class="link" data-go="fees">All orders</button></div>${orders.length?orderTable(orders.slice(0,8)):empty('No orders this month','Import this month’s payment account statement.','go-etsy-import','Import Etsy files')}</section>`+
+   (series.some(x=>x&&(x.revenue||x.takeHome))||om.some(x=>x.orders)?`<section class="card"><div class="cardhead"><div><h2>${y} month by month</h2><p>${om.some(x=>x.orders)?'Sales from sold orders, and ':''}${L.income.toLowerCase()} and take-home from statements · future months are blank</p></div><button class="link" data-go="annual">Year &amp; cash flow</button></div>${areaChart([...(om.some(x=>x.orders)?[{name:'Sales from orders',values:om.map(x=>x.month<=cutoff?x.sales:null),color:'var(--cat-3)'}]:[]),{name:L.income,values:series.map((x,i)=>x&&om[i].statement?x.revenue:null),color:'var(--ch-in)'},{name:'Take-home',values:series.map((x,i)=>x&&om[i].statement?x.takeHome:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and take-home by month`)}</section>`:'')+
+   `<section class="card table-card"><div class="cardhead"><div><h2>Latest orders</h2><p>${monthName(m)} · ${noStmt?'from your sold order items':'rebuilt from the payment account statement'}</p></div><button class="link" data-go="fees">All orders</button></div>${noStmt?soldTable(sold.slice(0,8)):orders.length?orderTable(orders.slice(0,8)):empty('No orders this month','Import this month’s payment account statement.','go-etsy-import','Import Etsy files')}</section>`+
    `<div class="notice no-print"><span><b>Last imports</b><br>${fresh}</span>${button('Import Etsy files','go-etsy-import','small')}</div>`;
  }
+ function soldOrders(m){const names=new Map();for(const i of state.etsy.items){const n=names.get(i.order);if(n)n.push(i.name);else names.set(i.order,[i.name]);}
+  return D.scoped(state,state.etsy.orders).filter(o=>o.date.startsWith(m)).map(o=>({...o,names:names.get(o.id)||[]})).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));}
+ function soldTable(list){const shopCol=!state.settings.shop&&state.shops.length>1;
+  return `<div class="table-wrap"><table class="etsy-orders"><thead><tr><th>Order</th><th>Date</th>${shopCol?'<th>Shop</th>':''}<th class="num">Units</th><th class="num">List price</th><th class="num">Discount</th><th class="num">Shipping</th><th class="num">Paid before tax</th></tr></thead><tbody>${list.map(o=>`<tr><td><b>#${esc(o.id)}</b><small class="dim etsy-item">${esc(o.names[0]||'')}${o.names.length>1?` + ${o.names.length-1} more`:''}</small></td><td>${dateName(o.date)}</td>${shopCol?`<td>${esc(shopName(o.shop))}</td>`:''}<td class="num">${num(o.units)}</td><td class="num">${fmt(o.list)}</td><td class="num">${o.discount?'−'+fmt(o.discount):'—'}</td><td class="num">${o.shipping?fmt(o.shipping):'—'}</td><td class="num"><b>${fmt(o.list-o.discount+(o.shipping||0))}</b></td></tr>`).join('')}</tbody></table></div>`;}
  function orderTable(list){
   return `<div class="table-wrap"><table class="etsy-orders"><thead><tr><th>Order</th><th>Date</th>${state.settings.shop||state.shops.length<2?'':'<th>Shop</th>'}<th class="num">Buyer paid</th><th class="num">Buyer tax</th><th class="num">Etsy fees</th><th class="num">Take-home</th><th class="num">Kept</th></tr></thead><tbody>${list.map(o=>`<tr><td><b>#${esc(o.id)}</b>${o.item?`<small class="dim etsy-item">${esc(o.item)}</small>`:''}</td><td>${dateName(o.date)}</td>${state.settings.shop||state.shops.length<2?'':`<td>${esc(shopName(o.shop))}</td>`}<td class="num">${fmt(o.sale-o.refund)}</td><td class="num">${o.tax?'−'+fmt(o.tax):'—'}</td><td class="num">−${fmt(o.fees)}</td><td class="num"><b>${Biz.acct(o.takeHome)}</b></td><td class="num">${pc(o.revenue>0?o.takeHome/o.revenue:null,0)}</td></tr>`).join('')}</tbody></table></div>`;
  }
@@ -414,8 +438,8 @@ const Etsy=(()=>{
   return parts.length?parts.join(' · '):'Nothing new';
  }
  function recentImports(){
-  const list=D.scoped(state,state.etsy.imports).slice(-12).reverse();if(!list.length)return '';
-  return `<section class="card table-card"><div class="cardhead"><div><h2>Recent imports</h2><p>${esc(scopeName())}</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th class="num">Rows</th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${esc(shopName(x.shop))}</td><td>${esc(x.name)}</td><td>${D.KINDS[x.kind]}</td><td class="num">${num(x.rows)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  const shop=state.settings.shop,list=state.etsy.imports.map((x,i)=>({...x,i})).filter(x=>!shop||x.shop===shop).slice(-40).reverse();if(!list.length)return '';
+  return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${esc(scopeName())} · Delete removes what a file brought in for its shop and dates. Costs you typed in yourself stay.</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${esc(shopName(x.shop))}</td><td>${esc(x.name)}</td><td>${D.KINDS[x.kind]}</td><td class="nw">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print">${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
  }
  async function readFiles(list){
   const files=[...list].slice(0,24);if(!files.length)return;
@@ -470,6 +494,10 @@ const Etsy=(()=>{
   case 'etsy-delete-shop':{const x=state.shops.find(s=>s.id===id);if(!x)break;confirmation(`Delete ${esc(x.name)}?`,'Its statement lines, orders, listings and reviews are removed from this planner. Shared costs are kept. You can undo this change.','etsy-confirm-delete-shop','Delete shop',`data-id="${id}"`);break;}
   case 'etsy-confirm-delete-shop':{const x=state.shops.find(s=>s.id===id);if(!x)break;closeModal();commit(()=>{state.shops=state.shops.filter(s=>s.id!==id);state.transactions=state.transactions.filter(t=>t.shop!==id);
    for(const k of ['orders','items','listings','reviews','imports'])state.etsy[k]=state.etsy[k].filter(r=>r.shop!==id);if(state.settings.shop===id||state.shops.length<2)state.settings.shop='';},`${x.name} deleted`);break;}
+  case 'etsy-remove-import':{const i=+b.dataset.i,x=state.etsy.imports[i],r=x&&D.removeImport(clone(state),i,{dry:true});if(!r)break;
+   const what=[r.lines&&`${num(r.lines)} statement line${r.lines===1?'':'s'}`,r.orders&&`${num(r.orders)} order${r.orders===1?'':'s'} (${num(r.items)} items)`,r.listings&&`${num(r.listings)} listings`,r.reviews&&`${num(r.reviews)} review${r.reviews===1?'':'s'}`].filter(Boolean).join(', ')||'nothing else (its data is already gone)';
+   confirmation(`Delete ${esc(x.name)}?`,`Removes ${what} from ${esc(shopName(x.shop))}${x.from&&x.kind!=='listings'?`, dated ${dateName(x.from)} – ${dateName(x.to)} ${x.to.slice(0,4)}`:''}. If another import covers the same dates, its rows go too; import that file again to bring them back. You can undo this change.`,'etsy-confirm-remove-import','Delete import',`data-i="${i}"`);break;}
+  case 'etsy-confirm-remove-import':{const i=+b.dataset.i,x=state.etsy.imports[i];if(!x)break;closeModal();commit(()=>D.removeImport(state,i),`${x.name} deleted`);break;}
   case 'etsy-clear':session=null;render();break;
   case 'etsy-import':runImport();break;
  }}catch(err){toast(err.message);}});

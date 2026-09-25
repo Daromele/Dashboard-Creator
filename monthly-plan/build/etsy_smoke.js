@@ -56,6 +56,9 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.evaluate(()=>go('fees'));await p.click('[data-action="etsy-span"][data-span="month"]');
   const fees=await text();check('fees: every order',fees.includes('Every order in September 2026')&&fees.includes('$18.23'),fees.slice(0,500));
   await p.evaluate(()=>go('products'));const prod=await text();check('products',prod.includes('Botanical Fern Print')&&prod.includes('Autumn Leaves Print Set')&&prod.includes('Listing health'),prod.slice(0,400));
+  await p.evaluate(()=>{selected='2026-08';go('dashboard');});const aug=await text();
+  check('a month with orders but no statement shows the orders',aug.includes('No payment account statement for August 2026')&&aug.includes('Sales from orders')&&aug.includes('#3812345600'),aug.slice(0,500));
+  await p.evaluate(()=>{selected='2026-09';render();});
   await p.evaluate(()=>go('reviews'));await p.click('[data-action="etsy-span"][data-span="all"]');check('reviews',(await text()).includes('Arrived bent.'));
   await p.evaluate(()=>go('pl'));check('P&L buyer tax line',(await text()).includes('Sales tax & VAT paid by buyers'));
 
@@ -107,6 +110,10 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   check('deleting a shop removes its lines',await st(id=>state.shops.length===1&&!state.transactions.some(t=>t.shop===id),kilnId));
   await p.click('#toast [data-action="undo"]');check('undo brings the shop back',await st(()=>state.shops.length===2));
 
+  await p.evaluate(()=>go('etsy-import'));const ri=await st(()=>state.etsy.imports.findIndex(x=>x.kind==='reviews'));
+  await p.click(`[data-action="etsy-remove-import"][data-i="${ri}"]`);check('delete import asks first',(await p.locator('#modal').innerText()).includes('4 reviews'));
+  await p.click('[data-action="etsy-confirm-remove-import"]');check('deleting an import removes its rows',await st(()=>state.etsy.reviews.length===0&&!state.etsy.imports.some(x=>x.kind==='reviews')));
+  await p.click('#toast [data-action="undo"]');check('undo restores the import',await st(()=>state.etsy.reviews.length===4));
   // ---- narrow screens ----
   await p.setViewportSize({width:390,height:844});
   for(const s of ['dashboard','etsy-import','fees','products','coupons','customers','reviews','seasonality','shops','pl']){await p.evaluate(s=>go(s),s);await shot('phone-'+s);

@@ -1315,7 +1315,7 @@ const Budget = ((P) => {
       each('items',100000,i=>key(i.order)&&str(i.listing??'',40)&&str(i.name,300)&&count(i.qty,100000)&&i.qty>0&&money(i.price)&&money(i.total)&&str(i.sku??'',80));
       each('listings',20000,l=>str(l.title,300)&&money(l.price)&&count(l.qty,1e7)&&count(l.photos,10)&&count(l.tags,13)&&str(l.sku??'',80)&&count(l.variations??0,3));
       each('reviews',100000,r=>validDate(r.date)&&Number.isInteger(r.stars)&&r.stars>=1&&r.stars<=5&&str(r.message??'',2000)&&str(r.order??'',40));
-      list('imports',2000).forEach(x=>{if(!object(x)||!shops.has(x.shop)||!['statement','orders','listings','reviews'].includes(x.kind)||!str(x.name,160)||!validDate(x.at)||!count(x.rows,1e6))fail();});}}
+      list('imports',2000).forEach(x=>{if(!object(x)||!shops.has(x.shop)||!['statement','orders','listings','reviews'].includes(x.kind)||!str(x.name,160)||!validDate(x.at)||!count(x.rows,1e6)||(x.from!==undefined&&!validDate(x.from))||(x.to!==undefined&&!validDate(x.to)))fail();});}}
     s.categories.forEach(c=>{if(c.taxLine!==undefined&&!(TAX_LINES&&typeof c.taxLine==='string'&&Object.hasOwn(TAX_LINES,c.taxLine)))delete c.taxLine;});
     if(P.features.tax){const r=s.settings.taxRate;if(r===undefined)s.settings.taxRate=P.settings.taxRate;else if(!Number.isInteger(r)||r<0||r>9000)fail();}
     if(P.features.mileage){const r=s.settings.mileageRate;if(r===undefined)s.settings.mileageRate=P.settings.mileageRate;else if(!Number.isInteger(r)||r<0||r>100000)fail();
