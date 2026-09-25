@@ -980,10 +980,10 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .pl-range{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:flex-end}
 .pl-range label{display:flex;flex-direction:column;font-size:11px;color:var(--ink-3);gap:2px}
 .pl-range input{min-height:32px;padding:var(--s1) var(--s2)}
-.statement-head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s4);padding-bottom:var(--s3);border-bottom:2px solid var(--ink);margin-bottom:var(--s2)}
+.statement-head{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s4);padding-bottom:var(--s3);border-bottom:2px solid var(--ink);margin-bottom:var(--s2)}
 .statement-head h2{font-size:22px;margin-top:2px}
 .statement-head small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
-.statement-period{font:750 18px/1.25 var(--num);color:var(--accent);margin-top:4px;letter-spacing:-.01em}
+.statement-period{font:750 18px/1.25 var(--num);color:var(--accent);margin-bottom:4px;letter-spacing:-.01em}
 .statement-meta{text-align:right}
 .statement-table th{background:none;border-bottom:1px solid var(--rule-2)}
 .statement-table td{padding:7px var(--s3)}
@@ -1035,7 +1035,8 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
  .grid2:has(form){display:block}.grid2:has(form)>.card{margin-bottom:16px}
  tr,.row,.budget-row,.statement-memo>div,.quarter,.kpi{break-inside:avoid}
  #content,#content:focus,*:focus,*:focus-visible{outline:none!important}
- .pagehead .eyebrow.period{font:800 16px/1.2 var(--num);letter-spacing:.02em;text-transform:none;color:#111;margin-bottom:4px}
+ .page{position:relative}.page:has(.period,.statement-period) .pt-month{display:none}
+ .pagehead .eyebrow.period{position:absolute;top:-4px;right:0;margin:0;text-align:right;font:800 16px/1.2 var(--num);letter-spacing:.02em;text-transform:none;color:#111}
  .statement-period{font-size:20px;color:#111}
  .hero-side,.hero-side *{color:#222!important}.hero-side span{color:#555!important}.hero::before,.hero::after{display:none!important}
  thead{display:table-header-group}.pagehead,.cardhead,.statement-head,h2,h3,tr.st-section,tr.st-group{break-after:avoid}}
@@ -1631,7 +1632,7 @@ function render(){
  const hidden=new Set(state.settings.hiddenNav||[]);let lastGroup='';
  $('#nav').innerHTML=navItems.filter(([id])=>!hidden.has(id)).map(([id,name,icon])=>{const group=navGroup(id),heading=group!==lastGroup?`<div class="navgroup">${group}</div>`:'';lastGroup=group;return `${heading}<button class="navlink" data-go="${id}" ${screen===id?'aria-current="page"':''}>${ico(icon)}<span>${name}</span></button>`;}).join('');
  const views={dashboard:dashboardView,annual:annualView,budget:budgetView,activity:activityView,goals:goalsView,calendar:calendarView,insights:insightsView,review:reviewView,settings:settingsView,guide:guideView,import:importView,scheduled:scheduledView,wealth:wealthView,...Biz.views};
- $('#content').innerHTML=`<div class="print-title">${P.product.printTitle} · ${monthName(selected)} · ${state.settings.currency}</div>${Budget.month(state,selected).closed&&['dashboard','budget','activity'].includes(screen)?'<div class="notice"><span>✓ This month is closed. Its budget and transactions are protected from edits.</span>'+button('Reopen month','reopen','small')+'</div>':''}${views[screen]()}<footer class="footer"><span>${P.product.printTitle}</span><span>${demo?'Fictional sample data':'Private to this browser · Export a backup regularly'} · ${state.settings.currency}</span></footer>`;renderStorage();renderBackupBanner();updateBarHeight();renderMonthTabs();applyRail();restoreFocus(_focus);countUp();scrollHeatToCurrent();
+ $('#content').innerHTML=`<div class="print-title">${P.product.printTitle}<span class="pt-month"> · ${monthName(selected)}</span> · ${state.settings.currency}</div>${Budget.month(state,selected).closed&&['dashboard','budget','activity'].includes(screen)?'<div class="notice"><span>✓ This month is closed. Its budget and transactions are protected from edits.</span>'+button('Reopen month','reopen','small')+'</div>':''}${views[screen]()}<footer class="footer"><span>${P.product.printTitle}</span><span>${demo?'Fictional sample data':'Private to this browser · Export a backup regularly'} · ${state.settings.currency}</span></footer>`;renderStorage();renderBackupBanner();updateBarHeight();renderMonthTabs();applyRail();restoreFocus(_focus);countUp();scrollHeatToCurrent();
 }
 function updateBarHeight(){document.documentElement.style?.setProperty('--bar-height',($('.topbar').offsetHeight||77)+'px');}
 window.addEventListener('resize',updateBarHeight);
@@ -2731,7 +2732,7 @@ const Biz=(()=>{
   const y=selected.slice(0,4),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),cutoff=today().slice(0,7),pm=months.map(m=>m<=cutoff?Budget.plMonth(state,m):null);
   return pagehead('Profit & loss','What the business actually made','Cash basis: sales count when the money arrives, costs when you pay them.',button('Download CSV','biz-pl-csv','quiet')+button('Print statement','print','primary'))+controls+
    `<div class="kpis no-print">${kpi(L.income,T.revenue.total,esc(r.label),'down')}${kpi('Gross profit',T.gross,T.grossMargin===null?`No ${L.income.toLowerCase()} in this period`:pct(T.gross,T.revenue.total)+' gross margin','insights')}${kpi('Operating expenses',T.opex.total,`${T.opex.groups.reduce((n,g)=>n+g.lines.length,0)} categories`,'up')}${kpi(T.net<0?'Net loss':'Net profit',T.net,T.netMargin===null?'—':pct(T.net,T.revenue.total)+' net margin','wallet',T.net<0?'warn':'')}</div>`+
-   `<section class="card statement"><div class="statement-head"><div><div class="eyebrow">Profit &amp; loss statement</div><h2>${esc(bizName())}</h2><div class="statement-period">${esc(r.label)}</div></div><div class="statement-meta"><small>Cash basis · ${esc(state.settings.currency)}</small><small>Prepared ${fullDate(today())}</small></div></div>`+
+   `<section class="card statement"><div class="statement-head"><div><div class="eyebrow">Profit &amp; loss statement</div><h2>${esc(bizName())}</h2></div><div class="statement-meta"><div class="statement-period">${esc(r.label)}</div><small>Cash basis · ${esc(state.settings.currency)}</small><small>Prepared ${fullDate(today())}</small></div></div>`+
    (has?statementTable(all):empty('Nothing recorded in this period','Log sales and costs, or choose another period.','add','Add a transaction'))+memo+`</section>`+
    (pm.some(p=>p&&(p.revenue.total||p.net))?`<section class="card no-print"><div class="cardhead"><div><h2>Month by month in ${y}</h2><p>${L.income} and net profit · future months are blank</p></div></div>${areaChart([{name:L.income,values:pm.map(p=>p?p.revenue.total:null),color:'var(--ch-in)'},{name:'Net profit',values:pm.map(p=>p?p.net:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and net profit by month`)}</section>`:'');
  }
@@ -2778,7 +2779,7 @@ const Biz=(()=>{
   return pagehead(`${form.name} · ${y}`,'A summary your accountant can work from',`${esc(form.long)}. ${thisYear?'Recorded through '+fullDate(today())+'.':'Recorded for the full year.'} Cash basis.`,button('Summary CSV','biz-sc-csv','quiet')+button('Transactions by line CSV','biz-sc-detail','quiet')+button('Print','print','primary'))+
    (warnings.length?`<div class="notice warning no-print"><span>${warnings.join('<br><br>')}</span></div>`:'')+
    `<div class="kpis">${kpi('Gross receipts',T.gross,`Line 1 · ${y}`,'down')}${kpi('Gross profit',T.grossProfit,`Line 5 · after ${fmt(T.cogs)} cost of goods`,'insights')}${kpi('Total expenses',T.expenses,'Line 28','up')}${kpi(T.net<0?'Tentative loss':'Tentative profit',T.net,'Line 29 · before home office','wallet',T.net<0?'warn':'')}</div>`+
-   `<section class="card statement taxline-card"><div class="statement-head"><div><div class="eyebrow">${esc(form.name)} worksheet</div><h2>${esc(bizName())}</h2><div class="statement-period">Tax year ${y}${thisYear?` · ${dateName(y+'-01-01')} – ${fullDate(today())}`:''}</div><small>Prepared ${fullDate(today())} from ${esc(P.product.name)}. Organised records, not a filed return.</small></div><div class="statement-meta"><small>Cash basis · ${esc(state.settings.currency)}</small></div></div>`+
+   `<section class="card statement taxline-card"><div class="statement-head"><div><div class="eyebrow">${esc(form.name)} worksheet</div><h2>${esc(bizName())}</h2><small>Prepared ${fullDate(today())} from ${esc(P.product.name)}. Organised records, not a filed return.</small></div><div class="statement-meta"><div class="statement-period">Tax year ${y}${thisYear?` · ${dateName(y+'-01-01')} – ${fullDate(today())}`:''}</div><small>Cash basis · ${esc(state.settings.currency)}</small></div></div>`+
    `<div class="table-wrap"><table class="statement-table taxline-table"><tbody>`+
    `<tr class="st-section"><td colspan="3">Part I · Income</td></tr>${part('income').map(l=>line(l)).join('')}<tr class="${T.cogs?'':'is-zero'}"><td class="line-no">4</td><td>Cost of goods sold (from line 42)</td><td class="num">${T.cogs?acct(T.cogs):'—'}</td></tr>${calc(5,'Gross profit',T.grossProfit)}${part('other').map(l=>line(l)).join('')}${calc(7,'Gross income',T.grossIncome)}`+
    `<tr class="st-section"><td colspan="3">Part II · Expenses</td></tr>${part('expense').map(l=>line(l)).join('')}${calc(28,'Total expenses',T.expenses)}${calc(29,'Tentative profit or (loss)',T.net)}<tr class="is-note"><td class="line-no">30</td><td colspan="2">Business use of home is worked out on Form 8829 or the simplified method. Tell your accountant about any home office.</td></tr>`+

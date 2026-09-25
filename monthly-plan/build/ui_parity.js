@@ -35,7 +35,7 @@ async function capture(file){
   const grab=async key=>{out[key]=await p.evaluate(()=>{
     // v1.9 adds the Start fresh block, marks dated headings as the period and bumps the version;
     // everything else must match v1.8
-    const norm=h=>h.replace(/ data-count="[^"]*"/g,'').replace(/animation-delay:[^;"]*;?/g,'').replace(/<!--fresh-->[\s\S]*?<!--\/fresh-->/,'').replace(/class="eyebrow period"/g,'class="eyebrow"');
+    const norm=h=>h.replace(/ data-count="[^"]*"/g,'').replace(/animation-delay:[^;"]*;?/g,'').replace(/<!--fresh-->[\s\S]*?<!--\/fresh-->/,'').replace(/class="eyebrow period"/g,'class="eyebrow"').replace(/<span class="pt-month">([^<]*)<\/span>/,'$1');
     return {content:norm(document.querySelector('#content').innerHTML),nav:document.querySelector('#nav').innerHTML,
       title:document.title+[...document.head.querySelectorAll('meta,link,title')].map(e=>e.outerHTML).join(''),rail:document.querySelector('.rail').innerHTML.replace(/ · v1\.[89]</,' · v<'),modal:document.querySelector('#modal').open?document.querySelector('#modal-body').innerHTML:''};});};
   for(const mode of ['blank','sample']){
