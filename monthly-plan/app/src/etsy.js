@@ -538,7 +538,11 @@ const Etsy=(()=>{
  function importView(){
   const shops=state.shops,target=session?.shop||state.settings.shop||shops[0]?.id||'';
   const where=X.exports.map(([k,label,path,example])=>`<div class="row"><div><strong>${label}</strong><small>${esc(path)}</small></div><span class="pill">${esc(example)}</span></div>`).join('');
-  const shopPick=shops.length?`<label>Import into<select id="etsy-import-shop">${shops.map(x=>`<option value="${x.id}" ${x.id===target?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>`:`<form id="etsy-shop-form" class="etsy-first-shop"><label>Name your shop<input name="name" maxlength="60" required placeholder="e.g. Fern &amp; Fable Prints"></label><button class="btn primary">Add shop</button></form>`;
+  // what the chosen shop already holds, so the choice is easy to check at a glance
+  const held=id=>{const last=state.etsy.imports.filter(x=>x.shop===id).map(x=>x.at).sort().at(-1),o=state.etsy.orders.filter(x=>x.shop===id).length,l=state.transactions.filter(t=>t.shop===id&&t.src).length;
+   return last?`${num(o)} order${o===1?'':'s'} · ${num(l)} statement line${l===1?'':'s'} · last import ${dateName(last)}`:'Nothing imported yet';};
+  const shopPick=shops.length?`<label class="etsy-field"><span class="sr-only">Import into</span><select id="etsy-import-shop">${shops.map(x=>`<option value="${x.id}" ${x.id===target?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>${button('＋ New shop','etsy-add-shop','quiet')}`
+   :`<form id="etsy-shop-form" class="etsy-first-shop"><label class="etsy-field"><span class="sr-only">Shop name</span><input name="name" maxlength="60" required placeholder="Your shop name, e.g. Fern &amp; Fable Prints"></label><button class="btn primary">Add shop</button></form>`;
   let preview='';
   if(session?.files.length){
    const rows=session.files.map(f=>({f,r:D.merge(clone(state),target,f,{dry:true})}));
@@ -546,8 +550,12 @@ const Etsy=(()=>{
    preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognised as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.KINDS[f.kind]:'<span class="warn">Not recognised</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}</td></tr>`).join('')}</tbody></table></div></section>`;
   }
   return pagehead('Bring in your Etsy files','Import Etsy files','Choose the shop, then drop in any of Etsy’s four exports together. Each is recognised by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
-   `<section class="card"><div class="grid2 equal etsy-import-top"><div>${shopPick}${shops.length?`<p class="small muted">Files go into this shop, whatever the shop picker at the top shows. ${button('＋ Add a shop','etsy-add-shop','small')}</p>`:''}</div>`+
-   `<label class="etsy-drop${shops.length?'':' disabled'}" id="etsy-drop"><span>${ico('up')}</span><b>Drop Etsy files here</b><small>or choose them · .csv and reviews.json · several at once</small><input type="file" id="etsy-files" accept=".csv,.json,text/csv,application/json" multiple ${shops.length?'':'disabled'}></label></div></section>`+
+   `<section class="card etsy-import-card"><div class="etsy-import-top">`+
+   `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">1</span><div><h2>${shops.length?'Choose the shop':'Name your first shop'}</h2><p>${shops.length?'Files go into this shop, whatever the picker at the top shows.':'One entry per Etsy shop. You can add more later.'}</p></div></div>`+
+   `<div class="etsy-shop-row">${shopPick}</div>${shops.length?`<p class="etsy-shop-meta">${ico('history')}<span>${esc(held(target))}</span></p>`:''}</div>`+
+   `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">2</span><div><h2>Add the files</h2><p>Statements, order items, listings and reviews, together or one at a time.</p></div></div>`+
+   `<label class="etsy-drop${shops.length?'':' disabled'}" id="etsy-drop"><span class="etsy-drop-icon">${ico('up')}</span><b>Drop Etsy files here</b><small>.csv and reviews.json · several at once · read on this device only</small><span class="btn small etsy-drop-btn">Choose files</span><input class="sr-only" type="file" id="etsy-files" accept=".csv,.json,text/csv,application/json" multiple ${shops.length?'':'disabled'}></label></div>`+
+   `</div></section>`+
    preview+
    `<section class="card"><div class="cardhead"><div><h2>Where to find each file</h2><p>Download them from Etsy on a computer. Nothing is sent anywhere: the files are read in this browser.</p></div></div>${where}<p class="small muted" style="margin-top:12px">Buyer names and addresses in the sold order items file are not stored. Only the country and a scrambled key (to count repeat buyers) are kept.</p></section>`+
    recentImports();
@@ -635,16 +643,41 @@ const Etsy=(()=>{
  .shop-control{display:flex;flex-direction:column;gap:2px;margin-left:14px;min-width:0}
  .shop-control select{height:36px;border-radius:10px;border:1px solid var(--rule-2);background:var(--card);color:var(--ink);font:600 14px var(--ui);padding:0 30px 0 10px;max-width:220px}
  .etsy-item{display:block;font-weight:400;max-width:420px;white-space:normal}
- .etsy-drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px dashed var(--rule-2);border-radius:var(--r-md);padding:26px 16px;text-align:center;cursor:pointer;background:var(--sunk)}
- .etsy-drop.over{border-color:var(--accent);background:var(--accent-soft)}
+ .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+ .etsy-import-card{padding:0;overflow:hidden}
+ .etsy-import-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
+ .etsy-import-step{padding:26px 28px;display:flex;flex-direction:column;gap:18px;min-width:0}
+ .etsy-import-step+.etsy-import-step{border-left:1px solid var(--rule);background:linear-gradient(180deg,var(--sunk),var(--card) 70%)}
+ .etsy-step-head{display:flex;gap:14px;align-items:flex-start}
+ .etsy-step-head h2{margin:1px 0 4px;font-size:17px;letter-spacing:-.01em}
+ .etsy-step-head p{margin:0;color:var(--ink-3);font-size:13.5px;line-height:1.45}
+ .etsy-step-no{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 13px var(--num);border:1px solid var(--accent-line)}
+ .etsy-shop-row{display:flex;gap:10px;align-items:stretch}
+ .etsy-shop-row .btn{flex:none;height:44px;white-space:nowrap}
+ .etsy-field{flex:1;min-width:0;margin:0}
+ .etsy-field select,.etsy-field input{width:100%;height:44px;margin:0;border-radius:12px;border:1px solid var(--rule-2);background:var(--card);color:var(--ink);font:600 15px var(--ui);padding:0 14px;box-shadow:var(--shadow-sm);transition:border-color .15s,box-shadow .15s}
+ .etsy-field select{appearance:none;-webkit-appearance:none;padding-right:40px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238C7E75' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:16px}
+ .etsy-field select:hover,.etsy-field input:hover{border-color:var(--accent-line)}
+ .etsy-field select:focus,.etsy-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+ .etsy-shop-meta{display:flex;align-items:center;gap:8px;margin:-6px 0 0;color:var(--ink-3);font-size:12.5px}
+ .etsy-shop-meta svg{width:14px;height:14px;flex:none}
+ .etsy-first-shop{display:flex;gap:10px;flex:1}
+ .etsy-first-shop .btn{flex:none;height:44px}
+ .etsy-drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1.5px dashed var(--rule-2);border-radius:14px;padding:28px 18px;text-align:center;cursor:pointer;background:var(--card);transition:border-color .2s,background .2s,transform .2s}
+ .etsy-drop:hover{border-color:var(--accent)}
+ .etsy-drop:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+ .etsy-drop.over{border-color:var(--accent);background:var(--accent-soft);transform:scale(1.01)}
  .etsy-drop.disabled{opacity:.5;cursor:not-allowed}
- .etsy-drop span svg{width:28px;height:28px;color:var(--accent)}
- .etsy-drop input{max-width:100%;margin-top:8px}
- .etsy-first-shop{display:grid;gap:10px}
+ .etsy-drop-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--accent-soft);margin-bottom:6px;transition:transform .2s}
+ .etsy-drop:hover .etsy-drop-icon{transform:translateY(-2px)}
+ .etsy-drop-icon svg{width:22px;height:22px;color:var(--accent)}
+ .etsy-drop b{font-size:15px}
+ .etsy-drop small{color:var(--ink-3);font-size:12.5px}
+ .etsy-drop-btn{margin-top:10px;pointer-events:none}
  .etsy-step h3{margin:10px 0 4px}
  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
  .etsy-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
- @media (max-width:760px){.grid3,.etsy-kpis{grid-template-columns:1fr}.top-left{flex-wrap:wrap;row-gap:6px}.shop-control{order:3;flex-basis:100%;margin-left:0}.shop-control .month-control-label{display:none}.shop-control select{max-width:none;width:100%;height:34px}}
+ @media (max-width:760px){.etsy-import-top{grid-template-columns:1fr}.etsy-import-step+.etsy-import-step{border-left:0;border-top:1px solid var(--rule)}.etsy-import-step{padding:20px}.grid3,.etsy-kpis{grid-template-columns:1fr}.top-left{flex-wrap:wrap;row-gap:6px}.shop-control{order:3;flex-basis:100%;margin-left:0}.shop-control .month-control-label{display:none}.shop-control select{max-width:none;width:100%;height:34px}}
  @media print{.shop-control{display:none}}
  /* chart kit */
  .kit-pie{display:grid;grid-template-columns:minmax(150px,200px) 1fr;gap:22px;align-items:center}
