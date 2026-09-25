@@ -411,14 +411,24 @@ const Etsy=(()=>{
    points.map((p,i)=>`<circle class="kit-dot${p.y?'':' kit-dot-zero'}" cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${p.y?6:4.5}" style="--i:${i%40}" tabindex="0" data-tip="${tipOf(p.label,[{name:xName,value:xf(p.x),color:p.y?'var(--accent)':'var(--cat-6)'},{name:yName,value:yf(p.y)},...(p.note?[{name:p.note,value:''}]:[])])}"/>`).join('')+`</svg></div>`;
  }
  // stacked columns: parts of a whole per month (one colour per shop), 2px gaps between segments
- function stack(series,labels,{f=fmt,title=''}={}){
-  const tot=labels.map((_,i)=>series.reduce((n,s)=>n+(Number.isFinite(s.values[i])?Math.max(0,s.values[i]):0),0)),max=Math.max(1,...tot);if(!tot.some(Boolean))return '';
+ function stack(series,labels,{f=fmt,title='',overlay=null}={}){
+  const tot=labels.map((_,i)=>series.reduce((n,s)=>n+(Number.isFinite(s.values[i])?Math.max(0,s.values[i]):0),0)),max=Math.max(1,...tot,...(overlay?overlay.values.filter(Number.isFinite):[]));if(!tot.some(Boolean))return '';
   const W=700,H=260,pl=52,pr=12,pt=22,pb=28,band=(W-pl-pr)/labels.length,bw=Math.min(38,band*.62),Y=v=>pt+(1-v/max)*(H-pt-pb),ticks=Array.from({length:5},(_,i)=>max*i/4);
   const cols=labels.map((l,i)=>{let base=H-pb;const x=pl+band*i+(band-bw)/2;
    const segs=series.map((s,si)=>{const v=Math.max(0,s.values[i]||0);if(!v)return '';const h=(H-pt-pb)*v/max,y=base-h;base=y;return `<rect class="kit-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" style="fill:${s.color};--i:${i}"/>`;}).join('');
-   const tip=tipOf(l,[...series.filter(s=>s.values[i]).map(s=>({name:s.name,value:f(s.values[i]),color:s.color})),{name:'Total',value:f(tot[i])}]);
+   const tip=tipOf(l,[...series.filter(s=>s.values[i]).map(s=>({name:s.name,value:f(s.values[i]),color:s.color})),{name:'Total',value:f(tot[i])},...(overlay&&Number.isFinite(overlay.values[i])?[{name:overlay.name,value:f(overlay.values[i]),color:overlay.color}]:[])]);
    return `<g class="kit-col" tabindex="0" data-tip="${tip}"><rect x="${(pl+band*i).toFixed(1)}" y="${pt}" width="${band.toFixed(1)}" height="${H-pt-pb}" fill="transparent"/>${segs}${tot[i]?`<text x="${(x+bw/2).toFixed(1)}" y="${(Y(tot[i])-6).toFixed(1)}" class="kit-axis" text-anchor="middle">${esc(compact(tot[i]))}</text>`:''}</g><text x="${(x+bw/2).toFixed(1)}" y="${H-8}" class="kit-axis" text-anchor="middle">${esc(l)}</text>`;}).join('');
-  return `<div class="kit-line">${series.length>1?`<div class="legend">${series.map(s=>`<span><i class="dot" style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>`:''}<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${ticks.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="chart-grid"/><text x="${pl-8}" y="${(Y(v)+4).toFixed(1)}" class="kit-axis" text-anchor="end">${esc(compact(v))}</text>`).join('')}${cols}</svg></div>`;
+  const ov=overlay?(()=>{const pts=overlay.values.map((v,i)=>Number.isFinite(v)?[pl+band*i+band/2,Y(Math.max(0,v)),i,v]:null).filter(Boolean);return pts.length?`<polyline class="kit-path kit-over" pathLength="100" points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" style="stroke:${overlay.color};--i:2"/>`+pts.map(p=>`<circle class="kit-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" style="fill:${overlay.color};--i:${p[2]};pointer-events:none"/>`).join(''):'';})():'';
+  const keys=[...series,...(overlay?[{...overlay,line:true}]:[])];
+  return `<div class="kit-line">${keys.length>1?`<div class="legend">${keys.map(s=>`<span><i class="${s.line?'kit-key-line':'dot'}" style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>`:''}<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${ticks.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="chart-grid"/><text x="${pl-8}" y="${(Y(v)+4).toFixed(1)}" class="kit-axis" text-anchor="end">${esc(compact(v))}</text>`).join('')}${cols}${ov}</svg></div>`;
+ }
+ function shopStack(months,ok,overlay){
+  if(state.settings.shop||state.shops.length<2)return '';
+  const per=state.shops.map(sh=>({sh,vals:months.map((mo,i)=>ok(i)?D.summary(D.forShop(state,sh.id),mo+'-01',Budget.endOf(mo)).revenue:null)})).filter(x=>x.vals.some(v=>v>0));
+  if(per.length<2)return '';
+  const top=per.slice(0,5),rest=per.slice(5),series=top.map(x=>({name:x.sh.name,values:x.vals,color:shopColor(x.sh.id)}));
+  if(rest.length)series.push({name:`${rest.length} other shop${rest.length===1?'':'s'}`,values:months.map((_,i)=>rest.reduce((n,x)=>n+(x.vals[i]||0),0)),color:colors[5]});
+  return stack(series,months.map(shortMonth),{title:`${L.income} by shop and month`,overlay});
  }
  // a shop keeps its colour everywhere: its place in your shop list, never its rank
  const shopColor=id=>{const i=state.shops.findIndex(s=>s.id===id);return i>=0&&i<5?colors[i]:colors[5];};
@@ -467,6 +477,7 @@ const Etsy=(()=>{
   const kept=Math.max(0,S.takeHome-S.labels),split=[['Take-home after labels',kept,'var(--cat-5)'],['Etsy fees',S.fees,'var(--cat-2)'],['Ads & Etsy Plus',S.marketing,'var(--cat-4)'],['Shipping labels',S.labels,'var(--cat-3)']];
   const byShop=multi&&multi.filter(x=>x.revenue>0).length>1?pie(fold(multi.map(x=>[x.name,x.revenue])),{label:L.income,donut:false}):'';
   const sold=noStmt?soldOrders(m):[];
+  const has=i=>series[i]&&(om[i].statement||om[i].estimated),byShopMonths=shopStack(months,i=>has(i),{name:'Take-home',values:series.map((x,i)=>has(i)?x.takeHome:null),color:'var(--ink)'});
   return pagehead(monthName(m),`${esc(scopeName())} at a glance`,'Take-home is revenue after sales tax buyers paid, refunds and every Etsy fee, ad and subscription.',button('Import Etsy files','go-etsy-import','primary')+button('Print summary','print','quiet'))+
    (!hasData()?`<section class="card"><div class="cardhead"><div><h2>Three steps to your first numbers</h2><p>Everything stays in this browser.</p></div></div><div class="grid3">${[['1','Add your shop','Name each Etsy shop you run. You can add more later.','etsy-add-shop','Add a shop'],['2','Download from Etsy','Your payment account statement and sold order items, plus listings and reviews if you like.','go-etsy-import','Where to find them'],['3','Drop them in','Choose the shop and drop the files together. Duplicates are skipped.','go-etsy-import','Import files']].map(([n,t,b,a,l])=>`<div class="etsy-step"><span class="pill">${n}</span><h3>${t}</h3><p class="small muted">${b}</p>${button(l,a,'small')}</div>`).join('')}</div></section>`:pulse(m))+
    (noStmt?`<div class="notice"><span><b>${monthName(m)} is estimated from your sold orders.</b> Revenue is exact. Etsy’s transaction, processing and listing fees are worked out at the standard rates; Etsy Ads, Etsy Plus and credits appear once you import the month’s payment account statement, which replaces the estimate.</span>${button('Import statement','go-etsy-import','small')}</div>`:'')+
@@ -475,7 +486,7 @@ const Etsy=(()=>{
     (byShop?`<section class="card"><div class="cardhead"><div><h2>${L.income} by shop</h2><p>${monthName(m)}</p></div><button class="link" data-go="shops">Compare shops</button></div>${byShop}</section>`:`<section class="card">${gauge(S.costShare,'Etsy’s cut',`${fmt(S.etsyCosts)} in fees, ads and Etsy Plus`)}<div class="kit-gauge-pair">${gauge(S.adsShare,'Ads',`${fmt(S.ads)} Etsy &amp; Offsite Ads`)}${gauge(S.revenue>0?S.takeHome/S.revenue:null,'Kept',`${fmt(S.takeHome)} take-home`)}</div></section>`)+`</div>`:'')+
    Biz.dashboard()+
    (multi?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${monthName(m)}</p></div><button class="link" data-go="shops">Compare shops</button></div><div class="table-wrap"><table><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Etsy costs</th><th class="num">Take-home</th><th class="num">Orders</th></tr></thead><tbody>${multi.map(x=>`<tr><td><button class="link" data-action="etsy-scope" data-shop="${x.id}">${esc(x.name)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${num(x.orders)}</td></tr>`).join('')}</tbody></table></div></section>`:'')+
-   (series.some(x=>x&&(x.revenue||x.takeHome))?`<section class="card"><div class="cardhead"><div><h2>${y} month by month</h2><p>${L.income} and take-home${om.some(x=>x.estimated)?' · '+om.filter(x=>x.estimated).map(x=>shortMonth(x.month)).join(', ')+' estimated from sold orders':''} · future months are blank</p></div><button class="link" data-go="annual">Year &amp; cash flow</button></div>${areaChart([{name:L.income,values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.revenue:null),color:'var(--ch-in)'},{name:'Take-home',values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.takeHome:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and take-home by month`)}</section>`:'')+
+   (series.some(x=>x&&(x.revenue||x.takeHome))?`<section class="card"><div class="cardhead"><div><h2>${y} month by month</h2><p>${L.income}${byShopMonths?' by shop':''} and take-home${om.some(x=>x.estimated)?' · '+om.filter(x=>x.estimated).map(x=>shortMonth(x.month)).join(', ')+' estimated from sold orders':''} · future months are blank</p></div><button class="link" data-go="annual">Year &amp; cash flow</button></div>${byShopMonths?byShopMonths:areaChart([{name:L.income,values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.revenue:null),color:'var(--ch-in)'},{name:'Take-home',values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.takeHome:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and take-home by month`)}</section>`:'')+
    `<section class="card table-card"><div class="cardhead"><div><h2>Latest orders</h2><p>${monthName(m)} · ${noStmt?'from your sold order items':'rebuilt from the payment account statement'}</p></div><button class="link" data-go="fees">All orders</button></div>${noStmt?soldTable(sold.slice(0,8)):orders.length?orderTable(orders.slice(0,8)):empty('No orders this month','Import this month’s payment account statement.','go-etsy-import','Import Etsy files')}</section>`+
    `<div class="notice no-print"><span><b>Last imports</b><br>${fresh}</span>${button('Import Etsy files','go-etsy-import','small')}</div>`;
  }
@@ -576,7 +587,16 @@ const Etsy=(()=>{
    `<section class="card no-print"><div class="cardhead"><div><h2>Manage shops</h2><p>Rename a shop at any time. Deleting a shop removes everything imported into it.</p></div></div>${state.shops.map(x=>`<div class="row"><div><strong>${esc(x.name)}</strong><small>${num(state.transactions.filter(t=>t.shop===x.id).length)} statement lines · ${num(state.etsy.orders.filter(o=>o.shop===x.id).length)} orders · ${num(state.etsy.listings.filter(l=>l.shop===x.id).length)} listings · ${num(state.etsy.reviews.filter(v=>v.shop===x.id).length)} reviews</small></div><div class="actions">${button('Rename','etsy-rename-shop','small',`data-id="${x.id}"`)}${button('Delete','etsy-delete-shop','small danger',`data-id="${x.id}"`)}</div></div>`).join('')||empty('No shops yet','Add each Etsy shop you run, then import its files.','etsy-add-shop','Add a shop')}</section>`;
  }
  // ---------- year: sold orders fill the months that have no statement yet ----------
- function annualTop(y){
+ function annualTop(y){return revenueByShop(y)+soldOrdersCard(y);}
+ function revenueByShop(y){
+  if(state.settings.shop||state.shops.length<2)return '';
+  const cutoff=today().slice(0,7),end=y===cutoff.slice(0,4)?today():y+'-12-31',rows=D.compare(state,y+'-01-01',end).filter(x=>x.revenue||x.orders),total=rows.reduce((n,x)=>n+x.revenue,0);
+  if(!rows.length||!total)return '';
+  const months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),chart=shopStack(months,i=>months[i]<=cutoff,null);
+  return `<section class="card"><div class="cardhead"><div><h2>${L.income} by shop, ${y}</h2><p>${y===cutoff.slice(0,4)?'Year to date':'Full year'} · ${fmt(total)} across ${rows.length} shops · estimated months included</p></div><button class="link" data-go="shops">Compare shops</button></div>`+
+   `<div class="kit-shop-pie">${pie(rows.map(x=>[x.name,x.revenue,shopColor(x.id)]),{label:L.income,center:compact(total),sub:'ALL SHOPS'})}</div>`+(chart?`<div style="margin-top:18px">${chart}</div>`:'')+`<div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Share</th><th class="num">Etsy costs</th><th class="num">Take-home</th><th class="num">Net profit</th><th class="num">Orders</th></tr></thead><tbody>${rows.map(x=>`<tr><td class="nw"><i class="dot" style="background:${shopColor(x.id)}"></i> <button class="link" data-action="etsy-scope" data-shop="${x.id}">${esc(x.name)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${pc(x.revenue/total,0)}</td><td class="num">${fmt(x.etsyCosts)}</td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${Biz.acct(x.profit)}</td><td class="num">${num(x.orders)}</td></tr>`).join('')}</tbody></table></div></section>`;
+ }
+ function soldOrdersCard(y){
   const M=D.orderMonths(state,y),cutoff=today().slice(0,7),has=M.some(m=>m.orders);if(!has)return '';
   const missing=M.filter(m=>m.orders&&!m.statement),tot=k=>M.reduce((n,m)=>n+m[k],0);
   return `<section class="card"><div class="cardhead"><div><h2>Sales from your sold orders, ${y}</h2><p>From the sold order items file: item prices after discounts, plus shipping, before sales tax · ${num(tot('orders'))} orders · ${fmt(tot('sales'))}</p></div>${missing.length?button('Import statements','go-etsy-import','small'):''}</div>`+
@@ -796,8 +816,10 @@ const Etsy=(()=>{
  .kit-axis-title{font:600 11px var(--ui);fill:var(--ink-2)}
  .kit-bar{stroke:var(--card);stroke-width:2;transform-box:fill-box;transform-origin:bottom;animation:kit-grow .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*40ms)}
  .kit-col{cursor:pointer;outline:none}
+ .kit-key-line{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
  .kit-col:hover .kit-bar,.kit-col:focus .kit-bar{filter:brightness(1.08)}
  @keyframes kit-grow{from{transform:scaleY(0)}}
+ .kit-shop-pie .kit-pie{max-width:640px}
  .kit-heat td[data-tip]{transition:filter .15s}
  .kit-heat td[data-tip]:hover{filter:brightness(1.08)}
  .kit-heat td small{opacity:.8}
