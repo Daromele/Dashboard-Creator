@@ -10,7 +10,7 @@ const SCREENS=['dashboard','etsy-import','shops','pl','fees','activity','annual'
 let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL:',name,extra);}};
 (async()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'etsy-fixtures-'));
-  for(const [n,t] of Object.entries(F.files))fs.writeFileSync(path.join(dir,n),t);
+  for(const [n,t] of Object.entries({...F.files,...F.channels}))fs.writeFileSync(path.join(dir,n),t);
   // a second shop's statement: same layout, different order and listing numbers
   fs.writeFileSync(path.join(dir,'kiln_statement.csv'),F.statement.replace(/38123456/g,'99123456').replace(/140000000/g,'150000000'));
   const files=Object.keys(F.files).map(n=>path.join(dir,n));
@@ -25,7 +25,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   const st=(f,arg)=>p.evaluate(f,arg);
   check('title',(await p.title()).startsWith('Shop Insights'));
   const nav=await p.locator('#nav').innerText();
-  check('nav has the Etsy screens',['Import Etsy files','Fees & ads','Products & listings','Reviews','Schedule C summary'].every(x=>nav.includes(x)),nav);
+  check('nav has the Etsy screens',['Import files','Fees & ads','Products & listings','Reviews','Schedule C summary'].every(x=>nav.includes(x)),nav);
   check('no mileage or invoices',!nav.includes('Mileage')&&!nav.includes('Invoices'));
   check('shop picker in the top bar',await p.locator('#shop-picker').count()===1);
   for(const s of SCREENS){await p.evaluate(s=>go(s),s);await shot('blank-'+s);}
@@ -163,6 +163,21 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.click(`[data-action="etsy-move-import"][data-i="${oi}"]`);await p.selectOption('#etsy-move-form select[name=to]',kilnId);await p.click('#etsy-move-form button[type=submit]');
   check('moving an import moves its orders',await st(id=>state.etsy.orders.every(o=>o.shop===id)&&state.etsy.items.every(i=>i.shop===id),kilnId));
   await p.click('#toast [data-action="undo"]');check('undo puts them back',await st(id=>state.etsy.orders.every(o=>o.shop!==id),kilnId));
+  // ---- another channel: a Shopify store beside the Etsy shops ----
+  await p.selectOption('#shop-picker','__add');await p.fill('#etsy-shop-form input[name=name]','Fern Online');await p.selectOption('#etsy-shop-form select[name=platform]','shopify');await p.click('#etsy-shop-form button[type=submit]');
+  const webId=await st(()=>state.shops.find(x=>x.platform==='shopify')?.id);check('shopify store added',!!webId);
+  await p.evaluate(()=>go('etsy-import'));await p.selectOption('#etsy-import-shop',webId);
+  check('import screen speaks Shopify',(await text()).includes('Drop Shopify files here'));
+  await p.setInputFiles('#etsy-files',[path.join(dir,'orders_export_1.csv')]);await p.waitForTimeout(200);
+  check('shopify file recognised',(await text()).includes('Shopify orders'));
+  await p.click('[data-action="etsy-import"]');await p.waitForTimeout(150);
+  check('shopify orders imported',await st(id=>state.etsy.orders.filter(o=>o.shop===id).length===3&&state.transactions.some(t=>t.shop===id&&t.category==='shopify-sales'),webId));
+  check('no Shopify emails or addresses kept',!/ada@example|Fictional Lane/.test(await st(()=>localStorage.getItem('jps-shop-insights-v1'))));
+  await p.selectOption('#shop-picker','');await p.evaluate(()=>{selected='2026-09';go('shops');});await p.click('[data-action="etsy-span"][data-span="month"]');
+  const chan=await text();check('channel comparison',chan.includes('What each channel keeps you')&&chan.includes('Fern Online'),chan.slice(0,600));
+  await shot('channels');
+  await p.evaluate(()=>go('settings'));check('Shopify fee rates in settings',await p.locator('#channel-fees-form').count()===1);
+  await p.evaluate(()=>go('dashboard'));check('mixed channels use general fee wording',(await p.locator('.etsy-kpis .kit-tile .label').allTextContents()).includes('Fees & ads'));
   // ---- narrow screens ----
   await p.setViewportSize({width:390,height:844});
   for(const s of ['dashboard','etsy-import','fees','products','pricing','coupons','customers','reviews','seasonality','shops','pl']){await p.evaluate(s=>go(s),s);await shot('phone-'+s);

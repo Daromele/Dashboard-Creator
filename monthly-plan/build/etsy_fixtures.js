@@ -53,10 +53,31 @@ const reviews=JSON.stringify([
   // one review per item of a two-item order: identical apart from the item, which the export leaves out
   {reviewer:'Sam Example',date_reviewed:'09/30/2026',star_rating:4,message:'',order_id:3812345672},
 ],null,1);
+// ---- other channels (synthetic): a Shopify orders export and Square's two exports ----
+const SH='Name,Email,Financial Status,Paid at,Fulfillment Status,Fulfilled at,Accepts Marketing,Currency,Subtotal,Shipping,Taxes,Total,Discount Code,Discount Amount,Shipping Method,Created at,Lineitem quantity,Lineitem name,Lineitem price,Lineitem compare at price,Lineitem sku,Lineitem requires shipping,Lineitem taxable,Lineitem fulfillment status,Billing Name,Billing Street,Billing City,Billing Zip,Billing Country,Shipping Name,Shipping Street,Shipping City,Shipping Zip,Shipping Country,Cancelled at,Refunded Amount,Id';
+const shopify=[SH,
+ '#1001,ada@example.com,paid,2026-09-03 10:15:00 -0400,fulfilled,,no,USD,47.00,6.00,3.29,56.29,FALL5,5.00,Standard,2026-09-03 10:14:00 -0400,2,Botanical Fern Print,16.00,,FERN-1,true,true,fulfilled,Ada Example,1 Fictional Lane,Testville,00000,US,Ada Example,1 Fictional Lane,Testville,00000,US,,0.00,5550000001',
+ '#1001,ada@example.com,,,,,,,,,,,,,,,1,Canvas Tote Bag,20.00,,TOTE-1,true,true,fulfilled,,,,,,,,,,,,,',
+ '#1002,bo@example.com,paid,2026-09-10 09:00:00 -0400,fulfilled,,no,USD,25.00,0.00,0.00,25.00,,0.00,Pickup,2026-09-10 09:00:00 -0400,1,Speckled Mug,25.00,,MUG-1,true,true,fulfilled,Bo Placeholder,2 Example Rd,Sampleton,00000,CA,Bo Placeholder,2 Example Rd,Sampleton,00000,CA,,0.00,5550000002',
+ '#1003,cy@example.com,voided,,unfulfilled,,no,USD,16.00,0.00,0.00,16.00,,0.00,Standard,2026-09-12 12:00:00 -0400,1,Botanical Fern Print,16.00,,FERN-1,true,true,,Cy Example,3 Test St,Testville,00000,US,Cy Example,3 Test St,Testville,00000,US,2026-09-12 13:00:00 -0400,0.00,5550000003',
+ '#1004,ada@example.com,partially_refunded,2026-08-20 08:00:00 -0400,fulfilled,,no,USD,16.00,4.00,0.00,20.00,,0.00,Standard,2026-08-20 08:00:00 -0400,1,Botanical Fern Print,16.00,,FERN-1,true,true,fulfilled,Ada Example,1 Fictional Lane,Testville,00000,US,Ada Example,1 Fictional Lane,Testville,00000,US,,4.00,5550000004'].join('\n');
+const SQ='Date,Time,Time Zone,Gross Sales,Discounts,Service Charges,Net Sales,Gift Card Sales,Tax,Tip,Partial Refunds,Total Collected,Source,Card,Card Entry Methods,Cash,Square Gift Card,Other Tender,Other Tender Type,Other Tender Note,Fees,Net Total,Transaction ID,Payment ID,Card Brand,PAN Suffix,Device Name,Staff Name,Staff ID,Details,Description,Event Type,Location,Dining Option,Customer ID,Customer Name,Customer Reference ID';
+const squareTx=[SQ,
+ '2026-09-13,10:02:11,Eastern Time (US & Canada),$30.00,-$3.00,$0.00,$27.00,$0.00,$2.16,$2.00,$0.00,$31.16,Point of Sale,$31.16,Tap,$0.00,$0.00,$0.00,,,-$0.93,$30.23,SQA1x,PA1,Visa,0000,Market iPad,,,,"Speckled Mug x 1, Botanical Fern Print x 1",Payment,Autumn Fair,,CUST1,Dee Example,',
+ '2026-09-13,11:40:00,Eastern Time (US & Canada),$12.00,$0.00,$0.00,$12.00,$0.00,$0.96,$0.00,$0.00,$12.96,Point of Sale,$12.96,Tap,$0.00,$0.00,$0.00,,,-$0.46,$12.50,SQB2y,PB2,Visa,0000,Market iPad,,,,Botanical Fern Print x 1,Payment,Autumn Fair,,,,',
+ '2026-09-20,09:00:00,Eastern Time (US & Canada),-$12.00,$0.00,$0.00,-$12.00,$0.00,-$0.96,$0.00,$0.00,-$12.96,Point of Sale,-$12.96,,$0.00,$0.00,$0.00,,,$0.00,-$12.96,SQB2y,PB2R,Visa,0000,Market iPad,,,,Botanical Fern Print x 1,Refund,Autumn Fair,,,,'].join('\n');
+const SI='Date,Time,Time Zone,Category,Item,Qty,Price Point Name,SKU,Modifiers Applied,Gross Sales,Discounts,Net Sales,Tax,Transaction ID,Payment ID,Device Name,Notes,Details,Event Type,Location,Dining Option,Customer ID,Customer Name,Customer Reference ID';
+const squareItems=[SI,
+ '2026-08-15,14:00:00,Eastern Time (US & Canada),Ceramics,Speckled Mug,2,Regular,MUG-1,,$36.00,$0.00,$36.00,$2.88,SQC3z,PC3,Market iPad,,,Payment,Summer Market,,,,',
+ '2026-09-13,10:02:11,Eastern Time (US & Canada),Ceramics,Speckled Mug,1,Regular,MUG-1,,$18.00,-$3.00,$15.00,$1.20,SQA1x,PA1,Market iPad,,,Payment,Autumn Fair,,CUST1,Dee Example,',
+ '2026-09-13,10:02:11,Eastern Time (US & Canada),Prints,Botanical Fern Print,1,Regular,FERN-1,,$12.00,$0.00,$12.00,$0.96,SQA1x,PA1,Market iPad,,,Payment,Autumn Fair,,CUST1,Dee Example,',
+ '2026-09-13,11:40:00,Eastern Time (US & Canada),Prints,Botanical Fern Print,1,Regular,FERN-1,,$12.00,$0.00,$12.00,$0.96,SQB2y,PB2,Market iPad,,,Payment,Autumn Fair,,,,',
+ '2026-09-20,09:00:00,Eastern Time (US & Canada),Prints,Botanical Fern Print,-1,Regular,FERN-1,,-$12.00,$0.00,-$12.00,-$0.96,SQB2y,PB2R,Market iPad,,,Refund,Autumn Fair,,,,'].join('\n');
+const channels={'orders_export_1.csv':shopify,'transactions-2026-09.csv':squareTx,'items-2026-09.csv':squareItems};
 const files={'etsy_statement_2026_9.csv':statement,'EtsySoldOrderItems2026.csv':orders,'EtsyListingsDownload.csv':listings,'reviews.json':reviews};
-module.exports={statement,orders,listings,reviews,files,
+module.exports={statement,orders,listings,reviews,files,shopify,squareTx,squareItems,channels,
   // what the four files must add up to (cents)
   expect:{sales:5608,buyerTax:108,refunds:1200,revenue:4300,fees:473,marketing:1350,ads:350,etsyCosts:1823,takeHome:2477,credits:698,labels:525,deposits:3735,orders:2,
     soldOrders:3,items:4,list:7200,discount:800,listings:3,reviews:4}};
 if(require.main===module){const out=process.argv[2];if(!out){console.error('usage: node etsy_fixtures.js <out-dir>');process.exit(2);}
-  fs.mkdirSync(out,{recursive:true});for(const [n,t] of Object.entries(files))fs.writeFileSync(path.join(out,n),t);console.log('wrote',Object.keys(files).length,'files to',out);}
+  fs.mkdirSync(out,{recursive:true});for(const [n,t] of Object.entries({...files,...channels}))fs.writeFileSync(path.join(out,n),t);console.log('wrote',Object.keys(files).length,'files to',out);}

@@ -112,6 +112,87 @@ const EtsyData=((P,B,CSV)=>{
    }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
   return {records,issues,currencies,notes:[]};
  }
+ // ---------- other channels: Shopify and Square ----------
+ // They land in the same shapes as Etsy's files: orders + items (what sold) and statement-like
+ // lines (what the money was, fees included), so every screen reads them without knowing where
+ // they came from. Names, emails and addresses are never kept: country and a hashed buyer key only.
+ const day=v=>{const t=String(v??'').trim(),m=t.match(/^(\d{4}-\d{2}-\d{2})/);return when(m?m[1]:t.split(/[\sT]/)[0]);};
+ const cols=headers=>{const h=headers.map(head);return k=>h.indexOf(k);};
+ // Shopify orders export: one row per line item; order-level columns are filled on the order's first row
+ function shopifyOrders(rows,headers){
+  const ix=cols(headers),c=Object.fromEntries(['name','email','financial status','currency','subtotal','shipping','taxes','discount code','discount amount','created at','paid at','lineitem quantity','lineitem name','lineitem price','lineitem sku','shipping country','billing country','cancelled at','refunded amount','id'].map(k=>[k,ix(k)]));
+  const orders=new Map(),items=[],issues=[],currencies=new Set();let skipped=0;
+  rows.forEach((r,n)=>{const g=k=>c[k]>=0?String(r.cells[c[k]]??'').trim():'';
+   try{const name=g('name');if(!name)throw Error('No order name');
+    let o=orders.get(name);
+    if(!o){orders.set(name,o={name,id:'',date:'',status:'',cancelled:false,buyer:'',country:'',coupon:'',discount:0,shipping:0,tax:0,refund:0,list:0,units:0,items:[]});}
+    // the first row of an order carries its totals; later rows only their line item
+    if(!o.date&&(g('created at')||g('paid at')))o.date=day(g('created at')||g('paid at'));
+    if(g('id')&&!o.id)o.id=g('id').replace(/\D/g,'');
+    if(g('financial status'))o.status=norm(g('financial status'));
+    if(g('cancelled at'))o.cancelled=true;
+    if(g('email')&&!o.buyer)o.buyer=hash(norm(g('email'))).slice(0,12);
+    if(!o.country)o.country=(g('shipping country')||g('billing country')).slice(0,60);
+    if(g('discount code')&&!o.coupon)o.coupon=g('discount code').slice(0,80);
+    if(g('discount amount'))o.discount=Math.abs(money(g('discount amount'))??0);
+    if(g('shipping'))o.shipping=Math.abs(money(g('shipping'))??0);
+    if(g('taxes'))o.tax=Math.abs(money(g('taxes'))??0);
+    if(g('refunded amount'))o.refund=Math.abs(money(g('refunded amount'))??0);
+    if(g('currency'))currencies.add(g('currency').toUpperCase());
+    const qty=Math.max(1,parseInt(g('lineitem quantity'),10)||1),price=Math.abs(money(g('lineitem price'))??0),iname=g('lineitem name').slice(0,300);
+    if(iname)o.items.push({n,name:iname,qty,price,total:price*qty,sku:g('lineitem sku').slice(0,80)});
+   }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
+  const records=[];
+  for(const o of orders.values()){
+   if(o.cancelled||['voided','refunded','expired'].includes(o.status)){skipped++;continue;}
+   if(!o.date){issues.push(`Order ${o.name}: no date`);continue;}
+   const id='sh'+(o.id||o.name.replace(/[^A-Za-z0-9]/g,'')).slice(0,36);
+   o.items.forEach(i=>items.push({id:'h'+hash([id,i.name,i.sku,i.n].join('|')),order:id,listing:'',name:i.name,qty:i.qty,price:i.price,total:i.total,sku:i.sku}));
+   const list=o.items.reduce((a,i)=>a+i.total,0);
+   records.push({id,date:o.date,buyer:o.buyer,country:o.country,coupon:o.coupon,discount:Math.min(o.discount,list),shipDiscount:0,shipping:o.shipping,tax:o.tax,list,units:o.items.reduce((a,i)=>a+i.qty,0),...(o.refund?{refund:o.refund}:{})});}
+  return {records,items,issues,currencies,notes:skipped?[`${skipped} cancelled, voided or fully refunded order${skipped===1?'':'s'} left out.`]:[]};
+ }
+ // Square transactions export: one row per payment or refund, with the exact Square fee
+ function squareTx(rows,headers){
+  const ix=cols(headers),c=Object.fromEntries(['date','gross sales','discounts','service charges','net sales','tax','tip','partial refunds','fees','transaction id','event type','description','customer id'].map(k=>[k,ix(k)]));
+  const lines=[],issues=[];
+  rows.forEach(r=>{const g=k=>c[k]>=0?String(r.cells[c[k]]??'').trim():'',m=k=>money(g(k))??0;
+   try{const tid=g('transaction id').replace(/[^A-Za-z0-9]/g,'').slice(0,36);if(!tid)throw Error('No transaction ID');
+    const date=day(g('date')),ref='osq'+tid,refund=/refund/i.test(g('event type')),what=g('description').slice(0,120);
+    const net=(c['net sales']>=0?m('net sales'):m('gross sales')+m('discounts'))+m('service charges')+m('tip');
+    const push=(category,amount,note)=>{if(amount)lines.push({date,category,amount,ref,note:note.slice(0,160),key:[date,category,ref,refund?'r':''].join('|')});};
+    push(refund?'etsy-refunds':'square-sales',net,`Square ${refund?'refund':'sale'}${what?' · '+what:''}`);
+    push('etsy-refunds',m('partial refunds'),'Square partial refund');
+    push('square-fees',-m('fees'),'Square processing fee');
+   }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
+  return {records:lines,issues,currencies:new Set(),notes:[]};
+ }
+ // Square item detail export: one row per item sold, grouped into sales by transaction ID
+ function squareItems(rows,headers){
+  const ix=cols(headers),c=Object.fromEntries(['date','item','qty','sku','gross sales','discounts','tax','transaction id','event type','customer id','price point name'].map(k=>[k,ix(k)]));
+  const orders=new Map(),items=[],issues=[];let refunds=0;
+  rows.forEach((r,n)=>{const g=k=>c[k]>=0?String(r.cells[c[k]]??'').trim():'';
+   try{if(/refund/i.test(g('event type'))){refunds++;return;}
+    const tid=g('transaction id').replace(/[^A-Za-z0-9]/g,'').slice(0,36);if(!tid)throw Error('No transaction ID');
+    const id='sq'+tid,date=day(g('date')),qty=Math.max(1,Math.round(Math.abs(parseFloat(g('qty'))||1))),total=Math.abs(money(g('gross sales'))??0);
+    const name=[g('item')||'Custom amount',g('price point name')&&!/^regular$/i.test(g('price point name'))?g('price point name'):''].filter(Boolean).join(' · ').slice(0,300);
+    let o=orders.get(id);if(!o)orders.set(id,o={id,date,buyer:g('customer id')?hash(norm(g('customer id'))).slice(0,12):'',country:'',coupon:'',discount:0,shipDiscount:0,shipping:0,tax:0,list:0,units:0});
+    o.discount+=Math.abs(money(g('discounts'))??0);o.tax+=Math.abs(money(g('tax'))??0);o.list+=total;o.units+=qty;
+    items.push({id:'h'+hash([id,name,g('sku'),n].join('|')),order:id,listing:'',name,qty,price:Math.round(total/qty),total,sku:g('sku').slice(0,80)});
+   }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
+  const records=[...orders.values()].map(o=>({...o,discount:Math.min(o.discount,o.list)}));
+  return {records,items,issues,currencies:new Set(),notes:refunds?[`${refunds} refund row${refunds===1?'':'s'} left out: import the transactions file for refunds and exact fees.`]:[]};
+ }
+ // header signatures for the other channels: [platform, kind, columns, parser]
+ const CHANNEL_SIGNS=[['shopify','orders',['name','financial status','subtotal','total','lineitem quantity','lineitem name','lineitem price'],shopifyOrders],
+  ['square','statement',['date','gross sales','net sales','fees','net total','transaction id'],squareTx],
+  ['square','orders',['date','item','qty','gross sales','net sales','transaction id'],squareItems]];
+ const channelOf=headers=>{const h=new Set(headers.map(head));return CHANNEL_SIGNS.find(x=>x[2].every(k=>h.has(k)))||null;};
+ const platformOf=(s,shop)=>(s.shops.find(x=>x.id===shop)||{}).platform||'etsy';
+ const PLATFORM=Object.fromEntries(X.platforms);
+ const kindName=(kind,platform='etsy')=>platform==='etsy'?KINDS[kind]:`${PLATFORM[platform]} ${({orders:platform==='square'?'item detail':'orders',statement:'transactions'})[kind]||kind}`;
+ // a category the file needs but these books were started without (older saves)
+ const ensure=(s,ids)=>ids.forEach(id=>{if(s.categories.some(c=>c.id===id))return;const d=P.categories.find(x=>x[0]===id);if(d)s.categories.push({id,name:d[1],group:d[2],archived:false,...(d[3]?{taxLine:d[3]}:{})});});
  // ---------- reviews.json ----------
  function reviews(json){
   const list=Array.isArray(json)?json:Array.isArray(json?.reviews)?json.reviews:null;if(!list)throw Error('This JSON file is not a list of reviews.');
@@ -132,13 +213,15 @@ const EtsyData=((P,B,CSV)=>{
   return '';}
  // One file in, one parsed file out. The kind comes from the header row, never from the file name.
  function read(name,text){
-  const out={name:String(name||'file').slice(0,160),kind:null,records:[],items:[],issues:[],notes:[],currency:'',from:'',to:''};
+  const out={name:String(name||'file').slice(0,160),kind:null,platform:'etsy',records:[],items:[],issues:[],notes:[],currency:'',from:'',to:''};
   try{const t=String(text).replace(/^﻿/,'').trim();let r;
    if(/^[[{]/.test(t)){out.kind='reviews';r=reviews(JSON.parse(t));}
    else{const d=CSV.detect(t),rows=CSV.parse(d.text,d.delimiter),at=rows.slice(0,5).findIndex(x=>kindOf(x.cells));
+    const ch=at>=0?-1:rows.slice(0,5).findIndex(x=>channelOf(x.cells));
     if(at>=0){const headers=rows[at].cells;out.kind=kindOf(headers);r={statement,orders:soldItems,listings}[out.kind](rows.slice(at+1),headers);}
+    else if(ch>=0){const [platform,kind,,parse]=channelOf(rows[ch].cells);out.kind=kind;out.platform=platform;r=parse(rows.slice(ch+1),rows[ch].cells);}
     else{const dp=rows.slice(0,5).findIndex(x=>looksDeposits(x.cells,out.name));
-     if(dp<0){out.error=otherReport(rows.slice(0,5).map(x=>x.cells.map(head)))||`Not an Etsy export this app reads. First row: ${(rows[0]?.cells||[]).slice(0,6).join(', ').slice(0,120)}`;return out;}
+     if(dp<0){out.error=otherReport(rows.slice(0,5).map(x=>x.cells.map(head)))||`Not an Etsy, Shopify or Square export this app reads. First row: ${(rows[0]?.cells||[]).slice(0,6).join(', ').slice(0,120)}`;return out;}
      out.kind='deposits';r=deposits(rows.slice(dp+1),rows[dp].cells);}}
    Object.assign(out,{records:r.records,items:r.items||[],issues:r.issues,notes:r.notes});
    if(r.currencies.size>1)out.error=`This file mixes currencies (${[...r.currencies].join(', ')}).`;out.currency=[...r.currencies][0]||'';
@@ -156,6 +239,9 @@ const EtsyData=((P,B,CSV)=>{
   const shopName=id=>(s.shops.find(x=>x.id===id)||{}).name||'another shop';
   if(file.error){r.error=file.error;return r;}
   if(!s.shops.some(x=>x.id===shop)){r.error='Choose a shop first.';return r;}
+  const plat=platformOf(s,shop),fp=file.platform||'etsy';r.platform=fp;
+  if(fp!==plat){r.error=plat==='other'?`${shopName(shop)} is set up for sales you log yourself. Add a ${PLATFORM[fp]} shop for this ${kindName(file.kind,fp)} file, or change this shop’s platform in Shops.`
+   :`This is a${fp==='etsy'?'n':''} ${kindName(file.kind,fp)} file, but ${shopName(shop)} is a${plat==='etsy'?'n':''} ${PLATFORM[plat]} shop. Choose your ${PLATFORM[fp]} shop, or add one.`;return r;}
   if(file.currency&&file.currency!==s.settings.currency){
    const emptyBooks=!s.transactions.length&&!E.orders.length&&!E.listings.length;
    if(!emptyBooks||!B.CURRENCIES.includes(file.currency)){r.error=`This file is in ${file.currency}, but Shop Insights is set to ${s.settings.currency}. Change the currency in Settings, or use one planner file per currency.`;return r;}
@@ -165,6 +251,7 @@ const EtsyData=((P,B,CSV)=>{
   // every order in the file already belongs to one other shop: it is that shop's download again
   const whole=(refs,other)=>refs.length&&refs.every(x=>ownerOf.get(x)===other);
   const clashMsg=(refs,other,what)=>whole(refs,other)?`Every ${what} in this file is already in ${shopName(other)}, so this is ${shopName(other)}’s download again, whatever the file is called. Etsy downloads the shop that is open in Shop Manager: switch to the other shop there first, then download it again.`:`Some ${what}s in this file are already in ${shopName(other)}. Choose that shop, or check the file.`;
+  if(!dry)ensure(s,[...new Set(file.records.map(x=>x.category).filter(Boolean))]);
   if(file.kind==='statement'){
    const refs=[...new Set(file.records.map(x=>x.ref).filter(x=>x[0]==='o'))],other=clash(refs);if(other){r.error=clashMsg(refs,other,'order');return r;}
    // a line's key leaves the shop out, so a statement moved to another shop still matches itself;
@@ -196,7 +283,7 @@ const EtsyData=((P,B,CSV)=>{
    const ids=new Set(E.reviews.map(x=>x.id));
    for(const x of file.records){if(ids.has(x.id)){r.same++;continue;}ids.add(x.id);r.added++;if(!dry)E.reviews.push({...x,shop});}
   }
-  if(!dry){E.imports.push({id:'i'+uid().replace(/[^A-Za-z0-9]/g,'').slice(0,20),shop,kind:file.kind,name:file.name,at:today,rows:file.records.length,...(file.from?{from:file.from,to:file.to}:{})});if(E.imports.length>2000)E.imports.splice(0,E.imports.length-2000);}
+  if(!dry){E.imports.push({id:'i'+uid().replace(/[^A-Za-z0-9]/g,'').slice(0,20),shop,kind:file.kind,...(fp!=='etsy'?{platform:fp}:{}),name:file.name,at:today,rows:file.records.length,...(file.from?{from:file.from,to:file.to}:{})});if(E.imports.length>2000)E.imports.splice(0,E.imports.length-2000);}
   return r;
  }
 
@@ -207,17 +294,21 @@ const EtsyData=((P,B,CSV)=>{
  // Etsy Ads, Etsy Plus and credits are not in the sold orders file and are not guessed.
  const hasStatement=t=>!t.est&&!!(t.src||t.ref);
  const rates=s=>({...X.estimate,...(s.settings?.fees||{})});
+ // a Shopify store or Square account: payment fees only (no listing or transaction fee)
+ const channelRates=(s,p)=>({transaction:0,listing:0,offsite:0,processing:0,processingFixed:0,...(X.channelRates[p]||{}),...(s.settings?.channelFees?.[p]||{})});
+ const CH_SALES={etsy:'etsy-sales',shopify:'shopify-sales',square:'square-sales',other:'other-sales'},CH_FEES={shopify:'shopify-fees',square:'square-fees'},CH_SALE_IDS=Object.values(CH_SALES);
  function syncEstimates(s,{uid=B.uid,today=B.today()}={}){
-  const R=rates(s),real=new Set(),by=new Map();
+  const real=new Set(),by=new Map(),RS={};const Rof=p=>RS[p]??=p==='etsy'?rates(s):channelRates(s,p);
   for(const t of s.transactions)if(hasStatement(t)&&t.shop)real.add(t.shop+'|'+t.date.slice(0,7));
   for(const o of s.etsy?.orders||[]){const k=o.shop+'|'+o.date.slice(0,7);if(real.has(k))continue;
    let g=by.get(k);if(!g)by.set(k,g={shop:o.shop,month:o.date.slice(0,7),last:o.date,n:0,sales:0,tx:0,proc:0,units:0});
-   const paid=o.list-o.discount+(o.shipping||0);g.n++;g.sales+=paid;g.tx+=Math.round(paid*R.transaction/10000);g.proc+=Math.round((paid+(o.tax||0))*R.processing/10000)+R.processingFixed;g.units+=o.units||1;if(o.date>g.last)g.last=o.date;}
+   const R=Rof(g.platform??=platformOf(s,o.shop)),paid=o.list-o.discount+(o.shipping||0)-(o.refund||0);g.n++;g.sales+=paid;g.tx+=Math.round(paid*R.transaction/10000);g.proc+=Math.round((paid+(o.tax||0))*R.processing/10000)+R.processingFixed;g.units+=o.units||1;if(o.date>g.last)g.last=o.date;}
   const before=s.transactions.filter(t=>t.est).length,add=[];
-  for(const g of by.values()){const date=g.last>today?today:g.last;
-   [['etsy-sales',g.sales,`Estimated from ${g.n} sold order${g.n===1?'':'s'} (no statement for this month yet)`],['transaction-fees',g.tx,`Estimated transaction fees, ${R.transaction/100}%`],
+  for(const g of by.values()){const date=g.last>today?today:g.last,R=Rof(g.platform),n=`${g.n} ${g.platform==='square'?'sale':'order'}${g.n===1?'':'s'}`;
+   const lines=g.platform==='etsy'?[['etsy-sales',g.sales,`Estimated from ${n} sold (no statement for this month yet)`],['transaction-fees',g.tx,`Estimated transaction fees, ${R.transaction/100}%`],
     ['processing-fees',g.proc,`Estimated processing fees, ${R.processing/100}% + ${(R.processingFixed/100).toFixed(2)} an order`],['listing-fees',g.units*R.listing,`Estimated listing fees, ${(R.listing/100).toFixed(2)} an item sold`]]
-    .forEach(([category,amount,note])=>{if(amount)add.push({id:uid(),date,category,amount,note,shop:g.shop,est:true,...(category==='etsy-sales'?{n:g.n}:{})});});}
+    :[[CH_SALES[g.platform],g.sales,`${PLATFORM[g.platform]} sales from ${n}`],[CH_FEES[g.platform],g.tx+g.proc,`Estimated ${PLATFORM[g.platform]} payment fees, ${R.processing/100}% + ${(R.processingFixed/100).toFixed(2)} ${g.platform==='square'?'a sale':'an order'}`]];
+   lines.forEach(([category,amount,note])=>{if(amount&&category){ensure(s,[category]);add.push({id:uid(),date,category,amount,note,shop:g.shop,est:true,...(CH_SALE_IDS.includes(category)?{n:g.n}:{})});}});}
   if(!before&&!add.length)return 0;
   s.transactions=s.transactions.filter(t=>!t.est).concat(add);return add.length;
  }
@@ -264,11 +355,11 @@ const EtsyData=((P,B,CSV)=>{
  // Take-home: revenue after buyer tax and refunds, minus every Etsy fee, ad and subscription
  function summary(s,from=ALL.from,to=ALL.to){
   const [a,z]=clamp(s,from,to),p=B.pl(s,a,z),by=new Map([...p.revenue.lines,...p.cogs.lines,...p.opex.groups.flatMap(g=>g.lines),...p.other.lines,...p.transfers.lines].map(l=>[l.id,l.amount])),amt=id=>by.get(id)||0;
-  const sales=amt('etsy-sales'),buyerTax=-amt('buyer-tax'),refunds=-amt('etsy-refunds'),revenue=sales-buyerTax-refunds;
-  const grp=id=>(p.opex.groups.find(g=>g.id===id)||{total:0}).total,fees=grp('etsy-fees'),marketing=grp('etsy-marketing'),etsyCosts=P.groups.filter(g=>g.etsy).reduce((n,g)=>n+grp(g.id),0);
+  const sales=X.sales.reduce((n,id)=>n+amt(id),0),buyerTax=-amt('buyer-tax'),refunds=-amt('etsy-refunds'),revenue=sales-buyerTax-refunds;
+  const grp=id=>(p.opex.groups.find(g=>g.id===id)||{total:0}).total,fees=grp('etsy-fees')+grp('channel-fees'),marketing=grp('etsy-marketing'),etsyCosts=P.groups.filter(g=>g.etsy).reduce((n,g)=>n+grp(g.id),0);
   const ads=X.ads.reduce((n,id)=>n+amt(id),0),tx=txIn(s,from,to);
   const credits=-tx.filter(t=>t.amount<0&&feeGroup(s,t.category)).reduce((n,t)=>n+t.amount,0);
-  const orders=new Set(tx.filter(t=>t.category==='etsy-sales'&&t.amount>0&&!t.est).map(t=>t.ref||t.id)).size+tx.filter(t=>t.est&&t.n).reduce((n,t)=>n+t.n,0),takeHome=revenue-etsyCosts,estimated=tx.some(t=>t.est);
+  const orders=new Set(tx.filter(t=>CH_SALE_IDS.includes(t.category)&&t.category!=='other-sales'&&t.amount>0&&!t.est).map(t=>t.ref||t.id)).size+tx.filter(t=>t.est&&t.n).reduce((n,t)=>n+t.n,0),takeHome=revenue-etsyCosts,estimated=tx.some(t=>t.est);
   return {from,to,sales,buyerTax,refunds,revenue,fees,marketing,etsyCosts,ads,plus:amt('etsy-plus'),labels:amt('shipping-labels'),credits,deposits:tx.filter(t=>t.category==='etsy-deposit'&&t.src).reduce((n,t)=>n+t.amount,0),takeHome,orders,
    estimated,aov:orders?Math.round(revenue/orders):0,costShare:revenue>0?etsyCosts/revenue:null,adsShare:revenue>0?ads/revenue:null,profit:p.net,pl:p,lines:by};
  }
@@ -369,9 +460,9 @@ const EtsyData=((P,B,CSV)=>{
  const forShop=(s,id)=>({...s,settings:{...s.settings,shop:id}});
  function compare(s,from=ALL.from,to=ALL.to){
   return s.shops.map(shop=>{const v=forShop(s,shop.id),m=summary(v,from,to),r=reviewStats(v,from,to);
-   return {...shop,...m,soldOrders:ordersIn(v,from,to).length,listings:v.etsy.listings.filter(l=>l.shop===shop.id).length,reviews:r.count,rating:r.avg};});
+   return {...shop,platform:shop.platform||'etsy',kept:m.revenue>0?m.takeHome/m.revenue:null,...m,soldOrders:ordersIn(v,from,to).length,listings:v.etsy.listings.filter(l=>l.shop===shop.id).length,reviews:r.count,rating:r.avg};});
  }
- return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,moveImport,importScope,rates,pricing,priceFor,productProfit,syncEstimates,estimatedMonths,compare,forShop,scoped};
+ return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,moveImport,importScope,rates,pricing,priceFor,productProfit,syncEstimates,estimatedMonths,compare,forShop,scoped,channelOf,platformOf,channelRates,kindName};
 })(NICHE,Budget,CSV);
 if(typeof module!=='undefined')module.exports.EtsyData=EtsyData;
 
@@ -393,8 +484,16 @@ const Etsy=(()=>{
   if(kind==='year')return {from:y+'-01-01',to:y+'-12-31',label:'Full year '+y};
   return {...D.ALL,label:'All time'};}
  const spanControl=()=>`<div class="pl-controls no-print"><div class="segment" aria-label="Period">${[['month','Month'],['year','Year'],['all','All time']].map(([k,l])=>`<button data-action="etsy-span" data-span="${k}" aria-pressed="${span===k}">${l}</button>`).join('')}</div><span class="small muted">${span==='all'?'Everything imported':'Follows the month picker'}</span></div>`;
+ // which platforms are on screen: Etsy wording when every shop in view is an Etsy shop
+ const platOf=id=>D.platformOf(state,id),PLAT=Object.fromEntries(X.platforms);
+ const inView=()=>state.settings.shop?[state.settings.shop]:state.shops.map(x=>x.id);
+ const etsyOnly=()=>inView().every(id=>platOf(id)==='etsy');
+ const viewPlat=()=>{const p=[...new Set(inView().map(platOf))];return p.length===1?p[0]:'mixed';};
+ const cutWord=()=>etsyOnly()?'Etsy’s cut':'Fees & ads';
+ const costWord=()=>etsyOnly()?'Etsy costs':'Fees &amp; ads';
+ const platPill=id=>platOf(id)==='etsy'?'':`<span class="pill kit-plat">${PLAT[platOf(id)]}</span>`;
  const scopeNote=()=>`<span class="pill">${esc(scopeName())}</span>`;
- const noData=(what,action='go-etsy-import',label='Import Etsy files')=>empty(`No ${what} yet`,`Import your Etsy ${what} to see this${state.settings.shop?' for '+esc(shopName(state.settings.shop)):''}.`,action,label);
+ const noData=(what,action='go-etsy-import',label='Import files')=>empty(`No ${what} yet`,`Import your Etsy ${what} to see this${state.settings.shop?' for '+esc(shopName(state.settings.shop)):''}.`,action,label);
  const colors=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)'];
 
  // ---------- chart kit ----------
@@ -467,6 +566,11 @@ const Etsy=(()=>{
 
  // ---------- monthly revenue goal: one per shop, and one for all shops together ----------
  const goalOf=()=>state.settings.goals?.[state.settings.shop||'']||0;
+ // a month with orders but no statement: what is exact and what is estimated, by platform
+ function estNotice(m){const v=viewPlat();
+  if(v==='shopify')return `<div class="notice"><span><b>Shopify payment fees in ${monthName(m)} are estimated</b> at your rate in Settings; the orders export has sales but not fees. Revenue is exact.</span>${button('Fee rates','go-settings','small')}</div>`;
+  if(v==='square')return `<div class="notice"><span><b>${monthName(m)} is built from Square item detail.</b> Revenue is exact; Square’s fees are estimated until you import the transactions file for this month, which has the exact fees.</span>${button('Import transactions','go-etsy-import','small')}</div>`;
+  return `<div class="notice"><span><b>${monthName(m)} is estimated from your sold orders.</b> Revenue is exact. ${v==='etsy'?'Etsy’s':'Etsy’s and other platforms’'} fees are worked out at your rates in Settings; Etsy Ads, Etsy Plus and credits appear once you import the month’s payment account statement, which replaces the estimate.</span>${button('Import statement','go-etsy-import','small')}</div>`;}
  function goalForm(){const g=goalOf();
   modal('Monthly revenue goal',`For ${esc(scopeName())}. The dashboard shows how far each month has come.`,`<form id="etsy-goal-form"><div class="fields"><label class="full">Goal per month (${esc(state.settings.currency)})<input name="goal" type="number" min="0" max="99999999" step="1" inputmode="decimal" value="${g?(g/100):''}" placeholder="e.g. 1000"><small>Revenue after buyer tax and refunds. Leave empty to remove the goal.</small></label></div>${formFoot('Save goal')}</form>`);}
  // ---------- the pulse: a few things worth knowing, one at a time ----------
@@ -506,30 +610,30 @@ const Etsy=(()=>{
   // average monthly cash flow this year, from the first month with any activity up to the picked month (as on Year & cash flow)
   const upto=m<cutoff?m:cutoff,cf=months.filter(x=>x<=upto).map(x=>Budget.totals(state,x)),first=cf.findIndex(t=>t.income.actual||t.expense.actual||t.saving.actual),done=first<0?[]:cf.slice(first);
   const avgCF=done.length?Math.round(done.reduce((n,t)=>n+t.net,0)/done.length):0,goal=goalOf();
-  const kpis=tile('Take-home',money(S.takeHome),noStmt?'Estimated: Etsy fees at standard rates, before Etsy Ads':change(S.takeHome,L0.takeHome),sl(x=>x.takeHome),S.takeHome<0?'warn':'')+
-   tile(L.income,money(S.revenue),goal?`${pc(S.revenue/goal,0)} of your ${fmt(goal)} monthly goal`:noStmt?`From ${num(cur.orders)} sold orders`:`${fmt(S.sales)} paid − ${fmt(S.buyerTax)} buyer tax${S.refunds?' − '+fmt(S.refunds)+' refunds':''}`,sl(x=>x.revenue))+
+  const kpis=tile('Take-home',money(S.takeHome),noStmt?(etsyOnly()?'Estimated: Etsy fees at standard rates, before Etsy Ads':'Estimated: payment fees at your rates'):change(S.takeHome,L0.takeHome),sl(x=>x.takeHome),S.takeHome<0?'warn':'')+
+   tile(L.income,money(S.revenue),goal?`${pc(S.revenue/goal,0)} of your ${fmt(goal)} monthly goal`:noStmt?`From ${num(cur.orders)} ${viewPlat()==='square'?'sale':'sold order'}${cur.orders===1?'':'s'}`:`${fmt(S.sales)} paid − ${fmt(S.buyerTax)} buyer tax${S.refunds?' − '+fmt(S.refunds)+' refunds':''}`,sl(x=>x.revenue))+
    tile('Orders',num(S.orders),change(S.orders,L0.orders,false),sl(x=>x.orders))+
    tile('Average order',money(S.aov),noStmt?'Items after discounts, plus shipping':L0.aov?'Last month '+fmt(L0.aov):'After buyer tax',sl(x=>x.aov,(x,i)=>(o6[i].statement||o6[i].estimated)&&x.orders))+
-   tile(noStmt?'Etsy fees':'Etsy costs',pc(S.costShare),`${noStmt?'Estimated · ':''}${fmt(S.etsyCosts)} of ${L.income.toLowerCase()}${noStmt?'':' · last month '+pc(L0.costShare)}`,sl(x=>x.costShare,(x,i)=>(o6[i].statement||o6[i].estimated)&&x.costShare!==null))+
-   (noStmt?tile('Ads','—','Not in the sold orders file · import the statement'):tile('Ads',pc(S.adsShare),`${fmt(S.ads)} Etsy &amp; Offsite Ads · last month ${pc(L0.adsShare)}`,sl(x=>x.adsShare,(x,i)=>o6[i].statement&&x.adsShare!==null)))+
+   tile(noStmt?(etsyOnly()?'Etsy fees':'Fees'):costWord(),pc(S.costShare),`${noStmt?'Estimated · ':''}${fmt(S.etsyCosts)} of ${L.income.toLowerCase()}${noStmt?'':' · last month '+pc(L0.costShare)}`,sl(x=>x.costShare,(x,i)=>(o6[i].statement||o6[i].estimated)&&x.costShare!==null))+
+   (noStmt?tile('Ads','—',etsyOnly()?'Not in the sold orders file · import the statement':'Log ad spend as a transaction'):tile('Ads',pc(S.adsShare),`${fmt(S.ads)} Etsy &amp; Offsite Ads · last month ${pc(L0.adsShare)}`,sl(x=>x.adsShare,(x,i)=>o6[i].statement&&x.adsShare!==null)))+
    tile('Net profit',money(S.profit),noStmt?'Estimated · after your own costs':S.profit===S.takeHome&&!S.labels?'Same as take-home · no own costs yet':change(S.profit,L0.profit),sl(x=>x.profit),S.profit<0?'warn':'')+
    tile('Average monthly cash flow',money(avgCF),done.length?`${y} · ${done.length} month${done.length===1?'':'s'}, ${shortMonth(months[first])} – ${shortMonth(upto)}`:'Nothing recorded yet',spark(six.map(x=>x<=cutoff?Budget.totals(state,x).net:null)),avgCF<0?'warn':'');
-  const kept=Math.max(0,S.takeHome-S.labels),split=[['Take-home after labels',kept,'var(--cat-5)'],['Etsy fees',S.fees,'var(--cat-2)'],['Ads & Etsy Plus',S.marketing,'var(--cat-4)'],['Shipping labels',S.labels,'var(--cat-3)']];
+  const kept=Math.max(0,S.takeHome-S.labels),split=[['Take-home after labels',kept,'var(--cat-5)'],[etsyOnly()?'Etsy fees':'Fees',S.fees,'var(--cat-2)'],['Ads & Etsy Plus',S.marketing,'var(--cat-4)'],['Shipping labels',S.labels,'var(--cat-3)']];
   const byShop=multi&&multi.filter(x=>x.revenue>0).length>1?pie(fold(multi.map(x=>[x.name,x.revenue])),{label:L.income,donut:false}):'';
   const sold=noStmt?soldOrders(m):[];
   const has=i=>series[i]&&(om[i].statement||om[i].estimated),byShopMonths=shopStack(months,i=>has(i),{name:'Take-home',values:series.map((x,i)=>has(i)?x.takeHome:null),color:'var(--ink)'});
-  return pagehead(monthName(m),`${esc(scopeName())} at a glance`,'Take-home is revenue after sales tax buyers paid, refunds and every Etsy fee, ad and subscription.',button('Import Etsy files','go-etsy-import','primary')+button(goalOf()?'Edit goal':'Set a goal','etsy-goal','quiet')+button('Print summary','print','quiet'))+
+  return pagehead(monthName(m),`${esc(scopeName())} at a glance`,`Take-home is revenue after ${etsyOnly()?'sales tax buyers paid, refunds and every Etsy fee, ad and subscription':'refunds and every platform fee, ad and subscription. Sales tax you collected yourself is left out'}.`,button('Import files','go-etsy-import','primary')+button(goalOf()?'Edit goal':'Set a goal','etsy-goal','quiet')+button('Print summary','print','quiet'))+
    (!hasData()?`<section class="card"><div class="cardhead"><div><h2>Three steps to your first numbers</h2><p>Everything stays in this browser.</p></div></div><div class="grid3">${[['1','Add your shop','Name each Etsy shop you run. You can add more later.','etsy-add-shop','Add a shop'],['2','Download from Etsy','Your payment account statement and sold order items, plus listings and reviews if you like.','go-etsy-import','Where to find them'],['3','Drop them in','Choose the shop and drop the files together. Duplicates are skipped.','go-etsy-import','Import files']].map(([n,t,b,a,l])=>`<div class="etsy-step"><span class="pill">${n}</span><h3>${t}</h3><p class="small muted">${b}</p>${button(l,a,'small')}</div>`).join('')}</div></section>`:pulse(m))+
-   (noStmt?`<div class="notice"><span><b>${monthName(m)} is estimated from your sold orders.</b> Revenue is exact. Etsy’s transaction, processing and listing fees are worked out at the standard rates; Etsy Ads, Etsy Plus and credits appear once you import the month’s payment account statement, which replaces the estimate.</span>${button('Import statement','go-etsy-import','small')}</div>`:'')+
+   (noStmt?estNotice(m):'')+
    `<div class="kpis etsy-kpis">${kpis}</div>`+
    (S.revenue>0?`<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Where each sale went</h2><p>${monthName(m)} · share of ${fmt(S.revenue)} ${L.income.toLowerCase()}</p></div><button class="link" data-go="fees">Fees &amp; ads</button></div>${pie(split,{label:L.income,center:pc(kept/S.revenue,0),sub:'KEPT'})}</section>`+
-    (byShop?`<section class="card"><div class="cardhead"><div><h2>${L.income} by shop</h2><p>${monthName(m)}</p></div><button class="link" data-go="shops">Compare shops</button></div>${byShop}</section>`:(goal?`<section class="card">${gauge(S.revenue/goal,'Monthly goal',`${fmt(S.revenue)} of ${fmt(goal)} · <button class="link" data-action="etsy-goal">Change</button>`)}<div class="kit-gauge-pair">${gauge(S.costShare,'Etsy’s cut',`${fmt(S.etsyCosts)} in fees and ads`)}${gauge(S.revenue>0?S.takeHome/S.revenue:null,'Kept',`${fmt(S.takeHome)} take-home`)}</div></section>`
-     :`<section class="card">${gauge(S.costShare,'Etsy’s cut',`${fmt(S.etsyCosts)} in fees, ads and Etsy Plus`)}<div class="kit-gauge-pair">${gauge(S.adsShare,'Ads',`${fmt(S.ads)} Etsy &amp; Offsite Ads`)}${gauge(S.revenue>0?S.takeHome/S.revenue:null,'Kept',`${fmt(S.takeHome)} take-home`)}</div><p class="kit-goal-link no-print"><button class="link" data-action="etsy-goal">Set a monthly revenue goal</button></p></section>`))+`</div>`:'')+
+    (byShop?`<section class="card"><div class="cardhead"><div><h2>${L.income} by shop</h2><p>${monthName(m)}</p></div><button class="link" data-go="shops">Compare shops</button></div>${byShop}</section>`:(goal?`<section class="card">${gauge(S.revenue/goal,'Monthly goal',`${fmt(S.revenue)} of ${fmt(goal)} · <button class="link" data-action="etsy-goal">Change</button>`)}<div class="kit-gauge-pair">${gauge(S.costShare,cutWord(),`${fmt(S.etsyCosts)} in fees and ads`)}${gauge(S.revenue>0?S.takeHome/S.revenue:null,'Kept',`${fmt(S.takeHome)} take-home`)}</div></section>`
+     :`<section class="card">${gauge(S.costShare,cutWord(),`${fmt(S.etsyCosts)} in fees${etsyOnly()?", ads and Etsy Plus":" and ads"}`)}<div class="kit-gauge-pair">${gauge(S.adsShare,'Ads',`${fmt(S.ads)} Etsy &amp; Offsite Ads`)}${gauge(S.revenue>0?S.takeHome/S.revenue:null,'Kept',`${fmt(S.takeHome)} take-home`)}</div><p class="kit-goal-link no-print"><button class="link" data-action="etsy-goal">Set a monthly revenue goal</button></p></section>`))+`</div>`:'')+
    Biz.dashboard()+
    (multi?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${monthName(m)}</p></div><button class="link" data-go="shops">Compare shops</button></div><div class="table-wrap"><table><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Etsy costs</th><th class="num">Take-home</th><th class="num">Orders</th></tr></thead><tbody>${multi.map(x=>`<tr><td><button class="link" data-action="etsy-scope" data-shop="${x.id}">${esc(x.name)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${num(x.orders)}</td></tr>`).join('')}</tbody></table></div></section>`:'')+
    (series.some(x=>x&&(x.revenue||x.takeHome))?`<section class="card"><div class="cardhead"><div><h2>${y} month by month</h2><p>${L.income}${byShopMonths?' by shop':''} and take-home${om.some(x=>x.estimated)?' · '+om.filter(x=>x.estimated).map(x=>shortMonth(x.month)).join(', ')+' estimated from sold orders':''} · future months are blank</p></div><button class="link" data-go="annual">Year &amp; cash flow</button></div>${byShopMonths?byShopMonths:areaChart([{name:L.income,values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.revenue:null),color:'var(--ch-in)'},{name:'Take-home',values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.takeHome:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and take-home by month`)}</section>`:'')+
-   `<section class="card table-card"><div class="cardhead"><div><h2>Latest orders</h2><p>${monthName(m)} · ${noStmt?'from your sold order items':'rebuilt from the payment account statement'}</p></div><button class="link" data-go="fees">All orders</button></div>${noStmt?soldTable(sold.slice(0,8)):orders.length?orderTable(orders.slice(0,8)):empty('No orders this month','Import this month’s payment account statement.','go-etsy-import','Import Etsy files')}</section>`+
-   `<div class="notice no-print"><span><b>Last imports</b><br>${fresh}</span>${button('Import Etsy files','go-etsy-import','small')}</div>`;
+   `<section class="card table-card"><div class="cardhead"><div><h2>Latest orders</h2><p>${monthName(m)} · ${noStmt?'from your sold order items':'rebuilt from the payment account statement'}</p></div><button class="link" data-go="fees">All orders</button></div>${noStmt?soldTable(sold.slice(0,8)):orders.length?orderTable(orders.slice(0,8)):empty('No orders this month','Import this month’s payment account statement.','go-etsy-import','Import files')}</section>`+
+   `<div class="notice no-print"><span><b>Last imports</b><br>${fresh}</span>${button('Import files','go-etsy-import','small')}</div>`;
  }
  function soldOrders(m){const names=new Map();for(const i of state.etsy.items){const n=names.get(i.order);if(n)n.push(i.name);else names.set(i.order,[i.name]);}
   return D.scoped(state,state.etsy.orders).filter(o=>o.date.startsWith(m)).map(o=>({...o,names:names.get(o.id)||[]})).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));}
@@ -544,13 +648,13 @@ const Etsy=(()=>{
   const ms=months.map(m=>m<=cutoff?D.summary(state,m+'-01',Budget.endOf(m)):null);
   const lines=[...S.pl.opex.groups.filter(g=>Budget.GROUP_DEFS[g.id]?.etsy).flatMap(g=>g.lines)].filter(l=>l.amount>0).sort((a,b)=>b.amount-a.amount);
   const orders=span==='month'?D.orderBook(state,r.from,r.to):[];
-  return pagehead('Fees & ads',`What Etsy kept · ${esc(r.label)}`,'Fee credits, Etsy Plus credits and Share &amp; Save refunds are taken off the fee they belong to.',button('Print','print','quiet'))+spanControl()+
-   `<div class="kpis">${kpi('Etsy costs',S.etsyCosts,`${pc(S.costShare)} of ${fmt(S.revenue)} ${L.income.toLowerCase()}${S.credits?' · after '+fmt(S.credits)+' credits':''}`,'up')}${kpi('Etsy &amp; Offsite Ads',S.ads,`${pc(S.adsShare)} of ${L.income.toLowerCase()}`,'spark')}${kpi('Etsy costs per order',S.orders?Math.round(S.etsyCosts/S.orders):0,S.orders?`${num(S.orders)} orders · take-home ${fmt(Math.round(S.takeHome/S.orders))} each`:'No orders in this period','wallet')}${kpi('Take-home',S.takeHome,`${pc(S.revenue>0?S.takeHome/S.revenue:null)} of ${L.income.toLowerCase()} · deposits ${fmt(S.deposits)}`,'coins',S.takeHome<0?'warn':'')}</div>`+
-   (S.revenue>0?`<section class="card"><div class="cardhead"><div><h2>Out of every sale</h2><p>${esc(r.label)} · as a share of ${fmt(S.revenue)} ${L.income.toLowerCase()}</p></div></div><div class="kit-gauges">${gauge(S.costShare,'Etsy’s cut','Fees, ads and Etsy Plus')}${gauge(S.revenue?S.fees/S.revenue:null,'Fees',fmt(S.fees))}${gauge(S.adsShare,'Ads',fmt(S.ads))}${gauge(S.takeHome/S.revenue,'Kept',fmt(S.takeHome))}</div></section>`:'')+
+  return pagehead('Fees & ads',`What ${etsyOnly()?'Etsy':'the platforms'} kept · ${esc(r.label)}`,'Fee credits, Etsy Plus credits and Share &amp; Save refunds are taken off the fee they belong to.',button('Print','print','quiet'))+spanControl()+
+   `<div class="kpis">${kpi(costWord(),S.etsyCosts,`${pc(S.costShare)} of ${fmt(S.revenue)} ${L.income.toLowerCase()}${S.credits?' · after '+fmt(S.credits)+' credits':''}`,'up')}${kpi('Etsy &amp; Offsite Ads',S.ads,`${pc(S.adsShare)} of ${L.income.toLowerCase()}`,'spark')}${kpi('Etsy costs per order',S.orders?Math.round(S.etsyCosts/S.orders):0,S.orders?`${num(S.orders)} orders · take-home ${fmt(Math.round(S.takeHome/S.orders))} each`:'No orders in this period','wallet')}${kpi('Take-home',S.takeHome,`${pc(S.revenue>0?S.takeHome/S.revenue:null)} of ${L.income.toLowerCase()} · deposits ${fmt(S.deposits)}`,'coins',S.takeHome<0?'warn':'')}</div>`+
+   (S.revenue>0?`<section class="card"><div class="cardhead"><div><h2>Out of every sale</h2><p>${esc(r.label)} · as a share of ${fmt(S.revenue)} ${L.income.toLowerCase()}</p></div></div><div class="kit-gauges">${gauge(S.costShare,cutWord(),etsyOnly()?'Fees, ads and Etsy Plus':'Fees and ads')}${gauge(S.revenue?S.fees/S.revenue:null,'Fees',fmt(S.fees))}${gauge(S.adsShare,'Ads',fmt(S.ads))}${gauge(S.takeHome/S.revenue,'Kept',fmt(S.takeHome))}</div></section>`:'')+
    `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Fee breakdown</h2><p>${esc(r.label)} · after credits</p></div></div>${lines.length?pie(fold(lines.map(l=>[l.name,l.amount]),'Other Etsy costs'),{label:'Etsy costs',donut:false}):noData('statement lines')}</section>`+
    `<section class="card"><div class="cardhead"><div><h2>Statement lines</h2><p>${esc(r.label)}</p></div></div>${[['Order payments',S.sales],['Sales tax &amp; VAT buyers paid',-S.buyerTax],['Refunds to buyers',-S.refunds],[`<b>${L.income}</b>`,S.revenue],...lines.map(l=>[esc(l.name),-l.amount]),['<b>Take-home</b>',S.takeHome],['Shipping labels bought on Etsy',-S.labels],['Paid out to your bank',S.deposits]].filter(([,n],i)=>n||i===3).map(([k,n])=>`<div class="row"><span>${k}</span><span class="number">${Biz.acct(n)}</span></div>`).join('')}</section></div>`+
    (ms.some(x=>x&&(x.revenue||x.ads))?`<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Where each month’s ${L.income.toLowerCase()} went, ${y}</h2><p>Take-home, Etsy fees, and ads with Etsy Plus · hover a month for amounts</p></div></div>${stack([{name:'Take-home',values:ms.map(x=>x?Math.max(0,x.takeHome):null),color:'var(--cat-5)'},{name:'Etsy fees',values:ms.map(x=>x?x.fees:null),color:'var(--cat-2)'},{name:'Ads & Etsy Plus',values:ms.map(x=>x?Math.max(0,x.marketing):null),color:'var(--cat-4)'}],months.map(shortMonth),{title:`Where each month’s ${L.income.toLowerCase()} went`})}</section>`+
-    `<section class="card"><div class="cardhead"><div><h2>Shares by month, ${y}</h2><p>Etsy’s cut and ads, as a share of ${L.income.toLowerCase()}${(()=>{const e=D.estimatedMonths(state,y+'-01-01',y+'-12-31');return e.length?` · ${e.map(shortMonth).join(', ')} estimated, so no ads yet`:'';})()}</p></div></div>${line([{name:'Etsy’s cut',values:ms.map(x=>x&&x.costShare!==null?x.costShare:null),color:'var(--cat-2)'},{name:'Ads',values:ms.map(x=>x&&x.adsShare!==null?x.adsShare:null),color:'var(--cat-4)'}],months.map(shortMonth),{f:v=>pc(v,0),title:'Etsy cost and ad share by month'})}</section></div>`+
+    `<section class="card"><div class="cardhead"><div><h2>Shares by month, ${y}</h2><p>Etsy’s cut and ads, as a share of ${L.income.toLowerCase()}${(()=>{const e=D.estimatedMonths(state,y+'-01-01',y+'-12-31');return e.length?` · ${e.map(shortMonth).join(', ')} estimated, so no ads yet`:'';})()}</p></div></div>${line([{name:cutWord(),values:ms.map(x=>x&&x.costShare!==null?x.costShare:null),color:'var(--cat-2)'},{name:'Ads',values:ms.map(x=>x&&x.adsShare!==null?x.adsShare:null),color:'var(--cat-4)'}],months.map(shortMonth),{f:v=>pc(v,0),title:'Etsy cost and ad share by month'})}</section></div>`+
     `<section class="card table-card"><div class="cardhead"><div><h2>Month by month, ${y}</h2><p>Costs as a share of ${L.income.toLowerCase()}</p></div></div><div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">${L.income}</th><th class="num">Etsy fees</th><th class="num">Ads &amp; Plus</th><th class="num">Etsy costs</th><th class="num">Ads %</th><th class="num">Take-home</th></tr></thead><tbody>${months.map((m,i)=>{const x=ms[i];return x?`<tr><td><button class="link" data-action="select-month" data-month="${m}">${shortMonth(m)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.fees)}</td><td class="num">${fmt(x.marketing)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num">${pc(x.adsShare)}</td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td></tr>`:`<tr><td>${shortMonth(m)}</td><td class="num dim" colspan="6">—</td></tr>`;}).join('')}</tbody></table></div></section>`:'')+
    (span==='month'?`<section class="card table-card"><div class="cardhead"><div><h2>Every order in ${monthName(selected)}</h2><p>${orders.length} order${orders.length===1?'':'s'} · what the buyer paid, less tax and Etsy’s fees</p></div>${orders.length>25?button(ordersAll?'Show fewer':'Show all','etsy-orders-all','small quiet'):''}</div>${orders.length?orderTable(ordersAll?orders:orders.slice(0,25)):noData('statement lines')}</section>`:
     `<div class="notice no-print"><span>Choose <b>Month</b> to see every order rebuilt from the statement: sale − buyer tax − fees = take-home.</span></div>`);
@@ -620,6 +724,11 @@ const Etsy=(()=>{
   return `<section class="card" id="etsy-fees-card"><div class="cardhead"><div><h2>Your Etsy fees</h2><p>Used for months estimated from sold orders, for profit per product and by the pricing calculator. Imported statements always use what Etsy actually charged.</p></div></div>`+
    `<form id="etsy-fees-form"><div class="fields"><label class="full">Start from<select name="preset">${X.presets.map(([id,l])=>`<option value="${id}" ${id===cur?'selected':''}>${esc(l)}</option>`).join('')}<option value="custom" ${cur==='custom'?'selected':''}>My own rates</option></select><small>Starting points only: check Etsy’s Fees &amp; Payments Policy for your country. Some countries add VAT or GST on fees.</small></label>`+
    pctIn('transaction',R.transaction,'Transaction fee','On the item price and shipping')+pctIn('processing',R.processing,'Payment processing','On the order total')+amtIn('processingFixed',R.processingFixed,'Processing, per order')+amtIn('listing',R.listing,'Listing fee, per item sold')+pctIn('offsite',R.offsite,'Offsite Ads','15%, or 12% once you pass $10,000 a year')+
+   `</div><div class="formfoot"><button class="btn primary">Save fees</button></div></form></section>`+channelFeesCard();}
+ function channelFeesCard(){const ps=['shopify','square'].filter(p=>state.shops.some(x=>x.platform===p));if(!ps.length)return '';
+  const c=esc(state.settings.currency);
+  return `<section class="card" id="channel-fees-card"><div class="cardhead"><div><h2>Shopify &amp; Square fees</h2><p>Payment fees used when an export has no fees in it: Shopify orders always, Square item detail without the transactions file.</p></div></div><form id="channel-fees-form"><div class="fields">`+
+   ps.map(p=>{const R=D.channelRates(state,p);return `<label>${PLAT[p]} processing<span class="kit-input"><input name="${p}-processing" type="number" min="0" max="50" step="0.01" value="${R.processing/100}" required><em>%</em></span></label><label>${PLAT[p]}, per ${p==='square'?'sale':'order'}<span class="kit-input"><input name="${p}-fixed" type="number" min="0" max="100" step="0.01" value="${(R.processingFixed/100).toFixed(2)}" required><em>${c}</em></span></label>`;}).join('')+
    `</div><div class="formfoot"><button class="btn primary">Save fees</button></div></form></section>`;}
  // ---------- coupons & discounts ----------
  function couponsView(){
@@ -677,11 +786,18 @@ const Etsy=(()=>{
  function shopsView(){
   const r=range(span==='all'?'all':span),rows=D.compare(state,r.from,r.to),T=D.summary({...state,settings:{...state.settings,shop:''}},r.from,r.to),two=rows.filter(x=>x.revenue>0).length>1;
   return pagehead('Your shops','Shops',`Every import belongs to one shop. Costs you log with All shops selected are shared, and count in the combined view only.`,button('＋ Add a shop','etsy-add-shop','primary'))+spanControl()+
-   (rows.length?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${esc(r.label)}</p></div></div><div class="table-wrap"><table class="etsy-compare"><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Etsy costs</th><th class="num">Ads</th><th class="num">Take-home</th><th class="num">Net profit</th><th class="num">Orders</th><th class="num">Average order</th><th class="num">Listings</th><th class="num">Rating</th></tr></thead><tbody>${rows.map(x=>`<tr><td class="nw"><i class="dot" style="background:${shopColor(x.id)}"></i> <button class="link" data-action="etsy-scope" data-shop="${x.id}"><b>${esc(x.name)}</b></button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num">${fmt(x.ads)} <span class="dim">${pc(x.adsShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${Biz.acct(x.profit)}</td><td class="num">${num(x.orders||x.soldOrders)}</td><td class="num">${x.aov?fmt(x.aov):'—'}</td><td class="num">${num(x.listings)}</td><td class="num">${x.rating?x.rating.toFixed(2):'—'}</td></tr>`).join('')}<tr class="group-total"><td><b>All shops</b><small class="dim etsy-item">incl. shared costs</small></td><td class="num"><b>${fmt(T.revenue)}</b></td><td class="num"><b>${fmt(T.etsyCosts)}</b></td><td class="num"><b>${fmt(T.ads)}</b></td><td class="num"><b>${Biz.acct(T.takeHome)}</b></td><td class="num"><b>${Biz.acct(T.profit)}</b></td><td class="num"><b>${num(T.orders)}</b></td><td class="num">${T.aov?fmt(T.aov):'—'}</td><td></td><td></td></tr></tbody></table></div></section>`+
+   (rows.length?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${esc(r.label)}</p></div></div><div class="table-wrap"><table class="etsy-compare"><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">${costWord()}</th><th class="num">Ads</th><th class="num">Take-home</th><th class="num">Net profit</th><th class="num">Orders</th><th class="num">Average order</th><th class="num">Listings</th><th class="num">Rating</th></tr></thead><tbody>${rows.map(x=>`<tr><td class="nw"><i class="dot" style="background:${shopColor(x.id)}"></i> <button class="link" data-action="etsy-scope" data-shop="${x.id}"><b>${esc(x.name)}</b></button> ${platPill(x.id)}</td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num">${fmt(x.ads)} <span class="dim">${pc(x.adsShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${Biz.acct(x.profit)}</td><td class="num">${num(x.orders||x.soldOrders)}</td><td class="num">${x.aov?fmt(x.aov):'—'}</td><td class="num">${num(x.listings)}</td><td class="num">${x.rating?x.rating.toFixed(2):'—'}</td></tr>`).join('')}<tr class="group-total"><td><b>All shops</b><small class="dim etsy-item">incl. shared costs</small></td><td class="num"><b>${fmt(T.revenue)}</b></td><td class="num"><b>${fmt(T.etsyCosts)}</b></td><td class="num"><b>${fmt(T.ads)}</b></td><td class="num"><b>${Biz.acct(T.takeHome)}</b></td><td class="num"><b>${Biz.acct(T.profit)}</b></td><td class="num"><b>${num(T.orders)}</b></td><td class="num">${T.aov?fmt(T.aov):'—'}</td><td></td><td></td></tr></tbody></table></div></section>`+
+    keptCard(rows,r)+
     (two?`<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Share of ${L.income.toLowerCase()}</h2><p>${esc(r.label)}</p></div></div>${pie(fold(rows.map(x=>[x.name,x.revenue])),{label:L.income,center:fmt(T.revenue).replace(/\.\d\d$/,''),sub:'ALL SHOPS'})}</section>`+
      `<section class="card"><div class="cardhead"><div><h2>Take-home by shop</h2><p>${esc(r.label)}</p></div></div>${compareBarChart([{name:L.income,values:rows.map(x=>x.revenue),color:'var(--ch-in)'},{name:'Take-home',values:rows.map(x=>x.takeHome),color:'var(--accent)'}],rows.map(x=>x.name),'Revenue and take-home by shop','horizontal')}</section></div>`:''):'')+
-   `<section class="card no-print"><div class="cardhead"><div><h2>Manage shops</h2><p>Rename a shop at any time. Deleting a shop removes everything imported into it.</p></div></div>${state.shops.map(x=>`<div class="row"><div><strong>${esc(x.name)}</strong><small>${num(state.transactions.filter(t=>t.shop===x.id).length)} statement lines · ${num(state.etsy.orders.filter(o=>o.shop===x.id).length)} orders · ${num(state.etsy.listings.filter(l=>l.shop===x.id).length)} listings · ${num(state.etsy.reviews.filter(v=>v.shop===x.id).length)} reviews</small></div><div class="actions">${button('Rename','etsy-rename-shop','small',`data-id="${x.id}"`)}${button('Delete','etsy-delete-shop','small danger',`data-id="${x.id}"`)}</div></div>`).join('')||empty('No shops yet','Add each Etsy shop you run, then import its files.','etsy-add-shop','Add a shop')}</section>`;
+   `<section class="card no-print"><div class="cardhead"><div><h2>Manage shops</h2><p>Rename a shop or change where it sells at any time. Deleting a shop removes everything imported into it.</p></div></div>${state.shops.map(x=>`<div class="row"><div><strong>${esc(x.name)} ${`<span class="pill kit-plat">${PLAT[platOf(x.id)]}</span>`}</strong><small>${num(state.transactions.filter(t=>t.shop===x.id).length)} ${platOf(x.id)==='etsy'?'statement lines':'lines in the books'} · ${num(state.etsy.orders.filter(o=>o.shop===x.id).length)} ${platOf(x.id)==='square'?'sales':'orders'}${platOf(x.id)==='etsy'?` · ${num(state.etsy.listings.filter(l=>l.shop===x.id).length)} listings · ${num(state.etsy.reviews.filter(v=>v.shop===x.id).length)} reviews`:''}</small></div><div class="actions">${button('Edit','etsy-rename-shop','small',`data-id="${x.id}"`)}${button('Delete','etsy-delete-shop','small danger',`data-id="${x.id}"`)}</div></div>`).join('')||empty('No shops yet','Add each Etsy shop, Shopify store or Square account you sell through, then import its files.','etsy-add-shop','Add a shop')}</section>`;
  }
+ // What each shop or channel keeps of every dollar it sells, after its platform's fees and ads
+ function keptCard(rows,r){const list=rows.filter(x=>x.revenue>0).sort((a,b)=>(b.kept??-9)-(a.kept??-9));if(list.length<2)return '';
+  const best=list[0],worst=list.at(-1),cents=v=>v===null?'—':(v*100).toFixed(0)+'¢',per100=v=>fmt(Math.round(v*10000));
+  return `<section class="card"><div class="cardhead"><div><h2>What each channel keeps you</h2><p>${esc(r.label)} · take-home out of every dollar of ${L.income.toLowerCase()}, after the platform’s fees and ads</p></div></div>`+
+   list.map(x=>`<div class="budget-row"><div class="row"><strong><i class="dot" style="background:${shopColor(x.id)}"></i> ${esc(x.name)} <span class="pill kit-plat">${PLAT[x.platform]}</span></strong><span class="number"><b>${cents(x.kept)}</b> <span class="dim">of $1 · ${fmt(x.revenue)} sold</span></span></div><div class="meter"><i style="width:${Math.max(0,Math.min(100,(x.kept||0)*100))}%;background:${shopColor(x.id)}"></i></div></div>`).join('')+
+   (best.kept!==null&&worst.kept!==null&&best.kept-worst.kept>=0.02?`<p class="small muted kit-note">Every $100 sold through <b>${esc(best.name)}</b> keeps you ${per100(best.kept)}; through <b>${esc(worst.name)}</b>, ${per100(worst.kept)}. Costs of your own (materials, booth fees, subscriptions you log yourself) come on top.</p>`:'')+`</section>`;}
  // ---------- year: sold orders fill the months that have no statement yet ----------
  function annualTop(y){return revenueByShop(y)+soldOrdersCard(y);}
  function revenueByShop(y){
@@ -690,7 +806,7 @@ const Etsy=(()=>{
   if(!rows.length||!total)return '';
   const months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),chart=shopStack(months,i=>months[i]<=cutoff,null);
   return `<section class="card"><div class="cardhead"><div><h2>${L.income} by shop, ${y}</h2><p>${y===cutoff.slice(0,4)?'Year to date':'Full year'} · ${fmt(total)} across ${rows.length} shops · estimated months included</p></div><button class="link" data-go="shops">Compare shops</button></div>`+
-   `<div class="kit-shop-pie">${pie(rows.map(x=>[x.name,x.revenue,shopColor(x.id)]),{label:L.income,center:compact(total),sub:'ALL SHOPS'})}</div>`+(chart?`<div style="margin-top:18px">${chart}</div>`:'')+`<div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Share</th><th class="num">Etsy costs</th><th class="num">Take-home</th><th class="num">Net profit</th><th class="num">Orders</th></tr></thead><tbody>${rows.map(x=>`<tr><td class="nw"><i class="dot" style="background:${shopColor(x.id)}"></i> <button class="link" data-action="etsy-scope" data-shop="${x.id}">${esc(x.name)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${pc(x.revenue/total,0)}</td><td class="num">${fmt(x.etsyCosts)}</td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${Biz.acct(x.profit)}</td><td class="num">${num(x.orders)}</td></tr>`).join('')}</tbody></table></div></section>`;
+   `<div class="kit-shop-pie">${pie(rows.map(x=>[x.name,x.revenue,shopColor(x.id)]),{label:L.income,center:compact(total),sub:'ALL SHOPS'})}</div>`+(chart?`<div style="margin-top:18px">${chart}</div>`:'')+`<div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Share</th><th class="num">${costWord()}</th><th class="num">Take-home</th><th class="num">Net profit</th><th class="num">Orders</th></tr></thead><tbody>${rows.map(x=>`<tr><td class="nw"><i class="dot" style="background:${shopColor(x.id)}"></i> <button class="link" data-action="etsy-scope" data-shop="${x.id}">${esc(x.name)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${pc(x.revenue/total,0)}</td><td class="num">${fmt(x.etsyCosts)}</td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${Biz.acct(x.profit)}</td><td class="num">${num(x.orders)}</td></tr>`).join('')}</tbody></table></div></section>`;
  }
  function soldOrdersCard(y){
   const M=D.orderMonths(state,y),cutoff=today().slice(0,7),has=M.some(m=>m.orders);if(!has)return '';
@@ -713,11 +829,14 @@ const Etsy=(()=>{
   if(!(amount>0))return cat;
   const payouts=[...(state.etsy.deposits||[]).map(d=>[d.date,d.amount]),...state.transactions.filter(t=>t.category==='etsy-deposit'&&t.src).map(t=>[t.date,t.amount])];
   if(payouts.some(([d,a])=>a===amount&&date>=d&&date<=Budget.plusDays(d,6))||/\betsy\b/i.test(note||''))return 'etsy-deposit';
+  // a Shopify or Square payout, when a shop sells there: its sales are already in the books
+  const via=/shopify/i.test(note||'')?'shopify':/\bsquare\b|\bsq \*|squareup/i.test(note||'')?'square':'';
+  if(via&&state.shops.some(x=>x.platform===via)){if(!state.categories.some(c=>c.id==='channel-payout'))return 'own-transfer';return 'channel-payout';}
   return cat==='etsy-deposit'?(P.defaults.importIncome||cat):cat;
  }
  // ---------- Transactions: filter and label lines by where they came from ----------
  let txSource='all';
- const SOURCES=[['all','Every source'],['statement','Etsy statements'],['estimated','Estimated from orders'],['bank','Bank imports'],['mine','Entered by you']];
+ const SOURCES=[['all','Every source'],['statement','Statements & transactions'],['estimated','Estimated from orders'],['bank','Bank imports'],['mine','Entered by you']];
  const sourceOf=t=>t.est?'estimated':t.imp?'bank':t.src?'statement':'mine';
  const activityFilter={test:t=>txSource==='all'||sourceOf(t)===txSource,active:()=>txSource!=='all',reset(){txSource='all';},
   control:()=>`<select id="source-filter" aria-label="Filter by source">${SOURCES.map(([v,l])=>`<option value="${v}" ${v===txSource?'selected':''}>${l}</option>`).join('')}</select>`};
@@ -729,27 +848,28 @@ const Etsy=(()=>{
  let session=null;   // {shop, files:[parsed]}
  function importView(){
   const shops=state.shops,target=session?.shop||state.settings.shop||shops[0]?.id||'';
-  const where=X.exports.map(([k,label,path,example])=>`<div class="row"><div><strong>${label}</strong><small>${esc(path)}</small></div><span class="pill">${esc(example)}</span></div>`).join('');
+  const tp=target?platOf(target):'etsy',tpl=PLAT[tp];
+  const where=(tp==='etsy'?X.exports:X.channelExports[tp]||[]).map(([k,label,path,example])=>`<div class="row"><div><strong>${label}</strong><small>${esc(path)}</small></div><span class="pill">${esc(example)}</span></div>`).join('');
   // what the chosen shop already holds, so the choice is easy to check at a glance
   const held=id=>{const last=state.etsy.imports.filter(x=>x.shop===id).map(x=>x.at).sort().at(-1),o=state.etsy.orders.filter(x=>x.shop===id).length,l=state.transactions.filter(t=>t.shop===id&&t.src).length;
    return last?`${num(o)} order${o===1?'':'s'} · ${num(l)} statement line${l===1?'':'s'} · last import ${dateName(last)}`:'Nothing imported yet';};
-  const shopPick=shops.length?`<label class="etsy-field"><span class="sr-only">Import into</span><select id="etsy-import-shop">${shops.map(x=>`<option value="${x.id}" ${x.id===target?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>${button('＋ New shop','etsy-add-shop','quiet')}`
-   :`<form id="etsy-shop-form" class="etsy-first-shop"><label class="etsy-field"><span class="sr-only">Shop name</span><input name="name" maxlength="60" required placeholder="Your shop name, e.g. Fern &amp; Fable Prints"></label><button class="btn primary">Add shop</button></form>`;
+  const shopPick=shops.length?`<label class="etsy-field"><span class="sr-only">Import into</span><select id="etsy-import-shop">${shops.map(x=>`<option value="${x.id}" ${x.id===target?'selected':''}>${esc(x.name)}${platOf(x.id)==='etsy'?'':' · '+PLAT[platOf(x.id)]}</option>`).join('')}</select></label>${button('＋ New shop','etsy-add-shop','quiet')}`
+   :`<form id="etsy-shop-form" class="etsy-first-shop"><label class="etsy-field"><span class="sr-only">Shop name</span><input name="name" maxlength="60" required placeholder="Your shop name, e.g. Fern &amp; Fable Prints"></label><label class="etsy-field"><span class="sr-only">Sells on</span><select name="platform">${X.platforms.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label><button class="btn primary">Add shop</button></form>`;
   let preview='';
   if(session?.files.length){
    const rows=session.files.map(f=>({f,r:D.merge(clone(state),target,f,{dry:true})}));
    const ready=rows.filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items)).length;
-   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognised as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.KINDS[f.kind]:'<span class="warn">Not recognised</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}</td></tr>`).join('')}</tbody></table></div></section>`;
+   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognised as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.kindName(f.kind,f.platform):'<span class="warn">Not recognised</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}</td></tr>`).join('')}</tbody></table></div></section>`;
   }
-  return pagehead('Bring in your Etsy files','Import Etsy files','Choose the shop, then drop in any of Etsy’s four exports together. Each is recognised by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
+  return pagehead('Bring in your sales files','Import files','Choose the shop, then drop in its exports: Etsy, Shopify or Square. Each file is recognised by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
    `<section class="card etsy-import-card"><div class="etsy-import-top">`+
    `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">1</span><div><h2>${shops.length?'Choose the shop':'Name your first shop'}</h2><p>${shops.length?'Files go into this shop, whatever the picker at the top shows.':'One entry per Etsy shop. You can add more later.'}</p></div></div>`+
    `<div class="etsy-shop-row">${shopPick}</div>${shops.length?`<p class="etsy-shop-meta">${ico('history')}<span>${esc(held(target))}</span></p>`:''}</div>`+
-   `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">2</span><div><h2>Add the files</h2><p>Statements, order items, listings and reviews, together or one at a time.</p></div></div>`+
-   `<label class="etsy-drop${shops.length?'':' disabled'}" id="etsy-drop"><span class="etsy-drop-icon">${ico('up')}</span><b>Drop Etsy files here</b><small>.csv and reviews.json · several at once · read on this device only</small><span class="btn small etsy-drop-btn">Choose files</span><input class="sr-only" type="file" id="etsy-files" accept=".csv,.json,text/csv,application/json" multiple ${shops.length?'':'disabled'}></label></div>`+
+   `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">2</span><div><h2>Add the files</h2><p>${tp==='etsy'?'Statements, order items, listings and reviews, together or one at a time.':tp==='shopify'?'Your Shopify orders export.':tp==='square'?'Square transactions and item detail, together or one at a time.':'This shop has no export to read: log its sales as transactions or import your bank CSV.'}</p></div></div>`+
+   `<label class="etsy-drop${shops.length?'':' disabled'}" id="etsy-drop"><span class="etsy-drop-icon">${ico('up')}</span><b>Drop ${esc(tpl)} files here</b><small>${tp==='etsy'?'.csv and reviews.json':'.csv files'} · several at once · read on this device only</small><span class="btn small etsy-drop-btn">Choose files</span><input class="sr-only" type="file" id="etsy-files" accept=".csv,.json,text/csv,application/json" multiple ${shops.length?'':'disabled'}></label></div>`+
    `</div></section>`+
    preview+
-   `<section class="card"><div class="cardhead"><div><h2>Where to find each file</h2><p>Download them from Etsy on a computer. Nothing is sent anywhere: the files are read in this browser.</p></div></div>${where}<p class="small muted" style="margin-top:12px">Buyer names and addresses in the sold order items file are not stored. Only the country and a scrambled key (to count repeat buyers) are kept.</p></section>`+
+   `<section class="card"><div class="cardhead"><div><h2>Where to find each ${esc(tpl)} file</h2><p>Download them on a computer. Nothing is sent anywhere: the files are read in this browser.</p></div></div>${where||'<p class="small muted">Nothing to download for this shop. Add its sales as transactions, or import a bank CSV into it.</p>'}<p class="small muted" style="margin-top:12px">Buyer names, emails and addresses in these files are never stored. Only the country and a scrambled key (to count repeat buyers) are kept.</p></section>`+
    recentImports();
  }
  function outcome(r){
@@ -759,7 +879,7 @@ const Etsy=(()=>{
  }
  function recentImports(){
   const shop=state.settings.shop,list=state.etsy.imports.map((x,i)=>({...x,i})).filter(x=>!shop||x.shop===shop||(x.kind==='bank'&&!x.shop)).slice(-40).reverse();if(!list.length)return '';
-  return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${esc(scopeName())} · Move sends everything a file brought in to another shop. Delete removes it. Costs you typed in yourself are never touched.</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${x.shop?esc(shopName(x.shop)):'<span class="dim">Shared</span>'}</td><td>${esc(x.name)}</td><td>${D.KINDS[x.kind]}</td><td class="nw">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print nw etsy-row-actions">${button('Move','etsy-move-import','small quiet',`data-i="${x.i}"`)}${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${esc(scopeName())} · Move sends everything a file brought in to another shop. Delete removes it. Costs you typed in yourself are never touched.</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${x.shop?esc(shopName(x.shop)):'<span class="dim">Shared</span>'}</td><td>${esc(x.name)}</td><td>${D.kindName(x.kind,x.platform)}</td><td class="nw">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print nw etsy-row-actions">${button('Move','etsy-move-import','small quiet',`data-i="${x.i}"`)}${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
  }
  async function readFiles(list){
   const files=[...list].slice(0,24);if(!files.length)return;
@@ -773,7 +893,7 @@ const Etsy=(()=>{
   if(!plan.length)return toast('Nothing new to import.');
   const newLines=plan.filter(x=>x.f.kind==='statement').reduce((n,x)=>n+x.r.added,0);
   if(state.transactions.length+newLines>MAX_TRANSACTIONS)return toast(LIMIT_MESSAGE);
-  const summary=`${shopName(shop)}: `+plan.map(({r})=>`${D.KINDS[r.kind].toLowerCase()} ${r.kind==='listings'?(r.added||r.same)+' listings':r.kind==='orders'?num(r.added)+' new orders, '+num(r.items)+' items':num(r.added)+' new'+(r.updated?', '+num(r.updated)+' updated':'')}`).join(' · ');
+  const summary=`${shopName(shop)}: `+plan.map(({r})=>`${D.kindName(r.kind,r.platform).replace(/^(?!Shopify|Square)\w/,c=>c.toLowerCase())} ${r.kind==='listings'?(r.added||r.same)+' listings':r.kind==='orders'?num(r.added)+' new orders, '+num(r.items)+' items':num(r.added)+' new'+(r.updated?', '+num(r.updated)+' updated':'')}`).join(' · ');
   let latest='';
   commit(()=>{for(const {f} of plan){const r=D.merge(state,shop,f,{uid:Budget.uid,today:today()});if(r.error)continue;
     // months that receive Etsy lines open again, as with any import
@@ -792,7 +912,8 @@ const Etsy=(()=>{
   const sel=box.querySelector('select');sel.value=state.shops.length===1&&!cur?state.shops[0].id:cur;
  }
  function shopForm(id=''){const x=state.shops.find(s=>s.id===id);
-  modal(x?'Rename shop':'Add a shop',x?'The new name shows everywhere, including earlier imports.':'One entry per Etsy shop you run. Imports, screens and printouts can then show one shop or all of them.',`<form id="etsy-shop-form" data-id="${id}"><div class="fields"><label class="full">Shop name<input name="name" maxlength="60" required value="${esc(x?.name||'')}" placeholder="e.g. Copper Kiln Ceramics"></label></div>${formFoot(x?'Save':'Add shop')}</form>`);}
+  const cur=x?.platform||'etsy',locked=x&&state.etsy.imports.some(v=>v.shop===id&&v.kind!=='bank');
+  modal(x?'Edit shop':'Add a shop',x?'The new name shows everywhere, including earlier imports.':'One entry per Etsy shop, Shopify store or Square account. Imports, screens and printouts can then show one shop or all of them.',`<form id="etsy-shop-form" data-id="${id}"><div class="fields"><label class="full">Shop name<input name="name" maxlength="60" required value="${esc(x?.name||'')}" placeholder="e.g. Copper Kiln Ceramics"></label><label class="full">Sells on<select name="platform" ${locked?'disabled':''}>${X.platforms.map(([v,l])=>`<option value="${v}" ${v===cur?'selected':''}>${l} · ${esc(X.platformHelp[v])}</option>`).join('')}</select>${locked?'<small>Files are already imported into this shop, so where it sells stays as it is.</small>':''}</label></div>${formFoot(x?'Save':'Add shop')}</form>`);}
 
  // ---------- events ----------
  document.addEventListener('change',e=>{
@@ -832,6 +953,10 @@ const Etsy=(()=>{
   case 'etsy-clear':session=null;render();break;
   case 'etsy-import':runImport();break;
  }}catch(err){toast(err.message);}});
+ document.addEventListener('submit',e=>{if(e.target.id!=='channel-fees-form')return;e.preventDefault();const f=new FormData(e.target);
+  try{const cf={};for(const p of ['shopify','square']){if(f.get(p+'-processing')===null)continue;const pr=Math.round(Number(f.get(p+'-processing'))*100),fx=Math.round(Number(f.get(p+'-fixed'))*100);
+    if(!Number.isFinite(pr)||pr<0||pr>5000||!Number.isFinite(fx)||fx<0||fx>10000)throw Error('Use percentages from 0 to 50 and amounts from 0 to 100.');cf[p]={processing:pr,processingFixed:fx};}
+   commit(()=>{state.settings.channelFees={...(state.settings.channelFees||{}),...cf};D.syncEstimates(state,{today:today()});},'Channel fees saved · estimates updated');}catch(err){toast(err.message);}});
  document.addEventListener('submit',e=>{const id=e.target.id;if(!['etsy-goal-form','etsy-fees-form','etsy-calc'].includes(id))return;e.preventDefault();if(id==='etsy-calc')return;const f=new FormData(e.target);
   try{if(id==='etsy-goal-form'){const raw=String(f.get('goal')||'').trim(),k=state.settings.shop||'';
     const v=raw?Budget.cents(raw):0;closeModal();commit(()=>{state.settings.goals??={};if(v)state.settings.goals[k]=v;else delete state.settings.goals[k];},v?`Goal set: ${fmt(v)} a month`:'Goal removed');}
@@ -852,18 +977,20 @@ const Etsy=(()=>{
   const i=+e.target.dataset.i,to=new FormData(e.target).get('to')??'',x=state.etsy.imports[i];if(!x)return closeModal();
   const test=D.moveImport(clone(state),i,to,{dry:true});if(test?.error)return formError(test.error);
   closeModal();commit(()=>{D.moveImport(state,i,to);D.syncEstimates(state,{today:today()});},`${x.name} moved to ${to?shopName(to):'All shops (shared)'}`);});
- document.addEventListener('submit',e=>{if(e.target.id!=='etsy-shop-form')return;e.preventDefault();const f=new FormData(e.target),id=e.target.dataset.id,name=String(f.get('name')||'').trim();
+ document.addEventListener('submit',e=>{if(e.target.id!=='etsy-shop-form')return;e.preventDefault();const f=new FormData(e.target),id=e.target.dataset.id,name=String(f.get('name')||'').trim(),pf=f.get('platform'),platform=X.platforms.some(x=>x[0]===pf)?pf:null;
   try{if(!name)throw Error('Give the shop a name.');if(state.shops.some(x=>x.id!==id&&x.name.toLowerCase()===name.toLowerCase()))throw Error('Another shop already uses that name.');
    if(!id&&state.shops.length>=24)throw Error('Shop Insights holds up to 24 shops.');
    if($('#modal').open)closeModal();
-   if(id)commit(()=>state.shops.find(x=>x.id===id).name=name,'Shop renamed');
-   else{const nid='shop-'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,10);commit(()=>{state.shops.push({id:nid,name});if(session)session.shop=nid;},`${name} added`);}
+   const setP=x=>{if(!platform)return;if(platform==='etsy')delete x.platform;else x.platform=platform;};
+   if(id)commit(()=>{const x=state.shops.find(v=>v.id===id);x.name=name;setP(x);D.syncEstimates(state,{today:today()});},'Shop saved');
+   else{const nid='shop-'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,10);commit(()=>{const x={id:nid,name};setP(x);state.shops.push(x);if(session)session.shop=nid;},`${name} added`);}
   }catch(err){if($('#modal').open)formError(err);else toast(err.message);}});
 
  document.head.insertAdjacentHTML('beforeend',`<style>
  .shop-control{display:flex;flex-direction:column;gap:2px;margin-left:14px;min-width:0}
  .shop-control select{height:36px;border-radius:10px;border:1px solid var(--rule-2);background:var(--card);color:var(--ink);font:600 14px var(--ui);padding:0 30px 0 10px;max-width:220px}
  .etsy-row-actions .btn+.btn{margin-left:6px}
+ .kit-plat{font-size:10.5px;padding:2px 7px;margin-left:4px;vertical-align:1px}
  .etsy-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
  .kit-goal-link{text-align:center;margin:12px 0 0}
  .kit-nowrap{flex-wrap:nowrap;align-items:center}
@@ -926,7 +1053,7 @@ const Etsy=(()=>{
  .etsy-field select:focus,.etsy-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
  .etsy-shop-meta{display:flex;align-items:center;gap:8px;margin:-6px 0 0;color:var(--ink-3);font-size:12.5px}
  .etsy-shop-meta svg{width:14px;height:14px;flex:none}
- .etsy-first-shop{display:flex;gap:10px;flex:1}
+ .etsy-first-shop{display:flex;gap:10px;flex:1;flex-wrap:wrap}.etsy-first-shop .etsy-field:has(select){flex:0 1 150px}
  .etsy-first-shop .btn{flex:none;height:44px}
  .etsy-drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1.5px dashed var(--rule-2);border-radius:14px;padding:28px 18px;text-align:center;cursor:pointer;background:var(--card);transition:border-color .2s,background .2s,transform .2s}
  .etsy-drop:hover{border-color:var(--accent)}

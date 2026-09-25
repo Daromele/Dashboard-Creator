@@ -1446,23 +1446,24 @@ const Budget = ((P) => {
     const tids=new Set();s.transactions.forEach(t=>{if(!object(t)||!id(t.id)||tids.has(t.id)||!validDate(t.date)||!ids.has(t.category)||!amount(t.amount)||!t.amount||!str(t.note,500))fail();tids.add(t.id);});
     // several shops: every shop-tagged record must point at a shop this file knows
     if(P.features.shops){if(s.shops===undefined)s.shops=[];if(!Array.isArray(s.shops)||s.shops.length>24)fail();
-     const shops=new Set();s.shops.forEach(x=>{if(!object(x)||!id(x.id)||shops.has(x.id)||!str(x.name,60)||!x.name.trim())fail();shops.add(x.id);});
+     const shops=new Set(),platforms=(P.etsy?.platforms||[]).map(x=>x[0]);s.shops.forEach(x=>{if(!object(x)||!id(x.id)||shops.has(x.id)||!str(x.name,60)||!x.name.trim()||(x.platform!==undefined&&!platforms.includes(x.platform)))fail();shops.add(x.id);});
      if(!str(s.settings.shop??'',80)||(s.settings.shop&&!shops.has(s.settings.shop)))s.settings.shop='';
      s.transactions.forEach(t=>{if((t.shop!==undefined&&!shops.has(t.shop))||(t.ref!==undefined&&!str(t.ref,40))||(t.src!==undefined&&!str(t.src,40))||(t.est!==undefined&&t.est!==true)||(t.imp!==undefined&&!(str(t.imp,40)&&/^[A-Za-z0-9_-]+$/.test(t.imp)))||(t.n!==undefined&&!(Number.isSafeInteger(t.n)&&t.n>0)))fail();});
      if(P.features.etsy){if(s.etsy===undefined)s.etsy={};if(!object(s.etsy))fail();
       const E=s.etsy,list=(k,max)=>{if(E[k]===undefined)E[k]=[];if(!Array.isArray(E[k])||E[k].length>max)fail();return E[k];};
       const count=(x,max)=>Number.isSafeInteger(x)&&x>=0&&x<=max,money=x=>amount(x??0)&&(x??0)>=0,key=x=>str(x,40)&&/^[A-Za-z0-9_-]+$/.test(x);
       const each=(k,max,f)=>{const seen=new Set();list(k,max).forEach(x=>{if(!object(x)||!key(x.id)||seen.has(x.id)||!shops.has(x.shop)||!f(x))fail();seen.add(x.id);});};
-      each('orders',50000,o=>validDate(o.date)&&str(o.buyer??'',24)&&str(o.country??'',60)&&str(o.coupon??'',80)&&['list','discount','shipDiscount','shipping','tax'].every(k=>money(o[k]))&&count(o.units??0,100000));
+      each('orders',50000,o=>validDate(o.date)&&str(o.buyer??'',24)&&str(o.country??'',60)&&str(o.coupon??'',80)&&['list','discount','shipDiscount','shipping','tax','refund'].every(k=>money(o[k]))&&count(o.units??0,100000));
       each('items',100000,i=>key(i.order)&&str(i.listing??'',40)&&str(i.name,300)&&count(i.qty,100000)&&i.qty>0&&money(i.price)&&money(i.total)&&str(i.sku??'',80));
       each('listings',20000,l=>str(l.title,300)&&money(l.price)&&count(l.qty,1e7)&&count(l.photos,10)&&count(l.tags,13)&&str(l.sku??'',80)&&count(l.variations??0,3));
       each('reviews',100000,r=>validDate(r.date)&&Number.isInteger(r.stars)&&r.stars>=1&&r.stars<=5&&str(r.message??'',2000)&&str(r.order??'',40));
       each('deposits',20000,d=>validDate(d.date)&&amount(d.amount)&&d.amount>0);
       const whole=(x,max)=>Number.isSafeInteger(x)&&x>=0&&x<=max;
       if(s.settings.fees!==undefined){const f=s.settings.fees;if(!object(f))delete s.settings.fees;else{for(const [k,max] of [['transaction',5000],['processing',5000],['processingFixed',10000],['listing',10000],['offsite',5000]])if(f[k]!==undefined&&!whole(f[k],max))delete f[k];if(f.preset!==undefined&&!str(f.preset,20))delete f.preset;}}
+      if(s.settings.channelFees!==undefined){const c=s.settings.channelFees;if(!object(c))delete s.settings.channelFees;else Object.keys(c).forEach(k=>{if(!['shopify','square'].includes(k)||!object(c[k]))return delete c[k];for(const [f,max] of [['processing',5000],['processingFixed',10000],['transaction',5000]])if(c[k][f]!==undefined&&!whole(c[k][f],max))delete c[k][f];});}
       if(s.settings.goals!==undefined){const g=s.settings.goals;if(!object(g))delete s.settings.goals;else Object.keys(g).forEach(k=>{if((k&&!shops.has(k))||!whole(g[k],1e10)||!g[k])delete g[k];});}
       if(E.costs!==undefined){if(!object(E.costs))E.costs={};else Object.keys(E.costs).forEach(k=>{if(!str(k,80)||!whole(E.costs[k],1e9))delete E.costs[k];});}
-      list('imports',2000).forEach(x=>{if(!object(x)||!(shops.has(x.shop)||(x.kind==='bank'&&x.shop===''))||(x.id!==undefined&&!key(x.id))||!['statement','orders','listings','reviews','deposits','bank'].includes(x.kind)||!str(x.name,160)||!validDate(x.at)||!count(x.rows,1e6)||(x.from!==undefined&&!validDate(x.from))||(x.to!==undefined&&!validDate(x.to)))fail();});}}
+      list('imports',2000).forEach(x=>{if(!object(x)||!(shops.has(x.shop)||(x.kind==='bank'&&x.shop===''))||(x.id!==undefined&&!key(x.id))||!['statement','orders','listings','reviews','deposits','bank'].includes(x.kind)||(x.platform!==undefined&&!platforms.includes(x.platform))||!str(x.name,160)||!validDate(x.at)||!count(x.rows,1e6)||(x.from!==undefined&&!validDate(x.from))||(x.to!==undefined&&!validDate(x.to)))fail();});}}
     s.categories.forEach(c=>{if(c.taxLine!==undefined&&!(TAX_LINES&&typeof c.taxLine==='string'&&Object.hasOwn(TAX_LINES,c.taxLine)))delete c.taxLine;});
     if(P.features.tax){const r=s.settings.taxRate;if(r===undefined)s.settings.taxRate=P.settings.taxRate;else if(!Number.isInteger(r)||r<0||r>9000)fail();}
     if(P.features.mileage){const r=s.settings.mileageRate;if(r===undefined)s.settings.mileageRate=P.settings.mileageRate;else if(!Number.isInteger(r)||r<0||r>100000)fail();

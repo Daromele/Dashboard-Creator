@@ -181,6 +181,45 @@ module.exports=({eq,ok})=>{
    const bad=copy(z);bad.settings.fees={transaction:-1,processing:300,preset:'uk'};bad.settings.goals={'':50000,ghost:1000,fern:-5};bad.etsy.costs={'1400000001':250,x:-3,y:'1'};
    const w=B.validate(bad);eq('bad fees, goals and costs are dropped, never fatal', [w.settings.fees,w.settings.goals,w.etsy.costs], [{processing:300,preset:'uk'},{'':50000},{'1400000001':250}]);}
 
+  // ---- other channels: Shopify and Square ----
+  {const s=books();s.shops.push({id:'web',name:'Fern Online',platform:'shopify'},{id:'fair',name:'Market Stall',platform:'square'});
+   const sh=D.read('orders_export_1.csv',F.shopify),tx=D.read('transactions.csv',F.squareTx),it=D.read('items.csv',F.squareItems);
+   eq('channel files by their columns', [[sh.kind,sh.platform],[tx.kind,tx.platform],[it.kind,it.platform]], [['orders','shopify'],['statement','square'],['orders','square']]);
+   eq('shopify: cancelled and voided orders left out, lines grouped', [sh.records.length,sh.items.length,sh.notes.length], [3,4,1]);
+   const o1=sh.records.find(o=>o.id==='sh5550000001');
+   eq('shopify order totals', [o1.list,o1.discount,o1.shipping,o1.tax,o1.units,o1.country,o1.coupon,o1.date], [5200,500,600,329,3,'US','FALL5','2026-09-03']);
+   ok('shopify: no emails or names kept', !/example\.com|Ada|Fictional/.test(JSON.stringify(sh.records)));
+   eq('shopify refund kept on the order', sh.records.find(o=>o.id==='sh5550000004').refund, 400);
+   eq('square transactions: sales with tips, refunds and exact fees', tx.records.map(r=>[r.category,r.amount]), [['square-sales',2900],['square-fees',93],['square-sales',1200],['square-fees',46],['etsy-refunds',-1200]]);
+   eq('square item detail: sales by transaction, refunds left out', [it.records.length,it.items.length,it.records.find(o=>o.id==='sqSQA1x').list,it.records.find(o=>o.id==='sqSQA1x').discount], [3,4,3000,300]);
+   ok('a Shopify file is refused by an Etsy shop', /Shopify orders file, but Fern Prints is an Etsy shop/.test(load(copy(s),'fern','o.csv',F.shopify).error));
+   ok('an Etsy file is refused by a Shopify store', /Etsy|Sold order items/.test(load(copy(s),'web','e.csv',F.orders).error));
+   const c0=s.categories.length;s.categories=s.categories.filter(c=>!['shopify-sales','shopify-fees','square-sales','square-fees'].includes(c.id));
+   eq('shopify import', [load(s,'web','o.csv',F.shopify).added,load(s,'web','o.csv',F.shopify).same], [3,3]);
+   eq('square imports', [load(s,'fair','t.csv',F.squareTx).added,load(s,'fair','i.csv',F.squareItems).added], [5,3]);
+   D.syncEstimates(s,{uid,today:'2026-09-30'});
+   ok('older books get the channel categories on import', s.categories.length===c0&&B.validate(copy(s)));
+   const est=(shop,m)=>s.transactions.filter(t=>t.est&&t.shop===shop&&t.date.startsWith(m)).map(t=>[t.category,t.amount]).sort();
+   eq('shopify months: sales exact, payment fees at 2.9% + 30¢', [est('web','2026-09'),est('web','2026-08')], [[['shopify-fees',296],['shopify-sales',7800]],[['shopify-fees',76],['shopify-sales',1600]]]);
+   eq('square: the transactions file makes a month exact; item detail alone is estimated', [est('fair','2026-09'),est('fair','2026-08')], [[],[['square-fees',116],['square-sales',3600]]]);
+   const W=D.summary(D.forShop(s,'web'),'2026-09-01','2026-09-30'),Q=D.summary(D.forShop(s,'fair'),'2026-09-01','2026-09-30');
+   eq('shopify dashboard numbers', [W.revenue,W.etsyCosts,W.takeHome,W.orders], [7800,296,7504,2]);
+   eq('square dashboard numbers', [Q.revenue,Q.etsyCosts,Q.takeHome,Q.orders], [2900,139,2761,2]);
+   s.settings.channelFees={shopify:{processing:250,processingFixed:30}};D.syncEstimates(s,{uid,today:'2026-09-30'});
+   eq('your own Shopify rate', est('web','2026-08'), [['shopify-fees',70],['shopify-sales',1600]]);
+   load(s,'fern','s.csv',F.statement);D.syncEstimates(s,{uid,today:'2026-09-30'});
+   const cmp=D.compare(s,'2026-09-01','2026-09-30'),k=id=>cmp.find(x=>x.id===id);
+   eq('kept per dollar by channel', [k('web').platform,k('fair').platform,k('fern').platform,+k('fair').kept.toFixed(3)], ['shopify','square','etsy',+(2761/2900).toFixed(3)]);
+   ok('etsy take-home unchanged beside other channels', k('fern').takeHome===F.expect.takeHome);
+   const all=D.summary(s,'2026-09-01','2026-09-30');
+   eq('all shops add every channel', all.revenue, k('fern').revenue+k('web').revenue+k('fair').revenue);
+   eq('customers across channels', D.customers(D.forShop(s,'web')).repeat, 1);
+   ok('products across channels', D.products(D.forShop(s,'fair')).list.some(p=>p.name==='Speckled Mug'&&p.units===3));
+   const i=s.etsy.imports.findIndex(x=>x.platform==='shopify');eq('import log names the platform', D.kindName(s.etsy.imports[i].kind,s.etsy.imports[i].platform), 'Shopify orders');
+   D.removeImport(s,i);D.syncEstimates(s,{uid,today:'2026-09-30'});ok('deleting the Shopify import removes its sales', !s.transactions.some(t=>t.shop==='web'));
+   ok('validation: platform', B.validate(copy(s))&&throws(()=>B.validate({...copy(s),shops:[{id:'x',name:'X',platform:'ebay'}]})));
+  }
+
   // ---- several shops ----
   const m=copy(v);load(m,'kiln','k.csv',F.statement.replace(/38123456/g,'99123456').replace(/140000000/g,'150000000'));
   m.transactions.push({id:'shared1',date:'2026-09-05',category:'software',amount:1299,note:'Canva'});

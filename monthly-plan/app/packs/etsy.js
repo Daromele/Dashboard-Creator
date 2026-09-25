@@ -26,11 +26,12 @@ const NICHE = {
   settings: { taxRate: 2500, shop: '' },
 
   groups: [
-    { id: 'revenue', label: 'Etsy sales', type: 'income', taxLine: 'L1' },
+    { id: 'revenue', label: 'Shop sales', type: 'income', taxLine: 'L1' },
     { id: 'other-income', label: 'Other income', type: 'income', other: true, taxLine: 'L6' },
     { id: 'cogs', label: 'Cost of goods sold', type: 'expense', cogs: true, taxLine: 'L38' },
     { id: 'etsy-fees', label: 'Etsy fees', type: 'expense', etsy: true, taxLine: 'L10' },
     { id: 'etsy-marketing', label: 'Etsy Ads & Etsy Plus', type: 'expense', etsy: true, taxLine: 'L8' },
+    { id: 'channel-fees', label: 'Shopify, Square & other platform fees', type: 'expense', etsy: true, taxLine: 'L10' },
     { id: 'overhead', label: 'Tools & overheads', type: 'expense', fixed: true, subscription: true, taxLine: 'L27b' },
     { id: 'operations', label: 'Running the shop', type: 'expense', taxLine: 'L22' },
     { id: 'owner', label: 'Owner’s pay & draws', type: 'saving' },
@@ -43,22 +44,26 @@ const NICHE = {
   categories: [
     ['etsy-sales', 'Etsy order payments', 'revenue', 'L1'], ['etsy-refunds', 'Refunds to buyers', 'revenue', 'L1'],
     ['buyer-tax', 'Sales tax & VAT paid by buyers (Etsy remits it)', 'revenue', 'L1'], ['other-sales', 'Other sales (markets, wholesale)', 'revenue', 'L1'],
+    ['shopify-sales', 'Shopify store sales', 'revenue', 'L1'], ['square-sales', 'Square sales (markets & in person)', 'revenue', 'L1'],
     ['other-biz-income', 'Other business income', 'other-income', 'L6'], ['interest', 'Bank interest', 'other-income', 'N'],
     ['materials', 'Materials & supplies for products', 'cogs', 'L38'], ['packaging', 'Packaging', 'cogs', 'L38'], ['printing', 'Printing & production', 'cogs', 'L39'], ['shipping-labels', 'Shipping labels & postage', 'cogs', 'L39'],
     ['transaction-fees', 'Transaction fees', 'etsy-fees', 'L10'], ['processing-fees', 'Payment processing fees', 'etsy-fees', 'L10'], ['listing-fees', 'Listing fees', 'etsy-fees', 'L10'],
     ['fee-tax', 'Tax on Etsy fees', 'etsy-fees', 'L23'], ['other-etsy-fees', 'Other Etsy fees & adjustments', 'etsy-fees', 'L10'],
     ['etsy-ads', 'Etsy Ads', 'etsy-marketing', 'L8'], ['offsite-ads', 'Offsite Ads fees', 'etsy-marketing', 'L8'], ['etsy-plus', 'Etsy Plus subscription', 'etsy-marketing', 'L8'], ['other-marketing', 'Other marketing', 'etsy-marketing', 'L8'],
+    ['shopify-fees', 'Shopify payment fees', 'channel-fees', 'L10'], ['square-fees', 'Square processing fees', 'channel-fees', 'L10'],
     ['software', 'Software & apps', 'overhead', 'L18'], ['phone-internet', 'Phone & internet', 'overhead', 'L25'], ['website', 'Website & domain', 'overhead', 'L27b'],
     ['equipment', 'Equipment & tools', 'operations', 'L13'], ['office', 'Office supplies', 'operations', 'L18'], ['photography', 'Photography & props', 'operations', 'L27b'],
     ['professional', 'Accountant & legal', 'operations', 'L17'], ['licences', 'Licences & business taxes', 'operations', 'L23'], ['bank-fees', 'Bank charges', 'operations', 'L27b'],
     ['owner-draw', 'Owner’s draw', 'owner'], ['owner-retirement', 'Owner retirement (SEP-IRA / Solo 401k)', 'owner'],
     ['tax-reserve', 'Tax savings transfer', 'tax'], ['est-tax', 'Income tax paid (estimated & year-end)', 'tax'],
     ['biz-savings', 'Rainy-day fund', 'reserve'],
-    ['etsy-deposit', 'Etsy deposit to your bank', 'transfer'], ['card-payoff', 'Business card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between own accounts', 'transfer'],
+    ['etsy-deposit', 'Etsy deposit to your bank', 'transfer'], ['channel-payout', 'Shopify or Square payout to your bank', 'transfer'], ['card-payoff', 'Business card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between own accounts', 'transfer'],
   ],
   // what the dashboard and fee screens call "Etsy revenue", "Etsy costs" and "ads"
   etsy: {
     revenue: ['etsy-sales', 'etsy-refunds', 'buyer-tax'],
+    // every channel's sales: the dashboard's revenue is these, less buyer tax and refunds
+    sales: ['etsy-sales', 'shopify-sales', 'square-sales', 'other-sales'],
     ads: ['etsy-ads', 'offsite-ads'],
     // a month with sold orders but no statement is estimated at Etsy's standard US rates:
     // 6.5% transaction fee on items + shipping, 3% + $0.25 processing per order, $0.20 listing fee per item sold
@@ -66,6 +71,17 @@ const NICHE = {
     // starting points for Settings → Your Etsy fees: [id, label, transaction bp, processing bp, fixed per order, listing fee, offsite bp].
     // Etsy bills the listing fee as $0.20 USD converted, and adds VAT or GST on fees in some countries.
     presets: [['us', 'United States', 650, 300, 25, 20, 1500], ['ca', 'Canada', 650, 300, 25, 27, 1500], ['uk', 'United Kingdom', 650, 400, 20, 16, 1500], ['eu', 'Euro countries', 650, 400, 30, 18, 1500], ['au', 'Australia', 650, 300, 25, 30, 1500]],
+    // where a shop sells. Etsy shops read all five Etsy exports; a Shopify store its orders export;
+    // Square its transactions and item detail exports; Other is for sales you log or import from the bank.
+    platforms: [['etsy', 'Etsy'], ['shopify', 'Shopify'], ['square', 'Square'], ['other', 'Other']],
+    platformHelp: { etsy: 'An Etsy shop', shopify: 'Your own website on Shopify', square: 'Markets, fairs and in person, through Square', other: 'Wholesale, cash sales or anything else you log yourself' },
+    // payment fees when the channel's own export has none: Shopify Payments Basic (online, US) and Square in person (US)
+    channelRates: { shopify: { processing: 290, processingFixed: 30 }, square: { processing: 260, processingFixed: 15 }, other: { processing: 0, processingFixed: 0 } },
+    channelExports: {
+      shopify: [['orders', 'Orders · what sold, discounts, countries', 'Shopify admin → Orders → Export → All orders (or a date range) → CSV for Excel, Numbers or other spreadsheet programs. Payment fees are estimated at your Shopify rate in Settings.', 'orders_export_1.csv']],
+      square: [['statement', 'Transactions · every sale, tip, refund and exact Square fee', 'Square Dashboard → Transactions → choose the dates → Export → Transactions CSV.', 'transactions-2026-01-01-2026-10-01.csv'],
+        ['orders', 'Item detail · what sold at each sale', 'Square Dashboard → Transactions → Export → Item Detail CSV. With the transactions file too, fees are exact; alone, they are estimated.', 'items-2026-01-01-2026-10-01.csv']],
+    },
     // where each export lives, for the import screen
     exports: [
       ['orders', 'Sold order items · what sold, discounts, countries', 'Shop Manager → Settings → Options → Download Data → Type: Order Items → the year. Not needed: the Orders, Etsy Payments Sales and Etsy Payments Deposits reports.', 'EtsySoldOrderItems2026.csv'],
@@ -113,7 +129,7 @@ const NICHE = {
   // bank imports: money in is other revenue unless it is an Etsy payout (see app/src/etsy.js importRefine)
   defaults: { importIncome: 'other-sales', category: 'materials', schedule: 'software', annualCategory: 'etsy-sales', quickSetup: ['materials', 'packaging', 'shipping-labels', 'software', 'tax-reserve', 'other-sales'] },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import Etsy files', 'up'], ['shops', 'Shops', 'globe'],
+  nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
     ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'], ['annual', 'Year & cash flow', 'outlook'],
     ['products', 'Products & listings', 'tags'], ['pricing', 'Pricing calculator', 'spark'], ['coupons', 'Coupons & discounts', 'wallet'], ['customers', 'Customers', 'compass'], ['reviews', 'Reviews', 'review'], ['seasonality', 'Seasonality', 'calendar'],
     ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'table'],
@@ -162,6 +178,7 @@ const NICHE = {
       ['Sales tax and VAT buyers pay', 'Etsy adds sales tax or VAT to the buyer’s payment and then takes it straight back to pay the state. The statement shows both. Shop Insights records the tax as a minus line under revenue, so it is never counted as income or as a cost.'],
       ['Several shops', 'Every import belongs to one shop. The shop picker at the top shows one shop or all of them together; every screen and printout follows it. Costs you log with <b>All shops</b> selected are shared costs: they appear in the combined view only.'],
       ['Importing twice, moving and deleting', 'Each statement line, order, item and review is recognised when it comes back, so an overlapping or repeated file never counts twice. Under <b>Imported files</b> you can move a file to another shop or delete it, with undo. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
+      ['Shopify, Square and other channels', 'Add a shop for each place you sell and choose where it sells: Etsy, Shopify, Square or Other. Shopify reads the orders export (payment fees estimated at your rate in Settings); Square reads the transactions export (exact fees) and the item detail export (what sold). Other is for wholesale or cash sales you log yourself. Shops compares what each channel keeps you out of every dollar, and the P&L, tax and Schedule C cover all of them. Shopify and Square payouts in a bank import are transfers, because their sales are already counted.'],
       ['Bank files', 'Import your bank’s CSV for costs Etsy never sees. Money in that matches an Etsy payout is filed as an Etsy deposit (its sales are already counted); anything else that came in is other revenue.'],
       ['Privacy', 'The sold order items file includes buyer names and addresses. Shop Insights keeps only the country and a scrambled key to count repeat buyers. Names and addresses are never stored.'],
       ['Listings and sales', 'Etsy’s listings file has no listing number, so listings are matched to sales by the start of their title. A listing you renamed may show as unsold.'],
