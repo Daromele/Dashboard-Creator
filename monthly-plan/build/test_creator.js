@@ -1,0 +1,30 @@
+// Creator edition checks, run from test.js. C = the calculation module of CreatorPlan.html.
+const path=require('path'),{extractTo}=require('./extract.js');
+module.exports=({eq,ok})=>{
+  const C=require(extractTo(path.join(__dirname,'../app/CreatorPlan.html'),path.join(__dirname,'budget.creator.js')));
+  const B=require('./budget.business.js');
+  const throws=(f,re)=>{try{f();return false;}catch(e){return re?re.test(e.message):true;}};
+  const b=C.blank();
+  eq('creator blank is tagged', b.niche, 'creator');
+  eq('creator default theme', b.settings.theme, 'blush');
+  eq('creator starts with streams, invoices, no mileage log', [b.channels,b.invoices,'mileage' in b], [[],[],false]);
+  ok('every creator category maps to a real tax line', b.categories.every(c=>!c.taxLine||C.TAX_LINES[c.taxLine]));
+  ok('every creator group has categories', C.P.groups.every(g=>b.categories.some(c=>c.group===g.id)));
+  ok('creator backups do not restore into Profit Plan', throws(()=>B.validate(JSON.parse(JSON.stringify(b))),/Creator Plan/));
+  ok('Profit Plan backups do not restore into Creator Plan', throws(()=>C.validate(JSON.parse(JSON.stringify(B.blank()))),/Profit Plan/));
+  const s=C.sample('2026-09');
+  ok('creator sample validates', !!C.validate(JSON.parse(JSON.stringify(s))));
+  eq('sample streams', s.channels.map(c=>c.name), ['YouTube','Patreon','Etsy','Brand deals','Affiliates']);
+  ok('every payout is tagged with a stream', s.transactions.filter(t=>C.type(s.categories.find(c=>c.id===t.category))==='income').every(t=>t.channel));
+  const P=C.pl(s,'2026-01-01','2026-09-30'),CP=C.channelProfit(s,'2026-01-01','2026-09-30');
+  eq('streams + shared = net profit', CP.channels.reduce((n,c)=>n+c.profit,0)+CP.shared.profit, P.net);
+  ok('platform fees follow Patreon and Etsy payouts', CP.channels.find(c=>c.name==='Patreon').costs>0&&CP.channels.find(c=>c.name==='Etsy').costs>0);
+  ok('brand deals: paid ones are income, recent ones open', s.invoices.some(i=>i.paid)&&s.invoices.some(i=>!i.paid));
+  const q=t=>C.parseQuick(t,b.categories);
+  eq('quick: adsense payout', q('adsense payout 1840').category, 'ad-revenue');
+  eq('quick: patreon', q('patreon 1320').category, 'memberships');
+  eq('quick: editor', q('editor 450').category, 'editors');
+  eq('quick: new mic', q('new mic 129').category, 'equipment');
+  eq('quick: epidemic sound', q('epidemic sound 15').category, 'music-stock');
+  eq('quick: sponsor', q('sponsor lumen paints 2500').category, 'sponsorships');
+};

@@ -3,7 +3,7 @@
 const {chromium}=require('/opt/node22/lib/node_modules/playwright');const OUT=process.argv[2];
 const ok=(n,c,x='')=>{console.log((c?'ok   ':'FAIL ')+n+(c?'':' '+x));if(!c)process.exitCode=1;};
 (async()=>{const b=await chromium.launch();
-for(const [f,key,tag] of [['MonthlyBudgetPlanner.html','jps-monthly-plan','mp'],['ProfitPlanBusiness.html','jps-profit-plan','pp']]){
+for(const [f,key,tag] of [['MonthlyBudgetPlanner.html','jps-monthly-plan','mp'],['ProfitPlanBusiness.html','jps-profit-plan','pp'],['CreatorPlan.html','jps-creator-plan','cp']]){
 const p=await b.newPage({viewport:{width:1360,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));const F='file:///home/user/Dashboard-Creator/monthly-plan/app/'+f;
 await p.goto(F);await p.evaluate(k=>{localStorage.setItem(k+'-welcome-v1','1');localStorage.setItem(k+'-manual-backup',String(Date.now()));},key);await p.goto(F);await p.waitForTimeout(300);
 await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());await p.waitForTimeout(300);
@@ -58,12 +58,12 @@ ok(tag+' footer total equals the card',foot.txt===foot.want,JSON.stringify(foot)
 // charts use round axis steps
 await p.evaluate(()=>go('dashboard'));
 ok(tag+' round axis labels',await p.evaluate(()=>[...document.querySelectorAll('.chart-axis-label')].every(e=>/^-?[^0-9-]*[0-9,]*[05]00$|^-?[^0-9-]*0$|^-?[^0-9-]*[0-9,]*,000$|[0-9]k$/.test(e.textContent.replace(/\s/g,'')))),await p.evaluate(()=>[...document.querySelectorAll('.chart-axis-label')].map(e=>e.textContent).join(' ')));
-if(tag==='pp'){
+if(tag!=='mp'){
  await p.evaluate(()=>go('insights'));
  const h=await p.evaluate(()=>({txt:document.querySelector('#content').innerText,H:Budget.health(state,selected)}));
- ok('pp business health renders',/Cash runway/.test(h.txt)&&/Break-even revenue/.test(h.txt)&&/What stands out/.test(h.txt)&&h.H.n===3,h.txt.slice(0,200));
+ ok(tag+' business health renders',/Cash runway/.test(h.txt)&&/Break-even (revenue|income)/i.test(h.txt)&&/What stands out/.test(h.txt)&&h.H.n===3,h.txt.slice(0,200));
  await p.evaluate(()=>go('invoices'));await p.click('[data-action="biz-remind"] >> nth=0');
- ok('pp reminder dialog',await p.evaluate(()=>/friendly reminder that invoice/.test(document.querySelector('#biz-remind-text')?.value||'')));
+ ok(tag+' reminder dialog',await p.evaluate(()=>/friendly reminder that invoice/.test(document.querySelector('#biz-remind-text')?.value||'')));
  await p.evaluate(()=>closeModal());
 }
 ok(tag+' no page errors',!errs.length,errs.join('|'));await p.close();}

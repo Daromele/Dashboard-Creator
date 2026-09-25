@@ -20,7 +20,7 @@ const NICHE = {
   },
   build: { file: 'ProfitPlanBusiness.html' },
   storage: { key: 'jps-profit-plan', file: 'profit-plan' },
-  editions: { budget: 'Monthly Plan, the household budget edition' },
+  editions: { budget: 'Monthly Plan, the household budget edition', creator: 'Creator Plan, the creator edition' },
   themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
   features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: true, invoices: true, channels: true },
   // taxRate in basis points (2500 = 25%). mileageRate in thousandths of the currency per distance unit
