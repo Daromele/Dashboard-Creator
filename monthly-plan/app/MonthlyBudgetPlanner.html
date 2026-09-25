@@ -734,10 +734,12 @@ dialog::backdrop{background:rgba(27,21,36,.42);backdrop-filter:blur(3px)}
 .kpis .kpi:nth-child(2) b{animation-delay:.06s}
 .kpis .kpi:nth-child(3) b{animation-delay:.12s}
 .kpis .kpi:nth-child(4) b{animation-delay:.18s}
+/* Without motion, drop the animations. Only the drawn line uses a dash to animate; a donut's
+   segments ARE dashes, so clearing theirs painted every segment as a full ring. */
 @media(prefers-reduced-motion:reduce){
  .area-line,.area-fill,.chart-point,.chart-mark-label,.cb-track i,.compare-stage>i,.donut-seg,.donut-mid,
- .heat-cell,.meter i,.hero-meter i,.kpi b,.hero h2{animation:none!important;stroke-dasharray:none!important}}
-@media print{.area-line,.area-fill,.chart-point,.cb-track i,.compare-stage>i,.donut-seg,.heat-cell,.meter i{animation:none!important;stroke-dasharray:none!important}}
+ .heat-cell,.meter i,.hero-meter i,.kpi b,.hero h2{animation:none!important}.area-line{stroke-dasharray:none!important}}
+@media print{.area-line,.area-fill,.chart-point,.cb-track i,.compare-stage>i,.donut-seg,.heat-cell,.meter i{animation:none!important}.area-line{stroke-dasharray:none!important}}
 
 /* ---------- palette picker ---------- */
 .theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:var(--s2)}
@@ -1829,8 +1831,8 @@ function annualView(){
  const actualOrBlank=(m,type)=>m.month>cutoff?'—':fmt(m[type].actual);
  return pagehead('The bigger picture',`Your ${year} overview`,year>cutoff.slice(0,4)?'The year ahead · plans only':year<cutoff.slice(0,4)?'Completed year · planned and recorded amounts':`Recorded through ${monthName(cutoff)}` ,button('Print annual summary','print','quiet'))+
  `<div class="kpis">${kpi(`Annual ${L.income.toLowerCase()} recorded`,income,planDetail('income'),'down')}${kpi('Annual expenses recorded',expense,planDetail('expense'),'up')}${kpi(`Annual ${L.savingShort.toLowerCase()} recorded`,saving,planDetail('saving'),'umbrella')}${kpi('Net cash flow to date',income-expense-saving,`${all.filter(m=>m.closed).length} of 12 months closed`,'wallet')}</div>
- <section class="card"><div class="cardhead"><div><h2>Annual plan vs actual</h2><p>${seriesLabel} by month · future actuals are not shown</p></div><div class="segment no-print" aria-label="Annual comparison category">${[['income',L.income],['expense',L.expense],['saving',L.savingShort]].map(([v,l])=>`<button data-action="annual-series" data-series="${v}" aria-pressed="${annualSeries===v}">${l}</button>`).join('')}</div></div>${areaChart([{name:'Planned',values:all.map(m=>m[annualSeries].plan),color:'var(--pop)'},{name:'Actual',values:all.map(m=>m.month<=cutoff?m[annualSeries].actual:null),color:'var(--accent)'}],all.map(m=>shortMonth(m.month)),seriesLabel+' planned versus actual by month')}<p class="small muted" style="margin-top:12px">Choose ${L.income}, ${L.expense} or ${L.savingShort} above. A blank future month has no recorded result yet.</p></section>
- ${annualCategoryChart(year)}
+ ${P.features.pl?Biz.annualCharts(year):`<section class="card"><div class="cardhead"><div><h2>Annual plan vs actual</h2><p>${seriesLabel} by month · future actuals are not shown</p></div><div class="segment no-print" aria-label="Annual comparison category">${[['income',L.income],['expense',L.expense],['saving',L.savingShort]].map(([v,l])=>`<button data-action="annual-series" data-series="${v}" aria-pressed="${annualSeries===v}">${l}</button>`).join('')}</div></div>${areaChart([{name:'Planned',values:all.map(m=>m[annualSeries].plan),color:'var(--pop)'},{name:'Actual',values:all.map(m=>m.month<=cutoff?m[annualSeries].actual:null),color:'var(--accent)'}],all.map(m=>shortMonth(m.month)),seriesLabel+' planned versus actual by month')}<p class="small muted" style="margin-top:12px">Choose ${L.income}, ${L.expense} or ${L.savingShort} above. A blank future month has no recorded result yet.</p></section>
+ ${annualCategoryChart(year)}`}
  <section class="card table-card"><div class="cardhead"><div><h2>Month by month</h2><p>Recorded activity through ${monthName(cutoff)}. Future plans stay separate from actuals.</p></div><span class="pill">${all.filter(m=>m.hasPlan).length} months planned</span></div><div class="table-wrap"><table class="annual-table"><thead><tr><th>Month</th><th class="num">${L.income}</th><th class="num">${L.expense}</th><th class="num">${L.savedCol}</th><th class="num">Net cash flow</th><th class="num">Expense plan − actual</th><th>Status</th></tr></thead><tbody>${all.map(m=>`<tr><td><button class="link" data-action="select-month" data-month="${m.month}">${shortMonth(m.month)}</button></td><td class="num">${actualOrBlank(m,'income')}</td><td class="num">${actualOrBlank(m,'expense')}</td><td class="num">${actualOrBlank(m,'saving')}</td><td class="num ${m.month<=cutoff&&m.net<0?'warn':''}">${m.month>cutoff?'—':fmt(m.net)}</td><td class="num ${m.month<=cutoff&&m.remaining<0?'warn':''}">${m.month>cutoff||!m.hasPlan?'—':fmt(m.remaining)}</td><td><span class="pill">${m.month>cutoff?'Upcoming':m.closed?'Closed':m.hasPlan?'Planned':'Not planned'}</span></td></tr>`).join('')}<tr><td><b>To date</b></td><td class="num"><b>${fmt(income)}</b></td><td class="num"><b>${fmt(expense)}</b></td><td class="num"><b>${fmt(saving)}</b></td><td class="num"><b>${fmt(income-expense-saving)}</b></td><td class="num">${fmt(sum('expense','plan',elapsed)-expense)}</td><td></td></tr></tbody></table></div></section>
  <div class="notice"><span><b>Plan ahead without retyping.</b><br>Copy a monthly budget into unplanned months, then adjust the months that need something different.</span>${button('Repeat this budget','repeat','small')}</div>`+annualMatrix();
 }
@@ -3035,6 +3037,18 @@ const Biz=(()=>{
  function settingsCard(){
   return `<section class="card"><div class="goal-icon">${ico('shield')}</div><h2>Tax &amp; mileage</h2><p class="subtitle">Used by Quarterly tax, the ${esc(P.taxForm?.name||'tax')} summary and the mileage log.</p><form id="biz-settings-form" style="margin-top:20px"><div class="fields">${F.tax?`<label>Tax set-aside rate (%)<input type="number" name="taxRate" min="0" max="90" step="0.5" required value="${(state.settings.taxRate||0)/100}"><small>A share of net profit to put aside for income and self-employment tax. Ask your accountant; 25–30% is a common starting point.</small></label>`:''}${F.mileage?`<label>Mileage rate (cents a mile)<input type="number" name="mileageRate" min="0" max="1000" step="0.1" required value="${(state.settings.mileageRate||0)/10}"><small>Use the IRS standard mileage rate for the tax year you are recording.</small></label>`:''}</div><div class="formfoot"><button class="btn primary">Save tax settings</button></div></form></section>`;
  }
+ // Annual overview for business editions: actual revenue against actual costs, then the mix of each.
+ function annualCharts(y){
+  const cutoff=today().slice(0,7),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),pm=months.map(m=>m<=cutoff?Budget.plMonth(state,m):null);
+  const end=y===cutoff.slice(0,4)?today():y+'-12-31',Y=Budget.pl(state,y+'-01-01',end),colors=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)'];
+  const mix=(lines,total,of)=>{const ranked=[...lines].filter(l=>l.amount>0).sort((a,b)=>b.amount-a.amount),parts=ranked.slice(0,5).map((l,i)=>[l.name,l.amount,colors[i],`${percent(l.amount,total)}% of ${of}`]),rest=ranked.slice(5).reduce((n,l)=>n+l.amount,0);
+   if(rest)parts.push(['Other categories',rest,colors[5],`${percent(rest,total)}% of ${of}`]);return parts;};
+  const costs=[...Y.cogs.lines,...Y.opex.groups.flatMap(g=>g.lines)],costTotal=Y.cogs.total+Y.opex.total,revMix=mix(Y.revenue.lines,Y.revenue.total,L.income.toLowerCase()),costMix=mix(costs,costTotal,'expenses');
+  const when=y===cutoff.slice(0,4)?`${y} to date`:y>cutoff.slice(0,4)?`${y} · nothing recorded yet`:`Full year ${y}`;
+  return `<section class="card"><div class="cardhead"><div><h2>${esc(L.income)} vs expenses</h2><p>Recorded each month · expenses are cost of goods sold plus running costs · future months are blank</p></div></div>${areaChart([{name:L.income,values:pm.map(p=>p?p.revenue.total:null),color:'var(--ch-in)'},{name:'Expenses',values:pm.map(p=>p?p.cogs.total+p.opex.total:null),color:'var(--ch-out)'}],months.map(shortMonth),`${L.income} and expenses by month`)}<div class="chart-summary"><span><small>${esc(L.income)}</small><b>${fmt(Y.revenue.total)}</b></span><span><small>Expenses</small><b>${fmt(costTotal)}</b></span><span><small>Net profit</small><b>${acct(Y.net)}</b></span><span><small>Expenses as a share of ${esc(L.income.toLowerCase())}</small><b>${Y.revenue.total?percent(costTotal,Y.revenue.total)+'%':'—'}</b></span></div></section>`+
+   `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Where the ${esc(L.income.toLowerCase())} came from</h2><p>${when} · by category</p></div></div>${revMix.length?donutMarkup(revMix,Y.revenue.total,L.income.toLowerCase()):empty(`No ${L.income.toLowerCase()} recorded`,'Log a payment you received to see the mix.')}</section>`+
+   `<section class="card"><div class="cardhead"><div><h2>Where the money went</h2><p>${when} · largest expense categories</p></div></div>${costMix.length?donutMarkup(costMix,costTotal,'expenses'):empty('No expenses recorded','Log a cost you paid to see the mix.')}</section></div>`;
+ }
  function taxLineField(c){
   if(!F.taxLines)return '';
   return `<label class="full">${esc(P.taxForm.name)} line<select name="taxLine">${lineOptions(c?.taxLine||'',c?Budget.taxLineFor(c):'')}</select><small>Where this category lands on your ${esc(P.taxForm.name)} summary. Transfers are never on it.</small></label>`;
@@ -3101,7 +3115,7 @@ const Biz=(()=>{
  if(F.taxLines)views.taxlines=taxlinesView;
  if(F.mileage)views.mileage=mileageView;
  if(F.invoices)views.invoices=invoicesView;
- return {views,dashboard,settingsCard,taxLineField,range,columns,statementRows};
+ return {views,dashboard,settingsCard,taxLineField,annualCharts,range,columns,statementRows};
 })();
 render();
 </script></body></html>
