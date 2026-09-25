@@ -410,6 +410,18 @@ const Etsy=(()=>{
    `<text x="${(pl+W-pr)/2}" y="${H-2}" class="kit-axis-title" text-anchor="middle">${esc(xName)}</text><text x="12" y="${pt+4}" class="kit-axis-title">${esc(yName)}</text>`+
    points.map((p,i)=>`<circle class="kit-dot${p.y?'':' kit-dot-zero'}" cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${p.y?6:4.5}" style="--i:${i%40}" tabindex="0" data-tip="${tipOf(p.label,[{name:xName,value:xf(p.x),color:p.y?'var(--accent)':'var(--cat-6)'},{name:yName,value:yf(p.y)},...(p.note?[{name:p.note,value:''}]:[])])}"/>`).join('')+`</svg></div>`;
  }
+ // stacked columns: parts of a whole per month (one colour per shop), 2px gaps between segments
+ function stack(series,labels,{f=fmt,title=''}={}){
+  const tot=labels.map((_,i)=>series.reduce((n,s)=>n+(Number.isFinite(s.values[i])?Math.max(0,s.values[i]):0),0)),max=Math.max(1,...tot);if(!tot.some(Boolean))return '';
+  const W=700,H=260,pl=52,pr=12,pt=22,pb=28,band=(W-pl-pr)/labels.length,bw=Math.min(38,band*.62),Y=v=>pt+(1-v/max)*(H-pt-pb),ticks=Array.from({length:5},(_,i)=>max*i/4);
+  const cols=labels.map((l,i)=>{let base=H-pb;const x=pl+band*i+(band-bw)/2;
+   const segs=series.map((s,si)=>{const v=Math.max(0,s.values[i]||0);if(!v)return '';const h=(H-pt-pb)*v/max,y=base-h;base=y;return `<rect class="kit-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" style="fill:${s.color};--i:${i}"/>`;}).join('');
+   const tip=tipOf(l,[...series.filter(s=>s.values[i]).map(s=>({name:s.name,value:f(s.values[i]),color:s.color})),{name:'Total',value:f(tot[i])}]);
+   return `<g class="kit-col" tabindex="0" data-tip="${tip}"><rect x="${(pl+band*i).toFixed(1)}" y="${pt}" width="${band.toFixed(1)}" height="${H-pt-pb}" fill="transparent"/>${segs}${tot[i]?`<text x="${(x+bw/2).toFixed(1)}" y="${(Y(tot[i])-6).toFixed(1)}" class="kit-axis" text-anchor="middle">${esc(compact(tot[i]))}</text>`:''}</g><text x="${(x+bw/2).toFixed(1)}" y="${H-8}" class="kit-axis" text-anchor="middle">${esc(l)}</text>`;}).join('');
+  return `<div class="kit-line">${series.length>1?`<div class="legend">${series.map(s=>`<span><i class="dot" style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>`:''}<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${ticks.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="chart-grid"/><text x="${pl-8}" y="${(Y(v)+4).toFixed(1)}" class="kit-axis" text-anchor="end">${esc(compact(v))}</text>`).join('')}${cols}</svg></div>`;
+ }
+ // a shop keeps its colour everywhere: its place in your shop list, never its rank
+ const shopColor=id=>{const i=state.shops.findIndex(s=>s.id===id);return i>=0&&i<5?colors[i]:colors[5];};
  const heat=(v,max)=>{const t=max>0?Math.max(0,v)/max:0;return `background:color-mix(in oklab,var(--accent) ${Math.round(6+t*70)}%,var(--card));color:${t>0.5?'var(--accent-ink)':'var(--ink)'}`;};
 
  // ---------- the pulse: a few things worth knowing, one at a time ----------
@@ -568,7 +580,11 @@ const Etsy=(()=>{
   const M=D.orderMonths(state,y),cutoff=today().slice(0,7),has=M.some(m=>m.orders);if(!has)return '';
   const missing=M.filter(m=>m.orders&&!m.statement),tot=k=>M.reduce((n,m)=>n+m[k],0);
   return `<section class="card"><div class="cardhead"><div><h2>Sales from your sold orders, ${y}</h2><p>From the sold order items file: item prices after discounts, plus shipping, before sales tax · ${num(tot('orders'))} orders · ${fmt(tot('sales'))}</p></div>${missing.length?button('Import statements','go-etsy-import','small'):''}</div>`+
-   compareBarChart([{name:'Sales from orders',values:M.map(m=>m.month<=cutoff?m.sales:null),color:'var(--ch-in)'}],M.map(m=>shortMonth(m.month)),`Sales from sold orders by month, ${y}`)+
+   (()=>{const shops=!state.settings.shop?state.shops.filter(sh=>D.orderMonths(D.forShop(state,sh.id),y).some(m=>m.orders)):[];
+    if(shops.length<2)return compareBarChart([{name:'Sales from orders',values:M.map(m=>m.month<=cutoff?m.sales:null),color:'var(--ch-in)'}],M.map(m=>shortMonth(m.month)),`Sales from sold orders by month, ${y}`);
+    const top=shops.slice(0,5),rest=shops.slice(5),per=sh=>D.orderMonths(D.forShop(state,sh.id),y).map(m=>m.sales);
+    const series=top.map(sh=>({name:sh.name,values:per(sh),color:shopColor(sh.id)}));if(rest.length)series.push({name:`${rest.length} other shop${rest.length===1?'':'s'}`,values:M.map((_,i)=>rest.reduce((n,sh)=>n+per(sh)[i],0)),color:colors[5]});
+    return stack(series,M.map(m=>shortMonth(m.month)),{title:`Sales from sold orders by month and shop, ${y}`});})()+
    `<div class="table-wrap" style="margin-top:14px"><table><thead><tr><th>Month</th>${M.map(m=>`<th class="num">${shortMonth(m.month)}</th>`).join('')}</tr></thead><tbody><tr><td>Orders</td>${M.map(m=>`<td class="num">${m.orders?num(m.orders):'<span class="dim">—</span>'}</td>`).join('')}</tr><tr><td>Statement</td>${M.map(m=>`<td class="num">${m.statement?'<span class="pos">✓</span>':m.orders?'<span class="warn">estimated</span>':'<span class="dim">—</span>'}</td>`).join('')}</tr></tbody></table></div>`+
    (missing.length?`<p class="small muted" style="margin-top:12px"><b>${missing.length} month${missing.length===1?' is':'s are'} estimated from sold orders</b> (no payment account statement yet). Revenue is exact; Etsy fees are at the standard rates, and Etsy Ads, Etsy Plus and credits are missing until you import each month’s statement: Shop Manager → Finances → Payment account.</p>`:'')+`</section>`;
  }
@@ -778,6 +794,10 @@ const Etsy=(()=>{
  .kit-dot:hover,.kit-dot:focus{transform:scale(1.6);outline:none}
  .kit-axis{font:500 11px var(--ui);fill:var(--ink-3)}
  .kit-axis-title{font:600 11px var(--ui);fill:var(--ink-2)}
+ .kit-bar{stroke:var(--card);stroke-width:2;transform-box:fill-box;transform-origin:bottom;animation:kit-grow .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*40ms)}
+ .kit-col{cursor:pointer;outline:none}
+ .kit-col:hover .kit-bar,.kit-col:focus .kit-bar{filter:brightness(1.08)}
+ @keyframes kit-grow{from{transform:scaleY(0)}}
  .kit-heat td[data-tip]{transition:filter .15s}
  .kit-heat td[data-tip]:hover{filter:brightness(1.08)}
  .kit-heat td small{opacity:.8}
@@ -797,7 +817,7 @@ const Etsy=(()=>{
  @keyframes kit-beat{50%{transform:scale(1.6);opacity:.55}}
  @keyframes kit-ring{0%{box-shadow:0 0 0 0 color-mix(in oklab,var(--accent) 55%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
  @media (max-width:760px){.kit-pie{grid-template-columns:1fr;justify-items:center}.kit-key{width:100%}.kit-gauges{grid-template-columns:1fr 1fr}.kit-pulse{flex-wrap:wrap}.kit-pulse-track{min-height:64px;flex-basis:calc(100% - 30px)}}
- @media (prefers-reduced-motion:reduce){.kit-seg,.kit-gauge-val,.kit-spark polyline,.kit-spark circle,.kit-path,.kit-dot,.kit-live{animation:none!important}.kit-tile,.kit-seg,.kit-dot,.kit-pulse-track p{transition:none!important}}
+ @media (prefers-reduced-motion:reduce){.kit-seg,.kit-gauge-val,.kit-spark polyline,.kit-spark circle,.kit-path,.kit-dot,.kit-live,.kit-bar{animation:none!important}.kit-tile,.kit-seg,.kit-dot,.kit-pulse-track p{transition:none!important}}
  @media print{.kit-pie{break-inside:avoid}.kit-seg,.kit-gauge-val,.kit-spark polyline,.kit-path,.kit-dot{animation:none!important}}
  </style>`);
 
