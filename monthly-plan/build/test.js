@@ -133,6 +133,17 @@ const v18cats=s=>({...s,categories:s.categories.filter(c=>V18_IDS.has(c.id)||c.i
 for(const m of ['2026-01','2026-09','2026-12'])eq('sample '+m, noIds(v18cats(N.sample(m))), noIds(O.sample(m)));
 eq('budget edition has no business screens', [N.P.features.pl,N.P.features.tax], [false,false]);
 
+// ---- similar descriptions and category rules ----
+eq('matchKey drops numbers and codes', ['WHOLE FOODS #123','AMAZON MKTP US*2K4AB12','Refund Amazon Mktp US*9ZZ1','CHASE CREDIT CRD AUTOPAY 0923','','1234'].map(N.matchKey), ['whole foods','amazon mktp us','amazon mktp us','chase credit crd autopay','','']);
+{const t=N.blank();t.categoryRules={'whole foods':'groceries','ghost shop':'deleted-id','':'dining'};
+ const v=N.validate(JSON.parse(JSON.stringify(t)));eq('stale and empty rules dropped', v.categoryRules, {'whole foods':'groceries'});
+ eq('ruleFor matches a new description', N.ruleFor(v,'WHOLE FOODS #987'), 'groceries');
+ eq('ruleFor ignores unknown', N.ruleFor(v,'TARGET 00123'), '');
+ eq('ruleFor: longer description still matches', N.ruleFor(v,'Whole Foods Market 42'), 'groceries');
+ v.categoryRules['whole foods market']='dining';eq('ruleFor: most specific rule wins', [N.ruleFor(v,'Whole Foods Market 42'),N.ruleFor(v,'WHOLE FOODS #1')], ['dining','groceries']);
+ eq('sameMerchant is on whole words', [N.sameMerchant('whole foods','whole foods market'),N.sameMerchant('amazon','amazonia'),N.sameMerchant('','x')], [true,false,false]);
+ v.categories.find(c=>c.id==='groceries').archived=true;eq('ruleFor skips archived categories', N.ruleFor(v,'WHOLE FOODS #987'), '');}
+
 // ---- business edition, and the shared build ----
 require('./test_business.js')({eq,ok});
 const stale=require('child_process').spawnSync(process.execPath,[path.join(__dirname,'build_app.js'),'--check'],{encoding:'utf8'});
