@@ -109,6 +109,19 @@ module.exports=({eq,ok})=>{
   eq('order months: sales and statement coverage', D.orderMonths(v,'2026').slice(7,9).map(m=>[m.orders,m.sales,m.statement]), [[1,1600+450,false],[2,1600+4000-800,true]]);
   eq('seasonality from orders', D.seasonality(v).years.map(y=>[y.year,y.months[7].orders,y.months[8].orders]), [['2026',1,2]]);
 
+  // ---- months with sold orders but no statement are estimated ----
+  {const z=copy(v);eq('estimates added for August only', D.syncEstimates(z,{uid,today:'2026-09-30'}), 4);
+   const est=z.transactions.filter(t=>t.est),by=id=>est.find(t=>t.category===id)?.amount;
+   eq('August estimate: sales exact, fees at standard rates', [by('etsy-sales'),by('transaction-fees'),by('processing-fees'),by('listing-fees'),est[0].date,est.find(t=>t.n).n], [2050,133,87,20,'2026-08-03',1]);
+   const A=D.summary(z,'2026-08-01','2026-08-31');eq('estimated month in the summary and P&L', [A.revenue,A.etsyCosts,A.orders,A.estimated,B.pl(z,'2026-08-01','2026-08-31').revenue.total], [2050,240,1,true,2050]);
+   eq('a month with a statement is never estimated', D.summary(z,'2026-09-01','2026-09-30').revenue, x.revenue);
+   eq('months flagged', D.orderMonths(z,'2026').slice(7,9).map(m=>[m.statement,m.estimated]), [[false,true],[true,false]]);
+   eq('running it again changes nothing', [D.syncEstimates(z,{uid,today:'2026-09-30'}),z.transactions.filter(t=>t.est).length], [4,4]);
+   ok('estimates pass validation', !throws(()=>B.validate(copy(z))));
+   z.transactions=z.transactions.filter(t=>!t.src||t.est);D.syncEstimates(z,{uid,today:'2026-09-30'});
+   eq('without its statement, September is estimated too', D.estimatedMonths(z,'2026-01-01','2026-12-31'), ['2026-08','2026-09']);
+   const bad=copy(z);bad.transactions.find(t=>t.est).est='yes';ok('rejects a bad estimate flag', throws(()=>B.validate(bad)));}
+
   // ---- several shops ----
   const m=copy(v);load(m,'kiln','k.csv',F.statement.replace(/38123456/g,'99123456').replace(/140000000/g,'150000000'));
   m.transactions.push({id:'shared1',date:'2026-09-05',category:'software',amount:1299,note:'Canva'});

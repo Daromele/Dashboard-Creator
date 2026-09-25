@@ -1534,7 +1534,7 @@ const Budget = ((P) => {
     if(P.features.shops){if(s.shops===undefined)s.shops=[];if(!Array.isArray(s.shops)||s.shops.length>24)fail();
      const shops=new Set();s.shops.forEach(x=>{if(!object(x)||!id(x.id)||shops.has(x.id)||!str(x.name,60)||!x.name.trim())fail();shops.add(x.id);});
      if(!str(s.settings.shop??'',80)||(s.settings.shop&&!shops.has(s.settings.shop)))s.settings.shop='';
-     s.transactions.forEach(t=>{if((t.shop!==undefined&&!shops.has(t.shop))||(t.ref!==undefined&&!str(t.ref,40))||(t.src!==undefined&&!str(t.src,40)))fail();});
+     s.transactions.forEach(t=>{if((t.shop!==undefined&&!shops.has(t.shop))||(t.ref!==undefined&&!str(t.ref,40))||(t.src!==undefined&&!str(t.src,40))||(t.est!==undefined&&t.est!==true)||(t.n!==undefined&&!(Number.isSafeInteger(t.n)&&t.n>0)))fail();});
      if(P.features.etsy){if(s.etsy===undefined)s.etsy={};if(!object(s.etsy))fail();
       const E=s.etsy,list=(k,max)=>{if(E[k]===undefined)E[k]=[];if(!Array.isArray(E[k])||E[k].length>max)fail();return E[k];};
       const count=(x,max)=>Number.isSafeInteger(x)&&x>=0&&x<=max,money=x=>amount(x??0)&&(x??0)>=0,key=x=>str(x,40)&&/^[A-Za-z0-9_-]+$/.test(x);
@@ -1817,7 +1817,7 @@ const ICON = {
 // Identity, storage keys and words come from the niche pack at the top of the file.
 const P=NICHE,L=P.labels,KEY=P.storage.key+'-v1';
 // Extension points a niche module fills in (packs list theirs under build.modules). Empty by default.
-const Ext={views:{},afterRender(){},printScope:()=>'',txTag:()=>({}),annualTop:()=>''};
+const Ext={views:{},afterRender(){},printScope:()=>'',txTag:()=>({}),annualTop:()=>'',plNote:()=>''};
 // an edited transaction keeps the shop and import reference it came with; a new one gets the current shop
 const txOrigin=t=>t?Object.fromEntries(['shop','ref','src'].filter(k=>t[k]!==undefined).map(k=>[k,t[k]])):Ext.txTag();
 const MAX_TRANSACTIONS=20000;
@@ -3047,9 +3047,13 @@ const Biz=(()=>{
   const memo=`<div class="statement-memo"><div><b>Not part of profit</b><small>Money moved aside or paid to yourself in this period</small>${T.transfers.lines.map(l=>`<div class="row"><span>${esc(l.name)}</span><span class="number">${fmt(l.amount)}</span></div>`).join('')||'<p class="small muted">Nothing recorded.</p>'}</div>`+
    (F.tax?`<div><b>Tax to set aside on this profit</b><small>Your set-aside rate is ${rateText(rate)} of net profit</small><div class="row"><span>${T.net>0?'Set aside for this period':'No profit, nothing to set aside'}</span><span class="number">${fmt(Math.max(0,Math.round(T.net*rate/10000)))}</span></div><button class="link no-print" data-go="tax">Quarterly tax →</button></div>`:'')+`</div>`;
   const y=selected.slice(0,4),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),cutoff=today().slice(0,7),pm=months.map(m=>m<=cutoff?Budget.plMonth(state,m):null);
-  return pagehead('Profit & loss','What the business actually made','Cash basis: sales count when the money arrives, costs when you pay them.',button('Download CSV','biz-pl-csv','quiet')+button('Print statement','print','primary'))+controls+
+  // monthly averages for the year so far, from the first month with any activity
+  const started=pm.findIndex(p=>p&&(p.revenue.total||p.cogs.total||p.opex.total||p.other.total)),done=started<0?[]:months.slice(started).filter(m=>m<=cutoff);
+  const avg=f=>done.length?Math.round(done.reduce((n,m)=>n+f(m),0)/done.length):0,pOf=m=>pm[months.indexOf(m)];
+  const avgRow=done.length?`<section class="card pl-averages no-print"><div class="cardhead"><div><h2>Monthly averages, ${y} to date</h2><p>Across ${done.length} month${done.length===1?'':'s'} · ${shortMonth(done[0])} – ${shortMonth(done.at(-1))}</p></div></div><div class="kpis">${kpi(`Average ${L.income.toLowerCase()}`,avg(m=>pOf(m).revenue.total),'a month','down')}${kpi('Average expenses',avg(m=>pOf(m).cogs.total+pOf(m).opex.total),'Cost of goods and running costs, a month','up')}${kpi('Average net profit',avg(m=>pOf(m).net),'a month','insights')}${kpi('Average cash flow',avg(m=>Budget.totals(state,m).net),`${L.income} − expenses − ${L.savingShort.toLowerCase()}, a month`,'wallet')}</div></section>`:'';
+  return pagehead('Profit & loss','What the business actually made','Cash basis: sales count when the money arrives, costs when you pay them.',button('Download CSV','biz-pl-csv','quiet')+button('Print statement','print','primary'))+controls+Ext.plNote(r.from,r.to)+
    `<div class="kpis no-print">${kpi(L.income,T.revenue.total,esc(r.label),'down')}${kpi('Gross profit',T.gross,T.grossMargin===null?`No ${L.income.toLowerCase()} in this period`:pct(T.gross,T.revenue.total)+' gross margin','insights')}${kpi('Operating expenses',T.opex.total,`${T.opex.groups.reduce((n,g)=>n+g.lines.length,0)} categories`,'up')}${kpi(T.net<0?'Net loss':'Net profit',T.net,T.netMargin===null?'—':pct(T.net,T.revenue.total)+' net margin','wallet',T.net<0?'warn':'')}</div>`+
-   `<section class="card statement"><div class="statement-head"><div><div class="eyebrow">Profit &amp; loss statement</div><h2>${esc(bizName())}</h2></div><div class="statement-meta"><div class="statement-period">${esc(r.label)}</div><small>Cash basis · ${esc(state.settings.currency)}</small><small>Prepared ${fullDate(today())}</small></div></div>`+
+   avgRow+`<section class="card statement"><div class="statement-head"><div><div class="eyebrow">Profit &amp; loss statement</div><h2>${esc(bizName())}</h2></div><div class="statement-meta"><div class="statement-period">${esc(r.label)}</div><small>Cash basis · ${esc(state.settings.currency)}</small><small>Prepared ${fullDate(today())}</small></div></div>`+
    (has?statementTable(all):empty('Nothing recorded in this period','Log sales and costs, or choose another period.','add','Add a transaction'))+memo+`</section>`+
    (pm.some(p=>p&&(p.revenue.total||p.net))?`<section class="card no-print"><div class="cardhead"><div><h2>Month by month in ${y}</h2><p>${L.income} and net profit · future months are blank</p></div></div>${areaChart([{name:L.income,values:pm.map(p=>p?p.revenue.total:null),color:'var(--ch-in)'},{name:'Net profit',values:pm.map(p=>p?p.net:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and net profit by month`)}</section>`:'');
  }

@@ -60,6 +60,9 @@ const NICHE = {
   etsy: {
     revenue: ['etsy-sales', 'etsy-refunds', 'buyer-tax'],
     ads: ['etsy-ads', 'offsite-ads'],
+    // a month with sold orders but no statement is estimated at Etsy's standard US rates:
+    // 6.5% transaction fee on items + shipping, 3% + $0.25 processing per order, $0.20 listing fee per item sold
+    estimate: { transaction: 650, processing: 300, processingFixed: 25, listing: 20 },
     // where each export lives, for the import screen
     exports: [
       ['statement', 'Payment account statement', 'Shop Manager → Finances → Payment account → Download CSV (one month at a time)', 'etsy_statement_2026_9.csv'],
