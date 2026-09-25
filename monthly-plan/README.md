@@ -56,6 +56,7 @@ node build/build_app.js          # rebuild both editions from core + packs
 node build/test.js               # module tests: budget vs frozen v1.8, business maths, build is current
 node build/ui_parity.js          # budget edition renders exactly like v1.8 (needs git history)
 node build/biz_smoke.js [shots]  # drives every business screen and flow in Chromium
+node build/print_audit.js [pdfs]  # prints every screen (Letter + A4); fails on near-empty pages (needs pdfjs-dist)
 ```
 
 Test harnesses must not touch `localStorage` from Playwright's `addInitScript` on a page they

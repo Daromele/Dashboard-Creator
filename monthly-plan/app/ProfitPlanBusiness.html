@@ -1236,6 +1236,15 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .nw{white-space:nowrap}
 @media(max-width:900px){.quarter-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.quarter-grid,.statement-memo{grid-template-columns:1fr}.statement-head{flex-direction:column;align-items:flex-start}.statement-meta{text-align:left}.ladder-step{grid-template-columns:1fr auto}.ladder-bar{grid-column:1/-1;grid-row:2}}
+/* Cards may flow across pages; keeping them whole pushed the
+   entire card to page 2 and left page 1 with only the heading. Rows, headings and small cards
+   still stay in one piece, and table headers repeat on each page. */
+@media print{.card,.table-card,.statement{break-inside:auto}
+ .area-chart,.compare-bars,.donut-wrap,.goal-card,.guide-card,.step,.hero,.notice,.ladder,.heat-table,.calendar{break-inside:avoid}
+ .grid2:has(form){display:block}.grid2:has(form)>.card{margin-bottom:16px}
+ tr,.row,.budget-row,.statement-memo>div,.quarter,.kpi{break-inside:avoid}
+ #content,#content:focus,*:focus,*:focus-visible{outline:none!important}
+ thead{display:table-header-group}.pagehead,.cardhead,.statement-head,h2,h3,tr.st-section,tr.st-group{break-after:avoid}}
 @media print{.statement{box-shadow:none;padding:0}.statement-table tr.st-key td,.statement-table tr.st-net td{-webkit-print-color-adjust:exact;print-color-adjust:exact}.statement-table td{padding:4px 8px}.quarter-grid{grid-template-columns:repeat(4,1fr)}.statement-memo{break-inside:avoid}}
 </style></head>
 <body>
