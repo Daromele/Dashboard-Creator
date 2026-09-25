@@ -1,11 +1,12 @@
 // Drives the Etsy edition end to end in Chromium: every screen from blank and from the sample,
-// adding shops, importing the four (synthetic) Etsy exports, duplicate protection, the shop
-// picker scoping every screen and printout, deleting a shop, reload, and phone widths.
+// adding shops, importing the four (synthetic) Etsy exports, duplicate protection, goals, costs per
+// item, the pricing calculator, fee rates, the shop picker scoping every screen and printout,
+// deleting a shop, reload, and phone widths.
 //   node etsy_smoke.js [out-dir-for-screenshots]
 const {chromium}=require(require.resolve('playwright',{paths:['/opt/node22/lib/node_modules',__dirname]}));
 const path=require('path'),fs=require('fs'),os=require('os'),F=require('./etsy_fixtures.js');
 const FILE='file://'+path.resolve(__dirname,'../app/ShopInsightsEtsy.html'),OUT=process.argv[2],KEY='jps-shop-insights';
-const SCREENS=['dashboard','etsy-import','shops','pl','fees','activity','annual','products','coupons','customers','reviews','seasonality','tax','taxlines','budget','goals','scheduled','settings','guide','import'];
+const SCREENS=['dashboard','etsy-import','shops','pl','fees','activity','annual','products','pricing','coupons','customers','reviews','seasonality','tax','taxlines','budget','goals','scheduled','settings','guide','import'];
 let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL:',name,extra);}};
 (async()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'etsy-fixtures-'));
@@ -61,6 +62,50 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.evaluate(()=>{selected='2026-09';render();});
   await p.evaluate(()=>go('reviews'));await p.click('[data-action="etsy-span"][data-span="all"]');check('reviews',(await text()).includes('Arrived bent.'));
   await p.evaluate(()=>go('pl'));check('P&L buyer tax line',(await text()).includes('Sales tax & VAT paid by buyers'));
+
+  // ---- dashboard tiles and a monthly goal ----
+  await p.evaluate(()=>go('dashboard'));
+  const tiles=await p.locator('.etsy-kpis .kit-tile .label').allTextContents();
+  check('dashboard has eight tiles, net profit and average cash flow among them',tiles.length===8&&tiles.includes('Net profit')&&tiles.includes('Average monthly cash flow'),tiles.join(' | '));
+  await p.locator('[data-action="etsy-goal"]').first().click();await p.fill('#etsy-goal-form input[name=goal]','100');await p.click('#etsy-goal-form button[type=submit]');
+  check('monthly goal saved',await st(()=>Object.values(state.settings.goals||{}).join()==='10000'),JSON.stringify(await st(()=>state.settings.goals)));
+  check('dashboard measures the month against the goal',(await text()).includes('of your $100.00 monthly goal'));
+  // ---- cost per item: saved on change, Tab lands in the next row; the CSV carries it ----
+  await p.evaluate(()=>go('products'));const costs=p.locator('input.etsy-cost');
+  check('a cost box for every product',await costs.count()>=2,String(await costs.count()));
+  await costs.nth(0).fill('1.50');await costs.nth(0).press('Tab');await p.waitForTimeout(100);
+  const cs=await st(()=>({costs:state.etsy.costs,focus:document.activeElement?.dataset?.cost??null,next:document.querySelectorAll('input.etsy-cost')[1]?.dataset.cost}));
+  check('cost saved and Tab moves to the next product',Object.values(cs.costs||{}).join()==='150'&&cs.focus!==null&&cs.focus===cs.next,JSON.stringify(cs));
+  const [dl]=await Promise.all([p.waitForEvent('download'),p.click('[data-action="etsy-products-csv"]')]);
+  const csv=fs.readFileSync(await dl.path(),'utf8').replace(/^﻿/,'');
+  check('products CSV',csv.startsWith('"Product",')&&csv.includes('Botanical Fern Print')&&csv.includes('1.50'),csv.slice(0,400));
+  // ---- pricing calculator ----
+  await p.evaluate(()=>go('pricing'));
+  const calc=async o=>{for(const [k,v] of Object.entries(o))await p.fill(`#etsy-calc input[name=${k}]`,String(v));return p.locator('#etsy-calc-out').innerText();};
+  let out=await calc({price:12,shipping:0,discount:0,ads:0,cost:1,shipCost:0,target:30});
+  check('calculator: a $12 sale at US rates',out.includes('$9.41')&&out.includes('$1.59')&&out.includes('On target'),out.slice(0,500));
+  out=await calc({cost:10});check('calculator: offers the price for the target margin',/Use \$\d+\.\d\d/.test(out),out.slice(0,700));
+  await p.click('[data-action="etsy-calc-use"]');check('calculator: the suggested price reaches the target',(await p.locator('#etsy-calc-out').innerText()).includes('On target'));
+  out=await calc({target:95});check('calculator: an unreachable margin says so',out.includes('reachable'),out.slice(0,400));
+  // ---- fee rates: a preset re-estimates months without a statement ----
+  const est=()=>st(()=>state.transactions.filter(t=>t.est).map(t=>t.category+':'+t.amount).sort().join());
+  const before=await est();
+  await p.evaluate(()=>go('settings'));await p.selectOption('#etsy-fees-form select[name=preset]','uk');
+  check('a preset fills the rates',await p.inputValue('#etsy-fees-form input[name=processing]')==='4');
+  await p.click('#etsy-fees-form button');
+  check('fee rates saved',await st(()=>state.settings.fees?.preset==='uk'&&state.settings.fees.processing===400&&state.settings.fees.processingFixed===20),JSON.stringify(await st(()=>state.settings.fees)));
+  check('estimates follow the new rates',before!==''&&await est()!==before);
+  await p.selectOption('#etsy-fees-form select[name=preset]','us');await p.click('#etsy-fees-form button');
+  check('back to US rates restores the estimates',await est()===before);
+  // ---- transactions: filter by where a line came from ----
+  await p.evaluate(()=>{selected='2026-08';go('activity');});
+  check('transactions heading',(await text()).includes('Every line in your books'));
+  await p.selectOption('#source-filter','estimated');
+  const rows=await p.locator('.table-card tbody tr').count(),badges=await p.locator('.table-card tbody .tx-badge',{hasText:'Estimated'}).count();
+  check('source filter: estimated lines only',rows>0&&badges===rows,`${rows} rows, ${badges} badges`);
+  await p.selectOption('#source-filter','statement');check('source filter: no statement lines in August',(await p.locator('#filter-count').innerText()).startsWith('0 of'));
+  await p.click('[data-action="clear-filters"]');check('clear filters resets the source',await p.inputValue('#source-filter')==='all');
+  await p.evaluate(()=>{selected='2026-09';render();});
 
   // ---- a second shop from the top-bar picker ----
   await p.selectOption('#shop-picker','__add');await p.fill('#etsy-shop-form input[name=name]','Kiln Pots');await p.click('#etsy-shop-form button[type=submit]');
@@ -120,7 +165,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.click('#toast [data-action="undo"]');check('undo puts them back',await st(id=>state.etsy.orders.every(o=>o.shop!==id),kilnId));
   // ---- narrow screens ----
   await p.setViewportSize({width:390,height:844});
-  for(const s of ['dashboard','etsy-import','fees','products','coupons','customers','reviews','seasonality','shops','pl']){await p.evaluate(s=>go(s),s);await shot('phone-'+s);
+  for(const s of ['dashboard','etsy-import','fees','products','pricing','coupons','customers','reviews','seasonality','shops','pl']){await p.evaluate(s=>go(s),s);await shot('phone-'+s);
     const over=await p.evaluate(()=>document.documentElement.scrollWidth-innerWidth);check('no sideways scroll on phone: '+s,over<=1,String(over));}
   check('no page errors',!errors.length,errors.join('\n'));
   await b.close();fs.rmSync(dir,{recursive:true,force:true});

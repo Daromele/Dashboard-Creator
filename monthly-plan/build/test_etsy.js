@@ -162,6 +162,25 @@ module.exports=({eq,ok})=>{
    ok('bank import validates', !throws(()=>B.validate(copy(y))));
    D.removeImport(y,bi);eq('bank import deleted, statement untouched', [y.transactions.some(t=>t.imp),y.transactions.length], [false,st.records.length]);}
 
+  // ---- fee rates, pricing and profit per product ----
+  {const R=D.rates(B.blank());eq('standard US rates', [R.transaction,R.processing,R.processingFixed,R.listing,R.offsite], [650,300,25,20,1500]);
+   const r=D.pricing({price:1000},R);eq('a $10 sale: fees and what is left', [r.tx,r.proc,r.listing,r.etsy,r.profit], [65,55,20,140,860]);
+   const q=D.pricing({price:4000,shipping:500,discount:1000,cost:800,shipCost:450,ads:500},R);
+   eq('discount, shipping, ads and costs', [q.item,q.sale,q.tx,q.proc,q.ads,q.profit], [3600,4100,267,148,180,4100-267-148-20-180-800-450]);
+   eq('offsite ads are capped at $100', D.pricing({price:100000,offsite:true},R).offsite, 10000);
+   const p50=D.priceFor(5000,{shipping:500,cost:800,shipCost:450,discount:1000,ads:500},R);
+   ok('price for a margin is the lowest that keeps it', D.pricing({shipping:500,cost:800,shipCost:450,discount:1000,ads:500,price:p50},R).margin>=0.5&&D.pricing({shipping:500,cost:800,shipCost:450,discount:1000,ads:500,price:p50-1},R).margin<0.5, String(p50));
+   eq('an unreachable margin says so', D.priceFor(9000,{ads:500},R), null);
+   const uk=books();uk.settings.fees={preset:'uk',transaction:650,processing:400,processingFixed:20,listing:16,offsite:1500};load(uk,'fern','o.csv',F.orders);D.syncEstimates(uk,{uid,today:'2026-09-30'});
+   eq('estimates use your own fee rates', uk.transactions.filter(t=>t.est&&t.date.startsWith('2026-08')).map(t=>[t.category,t.amount]), [['etsy-sales',2050],['transaction-fees',133],['processing-fees',Math.round(2050*0.04)+20],['listing-fees',16]]);
+   const z=copy(v);z.etsy.costs={'1400000001':250};const PP=D.productProfit(z),fern=PP.list.find(p=>p.key==='1400000001');
+   const share=D.summary(z).fees/D.summary(z).revenue+D.summary(z).marketing/D.summary(z).revenue;
+   eq('Etsy costs shared out by sales at the real rate', fern.etsy, Math.round(fern.net*share));
+   eq('your cost per item', [fern.unit,fern.cost,fern.profit], [250,500,fern.net-fern.etsy-500]);
+   eq('totals and costed count', [PP.costed,PP.profit], [1,PP.list.reduce((n,p)=>n+p.profit,0)]);
+   const bad=copy(z);bad.settings.fees={transaction:-1,processing:300,preset:'uk'};bad.settings.goals={'':50000,ghost:1000,fern:-5};bad.etsy.costs={'1400000001':250,x:-3,y:'1'};
+   const w=B.validate(bad);eq('bad fees, goals and costs are dropped, never fatal', [w.settings.fees,w.settings.goals,w.etsy.costs], [{processing:300,preset:'uk'},{'':50000},{'1400000001':250}]);}
+
   // ---- several shops ----
   const m=copy(v);load(m,'kiln','k.csv',F.statement.replace(/38123456/g,'99123456').replace(/140000000/g,'150000000'));
   m.transactions.push({id:'shared1',date:'2026-09-05',category:'software',amount:1299,note:'Canva'});

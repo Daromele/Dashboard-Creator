@@ -28,6 +28,8 @@ function build(file){
   if(!html.includes('/*@@NICHE_MODULES@@*/'))throw Error('core.html is missing the niche modules marker');
   const modules=(pack.build.modules||[]).map(m=>fs.readFileSync(path.join(APP,'src',m+'.js'),'utf8').trim()+'\n').join('');
   html=html.replace('/*@@NICHE_MODULES@@*/',()=>modules);
+  // a pack whose sample has no goal photos can leave the budget sample's photos out of its file
+  if(pack.build.sampleImages===false){const before=html.length;html=html.replace(/const SAMPLE_GOAL_IMAGES=\{[^\n]*\};/,"const SAMPLE_GOAL_IMAGES={travel:'',emergency:'',investing:''};");if(html.length===before)throw Error('sample images marker not found');}
   html=html.replace(/\{\{(raw:)?([a-zA-Z.]+)\}\}/g,(m,raw,key)=>{
     const v=get(pack,key);if(v==null)throw Error(`${path.basename(file)}: no value for {{${key}}}`);
     return raw?String(v):attr(v);});

@@ -70,6 +70,12 @@ do not change.
   or a cost. Credits reduce the fee they belong to; deposits are transfers. Orders, items and reviews are keyed
   by Etsy's IDs, and a file whose orders belong to another shop is refused. A listings file replaces that
   shop's listings. Buyer names and addresses are never stored: only country and a hashed buyer key.
+- **Months without a statement** are estimated from sold orders (`syncEstimates`, lines marked `est`) at the
+  seller's fee rates; importing that month's statement replaces them.
+- **Fee rates** (`settings.fees`, with country presets in the pack's `etsy.presets`) drive the estimates, the
+  pricing calculator (`pricing`, `priceFor`) and profit per product (`productProfit`, which shares a period's
+  fees and ads out by sales and subtracts the seller's cost per item from `state.etsy.costs`).
+- **Goals.** `settings.goals` holds a monthly revenue goal per shop (`''` = all shops together).
 - **Test data.** `build/etsy_fixtures.js` writes synthetic files in Etsy's layouts. Never commit a seller's
   real exports: the sold order items file holds buyers' names and addresses.
 
@@ -80,7 +86,7 @@ node build/build_app.js          # rebuild every edition from core + packs
 node build/test.js               # module tests: budget vs frozen v1.8, business and Etsy maths, build is current
 node build/ui_parity.js          # budget edition renders exactly like v1.8 (needs git history)
 node build/biz_smoke.js [shots]  # drives every business screen and flow in Chromium
-node build/etsy_smoke.js [shots] # drives the Etsy edition: shops, the four imports, the shop picker, sample
+node build/etsy_smoke.js [shots] # drives the Etsy edition: shops, imports, goals, costs, pricing, fee rates, sample
 node build/print_audit.js [pdfs]  # prints every screen (Letter + A4); fails on near-empty pages (needs pdfjs-dist)
 ```
 

@@ -17,7 +17,7 @@ const NICHE = {
     railNote: '<b>Know what each shop really keeps.</b>Import your Etsy files. See take-home after every fee, what sells and what buyers say.',
     printTitle: 'Shop Insights · JPS Digital Pages',
   },
-  build: { file: 'ShopInsightsEtsy.html', modules: ['etsy'] },
+  build: { file: 'ShopInsightsEtsy.html', modules: ['etsy'], sampleImages: false },
   storage: { key: 'jps-shop-insights', file: 'shop-insights' },
   editions: { budget: 'Monthly Plan, the household budget edition', business: 'Profit Plan, the small-business edition' },
   themes: ['kiln', 'ledger', 'sage', 'linen', 'fjord', 'slate', 'night', 'midnight'],
@@ -62,11 +62,14 @@ const NICHE = {
     ads: ['etsy-ads', 'offsite-ads'],
     // a month with sold orders but no statement is estimated at Etsy's standard US rates:
     // 6.5% transaction fee on items + shipping, 3% + $0.25 processing per order, $0.20 listing fee per item sold
-    estimate: { transaction: 650, processing: 300, processingFixed: 25, listing: 20 },
+    estimate: { transaction: 650, processing: 300, processingFixed: 25, listing: 20, offsite: 1500 },
+    // starting points for Settings → Your Etsy fees: [id, label, transaction bp, processing bp, fixed per order, listing fee, offsite bp].
+    // Etsy bills the listing fee as $0.20 USD converted, and adds VAT or GST on fees in some countries.
+    presets: [['us', 'United States', 650, 300, 25, 20, 1500], ['ca', 'Canada', 650, 300, 25, 27, 1500], ['uk', 'United Kingdom', 650, 400, 20, 16, 1500], ['eu', 'Euro countries', 650, 400, 30, 18, 1500], ['au', 'Australia', 650, 300, 25, 30, 1500]],
     // where each export lives, for the import screen
     exports: [
-      ['statement', 'Payment account statement · every fee, ad and deposit', 'Shop Manager → Finances → Payment account → choose a month → Download CSV. One file per month, per shop.', 'etsy_statement_2026_9.csv'],
       ['orders', 'Sold order items · what sold, discounts, countries', 'Shop Manager → Settings → Options → Download Data → Type: Order Items → the year. Not needed: the Orders, Etsy Payments Sales and Etsy Payments Deposits reports.', 'EtsySoldOrderItems2026.csv'],
+      ['statement', 'Payment account statement · every fee, ad and deposit', 'Shop Manager → Finances → Payment account → choose a month → Download CSV. One file per month, per shop.', 'etsy_statement_2026_9.csv'],
       ['listings', 'Listings', 'Shop Manager → Settings → Options → Download data → Listings', 'EtsyListingsDownload.csv'],
       ['reviews', 'Reviews', 'Your Etsy account data download (Privacy settings → Download data)', 'reviews.json'],
       ['deposits', 'Etsy Payments Deposits · to tell Etsy payouts apart in your bank', 'Shop Manager → Settings → Options → Download Data → Type: Etsy Payments Deposits. Optional when you import statements, which list the same payouts.', 'EtsyDeposits2026.csv'],
@@ -112,12 +115,12 @@ const NICHE = {
 
   nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import Etsy files', 'up'], ['shops', 'Shops', 'globe'],
     ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'], ['annual', 'Year & cash flow', 'outlook'],
-    ['products', 'Products & listings', 'tags'], ['coupons', 'Coupons & discounts', 'wallet'], ['customers', 'Customers', 'compass'], ['reviews', 'Reviews', 'review'], ['seasonality', 'Seasonality', 'calendar'],
+    ['products', 'Products & listings', 'tags'], ['pricing', 'Pricing calculator', 'spark'], ['coupons', 'Coupons & discounts', 'wallet'], ['customers', 'Customers', 'compass'], ['reviews', 'Reviews', 'review'], ['seasonality', 'Seasonality', 'calendar'],
     ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'table'],
     ['budget', 'Monthly targets', 'plan'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   // everything can be hidden from the sidebar except the dashboard, importing and settings (where views come back)
-  optionalNav: ['shops', 'pl', 'fees', 'activity', 'annual', 'products', 'coupons', 'customers', 'reviews', 'seasonality', 'tax', 'taxlines', 'budget', 'goals', 'scheduled', 'guide'],
-  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['pl', 'fees', 'activity', 'annual']], ['What sells', ['products', 'coupons', 'customers', 'reviews', 'seasonality']], ['Tax time', ['tax', 'taxlines']]],
+  optionalNav: ['shops', 'pl', 'fees', 'activity', 'annual', 'products', 'pricing', 'coupons', 'customers', 'reviews', 'seasonality', 'tax', 'taxlines', 'budget', 'goals', 'scheduled', 'guide'],
+  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['pl', 'fees', 'activity', 'annual']], ['What sells', ['products', 'pricing', 'coupons', 'customers', 'reviews', 'seasonality']], ['Tax time', ['tax', 'taxlines']]],
   navGroupRest: 'Make it yours',
 
   labels: {
@@ -131,29 +134,35 @@ const NICHE = {
     incomeOne: 'Revenue', savedCol: 'Transfers', netHint: 'Revenue − expenses − transfers',
     savingRateEmpty: 'Log revenue to see the share moved aside', savingRate: '% of revenue received',
     transfer: 'Etsy deposits & own transfers', transferOne: 'Transfer',
+    activityTitle: 'Every line in your books', activitySub: 'Etsy statement lines, months estimated from sold orders, bank imports and what you entered yourself.',
   },
   quickLog: { placeholder: 'clay order 42.50', help: 'For costs Etsy does not see. Try “clay order 42.50”, “mailers 18”, “canva 12.99” or “craft fair sale 240”.', demo: ['mailers', '18.00', 'Packaging'] },
 
   welcome: [
-    { icon: 'today', step: 'WELCOME', title: 'Every Etsy shop you run, in one calm place', text: '<p>Drop in the files Etsy already gives you. See what each shop really keeps after every fee, what sells, and what buyers say.</p><p>Everything stays in this browser. No Etsy login, no server, no subscription.</p>' },
-    { icon: 'up', step: 'IMPORT', title: 'Four Etsy files, read for you', text: '<p>Your <b>payment account statement</b>, <b>sold order items</b>, <b>listings</b> and <b>reviews</b>. Choose which shop they belong to and drop them in together. Anything already imported is skipped.</p>' },
-    { icon: 'coins', step: 'TAKE-HOME', title: 'The money after Etsy', text: '<p>Sales tax buyers paid is taken back out, then transaction, processing and listing fees, Etsy Ads and Etsy Plus. What is left is your <b>take-home</b>, order by order and month by month.</p>' },
+    { icon: 'today', step: 'WELCOME', title: 'Every Etsy shop you run, in one calm place', text: '<p>Drop in the files Etsy already gives you. See what each shop really keeps after every fee, which products make money, and what buyers say.</p><p>Everything stays in this browser. No Etsy login, no server, no subscription.</p>' },
+    { icon: 'up', step: 'IMPORT', title: 'Etsy’s own files, read for you', text: '<p>Your <b>sold order items</b> and <b>payment account statements</b>, plus <b>listings</b> and <b>reviews</b> if you like. Choose the shop and drop them in together. Anything already imported is skipped, and a file in the wrong shop can be moved.</p>' },
+    { icon: 'coins', step: 'TAKE-HOME', title: 'The money after Etsy', text: '<p>Sales tax buyers paid is taken back out, then transaction, processing and listing fees, Etsy Ads and Etsy Plus. What is left is your <b>take-home</b>, order by order and month by month. Months without a statement yet are estimated from your orders.</p>' },
+    { icon: 'spark', step: 'PROFIT', title: 'Price for profit', text: '<p>Type what an item costs you and see <b>profit per product</b>. The <b>pricing calculator</b> shows what one sale leaves you, and the price that keeps the margin you want.</p>' },
     'backup',
-    { icon: 'check', step: 'START', title: 'Start with this month’s statement', text: '<p>Add your shop, then import one payment account statement. The dashboard fills in from there.</p>', cta: { label: 'Import Etsy files', action: 'go-etsy-import' } },
+    { icon: 'check', step: 'START', title: 'Start with your sold order items', text: '<p>Add your shop, then import the year’s sold order items. Your months fill in straight away; add each month’s payment account statement for the exact fees and ads.</p>', cta: { label: 'Import Etsy files', action: 'go-etsy-import' } },
   ],
   guide: {
     title: 'Four moves. Every shop, understood.',
     cards: [
-      ['up', '1. Import', 'Each month, download the payment account statement and sold order items for every shop and drop them in.', 'Import Etsy files', 'etsy-import'],
+      ['up', '1. Import', 'Download the sold order items for the year and each month’s payment account statement, for every shop, and drop them in.', 'Import Etsy files', 'etsy-import'],
       ['coins', '2. Check take-home', 'See revenue after buyer tax, every Etsy fee and ad, and what each order left you.', 'Fees & ads', 'fees'],
-      ['tags', '3. Improve listings', 'Find best sellers, listings that never sell, and listings short of photos or tags.', 'Products & listings', 'products'],
+      ['spark', '3. Price for profit', 'Add your cost per item to see profit per product, then test prices in the pricing calculator.', 'Products & listings', 'products'],
       ['shield', '4. Set tax aside', 'Put money aside as you go and hand your accountant a Schedule C summary.', 'Quarterly tax', 'tax'],
     ],
     meanings: [['Revenue', 'Order payments − sales tax buyers paid − refunds'], ['Etsy costs', 'Fees, Etsy Ads, Offsite Ads and Etsy Plus, after credits'], ['Take-home', 'Revenue − Etsy costs'], ['Net profit', 'Take-home − your own costs']],
     details: [
+      ['Months without a statement', 'A month with sold orders but no payment account statement is estimated: revenue comes straight from the orders, and transaction, processing and listing fees are worked out at your fee rates (Settings → Your Etsy fees). Etsy Ads, Etsy Plus and credits only appear in the statement, so import it when you can; it replaces the estimate automatically.'],
+      ['Profit per product', 'Each product’s share of Etsy’s fees, ads and Etsy Plus follows its sales, at the rate you actually paid in that period. Type what one item costs you in the products table and its profit and margin update. Download the table as CSV for your records.'],
+      ['Pricing calculator', 'Enter a price, what you charge for shipping, any discount, your ad spend and your own costs, and see what one sale leaves you. Set the margin you want to keep and it finds the lowest price that does.'],
       ['Sales tax and VAT buyers pay', 'Etsy adds sales tax or VAT to the buyer’s payment and then takes it straight back to pay the state. The statement shows both. Shop Insights records the tax as a minus line under revenue, so it is never counted as income or as a cost.'],
       ['Several shops', 'Every import belongs to one shop. The shop picker at the top shows one shop or all of them together; every screen and printout follows it. Costs you log with <b>All shops</b> selected are shared costs: they appear in the combined view only.'],
-      ['Importing twice is safe', 'Each statement line, order, item and review is recognised when it comes back, so an overlapping or repeated file never counts twice. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
+      ['Importing twice, moving and deleting', 'Each statement line, order, item and review is recognised when it comes back, so an overlapping or repeated file never counts twice. Under <b>Imported files</b> you can move a file to another shop or delete it, with undo. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
+      ['Bank files', 'Import your bank’s CSV for costs Etsy never sees. Money in that matches an Etsy payout is filed as an Etsy deposit (its sales are already counted); anything else that came in is other revenue.'],
       ['Privacy', 'The sold order items file includes buyer names and addresses. Shop Insights keeps only the country and a scrambled key to count repeat buyers. Names and addresses are never stored.'],
       ['Listings and sales', 'Etsy’s listings file has no listing number, so listings are matched to sales by the start of their title. A listing you renamed may show as unsold.'],
       ['Tax lines and your accountant', 'Each category carries a Schedule C line. It is an organised record, not tax advice or a filed return. Shop Insights is not affiliated with Etsy, Inc.'],
