@@ -70,7 +70,10 @@ const NICHE = {
   etsy: {
     revenue: ['etsy-sales', 'etsy-refunds', 'buyer-tax'],
     // every channel's sales: the dashboard's revenue is these, less buyer tax and refunds
-    sales: ['etsy-sales', 'shopify-sales', 'square-sales', 'amazon-sales', 'ebay-sales', 'other-sales'],
+    sales: ['etsy-sales', 'shopify-sales', 'square-sales', 'amazon-sales', 'ebay-sales', 'tiktok-sales', 'faire-sales', 'gumroad-sales', 'payhip-sales', 'fourthwall-sales', 'other-sales'],
+    // categories a file adds when it first needs them, so new books stay short
+    lazyCategories: [['tiktok-sales', 'TikTok Shop sales', 'revenue', 'L1'], ['faire-sales', 'Faire wholesale sales', 'revenue', 'L1'], ['gumroad-sales', 'Gumroad sales', 'revenue', 'L1'], ['payhip-sales', 'Payhip sales', 'revenue', 'L1'], ['fourthwall-sales', 'Fourthwall sales', 'revenue', 'L1'],
+      ['tiktok-fees', 'TikTok Shop fees & commissions', 'channel-fees', 'L10'], ['faire-fees', 'Faire commission', 'channel-fees', 'L10'], ['gumroad-fees', 'Gumroad fees', 'channel-fees', 'L10'], ['payhip-fees', 'Payhip fees', 'channel-fees', 'L10'], ['fourthwall-fees', 'Fourthwall fees', 'channel-fees', 'L10'], ['marketplace-fees', 'Other platform fees', 'channel-fees', 'L10']],
     ads: ['etsy-ads', 'offsite-ads'],
     // a month with sold orders but no statement is estimated at Etsy's standard US rates:
     // 6.5% transaction fee on items + shipping, 3% + $0.25 processing per order, $0.20 listing fee per item sold
@@ -80,14 +83,21 @@ const NICHE = {
     presets: [['us', 'United States', 650, 300, 25, 20, 1500], ['ca', 'Canada', 650, 300, 25, 27, 1500], ['uk', 'United Kingdom', 650, 400, 20, 16, 1500], ['eu', 'Euro countries', 650, 400, 30, 18, 1500], ['au', 'Australia', 650, 300, 25, 30, 1500]],
     // where a shop sells. Etsy shops read all five Etsy exports; a Shopify store its orders export;
     // Square its transactions and item detail exports; Other is for sales you log or import from the bank.
-    platforms: [['etsy', 'Etsy'], ['shopify', 'Shopify'], ['square', 'Square'], ['amazon', 'Amazon Handmade'], ['ebay', 'eBay'], ['other', 'Other']],
-    platformHelp: { etsy: 'An Etsy shop', shopify: 'Your own website on Shopify', square: 'Markets, fairs and in person, through Square', amazon: 'Your Amazon Handmade shop', ebay: 'Your eBay store', other: 'Wholesale, cash sales or anything else you log yourself' },
+    platforms: [['etsy', 'Etsy'], ['shopify', 'Shopify'], ['square', 'Square'], ['amazon', 'Amazon Handmade'], ['ebay', 'eBay'], ['tiktok', 'TikTok Shop'], ['faire', 'Faire'], ['gumroad', 'Gumroad'], ['payhip', 'Payhip'], ['fourthwall', 'Fourthwall'], ['other', 'Other']],
+    platformHelp: { etsy: 'An Etsy shop', shopify: 'Your own website on Shopify', square: 'Markets, fairs and in person, through Square', amazon: 'Your Amazon Handmade shop', ebay: 'Your eBay store', tiktok: 'Your TikTok Shop', faire: 'Wholesale to shops through Faire', gumroad: 'Digital products on Gumroad', payhip: 'Digital products on Payhip', fourthwall: 'Merch and print on demand through Fourthwall', other: 'Any other store: import its sales CSV by matching the columns once, or log sales yourself' },
     // payment fees when the channel's own export has none: Shopify Payments Basic (online, US) and Square in person (US)
-    channelRates: { shopify: { processing: 290, processingFixed: 30 }, square: { processing: 260, processingFixed: 15 }, amazon: { processing: 1500, processingFixed: 0 }, ebay: { processing: 1325, processingFixed: 30 }, other: { processing: 0, processingFixed: 0 } },
+    channelRates: { shopify: { processing: 290, processingFixed: 30 }, square: { processing: 260, processingFixed: 15 }, amazon: { processing: 1500, processingFixed: 0 }, ebay: { processing: 1325, processingFixed: 30 },
+      tiktok: { processing: 800, processingFixed: 30 }, faire: { processing: 1500, processingFixed: 0 }, gumroad: { processing: 1290, processingFixed: 80 }, payhip: { processing: 790, processingFixed: 30 }, fourthwall: { processing: 300, processingFixed: 30 }, other: { processing: 0, processingFixed: 0 } },
     channelExports: {
       shopify: [['orders', 'Orders · what sold, discounts, countries', 'Shopify admin → Orders → Export → All orders (or a date range) → CSV for Excel, Numbers or other spreadsheet programs.', 'orders_export_1.csv'],
         ['statement', 'Payouts transactions · the exact Shopify Payments fee on each order', 'Shopify admin → Settings → Payments → View payouts → Transactions → Export. Without it, fees are estimated at your Shopify rate in Settings.', 'payment_transactions_export_1.csv']],
       amazon: [['statement', 'Date Range Report · every order, refund and Amazon fee, with what sold', 'Seller Central → Payments → Reports Repository → Transaction → Date Range Report → Generate → Download. One file gives both the money and the orders.', '2026Sep1-2026Sep30CustomTransaction.csv']],
+      tiktok: [['statement', 'Order settlement export · revenue and every TikTok Shop fee', 'TikTok Shop Seller Center → Finance → Transactions (or Statements) → Export. An orders export with product names also works; fees are then estimated.', 'tiktok_settlement.csv']],
+      faire: [['statement', 'Orders export · what each retailer ordered', 'Faire brand portal → Orders → Export. If the file has Faire’s commission, it is used; otherwise it is estimated at your rate in Settings.', 'faire_orders.csv']],
+      gumroad: [['statement', 'Sales export · every sale with Gumroad’s fees', 'Gumroad → Sales (or Customers) → Export → the CSV arrives by email.', 'Sales_2026.csv']],
+      payhip: [['statement', 'Sales export · every sale', 'Payhip → Sales → Export CSV. If the columns aren’t recognised, match them once.', 'payhip_sales.csv']],
+      fourthwall: [['statement', 'Orders export · sales, production and fees', 'Fourthwall → Orders → Export CSV. Production costs, when listed, go to cost of goods.', 'fourthwall_orders.csv']],
+      other: [['statement', 'Any sales CSV · Ko-fi, Big Cartel, Squarespace, your own site…', 'Download the sales or orders CSV from the store, drop it here and match its columns once: date, amount, and fees if it has them.', 'sales.csv']],
       ebay: [['statement', 'Transaction report · every order, fee, refund and label, with what sold', 'Seller Hub → Payments → Reports → Transaction report → choose the dates → Download CSV. One file gives both the money and the orders.', 'Transaction_report.csv']],
       square: [['statement', 'Transactions · every sale, tip, refund and exact Square fee', 'Square Dashboard → Transactions → choose the dates → Export → Transactions CSV.', 'transactions-2026-01-01-2026-10-01.csv'],
         ['orders', 'Item detail · what sold at each sale', 'Square Dashboard → Transactions → Export → Item Detail CSV. With the transactions file too, fees are exact; alone, they are estimated.', 'items-2026-01-01-2026-10-01.csv']],
@@ -188,7 +198,7 @@ const NICHE = {
       ['Sales tax and VAT buyers pay', 'Etsy adds sales tax or VAT to the buyer’s payment and then takes it straight back to pay the state. The statement shows both. Shop Insights records the tax as a minus line under revenue, so it is never counted as income or as a cost.'],
       ['Several shops', 'Every import belongs to one shop. The shop picker at the top shows one shop or all of them together; every screen and printout follows it. Costs you log with <b>All shops</b> selected are shared costs: they appear in the combined view only.'],
       ['Importing twice, moving and deleting', 'Each statement line, order, item and review is recognised when it comes back, so an overlapping or repeated file never counts twice. Under <b>Imported files</b> you can move a file to another shop or delete it, with undo. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
-      ['Shopify, Square, Amazon, eBay and other channels', 'Add a shop for each place you sell and choose where it sells: Etsy, Shopify, Square, Amazon Handmade, eBay or Other. Shopify reads the orders export, plus the payouts transactions export for exact fees (without it, fees are estimated at your rate in Settings). Amazon’s Date Range Report and eBay’s transaction report each bring in the money, exact fees and the orders in one file. Square reads the transactions export (exact fees) and the item detail export (what sold). Other is for wholesale or cash sales you log yourself. Shops compares what each channel keeps you out of every dollar, and the P&L, tax and Schedule C cover all of them. Shopify and Square payouts in a bank import are transfers, because their sales are already counted.'],
+      ['Shopify, Square, Amazon, eBay and other channels', 'Add a shop for each place you sell and choose where it sells: Etsy, Shopify, Square, Amazon Handmade, eBay, TikTok Shop, Faire, Gumroad, Payhip, Fourthwall or Other. TikTok Shop, Faire, Gumroad, Payhip and Fourthwall exports are read by their usual column names; if a file isn’t recognised, or for any other store (Ko-fi, Big Cartel, your own site), press Match columns once and the layout is remembered. Shopify reads the orders export, plus the payouts transactions export for exact fees (without it, fees are estimated at your rate in Settings). Amazon’s Date Range Report and eBay’s transaction report each bring in the money, exact fees and the orders in one file. Square reads the transactions export (exact fees) and the item detail export (what sold). Other is for wholesale or cash sales you log yourself. Shops compares what each channel keeps you out of every dollar, and the P&L, tax and Schedule C cover all of them. Shopify and Square payouts in a bank import are transfers, because their sales are already counted.'],
       ['Bank files', 'Import your bank’s CSV for costs Etsy never sees. Money in that matches an Etsy payout is filed as an Etsy deposit (its sales are already counted); anything else that came in is other revenue.'],
       ['Privacy', 'The sold order items file includes buyer names and addresses. Shop Insights keeps only the country and a scrambled key to count repeat buyers. Names and addresses are never stored.'],
       ['Listings and sales', 'Etsy’s listings file has no listing number, so listings are matched to sales by the start of their title. A listing you renamed may show as unsold.'],
@@ -1622,7 +1632,8 @@ const Budget = ((P) => {
       each('deposits',20000,d=>validDate(d.date)&&amount(d.amount)&&d.amount>0);
       const whole=(x,max)=>Number.isSafeInteger(x)&&x>=0&&x<=max;
       if(s.settings.fees!==undefined){const f=s.settings.fees;if(!object(f))delete s.settings.fees;else{for(const [k,max] of [['transaction',5000],['processing',5000],['processingFixed',10000],['listing',10000],['offsite',5000]])if(f[k]!==undefined&&!whole(f[k],max))delete f[k];if(f.preset!==undefined&&!str(f.preset,20))delete f.preset;}}
-      if(s.settings.channelFees!==undefined){const c=s.settings.channelFees;if(!object(c))delete s.settings.channelFees;else Object.keys(c).forEach(k=>{if(!['shopify','square'].includes(k)||!object(c[k]))return delete c[k];for(const [f,max] of [['processing',5000],['processingFixed',10000],['transaction',5000]])if(c[k][f]!==undefined&&!whole(c[k][f],max))delete c[k][f];});}
+      if(s.settings.channelFees!==undefined){const c=s.settings.channelFees;if(!object(c))delete s.settings.channelFees;else Object.keys(c).forEach(k=>{if(['etsy','other'].includes(k)||!platforms.includes(k)||!object(c[k]))return delete c[k];for(const [f,max] of [['processing',5000],['processingFixed',10000],['transaction',5000]])if(c[k][f]!==undefined&&!whole(c[k][f],max))delete c[k][f];});}
+      if(s.settings.columnMaps!==undefined){const m=s.settings.columnMaps;if(!object(m))delete s.settings.columnMaps;else Object.keys(m).forEach((k,i)=>{const v=m[k];if(i>=60||!str(k,40)||!object(v)||!platforms.includes(v.platform)||!object(v.f)||Object.entries(v.f).some(([a,b])=>!str(a,20)||!str(b,80)))delete m[k];});}
       if(s.settings.goals!==undefined){const g=s.settings.goals;if(!object(g))delete s.settings.goals;else Object.keys(g).forEach(k=>{if((k&&!shops.has(k))||!whole(g[k],1e10)||!g[k])delete g[k];});}
       if(E.costs!==undefined){if(!object(E.costs))E.costs={};else Object.keys(E.costs).forEach(k=>{if(!str(k,80)||!whole(E.costs[k],1e9))delete E.costs[k];});}
       list('imports',2000).forEach(x=>{if(!object(x)||!(shops.has(x.shop)||(x.kind==='bank'&&x.shop===''))||(x.id!==undefined&&!key(x.id))||!['statement','orders','listings','reviews','deposits','bank'].includes(x.kind)||(x.platform!==undefined&&!platforms.includes(x.platform))||!str(x.name,160)||!validDate(x.at)||!count(x.rows,1e6)||(x.from!==undefined&&!validDate(x.from))||(x.to!==undefined&&!validDate(x.to)))fail();});}}
@@ -3623,6 +3634,79 @@ const EtsyData=((P,B,CSV)=>{
  // eBay Seller Hub transaction report
  const ebayReport=(rows,headers)=>marketReport(rows,headers,{platform:'ebay',sales:'ebay-sales',fees:'ebay-fees',ref:'eb',
   col:{date:['transaction creation date','transaction date'],type:['type'],order:['order number'],item:['item title','description'],sku:['custom label'],qty:['quantity'],subtotal:['item subtotal'],shipping:['shipping and handling'],extra:[],rebate:[],tax:['seller collected tax'],tax2:['ebay collected tax'],total:['net amount'],buyer:['buyer username'],country:['ship to country'],currency:['transaction currency','payout currency']}});
+ // ---------- any other store's sales CSV ----------
+ // TikTok Shop, Faire, Gumroad, Payhip, Fourthwall and "Other" share one reader: columns are found
+ // by their usual names, or by a map the seller made once for that file layout. A file with fees
+ // (or a net column) brings in the money and the orders; one without brings in orders, and fees
+ // are estimated at the platform's rate like Shopify's.
+ const SYN={date:['order date','purchase date','sale date','date','created at','order created time','created','transaction date','paid at','date time','order time','order placed'],
+  order:['order id','order number','purchase id','order adjustment id','transaction id','receipt id','order','order no','invoice number','order name'],
+  item:['product name','item name','product','item','product title','title','item title','products'],
+  qty:['quantity','qty','units','quantity sold'],
+  subtotal:['subtotal','subtotal after seller discounts','item subtotal','product subtotal','wholesale subtotal','items subtotal'],
+  sales:['sale price','amount','gross','gross sales','gross amount','total revenue','order total','total','sale amount','revenue','payment amount','total paid','price','wholesale price'],
+  shipping:['shipping','shipping charged','shipping amount','shipping price'],
+  tax:['taxes','tax','sales tax','vat','tax amount'],
+  discount:['discount','discount amount','seller discounts','discounts','coupon discount'],
+  fees:['fees','total fees','fee','fees total','platform fees','commission'],
+  net:['net total','net','net amount','earnings','your earnings','profit','payout','payout amount','total settlement amount','net revenue','net earnings','amount received'],
+  refund:['partial refund','refund amount','refunded amount','refunds'],
+  status:['status','order status','payment status','fully refunded','refunded'],
+  type:['type','transaction type'],
+  country:['country','shipping country','buyer country','ship to country','billing country','customer country'],
+  buyer:['purchase email','buyer email','customer email','email','buyer username','retailer','retailer name','customer name','customer','buyer'],
+  sku:['sku','sku id','variant sku'],
+  cost:['base cost','production cost','cost of goods','fulfillment cost','product cost']};
+ const FIELDS=Object.keys(SYN),GENERIC=['tiktok','faire','gumroad','payhip','fourthwall','other'],PRE={tiktok:'tt',faire:'fa',gumroad:'gr',payhip:'ph',fourthwall:'fw',other:'ot'};
+ // columns for each field: an explicit map (field → column name) wins, then the usual names in order
+ function resolve(headers,map){const h=headers.map(head),c={},used=new Set();
+  for(const f of FIELDS){const want=map?map[f]:undefined;c[f]=map?(want?h.indexOf(head(want)):-1):(SYN[f].map(x=>h.indexOf(x)).find(i=>i>=0&&!used.has(i))??-1);if(c[f]>=0)used.add(c[f]);}
+  // no single fees column: every other fee or commission column, added up
+  c.feeCols=map||c.fees>=0?[]:h.map((x,i)=>!used.has(i)&&/\b(fees?|commission)\b/.test(x)&&!/shipping|rate|type|percent|paid by|tax|description|reason/.test(x)?i:-1).filter(i=>i>=0);
+  return c;}
+ const presetOf=(headers,name)=>{const h=headers.map(head),has=k=>h.includes(k),any=re=>h.some(x=>re.test(x)),nm=String(name||'').toLowerCase();
+  if(has('order adjustment id')||has('total settlement amount')||/tiktok/.test(nm))return 'tiktok';
+  if((has('retailer')||has('retailer name'))&&any(/wholesale/)||/faire/.test(nm))return 'faire';
+  if(has('purchase email')&&has('item name')||has('purchase id')&&has('net total')||/gumroad/.test(nm))return 'gumroad';
+  if(any(/payhip/)||/payhip/.test(nm))return 'payhip';
+  if(any(/fourthwall/)||/fourthwall/.test(nm))return 'fourthwall';
+  return null;};
+ const layoutKey=(platform,headers)=>hash(platform+'|'+headers.map(head).join(','));
+ function storeSales(rows,headers,{platform,map}){
+  const c=resolve(headers,map),get=(r,i)=>i>=0?String(r.cells[i]??'').trim():'',mon=(r,f)=>money(get(r,c[f]))??0,P0=PLATFORM[platform];
+  if(c.date<0||(c.sales<0&&c.subtotal<0&&c.net<0))throw Error(`The date or amount column wasn’t found. Match this file’s columns once and it will be read from then on.`);
+  // a price column is per item (Faire's wholesale price); a sale price, amount or total is per row
+  const unitPrice=c.sales>=0&&/\bprice\b/.test(head(headers[c.sales]))&&!/\bsale price\b|\btotal\b/.test(head(headers[c.sales]));
+  const SALE=CH_SALES[platform],FEE=CH_FEES[platform]||'marketplace-fees',hasFees=c.fees>=0||c.feeCols.length>0||(c.net>=0&&(c.sales>=0||c.subtotal>=0));
+  const lines=new Map(),orders=new Map(),items=[],issues=[],currencies=new Set();let skipped=0;
+  const add=(date,category,amount,rf,note)=>{if(!amount)return;const key=[date,category,rf].join('|'),hit=lines.get(key);if(hit)hit.amount+=amount;else lines.set(key,{date,category,amount,ref:rf,note:note.slice(0,160),key});};
+  rows.forEach((r,n)=>{
+   try{const raw=get(r,c.date);if(!raw)return;
+    const date=day(raw),type=norm(get(r,c.type)),status=norm(get(r,c.status)),sh=c.status>=0?head(headers[c.status]):'';
+    if(/cancel|void|fail|declin|pending|payout|transfer|withdraw|abandon/.test(type+' '+status)){skipped++;return;}
+    if(/refund/.test(sh)&&/^(true|yes|y|1)$/.test(status)){skipped++;return;}
+    const refundRow=/refund|return|chargeback|dispute/.test(type)||/^(refunded|returned)$/.test(status);
+    const oid=get(r,c.order).replace(/[^A-Za-z0-9-]/g,'').slice(0,32),ref=oid?'o'+PRE[platform]+oid.replace(/-/g,''):'',what=get(r,c.item).slice(0,300);
+    const tax=Math.abs(mon(r,'tax')),ship=Math.abs(mon(r,'shipping')),cost=Math.abs(mon(r,'cost')),disc=Math.abs(mon(r,'discount'));
+    // what the sale earned before fees, without sales tax
+    const qty0=Math.max(1,Math.abs(parseInt(get(r,c.qty),10)||1));
+    let amount=c.subtotal>=0?Math.abs(mon(r,'subtotal'))+ship:c.sales>=0?Math.max(0,Math.abs(mon(r,'sales'))*(unitPrice?qty0:1)-tax):Math.abs(mon(r,'net'));
+    let fee=c.fees>=0?Math.abs(mon(r,'fees')):c.feeCols.reduce((a,i)=>a+Math.abs(money(r.cells[i])??0),0);
+    if(!fee&&c.fees<0&&!c.feeCols.length&&c.net>=0&&(c.sales>=0||c.subtotal>=0))fee=Math.max(0,amount-Math.abs(mon(r,'net'))-cost);
+    if(refundRow){add(date,'etsy-refunds',-amount,ref,`${P0} refund${oid?' · order '+oid:''}`);if(hasFees)add(date,FEE,-fee,ref,`${P0} fees refunded`);return;}
+    if(hasFees){add(date,SALE,amount,ref,`${P0} sale${oid?' '+oid:''}${what?' · '+what:''}`);add(date,FEE,fee,ref,`${P0} fees${oid?' · order '+oid:''}`);
+     if(cost)add(date,'printing',cost,ref,`${P0} production${what?' · '+what:''}`);
+     const rf=Math.abs(mon(r,'refund'));if(rf)add(date,'etsy-refunds',-rf,ref,`${P0} partial refund`);}
+    const id=PRE[platform]+(oid?oid.replace(/-/g,''):'r'+hash(name0+'|'+n).slice(0,10)),qty=Math.max(1,Math.abs(parseInt(get(r,c.qty),10)||1)),goods=Math.max(0,amount-ship)+disc;
+    let o=orders.get(id);if(!o)orders.set(id,o={id,date,buyer:get(r,c.buyer)?hash(norm(get(r,c.buyer))).slice(0,12):'',country:get(r,c.country).slice(0,60),coupon:'',discount:0,shipDiscount:0,shipping:0,tax:0,list:0,units:0});
+    if(date<o.date)o.date=date;o.list+=goods;o.discount+=disc;o.shipping+=ship;o.tax+=tax;o.units+=qty;
+    items.push({id:'h'+hash([id,what,get(r,c.sku),n].join('|')),order:id,listing:'',name:what||`${P0} sale`,qty,price:Math.round(goods/qty),total:goods,sku:get(r,c.sku).slice(0,80)});
+   }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
+  const list=[...orders.values()].map(o=>({...o,discount:Math.min(o.discount,o.list)})),notes=skipped?[`${skipped} cancelled, pending, refunded or payout row${skipped===1?'':'s'} left out.`]:[];
+  if(!hasFees)notes.push(`No fees in this file: ${P0} fees are estimated at your rate in Settings.`);
+  return hasFees?{kind:'statement',records:[...lines.values()].filter(x=>x.amount),issues,currencies,notes,twin:{records:list,items}}:{kind:'orders',records:list,items,issues,currencies,notes};
+ }
+ let name0='';
  // header signatures for the other channels: [platform, kind, columns, parser]
  const CHANNEL_SIGNS=[['shopify','orders',['name','financial status','subtotal','total','lineitem quantity','lineitem name','lineitem price'],shopifyOrders],
   ['square','statement',['date','gross sales','net sales','fees','net total','transaction id'],squareTx],
@@ -3633,10 +3717,10 @@ const EtsyData=((P,B,CSV)=>{
  const channelOf=headers=>{const h=new Set(headers.map(head));return CHANNEL_SIGNS.find(x=>x[2].every(k=>h.has(k)))||null;};
  const platformOf=(s,shop)=>(s.shops.find(x=>x.id===shop)||{}).platform||'etsy';
  const PLATFORM=Object.fromEntries(X.platforms);
- const KIND_WORDS={shopify:{orders:'orders',statement:'payouts'},square:{orders:'item detail',statement:'transactions'},amazon:{orders:'orders',statement:'payments'},ebay:{orders:'orders',statement:'transactions'}};
+ const KIND_WORDS={tiktok:{orders:'orders',statement:'sales'},faire:{orders:'orders',statement:'sales'},gumroad:{orders:'orders',statement:'sales'},payhip:{orders:'orders',statement:'sales'},fourthwall:{orders:'orders',statement:'sales'},other:{orders:'orders',statement:'sales'},shopify:{orders:'orders',statement:'payouts'},square:{orders:'item detail',statement:'transactions'},amazon:{orders:'orders',statement:'payments'},ebay:{orders:'orders',statement:'transactions'}};
  const kindName=(kind,platform='etsy')=>platform==='etsy'?KINDS[kind]:`${PLATFORM[platform]} ${KIND_WORDS[platform]?.[kind]||kind}`;
  // a category the file needs but these books were started without (older saves)
- const ensure=(s,ids)=>ids.forEach(id=>{if(s.categories.some(c=>c.id===id))return;const d=P.categories.find(x=>x[0]===id);if(d)s.categories.push({id,name:d[1],group:d[2],archived:false,...(d[3]?{taxLine:d[3]}:{})});});
+ const ensure=(s,ids)=>ids.forEach(id=>{if(s.categories.some(c=>c.id===id))return;const d=P.categories.find(x=>x[0]===id)||(X.lazyCategories||[]).find(x=>x[0]===id);if(d)s.categories.push({id,name:d[1],group:d[2],archived:false,...(d[3]?{taxLine:d[3]}:{})});});
  // ---------- reviews.json ----------
  function reviews(json){
   const list=Array.isArray(json)?json:Array.isArray(json?.reviews)?json.reviews:null;if(!list)throw Error('This JSON file is not a list of reviews.');
@@ -3656,7 +3740,7 @@ const EtsyData=((P,B,CSV)=>{
   if(rows.some(r=>r.some(x=>/gross amount|net amount|posted/.test(x))))return 'This is Etsy’s Payments Sales report (for 1099-K checks). You don’t need it: the payment account statement has the same payments plus every Etsy fee and ad.';
   return '';}
  // One file in, one parsed file out. The kind comes from the header row, never from the file name.
- function read(name,text){
+ function read(name,text,{platform:hint='',maps={}}={}){name0=String(name||'');
   const out={name:String(name||'file').slice(0,160),kind:null,platform:'etsy',records:[],items:[],issues:[],notes:[],currency:'',from:'',to:''};
   try{const t=String(text).replace(/^﻿/,'').trim();let r;
    if(/^[[{]/.test(t)){out.kind='reviews';r=reviews(JSON.parse(t));}
@@ -3664,9 +3748,15 @@ const EtsyData=((P,B,CSV)=>{
     const ch=at>=0?-1:rows.slice(0,15).findIndex(x=>channelOf(x.cells));
     if(at>=0){const headers=rows[at].cells;out.kind=kindOf(headers);r={statement,orders:soldItems,listings}[out.kind](rows.slice(at+1),headers);}
     else if(ch>=0){const [platform,kind,,parse]=channelOf(rows[ch].cells);out.kind=kind;out.platform=platform;r=parse(rows.slice(ch+1),rows[ch].cells);}
-    else{const dp=rows.slice(0,5).findIndex(x=>looksDeposits(x.cells,out.name));
-     if(dp<0){out.error=otherReport(rows.slice(0,5).map(x=>x.cells.map(head)))||`Not an Etsy, Shopify, Square, Amazon or eBay export this app reads. First row: ${(rows[0]?.cells||[]).slice(0,6).join(', ').slice(0,120)}`;return out;}
-     out.kind='deposits';r=deposits(rows.slice(dp+1),rows[dp].cells);}}
+    else{const hi=rows.slice(0,15).findIndex(x=>x.cells.filter(v=>String(v).trim()).length>=3),headers=hi>=0?rows[hi].cells:[];
+     // a layout the seller matched once for this platform, then a known store by its columns, then the chosen shop's platform
+     const mapped=hint&&hi>=0?maps[layoutKey(hint,headers)]:null,preset=hi>=0?presetOf(headers,name):null;
+     const gp=mapped?hint:preset||(GENERIC.includes(hint)&&hi>=0?hint:null);
+     if(gp&&hi>=0){Object.assign(out,{platform:gp,generic:true,headers:headers.map(x=>String(x).slice(0,80)).slice(0,80),layout:layoutKey(gp,headers),mapped:!!mapped});
+      try{r=storeSales(rows.slice(hi+1),headers,{platform:gp,map:mapped?.f});out.kind=r.kind;}catch(e){out.error=e.message;return out;}}
+     else{const dp=rows.slice(0,5).findIndex(x=>looksDeposits(x.cells,out.name));
+     if(dp<0){if(hi>=0){out.headers=headers.map(x=>String(x).slice(0,80)).slice(0,80);}out.error=otherReport(rows.slice(0,5).map(x=>x.cells.map(head)))||`Not an export this app knows yet. Choose the shop it belongs to and match its columns, or check the file. First row: ${(rows[0]?.cells||[]).slice(0,6).join(', ').slice(0,120)}`;return out;}
+     out.kind='deposits';r=deposits(rows.slice(dp+1),rows[dp].cells);}}}
    Object.assign(out,{records:r.records,items:r.items||[],issues:r.issues,notes:r.notes});
    if(r.currencies.size>1)out.error=`This file mixes currencies (${[...r.currencies].join(', ')}).`;out.currency=[...r.currencies][0]||'';
    const dates=out.records.map(x=>x.date).filter(Boolean).sort();out.from=dates[0]||'';out.to=dates.at(-1)||'';
@@ -3686,7 +3776,7 @@ const EtsyData=((P,B,CSV)=>{
   if(file.error){r.error=file.error;return r;}
   if(!s.shops.some(x=>x.id===shop)){r.error='Choose a shop first.';return r;}
   const plat=platformOf(s,shop),fp=file.platform||'etsy';r.platform=fp;
-  if(fp!==plat){r.error=plat==='other'?`${shopName(shop)} is set up for sales you log yourself. Add a ${PLATFORM[fp]} shop for this ${kindName(file.kind,fp)} file, or change this shop’s platform in Shops.`
+  if(fp!==plat){r.error=plat==='other'?`${shopName(shop)} is an Other shop. Add a ${PLATFORM[fp]} shop for this ${kindName(file.kind,fp)} file, or change this shop’s platform in Shops.`
    :`This is a${fp==='etsy'?'n':''} ${kindName(file.kind,fp)} file, but ${shopName(shop)} is a${plat==='etsy'?'n':''} ${PLATFORM[plat]} shop. Choose your ${PLATFORM[fp]} shop, or add one.`;return r;}
   if(file.currency&&file.currency!==s.settings.currency){
    const emptyBooks=!s.transactions.length&&!E.orders.length&&!E.listings.length;
@@ -3742,7 +3832,7 @@ const EtsyData=((P,B,CSV)=>{
  const rates=s=>({...X.estimate,...(s.settings?.fees||{})});
  // a Shopify store or Square account: payment fees only (no listing or transaction fee)
  const channelRates=(s,p)=>({transaction:0,listing:0,offsite:0,processing:0,processingFixed:0,...(X.channelRates[p]||{}),...(s.settings?.channelFees?.[p]||{})});
- const CH_SALES={etsy:'etsy-sales',shopify:'shopify-sales',square:'square-sales',amazon:'amazon-sales',ebay:'ebay-sales',other:'other-sales'},CH_FEES={shopify:'shopify-fees',square:'square-fees',amazon:'amazon-fees',ebay:'ebay-fees'},CH_SALE_IDS=Object.values(CH_SALES);
+ const CH_SALES={etsy:'etsy-sales',shopify:'shopify-sales',square:'square-sales',amazon:'amazon-sales',ebay:'ebay-sales',tiktok:'tiktok-sales',faire:'faire-sales',gumroad:'gumroad-sales',payhip:'payhip-sales',fourthwall:'fourthwall-sales',other:'other-sales'},CH_FEES={shopify:'shopify-fees',square:'square-fees',amazon:'amazon-fees',ebay:'ebay-fees',tiktok:'tiktok-fees',faire:'faire-fees',gumroad:'gumroad-fees',payhip:'payhip-fees',fourthwall:'fourthwall-fees',other:'marketplace-fees'},CH_SALE_IDS=Object.values(CH_SALES);
  function syncEstimates(s,{uid=B.uid,today=B.today()}={}){
   const real=new Set(),by=new Map(),RS={};const Rof=p=>RS[p]??=p==='etsy'?rates(s):channelRates(s,p);
   // a month is "real" once it has statement-like lines; Shopify payouts only make its fees exact
@@ -3785,6 +3875,7 @@ const EtsyData=((P,B,CSV)=>{
   const E=s.etsy,x=E.imports[i];if(!x)return null;const name=id=>(s.shops.find(v=>v.id===id)||{}).name||'All shops (shared)';
   if(to===x.shop)return {error:`It is already in ${name(to)}.`};
   if(to?!s.shops.some(v=>v.id===to):x.kind!=='bank')return {error:'Choose the shop to move it to.'};
+  if(to&&x.kind!=='bank'&&(x.platform||'etsy')!==platformOf(s,to))return {error:`This is a${(x.platform||'etsy')==='etsy'?'n':''} ${kindName(x.kind,x.platform||'etsy')} file, so it can only move to a${(x.platform||'etsy')==='etsy'?'n':''} ${PLATFORM[x.platform||'etsy']} shop.`};
   const sc=importScope(s,x),r=scopeCounts(x,sc);r.replaced=x.kind==='listings'?E.listings.filter(l=>l.shop===to).length:0;
   const refs=new Set([...(sc.tx||[]).map(t=>t.ref).filter(v=>v&&v[0]==='o'),...(sc.orders||[]).map(o=>'o'+o.id)]);
   // only the same kind of record can clash: a statement and an order file for the same orders belong together
@@ -3911,7 +4002,7 @@ const EtsyData=((P,B,CSV)=>{
   return s.shops.map(shop=>{const v=forShop(s,shop.id),m=summary(v,from,to),r=reviewStats(v,from,to);
    return {...shop,platform:shop.platform||'etsy',kept:m.revenue>0?m.takeHome/m.revenue:null,...m,soldOrders:ordersIn(v,from,to).length,listings:v.etsy.listings.filter(l=>l.shop===shop.id).length,reviews:r.count,rating:r.avg};});
  }
- return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,moveImport,importScope,rates,pricing,priceFor,productProfit,syncEstimates,estimatedMonths,compare,forShop,scoped,channelOf,platformOf,channelRates,kindName};
+ return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,moveImport,importScope,rates,pricing,priceFor,productProfit,syncEstimates,estimatedMonths,compare,forShop,scoped,channelOf,platformOf,channelRates,kindName,layoutKey,resolve,SYN,GENERIC};
 })(NICHE,Budget,CSV);
 if(typeof module!=='undefined')module.exports.EtsyData=EtsyData;
 
@@ -4017,7 +4108,7 @@ const Etsy=(()=>{
  const goalOf=()=>state.settings.goals?.[state.settings.shop||'']||0;
  // a month with orders but no statement: what is exact and what is estimated, by platform
  function estNotice(m){const v=viewPlat();
-  if(v==='shopify')return `<div class="notice"><span><b>Shopify payment fees in ${monthName(m)} are estimated</b> at your rate in Settings; the orders export has sales but not fees. Revenue is exact.</span>${button('Fee rates','go-settings','small')}</div>`;
+  if(v!=='etsy'&&v!=='mixed'&&v!=='square')return `<div class="notice"><span><b>${esc(PLAT[v])} fees in ${monthName(m)} are estimated</b> at your rate in Settings; the file has sales but not fees${v==='shopify'?' (the payouts transactions export has them)':''}. Revenue is exact.</span>${button('Fee rates','go-settings','small')}</div>`;
   if(v==='square')return `<div class="notice"><span><b>${monthName(m)} is built from Square item detail.</b> Revenue is exact; Square’s fees are estimated until you import the transactions file for this month, which has the exact fees.</span>${button('Import transactions','go-etsy-import','small')}</div>`;
   return `<div class="notice"><span><b>${monthName(m)} is estimated from your sold orders.</b> Revenue is exact. ${v==='etsy'?'Etsy’s':'Etsy’s and other platforms’'} fees are worked out at your rates in Settings; Etsy Ads, Etsy Plus and credits appear once you import the month’s payment account statement, which replaces the estimate.</span>${button('Import statement','go-etsy-import','small')}</div>`;}
  function goalForm(){const g=goalOf();
@@ -4174,10 +4265,10 @@ const Etsy=(()=>{
    `<form id="etsy-fees-form"><div class="fields"><label class="full">Start from<select name="preset">${X.presets.map(([id,l])=>`<option value="${id}" ${id===cur?'selected':''}>${esc(l)}</option>`).join('')}<option value="custom" ${cur==='custom'?'selected':''}>My own rates</option></select><small>Starting points only: check Etsy’s Fees &amp; Payments Policy for your country. Some countries add VAT or GST on fees.</small></label>`+
    pctIn('transaction',R.transaction,'Transaction fee','On the item price and shipping')+pctIn('processing',R.processing,'Payment processing','On the order total')+amtIn('processingFixed',R.processingFixed,'Processing, per order')+amtIn('listing',R.listing,'Listing fee, per item sold')+pctIn('offsite',R.offsite,'Offsite Ads','15%, or 12% once you pass $10,000 a year')+
    `</div><div class="formfoot"><button class="btn primary">Save fees</button></div></form></section>`+channelFeesCard();}
- function channelFeesCard(){const ps=['shopify','square'].filter(p=>state.shops.some(x=>x.platform===p));if(!ps.length)return '';
+ function channelFeesCard(){const ps=X.platforms.map(x=>x[0]).filter(p=>!['etsy','other'].includes(p)&&state.shops.some(x=>x.platform===p));if(!ps.length)return '';
   const c=esc(state.settings.currency);
-  return `<section class="card" id="channel-fees-card"><div class="cardhead"><div><h2>Shopify &amp; Square fees</h2><p>Payment fees used when an export has no fees in it: Shopify orders always, Square item detail without the transactions file.</p></div></div><form id="channel-fees-form"><div class="fields">`+
-   ps.map(p=>{const R=D.channelRates(state,p);return `<label>${PLAT[p]} processing<span class="kit-input"><input name="${p}-processing" type="number" min="0" max="50" step="0.01" value="${R.processing/100}" required><em>%</em></span></label><label>${PLAT[p]}, per ${p==='square'?'sale':'order'}<span class="kit-input"><input name="${p}-fixed" type="number" min="0" max="100" step="0.01" value="${(R.processingFixed/100).toFixed(2)}" required><em>${c}</em></span></label>`;}).join('')+
+  return `<section class="card" id="channel-fees-card"><div class="cardhead"><div><h2>Other platforms’ fees</h2><p>Used only when an export has no fees in it, such as Shopify orders without the payouts file or Square item detail without the transactions file. A percentage of each order plus a fixed amount.</p></div></div><form id="channel-fees-form"><div class="fields">`+
+   ps.map(p=>{const R=D.channelRates(state,p);return `<label>${PLAT[p]} fees<span class="kit-input"><input name="${p}-processing" type="number" min="0" max="50" step="0.01" value="${R.processing/100}" required><em>%</em></span></label><label>${PLAT[p]}, per ${p==='square'?'sale':'order'}<span class="kit-input"><input name="${p}-fixed" type="number" min="0" max="100" step="0.01" value="${(R.processingFixed/100).toFixed(2)}" required><em>${c}</em></span></label>`;}).join('')+
    `</div><div class="formfoot"><button class="btn primary">Save fees</button></div></form></section>`;}
  // ---------- coupons & discounts ----------
  function couponsView(){
@@ -4309,14 +4400,14 @@ const Etsy=(()=>{
   if(session?.files.length){
    const rows=session.files.map(f=>({f,r:D.merge(clone(state),target,f,{dry:true})}));
    const ready=rows.filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items)).length;
-   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognised as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.kindName(f.kind,f.platform):'<span class="warn">Not recognised</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}</td></tr>`).join('')}</tbody></table></div></section>`;
+   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognised as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.kindName(f.kind,f.platform):'<span class="warn">Not recognised</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}${f.headers&&(f.generic?f.platform===tp:tp!=='etsy')&&!f.twinOf?`<div class="etsy-map-row">${button(f.mapped?'Columns matched · change':f.generic&&!f.error?'Check columns':'Match columns','etsy-map','small quiet',`data-i="${f.src}"`)}</div>`:''}</td></tr>`).join('')}</tbody></table></div></section>`;
   }
-  return pagehead('Bring in your sales files','Import files','Choose the shop, then drop in its exports: Etsy, Shopify or Square. Each file is recognised by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
+  return pagehead('Bring in your sales files','Import files','Choose the shop, then drop in its exports: Etsy, Shopify, Square, Amazon, eBay, TikTok Shop, Faire, Gumroad, Payhip, Fourthwall, or any store’s sales CSV. Each file is recognised by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
    `<section class="card etsy-import-card"><div class="etsy-import-top">`+
    `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">1</span><div><h2>${shops.length?'Choose the shop':'Name your first shop'}</h2><p>${shops.length?'Files go into this shop, whatever the picker at the top shows.':'One entry per Etsy shop. You can add more later.'}</p></div></div>`+
    `<div class="etsy-shop-row">${shopPick}</div>${shops.length?`<p class="etsy-shop-meta">${ico('history')}<span>${esc(held(target))}</span></p>`:''}</div>`+
-   `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">2</span><div><h2>Add the files</h2><p>${tp==='etsy'?'Statements, order items, listings and reviews, together or one at a time.':tp==='shopify'?'Your orders export, and the payouts transactions export for exact fees.':tp==='square'?'Square transactions and item detail, together or one at a time.':tp==='amazon'?'Your Date Range Report: it brings in both the money and the orders.':tp==='ebay'?'Your transaction report: it brings in both the money and the orders.':'This shop has no export to read: log its sales as transactions or import your bank CSV.'}</p></div></div>`+
-   `<label class="etsy-drop${shops.length?'':' disabled'}" id="etsy-drop"><span class="etsy-drop-icon">${ico('up')}</span><b>Drop ${esc(tpl)} files here</b><small>${tp==='etsy'?'.csv and reviews.json':'.csv files'} · several at once · read on this device only</small><span class="btn small etsy-drop-btn">Choose files</span><input class="sr-only" type="file" id="etsy-files" accept=".csv,.json,text/csv,application/json" multiple ${shops.length?'':'disabled'}></label></div>`+
+   `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">2</span><div><h2>Add the files</h2><p>${tp==='etsy'?'Statements, order items, listings and reviews, together or one at a time.':tp==='shopify'?'Your orders export, and the payouts transactions export for exact fees.':tp==='square'?'Square transactions and item detail, together or one at a time.':tp==='amazon'?'Your Date Range Report: it brings in both the money and the orders.':tp==='ebay'?'Your transaction report: it brings in both the money and the orders.':tp!=='other'?`Your ${esc(tpl)} sales or orders export. If its columns aren’t recognised, match them once.`:'Any store’s sales or orders CSV: drop it in and match its columns once. You can also log sales as transactions.'}</p></div></div>`+
+   `<label class="etsy-drop${shops.length?'':' disabled'}" id="etsy-drop"><span class="etsy-drop-icon">${ico('up')}</span><b>Drop ${tp==='other'?'sales':esc(tpl)} files here</b><small>${tp==='etsy'?'.csv and reviews.json':'.csv files'} · several at once · read on this device only</small><span class="btn small etsy-drop-btn">Choose files</span><input class="sr-only" type="file" id="etsy-files" accept=".csv,.json,text/csv,application/json" multiple ${shops.length?'':'disabled'}></label></div>`+
    `</div></section>`+
    preview+
    `<section class="card"><div class="cardhead"><div><h2>Where to find each ${esc(tpl)} file</h2><p>Download them on a computer. Nothing is sent anywhere: the files are read in this browser.</p></div></div>${where||'<p class="small muted">Nothing to download for this shop. Add its sales as transactions, or import a bank CSV into it.</p>'}<p class="small muted" style="margin-top:12px">Buyer names, emails and addresses in these files are never stored. Only the country and a scrambled key (to count repeat buyers) are kept.</p></section>`+
@@ -4331,12 +4422,22 @@ const Etsy=(()=>{
   const shop=state.settings.shop,list=state.etsy.imports.map((x,i)=>({...x,i})).filter(x=>!shop||x.shop===shop||(x.kind==='bank'&&!x.shop)).slice(-40).reverse();if(!list.length)return '';
   return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${esc(scopeName())} · Move sends everything a file brought in to another shop. Delete removes it. Costs you typed in yourself are never touched.</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${x.shop?esc(shopName(x.shop)):'<span class="dim">Shared</span>'}</td><td>${esc(x.name)}</td><td>${D.kindName(x.kind,x.platform)}</td><td class="nw">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print nw etsy-row-actions">${button('Move','etsy-move-import','small quiet',`data-i="${x.i}"`)}${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
  }
+ // files are kept as text while on this screen, so they can be read again for another shop or a column match
+ function parseSession(){if(!session)return;const plat=session.shop?platOf(session.shop):'';
+  session.files=session.sources.flatMap((src,i)=>{if(src.error)return [{name:src.name,kind:null,records:[],items:[],issues:[],notes:[],error:src.error,src:i}];
+   const r=D.read(src.name,src.text,{platform:plat,maps:state.settings.columnMaps||{}});r.src=i;return r.twin?[r,{...r.twin,src:i,twinOf:true}]:[r];});}
  async function readFiles(list){
   const files=[...list].slice(0,24);if(!files.length)return;
-  const parsed=[];for(const f of files){if(f.size>10e6){parsed.push({name:f.name,kind:null,records:[],items:[],issues:[],notes:[],error:'Files must be smaller than 10 MB.'});continue;}const r=D.read(f.name,await f.text());parsed.push(r);if(r.twin)parsed.push(r.twin);}
+  const sources=[];for(const f of files)sources.push(f.size>10e6?{name:f.name,error:'Files must be smaller than 10 MB.'}:{name:f.name,text:await f.text()});
   const shop=$('#etsy-import-shop')?.value||session?.shop||state.settings.shop||state.shops[0]?.id||'';
-  session={shop,files:[...(session?.files||[]),...parsed]};render();
+  session={shop,sources:[...(session?.sources||[]),...sources],files:[]};parseSession();render();
  }
+ // match an unknown file's columns once; the layout is remembered for this platform
+ const MAP_FIELDS=[['date','Date','required'],['sales','Sale amount (what the buyer paid)','required'],['subtotal','Or: item subtotal before shipping and tax'],['order','Order or receipt number'],['item','Product name'],['qty','Quantity'],['fees','Fees (one column)'],['net','Net payout or earnings'],['tax','Sales tax'],['shipping','Shipping charged'],['discount','Discount'],['refund','Refund amount'],['status','Status'],['country','Country'],['buyer','Buyer email or ID'],['cost','Production or base cost']];
+ function mapForm(i){const f=session?.files.find(x=>x.src===i);if(!f?.headers)return;const plat=platOf(session.shop),old=(state.settings.columnMaps||{})[D.layoutKey(plat,f.headers)]?.f,guess=D.resolve(f.headers,old);
+  const opt=(k)=>`<option value="">—</option>`+f.headers.map((h,j)=>h?`<option value="${esc(h)}" ${guess[k]===j?'selected':''}>${esc(h)}</option>`:'').join('');
+  modal(`Match the columns of ${esc(f.name)}`,`For ${esc(shopName(session.shop))} (${esc(PLAT[plat])}). Choose what each column holds; the app remembers it for files laid out the same way. Leave a field empty when the file doesn’t have it. If there is no fees or net column, fees are estimated at your rate in Settings.`,
+   `<form id="etsy-map-form" data-i="${i}"><div class="fields">${MAP_FIELDS.map(([k,l,req])=>`<label>${l}${req?' *':''}<select name="${k}">${opt(k)}</select></label>`).join('')}</div>${formFoot('Save and read the file')}</form>`);}
  function runImport(){
   const s=session;if(!s?.files.length)return;const shop=s.shop||state.shops[0]?.id;if(!shop)return toast('Add a shop first.');
   const plan=s.files.map(f=>({f,r:D.merge(clone(state),shop,f,{dry:true})})).filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items));
@@ -4369,7 +4470,7 @@ const Etsy=(()=>{
  document.addEventListener('change',e=>{
   if(e.target.id==='shop-picker'){const v=e.target.value;if(v==='__add'){e.target.value=state.settings.shop;return shopForm();}
    if(v&&!state.shops.some(x=>x.id===v))return;commit(()=>state.settings.shop=state.shops.length===1?'':v,v?`Showing ${shopName(v)}`:'Showing all shops');return;}
-  if(e.target.id==='etsy-import-shop'){session={...(session||{files:[]}),shop:e.target.value};render();return;}
+  if(e.target.id==='etsy-import-shop'){session={...(session||{sources:[],files:[]}),shop:e.target.value};parseSession();render();return;}
   if(e.target.id==='etsy-files'){readFiles(e.target.files).catch(err=>toast(err.message));}
  });
  document.addEventListener('dragover',e=>{const z=e.target.closest?.('#etsy-drop');if(!z)return;e.preventDefault();z.classList.add('over');});
@@ -4401,10 +4502,16 @@ const Etsy=(()=>{
    modal(`Move ${esc(x.name)}`,`Everything this file brought in moves with it: ${what}. Dashboards, estimates and totals follow. You can undo this change.`,`<form id="etsy-move-form" data-i="${i}"><div class="fields"><label class="full">From<input value="${x.shop?esc(shopName(x.shop)):'All shops (shared)'}" disabled></label><label class="full">Move to<select name="to">${opts}</select></label>${x.kind==='listings'?'<p class="small muted full">A listings file is a snapshot of a whole shop, so it replaces the listings already in the shop you move it to.</p>':''}</div>${formFoot('Move file')}</form>`);break;}
   case 'etsy-confirm-remove-import':{const i=+b.dataset.i,x=state.etsy.imports[i];if(!x)break;closeModal();commit(()=>{D.removeImport(state,i);D.syncEstimates(state,{today:today()});},`${x.name} deleted`);break;}
   case 'etsy-clear':session=null;render();break;
+  case 'etsy-map':mapForm(+b.dataset.i);break;
   case 'etsy-import':runImport();break;
  }}catch(err){toast(err.message);}});
+ document.addEventListener('submit',e=>{if(e.target.id!=='etsy-map-form')return;e.preventDefault();const i=+e.target.dataset.i,f=new FormData(e.target),file=session?.files.find(x=>x.src===i);if(!file?.headers)return closeModal();
+  const m={};for(const [k] of MAP_FIELDS){const v=String(f.get(k)||'');if(v&&file.headers.includes(v))m[k]=v;}
+  if(!m.date||!(m.sales||m.subtotal||m.net))return formError(Error('Choose at least the date and the sale amount (or subtotal, or net payout).'));
+  const plat=platOf(session.shop),key=D.layoutKey(plat,file.headers);closeModal();
+  commit(()=>{const maps=state.settings.columnMaps??={};delete maps[key];maps[key]={platform:plat,f:m};const ks=Object.keys(maps);if(ks.length>60)delete maps[ks[0]];parseSession();},'Columns matched · the file is read again');});
  document.addEventListener('submit',e=>{if(e.target.id!=='channel-fees-form')return;e.preventDefault();const f=new FormData(e.target);
-  try{const cf={};for(const p of ['shopify','square']){if(f.get(p+'-processing')===null)continue;const pr=Math.round(Number(f.get(p+'-processing'))*100),fx=Math.round(Number(f.get(p+'-fixed'))*100);
+  try{const cf={};for(const p of X.platforms.map(x=>x[0])){if(f.get(p+'-processing')===null)continue;const pr=Math.round(Number(f.get(p+'-processing'))*100),fx=Math.round(Number(f.get(p+'-fixed'))*100);
     if(!Number.isFinite(pr)||pr<0||pr>5000||!Number.isFinite(fx)||fx<0||fx>10000)throw Error('Use percentages from 0 to 50 and amounts from 0 to 100.');cf[p]={processing:pr,processingFixed:fx};}
    commit(()=>{state.settings.channelFees={...(state.settings.channelFees||{}),...cf};D.syncEstimates(state,{today:today()});},'Channel fees saved · estimates updated');}catch(err){toast(err.message);}});
  document.addEventListener('submit',e=>{const id=e.target.id;if(!['etsy-goal-form','etsy-fees-form','etsy-calc'].includes(id))return;e.preventDefault();if(id==='etsy-calc')return;const f=new FormData(e.target);
@@ -4433,13 +4540,14 @@ const Etsy=(()=>{
    if($('#modal').open)closeModal();
    const setP=x=>{if(!platform)return;if(platform==='etsy')delete x.platform;else x.platform=platform;};
    if(id)commit(()=>{const x=state.shops.find(v=>v.id===id);x.name=name;setP(x);D.syncEstimates(state,{today:today()});},'Shop saved');
-   else{const nid='shop-'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,10);commit(()=>{const x={id:nid,name};setP(x);state.shops.push(x);if(session)session.shop=nid;},`${name} added`);}
+   else{const nid='shop-'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,10);commit(()=>{const x={id:nid,name};setP(x);state.shops.push(x);if(session){session.shop=nid;parseSession();}},`${name} added`);}
   }catch(err){if($('#modal').open)formError(err);else toast(err.message);}});
 
  document.head.insertAdjacentHTML('beforeend',`<style>
  .shop-control{display:flex;flex-direction:column;gap:2px;margin-left:14px;min-width:0}
  .shop-control select{height:36px;border-radius:10px;border:1px solid var(--rule-2);background:var(--card);color:var(--ink);font:600 14px var(--ui);padding:0 30px 0 10px;max-width:220px}
  .etsy-row-actions .btn+.btn{margin-left:6px}
+ .etsy-map-row{margin-top:6px}
  .kit-plat{font-size:10.5px;padding:2px 7px;margin-left:4px;vertical-align:1px}
  .etsy-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
  .kit-goal-link{text-align:center;margin:12px 0 0}

@@ -77,7 +77,10 @@ do not change.
   fees and ads out by sales and subtracts the seller's cost per item from `state.etsy.costs`).
 - **Other channels.** A shop has a `platform` (`etsy` by default, `shopify`, `square`, `amazon`, `ebay`, `other`).
   Shopify's payouts export adds exact fees while sales stay with its orders export. Amazon's date range report and
-  eBay's transaction report are read once and import as two entries: money lines and orders (`read().twin`). Shopify's orders
+  eBay's transaction report are read once and import as two entries: money lines and orders (`read().twin`).
+  TikTok Shop, Faire, Gumroad, Payhip, Fourthwall and `other` go through one reader (`storeSales`): columns are found
+  by usual names (`SYN`), or by a map the seller saves once per platform and header layout (`settings.columnMaps`).
+  Their categories are added on first import (`etsy.lazyCategories`), so new books stay short. Shopify's orders
   export and Square's item detail export become orders and items like Etsy's sold order items; Square's
   transactions export becomes statement-like lines with exact fees. Months with orders but no such lines are
   estimated at `settings.channelFees` (defaults in the pack's `etsy.channelRates`). A file is refused by a shop

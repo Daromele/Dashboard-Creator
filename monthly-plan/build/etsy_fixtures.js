@@ -89,9 +89,30 @@ const ebay=['"Transaction report"','"Start date","2026-09-01"','"End date","2026
  '"Sep 6, 2026","Shipping label","","","","","","","","","-4.10","USD","","","","","","","","Botanical Fern Print","","","","","","","","","","","","","USD","","",""',
  '"Sep 20, 2026","Other fee","","","","","","","","","-1.50","USD","","","","","","","","Promoted Listings - General fee","","","","","","","","","","","","","USD","","",""',
  '"Sep 22, 2026","Payout","","","","","","","","","-15.86","USD","Sep 22, 2026","P2","Bank","Paid","","","","","","","","","","","","","","","","","USD","","",""'].join('\n');
-const channels={'orders_export_1.csv':shopify,'payment_transactions_export_1.csv':shopifyPayouts,'transactions-2026-09.csv':squareTx,'items-2026-09.csv':squareItems,'2026Sep1-2026Sep30CustomTransaction.csv':amazon,'Transaction_report.csv':ebay};
+// Gumroad, TikTok Shop, Faire, Payhip and Fourthwall (synthetic; column names follow each export as best known)
+const gumroad=['Purchase ID,Item Name,Buyer Name,Purchase Email,Purchase Date,Purchase Time (UTC timezone),Subtotal ($),Taxes ($),Shipping ($),Sale Price ($),Fees ($),Net Total ($),Refunded?,Partial Refund ($),Fully Refunded?,Discount Code,Country,Quantity',
+ 'g1,Budget Planner Template,Ada Example,ada@example.com,2026-09-02,10:00,12.00,0.00,0.00,12.00,1.85,10.15,false,0.00,false,,United States,1',
+ 'g2,Budget Planner Template,Bo Placeholder,bo@example.com,2026-09-05,11:00,12.00,0.96,0.00,12.96,1.85,10.15,false,0.00,false,FALL,Canada,1',
+ 'g3,Habit Tracker,Cy Example,cy@example.com,2026-09-09,12:00,8.00,0.00,0.00,8.00,1.30,6.70,true,0.00,true,,United States,1'].join('\n');
+const tiktok=['Order/adjustment ID,Type,Order created time,Order settled time,Currency,Total settlement amount,Total revenue,Subtotal after seller discounts,Total fees,Transaction fee,TikTok Shop commission fee,Affiliate commission',
+ '576001,Order,2026/09/03,2026/09/10,USD,21.10,25.00,25.00,-3.90,-0.75,-2.00,-1.15',
+ '576002,Order,2026/09/04,2026/09/11,USD,12.70,15.00,15.00,-2.30,-0.45,-1.20,-0.65',
+ '576002,Refund,2026/09/08,2026/09/12,USD,-12.70,-15.00,-15.00,2.30,0.45,1.20,0.65'].join('\n');
+const faire=['Order Number,Order Date,Retailer Name,Product Name,SKU,Quantity,Wholesale Price,Retail Price,Status',
+ 'FA100,2026-09-06,Example Gift Shop,Speckled Mug,MUG-1,6,19.00,38.00,Shipped',
+ 'FA100,2026-09-06,Example Gift Shop,Botanical Fern Print,FERN-1,4,8.00,16.00,Shipped',
+ 'FA101,2026-09-18,Placeholder Boutique,Speckled Mug,MUG-1,4,19.00,38.00,Cancelled'].join('\n');
+const payhip=['Date,Transaction ID,Product,Customer Email,Amount,Currency,Payhip Fee,Payment Processor Fee,Coupon,Country',
+ '2026-09-07,PH1,Meal Planner PDF,dee@example.com,9.00,USD,0.45,0.56,,United Kingdom',
+ '2026-09-12,PH2,Meal Planner PDF,eve@example.com,9.00,USD,0.45,0.56,SAVE,United States'].join('\n');
+const fourthwall=['Order ID,Created At,Status,Product,Variant,Quantity,Subtotal,Shipping,Tax,Total,Base Cost,Your Earnings',
+ 'FW-9,2026-09-14,Fulfilled,Fern Tee,M,1,30.00,5.00,2.10,37.10,14.00,18.20'].join('\n');
+// a store the app has no preset for, matched by hand
+const kofi=['DateTime (UTC),From,Item,Received,Currency,TransactionId,BuyerCountry',
+ '2026-09-15 10:00,Supporter,Sticker Pack,6.00,USD,KF1,US','2026-09-16 10:00,Supporter,Sticker Pack,6.00,USD,KF2,DE'].join('\n');
+const channels={'Sales_gumroad.csv':gumroad,'tiktok_settlement.csv':tiktok,'faire_orders.csv':faire,'payhip_sales.csv':payhip,'fourthwall_orders.csv':fourthwall,'kofi_sales.csv':kofi,'orders_export_1.csv':shopify,'payment_transactions_export_1.csv':shopifyPayouts,'transactions-2026-09.csv':squareTx,'items-2026-09.csv':squareItems,'2026Sep1-2026Sep30CustomTransaction.csv':amazon,'Transaction_report.csv':ebay};
 const files={'etsy_statement_2026_9.csv':statement,'EtsySoldOrderItems2026.csv':orders,'EtsyListingsDownload.csv':listings,'reviews.json':reviews};
-module.exports={statement,orders,listings,reviews,files,shopify,shopifyPayouts,squareTx,squareItems,amazon,ebay,channels,
+module.exports={statement,orders,listings,reviews,files,shopify,shopifyPayouts,squareTx,squareItems,amazon,ebay,gumroad,tiktok,faire,payhip,fourthwall,kofi,channels,
   // what the four files must add up to (cents)
   expect:{sales:5608,buyerTax:108,refunds:1200,revenue:4300,fees:473,marketing:1350,ads:350,etsyCosts:1823,takeHome:2477,credits:698,labels:525,deposits:3735,orders:2,
     soldOrders:3,items:4,list:7200,discount:800,listings:3,reviews:4}};

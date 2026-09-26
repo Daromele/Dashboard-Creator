@@ -46,7 +46,7 @@ module.exports=({eq,ok})=>{
   eq('reviews', sr.records.map(r=>[r.date,r.stars,r.order]), [['2026-09-28',5,'3812345671'],['2026-09-30',4,'3812345672'],['2026-08-20',2,'3812345600'],['2026-09-30',4,'3812345672']]);
   eq('one review per item of an order is kept', new Set(sr.records.map(r=>r.id)).size, 4);
   ok('reviewer names are not kept', !JSON.stringify(sr.records).includes('Placeholder'));
-  eq('junk is refused politely', [D.read('x.csv','a,b\n1,2').error.slice(0,10),D.read('x.json','{"a":1}').error], ['Not an Ets','This JSON file is not a list of reviews.']);
+  eq('junk is refused politely', [D.read('x.csv','a,b\n1,2').error.slice(0,10),D.read('x.json','{"a":1}').error], ['Not an exp','This JSON file is not a list of reviews.']);
 
   // ---- importing into a shop ----
   const s=books();
@@ -241,6 +241,38 @@ module.exports=({eq,ok})=>{
    eq('amazon and ebay take-home', [k('amz').revenue,k('amz').takeHome,k('eb').revenue,k('eb').takeHome], [4100,4100-693-1200,2500,2500-354-150]);
    eq('import names', ['statement','orders'].map(x=>D.kindName(x,'amazon')).concat(D.kindName('statement','ebay')), ['Amazon Handmade payments','Amazon Handmade orders','eBay transactions']);
    ok('validation with every platform', B.validate(copy(s)));
+  }
+
+  {// every other store: known layouts by their columns, anything else by a column match
+   const s=books();for(const p of ['gumroad','tiktok','faire','payhip','fourthwall','other'])s.shops.push({id:p,name:'Fern '+p,platform:p});
+   const R=(name,text,platform='')=>D.read(name,text,{platform,maps:s.settings.columnMaps||{}});
+   const g=R('Sales.csv',F.gumroad);
+   eq('gumroad by its columns', [g.platform,g.kind,g.records.map(r=>[r.category,r.amount]),g.twin.records.length,g.notes.length], ['gumroad','statement',[['gumroad-sales',1200],['gumroad-fees',185],['gumroad-sales',1200],['gumroad-fees',185]],2,1]);
+   ok('gumroad: no emails or names kept', !/example\.com|Ada|Placeholder/.test(JSON.stringify([g.records,g.twin])));
+   const t=R('settlement.csv',F.tiktok);
+   eq('tiktok settlement: revenue, total fees, a refund', [t.platform,t.records.map(r=>[r.category,r.amount])], ['tiktok',[['tiktok-sales',2500],['tiktok-fees',390],['tiktok-sales',1500],['tiktok-fees',230],['etsy-refunds',-1500],['tiktok-fees',-230]]]);
+   const f=R('orders.csv',F.faire);
+   eq('faire without commission: orders, fees estimated', [f.platform,f.kind,f.records.length,f.records[0].list,f.records[0].units,f.notes.length], ['faire','orders',1,14600,10,2]);
+   const ph=R('payhip_sales.csv',F.payhip);
+   eq('payhip by name: both fee columns added up', [ph.platform,ph.records.filter(r=>r.category==='payhip-fees').map(r=>r.amount)], ['payhip',[101,101]]);
+   const fw=R('fourthwall_orders.csv',F.fourthwall);
+   eq('fourthwall: sales, production cost, fees from earnings', fw.records.map(r=>[r.category,r.amount]), [['fourthwall-sales',3500],['fourthwall-fees',280],['printing',1400]]);
+   const k0=R('kofi.csv',F.kofi,'other');
+   ok('an unknown layout for an Other shop asks for its columns', !!k0.error&&k0.headers.length===7&&k0.generic);
+   const k1=R('kofi.csv',F.kofi,'etsy');ok('an unknown file for an Etsy shop is simply not recognised', !!k1.error&&!k1.generic);
+   s.settings.columnMaps={[D.layoutKey('other',k0.headers)]:{platform:'other',f:{date:'DateTime (UTC)',sales:'Received',order:'TransactionId',item:'Item',country:'BuyerCountry'}}};
+   const k=R('kofi.csv',F.kofi,'other');
+   eq('matched columns: orders, fees estimated', [k.error,k.mapped,k.kind,k.records.length,k.records[1].country], [undefined,true,'orders',2,'DE']);
+   const c0=s.categories.length;
+   eq('imports', [load(s,'gumroad','g.csv',F.gumroad).added,load(s,'tiktok','t.csv',F.tiktok).added,load(s,'faire','f.csv',F.faire).added,D.merge(s,'other',k,{uid,today:'2026-09-30'}).added], [4,6,1,2]);
+   D.merge(s,'gumroad',g.twin,{uid,today:'2026-09-30'});D.syncEstimates(s,{uid,today:'2026-09-30'});
+   ok('lazy categories arrive with the first file', s.categories.length>c0&&s.categories.some(c=>c.id==='gumroad-fees')&&!B.blank().categories.some(c=>c.id==='gumroad-fees'));
+   const est=id=>s.transactions.filter(x=>x.shop===id&&x.est).map(x=>[x.category,x.amount]).sort();
+   eq('faire and matched-store fees estimated at their rates', [est('faire'),est('other')], [[['faire-fees',2190],['faire-sales',14600]],[['marketplace-sales',0]].slice(1).concat([['other-sales',1200]])]);
+   const cmp=D.compare(s,'2026-09-01','2026-09-30'),kp=id=>cmp.find(x=>x.id===id);
+   eq('channel take-home', [kp('gumroad').takeHome,kp('tiktok').revenue,kp('tiktok').takeHome], [2030,2500,2110]);
+   ok('a Gumroad import cannot move to an Etsy shop', /only move/.test(D.moveImport(copy(s),s.etsy.imports.findIndex(x=>x.platform==='gumroad'),'fern',{dry:true}).error));
+   ok('validation with column maps', B.validate(copy(s))&&!('x' in (B.validate({...copy(s),settings:{...copy(s).settings,columnMaps:{x:{platform:'nope',f:{}}}}}).settings.columnMaps||{})));
   }
 
   // ---- several shops ----

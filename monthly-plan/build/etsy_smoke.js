@@ -187,6 +187,19 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.click('[data-action="etsy-import"]');await p.waitForTimeout(150);
   check('amazon money and orders imported',await st(id=>state.etsy.orders.some(o=>o.shop===id)&&state.transactions.some(t=>t.shop===id&&t.category==='amazon-fees')&&state.etsy.imports.filter(x=>x.shop===id).length===2,amzId));
   await p.selectOption('#shop-picker','');
+  // ---- any other store: match an unknown file's columns once ----
+  await p.selectOption('#shop-picker','__add');await p.fill('#etsy-shop-form input[name=name]','Sticker Stall');await p.selectOption('#etsy-shop-form select[name=platform]','other');await p.click('#etsy-shop-form button[type=submit]');
+  const othId=await st(()=>state.shops.find(x=>x.platform==='other')?.id);
+  await p.evaluate(()=>go('etsy-import'));await p.selectOption('#etsy-import-shop',othId);
+  await p.setInputFiles('#etsy-files',[path.join(dir,'kofi_sales.csv')]);await p.waitForTimeout(200);
+  check('unknown file offers a column match',await p.locator('[data-action="etsy-map"]').count()===1);
+  await p.click('[data-action="etsy-map"]');
+  for(const [k,v] of [['date','DateTime (UTC)'],['sales','Received'],['order','TransactionId'],['item','Item'],['country','BuyerCountry']])await p.selectOption(`#etsy-map-form select[name=${k}]`,v);
+  await p.click('#etsy-map-form button[type=submit]');await p.waitForTimeout(150);
+  const mp=await text();check('matched file reads as orders',mp.includes('Other orders')&&mp.includes('2 new orders'),mp.slice(0,900));
+  await p.click('[data-action="etsy-import"]');await p.waitForTimeout(150);
+  check('matched store imported, layout remembered',await st(id=>state.etsy.orders.filter(o=>o.shop===id).length===2&&Object.keys(state.settings.columnMaps||{}).length===1,othId));
+  await p.selectOption('#shop-picker','');
   // ---- narrow screens ----
   await p.setViewportSize({width:390,height:844});
   for(const s of ['dashboard','etsy-import','fees','products','pricing','coupons','customers','reviews','seasonality','shops','pl']){await p.evaluate(s=>go(s),s);await shot('phone-'+s);
