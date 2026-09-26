@@ -73,9 +73,25 @@ const squareItems=[SI,
  '2026-09-13,10:02:11,Eastern Time (US & Canada),Prints,Botanical Fern Print,1,Regular,FERN-1,,$12.00,$0.00,$12.00,$0.96,SQA1x,PA1,Market iPad,,,Payment,Autumn Fair,,CUST1,Dee Example,',
  '2026-09-13,11:40:00,Eastern Time (US & Canada),Prints,Botanical Fern Print,1,Regular,FERN-1,,$12.00,$0.00,$12.00,$0.96,SQB2y,PB2,Market iPad,,,Payment,Autumn Fair,,,,',
  '2026-09-20,09:00:00,Eastern Time (US & Canada),Prints,Botanical Fern Print,-1,Regular,FERN-1,,-$12.00,$0.00,-$12.00,-$0.96,SQB2y,PB2R,Market iPad,,,Refund,Autumn Fair,,,,'].join('\n');
-const channels={'orders_export_1.csv':shopify,'transactions-2026-09.csv':squareTx,'items-2026-09.csv':squareItems};
+const shopifyPayouts=['Transaction Date,Type,Order,Card Brand,Card Source,Payout Status,Payout Date,Payout ID,Available On,Amount,Fee,Net,Checkout,Payment Method Name,Presentment Amount,Presentment Currency,Currency',
+ '2026-09-03 10:15:00 -0400,charge,#1001,visa,online,paid,2026-09-05,90001,2026-09-05,56.29,1.93,54.36,,card,56.29,USD,USD',
+ '2026-09-10 09:00:00 -0400,charge,#1002,mastercard,online,paid,2026-09-12,90002,2026-09-12,25.00,1.03,23.97,,card,25.00,USD,USD'].join('\n');
+// Amazon's date range report opens with a few lines of notes before the header
+const amazon=['"Includes Amazon Marketplace, Fulfillment by Amazon (FBA), and Amazon Webstore transactions"','"All amounts in USD, unless specified"','"Definitions:"',
+ '"date/time","settlement id","type","order id","sku","description","quantity","marketplace","account type","fulfillment","order city","order state","order postal","tax collection model","product sales","product sales tax","shipping credits","shipping credits tax","gift wrap credits","giftwrap credits tax","Regulatory Fee","Tax On Regulatory Fee","promotional rebates","promotional rebates tax","marketplace withheld tax","selling fees","fba fees","other transaction fees","other","total"',
+ '"Sep 4, 2026 1:05:07 AM PDT","1001","Order","111-1111111-1111111","MUG-1","Speckled Mug, Handmade Stoneware","2","amazon.com","Standard Orders","Seller","Testville","CA","00000","MarketplaceFacilitator","76.00","6.08","5.00","0","0","0","0","0","-4.00","0","-6.08","-11.55","0","0","0","65.45"',
+ '"Sep 9, 2026 3:00:00 PM PDT","1001","Refund","111-1111111-1111111","MUG-1","Speckled Mug, Handmade Stoneware","1","amazon.com","Standard Orders","Seller","Testville","CA","00000","MarketplaceFacilitator","-38.00","-3.04","0","0","0","0","0","0","2.00","0","3.04","4.62","0","0","0","-31.38"',
+ '"Sep 15, 2026 12:00:00 AM PDT","1001","Service Fee","","","Cost of Advertising","","","","","","","","","0","0","0","0","0","0","0","0","0","0","0","0","0","0","-12.00","-12.00"',
+ '"Sep 16, 2026 12:00:00 AM PDT","1001","Transfer","","","To account ending in: 000","","","","","","","","","0","0","0","0","0","0","0","0","0","0","0","0","0","0","-22.07","-22.07"'].join('\n');
+const ebay=['"Transaction report"','"Start date","2026-09-01"','"End date","2026-09-30"','',
+ '"Transaction creation date","Type","Order number","Legacy order ID","Buyer username","Buyer name","Ship to city","Ship to province/region/state","Ship to zip","Ship to country","Net amount","Payout currency","Payout date","Payout ID","Payout method","Payout status","Reason for hold","Item ID","Transaction ID","Item title","Custom label","Quantity","Item subtotal","Shipping and handling","Seller collected tax","eBay collected tax","Final Value Fee - fixed","Final Value Fee - variable","Very high ""item not as described"" fee","Below standard performance fee","International fee","Gross transaction amount","Transaction currency","Exchange rate","Reference ID","Description"',
+ '"Sep 5, 2026","Order","12-00000-00001","100-1","buyer_one","Placeholder Person","Testville","CA","00000","US","21.46","USD","Sep 7, 2026","P1","Bank","Paid","","200001","300001","Botanical Fern Print","FERN-1","1","20.00","5.00","0","1.60","-0.30","-3.24","--","--","--","26.60","USD","","",""',
+ '"Sep 6, 2026","Shipping label","","","","","","","","","-4.10","USD","","","","","","","","Botanical Fern Print","","","","","","","","","","","","","USD","","",""',
+ '"Sep 20, 2026","Other fee","","","","","","","","","-1.50","USD","","","","","","","","Promoted Listings - General fee","","","","","","","","","","","","","USD","","",""',
+ '"Sep 22, 2026","Payout","","","","","","","","","-15.86","USD","Sep 22, 2026","P2","Bank","Paid","","","","","","","","","","","","","","","","","USD","","",""'].join('\n');
+const channels={'orders_export_1.csv':shopify,'payment_transactions_export_1.csv':shopifyPayouts,'transactions-2026-09.csv':squareTx,'items-2026-09.csv':squareItems,'2026Sep1-2026Sep30CustomTransaction.csv':amazon,'Transaction_report.csv':ebay};
 const files={'etsy_statement_2026_9.csv':statement,'EtsySoldOrderItems2026.csv':orders,'EtsyListingsDownload.csv':listings,'reviews.json':reviews};
-module.exports={statement,orders,listings,reviews,files,shopify,squareTx,squareItems,channels,
+module.exports={statement,orders,listings,reviews,files,shopify,shopifyPayouts,squareTx,squareItems,amazon,ebay,channels,
   // what the four files must add up to (cents)
   expect:{sales:5608,buyerTax:108,refunds:1200,revenue:4300,fees:473,marketing:1350,ads:350,etsyCosts:1823,takeHome:2477,credits:698,labels:525,deposits:3735,orders:2,
     soldOrders:3,items:4,list:7200,discount:800,listings:3,reviews:4}};

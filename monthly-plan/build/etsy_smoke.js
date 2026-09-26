@@ -178,6 +178,15 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await shot('channels');
   await p.evaluate(()=>go('settings'));check('Shopify fee rates in settings',await p.locator('#channel-fees-form').count()===1);
   await p.evaluate(()=>go('dashboard'));check('mixed channels use general fee wording',(await p.locator('.etsy-kpis .kit-tile .label').allTextContents()).includes('Fees & ads'));
+  // ---- Amazon Handmade: one report brings in both the money and the orders ----
+  await p.selectOption('#shop-picker','__add');await p.fill('#etsy-shop-form input[name=name]','Fern Handmade');await p.selectOption('#etsy-shop-form select[name=platform]','amazon');await p.click('#etsy-shop-form button[type=submit]');
+  const amzId=await st(()=>state.shops.find(x=>x.platform==='amazon')?.id);
+  await p.evaluate(()=>go('etsy-import'));await p.selectOption('#etsy-import-shop',amzId);
+  await p.setInputFiles('#etsy-files',[path.join(dir,'2026Sep1-2026Sep30CustomTransaction.csv')]);await p.waitForTimeout(200);
+  const amzPre=await text();check('amazon report shows as payments and orders',amzPre.includes('Amazon Handmade payments')&&amzPre.includes('Amazon Handmade orders'),amzPre.slice(0,900));
+  await p.click('[data-action="etsy-import"]');await p.waitForTimeout(150);
+  check('amazon money and orders imported',await st(id=>state.etsy.orders.some(o=>o.shop===id)&&state.transactions.some(t=>t.shop===id&&t.category==='amazon-fees')&&state.etsy.imports.filter(x=>x.shop===id).length===2,amzId));
+  await p.selectOption('#shop-picker','');
   // ---- narrow screens ----
   await p.setViewportSize({width:390,height:844});
   for(const s of ['dashboard','etsy-import','fees','products','pricing','coupons','customers','reviews','seasonality','shops','pl']){await p.evaluate(s=>go(s),s);await shot('phone-'+s);

@@ -217,7 +217,30 @@ module.exports=({eq,ok})=>{
    ok('products across channels', D.products(D.forShop(s,'fair')).list.some(p=>p.name==='Speckled Mug'&&p.units===3));
    const i=s.etsy.imports.findIndex(x=>x.platform==='shopify');eq('import log names the platform', D.kindName(s.etsy.imports[i].kind,s.etsy.imports[i].platform), 'Shopify orders');
    D.removeImport(s,i);D.syncEstimates(s,{uid,today:'2026-09-30'});ok('deleting the Shopify import removes its sales', !s.transactions.some(t=>t.shop==='web'));
-   ok('validation: platform', B.validate(copy(s))&&throws(()=>B.validate({...copy(s),shops:[{id:'x',name:'X',platform:'ebay'}]})));
+   ok('validation: platform', B.validate(copy(s))&&throws(()=>B.validate({...copy(s),shops:[{id:'x',name:'X',platform:'etsyy'}]})));
+  }
+  {// Shopify payouts make fees exact; Amazon and eBay reports bring money and orders together
+   const s=books();s.shops.push({id:'web',name:'Fern Online',platform:'shopify'},{id:'amz',name:'Fern Handmade',platform:'amazon'},{id:'eb',name:'Fern on eBay',platform:'ebay'});
+   load(s,'web','o.csv',F.shopify);const po=D.read('p.csv',F.shopifyPayouts);
+   eq('shopify payouts file', [po.kind,po.platform,po.records.map(r=>r.amount)], ['statement','shopify',[193,103]]);
+   eq('payouts import', load(s,'web','p.csv',F.shopifyPayouts).added, 2);D.syncEstimates(s,{uid,today:'2026-09-30'});
+   const est=(shop,m)=>s.transactions.filter(t=>t.shop===shop&&t.date.startsWith(m)).map(t=>[t.category,t.amount,!!t.est]).sort();
+   eq('September: sales from orders, fees exact from payouts; August still estimated', [est('web','2026-09'),est('web','2026-08').length], [[['shopify-fees',103,false],['shopify-fees',193,false],['shopify-sales',7800,true]],2]);
+   const a=D.read('amazon.csv',F.amazon);
+   eq('amazon report behind its notes', [a.kind,a.platform,a.twin.kind,a.twin.records.length,a.twin.items.length,a.notes.length], ['statement','amazon','orders',1,1,1]);
+   eq('amazon money: sales after promotions, refunds, referral fees, ads', a.records.map(r=>[r.category,r.amount]).sort(), [['amazon-fees',-462],['amazon-fees',1155],['amazon-sales',7700],['etsy-refunds',-3600],['other-marketing',1200]]);
+   eq('amazon order', (({id,list,discount,shipping,tax,units})=>[id,list,discount,shipping,tax,units])(a.twin.records[0]), ['am11111111111111111',7600,400,500,608,2]);
+   eq('amazon imports: money then orders', [load(s,'amz','a.csv',F.amazon).added,D.merge(s,'amz',a.twin,{uid,today:'2026-09-30'}).added], [5,1]);
+   const e=D.read('ebay.csv',F.ebay);
+   eq('ebay report', [e.kind,e.platform,e.twin.records.length,e.twin.records[0].country], ['statement','ebay',1,'US']);
+   eq('ebay money: sales, final value fees, label, promoted listings', e.records.map(r=>[r.category,r.amount]).sort(), [['ebay-fees',354],['ebay-sales',2500],['other-marketing',150],['shipping-labels',410]]);
+   ok('ebay: no buyer names kept', !/Placeholder|buyer_one/.test(JSON.stringify(e.twin.records)));
+   load(s,'eb','e.csv',F.ebay);D.merge(s,'eb',e.twin,{uid,today:'2026-09-30'});D.syncEstimates(s,{uid,today:'2026-09-30'});
+   ok('marketplace months are exact, never estimated', !s.transactions.some(t=>t.est&&['amz','eb'].includes(t.shop)));
+   const cmp=D.compare(s,'2026-09-01','2026-09-30'),k=id=>cmp.find(x=>x.id===id);
+   eq('amazon and ebay take-home', [k('amz').revenue,k('amz').takeHome,k('eb').revenue,k('eb').takeHome], [4100,4100-693-1200,2500,2500-354-150]);
+   eq('import names', ['statement','orders'].map(x=>D.kindName(x,'amazon')).concat(D.kindName('statement','ebay')), ['Amazon Handmade payments','Amazon Handmade orders','eBay transactions']);
+   ok('validation with every platform', B.validate(copy(s)));
   }
 
   // ---- several shops ----
@@ -248,7 +271,9 @@ module.exports=({eq,ok})=>{
   // ---- sample shops ----
   for(const mo of ['2026-01','2026-09','2026-12'])ok('etsy sample validates '+mo, !throws(()=>B.validate(copy(B.sample(mo)))));
   const smp=B.sample('2026-09'),T=D.summary(smp,'2026-01-01','2026-08-31');
-  eq('sample has two shops and every kind of data', [smp.shops.length,...['orders','items','listings','reviews'].map(k=>smp.etsy[k].length>0)], [2,true,true,true,true]);
+  eq('sample has four shops on three platforms and every kind of data', [smp.shops.length,new Set(smp.shops.map(x=>x.platform||'etsy')).size,...['orders','items','listings','reviews'].map(k=>smp.etsy[k].length>0)], [4,3,true,true,true,true]);
+  {const c=D.compare(smp,'2026-01-01','2026-09-30'),k=id=>c.find(x=>x.id===id);ok('sample channels keep more per dollar than Etsy', k('web').kept>k('fern').kept&&k('stall').kept>k('kiln').kept&&k('stall').revenue>0, JSON.stringify(c.map(x=>[x.id,x.revenue,x.kept])));
+   ok('sample channel orders read as orders', D.orderBook(smp,'2026-09-01','2026-09-30').filter(o=>/^s[hq]/.test(o.id)).every(o=>o.sale>0));}
   ok('sample take-home is below revenue and positive', T.takeHome>0&&T.takeHome<T.revenue&&T.costShare>0.1&&T.costShare<0.4, JSON.stringify([T.revenue,T.takeHome]));
   ok('sample has unsold and incomplete listings', D.products(smp).unsold.length>0&&D.products(smp).health.tags>0);
   ok('sample orders line up with the statement', D.orderBook(smp,'2026-08-01','2026-08-31').every(o=>smp.etsy.orders.some(x=>x.id===o.id)));

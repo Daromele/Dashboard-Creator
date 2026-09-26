@@ -75,7 +75,9 @@ do not change.
 - **Fee rates** (`settings.fees`, with country presets in the pack's `etsy.presets`) drive the estimates, the
   pricing calculator (`pricing`, `priceFor`) and profit per product (`productProfit`, which shares a period's
   fees and ads out by sales and subtracts the seller's cost per item from `state.etsy.costs`).
-- **Other channels.** A shop has a `platform` (`etsy` by default, `shopify`, `square`, `other`). Shopify's orders
+- **Other channels.** A shop has a `platform` (`etsy` by default, `shopify`, `square`, `amazon`, `ebay`, `other`).
+  Shopify's payouts export adds exact fees while sales stay with its orders export. Amazon's date range report and
+  eBay's transaction report are read once and import as two entries: money lines and orders (`read().twin`). Shopify's orders
   export and Square's item detail export become orders and items like Etsy's sold order items; Square's
   transactions export becomes statement-like lines with exact fees. Months with orders but no such lines are
   estimated at `settings.channelFees` (defaults in the pack's `etsy.channelRates`). A file is refused by a shop
