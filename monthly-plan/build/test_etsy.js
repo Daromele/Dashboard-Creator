@@ -275,6 +275,11 @@ module.exports=({eq,ok})=>{
    ok('validation with column maps', B.validate(copy(s))&&!('x' in (B.validate({...copy(s),settings:{...copy(s).settings,columnMaps:{x:{platform:'nope',f:{}}}}}).settings.columnMaps||{})));
   }
 
+  {// your own Etsy Ads and Offsite Ads fees are kept apart
+   const s=books();load(s,'fern','s.csv',F.statement);const S=D.summary(D.forShop(s,'fern'),'2026-09-01','2026-09-30');
+   eq('own ads (after a $5 credit) and offsite ads apart', [S.ownAds,S.offsite,S.ownAds+S.offsite,S.plusOther], [-250,600,S.ads,S.marketing-350]);
+   ok('both categories come from the statement', s.transactions.some(t=>t.category==='etsy-ads')&&D.classify('Marketing','Offsite Ads fee').category==='offsite-ads'&&D.classify('Marketing','Etsy Ads').category==='etsy-ads');
+  }
   // ---- several shops ----
   const m=copy(v);load(m,'kiln','k.csv',F.statement.replace(/38123456/g,'99123456').replace(/140000000/g,'150000000'));
   m.transactions.push({id:'shared1',date:'2026-09-05',category:'software',amount:1299,note:'Canva'});
