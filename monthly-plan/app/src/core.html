@@ -299,6 +299,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .donut-mid strong{font:700 19px var(--num);letter-spacing:-.03em;line-height:1.1}
 .donut-mid small{font-size:8px;color:var(--ink-3);letter-spacing:.09em;margin-top:3px;line-height:1.2}
 .donut-key{flex:1;min-width:0}
+/* in a narrow card the donut sits on top, centred, with its key in two columns underneath */
+.card:has(> .donut-wrap){container-type:inline-size}
+@container (max-width:640px){.donut-wrap{flex-direction:column;align-items:stretch;gap:16px}.donut{margin:0 auto}
+ .donut-key .row{align-items:center;padding:7px 4px}.donut-key .row em{display:none}.donut-key .row>div{min-width:0}
+ .donut-key .row small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .donut-value{display:flex;gap:10px;align-items:baseline}.donut-value span{display:inline}.donut-value small{min-width:34px;text-align:right}}
 
 /* ---------- notices ---------- */
 .notice{background:var(--accent-soft);padding:var(--s3) var(--s4);border-radius:var(--r-sm);margin-bottom:var(--s4);font-size:13px;display:flex;justify-content:space-between;gap:var(--s4);align-items:center;color:var(--ink-2);line-height:1.5}
@@ -1117,6 +1123,7 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .glance-tiles .is-kept{background:color-mix(in srgb,var(--accent) 10%,var(--card))}
 .glance-tiles .is-kept b{color:var(--accent)}.glance-tiles .is-loss b{color:var(--over)}
 .glance-foot{font-size:11px;color:var(--ink-3);margin-top:6px}
+.glance-sub .link{margin-left:10px;font-size:12px}
 .glance-sub{font-size:12px;font-weight:650;color:var(--ink-2);margin:var(--s4) 0 8px}
 .gc-row{display:grid;grid-template-columns:minmax(70px,120px) minmax(0,1fr) auto;gap:var(--s3);align-items:center;font-size:13px;padding:3px 0}
 .gc-bar{height:10px;background:var(--sunk);border-radius:5px;overflow:hidden}.gc-bar i{display:block;height:100%;background:var(--ch-in);border-radius:5px}
@@ -3427,7 +3434,7 @@ const Biz=(()=>{
   const spark=`<div class="glance-trend" role="img" aria-label="Net profit for the last six months">${six.map(x=>`<div class="gt-col${x.k===m?' is-now':''}"><div class="gt-plot"><i class="${(x.net||0)<0?'neg':''}" style="height:${x.net===null?0:Math.max(2,Math.abs(x.net)/sixMax*100)}%" tabindex="0" data-tip="${tip(monthName(x.k),[{name:x.net!==null&&x.net<0?'Net loss':'Net profit',value:x.net===null?'Not started':fmt(x.net),color:(x.net||0)<0?'var(--ch-out)':'var(--accent)'}])}"></i></div><small>${shortMonth(x.k)}</small></div>`).join('')}</div>`;
   const chRows=F.channels&&channels().length?Budget.channelProfit(state,m+'-01',Budget.endOf(m)).channels.filter(c=>c.revenue>0).sort((a,b)=>b.revenue-a.revenue).slice(0,4):[];
   const chMax=Math.max(1,...chRows.map(c=>c.revenue));
-  const channelsBlock=chRows.length?`<div class="glance-channels"><div class="glance-sub">${esc(L.income)} by ${CH()}</div>${chRows.map(c=>`<div class="gc-row"><span>${esc(c.name)}</span><span class="gc-bar"><i style="width:${c.revenue/chMax*100}%" tabindex="0" data-tip="${tip(c.name,[{name:L.income,value:fmt(c.revenue),color:'var(--ch-in)'},{name:'Channel profit',value:fmt(c.profit)}])}"></i></span><b class="number">${fmt(c.revenue)}</b></div>`).join('')}</div>`:'';
+  const channelsBlock=chRows.length?`<div class="glance-channels"><div class="glance-sub">${esc(L.income)} by ${CH()}<button class="link" data-action="manage-streams">Manage</button></div>${chRows.map(c=>`<div class="gc-row"><span>${esc(c.name)}</span><span class="gc-bar"><i style="width:${c.revenue/chMax*100}%" tabindex="0" data-tip="${tip(c.name,[{name:L.income,value:fmt(c.revenue),color:'var(--ch-in)'},{name:'Channel profit',value:fmt(c.profit)}])}"></i></span><b class="number">${fmt(c.revenue)}</b></div>`).join('')}</div>`:'';
   const profitCard=`<section class="card glance"><div class="cardhead"><div><h2>Profit this month</h2><p>${monthName(m)}</p></div><button class="link" data-go="pl">Full P&amp;L</button></div>`+
    (has?`<div class="glance-top"><div class="glance-head"><div class="glance-label">${p.net<0?'Net loss':'Net profit'}</div><div class="glance-num number${p.net<0?' alert':''}">${fmt(p.net)}</div><div class="glance-pills">${trendPill}${inn>0?`<span class="pill">${pct(p.net,p.revenue.total)} margin</span>`:''}</div></div>${spark}</div>`+
     `<div class="glance-bars"><div class="gb-row"><span class="gb-label">Money in</span><span class="gb-track">${seg(inn,'in','Money in','var(--ch-in)')}</span><b class="number">${fmt(inn)}</b></div>`+
@@ -3599,7 +3606,7 @@ const Biz=(()=>{
   const max=Math.max(1,...rows.map(c=>Math.max(c.revenue+c.other,c.costs)));
   const bar=c=>`<div class="ch-bars"><span class="ch-bar in" style="width:${(c.revenue+c.other)/max*100}%" title="${esc(L.income)} ${fmt(c.revenue+c.other)}"></span><span class="ch-bar out" style="width:${c.costs/max*100}%" title="Costs ${fmt(c.costs)}"></span></div>`;
   const sharedCosts=C.shared.costs-C.shared.revenue-C.shared.other;
-  return `<section class="card channel-card"><div class="cardhead"><div><h2>Profit by ${CH()}</h2><p>${esc(r.label)} · each ${CH()}’s own ${L.income.toLowerCase()} minus its own costs, before shared costs</p></div><div class="legend"><span><i class="dot" style="background:var(--ch-in)"></i>${esc(L.income)}</span><span><i class="dot" style="background:var(--ch-out)"></i>Costs</span></div></div>`+
+  return `<section class="card channel-card"><div class="cardhead"><div><h2>Profit by ${CH()}</h2><p>${esc(r.label)} · <button class="link" data-action="manage-streams">Add or edit ${CH()}s</button> · each ${CH()}’s own ${L.income.toLowerCase()} minus its own costs, before shared costs</p></div><div class="legend"><span><i class="dot" style="background:var(--ch-in)"></i>${esc(L.income)}</span><span><i class="dot" style="background:var(--ch-out)"></i>Costs</span></div></div>`+
    `<div class="table-wrap"><table class="channel-table"><thead><tr><th>${CH()[0].toUpperCase()+CH().slice(1)}</th><th class="ch-viz"></th><th class="num">${esc(L.income)}</th><th class="num">Costs</th><th class="num">${CH()[0].toUpperCase()+CH().slice(1)} profit</th><th class="num">Margin</th></tr></thead><tbody>`+
    rows.sort((a,b)=>b.profit-a.profit).map(c=>`<tr><td><b>${esc(c.name)}</b></td><td class="ch-viz">${bar(c)}</td><td class="num">${fmt(c.revenue+c.other)}</td><td class="num">${fmt(c.costs)}</td><td class="num"><b>${acct(c.profit)}</b></td><td class="num">${c.revenue>0?pct(c.profit,c.revenue):'—'}</td></tr>`).join('')+
    `<tr class="st-sub"><td>Shared${C.shared.revenue||C.shared.other?' sales and costs':' costs'}</td><td class="ch-viz"></td><td class="num">${C.shared.revenue+C.shared.other?fmt(C.shared.revenue+C.shared.other):'—'}</td><td class="num">${fmt(C.shared.costs)}</td><td class="num">${acct(C.shared.profit)}</td><td class="num"></td></tr>`+
@@ -3614,6 +3621,7 @@ const Biz=(()=>{
   if(e.target.id==='biz-pl-channel'){plChannel=e.target.value;render();}});
  document.addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const a=b.dataset.action,id=b.dataset.id;
   if(a==='biz-quick-channel'){const n=b.dataset.name;try{checkChannel(n);}catch(err){return toast(err.message);}if(!findChannel(n))commit(()=>ensureChannel(n),`${n} added`);}
+  if(a==='manage-streams'){go('settings');requestAnimationFrame(()=>$('#biz-channel-form')?.closest('section')?.scrollIntoView({behavior:'smooth',block:'start'}));}
   if(a==='biz-rename-channel')channelForm(id);
   if(a==='biz-delete-channel')deleteChannelDialog(id);
   if(a==='biz-confirm-delete-channel'){const c=channels().find(x=>x.id===id);if(!c)return;closeModal();
