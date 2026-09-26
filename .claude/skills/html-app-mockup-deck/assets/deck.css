@@ -57,6 +57,7 @@ h2{font-family:var(--display);font-size:60px;line-height:1.05;letter-spacing:-.0
 .look .name{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;flex-shrink:0;
   font-size:21px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
 .look .name i{width:15px;height:15px;border-radius:999px;flex:0 0 15px;display:block}
+.dark .look .name{color:rgba(255,255,255,.88)}
 .look.note{justify-content:center;background:var(--bold);border-radius:13px;padding:26px;color:#fff;text-align:center}
 .look.note .big{font-family:var(--display);font-size:30px;font-weight:800;line-height:1.2;margin-bottom:10px}
 .look.note p{font-size:17px;line-height:1.45;color:rgba(255,255,255,.8)}

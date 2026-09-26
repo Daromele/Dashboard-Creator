@@ -1,0 +1,31 @@
+Shop Insights is the profit dashboard Etsy sellers wish came with their shop. Drop in the files Etsy already gives you and see what you really keep after every fee, ad and refund, for one shop or several, plus every other place you sell.
+
+Works on Mac and PC in any modern browser. Everything stays on your computer. No logins, no server, no subscription.
+
+WHAT YOU GET
+• Dashboard: take-home, revenue, orders, average order, fees, ads, net profit and average monthly cash flow, with a monthly revenue goal
+• Every channel in one set of books: Etsy, Shopify, Square, Amazon Handmade, eBay, TikTok Shop, Faire, Gumroad, Payhip and Fourthwall, plus any other store's sales CSV (match its columns once)
+• What each channel keeps you out of every dollar, side by side
+• Fees & ads: every Etsy fee, ad and credit, per order and per month
+• Products: profit per product after Etsy's cut and your own cost per item
+• Pricing calculator: what one sale keeps you, and the lowest price for the margin you want
+• Profit & loss by month, quarter or year, with monthly averages
+• Quarterly tax set-aside and a Schedule C summary for your accountant
+• Coupons, customers and repeat buyers, reviews and seasonality
+• Months without a statement are estimated from your sold orders, then replaced when you import it
+• 8 colour themes, light and dark
+
+HOW IT WORKS
+1. Download the file and open it in your browser
+2. Add your shops and choose where each one sells
+3. Drop in your exports: Etsy statements and sold order items, Shopify orders, Square transactions and so on
+4. Duplicates are skipped, so you can import the same file again safely
+
+PRIVACY
+Buyer names, emails and addresses in your exports are never stored. Only the country and a scrambled buyer key (to count repeat buyers) are kept.
+
+GOOD TO KNOW
+• Digital download: nothing is shipped
+• Screenshots show fictional sample shops
+• Shop Insights is not affiliated with, or endorsed by, Etsy, Shopify, Square, Amazon, eBay, TikTok, Faire, Gumroad, Payhip or Fourthwall
+• It organises your records; it is not tax advice

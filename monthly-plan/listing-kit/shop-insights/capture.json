@@ -1,0 +1,85 @@
+{
+ "app": "../../app/ShopInsightsEtsy.html",
+ "out": "shots",
+ "setup": "localStorage.setItem('jps-shop-insights-welcome-v1','1');document.querySelector('[data-action=\"welcome-close\"]')?.click();document.querySelectorAll('dialog[open]').forEach(d=>d.close());document.querySelector('[data-action=\"demo\"]').click();",
+ "content": "#content",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "before": "state.settings.shop='';go('dashboard');document.querySelector('#toast').hidden=true;window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "kept",
+   "before": "go('shops');document.querySelector('[data-action=etsy-span][data-span=year]').click();document.querySelector('#toast').hidden=true;document.querySelectorAll('.topbar,.demo-bar,[class*=sample]').forEach(x=>x.style.position='static');const e=document.querySelector('#etsy-kept');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-24)"
+  },
+  {
+   "name": "shops",
+   "before": "go('shops');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "dash-fern",
+   "before": "state.settings.shop='fern';go('dashboard');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "fees",
+   "before": "go('fees');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "products",
+   "before": "go('products');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "pricing",
+   "before": "go('pricing');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "pl",
+   "before": "state.settings.shop='';go('pl');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "import",
+   "before": "go('etsy-import');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "taxlines",
+   "before": "go('taxlines');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "reviews",
+   "before": "state.settings.shop='fern';go('reviews');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "seasonality",
+   "before": "state.settings.shop='';go('seasonality');window.scrollTo(0,0)",
+   "offset": 6
+  },
+  {
+   "name": "annual",
+   "before": "go('annual');window.scrollTo(0,0)",
+   "offset": 6
+  }
+ ],
+ "themes": {
+  "list": [
+   "kiln",
+   "ledger",
+   "sage",
+   "linen",
+   "fjord",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;state.settings.shop='';go('shops');document.querySelector('#toast').hidden=true;"
+ }
+}

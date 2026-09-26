@@ -1,0 +1,198 @@
+{
+ "product": "Shop Insights",
+ "footer": "Shop Insights · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "../Shop_Insights_Etsy_Mockups.html",
+ "storage_prefix": "si-kit-img:",
+ "brand": {
+  "ink": "#2A1A12",
+  "bold": "#3A2419",
+  "pop": "#F2B441",
+  "paper": "#FBF7F2",
+  "calm": "#A3461F"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Profit dashboard for Etsy sellers",
+   "headline": "Every shop.<br>One true number.",
+   "pills": [
+    "Etsy + 9 more channels",
+    "Works offline",
+    "No subscription"
+   ],
+   "image": "tab-dashboard.jpg",
+   "alt": "Shop Insights dashboard"
+  },
+  {
+   "dark": false,
+   "label": "Channels",
+   "eyebrow": "Every channel",
+   "headline": "Which channel pays best?",
+   "sub": "Etsy, Shopify, Square, Amazon, eBay, TikTok Shop, Faire and more.",
+   "image": "tab-kept.jpg",
+   "foot": "Fictional sample shops shown"
+  },
+  {
+   "dark": true,
+   "label": "Dashboard",
+   "eyebrow": "Your dashboard",
+   "headline": "Take-home, not just sales.",
+   "sub": "Revenue after every fee, ad and refund, with a monthly goal to aim for.",
+   "image": "tab-dash-fern.jpg",
+   "foot": "Fictional sample figures shown"
+  },
+  {
+   "dark": false,
+   "label": "Fees & ads",
+   "eyebrow": "Fees &amp; ads",
+   "headline": "See exactly what Etsy kept.",
+   "sub": "Every fee, ad and credit, by order and by month.",
+   "image": "tab-fees.jpg",
+   "foot": "Credits taken off the fee they belong to"
+  },
+  {
+   "dark": true,
+   "label": "Products",
+   "eyebrow": "Products",
+   "headline": "Know what makes money.",
+   "sub": "Profit per product after Etsy’s cut and your own cost per item.",
+   "image": "tab-products.jpg",
+   "foot": "Listing health · unsold listings · CSV export"
+  },
+  {
+   "dark": false,
+   "label": "Pricing calculator",
+   "eyebrow": "Pricing calculator",
+   "headline": "Price for the margin you want.",
+   "sub": "What one sale keeps you, and the lowest price that hits your target.",
+   "image": "tab-pricing.jpg",
+   "foot": "Uses your own fee rates"
+  },
+  {
+   "dark": true,
+   "label": "Import",
+   "eyebrow": "Import",
+   "headline": "Drop in your exports.",
+   "sub": "Read by their columns. Duplicates skipped. Any other store: match columns once.",
+   "image": "tab-import.jpg",
+   "foot": "Buyer names and addresses are never stored"
+  },
+  {
+   "dark": false,
+   "label": "Shops",
+   "eyebrow": "Several shops",
+   "headline": "Every shop, side by side.",
+   "sub": "One Etsy shop or ten, plus every other place you sell.",
+   "image": "tab-shops.jpg",
+   "foot": "Switch shops from the top bar"
+  },
+  {
+   "dark": true,
+   "label": "Profit & loss",
+   "eyebrow": "Profit &amp; loss",
+   "headline": "A real profit &amp; loss.",
+   "sub": "By month, quarter or year, with your monthly averages to date.",
+   "image": "tab-pl.jpg",
+   "foot": "Cash basis · print or export"
+  },
+  {
+   "dark": false,
+   "label": "Tax",
+   "eyebrow": "Tax time",
+   "headline": "Tax time, sorted.",
+   "sub": "A Schedule C summary and quarterly set-asides your accountant can use.",
+   "image": "tab-taxlines.jpg",
+   "foot": "Organised records, not tax advice"
+  },
+  {
+   "dark": true,
+   "label": "Reviews",
+   "eyebrow": "Reviews",
+   "headline": "Hear what buyers say.",
+   "sub": "Star ratings, trends and the reviews that need a reply.",
+   "image": "tab-reviews.jpg",
+   "foot": "From your Etsy reviews download"
+  },
+  {
+   "dark": false,
+   "label": "Seasonality",
+   "eyebrow": "Seasonality",
+   "headline": "Plan for your busy months.",
+   "sub": "Last year’s sales show what’s coming, month by month.",
+   "image": "tab-seasonality.jpg",
+   "foot": "Stock up before the rush"
+  },
+  {
+   "kind": "themes",
+   "dark": true,
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks, light and dark.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Kiln",
+     "image": "theme-kiln.jpg",
+     "swatch": "#954019"
+    },
+    {
+     "name": "Ledger",
+     "image": "theme-ledger.jpg",
+     "swatch": "#196E51"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#2A5448"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#625544"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#2C506A"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#424951"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#C5B0E9"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#A5BBF5"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Etsy Seller Profit Dashboard, Shop Fee & Sales Tracker for Etsy Shopify Square Amazon eBay, Pricing Calculator, Offline HTML",
+  "tags": [
+   "etsy seller tool",
+   "etsy profit tracker",
+   "etsy fee calculator",
+   "seller dashboard",
+   "small business",
+   "sales tracker",
+   "seller spreadsheet",
+   "schedule c",
+   "pricing calculator",
+   "shopify tracker",
+   "etsy shop planner",
+   "multi shop tracker",
+   "craft business"
+  ],
+  "description_file": "description.txt"
+ }
+}
