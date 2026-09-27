@@ -280,6 +280,11 @@ module.exports=({eq,ok})=>{
    eq('etsy ads billed, credits apart, offsite apart', [S.ownAds,S.adsCredits,S.ownAdsPaid,S.offsite,S.ownAdsPaid+S.offsite,S.plusOther], [250,500,-250,600,S.ads,S.marketing-350]);
    ok('both categories come from the statement', s.transactions.some(t=>t.category==='etsy-ads')&&D.classify('Marketing','Offsite Ads fee').category==='offsite-ads'&&D.classify('Marketing','Etsy Ads').category==='etsy-ads');
   }
+  {// the month laid out like Etsy's Monthly statement: same net as the books, credits and Share & Save apart
+   const s=books();load(s,'fern','s.csv',F.statement);const E=D.etsyStatement(D.forShop(s,'fern'),'2026-09-01','2026-09-30'),S=D.summary(D.forShop(s,'fern'),'2026-09-01','2026-09-30');
+   eq('statement view adds up to take-home after labels', [E.net,E.salesTotal,E.sales], [S.takeHome-S.labels,S.revenue,S.sales]);
+   ok('credits and share & save are shown apart', E.credits>0&&E.feesTotal+E.marketingTotal===S.etsyCosts, JSON.stringify(E));
+  }
   // ---- several shops ----
   const m=copy(v);load(m,'kiln','k.csv',F.statement.replace(/38123456/g,'99123456').replace(/140000000/g,'150000000'));
   m.transactions.push({id:'shared1',date:'2026-09-05',category:'software',amount:1299,note:'Canva'});
