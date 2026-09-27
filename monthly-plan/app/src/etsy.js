@@ -913,20 +913,21 @@ const Etsy=(()=>{
    (withList&&ml.length?`<h3 class="kit-calc-sub">Payouts in ${monthName(m)}</h3><div class="table-wrap"><table><thead><tr><th>Date</th>${!state.settings.shop&&state.shops.length>1?'<th>Shop</th>':''}<th>From</th><th class="num">Amount</th></tr></thead><tbody>${ml.map(x=>`<tr><td>${dateName(x.date)}</td>${!state.settings.shop&&state.shops.length>1?`<td>${esc(shopName(x.shop))}</td>`:''}<td class="dim">${x.from==='deposits'?'Deposits file':'Statement'}</td><td class="num">${fmt(x.amount)}</td></tr>`).join('')}<tr class="group-total"><td colspan="${!state.settings.shop&&state.shops.length>1?3:2}"><b>Total</b></td><td class="num"><b>${fmt(cm.total)}</b></td></tr></tbody></table></div>`:'')+`</section>`;}
  // The month the way Etsy's Monthly statement shows it, so the two can be checked side by side
  function etsyStatementCard(r){const E=D.etsyStatement(state,r.from,r.to);if(!E.sales&&!E.feesTotal&&!E.marketingTotal)return '';
-  const neg=n=>n?'−'+fmt(n):'--',plus=n=>n?fmt(n):'--',row=(l,v,cls='')=>`<div class="row ${cls}"><span>${l}</span><span class="number">${v}</span></div>`;
-  const box=(icon,title,total,rows)=>`<div class="kit-stmt-box"><div class="kit-stmt-head"><b>${title}</b><span class="number ${total<0?'warn':total>0?'good':''}">${total<0?'−'+fmt(-total):fmt(Math.abs(total))}</span></div>${rows}</div>`;
-  const cnt=n=>` <span class="pill">${num(n)}</span>`;
-  return `<section class="card" id="etsy-statement"><div class="cardhead"><div><h2>Your Etsy statement</h2><p>${esc(r.label)} · laid out like Etsy’s Monthly statement (Finances → Monthly statements), so you can check them side by side${E.estimated?' · includes months estimated from sold orders':''}</p></div></div>`+
-   `<p class="kit-stmt-net">Your net profit on Etsy for this period is <b class="number ${E.net<0?'warn':'good'}">${Biz.acct(E.net)}</b></p>`+
-   `<h3 class="kit-calc-sub">Sales and fees</h3><div class="kit-stmt">`+
-   box('','Sales',E.salesTotal,row('Total sales'+cnt(E.salesCount),plus(E.sales))+row('Refunds'+cnt(E.refundCount),neg(E.refunds))+row('Sales tax paid by buyer (remitted)',neg(E.salesTax))+row('VAT paid by buyer (remitted)',neg(E.vat)))+
-   box('','Fees',-E.feesTotal,row('Listing fees',neg(E.listing))+row('<span class="kit-stmt-sub">Credits</span>',plus(E.credits))+row('Transaction fees',neg(E.transaction))+row('Processing fees',neg(E.processing))+row('Tax on seller fees',neg(E.feeTax))+row('Share &amp; Save refund',plus(E.shareSave))+(E.otherFees?row('Other fees',neg(E.otherFees)):''))+
-   `</div><h3 class="kit-calc-sub">Seller services</h3><div class="kit-stmt">`+
-   box('','Marketing',-E.marketingTotal,row('Etsy Ads',neg(E.ads))+row('Offsite Ads',neg(E.offsite))+row('Etsy Plus subscription',neg(E.plus))+row('Sales tax on subscription',neg(E.subTax))+(E.otherMarketing?row('Other marketing',neg(E.otherMarketing)):''))+
-   box('','Shipping',-E.shipping,row('Shipping labels',neg(E.shipping)))+`</div>`+
-   `<h3 class="kit-calc-sub">Taxes and Share &amp; Save, ${esc(r.label)}</h3><div class="kit-stmt"><div class="kit-stmt-box">${row('Sales tax paid by buyers (Etsy remitted it)',fmt(E.salesTax))+row('VAT paid by buyers (Etsy remitted it)',fmt(E.vat))+row('<b>Collected from buyers</b>',`<b>${fmt(E.salesTax+E.vat)}</b>`)}</div>`+
-   `<div class="kit-stmt-box">${row('Tax on seller fees',fmt(E.feeTax))+row('Sales tax on Etsy Plus subscription',fmt(E.subTax))+row('<b>Tax you paid on Etsy’s fees</b>',`<b>${fmt(E.feeTax+E.subTax)}</b>`)+row('Share &amp; Save refunds received',fmt(E.shareSave))}</div></div>`+
-   `<p class="small muted kit-note" style="margin-top:10px">Choose <b>Year</b> or <b>All time</b> above for running totals. Tax buyers paid is not your income and is left out of revenue; tax on Etsy’s fees is a cost (Schedule C line 23).</p></section>`;}
+  const base=E.salesTotal>0?E.salesTotal:0,share=n=>base?pc(n/base,0)+' of sales':'';
+  const money=n=>n<0?'−'+fmt(-n):fmt(n),line=(l,v,cls='')=>`<div class="kit-sl ${cls}"><span>${l}</span><span class="number">${v}</span></div>`;
+  const out=n=>n?'−'+fmt(n):'—',inn=n=>n?'+'+fmt(n):'—';
+  const col=(title,color,total,rows)=>`<div class="kit-sc"><div class="kit-sc-h"><span><i class="dot" style="background:${color}"></i>${title}</span><b class="number">${total}</b></div>${rows}</div>`;
+  const tiles=[['Sales','var(--cat-3)',fmt(E.salesTotal),`${num(E.salesCount)} order${E.salesCount===1?'':'s'} · after buyer tax`],['Fees','var(--cat-2)',out(E.feesTotal),share(E.feesTotal)],['Marketing','var(--cat-4)',out(E.marketingTotal),share(E.marketingTotal)],['Shipping','var(--cat-1)',out(E.shipping),E.shipping?share(E.shipping):'No labels bought on Etsy'],['Net profit','var(--cat-5)',money(E.net),share(E.net)]];
+  const seg=(n,c,l)=>n>0&&base?`<i style="width:${Math.min(100,n/base*100)}%;background:${c}" title="${l}: ${fmt(n)}"></i>`:'';
+  return `<section class="card" id="etsy-statement"><div class="cardhead"><div><h2>Your Etsy statement</h2><p>${esc(r.label)} · the same figures as Etsy’s Monthly statement (Finances → Monthly statements)${E.estimated?' · includes months estimated from sold orders':''}</p></div></div>`+
+   `<div class="kit-flow">${tiles.map(([l,c,v,n],k)=>`<div class="kit-flow-t${k===4?' net':''}"><small><i class="dot" style="background:${c}"></i>${l}</small><b class="number ${k===4&&E.net<0?'warn':''}">${v}</b><em>${n}</em></div>`).join('')}</div>`+
+   `<div class="kit-flow-bar" role="img" aria-label="Where sales went">${seg(Math.max(0,E.net),'var(--cat-5)','Net profit')}${seg(E.feesTotal,'var(--cat-2)','Fees')}${seg(E.marketingTotal,'var(--cat-4)','Marketing')}${seg(E.shipping,'var(--cat-1)','Shipping')}</div>`+
+   `<div class="kit-scs">`+
+   col('Sales','var(--cat-3)',fmt(E.salesTotal),line(`Total sales <span class="dim">· ${num(E.salesCount)}</span>`,fmt(E.sales))+line(`Refunds <span class="dim">· ${num(E.refundCount)}</span>`,out(E.refunds))+line('Sales tax paid by buyers',out(E.salesTax))+line('VAT paid by buyers',out(E.vat)))+
+   col('Fees','var(--cat-2)',out(E.feesTotal),line('Listing fees',out(E.listing))+line('Credits (incl. Etsy Plus)',inn(E.credits),'good')+line('Transaction fees',out(E.transaction))+line('Processing fees',out(E.processing))+line('Tax on seller fees',out(E.feeTax))+line('Share &amp; Save refund',inn(E.shareSave),'good')+(E.otherFees?line('Other fees',out(E.otherFees)):''))+
+   col('Marketing &amp; shipping','var(--cat-4)',out(E.marketingTotal+E.shipping),line('Etsy Ads',out(E.ads))+line('Offsite Ads',out(E.offsite))+line('Etsy Plus subscription',out(E.plus))+line('Sales tax on subscription',out(E.subTax))+(E.otherMarketing?line('Other marketing',out(E.otherMarketing)):'')+line('Shipping labels',out(E.shipping)))+
+   col('Taxes &amp; refunds','var(--cat-6)','',line('Tax collected from buyers<small>Etsy remitted it · not your income</small>',fmt(E.salesTax+E.vat))+line('Tax paid on Etsy’s fees<small>A cost · Schedule C line 23</small>',fmt(E.feeTax+E.subTax))+line('Share &amp; Save received<small>Etsy’s refund on shared links</small>','+'+fmt(E.shareSave),'good'))+
+   `</div><p class="small muted kit-stmt-foot">Choose Year or All time above for running totals.</p></section>`;}
  // ---------- coupons & discounts ----------
  function couponsView(){
   const r=range(),C=D.coupons(state,r.from,r.to),y=selected.slice(0,4),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),mm=new Map(C.months.map(x=>[x.month,x]));
@@ -1205,14 +1206,28 @@ const Etsy=(()=>{
  .shop-control select{height:36px;border-radius:10px;border:1px solid var(--rule-2);background:var(--card);color:var(--ink);font:600 14px var(--ui);padding:0 30px 0 10px;max-width:220px}
  .etsy-row-actions .btn+.btn{margin-left:6px}
  .etsy-map-row{margin-top:6px}
- .kit-stmt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
- .kit-stmt-box{border:1px solid var(--rule-2);border-radius:14px;padding:6px 16px 8px}
- .kit-stmt-head{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule)}
- .kit-stmt-head b{font-size:15px}.kit-stmt-head .number{font-weight:700}
- .kit-stmt-box .row{padding:7px 0;font-size:14px}.kit-stmt-sub{padding-left:16px;color:var(--ink-2)}
- .kit-stmt-net{font-size:17px;margin:0 0 6px}
- @media (max-width:760px){.kit-stmt{grid-template-columns:1fr}}
- @media print{#etsy-statement,#etsy-payouts{break-inside:auto!important;page-break-inside:auto!important}.kit-stmt-box,#etsy-payouts .kpis,#etsy-payouts svg{break-inside:avoid;page-break-inside:avoid}}
+ .kit-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:4px}
+ .kit-flow-t{background:var(--paper-2,var(--rule));border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+ .kit-flow-t small{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink-2)}
+ .kit-flow-t b{font:700 22px var(--num);letter-spacing:-.02em}
+ .kit-flow-t em{font-style:normal;font-size:11.5px;color:var(--ink-3)}
+ .kit-flow-t.net{background:var(--accent-soft)}
+ .kit-flow-bar{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--rule);margin:14px 0 20px;gap:2px}
+ .kit-flow-bar i{display:block;height:100%}
+ .kit-scs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
+ .kit-sc{min-width:0}
+ .kit-sc-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:8px;border-bottom:2px solid var(--ink);margin-bottom:2px}
+ .kit-sc-h span{display:flex;align-items:center;gap:7px;font-weight:700;font-size:13.5px}
+ .kit-sc-h b{font-size:14px}
+ .kit-sl{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--ink-2)}
+ .kit-sl:last-child{border-bottom:0}
+ .kit-sl .number{color:var(--ink);white-space:nowrap}
+ .kit-sl.good .number{color:var(--ok)}
+ .kit-sl span:first-child:has(small){display:flex;flex-direction:column;gap:1px}.kit-sl small{font-size:11px;color:var(--ink-3)}
+ .kit-stmt-foot{margin:14px 0 0}
+ @media (max-width:1100px){.kit-flow{grid-template-columns:repeat(3,minmax(0,1fr))}.kit-scs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+ @media (max-width:620px){.kit-flow{grid-template-columns:1fr 1fr}.kit-flow-t.net{grid-column:1/-1}.kit-scs{grid-template-columns:1fr}}
+ @media print{#etsy-statement,#etsy-payouts{break-inside:auto!important;page-break-inside:auto!important}.kit-sc,.kit-flow,#etsy-payouts .kpis,#etsy-payouts svg{break-inside:avoid;page-break-inside:avoid}}
  .kit-plat{font-size:10.5px;padding:2px 7px;margin-left:4px;vertical-align:1px}
  .etsy-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
  .kit-goal-link{text-align:center;margin:12px 0 0}
