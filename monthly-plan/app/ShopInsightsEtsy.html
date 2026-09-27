@@ -149,15 +149,15 @@ const NICHE = {
 
   // hubs keep the sidebar short: their screens show as tabs at the top of the page
   nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
-    ['pl', 'Profit & loss', 'insights', [['pl', 'Profit & loss'], ['annual', 'Year & cash flow']]], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
+    ['annual', 'Year at a glance', 'outlook'], ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
     ['products', 'Products', 'tags', [['products', 'Products & listings'], ['pricing', 'Pricing calculator'], ['coupons', 'Coupons'], ['seasonality', 'Seasonality']]],
     ['customers', 'Buyers & reviews', 'review', [['customers', 'Customers'], ['reviews', 'Reviews']]],
     ['tax', 'Tax', 'shield', [['tax', 'Quarterly tax'], ['taxlines', 'Schedule C summary']]],
     ['budget', 'Planning', 'plan', [['budget', 'Monthly targets'], ['scheduled', 'Recurring costs'], ['goals', 'Reserves & goals']]],
     ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   // everything can be hidden from the sidebar except the dashboard, importing and settings (where views come back)
-  optionalNav: ['shops', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
-  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
+  optionalNav: ['shops', 'annual', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
+  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['annual', 'pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
   navGroupRest: 'Help & settings',
 
   labels: {
@@ -4219,7 +4219,7 @@ const Etsy=(()=>{
      :`<section class="card kit-goal-card">${gauge(null,'Monthly goal','No goal set yet')}<p class="small muted">Set a monthly revenue goal and the dashboard tracks how far each month has come.</p>${button('Set a goal','etsy-goal','small primary')}</section>`))+`</div>`:'')+
    Biz.dashboard()+
    (multi?`<section class="card table-card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${monthName(m)}</p></div><button class="link" data-go="shops">Compare shops</button></div><div class="table-wrap"><table><thead><tr><th>Shop</th><th class="num">${L.income}</th><th class="num">Etsy costs</th><th class="num">Take-home</th><th class="num">Orders</th></tr></thead><tbody>${multi.map(x=>`<tr><td><button class="link" data-action="etsy-scope" data-shop="${x.id}">${esc(x.name)}</button></td><td class="num">${fmt(x.revenue)}</td><td class="num">${fmt(x.etsyCosts)} <span class="dim">${pc(x.costShare,0)}</span></td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${num(x.orders)}</td></tr>`).join('')}</tbody></table></div></section>`:'')+
-   (series.some(x=>x&&(x.revenue||x.takeHome))?`<section class="card"><div class="cardhead"><div><h2>${y} month by month</h2><p>${L.income}${byShopMonths?' by shop':''} and take-home${om.some(x=>x.estimated)?' · '+om.filter(x=>x.estimated).map(x=>shortMonth(x.month)).join(', ')+' estimated from sold orders':''} · future months are blank</p></div><button class="link" data-go="annual">Year &amp; cash flow</button></div>${byShopMonths?byShopMonths:areaChart([{name:L.income,values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.revenue:null),color:'var(--ch-in)'},{name:'Take-home',values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.takeHome:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and take-home by month`)}</section>`:'')+
+   (series.some(x=>x&&(x.revenue||x.takeHome))?`<section class="card"><div class="cardhead"><div><h2>${y} month by month</h2><p>${L.income}${byShopMonths?' by shop':''} and take-home${om.some(x=>x.estimated)?' · '+om.filter(x=>x.estimated).map(x=>shortMonth(x.month)).join(', ')+' estimated from sold orders':''} · future months are blank</p></div><button class="link" data-go="annual">Year at a glance</button></div>${byShopMonths?byShopMonths:areaChart([{name:L.income,values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.revenue:null),color:'var(--ch-in)'},{name:'Take-home',values:series.map((x,i)=>x&&(om[i].statement||om[i].estimated)?x.takeHome:null),color:'var(--accent)'}],months.map(shortMonth),`${L.income} and take-home by month`)}</section>`:'')+
    `<section class="card table-card"><div class="cardhead"><div><h2>Latest orders</h2><p>${monthName(m)} · ${noStmt?'from your sold order items':'rebuilt from the payment account statement'}</p></div><button class="link" data-go="fees">All orders</button></div>${noStmt?soldTable(sold.slice(0,8)):orders.length?orderTable(orders.slice(0,8)):empty('No orders this month','Import this month’s payment account statement.','go-etsy-import','Import files')}</section>`+
    `<div class="notice no-print"><span><b>Last imports</b><br>${fresh}</span>${button('Import files','go-etsy-import','small')}</div>`;
  }

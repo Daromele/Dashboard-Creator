@@ -26,7 +26,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   check('title',(await p.title()).startsWith('Shop Insights'));
   const nav=await p.locator('#nav').innerText();
   check('nav has the Etsy hubs',['Import files','Fees & ads','Products','Buyers & reviews','Tax','Planning'].every(x=>nav.includes(x))&&!nav.includes('Coupons')&&!nav.includes('Schedule C'),nav);
-  check('sidebar stays short',(await p.locator('#nav .navlink').count())<=12,String(await p.locator('#nav .navlink').count()));
+  check('sidebar stays short',(await p.locator('#nav .navlink').count())<=13,String(await p.locator('#nav .navlink').count()));
   await p.evaluate(()=>go('reviews'));
   check('a hub shows its screens as tabs',(await p.locator('.hub-tabs button').allTextContents()).join()==='Customers,Reviews'&&(await p.locator('#nav [aria-current=page]').innerText()).includes('Buyers'));
   await p.click('.hub-tabs button:has-text("Customers")');check('hub tabs switch screens',await st(()=>screen==='customers'));

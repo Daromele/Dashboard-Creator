@@ -144,15 +144,15 @@ const NICHE = {
 
   // hubs keep the sidebar short: their screens show as tabs at the top of the page
   nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
-    ['pl', 'Profit & loss', 'insights', [['pl', 'Profit & loss'], ['annual', 'Year & cash flow']]], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
+    ['annual', 'Year at a glance', 'outlook'], ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
     ['products', 'Products', 'tags', [['products', 'Products & listings'], ['pricing', 'Pricing calculator'], ['coupons', 'Coupons'], ['seasonality', 'Seasonality']]],
     ['customers', 'Buyers & reviews', 'review', [['customers', 'Customers'], ['reviews', 'Reviews']]],
     ['tax', 'Tax', 'shield', [['tax', 'Quarterly tax'], ['taxlines', 'Schedule C summary']]],
     ['budget', 'Planning', 'plan', [['budget', 'Monthly targets'], ['scheduled', 'Recurring costs'], ['goals', 'Reserves & goals']]],
     ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   // everything can be hidden from the sidebar except the dashboard, importing and settings (where views come back)
-  optionalNav: ['shops', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
-  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
+  optionalNav: ['shops', 'annual', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
+  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['annual', 'pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
   navGroupRest: 'Help & settings',
 
   labels: {
