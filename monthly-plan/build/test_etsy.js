@@ -285,6 +285,13 @@ module.exports=({eq,ok})=>{
    eq('statement view adds up to take-home after labels', [E.net,E.salesTotal,E.sales], [S.takeHome-S.labels,S.revenue,S.sales]);
    ok('credits and share & save are shown apart', E.credits>0&&E.feesTotal+E.marketingTotal===S.etsyCosts, JSON.stringify(E));
   }
+  {// payouts: the deposits file when it covers a month, else the statement's deposit lines, checked against each other
+   const s=books();load(s,'fern','s.csv',F.statement);let P=D.payouts(D.forShop(s,'fern'),'2026');
+   eq('payouts from the statement alone', [P.total,P.months[8].fromFile], [F.expect.deposits,false]);
+   load(s,'fern','EtsyDeposits2026.csv','Date,Amount,Currency,Status\n"September 15, 2026",37.35,USD,Executed\n"August 3, 2026",10.00,USD,Executed');
+   P=D.payouts(D.forShop(s,'fern'),'2026');
+   eq('the deposits file wins where it covers the month', [P.months[8].fromFile,P.months[8].checked,P.months[7].total,P.count], [true,true,1000,2]);
+  }
   // ---- several shops ----
   const m=copy(v);load(m,'kiln','k.csv',F.statement.replace(/38123456/g,'99123456').replace(/140000000/g,'150000000'));
   m.transactions.push({id:'shared1',date:'2026-09-05',category:'software',amount:1299,note:'Canva'});

@@ -4004,6 +4004,17 @@ const EtsyData=((P,B,CSV)=>{
  // The month as Etsy's own Monthly statement lays it out (Finances → Monthly statements): sales,
  // fees with credits and Share & Save shown apart, marketing at what was billed, shipping, net profit.
  // Built from the statement lines of Etsy shops only; the totals are the same books, grouped Etsy's way.
+ // Payouts Etsy sent to the bank: from the Etsy Payments Deposits file when it covers the month,
+ // otherwise from the deposit lines of the payment account statement. Both are shown when both exist.
+ function payouts(s,y){
+  const file=scoped(s,s.etsy?.deposits||[]).filter(d=>d.date.slice(0,4)===y),stmt=scoped(s,s.transactions).filter(t=>t.category==='etsy-deposit'&&t.src&&t.date.slice(0,4)===y);
+  const months=Array.from({length:12},(_,i)=>{const m=`${y}-${String(i+1).padStart(2,'0')}`,f=file.filter(d=>d.date.startsWith(m)),t=stmt.filter(x=>x.date.startsWith(m));
+   const fileTotal=f.reduce((n,d)=>n+d.amount,0),stmtTotal=t.reduce((n,x)=>n+x.amount,0);
+   return {month:m,count:f.length||t.length,total:f.length?fileTotal:stmtTotal,fileTotal,stmtTotal,fromFile:f.length>0,checked:f.length>0&&t.length>0,match:f.length>0&&t.length>0&&fileTotal===stmtTotal};});
+  const list=[...file.map(d=>({date:d.date,amount:d.amount,shop:d.shop,from:'deposits'})),...stmt.filter(t=>!file.some(d=>d.date.slice(0,7)===t.date.slice(0,7))).map(t=>({date:t.date,amount:t.amount,shop:t.shop,from:'statement'}))].sort((a,b)=>b.date.localeCompare(a.date));
+  const total=months.reduce((n,m)=>n+m.total,0),count=months.reduce((n,m)=>n+m.count,0);
+  return {months,list,total,count,average:count?Math.round(total/count):0,last:list[0]||null};
+ }
  function etsyStatement(s,from,to){
   const tx=txIn(s,from,to).filter(t=>!t.shop||platformOf(s,t.shop)==='etsy'),pos=t=>t.amount>0,note=t=>norm(t.note);
   const sum=(f)=>tx.filter(f).reduce((n,t)=>n+t.amount,0),cat=c=>t=>t.category===c;
@@ -4031,7 +4042,7 @@ const EtsyData=((P,B,CSV)=>{
   return s.shops.map(shop=>{const v=forShop(s,shop.id),m=summary(v,from,to),r=reviewStats(v,from,to);
    return {...shop,platform:shop.platform||'etsy',kept:m.revenue>0?m.takeHome/m.revenue:null,...m,soldOrders:ordersIn(v,from,to).length,listings:v.etsy.listings.filter(l=>l.shop===shop.id).length,reviews:r.count,rating:r.avg};});
  }
- return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,moveImport,importScope,rates,pricing,priceFor,productProfit,syncEstimates,estimatedMonths,compare,forShop,scoped,etsyStatement,channelOf,platformOf,channelRates,kindName,layoutKey,resolve,SYN,GENERIC};
+ return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,moveImport,importScope,rates,pricing,priceFor,productProfit,syncEstimates,estimatedMonths,compare,forShop,scoped,etsyStatement,payouts,channelOf,platformOf,channelRates,kindName,layoutKey,resolve,SYN,GENERIC};
 })(NICHE,Budget,CSV);
 if(typeof module!=='undefined')module.exports.EtsyData=EtsyData;
 
@@ -4221,7 +4232,7 @@ const Etsy=(()=>{
   return pagehead('Fees & ads',`What ${etsyOnly()?'Etsy':'the platforms'} kept · ${esc(r.label)}`,'Fee credits, Etsy Plus credits and Share &amp; Save refunds are taken off the fee they belong to.',button('Print','print','quiet'))+spanControl()+
    `<div class="kpis">${kpi(costWord(),S.etsyCosts,`${pc(S.costShare)} of ${fmt(S.revenue)} ${L.income.toLowerCase()}${S.credits?' · after '+fmt(S.credits)+' credits':''}${S.orders?' · '+fmt(Math.round(S.etsyCosts/S.orders))+' an order':''}`,'up')}${kpi('Your Etsy Ads',S.ownAds,`${S.adsCredits?`−${fmt(S.adsCredits)} Etsy Plus credits · ${fmt(S.ownAdsPaid)} paid · `:''}${pc(S.ownAdsShare)} of ${L.income.toLowerCase()}`,'spark')}${kpi('Offsite Ads fees',S.offsite,S.offsite?`${pc(S.offsiteShare)} of ${L.income.toLowerCase()} · charged per sale from Etsy’s ads elsewhere`:'None in this period','wallet')}${kpi('Take-home',S.takeHome,`${pc(S.revenue>0?S.takeHome/S.revenue:null)} of ${L.income.toLowerCase()} · deposits ${fmt(S.deposits)}`,'coins',S.takeHome<0?'warn':'')}</div>`+
    (S.revenue>0?`<section class="card"><div class="cardhead"><div><h2>Out of every sale</h2><p>${esc(r.label)} · as a share of ${fmt(S.revenue)} ${L.income.toLowerCase()}</p></div></div><div class="kit-gauges">${gauge(S.costShare,cutWord(),etsyOnly()?'Fees, ads and Etsy Plus':'Fees and ads')}${gauge(S.revenue?S.fees/S.revenue:null,'Fees',fmt(S.fees))}${gauge(S.ownAdsShare,'Your Etsy Ads',fmt(S.ownAds))}${gauge(S.offsiteShare,'Offsite Ads',fmt(S.offsite))}${gauge(S.takeHome/S.revenue,'Kept',fmt(S.takeHome))}</div></section>`:'')+
-   etsyStatementCard(r)+
+   etsyStatementCard(r)+payoutsCard(selected.slice(0,4))+
    `<section class="card"><div class="cardhead"><div><h2>Fee breakdown</h2><p>${esc(r.label)} · after credits</p></div></div>${lines.length?pie(fold(lines.map(l=>[l.name,l.amount]),'Other Etsy costs'),{label:'Etsy costs',donut:false}):noData('statement lines')}</section>`+
    (ms.some(x=>x&&(x.revenue||x.ads))?`<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Where each month’s ${L.income.toLowerCase()} went, ${y}</h2><p>Take-home, Etsy fees, your Etsy Ads, Offsite Ads fees and Etsy Plus · hover a month for amounts</p></div></div>${stack([{name:'Take-home',values:ms.map(x=>x?Math.max(0,x.takeHome):null),color:'var(--cat-5)'},{name:'Etsy fees',values:ms.map(x=>x?x.fees:null),color:'var(--cat-2)'},{name:'Your Etsy Ads (after credits)',values:ms.map(x=>x?Math.max(0,x.ownAdsPaid):null),color:'var(--cat-4)'},{name:'Offsite Ads fees',values:ms.map(x=>x?Math.max(0,x.offsite):null),color:'var(--cat-1)'},{name:'Etsy Plus & other',values:ms.map(x=>x?Math.max(0,x.plusOther):null),color:'var(--cat-6)'}],months.map(shortMonth),{title:`Where each month’s ${L.income.toLowerCase()} went`})}</section>`+
     `<section class="card"><div class="cardhead"><div><h2>Shares by month, ${y}</h2><p>Etsy’s cut and ads, as a share of ${L.income.toLowerCase()}${(()=>{const e=D.estimatedMonths(state,y+'-01-01',y+'-12-31');return e.length?` · ${e.map(shortMonth).join(', ')} estimated, so no ads yet`:'';})()}</p></div></div>${line([{name:cutWord(),values:ms.map(x=>x&&x.costShare!==null?x.costShare:null),color:'var(--cat-2)'},{name:'Your Etsy Ads',values:ms.map(x=>x&&x.ownAdsShare!==null?x.ownAdsShare:null),color:'var(--cat-4)'},{name:'Offsite Ads',values:ms.map(x=>x&&x.offsiteShare!==null?x.offsiteShare:null),color:'var(--cat-1)'}],months.map(shortMonth),{f:v=>pc(v,0),title:'Etsy cost and ad share by month'})}</section></div>`+
@@ -4300,6 +4311,14 @@ const Etsy=(()=>{
   return `<section class="card" id="channel-fees-card"><div class="cardhead"><div><h2>Other platforms’ fees</h2><p>Used only when an export has no fees in it, such as Shopify orders without the payouts file or Square item detail without the transactions file. A percentage of each order plus a fixed amount.</p></div></div><form id="channel-fees-form"><div class="fields">`+
    ps.map(p=>{const R=D.channelRates(state,p);return `<label>${PLAT[p]} fees<span class="kit-input"><input name="${p}-processing" type="number" min="0" max="50" step="0.01" value="${R.processing/100}" required><em>%</em></span></label><label>${PLAT[p]}, per ${p==='square'?'sale':'order'}<span class="kit-input"><input name="${p}-fixed" type="number" min="0" max="100" step="0.01" value="${(R.processingFixed/100).toFixed(2)}" required><em>${c}</em></span></label>`;}).join('')+
    `</div><div class="formfoot"><button class="btn primary">Save fees</button></div></form></section>`;}
+ // Paid out to your bank: the year by month, and every payout of the picked month
+ function payoutsCard(y,withList=true){const P=D.payouts(state,y);if(!P.count)return '';const m=selected,ml=P.list.filter(x=>x.date.startsWith(m)),cm=P.months[+m.slice(5,7)-1];
+  const checked=P.months.filter(x=>x.checked),bad=checked.filter(x=>!x.match);
+  return `<section class="card" id="etsy-payouts"><div class="cardhead"><div><h2>Paid out to your bank, ${y}</h2><p>From your Etsy Payments Deposits file${P.months.some(x=>x.count&&!x.fromFile)?' and the deposit lines of your statements':''} · money moving to your bank, not income: the sales are already counted</p></div>${button('Import deposits','go-etsy-import','small quiet')}</div>`+
+   `<div class="kpis">${kpi('Paid out',P.total,`${num(P.count)} payouts in ${y}`,'coins')}${kpi('Average payout',P.average,'Per payout','wallet')}${kpi(monthName(m),cm.total,cm.count?`${num(cm.count)} payout${cm.count===1?'':'s'}`:'No payouts this month','history')}${stat('Last payout',P.last?dateName(P.last.date):'—',P.last?fmt(P.last.amount):'')}</div>`+
+   compareBarChart([{name:'Paid out',values:P.months.map(x=>x.count?x.total:null),color:'var(--accent)'}],P.months.map(x=>shortMonth(x.month)),'Paid out to your bank by month','vertical')+
+   (checked.length?`<p class="small ${bad.length?'warn':'muted'} kit-note" style="margin-top:12px">${bad.length?`The deposits file and the statement disagree in ${bad.map(x=>shortMonth(x.month)).join(', ')}: re-download the one that looks short.`:`Checked against your statements in ${checked.map(x=>shortMonth(x.month)).join(', ')}: the payouts match to the cent.`}</p>`:'')+
+   (withList&&ml.length?`<h3 class="kit-calc-sub">Payouts in ${monthName(m)}</h3><div class="table-wrap"><table><thead><tr><th>Date</th>${!state.settings.shop&&state.shops.length>1?'<th>Shop</th>':''}<th>From</th><th class="num">Amount</th></tr></thead><tbody>${ml.map(x=>`<tr><td>${dateName(x.date)}</td>${!state.settings.shop&&state.shops.length>1?`<td>${esc(shopName(x.shop))}</td>`:''}<td class="dim">${x.from==='deposits'?'Deposits file':'Statement'}</td><td class="num">${fmt(x.amount)}</td></tr>`).join('')}<tr class="group-total"><td colspan="${!state.settings.shop&&state.shops.length>1?3:2}"><b>Total</b></td><td class="num"><b>${fmt(cm.total)}</b></td></tr></tbody></table></div>`:'')+`</section>`;}
  // The month the way Etsy's Monthly statement shows it, so the two can be checked side by side
  function etsyStatementCard(r){const E=D.etsyStatement(state,r.from,r.to);if(!E.sales&&!E.feesTotal&&!E.marketingTotal)return '';
   const neg=n=>n?'−'+fmt(n):'--',plus=n=>n?fmt(n):'--',row=(l,v,cls='')=>`<div class="row ${cls}"><span>${l}</span><span class="number">${v}</span></div>`;
@@ -4312,7 +4331,10 @@ const Etsy=(()=>{
    box('','Fees',-E.feesTotal,row('Listing fees',neg(E.listing))+row('<span class="kit-stmt-sub">Credits</span>',plus(E.credits))+row('Transaction fees',neg(E.transaction))+row('Processing fees',neg(E.processing))+row('Tax on seller fees',neg(E.feeTax))+row('Share &amp; Save refund',plus(E.shareSave))+(E.otherFees?row('Other fees',neg(E.otherFees)):''))+
    `</div><h3 class="kit-calc-sub">Seller services</h3><div class="kit-stmt">`+
    box('','Marketing',-E.marketingTotal,row('Etsy Ads',neg(E.ads))+row('Offsite Ads',neg(E.offsite))+row('Etsy Plus subscription',neg(E.plus))+row('Sales tax on subscription',neg(E.subTax))+(E.otherMarketing?row('Other marketing',neg(E.otherMarketing)):''))+
-   box('','Shipping',-E.shipping,row('Shipping labels',neg(E.shipping)))+`</div></section>`;}
+   box('','Shipping',-E.shipping,row('Shipping labels',neg(E.shipping)))+`</div>`+
+   `<h3 class="kit-calc-sub">Taxes and Share &amp; Save, ${esc(r.label)}</h3><div class="kit-stmt"><div class="kit-stmt-box">${row('Sales tax paid by buyers (Etsy remitted it)',fmt(E.salesTax))+row('VAT paid by buyers (Etsy remitted it)',fmt(E.vat))+row('<b>Collected from buyers</b>',`<b>${fmt(E.salesTax+E.vat)}</b>`)}</div>`+
+   `<div class="kit-stmt-box">${row('Tax on seller fees',fmt(E.feeTax))+row('Sales tax on Etsy Plus subscription',fmt(E.subTax))+row('<b>Tax you paid on Etsy’s fees</b>',`<b>${fmt(E.feeTax+E.subTax)}</b>`)+row('Share &amp; Save refunds received',fmt(E.shareSave))}</div></div>`+
+   `<p class="small muted kit-note" style="margin-top:10px">Choose <b>Year</b> or <b>All time</b> above for running totals. Tax buyers paid is not your income and is left out of revenue; tax on Etsy’s fees is a cost (Schedule C line 23).</p></section>`;}
  // ---------- coupons & discounts ----------
  function couponsView(){
   const r=range(),C=D.coupons(state,r.from,r.to),y=selected.slice(0,4),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),mm=new Map(C.months.map(x=>[x.month,x]));
@@ -4383,7 +4405,7 @@ const Etsy=(()=>{
    list.map(x=>`<div class="budget-row"><div class="row"><strong><i class="dot" style="background:${shopColor(x.id)}"></i> ${esc(x.name)} <span class="pill kit-plat">${PLAT[x.platform]}</span></strong><span class="number"><b>${cents(x.kept)}</b> <span class="dim">of $1 · ${fmt(x.revenue)} sold</span></span></div><div class="meter"><i style="width:${Math.max(0,Math.min(100,(x.kept||0)*100))}%;background:${shopColor(x.id)}"></i></div></div>`).join('')+
    (best.kept!==null&&worst.kept!==null&&best.kept-worst.kept>=0.02?`<p class="small muted kit-note">Every $100 sold through <b>${esc(best.name)}</b> keeps you ${per100(best.kept)}; through <b>${esc(worst.name)}</b>, ${per100(worst.kept)}. Costs of your own (materials, booth fees, subscriptions you log yourself) come on top.</p>`:'')+`</section>`;}
  // ---------- year: sold orders fill the months that have no statement yet ----------
- function annualTop(y){return revenueByShop(y)+soldOrdersCard(y);}
+ function annualTop(y){return revenueByShop(y)+soldOrdersCard(y)+payoutsCard(y,false);}
  function revenueByShop(y){
   if(state.settings.shop||state.shops.length<2)return '';
   const cutoff=today().slice(0,7),end=y===cutoff.slice(0,4)?today():y+'-12-31',rows=D.compare(state,y+'-01-01',end).filter(x=>x.revenue||x.orders),total=rows.reduce((n,x)=>n+x.revenue,0);
