@@ -1212,6 +1212,7 @@ const Etsy=(()=>{
  .kit-stmt-box .row{padding:7px 0;font-size:14px}.kit-stmt-sub{padding-left:16px;color:var(--ink-2)}
  .kit-stmt-net{font-size:17px;margin:0 0 6px}
  @media (max-width:760px){.kit-stmt{grid-template-columns:1fr}}
+ @media print{#etsy-statement,#etsy-payouts{break-inside:auto!important;page-break-inside:auto!important}.kit-stmt-box,#etsy-payouts .kpis,#etsy-payouts svg{break-inside:avoid;page-break-inside:avoid}}
  .kit-plat{font-size:10.5px;padding:2px 7px;margin-left:4px;vertical-align:1px}
  .etsy-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
  .kit-goal-link{text-align:center;margin:12px 0 0}
