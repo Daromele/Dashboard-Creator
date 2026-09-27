@@ -57,6 +57,9 @@ the app starts and fills the core's `Ext` hooks (extra views, the top-bar shop p
 printouts, the shop tag on new transactions). Budget and Profit Plan list no modules, so their built files
 do not change.
 
+- **Hubs.** A `nav` item may carry a fourth element, `[[screen, tab label], …]`: the sidebar shows it once and
+  its screens appear as tabs at the top of the page. Every screen id still works with `go()`. The Etsy pack uses hubs
+  to keep the sidebar to 12 items; Budget and Profit Plan use none.
 - **Shops.** `state.shops` lists them; `settings.shop` is the one on screen (`''` = all shops). Every
   transaction may carry `shop`, and `Budget.transactions` reads only the chosen shop, so the P&L, tax,
   cash flow and every total follow the picker. Costs logged with All shops picked have no shop: they are

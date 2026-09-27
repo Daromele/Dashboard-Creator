@@ -44,15 +44,11 @@ const NICHE = {
   categories: [
     ['etsy-sales', 'Etsy order payments', 'revenue', 'L1'], ['etsy-refunds', 'Refunds to buyers', 'revenue', 'L1'],
     ['buyer-tax', 'Sales tax & VAT paid by buyers (Etsy remits it)', 'revenue', 'L1'], ['other-sales', 'Other sales (markets, wholesale)', 'revenue', 'L1'],
-    ['shopify-sales', 'Shopify store sales', 'revenue', 'L1'], ['square-sales', 'Square sales (markets & in person)', 'revenue', 'L1'],
-    ['amazon-sales', 'Amazon Handmade sales', 'revenue', 'L1'], ['ebay-sales', 'eBay sales', 'revenue', 'L1'],
     ['other-biz-income', 'Other business income', 'other-income', 'L6'], ['interest', 'Bank interest', 'other-income', 'N'],
     ['materials', 'Materials & supplies for products', 'cogs', 'L38'], ['packaging', 'Packaging', 'cogs', 'L38'], ['printing', 'Printing & production', 'cogs', 'L39'], ['shipping-labels', 'Shipping labels & postage', 'cogs', 'L39'],
     ['transaction-fees', 'Transaction fees', 'etsy-fees', 'L10'], ['processing-fees', 'Payment processing fees', 'etsy-fees', 'L10'], ['listing-fees', 'Listing fees', 'etsy-fees', 'L10'],
     ['fee-tax', 'Tax on Etsy fees', 'etsy-fees', 'L23'], ['other-etsy-fees', 'Other Etsy fees & adjustments', 'etsy-fees', 'L10'],
     ['etsy-ads', 'Etsy Ads', 'etsy-marketing', 'L8'], ['offsite-ads', 'Offsite Ads fees', 'etsy-marketing', 'L8'], ['etsy-plus', 'Etsy Plus subscription', 'etsy-marketing', 'L8'], ['other-marketing', 'Other marketing', 'etsy-marketing', 'L8'],
-    ['shopify-fees', 'Shopify payment fees', 'channel-fees', 'L10'], ['square-fees', 'Square processing fees', 'channel-fees', 'L10'],
-    ['amazon-fees', 'Amazon referral & selling fees', 'channel-fees', 'L10'], ['ebay-fees', 'eBay final value & selling fees', 'channel-fees', 'L10'],
     ['software', 'Software & apps', 'overhead', 'L18'], ['phone-internet', 'Phone & internet', 'overhead', 'L25'], ['website', 'Website & domain', 'overhead', 'L27b'],
     ['equipment', 'Equipment & tools', 'operations', 'L13'], ['office', 'Office supplies', 'operations', 'L18'], ['photography', 'Photography & props', 'operations', 'L27b'],
     ['professional', 'Accountant & legal', 'operations', 'L17'], ['licences', 'Licences & business taxes', 'operations', 'L23'], ['bank-fees', 'Bank charges', 'operations', 'L27b'],
@@ -67,7 +63,9 @@ const NICHE = {
     // every channel's sales: the dashboard's revenue is these, less buyer tax and refunds
     sales: ['etsy-sales', 'shopify-sales', 'square-sales', 'amazon-sales', 'ebay-sales', 'tiktok-sales', 'faire-sales', 'gumroad-sales', 'payhip-sales', 'fourthwall-sales', 'other-sales'],
     // categories a file adds when it first needs them, so new books stay short
-    lazyCategories: [['tiktok-sales', 'TikTok Shop sales', 'revenue', 'L1'], ['faire-sales', 'Faire wholesale sales', 'revenue', 'L1'], ['gumroad-sales', 'Gumroad sales', 'revenue', 'L1'], ['payhip-sales', 'Payhip sales', 'revenue', 'L1'], ['fourthwall-sales', 'Fourthwall sales', 'revenue', 'L1'],
+    lazyCategories: [['shopify-sales', 'Shopify store sales', 'revenue', 'L1'], ['square-sales', 'Square sales (markets & in person)', 'revenue', 'L1'], ['amazon-sales', 'Amazon Handmade sales', 'revenue', 'L1'], ['ebay-sales', 'eBay sales', 'revenue', 'L1'],
+      ['shopify-fees', 'Shopify payment fees', 'channel-fees', 'L10'], ['square-fees', 'Square processing fees', 'channel-fees', 'L10'], ['amazon-fees', 'Amazon referral & selling fees', 'channel-fees', 'L10'], ['ebay-fees', 'eBay final value & selling fees', 'channel-fees', 'L10'],
+      ['tiktok-sales', 'TikTok Shop sales', 'revenue', 'L1'], ['faire-sales', 'Faire wholesale sales', 'revenue', 'L1'], ['gumroad-sales', 'Gumroad sales', 'revenue', 'L1'], ['payhip-sales', 'Payhip sales', 'revenue', 'L1'], ['fourthwall-sales', 'Fourthwall sales', 'revenue', 'L1'],
       ['tiktok-fees', 'TikTok Shop fees & commissions', 'channel-fees', 'L10'], ['faire-fees', 'Faire commission', 'channel-fees', 'L10'], ['gumroad-fees', 'Gumroad fees', 'channel-fees', 'L10'], ['payhip-fees', 'Payhip fees', 'channel-fees', 'L10'], ['fourthwall-fees', 'Fourthwall fees', 'channel-fees', 'L10'], ['marketplace-fees', 'Other platform fees', 'channel-fees', 'L10']],
     ads: ['etsy-ads', 'offsite-ads'],
     // a month with sold orders but no statement is estimated at Etsy's standard US rates:
@@ -144,15 +142,18 @@ const NICHE = {
   // bank imports: money in is other revenue unless it is an Etsy payout (see app/src/etsy.js importRefine)
   defaults: { importIncome: 'other-sales', category: 'materials', schedule: 'software', annualCategory: 'etsy-sales', quickSetup: ['materials', 'packaging', 'shipping-labels', 'software', 'tax-reserve', 'other-sales'] },
 
+  // hubs keep the sidebar short: their screens show as tabs at the top of the page
   nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
-    ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'], ['annual', 'Year & cash flow', 'outlook'],
-    ['products', 'Products & listings', 'tags'], ['pricing', 'Pricing calculator', 'spark'], ['coupons', 'Coupons & discounts', 'wallet'], ['customers', 'Customers', 'compass'], ['reviews', 'Reviews', 'review'], ['seasonality', 'Seasonality', 'calendar'],
-    ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'table'],
-    ['budget', 'Monthly targets', 'plan'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+    ['pl', 'Profit & loss', 'insights', [['pl', 'Profit & loss'], ['annual', 'Year & cash flow']]], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
+    ['products', 'Products', 'tags', [['products', 'Products & listings'], ['pricing', 'Pricing calculator'], ['coupons', 'Coupons'], ['seasonality', 'Seasonality']]],
+    ['customers', 'Buyers & reviews', 'review', [['customers', 'Customers'], ['reviews', 'Reviews']]],
+    ['tax', 'Tax', 'shield', [['tax', 'Quarterly tax'], ['taxlines', 'Schedule C summary']]],
+    ['budget', 'Planning', 'plan', [['budget', 'Monthly targets'], ['scheduled', 'Recurring costs'], ['goals', 'Reserves & goals']]],
+    ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   // everything can be hidden from the sidebar except the dashboard, importing and settings (where views come back)
-  optionalNav: ['shops', 'pl', 'fees', 'activity', 'annual', 'products', 'pricing', 'coupons', 'customers', 'reviews', 'seasonality', 'tax', 'taxlines', 'budget', 'goals', 'scheduled', 'guide'],
-  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['pl', 'fees', 'activity', 'annual']], ['What sells', ['products', 'pricing', 'coupons', 'customers', 'reviews', 'seasonality']], ['Tax time', ['tax', 'taxlines']]],
-  navGroupRest: 'Make it yours',
+  optionalNav: ['shops', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
+  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
+  navGroupRest: 'Help & settings',
 
   labels: {
     income: 'Revenue', expense: 'Expenses', saving: 'Transfers & draws', savingShort: 'Transfers', savingOne: 'Transfer',
@@ -287,6 +288,7 @@ const NICHE = {
           .forEach(([kind, name, rows]) => E.imports.push({ shop: sh.id, kind, name, at: stamp, rows }));
       }
       // two more channels: the same makers' own website on Shopify, and a Saturday market stall on Square
+      NICHE.etsy.lazyCategories.filter(c => /^(shopify|square)-/.test(c[0])).forEach(([id, name, group, taxLine]) => s.categories.push({ id, name, group, archived: false, taxLine }));
       s.shops.push({ id: 'web', name: 'Fern & Kiln Online', platform: 'shopify' }, { id: 'stall', name: 'Saturday Market Stall', platform: 'square' });
       const both = [...shops[0].list.slice(0, 8), ...shops[1].list.slice(0, 7)];
       const sell = (shop, pre, date, lines, shipping, taxRate, fee, fixed, sales, fees, note) => {

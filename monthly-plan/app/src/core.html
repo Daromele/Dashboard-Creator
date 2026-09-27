@@ -361,6 +361,7 @@ label>small{display:block;font-weight:400;color:var(--ink-3);margin-top:var(--s1
 .segment{display:flex;gap:2px;flex-wrap:wrap;background:var(--sunk);padding:2px;border-radius:var(--r-sm)}
 .segment button{font-size:12px;border-radius:var(--r-xs);padding:var(--s1) var(--s3);border:0;color:var(--ink-2);min-height:28px;font-weight:600;transition:background .13s ease,color .13s ease}
 .segment button:hover{color:var(--accent)}
+.hub-tabs{display:inline-flex;margin:0 0 var(--s4)}.hub-tabs button{font-size:13px;min-height:32px;padding:var(--s1) var(--s4)}
 .segment button[aria-pressed=true]{background:var(--card);color:var(--accent);box-shadow:var(--shadow-sm)}
 
 /* ---------- goals ---------- */
@@ -1640,6 +1641,9 @@ const meter=(a,b)=>`<div class="meter"><i class="${a>b?'over':''}" style="width:
 const empty=(title,body,action='',label='')=>`<div class="empty">${ico('compass')}<h3>${title}</h3><p>${body}</p>${action?button(label,action,'primary'):''}</div>`;
 const pagehead=(eyebrow,title,subtitle,actions='')=>`<div class="pagehead"><div class="pagehead-text">${eyebrow?`<div class="eyebrow${/\b(19|20)\d{2}\b/.test(eyebrow)?' period':''}">${eyebrow}</div>`:''}<h1>${title}</h1>${subtitle?`<p class="subtitle">${subtitle}</p>`:''}</div>${actions?`<div class="actions no-print">${actions}</div>`:''}</div>`;
 const navItems=P.nav;
+// a nav item can gather several screens (a hub): [id, label, icon, [[screen, tab label], …]].
+// The sidebar shows the hub once; its screens appear as tabs on the page. Every screen id still works with go().
+const hubOf=id=>navItems.find(n=>n[3]&&n[3].some(([c])=>c===id)),hubLast={};
 const optionalNav=P.optionalNav;
 const navGroup=id=>(P.navGroups.find(([,ids])=>ids.includes(id))||[P.navGroupRest])[0];
 function go(id){if(screen==='budget'&&budgetDirty&&!saveBudgetInputs())return;screen=id;document.body.classList.remove('menu-open');render();window.scrollTo({top:0});$('#content').focus({preventScroll:true});}
@@ -1690,9 +1694,10 @@ function render(){
  const _focus=captureFocus();measureChartWidth();
  document.documentElement.dataset.theme=state.settings.theme;$('#month-picker').value=selected;$('#month-label').textContent=monthName(selected);$('#demo-banner').hidden=!demo;{const dt=$('#demo-toggle');if(dt){dt.textContent=demo?L.exitDemo:'Explore sample data';dt.dataset.action=demo?'exit-demo':'demo';}}
  const hidden=new Set(state.settings.hiddenNav||[]);let lastGroup='';
- $('#nav').innerHTML=navItems.filter(([id])=>!hidden.has(id)).map(([id,name,icon])=>{const group=navGroup(id),heading=group!==lastGroup?`<div class="navgroup">${group}</div>`:'';lastGroup=group;return `${heading}<button class="navlink" data-go="${id}" ${screen===id?'aria-current="page"':''}>${ico(icon)}<span>${name}</span></button>`;}).join('');
+ const hub=hubOf(screen);if(hub)hubLast[hub[0]]=screen;
+ $('#nav').innerHTML=navItems.filter(([id])=>!hidden.has(id)).map(([id,name,icon,kids])=>{const group=navGroup(id),heading=group!==lastGroup?`<div class="navgroup">${group}</div>`:'';lastGroup=group;return `${heading}<button class="navlink" data-go="${kids?hubLast[id]||id:id}" ${(kids?hub&&hub[0]===id:screen===id)?'aria-current="page"':''}>${ico(icon)}<span>${name}</span></button>`;}).join('');
  const views={dashboard:dashboardView,annual:annualView,budget:budgetView,activity:activityView,goals:goalsView,calendar:calendarView,insights:insightsView,review:reviewView,settings:settingsView,guide:guideView,import:importView,scheduled:scheduledView,wealth:wealthView,...Biz.views,...Ext.views};
- $('#content').innerHTML=`<div class="print-title">${P.product.printTitle}${Ext.printScope()}<span class="pt-month"> · ${monthName(selected)}</span> · ${state.settings.currency}</div>${Budget.month(state,selected).closed&&['dashboard','budget','activity'].includes(screen)?'<div class="notice"><span>✓ This month is closed. Its budget and transactions are protected from edits.</span>'+button('Reopen month','reopen','small')+'</div>':''}${views[screen]()}<footer class="footer"><span>${P.product.printTitle}</span><span>${demo?'Fictional sample data':'Private to this browser · Export a backup regularly'} · ${state.settings.currency}</span></footer>`;renderStorage();renderBackupBanner();updateBarHeight();renderMonthTabs();applyRail();restoreFocus(_focus);countUp();scrollHeatToCurrent();Ext.afterRender();
+ $('#content').innerHTML=`<div class="print-title">${P.product.printTitle}${Ext.printScope()}<span class="pt-month"> · ${monthName(selected)}</span> · ${state.settings.currency}</div>${Budget.month(state,selected).closed&&['dashboard','budget','activity'].includes(screen)?'<div class="notice"><span>✓ This month is closed. Its budget and transactions are protected from edits.</span>'+button('Reopen month','reopen','small')+'</div>':''}${hub?`<nav class="segment hub-tabs no-print" aria-label="${hub[1]}">${hub[3].map(([c,l])=>`<button data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:''}${views[screen]()}<footer class="footer"><span>${P.product.printTitle}</span><span>${demo?'Fictional sample data':'Private to this browser · Export a backup regularly'} · ${state.settings.currency}</span></footer>`;renderStorage();renderBackupBanner();updateBarHeight();renderMonthTabs();applyRail();restoreFocus(_focus);countUp();scrollHeatToCurrent();Ext.afterRender();
 }
 function updateBarHeight(){document.documentElement.style?.setProperty('--bar-height',($('.topbar').offsetHeight||77)+'px');}
 window.addEventListener('resize',updateBarHeight);

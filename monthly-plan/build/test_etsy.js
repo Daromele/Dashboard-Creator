@@ -198,7 +198,7 @@ module.exports=({eq,ok})=>{
    eq('shopify import', [load(s,'web','o.csv',F.shopify).added,load(s,'web','o.csv',F.shopify).same], [3,3]);
    eq('square imports', [load(s,'fair','t.csv',F.squareTx).added,load(s,'fair','i.csv',F.squareItems).added], [5,3]);
    D.syncEstimates(s,{uid,today:'2026-09-30'});
-   ok('older books get the channel categories on import', s.categories.length===c0&&B.validate(copy(s)));
+   ok('channel categories arrive with the first file, not in new books', ['shopify-sales','shopify-fees','square-sales','square-fees'].every(id=>s.categories.some(c=>c.id===id)&&!B.blank().categories.some(c=>c.id===id))&&s.categories.length===c0+4&&B.validate(copy(s)));
    const est=(shop,m)=>s.transactions.filter(t=>t.est&&t.shop===shop&&t.date.startsWith(m)).map(t=>[t.category,t.amount]).sort();
    eq('shopify months: sales exact, payment fees at 2.9% + 30¢', [est('web','2026-09'),est('web','2026-08')], [[['shopify-fees',296],['shopify-sales',7800]],[['shopify-fees',76],['shopify-sales',1600]]]);
    eq('square: the transactions file makes a month exact; item detail alone is estimated', [est('fair','2026-09'),est('fair','2026-08')], [[],[['square-fees',116],['square-sales',3600]]]);
