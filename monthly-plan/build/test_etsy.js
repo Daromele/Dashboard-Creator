@@ -181,6 +181,12 @@ module.exports=({eq,ok})=>{
    const bad=copy(z);bad.settings.fees={transaction:-1,processing:300,preset:'uk'};bad.settings.goals={'':50000,ghost:1000,fern:-5};bad.etsy.costs={'1400000001':250,x:-3,y:'1'};
    const w=B.validate(bad);eq('bad fees, goals and costs are dropped, never fatal', [w.settings.fees,w.settings.goals,w.etsy.costs], [{processing:300,preset:'uk'},{'':50000},{'1400000001':250}]);}
 
+  // ---- Etsy only for now: the other platforms are built but switched off ----
+  eq('only Etsy is switched on', B.P.etsy.enabledPlatforms, ['etsy']);
+  {const r=D.read('orders_export_1.csv',F.shopify),g=D.read('Sales.csv',F.gumroad);
+   ok('a Shopify or Gumroad file says it is coming soon', /coming in a free update/.test(r.error)&&/coming in a free update/.test(g.error));
+   eq('the Etsy sample has only Etsy shops', B.sample('2026-09').shops.map(x=>x.platform||'etsy'), ['etsy','etsy']);}
+  B.P.etsy.enabledPlatforms=B.P.etsy.platforms.map(x=>x[0]);   // the rest of these tests cover every platform
   // ---- other channels: Shopify and Square ----
   {const s=books();s.shops.push({id:'web',name:'Fern Online',platform:'shopify'},{id:'fair',name:'Market Stall',platform:'square'});
    const sh=D.read('orders_export_1.csv',F.shopify),tx=D.read('transactions.csv',F.squareTx),it=D.read('items.csv',F.squareItems);

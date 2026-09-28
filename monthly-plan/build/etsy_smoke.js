@@ -167,6 +167,8 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.click(`[data-action="etsy-move-import"][data-i="${oi}"]`);await p.selectOption('#etsy-move-form select[name=to]',kilnId);await p.click('#etsy-move-form button[type=submit]');
   check('moving an import moves its orders',await st(id=>state.etsy.orders.every(o=>o.shop===id)&&state.etsy.items.every(i=>i.shop===id),kilnId));
   await p.click('#toast [data-action="undo"]');check('undo puts them back',await st(id=>state.etsy.orders.every(o=>o.shop!==id),kilnId));
+  check('Etsy only: no platform choice when adding a shop',await st(()=>{Etsy.shopForm();const n=document.querySelectorAll('#etsy-shop-form select[name=platform]').length;closeModal();return n===0;}));
+  await p.evaluate(()=>{P.etsy.enabledPlatforms=P.etsy.platforms.map(x=>x[0]);});   // the flows below cover the switched-off platforms
   // ---- another channel: a Shopify store beside the Etsy shops ----
   await p.selectOption('#shop-picker','__add');await p.fill('#etsy-shop-form input[name=name]','Fern Online');await p.selectOption('#etsy-shop-form select[name=platform]','shopify');await p.click('#etsy-shop-form button[type=submit]');
   const webId=await st(()=>state.shops.find(x=>x.platform==='shopify')?.id);check('shopify store added',!!webId);

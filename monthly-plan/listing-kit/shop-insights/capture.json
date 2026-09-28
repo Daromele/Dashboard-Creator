@@ -14,11 +14,6 @@
    "before": "go('shops');document.querySelector('[data-action=etsy-span][data-span=year]').click();document.querySelector('#toast').hidden=true;document.querySelectorAll('.topbar,.demo-bar,[class*=sample]').forEach(x=>x.style.position='static');const e=document.querySelector('#etsy-kept');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-24)"
   },
   {
-   "name": "shops",
-   "before": "go('shops');window.scrollTo(0,0)",
-   "offset": 6
-  },
-  {
    "name": "dash-fern",
    "before": "state.settings.shop='fern';go('dashboard');window.scrollTo(0,0)",
    "offset": 6
@@ -67,6 +62,10 @@
    "name": "annual",
    "before": "go('annual');window.scrollTo(0,0)",
    "offset": 6
+  },
+  {
+   "name": "statement",
+   "before": "state.settings.shop='';go('fees');document.querySelector('[data-action=etsy-span][data-span=month]').click();document.querySelector('#toast').hidden=true;document.querySelectorAll('.topbar').forEach(x=>x.style.position='static');const e=document.querySelector('#etsy-statement');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-24)"
   }
  ],
  "themes": {

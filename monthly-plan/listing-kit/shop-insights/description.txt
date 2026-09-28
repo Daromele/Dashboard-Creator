@@ -4,8 +4,9 @@ Works on Mac and PC in any modern browser. Everything stays on your computer. No
 
 WHAT YOU GET
 • Dashboard: take-home, revenue, orders, average order, fees, ads, net profit and average monthly cash flow, with a monthly revenue goal
-• Every channel in one set of books: Etsy, Shopify, Square, Amazon Handmade, eBay, TikTok Shop, Faire, Gumroad, Payhip and Fourthwall, plus any other store's sales CSV (match its columns once)
-• What each channel keeps you out of every dollar, side by side
+• One Etsy shop or several: switch between them or see them all together
+• What each shop keeps you out of every dollar, side by side
+• Your Etsy statement, matching Etsy's own figures to the cent, with payouts to your bank
 • Fees & ads: every Etsy fee, ad and credit, per order and per month
 • Products: profit per product after Etsy's cut and your own cost per item
 • Pricing calculator: what one sale keeps you, and the lowest price for the margin you want
@@ -17,8 +18,8 @@ WHAT YOU GET
 
 HOW IT WORKS
 1. Download the file and open it in your browser
-2. Add your shops and choose where each one sells
-3. Drop in your exports: Etsy statements and sold order items, Shopify orders, Square transactions and so on
+2. Add your Etsy shops
+3. Drop in your Etsy exports: payment account statements, sold order items, listings, reviews and deposits
 4. Duplicates are skipped, so you can import the same file again safely
 
 PRIVACY
@@ -27,5 +28,6 @@ Buyer names, emails and addresses in your exports are never stored. Only the cou
 GOOD TO KNOW
 • Digital download: nothing is shipped
 • Screenshots show fictional sample shops
-• Shop Insights is not affiliated with, or endorsed by, Etsy, Shopify, Square, Amazon, eBay, TikTok, Faire, Gumroad, Payhip or Fourthwall
+• Coming soon as a free update: Shopify, Square, Amazon Handmade, eBay and more
+• Shop Insights is not affiliated with, or endorsed by, Etsy, Inc.
 • It organises your records; it is not tax advice

@@ -76,6 +76,9 @@ const NICHE = {
     presets: [['us', 'United States', 650, 300, 25, 20, 1500], ['ca', 'Canada', 650, 300, 25, 27, 1500], ['uk', 'United Kingdom', 650, 400, 20, 16, 1500], ['eu', 'Euro countries', 650, 400, 30, 18, 1500], ['au', 'Australia', 650, 300, 25, 30, 1500]],
     // where a shop sells. Etsy shops read all five Etsy exports; a Shopify store its orders export;
     // Square its transactions and item detail exports; Other is for sales you log or import from the bank.
+    // switched on for buyers today: the other platforms' importers are built and tested, and turn on
+    // one by one once each is checked against a seller's real export
+    enabledPlatforms: ['etsy'],
     platforms: [['etsy', 'Etsy'], ['shopify', 'Shopify'], ['square', 'Square'], ['amazon', 'Amazon Handmade'], ['ebay', 'eBay'], ['tiktok', 'TikTok Shop'], ['faire', 'Faire'], ['gumroad', 'Gumroad'], ['payhip', 'Payhip'], ['fourthwall', 'Fourthwall'], ['other', 'Other']],
     platformHelp: { etsy: 'An Etsy shop', shopify: 'Your own website on Shopify', square: 'Markets, fairs and in person, through Square', amazon: 'Your Amazon Handmade shop', ebay: 'Your eBay store', tiktok: 'Your TikTok Shop', faire: 'Wholesale to shops through Faire', gumroad: 'Digital products on Gumroad', payhip: 'Digital products on Payhip', fourthwall: 'Merch and print on demand through Fourthwall', other: 'Any other store: import its sales CSV by matching the columns once, or log sales yourself' },
     // payment fees when the channel's own export has none: Shopify Payments Basic (online, US) and Square in person (US)
@@ -171,7 +174,7 @@ const NICHE = {
   quickLog: { placeholder: 'clay order 42.50', help: 'For costs Etsy does not see. Try “clay order 42.50”, “mailers 18”, “canva 12.99” or “craft fair sale 240”.', demo: ['mailers', '18.00', 'Packaging'] },
 
   welcome: [
-    { icon: 'today', step: 'WELCOME', title: 'Every shop you run, in one calm place', text: '<p>Drop in the files Etsy already gives you, plus Shopify, Square, Amazon, eBay, TikTok Shop, Faire, Gumroad, Payhip or Fourthwall if you sell there too. See what each channel really keeps after every fee, which products make money, and what buyers say.</p><p>Everything stays in this browser. No logins, no server, no subscription.</p>' },
+    { icon: 'today', step: 'WELCOME', title: 'Every Etsy shop you run, in one calm place', text: '<p>Drop in the files Etsy already gives you. See what each shop really keeps after every fee, which products make money, and what buyers say.</p><p>Everything stays in this browser. No logins, no server, no subscription. Shopify, Square and more are coming in a free update.</p>' },
     { icon: 'up', step: 'IMPORT', title: 'Etsy’s own files, read for you', text: '<p>Your <b>sold order items</b> and <b>payment account statements</b>, plus <b>listings</b> and <b>reviews</b> if you like. Choose the shop and drop them in together. Anything already imported is skipped, and a file in the wrong shop can be moved.</p>' },
     { icon: 'coins', step: 'TAKE-HOME', title: 'The money after Etsy', text: '<p>Sales tax buyers paid is taken back out, then transaction, processing and listing fees, Etsy Ads and Etsy Plus. What is left is your <b>take-home</b>, order by order and month by month. Months without a statement yet are estimated from your orders.</p>' },
     { icon: 'spark', step: 'PROFIT', title: 'Price for profit', text: '<p>Type what an item costs you and see <b>profit per product</b>. The <b>pricing calculator</b> shows what one sale leaves you, and the price that keeps the margin you want.</p>' },
@@ -194,7 +197,7 @@ const NICHE = {
       ['Sales tax and VAT buyers pay', 'Etsy adds sales tax or VAT to the buyer’s payment and then takes it straight back to pay the state. The statement shows both. Shop Insights records the tax as a minus line under revenue, so it is never counted as income or as a cost.'],
       ['Several shops', 'Every import belongs to one shop. The shop picker at the top shows one shop or all of them together; every screen and printout follows it. Costs you log with <b>All shops</b> selected are shared costs: they appear in the combined view only.'],
       ['Importing twice, moving and deleting', 'Each statement line, order, item and review is recognised when it comes back, so an overlapping or repeated file never counts twice. Under <b>Imported files</b> you can move a file to another shop or delete it, with undo. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
-      ['Shopify, Square, Amazon, eBay and other channels', 'Add a shop for each place you sell and choose where it sells: Etsy, Shopify, Square, Amazon Handmade, eBay, TikTok Shop, Faire, Gumroad, Payhip, Fourthwall or Other. TikTok Shop, Faire, Gumroad, Payhip and Fourthwall exports are read by their usual column names; if a file isn’t recognised, or for any other store (Ko-fi, Big Cartel, your own site), press Match columns once and the layout is remembered. Shopify reads the orders export, plus the payouts transactions export for exact fees (without it, fees are estimated at your rate in Settings). Amazon’s Date Range Report and eBay’s transaction report each bring in the money, exact fees and the orders in one file. Square reads the transactions export (exact fees) and the item detail export (what sold). Other is for wholesale or cash sales you log yourself. Shops compares what each channel keeps you out of every dollar, and the P&L, tax and Schedule C cover all of them. Shopify and Square payouts in a bank import are transfers, because their sales are already counted.'],
+      ['Coming soon: other places you sell', 'Shopify, Square, Amazon Handmade, eBay and more are coming in a free update. Until then, sales from elsewhere can be logged as transactions or brought in with a bank CSV, and they count in your profit, tax and Schedule C.'],
       ['Bank files', 'Import your bank’s CSV for costs Etsy never sees. Money in that matches an Etsy payout is filed as an Etsy deposit (its sales are already counted); anything else that came in is other revenue.'],
       ['Privacy', 'The sold order items file includes buyer names and addresses. Shop Insights keeps only the country and a scrambled key to count repeat buyers. Names and addresses are never stored.'],
       ['Listings and sales', 'Etsy’s listings file has no listing number, so listings are matched to sales by the start of their title. A listing you renamed may show as unsold.'],
@@ -288,6 +291,7 @@ const NICHE = {
           .forEach(([kind, name, rows]) => E.imports.push({ shop: sh.id, kind, name, at: stamp, rows }));
       }
       // two more channels: the same makers' own website on Shopify, and a Saturday market stall on Square
+      if (NICHE.etsy.enabledPlatforms.includes('shopify')) {
       NICHE.etsy.lazyCategories.filter(c => /^(shopify|square)-/.test(c[0])).forEach(([id, name, group, taxLine]) => s.categories.push({ id, name, group, archived: false, taxLine }));
       s.shops.push({ id: 'web', name: 'Fern & Kiln Online', platform: 'shopify' }, { id: 'stall', name: 'Saturday Market Stall', platform: 'square' });
       const both = [...shops[0].list.slice(0, 8), ...shops[1].list.slice(0, 7)];
@@ -308,6 +312,7 @@ const NICHE = {
       }
       [['web', 'orders', 'orders_export_1.csv', 'shopify'], ['web', 'statement', 'payment_transactions_export_1.csv', 'shopify'], ['stall', 'statement', `transactions-${year}.csv`, 'square'], ['stall', 'orders', `items-${year}.csv`, 'square']]
         .forEach(([shop, kind, name, platform]) => E.imports.push({ shop, kind, platform, name, at: now, rows: kind === 'orders' ? E.items.filter(i => i.shop === shop).length : s.transactions.filter(t => t.shop === shop && t.ref).length }));
+      }
       s.transactions.sort((a, b) => a.date.localeCompare(b.date));
     },
   },

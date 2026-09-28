@@ -19,7 +19,7 @@
    "eyebrow": "Profit dashboard for Etsy sellers",
    "headline": "Every shop.<br>One true number.",
    "pills": [
-    "Etsy + 9 more channels",
+    "One shop or several",
     "Works offline",
     "No subscription"
    ],
@@ -29,9 +29,9 @@
   {
    "dark": false,
    "label": "Channels",
-   "eyebrow": "Every channel",
-   "headline": "Which channel pays best?",
-   "sub": "Etsy, Shopify, Square, Amazon, eBay, TikTok Shop, Faire and more.",
+   "eyebrow": "Several shops",
+   "headline": "Which shop pays best?",
+   "sub": "What each Etsy shop keeps out of every dollar, side by side.",
    "image": "tab-kept.jpg",
    "foot": "Fictional sample shops shown"
   },
@@ -76,18 +76,18 @@
    "label": "Import",
    "eyebrow": "Import",
    "headline": "Drop in your exports.",
-   "sub": "Read by their columns. Duplicates skipped. Any other store: match columns once.",
+   "sub": "Drop in Etsy’s exports. Read by their columns, duplicates skipped.",
    "image": "tab-import.jpg",
    "foot": "Buyer names and addresses are never stored"
   },
   {
    "dark": false,
-   "label": "Shops",
-   "eyebrow": "Several shops",
-   "headline": "Every shop, side by side.",
-   "sub": "One Etsy shop or ten, plus every other place you sell.",
-   "image": "tab-shops.jpg",
-   "foot": "Switch shops from the top bar"
+   "label": "Statement",
+   "eyebrow": "Your Etsy statement",
+   "headline": "Matches Etsy to the cent.",
+   "sub": "Sales, fees, credits, ads and taxes, laid out month by month.",
+   "image": "tab-statement.jpg",
+   "foot": "Share &amp; Save and Etsy Plus credits shown apart"
   },
   {
    "dark": true,
@@ -177,7 +177,7 @@
   }
  ],
  "listing": {
-  "title": "Etsy Seller Profit Dashboard, Shop Fee & Sales Tracker for Etsy Shopify Square Amazon eBay, Pricing Calculator, Offline HTML",
+  "title": "Etsy Seller Profit Dashboard, Etsy Fee & Sales Tracker, Multi Shop Take-Home, Pricing Calculator, Schedule C, Offline HTML",
   "tags": [
    "etsy seller tool",
    "etsy profit tracker",
@@ -188,10 +188,10 @@
    "seller spreadsheet",
    "schedule c",
    "pricing calculator",
-   "shopify tracker",
    "etsy shop planner",
    "multi shop tracker",
-   "craft business"
+   "craft business",
+   "etsy bookkeeping"
   ],
   "description_file": "description.txt"
  }
