@@ -146,7 +146,7 @@ const NICHE = {
   defaults: { importIncome: 'other-sales', category: 'materials', schedule: 'software', annualCategory: 'etsy-sales', quickSetup: ['materials', 'packaging', 'shipping-labels', 'software', 'tax-reserve', 'other-sales'] },
 
   // hubs keep the sidebar short: their screens show as tabs at the top of the page
-  nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
+  nav: [['dashboard', 'Dashboard', 'today'], ['insights', 'Insights', 'spark'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
     ['annual', 'Year at a glance', 'outlook'], ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
     ['products', 'Products', 'tags', [['products', 'Products & listings'], ['pricing', 'Pricing calculator'], ['coupons', 'Coupons'], ['seasonality', 'Seasonality']]],
     ['customers', 'Buyers & reviews', 'review', [['customers', 'Customers'], ['reviews', 'Reviews']]],
@@ -154,8 +154,8 @@ const NICHE = {
     ['budget', 'Planning', 'plan', [['budget', 'Monthly targets'], ['scheduled', 'Recurring costs'], ['goals', 'Reserves & goals']]],
     ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   // everything can be hidden from the sidebar except the dashboard, importing and settings (where views come back)
-  optionalNav: ['shops', 'annual', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
-  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['annual', 'pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
+  optionalNav: ['insights', 'shops', 'annual', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
+  navGroups: [['Your shops', ['dashboard', 'insights', 'etsy-import', 'shops']], ['Money', ['annual', 'pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
   navGroupRest: 'Help & settings',
 
   labels: {

@@ -151,7 +151,7 @@ const NICHE = {
   defaults: { importIncome: 'other-sales', category: 'materials', schedule: 'software', annualCategory: 'etsy-sales', quickSetup: ['materials', 'packaging', 'shipping-labels', 'software', 'tax-reserve', 'other-sales'] },
 
   // hubs keep the sidebar short: their screens show as tabs at the top of the page
-  nav: [['dashboard', 'Dashboard', 'today'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
+  nav: [['dashboard', 'Dashboard', 'today'], ['insights', 'Insights', 'spark'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
     ['annual', 'Year at a glance', 'outlook'], ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
     ['products', 'Products', 'tags', [['products', 'Products & listings'], ['pricing', 'Pricing calculator'], ['coupons', 'Coupons'], ['seasonality', 'Seasonality']]],
     ['customers', 'Buyers & reviews', 'review', [['customers', 'Customers'], ['reviews', 'Reviews']]],
@@ -159,8 +159,8 @@ const NICHE = {
     ['budget', 'Planning', 'plan', [['budget', 'Monthly targets'], ['scheduled', 'Recurring costs'], ['goals', 'Reserves & goals']]],
     ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   // everything can be hidden from the sidebar except the dashboard, importing and settings (where views come back)
-  optionalNav: ['shops', 'annual', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
-  navGroups: [['Your shops', ['dashboard', 'etsy-import', 'shops']], ['Money', ['annual', 'pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
+  optionalNav: ['insights', 'shops', 'annual', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
+  navGroups: [['Your shops', ['dashboard', 'insights', 'etsy-import', 'shops']], ['Money', ['annual', 'pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
   navGroupRest: 'Help & settings',
 
   labels: {
@@ -4110,8 +4110,9 @@ const Etsy=(()=>{
     if(donut){const [x3,y3]=pt(a2,r0),[x4,y4]=pt(a1,r0);d=`M${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${r0} ${r0} 0 ${lg} 0 ${x4} ${y4}Z`;}
     else d=`M${c} ${c}L${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}Z`;}
    return `<path class="kit-seg" d="${d}" fill="${color}" fill-rule="evenodd" style="--i:${i}" tabindex="0" aria-label="${esc(name)}: ${pc(share)}" data-tip="${tipOf(name,[{name:label,value:f(n),color},{name:'Share',value:pc(share)},...(note?[{name:note,value:''}]:[])])}"/>`;}).join('');
+  let cuts='';if(parts.length>1){let b=-Math.PI/2;for(const p of parts){const [x1,y1]=pt(b,r0),[x2,y2]=pt(b,R+1);cuts+=`<line class="kit-cut" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;b+=p[1]/total*Math.PI*2;}}
   const key=parts.map(([name,n,color,note])=>`<div class="kit-key-row" tabindex="0" data-tip="${tipOf(name,[{name:label,value:f(n),color},{name:'Share',value:pc(n/total)}])}"><i class="dot" style="background:${color}"></i><span>${esc(name)}${note?`<small>${esc(note)}</small>`:''}</span><b class="number">${pc(n/total,n/total<0.1?1:0)}</b><em class="number">${f(n)}</em></div>`).join('');
-  return `<div class="kit-pie"><svg viewBox="0 0 180 180" role="img" aria-label="${esc(label)}">${segs}${donut&&center?`<text x="90" y="92" class="kit-mid">${esc(center)}</text><text x="90" y="110" class="kit-mid-sub">${esc(sub)}</text>`:''}</svg><div class="kit-key">${key}</div></div>`;
+  return `<div class="kit-pie"><svg viewBox="0 0 180 180" role="img" aria-label="${esc(label)}">${segs}${cuts}${donut&&center?`<text x="90" y="92" class="kit-mid">${esc(center)}</text><text x="90" y="110" class="kit-mid-sub">${esc(sub)}</text>`:''}</svg><div class="kit-key">${key}</div></div>`;
  }
  function gauge(v,title,note){const p=Math.max(0,Math.min(1,Number.isFinite(v)?v:0));
   return `<div class="kit-gauge"><svg viewBox="0 0 180 104" role="img" aria-label="${esc(title)} ${pc(v)}"><path d="M20 92A70 70 0 0 1 160 92" class="kit-gauge-track" pathLength="100"/><path d="M20 92A70 70 0 0 1 160 92" class="kit-gauge-val" pathLength="100" style="stroke-dasharray:${(p*100).toFixed(1)} 100"/><text x="90" y="86" class="kit-gauge-num">${Number.isFinite(v)?pc(v,v<0.1?1:0):'—'}</text></svg><b>${title}</b><small>${note}</small></div>`;}
@@ -4376,13 +4377,13 @@ const Etsy=(()=>{
    :`<section class="card">${noData('sold order items')}</section>`);
  }
  // ---------- customers ----------
- let cPage=0,cSort={k:'orders',dir:-1};const C_PAGE=15;
+ let cPage=0,cSort={k:'orders',dir:-1};const C_PAGE=8;
  function countriesTable(C,r){
   const val={country:c=>c.country.toLowerCase(),orders:c=>c.orders,share:c=>c.orders,paid:c=>c.paid};
   const list=[...C.countries].sort((a,b)=>{const x=val[cSort.k](a),y=val[cSort.k](b);return (x<y?-1:x>y?1:0)*cSort.dir||b.orders-a.orders;});
   const pages=Math.max(1,Math.ceil(list.length/C_PAGE));cPage=Math.min(cPage,pages-1);const rows=list.slice(cPage*C_PAGE,(cPage+1)*C_PAGE);
   const th=(k,l,cls='')=>`<th class="${cls}"><button class="kit-sort ${cSort.k===k?'on':''}" data-action="etsy-csort" data-k="${k}" aria-label="Sort by ${l}">${l}<span aria-hidden="true">${cSort.k===k?(cSort.dir<0?' ↓':' ↑'):''}</span></button></th>`;
-  return `<section class="card table-card"><div class="cardhead"><div><h2>All countries</h2><p>${esc(r.label)} · ${num(list.length)} countries · click a column to sort</p></div></div><div class="table-wrap"><table><thead><tr>${th('country','Country')}${th('orders','Orders','num')}${th('share','Share','num')}${th('paid','Paid for items','num')}</tr></thead><tbody>${rows.map(c=>`<tr><td>${esc(c.country)}</td><td class="num">${num(c.orders)}</td><td class="num">${pc(c.orders/C.orders,c.orders/C.orders<0.1?1:0)}</td><td class="num">${fmt(c.paid)}</td></tr>`).join('')}</tbody></table></div>`+
+  return `<section class="card table-card kit-q-table"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('table')}</span>All countries</h2><p>${esc(r.label)} · ${num(list.length)} countries · click a column to sort</p></div></div><div class="table-wrap"><table><thead><tr>${th('country','Country')}${th('orders','Orders','num')}${th('share','Share','num')}${th('paid','Paid for items','num')}</tr></thead><tbody>${rows.map(c=>`<tr><td>${esc(c.country)}</td><td class="num">${num(c.orders)}</td><td class="num">${pc(c.orders/C.orders,c.orders/C.orders<0.1?1:0)}</td><td class="num">${fmt(c.paid)}</td></tr>`).join('')}</tbody></table></div>`+
    (pages>1?`<div class="row no-print kit-pager"><span class="small muted">${cPage*C_PAGE+1}–${Math.min(list.length,(cPage+1)*C_PAGE)} of ${num(list.length)} · page ${cPage+1} of ${pages}</span><div class="actions">${button('Previous','etsy-cpage','small',`data-d="-1" ${cPage===0?'disabled':''}`)}${button('Next','etsy-cpage','small',`data-d="1" ${cPage>=pages-1?'disabled':''}`)}</div></div>`:'')+`</section>`;}
  // when and how much the top countries buy: orders per month as a heat table, with average order and repeat share
  function countryMonths(r){const all=D.scoped(state,state.etsy.orders).filter(o=>o.date>=r.from&&o.date<=r.to);if(!all.length)return '';
@@ -4390,17 +4391,82 @@ const Etsy=(()=>{
   for(const o of all){const k=o.country||'Not recorded';let c=by.get(k);if(!c)by.set(k,c={k,n:0,paid:0,m:new Map(),b:new Map()});c.n++;c.paid+=o.list-o.discount;const mk=o.date.slice(0,7);c.m.set(mk,(c.m.get(mk)||0)+1);if(o.buyer)c.b.set(o.buyer,(c.b.get(o.buyer)||0)+1);}
   const top=[...by.values()].sort((a,b)=>b.paid-a.paid).slice(0,6),max=Math.max(1,...top.flatMap(c=>ms.map(m=>c.m.get(m)||0)));
   const cell=v=>`<td class="num kit-heat" style="--h:${Math.round(v/max*85)}%">${v||'<span class="muted">·</span>'}</td>`;
-  return `<section class="card table-card"><div class="cardhead"><div><h2>When your top countries buy</h2><p>${esc(r.label)} · orders per month for the ${top.length} countries that spend most · darker is busier</p></div></div><div class="table-wrap"><table class="kit-heatmap"><thead><tr><th>Country</th>${ms.map(m=>`<th class="num">${shortMonth(m)}</th>`).join('')}<th class="num">Avg order</th><th class="num">Repeat buyers</th></tr></thead><tbody>${top.map(c=>{const bs=[...c.b.values()];return `<tr><td><b>${esc(c.k)}</b></td>${ms.map(m=>cell(c.m.get(m)||0)).join('')}<td class="num">${fmt(c.paid/c.n)}</td><td class="num">${bs.length?pc(bs.filter(n=>n>1).length/bs.length,0):'—'}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
+  return `<section class="card table-card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('calendar')}</span>When your top countries buy</h2><p>${esc(r.label)} · orders per month for the ${top.length} countries that spend most · darker is busier</p></div></div><div class="table-wrap"><table class="kit-heatmap"><thead><tr><th>Country</th>${ms.map(m=>`<th class="num">${shortMonth(m)}</th>`).join('')}<th class="num">Avg order</th><th class="num">Repeat buyers</th></tr></thead><tbody>${top.map(c=>{const bs=[...c.b.values()];return `<tr><td><b>${esc(c.k)}</b></td>${ms.map(m=>cell(c.m.get(m)||0)).join('')}<td class="num">${fmt(c.paid/c.n)}</td><td class="num">${bs.length?pc(bs.filter(n=>n>1).length/bs.length,0):'—'}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
  function customersView(){
   const r=range(),C=D.customers(state,r.from,r.to),top=C.countries.slice(0,15);
   return pagehead('What sells',`Customers · ${esc(r.label)}`,'Only the country and a scrambled buyer key are kept from your order files. Names, emails and addresses are never stored.',scopeNote())+spanControl()+
    (C.orders&&!C.buyers?`<div class="notice"><span><b>These sales carry no buyer details</b>, as with cash or card sales at a market, so repeat buyers and countries can’t be counted here.</span></div>`:'')+
    (C.orders?`<div class="kpis">${stat('Buyers',num(C.buyers),`${num(C.orders)} orders`)}${stat('Repeat buyers',num(C.repeat),`${pc(C.buyers?C.repeat/C.buyers:null,0)} of buyers came back`)}${stat('Orders from repeat buyers',pc(C.orders?C.repeatOrders/C.orders:null,0),`${num(C.repeatOrders)} orders`)}${stat('Countries',num(C.countries.length),`Top: ${esc(C.countries[0]?.country||'—')} ${pc(C.orders?C.countries[0].orders/C.orders:null,0)}`)}</div>`+
-    `<div class="grid2 equal"><div class="kit-col"><section class="card"><div class="cardhead"><div><h2>Where orders go</h2><p>${esc(r.label)} · share of ${num(C.orders)} orders</p></div></div>${pie(fold(C.countries.map(c=>[c.country,c.orders]),'Other countries'),{label:'Orders',f:num,center:num(C.countries.length),sub:'COUNTRIES'})}</section>`+countriesTable(C,r)+`</div>`+
-    `<div class="kit-col"><section class="card"><div class="cardhead"><div><h2>New and returning buyers</h2><p>${esc(r.label)} · share of ${num(C.buyers)} buyers</p></div></div>${pie([['Bought once',C.buyers-C.repeat,'var(--cat-1)'],['Came back',C.repeat,'var(--cat-5)']],{label:'Buyers',donut:false,f:num})}<p class="small muted" style="margin-top:12px">Buyers are matched on their Etsy name as it appears in the export, so a buyer who changed it counts twice.</p></section>`+
-    `<section class="card"><div class="cardhead"><div><h2>How often buyers order</h2><p>${esc(r.label)} · buyers by number of orders</p></div></div>${pie(C.spread.filter(x=>x[1]).map((x,i)=>[x[0],x[1],`var(--cat-${i+1})`]),{label:'Buyers',donut:false,f:num})}</section></div></div>`+
+    `<div class="kit-quad"><section class="card kit-q1"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('globe')}</span>Where orders go</h2><p>${esc(r.label)} · share of ${num(C.orders)} orders</p></div></div>${pie(fold(C.countries.map(c=>[c.country,c.orders]),'Other countries'),{label:'Orders',f:num,center:num(C.countries.length),sub:'COUNTRIES'})}</section>`+
+    `<section class="card kit-q2"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('history')}</span>New and returning buyers</h2><p>${esc(r.label)} · share of ${num(C.buyers)} buyers</p></div></div>${pie([['Bought once',C.buyers-C.repeat,'var(--cat-1)'],['Came back',C.repeat,'var(--cat-5)']],{label:'Buyers',donut:false,f:num})}<p class="small muted" style="margin-top:12px">Buyers are matched on their Etsy name as it appears in the export, so a buyer who changed it counts twice.</p></section>`+countriesTable(C,r)+
+    `<section class="card kit-q4"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('log')}</span>How often buyers order</h2><p>${esc(r.label)} · buyers by number of orders</p></div></div>${pie(C.spread.filter(x=>x[1]).map((x,i)=>[x[0],x[1],`var(--cat-${i+1})`]),{label:'Buyers',donut:false,f:num})}</section></div>`+
     countryMonths(r)
    :`<section class="card">${noData('sold order items')}</section>`);
+ }
+ // ---------- insights: what to do next ----------
+ // The last 90 days of data against the 90 before, turned into a health score, a short to-do list,
+ // the products to push and the ones to fix. Plain rules on the seller's own numbers, nothing guessed.
+ const addDays=(d,n)=>{const x=new Date(d+'T12:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10);};
+ const signed=(v,d=0)=>(v>0?'+':v<0?'−':'')+pc(Math.abs(v),d);
+ function shopHealth(){
+  const os=D.scoped(state,state.etsy.orders),last=[...os.map(o=>o.date),...state.transactions.filter(t=>t.ref&&!t.est).map(t=>t.date)].sort().at(-1);if(!last)return null;
+  const end=last>Budget.today()?Budget.today():last,cur={from:addDays(end,-89),to:end},prev={from:addDays(end,-179),to:addDays(end,-90)};
+  const S=D.summary(state,cur.from,cur.to),S0=D.summary(state,prev.from,prev.to),PP=D.productProfit(state,cur.from,cur.to),P0=D.products(state,prev.from,prev.to),C=D.customers(state,cur.from,cur.to);
+  const RY=D.reviewStats(state,addDays(end,-364),end),RQ=D.reviewStats(state,cur.from,cur.to);
+  const rev=S.revenue||PP.total,rev0=S0.revenue||P0.total,growth=rev0>0?rev/rev0-1:null,kept=S.revenue>0?S.takeHome/S.revenue:null;
+  const before=new Map(P0.list.map(p=>[p.key,p])),ls=PP.listings,selling=ls.length?ls.filter(l=>l.units).length/ls.length:null;
+  const clamp=v=>Math.max(0,Math.min(100,Math.round(v)));
+  const parts=[
+   kept!==null&&{icon:'wallet',name:'Take-home kept',value:pc(kept,0),score:clamp((kept-0.4)/0.35*100),note:'of revenue after Etsy fees and ads'},
+   growth!==null&&{icon:'insights',name:'Sales trend',value:signed(growth),score:clamp(50+growth*150),note:'last 90 days vs the 90 before'},
+   RY.avg!==null&&{icon:'review',name:'Buyer happiness',value:RY.avg.toFixed(2)+' ★',score:clamp((RY.avg-4)/0.9*100),note:`${num(RY.count)} reviews in 12 months`},
+   selling!==null&&{icon:'tags',name:'Listings selling',value:pc(selling,0),score:clamp(selling/0.6*100),note:`${num(ls.length-PP.unsold.length)} of ${num(ls.length)} sold in 90 days`},
+   ls.length&&{icon:'check',name:'Listings in shape',value:pc(PP.health.ok/ls.length,0),score:clamp(PP.health.ok/ls.length*100),note:'10 photos, 13 tags and a full title'},
+   C.buyers>=10&&{icon:'history',name:'Buyers coming back',value:pc(C.repeat/C.buyers,0),score:clamp(C.repeat/C.buyers/0.15*100),note:`${num(C.repeat)} of ${num(C.buyers)} buyers`}].filter(Boolean);
+  const score=parts.length?Math.round(parts.reduce((n,p)=>n+p.score,0)/parts.length):null;
+  // to-do list: bad first, then worth a look, then what is working
+  const acts=[],act=(tone,icon,title,why,go,label)=>acts.push({tone,icon,title,why,go,label});
+  if(growth!==null&&growth<=-0.15)act('bad','insights',`Sales are down ${pc(-growth,0)}`,`${fmt(rev)} in the last 90 days against ${fmt(rev0)} before. Check the products that slipped below and refresh them first.`,'go-products','See products');
+  if(growth!==null&&growth>=0.15)act('good','insights',`Sales are up ${pc(growth,0)}`,`${fmt(rev)} in the last 90 days against ${fmt(rev0)} before. Keep your best sellers stocked and visible.`,'go-products','See products');
+  if(S.costShare!==null&&S.costShare>0.3)act('bad','coins',`Etsy keeps ${pc(S.costShare,0)} of every sale`,'Fees and ads above 30% of revenue leave little to keep. See which cost grew on Fees & ads.','go-fees','Fees & ads');
+  if(S.ownAds>0&&S.ownAdsShare>0.1)act('warn','spark',`Etsy Ads cost ${pc(S.ownAdsShare,0)} of revenue`,`${fmt(S.ownAds)} billed in 90 days. Lower the daily budget, or switch ads off for listings that get clicks but no sales.`,'go-fees','Fees & ads');
+  if(PP.unsold.length)act('warn','tags',`${num(PP.unsold.length)} listing${PP.unsold.length>1?'s':''} had no sales in 90 days`,'Renewing each costs a listing fee. Give them new photos and titles, or let them expire.','go-products','Review listings');
+  if(PP.health.photos)act('warn','edit',`${num(PP.health.photos)} listing${PP.health.photos>1?'s use':' uses'} fewer than 10 photos`,'More photos, especially in use and to scale, is one of the easiest wins on Etsy.','go-products','Review listings');
+  if(PP.health.tags)act('warn','tags',`${num(PP.health.tags)} listing${PP.health.tags>1?'s use':' uses'} fewer than 13 tags`,'Every empty tag is a search you can’t show up in. Use all 13, with phrases buyers type.','go-products','Review listings');
+  if(PP.list.length>=5&&PP.top(3)>0.6)act('warn','compass',`Your top 3 products bring ${pc(PP.top(3),0)} of sales`,'Add variations of them (colours, sizes, bundles) so one slow listing can’t sink the month.','go-products','See products');
+  const thin=PP.list.filter(p=>p.unit!==null&&p.margin<0.15);if(thin.length)act('bad','coins',`${num(thin.length)} product${thin.length>1?'s make':' makes'} under 15% after costs`,'Raise the price or cut the cost. The pricing calculator shows the price for the margin you want.','go-pricing','Pricing calculator');
+  if(RQ.low.length)act('bad','review',`${num(RQ.low.length)} review${RQ.low.length>1?'s':''} of 3 stars or less lately`,'Reply to each one and look for a pattern in item, shipping or photos.','go-reviews','Read reviews');
+  else if(RY.avg>=4.8&&RY.count>=10)act('good','review',`Buyers love your shop: ${RY.avg.toFixed(2)} stars`,'Quote your best reviews in listing descriptions and photos.','go-reviews','Read reviews');
+  if(C.buyers>=20){const rr=C.repeat/C.buyers;if(rr<0.05)act('warn','history',`Only ${pc(rr,0)} of buyers come back`,'Send a thank-you coupon to past buyers from Etsy’s Marketing → Sales and discounts.','go-coupons','Coupons');else if(rr>=0.15)act('good','history',`${pc(rr,0)} of buyers come back`,'Loyal buyers: a new collection or a bundle for them is worth it.','go-customers','Customers');}
+  const Z=D.seasonality(state),nx=+addDays(end,20).slice(5,7)-1,past=Z.years.filter(y=>y.orders);
+  if(past.length){const avg=past.reduce((n,y)=>n+y.months[nx].paid,0)/past.length,base=past.reduce((n,y)=>n+y.paid/12,0)/past.length;
+   if(base>0&&avg/base-1>=0.2)act('good','calendar',`${monthName(addDays(end,20).slice(0,7)).split(' ')[0]} is usually ${pc(avg/base-1,0)} busier`,'Stock up, and renew and promote your best listings a few weeks ahead.','go-seasonality','Seasonality');}
+  const rank={bad:0,warn:1,good:2};acts.sort((a,b)=>rank[a.tone]-rank[b.tone]);
+  // products to push and products to fix
+  const trend=p=>{const b=before.get(p.key);return b&&b.net>0?p.net/b.net-1:null;};
+  const push=[...PP.list].sort((a,b)=>(b.profit-a.profit)||(b.net-a.net)).slice(0,5).map(p=>{const t=trend(p),why=[];if(p===PP.list[0])why.push('Top seller');if(t!==null&&t>=0.2)why.push('Growing '+signed(t));if(!before.get(p.key))why.push('New this quarter');if(p.unit!==null&&p.margin>=0.5)why.push(pc(p.margin,0)+' margin');if(!why.length)why.push(pc(PP.total?p.list/PP.total:0,0)+' of sales');return {...p,t,why};});
+  const fix=[];const seen=new Set(push.map(p=>p.key)),add=(k,name,v,why,x)=>{if(seen.has(k)||fix.length>=6)return;seen.add(k);fix.push({name,v,why,x});};
+  PP.list.filter(p=>p.unit!==null&&p.margin<0.15).forEach(p=>add(p.key,p.name,fmt(p.net),['Only '+pc(p.margin,0)+' margin'],'Raise the price'));
+  PP.list.map(p=>({p,t:trend(p)})).filter(x=>x.t!==null&&x.t<=-0.3).sort((a,b)=>a.t-b.t).forEach(({p,t})=>add(p.key,p.name,fmt(p.net),['Sales '+signed(t)],'Refresh photos and title'));
+  P0.list.filter(p=>p.net>0&&!PP.list.some(q=>q.key===p.key)).sort((a,b)=>b.net-a.net).forEach(p=>add(p.key,p.name,'No sales',[`Sold ${fmt(p.net)} the 90 days before`],'Check it is still active'));
+  PP.unsold.filter(l=>l.flags.length).forEach(l=>add('l:'+l.title,l.title,'No sales',l.flags,'Fix the listing'));
+  return {cur,end,rev,rev0,growth,S,parts,score,acts,push,fix,listings:ls.length,orders:os.length};
+ }
+ function scoreRing(v){const tone=v>=75?'good':v>=55?'warn':'bad';
+  return `<div class="kit-ring kit-t-${tone}"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" class="kit-ring-track" pathLength="100"/><circle cx="60" cy="60" r="50" class="kit-ring-val" pathLength="100" style="stroke-dasharray:${v} 100"/></svg><b class="number">${v}</b><small>of 100</small></div>`;}
+ function insightsView(){
+  const I=hasData()&&shopHealth();
+  if(!I)return pagehead('Your shops','Insights','What to do next, from your own numbers.',scopeNote())+`<section class="card">${noData('sold order items or a payment account statement')}</section>`;
+  const tone=I.score===null?'warn':I.score>=75?'good':I.score>=55?'warn':'bad',word={good:'Thriving',warn:'Steady, with room to grow',bad:'Needs attention'}[tone];
+  const period=`${dateName(I.cur.from)} – ${dateName(I.end)}`;
+  const hero=`<section class="card kit-ins-hero kit-t-${tone}">${I.score!==null?scoreRing(I.score):''}<div class="kit-ins-lead"><small class="kit-eyebrow">Shop health · last 90 days</small><h2>${word}</h2><p>${period} · ${fmt(I.rev)} in sales${I.growth!==null?`, <span class="kit-delta ${I.growth>=0?'up':'down'}">${signed(I.growth)}</span> on the 90 days before`:''}. ${num(I.acts.filter(a=>a.tone!=='good').length)} thing${I.acts.filter(a=>a.tone!=='good').length===1?'':'s'} to look at below.</p></div>`+
+   `<div class="kit-ins-parts">${I.parts.map(p=>{const t=p.score>=70?'good':p.score>=45?'warn':'bad';return `<div class="kit-ins-part kit-t-${t}"><span class="kit-ins-ico">${ico(p.icon)}</span><div><div class="kit-ins-row"><b>${p.name}</b><b class="number">${p.value}</b></div><div class="kit-ins-bar"><i style="width:${Math.max(4,p.score)}%"></i></div><small>${p.note}</small></div></div>`;}).join('')}</div></section>`;
+  const acts=I.acts.length?`<section class="card"><div class="cardhead"><div><h2>Do this next</h2><p>Most urgent first · red needs fixing, amber is worth a look, green is working</p></div></div><div class="kit-acts">${I.acts.map(a=>`<article class="kit-act kit-t-${a.tone}"><span class="kit-act-ico">${ico(a.icon)}</span><div><h3>${esc(a.title)}</h3><p>${esc(a.why)}</p>${button(a.label+' →',a.go,'small quiet')}</div></article>`).join('')}</div></section>`:'';
+  const card=(p,i)=>`<li><span class="kit-rank">${i+1}</span><div><b title="${esc(p.name)}">${esc(p.name)}</b><div class="kit-chips">${p.why.map(w=>`<span>${esc(w)}</span>`).join('')}</div></div><div class="num"><b class="number">${fmt(p.net)}</b><small>${num(p.units)} sold${p.unit!==null?` · ${pc(p.margin,0)} margin`:''}</small></div></li>`;
+  const lists=`<div class="grid2 equal"><section class="card kit-ins-list kit-t-good"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('up')}</span>Double down on</h2><p>Your most profitable products in the last 90 days: keep them stocked, renewed and in your ads</p></div></div>${I.push.length?`<ol>${I.push.map(card).join('')}</ol>`:'<p class="small muted">No sales in the last 90 days.</p>'}</section>`+
+   `<section class="card kit-ins-list kit-t-warn"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('edit')}</span>Revisit</h2><p>Products that slipped, stopped selling or make too little</p></div></div>${I.fix.length?`<ol>${I.fix.map((f,i)=>`<li><span class="kit-rank">${i+1}</span><div><b title="${esc(f.name)}">${esc(f.name)}</b><div class="kit-chips">${f.why.map(w=>`<span>${esc(w)}</span>`).join('')}</div></div><div class="num"><b class="number">${esc(f.v)}</b><small>${esc(f.x)}</small></div></li>`).join('')}</ol>`:`<p class="kit-allgood">${ico('check')} Nothing slipping. Every product that sold before is still selling.</p>`}</section></div>`;
+  return pagehead('Your shops','Insights','What to do next, from your own numbers: the last 90 days against the 90 before.',scopeNote())+hero+acts+lists+
+   `<p class="small muted">${ico('help')} Rules of thumb, not guarantees: each tip comes from your imported files${I.listings?'':'. Import your listings file to get listing tips'}.</p>`;
  }
  // ---------- reviews ----------
  function reviewsView(){
@@ -4440,14 +4506,14 @@ const Etsy=(()=>{
    `<section class="card no-print"><div class="cardhead"><div><h2>Manage shops</h2><p>Rename a shop or change where it sells at any time. Deleting a shop removes everything imported into it.</p></div></div>${state.shops.map(x=>`<div class="row"><div><strong>${esc(x.name)} ${state.shops.every(v=>platOf(v.id)==='etsy')?'':`<span class="pill kit-plat">${PLAT[platOf(x.id)]}</span>`}</strong><small>${num(state.transactions.filter(t=>t.shop===x.id).length)} ${platOf(x.id)==='etsy'?'statement lines':'lines in the books'} · ${num(state.etsy.orders.filter(o=>o.shop===x.id).length)} ${platOf(x.id)==='square'?'sales':'orders'}${platOf(x.id)==='etsy'?` · ${num(state.etsy.listings.filter(l=>l.shop===x.id).length)} listings · ${num(state.etsy.reviews.filter(v=>v.shop===x.id).length)} reviews`:''}</small></div><div class="actions">${button('Edit','etsy-rename-shop','small',`data-id="${x.id}"`)}${button('Delete','etsy-delete-shop','small danger',`data-id="${x.id}"`)}</div></div>`).join('')||empty('No shops yet','Add each Etsy shop you run, then import its files.','etsy-add-shop','Add a shop')}</section>`;
  }
  // Shops as a table or as cards with the seller's own picture
- let shopsLayout='table';
+ let shopsLayout='grid';
  const layoutToggle=()=>`<div class="segment no-print" aria-label="Layout">${[['table','Table'],['grid','Grid']].map(([k,l])=>`<button data-action="etsy-shops-layout" data-k="${k}" aria-pressed="${shopsLayout===k}">${l}</button>`).join('')}</div>`;
  function shopsGrid(rows,T,r){
   return `<section class="card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${esc(r.label)} · all shops together: ${fmt(T.revenue)} revenue, ${Biz.acct(T.takeHome)} take-home</p></div>${layoutToggle()}</div><div class="kit-shop-grid">${rows.map(x=>{const sh=state.shops.find(v=>v.id===x.id)||{};
    return `<article class="kit-shop-card"><div class="kit-shop-img" style="--c:${shopColor(x.id)}">${sh.image?`<img src="${sh.image}" alt="">`:`<span>${esc((x.name||'?').trim().charAt(0).toUpperCase())}</span>`}<label class="kit-shop-upload no-print" title="${sh.image?'Change picture':'Add a picture'}">${sh.image?'Change picture':'＋ Add picture'}<input type="file" accept="image/*" data-shop-img="${x.id}" class="sr-only"></label>${sh.image?`<button class="kit-shop-rm no-print" data-action="etsy-shop-img-rm" data-id="${x.id}" aria-label="Remove picture">×</button>`:''}</div>`+
     `<div class="kit-shop-body"><div class="kit-shop-top"><i class="dot" style="background:${shopColor(x.id)}"></i><button class="link" data-action="etsy-scope" data-shop="${x.id}"><b>${esc(x.name)}</b></button></div>`+
     `<div class="kit-shop-big"><b class="number">${Biz.acct(x.takeHome)}</b><small>take-home · ${pc(x.kept,0)} kept</small></div>`+
-    `<div class="kit-shop-rows">${[['Revenue',fmt(x.revenue)],['Etsy costs',fmt(x.etsyCosts)],['Orders',num(x.orders||x.soldOrders)],['Average order',x.aov?fmt(x.aov):'—'],['Listings',num(x.listings)],['Rating',x.rating?x.rating.toFixed(2)+' ★':'—']].map(([l,v])=>`<div><span>${l}</span><b class="number">${v}</b></div>`).join('')}</div>`+
+    `<div class="kit-shop-rows">${[['Revenue',fmt(x.revenue),'up'],['Etsy costs',fmt(x.etsyCosts),'coins'],['Orders',num(x.orders||x.soldOrders),'log'],['Average order',x.aov?fmt(x.aov):'—','wallet'],['Listings',num(x.listings),'tags'],['Rating',x.rating?x.rating.toFixed(2)+' ★':'—','review']].map(([l,v,i])=>`<div><span>${ico(i)}${l}</span><b class="number">${v}</b></div>`).join('')}</div>`+
     `<div class="kit-shop-meter"><i style="width:${Math.max(0,Math.min(100,(x.kept||0)*100))}%"></i></div></div></article>`;}).join('')}</div></section>`;}
  // pictures are shrunk to a small JPEG before they are saved, so the file stays light
  function shopPicture(file,id){if(!file||!/^image\//.test(file.type))return toast('Choose an image file.');const img=new Image(),url=URL.createObjectURL(file);
@@ -4520,7 +4586,7 @@ const Etsy=(()=>{
   const lastOf=k=>target?state.etsy.imports.filter(x=>x.shop===target&&x.kind===k&&(x.platform||'etsy')===tp).map(x=>x.at).sort().at(-1):'';
   const list=(tp==='etsy'?X.exports:X.channelExports[tp]||[]);
   const where=list.length?`<div class="table-wrap"><table class="kit-files"><thead><tr><th>File</th><th>What it brings in</th><th>What it fills</th><th>This shop</th></tr></thead><tbody>${list.map(([k,label,path,example])=>{const [label1,sub]=label.split(' · '),g=GIVES[k]||['',''],last=lastOf(k);
-   return `<tr><td><b>${esc(label1)}</b><small>${esc(path)}</small><span class="pill">${esc(example)}</span></td><td>${esc(sub?sub.charAt(0).toUpperCase()+sub.slice(1):g[0])}${sub&&g[0]?`<small>${esc(g[0])}</small>`:''}</td><td class="kit-fills">${esc(g[1]).split(' · ').map(x=>`<span>${x}</span>`).join('')}</td><td class="nw">${last?`<span class="kit-have">✓ ${dateName(last)}</span>`:'<span class="dim">Not yet</span>'}</td></tr>`;}).join('')}</tbody></table></div>`:'';
+   return `<tr><td><div class="kit-file-cell"><span class="kit-h-ico">${ico({statement:'table',orders:'log',listings:'tags',reviews:'review',deposits:'coins',bank:'wallet'}[k]||'table')}</span><div><b>${esc(label1)}</b><small>${esc(path)}</small><span class="pill">${esc(example)}</span></div></div></td><td>${esc(sub?sub.charAt(0).toUpperCase()+sub.slice(1):g[0])}${sub&&g[0]?`<small>${esc(g[0])}</small>`:''}</td><td class="kit-fills">${esc(g[1]).split(' · ').map(x=>`<span>${x}</span>`).join('')}</td><td class="nw">${last?`<span class="kit-have">✓ ${dateName(last)}</span>`:'<span class="dim">Not yet</span>'}</td></tr>`;}).join('')}</tbody></table></div>`:'';
   // what the chosen shop already holds, so the choice is easy to check at a glance
   const held=id=>{const last=state.etsy.imports.filter(x=>x.shop===id).map(x=>x.at).sort().at(-1),o=state.etsy.orders.filter(x=>x.shop===id).length,l=state.transactions.filter(t=>t.shop===id&&t.src).length;
    return last?`${num(o)} order${o===1?'':'s'} · ${num(l)} statement line${l===1?'':'s'} · last import ${dateName(last)}`:'Nothing imported yet';};
@@ -4714,10 +4780,10 @@ const Etsy=(()=>{
  .kit-fills span{display:inline-block;background:var(--sunk);border-radius:99px;padding:2px 8px;margin:0 4px 4px 0;font-size:11.5px;color:var(--ink-2)}
  .kit-have{color:var(--ok);font-weight:600}
  .kit-hero .hero-meter i{background:var(--ok)}
- .kpi.kit-tone-pos{background:linear-gradient(180deg,color-mix(in srgb,var(--ok) 9%,var(--card)),var(--card) 70%);border-color:color-mix(in srgb,var(--ok) 22%,var(--rule))}
- .kpi.kit-tone-neg{background:linear-gradient(180deg,color-mix(in srgb,var(--over) 8%,var(--card)),var(--card) 70%);border-color:color-mix(in srgb,var(--over) 20%,var(--rule))}
- .kpi.kit-tone-net{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 11%,var(--card)),var(--card) 70%);border-color:color-mix(in srgb,var(--accent) 24%,var(--rule))}
- .kpi.kit-tone-neutral{background:linear-gradient(180deg,var(--sunk),var(--card) 75%)}
+ .kpi.kit-tone-pos{background:color-mix(in srgb,var(--ok) 11%,var(--card));border-color:color-mix(in srgb,var(--ok) 22%,var(--rule))}
+ .kpi.kit-tone-neg{background:color-mix(in srgb,var(--over) 10%,var(--card));border-color:color-mix(in srgb,var(--over) 20%,var(--rule))}
+ .kpi.kit-tone-net{background:color-mix(in srgb,var(--accent) 12%,var(--card));border-color:color-mix(in srgb,var(--accent) 24%,var(--rule))}
+ .kpi.kit-tone-neutral{background:var(--sunk)}
  .kpi[data-tone]{box-shadow:none}.kpi.kit-tone-pos .label::before,.kpi.kit-tone-neg .label::before,.kpi.kit-tone-net .label::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--ok)}
  .kpi.kit-tone-neg .label::before{background:var(--over)}.kpi.kit-tone-net .label::before{background:var(--accent)}
  .kit-spark polyline{stroke:var(--spark,var(--accent))!important}.kit-spark circle{fill:var(--spark,var(--accent))!important}
@@ -4834,9 +4900,9 @@ const Etsy=(()=>{
  @media (max-width:760px){.kit-reviews,.kit-ahead,.kit-calc-head{grid-template-columns:1fr}.etsy-import-top{grid-template-columns:1fr}.etsy-import-step+.etsy-import-step{border-left:0;border-top:1px solid var(--rule)}.etsy-import-step{padding:20px}.grid3{grid-template-columns:1fr}.etsy-kpis{grid-template-columns:1fr 1fr}.top-left{flex-wrap:wrap;row-gap:6px}.shop-control{order:3;flex-basis:100%;margin-left:0}.shop-control .month-control-label{display:none}.shop-control select{max-width:none;width:100%;height:34px}}
  @media print{.shop-control{display:none}}
  /* chart kit */
- .kit-pie{display:grid;grid-template-columns:minmax(150px,200px) 1fr;gap:22px;align-items:center}
+ .kit-pie{display:grid;grid-template-columns:1fr;justify-items:center;gap:18px}.kit-pie .kit-key{width:100%}
  .kit-pie svg{width:100%;height:auto;max-width:200px;overflow:visible;flex-shrink:1}
- .kit-seg{stroke:var(--card);stroke-width:2;stroke-linejoin:round;transform-origin:90px 90px;transform-box:view-box;animation:kit-pop .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*80ms);transition:transform .2s;cursor:pointer}
+ .kit-cut{stroke:var(--card);stroke-width:2.5;stroke-linecap:butt;pointer-events:none}.kit-seg{transform-origin:90px 90px;transform-box:view-box;animation:kit-pop .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*80ms);transition:transform .2s;cursor:pointer}
  .kit-seg:hover,.kit-seg:focus{transform:scale(1.045);outline:none}
  .kit-mid{font:800 20px var(--num);fill:var(--ink);text-anchor:middle}
  .kit-mid-sub{font:600 9px var(--ui);letter-spacing:.08em;fill:var(--ink-3);text-anchor:middle}
@@ -4860,7 +4926,32 @@ const Etsy=(()=>{
  .kit-counts b{display:block;font:800 24px var(--num)}
  .kit-counts small{color:var(--ink-3);font-size:12px}
  .kit-spark{display:block;width:100%;max-width:140px;height:30px;margin:6px 0 2px;flex-shrink:1}
- .kit-col{display:flex;flex-direction:column;gap:18px;min-width:0}.kit-col>.card{margin:0}
+ .kit-t-good{--t:var(--ok)}.kit-t-warn{--t:var(--flag)}.kit-t-bad{--t:var(--over)}
+ .kit-ins-hero{display:grid;grid-template-columns:auto 1fr;gap:10px 28px;align-items:center;background:color-mix(in srgb,var(--t) 9%,var(--card));border-color:color-mix(in srgb,var(--t) 25%,var(--rule))}
+ .kit-ins-lead h2{font-size:30px;margin:4px 0 6px}.kit-ins-lead p{margin:0;color:var(--ink-2)}.kit-eyebrow{text-transform:uppercase;letter-spacing:.08em;font-size:11px;color:var(--ink-3);font-weight:600}
+ .kit-ring{position:relative;width:132px;height:132px;display:grid;place-items:center;align-content:center}.kit-ring svg{position:absolute;inset:0;width:132px;height:132px;max-width:none;transform:rotate(-90deg)}
+ .kit-ring circle{fill:none;stroke-width:11}.kit-ring-track{stroke:color-mix(in srgb,var(--t) 16%,var(--card))}.kit-ring-val{stroke:var(--t);stroke-linecap:round}
+ .kit-ring b{font-size:38px;line-height:1;color:var(--ink)}.kit-ring small{font-size:11px;color:var(--ink-3)}
+ .kit-ins-parts{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:14px}
+ .kit-ins-part{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:12px 14px}
+ .kit-ins-ico,.kit-act-ico,.kit-h-ico{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--t,var(--accent)) 14%,var(--card));color:var(--t,var(--accent));flex:none}
+ .kit-file-cell{display:flex;gap:12px;align-items:flex-start}.kit-shop-rows span svg{width:13px;height:13px;margin-right:6px;vertical-align:-2px;color:var(--ink-3)}
+ .kit-ins-ico svg,.kit-act-ico svg{width:18px;height:18px;stroke-width:1.9}.kit-h-ico{width:28px;height:28px;border-radius:8px;margin-right:10px;vertical-align:-7px}.kit-h-ico svg{width:15px;height:15px;stroke-width:2}
+ .kit-ins-row{display:flex;justify-content:space-between;gap:8px;font-size:14px}.kit-ins-part small{color:var(--ink-3);font-size:12px}
+ .kit-ins-bar{height:6px;border-radius:3px;background:var(--sunk);margin:7px 0 5px;overflow:hidden}.kit-ins-bar i{display:block;height:100%;background:var(--t);border-radius:3px}
+ .kit-acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+ .kit-act{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:14px 16px;border-radius:var(--r-md);background:color-mix(in srgb,var(--t) 8%,var(--card));border:1px solid color-mix(in srgb,var(--t) 22%,var(--rule));border-left:4px solid var(--t)}
+ .kit-act h3{font-size:15px;margin:2px 0 4px}.kit-act p{margin:0 0 10px;font-size:13px;color:var(--ink-2);line-height:1.45}
+ .kit-ins-list ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+ .kit-ins-list li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--rule);border-radius:var(--r-md);background:color-mix(in srgb,var(--t) 5%,var(--card))}
+ .kit-ins-list li b[title]{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.kit-ins-list .num{text-align:right}.kit-ins-list .num small{display:block;color:var(--ink-3);font-size:12px}
+ .kit-rank{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--t);color:#fff;font-size:12px;font-weight:700}
+ .kit-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.kit-chips span{font-size:11px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--t) 14%,var(--card));color:var(--ink-2)}
+ .kit-allgood{display:flex;gap:8px;align-items:center;color:var(--ok)}.kit-allgood svg,p.small svg{width:15px;height:15px;vertical-align:-3px}
+ @media (max-width:760px){.kit-ins-hero{grid-template-columns:1fr;justify-items:start}.kit-acts{grid-template-columns:1fr}}
+ .kit-quad{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.kit-quad>.card{margin:0;min-width:0;display:flex;flex-direction:column}.kit-quad>.card>.kit-pie{flex:1;align-content:center}
+ .kit-q-table .table-wrap{flex:1}.kit-q-table .kit-pager{margin-top:auto}
+ @media (max-width:900px){.kit-quad{grid-template-columns:1fr}.kit-q1{order:1}.kit-q-table{order:2}.kit-q2{order:3}.kit-q4{order:4}}
  .kit-heat{background:color-mix(in srgb,var(--ok) var(--h),transparent);font-variant-numeric:tabular-nums}
  .kit-spark polyline{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;animation:kit-draw 1.2s ease-out both}
  .kit-spark circle{transform-box:fill-box;transform-origin:center;animation:kit-beat 2.4s ease-in-out 1.2s infinite}
@@ -4883,7 +4974,7 @@ const Etsy=(()=>{
  .kit-heat td small{opacity:.8}
  .kit-tile{transition:transform .2s ease,box-shadow .2s ease}
  .kit-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
- .kit-pulse{display:flex;align-items:center;gap:16px;padding:14px 18px;background:linear-gradient(90deg,var(--accent-soft),var(--card))}
+ .kit-pulse{display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--accent-soft)}
  .kit-live{flex:none;width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 var(--accent);animation:kit-ring 2s ease-out infinite}
  .kit-pulse-track{position:relative;flex:1;min-height:42px}
  .kit-pulse-track p{position:absolute;inset:0;display:flex;align-items:center;margin:0;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;pointer-events:none}
@@ -4902,7 +4993,7 @@ const Etsy=(()=>{
  </style>`);
 
  Object.assign(Ext,{
-  views:{dashboard:dashboardView,pricing:pricingView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
+  views:{dashboard:dashboardView,insights:insightsView,pricing:pricingView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
   afterRender,annualTop,plNote,importRefine,settingsCard,activityFilter,txBadge,
   bizName:()=>{const n=state.settings.name,sh=state.settings.shop?shopName(state.settings.shop):'';return sh?(n?`${n} · ${sh}`:sh):(n||(state.shops.length>1?'All shops':state.shops[0]?.name||''));},
   importTag:(name,rows)=>{const id='i'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,20),dates=rows.map(r=>r.date).sort();

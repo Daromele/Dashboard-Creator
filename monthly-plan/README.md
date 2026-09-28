@@ -59,7 +59,7 @@ do not change.
 
 - **Hubs.** A `nav` item may carry a fourth element, `[[screen, tab label], …]`: the sidebar shows it once and
   its screens appear as tabs at the top of the page. Every screen id still works with `go()`. The Etsy pack uses hubs
-  to keep the sidebar to 12 items; Budget and Profit Plan use none.
+  to keep the sidebar to 13 items; Budget and Profit Plan use none.
 - **Shops.** `state.shops` lists them; `settings.shop` is the one on screen (`''` = all shops). Every
   transaction may carry `shop`, and `Budget.transactions` reads only the chosen shop, so the P&L, tax,
   cash flow and every total follow the picker. Costs logged with All shops picked have no shop: they are
@@ -88,6 +88,7 @@ do not change.
   transactions export becomes statement-like lines with exact fees. Months with orders but no such lines are
   estimated at `settings.channelFees` (defaults in the pack's `etsy.channelRates`). A file is refused by a shop
   on another platform. `compare` gives each shop's take-home per dollar (`kept`).
+- **Insights.** `shopHealth()` compares the last 90 days with the 90 before: a health score, a to-do list, products to push and products to fix, all from plain rules on the imported numbers.
 - **Goals.** `settings.goals` holds a monthly revenue goal per shop (`''` = all shops together).
 - **Test data.** `build/etsy_fixtures.js` writes synthetic files in Etsy's layouts. Never commit a seller's
   real exports: the sold order items file holds buyers' names and addresses.
