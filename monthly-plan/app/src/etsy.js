@@ -586,6 +586,33 @@ const EtsyData=((P,B,CSV)=>{
  }
  // Profit per product: sales after discounts, minus Etsy's costs shared out by sales at this period's
  // real rate (fees, ads and Etsy Plus over revenue), minus your own cost per item where you gave one.
+ // New listings by month and what they sold. Etsy's files carry no creation date, so a listing counts
+ // as new the month it is first seen (a listing fee or a sale) with an ID above every listing seen in earlier months:
+ // Etsy's listing IDs only go up, so an older listing that sells for the first time is not counted.
+ // A listing fee on the day the same listing sold is Etsy renewing it, not a new listing.
+ // The first month with data is the baseline: everything is "first seen" there, so it is not counted.
+ function launches(s,young=90){
+  const om=new Map(scoped(s,s.etsy?.orders||[]).map(o=>[o.id,o])),seen=new Map(),sales=[];
+  const see=(id,date)=>{const d=seen.get(id);if(!d||date<d)seen.set(id,date);};
+  const soldOn=new Set();
+  for(const i of scoped(s,s.etsy?.items||[])){const o=om.get(i.order);if(!o||!i.listing)continue;const net=i.total-(o.list?Math.round(o.discount*i.total/o.list):0);sales.push({id:i.listing,date:o.date,net,units:i.qty});see(i.listing,o.date);soldOn.add(i.listing+'|'+o.date);}
+  const fees=scoped(s,s.transactions).filter(t=>t.category==='listing-fees'&&t.amount>0&&!t.est&&/^l\d+$/.test(t.ref||'')).map(t=>({id:t.ref.slice(1),date:t.date}));
+  const renewals=fees.filter(f=>soldOn.has(f.id+'|'+f.date)||soldOn.has(f.id+'|'+Budget.plusDays(f.date,-1)));
+  fees.filter(f=>!renewals.includes(f)).forEach(f=>see(f.id,f.date));
+  const first=[...seen.entries()].map(([id,date])=>({id,date,n:BigInt(id)})).sort((a,b)=>a.date.localeCompare(b.date)||(a.n<b.n?-1:a.n>b.n?1:0));
+  if(!first.length)return {months:[],launched:new Map(),baseline:null,fees:fees.length,renewals:renewals.length};
+  const baseline=first[0].date.slice(0,7),launched=new Map();let max=0n;
+  // compared with IDs seen in earlier months only, so two listings added the same month both count
+  let cur='',monthMax=0n;for(const f of first){const mo=f.date.slice(0,7);if(mo!==cur){cur=mo;if(monthMax>max)max=monthMax;}if(mo>baseline&&f.n>max)launched.set(f.id,f.date);if(f.n>monthMax)monthMax=f.n;}
+  const byMonth=new Map(),cell=mo=>{let c=byMonth.get(mo);if(!c)byMonth.set(mo,c={month:mo,added:0,ids:[],sales:0,fromNew:0,units:0,fees:0,renewals:0});return c;};
+  for(const [id,date] of launched){const c=cell(date.slice(0,7));c.added++;c.ids.push(id);}
+  const earned=new Map();
+  for(const x of sales){const c=cell(x.date.slice(0,7));c.sales+=x.net;c.units+=x.units;const l=launched.get(x.id);if(l){if(x.date<=Budget.plusDays(l,young))c.fromNew+=x.net;const e=earned.get(x.id)||{net:0,units:0,first90:0};e.net+=x.net;e.units+=x.units;if(x.date<=Budget.plusDays(l,young))e.first90+=x.net;earned.set(x.id,e);}}
+  fees.forEach(f=>cell(f.date.slice(0,7)).fees++);renewals.forEach(f=>cell(f.date.slice(0,7)).renewals++);
+  const months=[...byMonth.values()].filter(c=>c.month>=baseline).sort((a,b)=>a.month.localeCompare(b.month)).map(c=>{const e=c.ids.map(id=>earned.get(id)||{net:0,units:0,first90:0});
+   return {...c,cohortNet:e.reduce((n,x)=>n+x.net,0),cohortSold:e.filter(x=>x.units).length,cohortFirst90:e.reduce((n,x)=>n+x.first90,0)};});
+  return {months,launched,earned,baseline,fees:fees.length,renewals:renewals.length};
+ }
  function productProfit(s,from=ALL.from,to=ALL.to){
   const R=products(s,from,to),S=summary(s,from,to),r=rates(s),costs=s.etsy?.costs||{};
   const share=S.revenue>0?(S.fees+S.marketing)/S.revenue:null;
@@ -603,10 +630,13 @@ const EtsyData=((P,B,CSV)=>{
  // otherwise from the deposit lines of the payment account statement. Both are shown when both exist.
  function payouts(s,y){
   const file=scoped(s,s.etsy?.deposits||[]).filter(d=>d.date.slice(0,4)===y),stmt=scoped(s,s.transactions).filter(t=>t.category==='etsy-deposit'&&!t.imp&&!t.est&&t.date.slice(0,4)===y);
-  const months=Array.from({length:12},(_,i)=>{const m=`${y}-${String(i+1).padStart(2,'0')}`,f=file.filter(d=>d.date.startsWith(m)),t=stmt.filter(x=>x.date.startsWith(m));
-   const fileTotal=f.reduce((n,d)=>n+d.amount,0),stmtTotal=t.reduce((n,x)=>n+x.amount,0);
-   return {month:m,count:f.length||t.length,total:f.length?fileTotal:stmtTotal,fileTotal,stmtTotal,fromFile:f.length>0,checked:f.length>0&&t.length>0,match:f.length>0&&t.length>0&&fileTotal===stmtTotal};});
-  const list=[...file.map(d=>({date:d.date,amount:d.amount,shop:d.shop,from:'deposits'})),...stmt.filter(t=>!file.some(d=>d.date.slice(0,7)===t.date.slice(0,7))).map(t=>({date:t.date,amount:t.amount,shop:t.shop,from:'statement'}))].sort((a,b)=>b.date.localeCompare(a.date));
+  // per shop: a shop's deposits file wins over its statement lines, and the two are checked against each other only where one shop has both
+  const shopIds=[...new Set([...file,...stmt].map(x=>x.shop||''))];
+  const months=Array.from({length:12},(_,i)=>{const m=`${y}-${String(i+1).padStart(2,'0')}`;let count=0,total=0,fileTotal=0,stmtTotal=0,fromFile=false,checked=false,match=true;const byShop={};
+   for(const sh of shopIds){const f=file.filter(d=>(d.shop||'')===sh&&d.date.startsWith(m)),t=stmt.filter(x=>(x.shop||'')===sh&&x.date.startsWith(m)),ft=f.reduce((n,d)=>n+d.amount,0),st=t.reduce((n,x)=>n+x.amount,0);
+    fileTotal+=ft;stmtTotal+=st;count+=f.length||t.length;const v=f.length?ft:st;total+=v;if(v)byShop[sh]=v;if(f.length)fromFile=true;if(f.length&&t.length){checked=true;if(ft!==st)match=false;}}
+   return {month:m,count,total,fileTotal,stmtTotal,fromFile,checked,match:checked&&match,byShop};});
+  const list=[...file.map(d=>({date:d.date,amount:d.amount,shop:d.shop,from:'deposits'})),...stmt.filter(t=>!file.some(d=>(d.shop||'')===(t.shop||'')&&d.date.slice(0,7)===t.date.slice(0,7))).map(t=>({date:t.date,amount:t.amount,shop:t.shop,from:'statement'}))].sort((a,b)=>b.date.localeCompare(a.date));
   const total=months.reduce((n,m)=>n+m.total,0),count=months.reduce((n,m)=>n+m.count,0);
   return {months,list,total,count,average:count?Math.round(total/count):0,last:list[0]||null};
  }
@@ -637,7 +667,7 @@ const EtsyData=((P,B,CSV)=>{
   return s.shops.map(shop=>{const v=forShop(s,shop.id),m=summary(v,from,to),r=reviewStats(v,from,to);
    return {...shop,platform:shop.platform||'etsy',kept:m.revenue>0?m.takeHome/m.revenue:null,...m,soldOrders:ordersIn(v,from,to).length,listings:v.etsy.listings.filter(l=>l.shop===shop.id).length,reviews:r.count,rating:r.avg};});
  }
- return {KINDS,ALL,hash,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,moveImport,importScope,rates,pricing,priceFor,productProfit,syncEstimates,estimatedMonths,compare,forShop,scoped,enabled,etsyStatement,payouts,channelOf,platformOf,channelRates,kindName,layoutKey,resolve,SYN,GENERIC};
+ return {KINDS,ALL,hash,launches,titleKey,sameTitle,kindOf,money,classify,read,merge,summary,orderBook,products,coupons,customers,reviewStats,seasonality,orderMonths,removeImport,moveImport,importScope,rates,pricing,priceFor,productProfit,syncEstimates,estimatedMonths,compare,forShop,scoped,enabled,etsyStatement,payouts,channelOf,platformOf,channelRates,kindName,layoutKey,resolve,SYN,GENERIC};
 })(NICHE,Budget,CSV);
 if(typeof module!=='undefined')module.exports.EtsyData=EtsyData;
 
@@ -724,7 +754,7 @@ const Etsy=(()=>{
   const tot=labels.map((_,i)=>series.reduce((n,s)=>n+(Number.isFinite(s.values[i])?Math.max(0,s.values[i]):0),0)),max=Math.max(1,...tot,...(overlay?overlay.values.filter(Number.isFinite):[]));if(!tot.some(Boolean))return '';
   const W=700,H=260,pl=52,pr=12,pt=22,pb=28,band=(W-pl-pr)/labels.length,bw=Math.min(38,band*.62),Y=v=>pt+(1-v/max)*(H-pt-pb),ticks=Array.from({length:5},(_,i)=>max*i/4);
   const cols=labels.map((l,i)=>{let base=H-pb;const x=pl+band*i+(band-bw)/2;
-   const segs=series.map((s,si)=>{const v=Math.max(0,s.values[i]||0);if(!v)return '';const h=(H-pt-pb)*v/max,y=base-h;base=y;return `<rect class="kit-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" style="fill:${s.color};--i:${i}"/>`;}).join('');
+   const segs=series.map((s,si)=>{const v=Math.max(0,s.values[i]||0);if(!v)return '';const h=(H-pt-pb)*v/max,y=base-h;base=y;return `<rect class="kit-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" style="fill:${s.color};--i:${i}"/>`;}).join('');
    const tip=tipOf(l,[...series.filter(s=>s.values[i]).map(s=>({name:s.name,value:f(s.values[i]),color:s.color})),{name:'Total',value:f(tot[i])},...(overlay&&Number.isFinite(overlay.values[i])?[{name:overlay.name,value:f(overlay.values[i]),color:overlay.color}]:[])]);
    return `<g class="kit-col" tabindex="0" data-tip="${tip}"><rect x="${(pl+band*i).toFixed(1)}" y="${pt}" width="${band.toFixed(1)}" height="${H-pt-pb}" fill="transparent"/>${segs}${tot[i]?`<text x="${(x+bw/2).toFixed(1)}" y="${(Y(tot[i])-6).toFixed(1)}" class="kit-axis" text-anchor="middle">${esc(cf(tot[i]))}</text>`:''}</g><text x="${(x+bw/2).toFixed(1)}" y="${H-8}" class="kit-axis" text-anchor="middle">${esc(l)}</text>`;}).join('');
   const ov=overlay?(()=>{const pts=overlay.values.map((v,i)=>Number.isFinite(v)?[pl+band*i+band/2,Y(Math.max(0,v)),i,v]:null).filter(Boolean);return pts.length?`<polyline class="kit-path kit-over" pathLength="100" points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" style="stroke:${overlay.color};--i:2"/>`+pts.map(p=>`<circle class="kit-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" style="fill:${overlay.color};--i:${p[2]};pointer-events:none"/>`).join(''):'';})():'';
@@ -921,12 +951,19 @@ const Etsy=(()=>{
    `</div><div class="formfoot"><button class="btn primary">Save fees</button></div></form></section>`;}
  // Paid out to your bank: the year by month, and every payout of the picked month
  function payoutsCard(y,withList=true){const P=D.payouts(state,y);if(!P.count)return '';const m=selected,ml=P.list.filter(x=>x.date.startsWith(m)),cm=P.months[+m.slice(5,7)-1];
-  const checked=P.months.filter(x=>x.checked),bad=checked.filter(x=>!x.match);
+  const checked=P.months.filter(x=>x.checked),bad=checked.filter(x=>!x.match),multi=!state.settings.shop&&state.shops.length>1;
+  const shops=multi?state.shops.filter(sh=>P.months.some(x=>x.byShop[sh.id])):[];
+  const series=shops.length>1?shops.map(sh=>({name:sh.name,values:P.months.map(x=>x.count?x.byShop[sh.id]||0:null),color:shopColor(sh.id)})):[{name:'Paid out',values:P.months.map(x=>x.count?x.total:null),color:'var(--accent)'}];
+  const chart=stack(series,P.months.map(x=>shortMonth(x.month)),{title:'Paid out to your bank by month'});
+  // one shop: every payout this month · all shops: one short row per shop, so the list stays as tall as the chart
+  const perShop=shops.length>1?shops.map(sh=>{const l=ml.filter(x=>x.shop===sh.id);return {sh,n:l.length,total:l.reduce((n,x)=>n+x.amount,0),last:l[0]};}).filter(x=>x.n):[];
+  const list=withList&&ml.length?(perShop.length?`<div><h3 class="kit-calc-sub" style="margin-top:0">Payouts in ${monthName(m)}, by shop</h3><div class="table-wrap"><table><thead><tr><th>Shop</th><th class="num">Payouts</th><th class="num">Last</th><th class="num">Total</th></tr></thead><tbody>${perShop.map(x=>`<tr><td class="nw"><i class="dot" style="background:${shopColor(x.sh.id)}"></i> ${esc(x.sh.name)}</td><td class="num">${num(x.n)}</td><td class="num">${dateName(x.last.date)}</td><td class="num">${fmt(x.total)}</td></tr>`).join('')}<tr class="group-total"><td><b>All shops</b></td><td class="num"><b>${num(ml.length)}</b></td><td></td><td class="num"><b>${fmt(cm.total)}</b></td></tr></tbody></table></div><p class="small muted" style="margin-top:10px">Pick one shop at the top to see each payout.</p></div>`
+   :`<div><h3 class="kit-calc-sub" style="margin-top:0">Payouts in ${monthName(m)}</h3><div class="table-wrap kit-pay-list"><table><thead><tr><th>Date</th><th class="num">Amount</th></tr></thead><tbody>${ml.map(x=>`<tr><td>${dateName(x.date)}</td><td class="num">${fmt(x.amount)}</td></tr>`).join('')}<tr class="group-total"><td><b>Total</b></td><td class="num"><b>${fmt(cm.total)}</b></td></tr></tbody></table></div></div>`):'';
   return `<section class="card" id="etsy-payouts"><div class="cardhead"><div><h2>Paid out to your bank, ${y}</h2><p>From your Etsy Payments Deposits file${P.months.some(x=>x.count&&!x.fromFile)?' and the deposit lines of your statements':''} · money moving to your bank, not income: the sales are already counted</p></div>${button('Import deposits','go-etsy-import','small quiet')}</div>`+
    `<div class="kpis">${kpi('Paid out',P.total,`${num(P.count)} payouts in ${y}`,'coins')}${kpi('Average payout',P.average,'Per payout','wallet')}${kpi(monthName(m),cm.total,cm.count?`${num(cm.count)} payout${cm.count===1?'':'s'}`:'No payouts this month','history')}${stat('Last payout',P.last?dateName(P.last.date):'—',P.last?fmt(P.last.amount):'')}</div>`+
-   `<div class="${withList&&ml.length?'grid2 equal kit-pay':''}"><div>`+compareBarChart([{name:'Paid out',values:P.months.map(x=>x.count?x.total:null),color:'var(--accent)'}],P.months.map(x=>shortMonth(x.month)),'Paid out to your bank by month','vertical')+
+   `<div class="${list?'kit-pay':''}"><div>${chart}`+
    (checked.length?`<p class="small ${bad.length?'warn':'muted'} kit-note" style="margin-top:12px">${bad.length?`The deposits file and the statement disagree in ${bad.map(x=>shortMonth(x.month)).join(', ')}: re-download the one that looks short.`:`Checked against your statements in ${checked.map(x=>shortMonth(x.month)).join(', ')}: the payouts match to the cent.`}</p>`:'')+
-   `</div>`+(withList&&ml.length?`<div><h3 class="kit-calc-sub" style="margin-top:0">Payouts in ${monthName(m)}</h3><div class="table-wrap"><table><thead><tr><th>Date</th>${!state.settings.shop&&state.shops.length>1?'<th>Shop</th>':''}<th class="num">Amount</th></tr></thead><tbody>${ml.map(x=>`<tr><td>${dateName(x.date)}</td>${!state.settings.shop&&state.shops.length>1?`<td>${esc(shopName(x.shop))}</td>`:''}<td class="num">${fmt(x.amount)}</td></tr>`).join('')}<tr class="group-total"><td colspan="${!state.settings.shop&&state.shops.length>1?2:1}"><b>Total</b></td><td class="num"><b>${fmt(cm.total)}</b></td></tr></tbody></table></div></div>`:'')+`</div></section>`;}
+   `</div>${list}</div></section>`;}
  // The month the way Etsy's Monthly statement shows it, so the two can be checked side by side
  function etsyStatementCard(r){const E=D.etsyStatement(state,r.from,r.to);if(!E.sales&&!E.feesTotal&&!E.marketingTotal)return '';
   const base=E.salesTotal>0?E.salesTotal:0,share=n=>base?pc(n/base,0)+' of sales':'';
@@ -1101,6 +1138,29 @@ const Etsy=(()=>{
    `<section class="card kit-ins-list kit-t-warn"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('edit')}</span>Revisit</h2><p>Products that slipped, stopped selling or make too little</p></div></div>${I.fix.length?`<ol>${I.fix.map((f,i)=>`<li><span class="kit-rank">${i+1}</span><div><b title="${esc(f.name)}">${esc(f.name)}</b><div class="kit-chips">${f.why.map(w=>`<span>${esc(w)}</span>`).join('')}</div></div><div class="num"><b class="number">${esc(f.v)}</b><small>${esc(f.x)}</small></div></li>`).join('')}</ol>`:`<p class="kit-allgood">${ico('check')} Nothing slipping. Every product that sold before is still selling.</p>`}</section></div>`;
   return head+hero+acts+lists+
    `<p class="small muted">${ico('help')} Rules of thumb, not guarantees: each tip comes from your imported files${I.listings?'':'. Import your listings file to get listing tips'}.</p>`;
+ }
+ // ---------- new listings: do more listings bring more sales? ----------
+ function launchesView(){
+  const Lx=D.launches(state),y=selected.slice(0,4),head=pagehead('What sells','New listings','Listings you added each month, and whether sales followed. Etsy’s files have no creation date, so a listing counts as new the month it first shows up (a listing fee or its first sale) with a listing ID newer than any before it.',scopeNote());
+  if(Lx.months.length<2)return head+`<section class="card">${noData('sold order items (and payment account statements for listings that haven’t sold yet)')}</section>`;
+  // the 12 months up to the picked one, like the other screens
+  const lo12=Budget.shift(selected,-11),win=Lx.months.filter(m=>m.month>=lo12&&m.month<=selected);Lx.months=win.length?win:Lx.months;
+  const ms=Lx.months.filter(m=>m.month>Lx.baseline),added=ms.reduce((n,m)=>n+m.added,0),sales=ms.reduce((n,m)=>n+m.sales,0),fromNew=ms.reduce((n,m)=>n+m.fromNew,0),cohort=ms.reduce((n,m)=>n+m.cohortNet,0),sold=ms.reduce((n,m)=>n+m.cohortSold,0);
+  if(!ms.length)return head+`<section class="card">${noData('more than one month of sold order items')}</section>`;
+  // do months with more new listings lead into better months? next month's sales, busy-launch months against quiet ones
+  const pairs=ms.map((m,i)=>{const nx=Lx.months.find(x=>x.month===Budget.shift(m.month,1));return nx?{added:m.added,next:nx.sales,now:m.sales}:null;}).filter(Boolean);
+  const med=[...pairs.map(p=>p.added)].sort((a,b)=>a-b)[Math.floor(pairs.length/2)]??0,hi=pairs.filter(p=>p.added>med),lo=pairs.filter(p=>p.added<=med),avg=a=>a.length?a.reduce((n,p)=>n+p.next,0)/a.length:null;
+  const lift=hi.length&&lo.length&&avg(lo)>0?avg(hi)/avg(lo)-1:null;
+  const verdict=pairs.length<4?`Import more months of sold order items to compare: there are ${pairs.length} so far.`:lift===null?'Every month had about as many new listings, so there is nothing to compare yet.':
+   `In the ${hi.length} month${hi.length===1?'':'s'} after you added more than ${med} listing${med===1?'':'s'}, sales averaged <b>${fmt(Math.round(avg(hi)))}</b>, against <b>${fmt(Math.round(avg(lo)))}</b> after quieter months: <b class="${lift>=0?'kit-good':'kit-bad'}">${signed(lift)}</b>. ${Math.abs(lift)<0.1?'About the same: new listings haven’t moved sales much on their own.':lift>0?'Adding listings has gone with better months.':'Busier listing months haven’t led to better sales.'} This shows what happened together, not proof that one caused the other.`;
+  const kpis=`<div class="kpis etsy-kpis">${tile('New listings',num(added),`${shortMonth(ms[0].month)} – ${shortMonth(ms.at(-1).month)} · ${num(Math.round(added/ms.length))} a month`)}${tile('Sales from new listings',pc(sales?fromNew/sales:null,0),`${fmt(fromNew)} in their first 90 days`)}${tile('New listings that sold',pc(added?sold/added:null,0),`${num(sold)} of ${num(added)}`)}${tile('Sales per new listing',fmt(added?Math.round(cohort/added):0),'Everything they have sold so far')}</div>`;
+  const labels=Lx.months.map(m=>shortMonth(m.month));
+  const chart=stack([{name:'From listings added in the last 90 days',values:Lx.months.map(m=>m.month>Lx.baseline?m.fromNew:0),color:C_IN},{name:'From older listings',values:Lx.months.map(m=>m.sales-(m.month>Lx.baseline?m.fromNew:0)),color:'color-mix(in srgb,var(--ok) 35%,var(--card))'}],labels,{title:'Sales by month, split by how new the listing is'});
+  const strip=`<div class="kit-launch-strip" style="grid-template-columns:${(52/7).toFixed(2)}% repeat(${Lx.months.length},1fr) ${(12/7).toFixed(2)}%"><span class="small muted">New</span>${Lx.months.map(m=>m.month>Lx.baseline?`<b class="kit-heat" style="--h:${Math.round(m.added/Math.max(1,...ms.map(x=>x.added))*80)}%" title="${num(m.added)} new listings in ${monthName(m.month)}">${num(m.added)}</b>`:`<b class="dim" title="Baseline month">—</b>`).join('')}</div>`;
+  const table=`<section class="card table-card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('table')}</span>Month by month</h2><p>What each month’s new listings went on to sell</p></div></div><div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">New listings</th><th class="num">Sold since</th><th class="num">Their sales so far</th><th class="num">Per listing</th><th class="num">All sales that month</th><th class="num">From new listings</th>${Lx.fees?'<th class="num">Listing fees</th>':''}</tr></thead><tbody>${ms.slice().reverse().map(m=>`<tr><td><b>${monthName(m.month)}</b></td><td class="num">${num(m.added)}</td><td class="num">${m.added?`${num(m.cohortSold)} <span class="dim">${pc(m.cohortSold/m.added,0)}</span>`:'—'}</td><td class="num">${m.added?fmt(m.cohortNet):'—'}</td><td class="num">${m.added?fmt(Math.round(m.cohortNet/m.added)):'—'}</td><td class="num">${fmt(m.sales)}</td><td class="num">${pc(m.sales?m.fromNew/m.sales:null,0)}</td>${Lx.fees?`<td class="num">${m.fees?`${num(m.fees)}${m.renewals?` <span class="dim">· ${num(m.renewals)} after a sale</span>`:''}`:'—'}</td>`:''}</tr>`).join('')}</tbody></table></div></section>`;
+  return head+kpis+(added?'':`<div class="notice"><span><b>No new listings found in these months.</b> Every listing that sold or was charged a listing fee was already there in ${monthName(Lx.baseline)}. Import a payment account statement for a month you added listings: its listing fees show them even before they sell.</span></div>`)+`<section class="card kit-verdict"><span class="kit-h-ico">${ico('insights')}</span><div><h2>Do new listings bring more sales?</h2><p>${verdict}</p></div></section>`+
+   `<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('up')}</span>Sales, and how many listings you added</h2><p>Dark green is sales from listings under 90 days old · the row below counts new listings · ${monthName(Lx.baseline)} is the starting point, so its listings aren’t counted as new</p></div></div>${chart}${strip}</section>`+table+
+   `<p class="small muted">${ico('help')} Listings that were added but never sold only show up once a payment account statement with their listing fee is imported.</p>`;
  }
  // ---------- reviews ----------
  function reviewsView(){
@@ -1610,6 +1670,11 @@ const Etsy=(()=>{
  .kit-prog{min-width:130px;text-align:right}.kit-prog b{font-size:20px}.kit-prog small{color:var(--ink-3);margin-left:4px}.kit-prog .kit-ins-bar{margin:6px 0 0}
  .kit-codes td:first-child{white-space:normal;min-width:14ch;max-width:26ch}.kit-codes td:first-child b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;line-height:1.3}
  .kit-legend-dots{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px!important}.kit-legend-dots span{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2)}.kit-legend-dots i{width:9px;height:9px;border-radius:50%;background:var(--t)}
+ .compare-stage i{border-radius:0!important}
+ .kit-pay{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:24px;align-items:start}.kit-pay-list{max-height:330px;overflow:auto}
+ @media (max-width:900px){.kit-pay{grid-template-columns:1fr}}
+ .kit-launch-strip{display:grid;gap:0;align-items:center;margin:6px 0 0 0;font-size:12.5px}.kit-launch-strip b{text-align:center;padding:5px 0;margin:0 3px;border-radius:6px;font-variant-numeric:tabular-nums}
+ .kit-verdict{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}.kit-verdict h2{margin:4px 0 6px}.kit-verdict p{margin:0;color:var(--ink-2);line-height:1.55}.kit-good{color:var(--ok)}.kit-bad{color:var(--over)}
  .kit-quad{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.kit-quad>.card{margin:0;min-width:0;display:flex;flex-direction:column}.kit-quad>.card>.kit-pie{flex:1;align-content:center}
  .kit-q-table .table-wrap{flex:1}.kit-q-table .kit-pager{margin-top:auto}
  @media (max-width:900px){.kit-quad{grid-template-columns:1fr}.kit-q1{order:1}.kit-q-table{order:2}.kit-q2{order:3}.kit-q4{order:4}}
@@ -1624,7 +1689,7 @@ const Etsy=(()=>{
  .kit-dot:hover,.kit-dot:focus{transform:scale(1.6);outline:none}
  .kit-axis{font:500 11px var(--ui);fill:var(--ink-3)}
  .kit-axis-title{font:600 11px var(--ui);fill:var(--ink-2)}
- .kit-bar{stroke:var(--card);stroke-width:2;transform-box:fill-box;transform-origin:bottom;animation:kit-grow .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*40ms)}
+ .kit-bar{transform-box:fill-box;transform-origin:bottom;animation:kit-grow .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*40ms)}
  .kit-col{cursor:pointer;outline:none}
  .kit-key-line{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
  .kit-col:hover .kit-bar,.kit-col:focus .kit-bar{filter:brightness(1.08)}
@@ -1654,7 +1719,7 @@ const Etsy=(()=>{
  </style>`);
 
  Object.assign(Ext,{
-  views:{dashboard:dashboardView,insights:insightsView,annual:yearView,pricing:pricingView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
+  views:{dashboard:dashboardView,launches:launchesView,insights:insightsView,annual:yearView,pricing:pricingView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
   afterRender,annualTop,plNote,importRefine,settingsCard,activityFilter,txBadge,
   bizName:()=>{const n=state.settings.name,sh=state.settings.shop?shopName(state.settings.shop):'';return sh?(n?`${n} · ${sh}`:sh):(n||(state.shops.length>1?'All shops':state.shops[0]?.name||''));},
   importTag:(name,rows)=>{const id='i'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,20),dates=rows.map(r=>r.date).sort();

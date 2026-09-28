@@ -4,6 +4,14 @@ const path=require('path'),{extractTo}=require('./extract.js'),F=require('./etsy
 module.exports=({eq,ok})=>{
   const B=require(extractTo(path.join(__dirname,'../app/ShopInsightsEtsy.html'),path.join(__dirname,'budget.etsy.js')));
   const D=B.EtsyData,N=require('./budget.new.js'),Biz=require('./budget.business.js');
+  {// new listings: first seen with an ID above everything before; the first month is the baseline; a fee on a sale day is a renewal
+   const o=(id,date,list)=>({id,shop:'a',date,list,discount:0}),it=(order,listing,total)=>({id:'i'+order+listing,shop:'a',order,listing,qty:1,total,name:'x'});
+   const st={settings:{shop:''},shops:[{id:'a',name:'A'}],etsy:{orders:[o('1','2026-01-05',1000),o('2','2026-02-03',500),o('3','2026-02-10',700),o('4','2026-03-02',900),o('5','2026-03-20',300)],
+    items:[it('1','100',1000),it('2','50',500),it('3','200',700),it('4','200',900),it('5','300',300)]},
+    transactions:[{id:'t1',shop:'a',date:'2026-03-02',category:'listing-fees',amount:20,ref:'l200'},{id:'t2',shop:'a',date:'2026-03-15',category:'listing-fees',amount:20,ref:'l400'}]};
+   const L=D.launches(st),by=Object.fromEntries(L.months.map(m=>[m.month,m]));
+   eq('new listings by month: baseline, an old ID selling late is not new, fees count', [L.baseline,by['2026-02'].added,by['2026-03'].added,[...L.launched.keys()].sort()], ['2026-01',1,2,['200','300','400']]);
+   eq('a listing fee on the day it sold is a renewal; sales from new listings', [L.renewals,by['2026-03'].fromNew,by['2026-02'].cohortNet,by['2026-03'].cohortSold], [1,1200,1600,1]);}
   const throws=(f,re)=>{try{f();return false;}catch(e){return re?re.test(e.message):true;}};
   const copy=x=>JSON.parse(JSON.stringify(x));
   let n=0;const uid=()=>'u'+(++n);

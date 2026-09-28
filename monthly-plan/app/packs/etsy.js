@@ -148,7 +148,7 @@ const NICHE = {
   // hubs keep the sidebar short: their screens show as tabs at the top of the page
   nav: [['dashboard', 'Dashboard', 'today'], ['insights', 'Insights', 'spark'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
     ['annual', 'Year at a glance', 'outlook'], ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
-    ['products', 'Products', 'tags', [['products', 'Products & listings'], ['pricing', 'Pricing calculator'], ['coupons', 'Coupons'], ['seasonality', 'Seasonality']]],
+    ['products', 'Products', 'tags', [['products', 'Products & listings'], ['pricing', 'Pricing calculator'], ['launches', 'New listings'], ['coupons', 'Coupons'], ['seasonality', 'Seasonality']]],
     ['customers', 'Buyers & reviews', 'review', [['customers', 'Customers'], ['reviews', 'Reviews']]],
     ['tax', 'Tax', 'shield', [['tax', 'Quarterly tax'], ['taxlines', 'Schedule C summary']]],
     ['budget', 'Planning', 'plan', [['budget', 'Monthly targets'], ['scheduled', 'Recurring costs'], ['goals', 'Reserves & goals']]],
