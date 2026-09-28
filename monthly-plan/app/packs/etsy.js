@@ -18,7 +18,7 @@ const NICHE = {
     printTitle: 'Shop Insights · JPS Digital Pages',
   },
   build: { file: 'ShopInsightsEtsy.html', modules: ['etsy'], sampleImages: false },
-  storage: { key: 'jps-shop-insights', file: 'shop-insights' },
+  storage: { key: 'jps-shop-insights', file: 'shop-insights', idb: true },
   editions: { budget: 'Monthly Plan, the household budget edition', business: 'Profit Plan, the small-business edition' },
   themes: ['kiln', 'ledger', 'sage', 'linen', 'fjord', 'slate', 'night', 'midnight'],
   features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: false, invoices: false, shops: true, etsy: true },

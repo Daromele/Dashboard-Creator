@@ -48,7 +48,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   const after=await st(()=>({tx:state.transactions.length,orders:state.etsy.orders.length,items:state.etsy.items.length,listings:state.etsy.listings.length,reviews:state.etsy.reviews.length,sel:selected,shop:state.transactions.every(t=>t.shop===state.shops[0].id)}));
   check('four files imported',after.tx>15&&after.orders===3&&after.items===4&&after.listings===3&&after.reviews===4&&after.shop,JSON.stringify(after));
   check('month jumps to the statement',after.sel==='2026-09',after.sel);
-  check('no buyer names or addresses kept',!/Placeholder|Example|Fictional Lane|Testville/.test(await st(()=>localStorage.getItem('jps-shop-insights-v1'))));
+  check('no buyer names or addresses kept',!/Placeholder|Example|Fictional Lane|Testville/.test((await p.waitForTimeout(300),await p.evaluate(()=>dataStore('get')))));
   // the same files again: nothing new
   await p.evaluate(()=>go('etsy-import'));await p.setInputFiles('#etsy-files',files);await p.waitForTimeout(300);
   check('re-import finds nothing new',(await text()).includes('already here')&&await p.locator('[data-action="etsy-import"]').isDisabled());
@@ -182,7 +182,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   check('shopify file recognised',(await text()).includes('Shopify orders'));
   await p.click('[data-action="etsy-import"]');await p.waitForTimeout(150);
   check('shopify orders imported',await st(id=>state.etsy.orders.filter(o=>o.shop===id).length===3&&state.transactions.some(t=>t.shop===id&&t.category==='shopify-sales'),webId));
-  check('no Shopify emails or addresses kept',!/ada@example|Fictional Lane/.test(await st(()=>localStorage.getItem('jps-shop-insights-v1'))));
+  check('no Shopify emails or addresses kept',!/ada@example|Fictional Lane/.test((await p.waitForTimeout(300),await p.evaluate(()=>dataStore('get')))));
   await p.selectOption('#shop-picker','');await p.evaluate(()=>{selected='2026-09';go('shops');});await p.click('[data-action="etsy-span"][data-span="month"]');
   const chan=await text();check('channel comparison',chan.includes('What each channel keeps you')&&chan.includes('Fern Online'),chan.slice(0,600));
   await shot('channels');

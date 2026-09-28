@@ -91,6 +91,7 @@ do not change.
 - **Insights.** `shopHealth()` compares the last 90 days with the 90 before: a health score, a to-do list, products to push and products to fix, all from plain rules on the imported numbers.
 - **New listings.** `launches()` counts a listing as new the month it is first seen (a listing fee or a sale) with an ID above every listing seen in earlier months; Etsy's files carry no creation date. A listing fee on a day the listing sold is a renewal. The first month with data is the baseline.
 - **Goals.** `settings.goals` holds a monthly revenue goal per shop (`''` = all shops together).
+- **Storage.** The pack sets `storage.idb`, so the core saves to IndexedDB (`<key>-data`) instead of localStorage, which holds about 5 MB shared by every file:// page. The first open moves data found in localStorage across; without IndexedDB it falls back to localStorage. Budget and Profit Plan are unchanged.
 - **Test data.** `build/etsy_fixtures.js` writes synthetic files in Etsy's layouts. Never commit a seller's
   real exports: the sold order items file holds buyers' names and addresses.
 

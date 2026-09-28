@@ -1612,7 +1612,23 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 let budgetDirty=false;
 let storageProblem='',storageReloadable=false,searchTimer=null,state=load(),selected=Budget.today().slice(0,7),screen='dashboard',demo=false,realState=null,undoState=null,filterType='all',filterCategory='all',activityPage=0,search='',reviewDate='',restorePending=null,returnFocus=null;
 function load(){try{const raw=localStorage.getItem(KEY);return raw?Budget.validate(JSON.parse(raw)):Budget.blank();}catch(e){storageProblem='Your saved data could not be read. It has not been overwritten. Export this session or restore a valid backup before replacing saved data.';return Budget.blank();}}
-function save(){if(demo)return;if(storageProblem){renderStorage();}else{try{localStorage.setItem(KEY,JSON.stringify(state));$('#save-status').textContent='Saved on this device';}catch{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';renderStorage();}}queueFolderBackup();}
+// Editions with big books (P.storage.idb) keep their data in IndexedDB: localStorage holds about 5 MB and every
+// file:// page on the computer shares it. The first open moves data found in localStorage across, which frees it.
+// Without IndexedDB (some browsers on file://) everything falls back to localStorage as before.
+let IDB=!!P.storage.idb,idbReady=!IDB,idbPending=false,idbWriting=null,idbAgain=false;
+function openDataDB(){return new Promise((resolve,reject)=>{if(!globalThis.indexedDB)return reject(Error('IndexedDB is unavailable'));const req=indexedDB.open(P.storage.key+'-data',1);req.onupgradeneeded=()=>req.result.createObjectStore('kv');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+async function dataStore(mode='get',value){const db=await openDataDB();return new Promise((resolve,reject)=>{const tx=db.transaction('kv',mode==='get'?'readonly':'readwrite'),store=tx.objectStore('kv'),req=mode==='get'?store.get(KEY):store.put(value,KEY);
+ if(mode==='get')req.onsuccess=()=>resolve(req.result);else tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(tx.error||req.error);});}
+function writeIDB(){if(idbWriting){idbAgain=true;return;}
+ idbWriting=dataStore('put',JSON.stringify(state)).then(()=>{try{localStorage.removeItem(KEY);localStorage.setItem(KEY+'-saved',String(Date.now()));}catch{}if(!storageProblem)$('#save-status').textContent='Saved on this device';})
+  .catch(()=>{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';renderStorage();})
+  .finally(()=>{idbWriting=null;if(idbAgain){idbAgain=false;writeIDB();}});}
+async function bootData(){
+ try{const raw=await dataStore('get');if(raw){try{state=Budget.validate(JSON.parse(raw));}catch{storageProblem='Your saved data could not be read. It has not been overwritten. Export this session or restore a valid backup before replacing saved data.';}}
+  else if(localStorage.getItem(KEY)||idbPending)idbPending=true;}
+ catch{IDB=false;}
+ idbReady=true;if(idbPending){idbPending=false;save();}render();}
+function save(){if(demo)return;if(storageProblem){renderStorage();}else if(IDB){if(idbReady)writeIDB();else idbPending=true;}else{try{localStorage.setItem(KEY,JSON.stringify(state));$('#save-status').textContent='Saved on this device';}catch{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';renderStorage();}}queueFolderBackup();}
 function renderStorage(){const el=$('#storage-warning');el.hidden=!storageProblem;el.innerHTML=storageProblem?`<span>${esc(storageProblem)}</span><div class="actions">${button('Download backup','backup','small')}${storageReloadable?button('Reload this tab','reload-app','small'):''}</div>`:'';$('#save-status').textContent=storageProblem?'Backup needed':demo?'Sample mode':'Saved on this device';}
 function commit(fn,message='Saved'){undoState=clone(state);fn();Budget.invalidate(state);save();render();toast(storageProblem&&!demo?message+' in this session only. Download a backup.':message,true);}
 function toast(message,undo=false){clearTimeout(toast.timer);$('#toast').innerHTML=`<span>${esc(message)}</span>${undo?'<button data-action="undo">Undo</button>':''}`;$('#toast').hidden=false;toast.timer=setTimeout(()=>$('#toast').hidden=true,6500);}
@@ -2176,7 +2192,7 @@ document.addEventListener('submit',e=>{const form=e.target;if(!['transaction-for
 document.addEventListener('click',e=>{document.querySelectorAll('details.action-menu[open]').forEach(d=>{if(!d.contains(e.target))d.open=false;});});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.body.classList.remove('menu-open');document.querySelectorAll('details.action-menu[open]').forEach(d=>{d.open=false;});}if(e.key.toLowerCase()==='n'&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)&&!$('#modal').open){e.preventDefault();transactionForm();}});
 window.addEventListener('beforeunload',e=>{if((storageProblem&&!demo)||budgetDirty){e.preventDefault();e.returnValue='';}});
-window.addEventListener('storage',e=>{if(e.key===KEY&&!demo){storageReloadable=true;storageProblem='This planner changed in another tab. Export your current session, then reload to use the other tab’s saved version.';renderStorage();}});
+window.addEventListener('storage',e=>{if((e.key===KEY||(IDB&&e.key===KEY+'-saved'))&&!demo){storageReloadable=true;storageProblem='This planner changed in another tab. Export your current session, then reload to use the other tab’s saved version.';renderStorage();}});
 
 /* Optional planning depth: schedules, annual comparisons and balance snapshots. */
 let annualMatrixView='heat';
@@ -3098,5 +3114,5 @@ const Biz=(()=>{
  if(F.invoices)views.invoices=invoicesView;
  return {views,dashboard,settingsCard,taxLineField,annualCharts,cashflowAnnual,range,columns,statementRows,acct,pct,csv,safe,fullDate};
 })();
-/*@@NICHE_MODULES@@*/render();
+/*@@NICHE_MODULES@@*/if(IDB)bootData();else render();
 </script></body></html>

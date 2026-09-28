@@ -23,7 +23,7 @@ const NICHE = {
     printTitle: 'Shop Insights · JPS Digital Pages',
   },
   build: { file: 'ShopInsightsEtsy.html', modules: ['etsy'], sampleImages: false },
-  storage: { key: 'jps-shop-insights', file: 'shop-insights' },
+  storage: { key: 'jps-shop-insights', file: 'shop-insights', idb: true },
   editions: { budget: 'Monthly Plan, the household budget edition', business: 'Profit Plan, the small-business edition' },
   themes: ['kiln', 'ledger', 'sage', 'linen', 'fjord', 'slate', 'night', 'midnight'],
   features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: false, invoices: false, shops: true, etsy: true },
@@ -1933,7 +1933,23 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 let budgetDirty=false;
 let storageProblem='',storageReloadable=false,searchTimer=null,state=load(),selected=Budget.today().slice(0,7),screen='dashboard',demo=false,realState=null,undoState=null,filterType='all',filterCategory='all',activityPage=0,search='',reviewDate='',restorePending=null,returnFocus=null;
 function load(){try{const raw=localStorage.getItem(KEY);return raw?Budget.validate(JSON.parse(raw)):Budget.blank();}catch(e){storageProblem='Your saved data could not be read. It has not been overwritten. Export this session or restore a valid backup before replacing saved data.';return Budget.blank();}}
-function save(){if(demo)return;if(storageProblem){renderStorage();}else{try{localStorage.setItem(KEY,JSON.stringify(state));$('#save-status').textContent='Saved on this device';}catch{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';renderStorage();}}queueFolderBackup();}
+// Editions with big books (P.storage.idb) keep their data in IndexedDB: localStorage holds about 5 MB and every
+// file:// page on the computer shares it. The first open moves data found in localStorage across, which frees it.
+// Without IndexedDB (some browsers on file://) everything falls back to localStorage as before.
+let IDB=!!P.storage.idb,idbReady=!IDB,idbPending=false,idbWriting=null,idbAgain=false;
+function openDataDB(){return new Promise((resolve,reject)=>{if(!globalThis.indexedDB)return reject(Error('IndexedDB is unavailable'));const req=indexedDB.open(P.storage.key+'-data',1);req.onupgradeneeded=()=>req.result.createObjectStore('kv');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+async function dataStore(mode='get',value){const db=await openDataDB();return new Promise((resolve,reject)=>{const tx=db.transaction('kv',mode==='get'?'readonly':'readwrite'),store=tx.objectStore('kv'),req=mode==='get'?store.get(KEY):store.put(value,KEY);
+ if(mode==='get')req.onsuccess=()=>resolve(req.result);else tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(tx.error||req.error);});}
+function writeIDB(){if(idbWriting){idbAgain=true;return;}
+ idbWriting=dataStore('put',JSON.stringify(state)).then(()=>{try{localStorage.removeItem(KEY);localStorage.setItem(KEY+'-saved',String(Date.now()));}catch{}if(!storageProblem)$('#save-status').textContent='Saved on this device';})
+  .catch(()=>{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';renderStorage();})
+  .finally(()=>{idbWriting=null;if(idbAgain){idbAgain=false;writeIDB();}});}
+async function bootData(){
+ try{const raw=await dataStore('get');if(raw){try{state=Budget.validate(JSON.parse(raw));}catch{storageProblem='Your saved data could not be read. It has not been overwritten. Export this session or restore a valid backup before replacing saved data.';}}
+  else if(localStorage.getItem(KEY)||idbPending)idbPending=true;}
+ catch{IDB=false;}
+ idbReady=true;if(idbPending){idbPending=false;save();}render();}
+function save(){if(demo)return;if(storageProblem){renderStorage();}else if(IDB){if(idbReady)writeIDB();else idbPending=true;}else{try{localStorage.setItem(KEY,JSON.stringify(state));$('#save-status').textContent='Saved on this device';}catch{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';renderStorage();}}queueFolderBackup();}
 function renderStorage(){const el=$('#storage-warning');el.hidden=!storageProblem;el.innerHTML=storageProblem?`<span>${esc(storageProblem)}</span><div class="actions">${button('Download backup','backup','small')}${storageReloadable?button('Reload this tab','reload-app','small'):''}</div>`:'';$('#save-status').textContent=storageProblem?'Backup needed':demo?'Sample mode':'Saved on this device';}
 function commit(fn,message='Saved'){undoState=clone(state);fn();Budget.invalidate(state);save();render();toast(storageProblem&&!demo?message+' in this session only. Download a backup.':message,true);}
 function toast(message,undo=false){clearTimeout(toast.timer);$('#toast').innerHTML=`<span>${esc(message)}</span>${undo?'<button data-action="undo">Undo</button>':''}`;$('#toast').hidden=false;toast.timer=setTimeout(()=>$('#toast').hidden=true,6500);}
@@ -2497,7 +2513,7 @@ document.addEventListener('submit',e=>{const form=e.target;if(!['transaction-for
 document.addEventListener('click',e=>{document.querySelectorAll('details.action-menu[open]').forEach(d=>{if(!d.contains(e.target))d.open=false;});});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.body.classList.remove('menu-open');document.querySelectorAll('details.action-menu[open]').forEach(d=>{d.open=false;});}if(e.key.toLowerCase()==='n'&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)&&!$('#modal').open){e.preventDefault();transactionForm();}});
 window.addEventListener('beforeunload',e=>{if((storageProblem&&!demo)||budgetDirty){e.preventDefault();e.returnValue='';}});
-window.addEventListener('storage',e=>{if(e.key===KEY&&!demo){storageReloadable=true;storageProblem='This planner changed in another tab. Export your current session, then reload to use the other tab’s saved version.';renderStorage();}});
+window.addEventListener('storage',e=>{if((e.key===KEY||(IDB&&e.key===KEY+'-saved'))&&!demo){storageReloadable=true;storageProblem='This planner changed in another tab. Export your current session, then reload to use the other tab’s saved version.';renderStorage();}});
 
 /* Optional planning depth: schedules, annual comparisons and balance snapshots. */
 let annualMatrixView='heat';
@@ -4723,8 +4739,10 @@ const Etsy=(()=>{
   let preview='';
   if(session?.files.length){
    const rows=session.files.map(f=>({f,r:D.merge(clone(state),target,f,{dry:true})}));
-   const ready=rows.filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items)).length;
-   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognized as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.kindName(f.kind,f.platform):'<span class="warn">Not recognized</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}${f.headers&&(f.generic?f.platform===tp:tp!=='etsy')&&!f.twinOf?`<div class="etsy-map-row">${button(f.mapped?'Columns matched · change':f.generic&&!f.error?'Check columns':'Match columns','etsy-map','small quiet',`data-i="${f.src}"`)}</div>`:''}</td></tr>`).join('')}</tbody></table></div></section>`;
+   const ready=rows.filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items)).length,refused=rows.filter(x=>x.r.error);
+   // a refused file must be impossible to miss: it is never saved, and the list clears on refresh
+   const stop=(demo?`<div class="notice kit-refused"><span><b>You are looking at sample data.</b> Imports here are not saved. Choose <b>Return to my shops</b> first.</span></div>`:'')+(refused.length?`<div class="notice kit-refused"><span><b>${refused.length===1?'This file will not be imported':`${refused.length} files will not be imported`}</b>, so nothing from ${refused.length===1?'it':'them'} is saved:<br>${refused.map(x=>`<b>${esc(x.f.name)}</b>: ${esc(x.r.error)}`).join('<br>')}</span></div>`:'');
+   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(ready?`Import ${ready} file${ready===1?'':'s'}`:'Nothing to import','etsy-import','small primary',ready&&target&&!demo?'':'disabled')}</div></div>${stop}<div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognized as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.kindName(f.kind,f.platform):'<span class="warn">Not recognized</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}${f.headers&&(f.generic?f.platform===tp:tp!=='etsy')&&!f.twinOf?`<div class="etsy-map-row">${button(f.mapped?'Columns matched · change':f.generic&&!f.error?'Check columns':'Match columns','etsy-map','small quiet',`data-i="${f.src}"`)}</div>`:''}</td></tr>`).join('')}</tbody></table></div></section>`;
   }
   return pagehead('Bring in your sales files','Import files',X.platforms.filter(([v])=>D.enabled(v)).length>1?'Choose the shop, then drop in its exports. Each file is recognized by its columns. Anything already imported is skipped.':'Choose the shop, then drop in its Etsy exports: payment account statements, sold order items, listings, reviews and deposits. Each file is recognized by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
    `<section class="card etsy-import-card"><div class="etsy-import-top">`+
@@ -4763,7 +4781,7 @@ const Etsy=(()=>{
   modal(`Match the columns of ${esc(f.name)}`,`For ${esc(shopName(session.shop))} (${esc(PLAT[plat])}). Choose what each column holds; the app remembers it for files laid out the same way. Leave a field empty when the file doesn’t have it. If there is no fees or net column, fees are estimated at your rate in Settings.`,
    `<form id="etsy-map-form" data-i="${i}"><div class="fields">${MAP_FIELDS.map(([k,l,req])=>`<label>${l}${req?' *':''}<select name="${k}">${opt(k)}</select></label>`).join('')}</div>${formFoot('Save and read the file')}</form>`);}
  function runImport(){
-  const s=session;if(!s?.files.length)return;const shop=s.shop||state.shops[0]?.id;if(!shop)return toast('Add a shop first.');
+  const s=session;if(!s?.files.length)return;if(demo)return toast('You are looking at sample data. Choose Return to my shops, then import.');const shop=s.shop||state.shops[0]?.id;if(!shop)return toast('Add a shop first.');
   const plan=s.files.map(f=>({f,r:D.merge(clone(state),shop,f,{dry:true})})).filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items));
   if(!plan.length)return toast('Nothing new to import.');
   const newLines=plan.filter(x=>x.f.kind==='statement').reduce((n,x)=>n+x.r.added,0);
@@ -5124,6 +5142,7 @@ const Etsy=(()=>{
  .kit-th-sort{cursor:pointer;user-select:none}.kit-th-sort:hover{color:var(--accent)}.kit-th-sort[data-sort=desc]::after{content:' ↓';color:var(--accent)}.kit-th-sort[data-sort=asc]::after{content:' ↑';color:var(--accent)}
  .kit-q-table{display:flex;flex-direction:column}
  .kit-pct{display:inline-block;width:56px;height:6px;border-radius:3px;background:var(--sunk);margin-right:8px;vertical-align:middle;overflow:hidden}.kit-pct i{display:block;height:100%;background:var(--ok)}
+ .kit-refused{margin:0 18px 14px;background:color-mix(in srgb,var(--over) 10%,var(--card));border-color:color-mix(in srgb,var(--over) 35%,var(--rule));color:var(--ink)}.kit-refused b:first-child{color:var(--over)}
  .kit-quad{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.kit-quad>.card{margin:0;min-width:0;display:flex;flex-direction:column}.kit-quad>.card>.kit-pie{flex:1;align-content:center}
  .kit-q-table .table-wrap{flex:1}.kit-q-table .kit-pager{margin-top:auto}
  @media (max-width:900px){.kit-quad{grid-template-columns:1fr}.kit-q1{order:1}.kit-q-table{order:2}.kit-q2{order:3}.kit-q4{order:4}}
@@ -5181,5 +5200,5 @@ const Etsy=(()=>{
  if(state.etsy?.orders.length&&D.syncEstimates(state,{today:today()})){Budget.invalidate(state);save();}
  return {range,orderTable,shopForm,readFiles,runImport,get session(){return session;}};
 })();
-render();
+if(IDB)bootData();else render();
 </script></body></html>
