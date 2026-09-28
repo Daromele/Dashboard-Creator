@@ -23,7 +23,7 @@ const NICHE = {
   themes: ['kiln', 'ledger', 'sage', 'linen', 'fjord', 'slate', 'night', 'midnight'],
   features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: false, invoices: false, shops: true, etsy: true },
   // taxRate in basis points (2500 = 25%) · shop: '' shows every shop together
-  settings: { taxRate: 2500, shop: '' },
+  settings: { taxRate: 2500, shop: '', hiddenNav: ['years'] },
 
   groups: [
     { id: 'revenue', label: 'Shop sales', type: 'income', taxLine: 'L1' },
@@ -147,15 +147,15 @@ const NICHE = {
 
   // hubs keep the sidebar short: their screens show as tabs at the top of the page
   nav: [['dashboard', 'Dashboard', 'today'], ['insights', 'Insights', 'spark'], ['etsy-import', 'Import files', 'up'], ['shops', 'Shops', 'globe'],
-    ['annual', 'Year at a glance', 'outlook'], ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
+    ['annual', 'Year at a glance', 'outlook'], ['years', 'Year over year', 'history'], ['pl', 'Profit & loss', 'insights'], ['fees', 'Fees & ads', 'coins'], ['activity', 'Transactions', 'log'],
     ['products', 'Products', 'tags', [['products', 'Products & listings'], ['pricing', 'Pricing calculator'], ['launches', 'New listings'], ['coupons', 'Coupons'], ['seasonality', 'Seasonality']]],
     ['customers', 'Buyers & reviews', 'review', [['customers', 'Customers'], ['reviews', 'Reviews']]],
     ['tax', 'Tax', 'shield', [['tax', 'Quarterly tax'], ['taxlines', 'Schedule C summary']]],
     ['budget', 'Planning', 'plan', [['budget', 'Monthly targets'], ['scheduled', 'Recurring costs'], ['goals', 'Reserves & goals']]],
     ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   // everything can be hidden from the sidebar except the dashboard, importing and settings (where views come back)
-  optionalNav: ['insights', 'shops', 'annual', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
-  navGroups: [['Your shops', ['dashboard', 'insights', 'etsy-import', 'shops']], ['Money', ['annual', 'pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
+  optionalNav: ['insights', 'shops', 'annual', 'years', 'pl', 'fees', 'activity', 'products', 'customers', 'tax', 'budget', 'guide'],
+  navGroups: [['Your shops', ['dashboard', 'insights', 'etsy-import', 'shops']], ['Money', ['annual', 'years', 'pl', 'fees', 'activity']], ['What sells', ['products', 'customers']], ['Tax & planning', ['tax', 'budget']]],
   navGroupRest: 'Help & settings',
 
   labels: {

@@ -82,7 +82,7 @@ const nextOrder=d=>{orderSeq=Math.max(orderSeq+1+Math.floor(rnd()*4000),34000000
 const nextListing=d=>{listingSeq=Math.max(listingSeq+1+Math.floor(rnd()*900000),1650000000+dayIndex(d)*380000);return String(listingSeq);};
 
 function build(shop){
- const lines=[],orderRows=[],reviews=[],deposits=[],buyers=[];
+ const lines=[],orderRows=[],reviews=[],deposits=[],buyers=[],taken=new Set();
  const stmt=(date,type,title,info,amount,fees)=>{if(date<=END)lines.push({date,type,title,info,amount,fees});};
  // listings: the long-standing ones have old IDs; new ones get an ID and a listing fee the day they go live
  let oldId=1300000000;
@@ -99,7 +99,8 @@ function build(shop){
    const oid=nextOrder(d),live=liveOn(d),count=weighted([[1,80],[2,14],[3,6]]);
    // newer listings sell a little better for a few months: that is what the New listings screen looks for
    const items=[];for(let i=0;i<count;i++){const l=weighted(live.map(x=>[x,pop.get(x.id)*(x.live>addDays(d,-120)?1.6:1)]));const ex=items.find(x=>x.l===l);if(ex)ex.qty++;else items.push({l,qty:weighted([[1,90],[2,8],[3,2]]),tid:String(txSeq+=1+Math.floor(rnd()*50))});}
-   const repeat=buyers.length>20&&chance(0.09),name=repeat?pick(buyers):`${pick(FIRST)} ${pick(LAST)}`;if(!repeat)buyers.push(name);
+   // a new buyer always gets a name nobody in this shop has, so repeat buyers are only the ones meant to be
+   const repeat=buyers.length>20&&chance(0.09);let name=repeat?pick(buyers):'';while(!name||(!repeat&&taken.has(name)))name=`${pick(FIRST)} ${chance(0.5)?String.fromCharCode(65+Math.floor(rnd()*26))+'. ':''}${pick(LAST)}`;if(!repeat){buyers.push(name);taken.add(name);}
    const country=weighted(COUNTRY[shop.kind]),itemTotal=items.reduce((n,x)=>n+x.l.price*x.qty,0);
    const coupon=chance(0.2)?pick(shop.coupons):null,discount=coupon?Math.round(itemTotal*coupon[1]/100):0;
    const shipping=shop.kind==='digital'?0:Math.round(between(shop.ship[0],shop.ship[1])/5)*5*(itemTotal>=3500&&country==='United States'?0:1);

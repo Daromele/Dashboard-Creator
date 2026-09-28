@@ -1073,6 +1073,29 @@ const Etsy=(()=>{
   return head+(est.length?`<div class="notice"><span><b>${est.length} month${est.length===1?' is':'s are'} estimated</b> from sold orders (${est.map(shortMonth).join(', ')}): revenue is exact, fees are at your standard rates, and ads are missing until you import that month’s payment account statement.</span>${button('Import statements','go-etsy-import','small')}</div>`:'')+
    hero+kpis+monthCard+`<div class="grid2 equal">${where}${side||ranks}</div>`+(side?ranks:'')+table;
  }
+ // ---------- year over year: up to ten years side by side (off in the sidebar until switched on) ----------
+ function yoyView(){
+  const cutoff=today(),dates=[...D.scoped(state,state.transactions).filter(t=>t.ref||t.est).map(t=>t.date),...D.scoped(state,state.etsy.orders).map(o=>o.date)].sort();
+  const head=pagehead('The bigger picture','Year over year','Every year you have imported, side by side: up to the last ten.',scopeNote());
+  if(!dates.length)return head+`<section class="card">${noData('payment account statements or sold order items')}</section>`;
+  const last=+cutoff.slice(0,4),first=Math.max(+dates[0].slice(0,4),last-9),md=cutoff.slice(5);
+  // this year is still running: every year is also measured to the same day, so the comparison is fair
+  const Y=[];for(let y=first;y<=last;y++){const full=D.summary(state,`${y}-01-01`,y===last?cutoff:`${y}-12-31`),same=D.summary(state,`${y}-01-01`,`${y}-${md}`),C=D.customers(state,`${y}-01-01`,`${y}-12-31`),R=D.reviewStats(state,`${y}-01-01`,`${y}-12-31`),om=D.orderMonths(state,String(y));
+   const orders=full.orders||om.reduce((n,m)=>n+m.orders,0),sales=full.revenue||om.reduce((n,m)=>n+m.sales,0),sameSales=same.revenue||om.slice(0,+md.slice(0,2)).reduce((n,m)=>n+m.sales,0);
+   Y.push({y,partial:y===last,rev:sales,th:full.takeHome,fees:full.fees,ads:full.marketing,profit:full.profit,orders,aov:orders?Math.round(sales/orders):0,kept:full.revenue>0?full.takeHome/full.revenue:null,same:sameSales,buyers:C.buyers,repeat:C.buyers?C.repeat/C.buyers:null,rating:R.avg,reviews:R.count});}
+  const shown=Y.filter(x=>x.rev||x.orders);if(!shown.length)return head+`<section class="card">${noData('payment account statements or sold order items')}</section>`;
+  const done=shown.filter(x=>!x.partial),best=[...done].sort((a,b)=>b.rev-a.rev)[0],cur=shown.at(-1),prev=shown.find(x=>x.y===cur.y-1);
+  const ch=(a,b)=>b>0?a/b-1:null,delta=v=>v===null?'<span class="dim">—</span>':`<span class="kit-delta ${v>=0?'up':'down'}">${signed(v)}</span>`;
+  const span=done.length>1?done.at(-1).y-done[0].y:0,cagr=span&&done[0].rev>0?Math.pow(done.at(-1).rev/done[0].rev,1/span)-1:null;
+  const kpis=`<div class="kpis etsy-kpis">${tile(`${L.income}, ${shown[0].y} – ${cur.y}`,fmt(shown.reduce((n,x)=>n+x.rev,0)),`${num(shown.reduce((n,x)=>n+x.orders,0))} orders over ${shown.length} year${shown.length===1?'':'s'}`)}${tile(`${cur.y} so far`,fmt(cur.rev),prev?`${signed(ch(cur.same,prev.same))} on the same days of ${prev.y}`.replace(/^—.*/,'No sales at this point last year'):'First year imported')}${best?tile('Best full year',String(best.y),`${fmt(best.rev)} in sales · ${pc(best.kept,0)} kept`):tile('Best full year','—','Needs one complete year')}${tile('Growth a year',cagr===null?'—':signed(cagr,1),cagr===null?'Needs two complete years':`Average, ${done[0].y} – ${done.at(-1).y}`)}</div>`;
+  const labels=shown.map(x=>String(x.y)+(x.partial?' so far':''));
+  const chart=stack([{name:'Take-home',values:shown.map(x=>Math.max(0,x.th)),color:C_IN},{name:etsyOnly()?'Etsy fees':'Fees',values:shown.map(x=>x.fees),color:C_FEE},{name:'Ads & marketing',values:shown.map(x=>x.ads),color:C_ADS}].filter(s=>s.values.some(v=>v>0)),labels,{title:`${L.income} by year`});
+  const growth=shown.map((x,i)=>{const p=shown[i-1];return p?(x.partial?ch(x.same,p.same):ch(x.rev,p.rev)):null;});
+  const strip=`<div class="kit-launch-strip" style="grid-template-columns:${(52/7).toFixed(2)}% repeat(${shown.length},1fr) ${(12/7).toFixed(2)}%"><span class="small muted">vs year before</span>${growth.map(g=>`<b class="${g===null?'dim':g>=0?'kit-good':'kit-bad'}">${g===null?'—':signed(g)}</b>`).join('')}</div>`;
+  const rows=[['Sales',x=>fmt(x.rev),x=>x.rev],['Take-home',x=>Biz.acct(x.th),x=>x.th],['Kept',x=>pc(x.kept,0),null],[etsyOnly()?'Etsy fees':'Fees',x=>fmt(x.fees),x=>x.fees,true],['Ads & marketing',x=>fmt(x.ads),x=>x.ads,true],['Net profit',x=>Biz.acct(x.profit),x=>x.profit],['Orders',x=>num(x.orders),x=>x.orders],['Average order',x=>x.aov?fmt(x.aov):'—',x=>x.aov],['Buyers',x=>x.buyers?num(x.buyers):'—',x=>x.buyers],['Buyers who came back',x=>pc(x.repeat,0),null],['Rating',x=>x.rating?x.rating.toFixed(2)+' ★':'—',null],['Reviews',x=>x.reviews?num(x.reviews):'—',x=>x.reviews]];
+  const table=`<section class="card table-card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('table')}</span>Year by year</h2><p>Each year, with the change on the year before · ${cur.y} runs to ${dateName(cutoff)}</p></div></div><div class="table-wrap"><table class="kit-yoy" data-nosort><thead><tr><th></th>${shown.map(x=>`<th class="num">${x.y}${x.partial?'<small class="dim"> so far</small>':''}</th>`).join('')}</tr></thead><tbody>${rows.map(([l,f,v,cost])=>`<tr><td><b>${l}</b></td>${shown.map((x,i)=>{const p=shown[i-1],c=v&&p&&!x.partial?ch(v(x),v(p)):null;return `<td class="num">${f(x)}${c!==null&&Number.isFinite(c)?`<small class="${(c>=0)!==!!cost?'kit-good':'kit-bad'}">${signed(c)}</small>`:''}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div></section>`;
+  return head+kpis+`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('insights')}</span>Every year at a glance</h2><p>Each column is a year’s sales: green is what you kept, red is what Etsy took${cur.partial?` · ${cur.y} so far, and its change is against the same days of ${cur.y-1}`:''}</p></div><button class="link" data-go="annual">Year at a glance</button></div>${chart}${strip}</section>`+table;
+ }
  // ---------- insights: what to do next ----------
  // The month (or the year to date) against the one before it, turned into a health score, a short to-do list,
  // the products to push and the ones to fix. Plain rules on the seller's own numbers, nothing guessed.
@@ -1708,6 +1731,7 @@ const Etsy=(()=>{
  .kit-q-table{display:flex;flex-direction:column}
  .kit-pct{display:inline-block;width:56px;height:6px;border-radius:3px;background:var(--sunk);margin-right:8px;vertical-align:middle;overflow:hidden}.kit-pct i{display:block;height:100%;background:var(--ok)}
  .kit-refused{margin:0 18px 14px;background:color-mix(in srgb,var(--over) 10%,var(--card));border-color:color-mix(in srgb,var(--over) 35%,var(--rule));color:var(--ink)}.kit-refused b:first-child{color:var(--over)}
+ .kit-yoy td small{display:block;font-size:11px;margin-top:2px}.kit-yoy th small{font-weight:400}
  .kit-quad{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.kit-quad>.card{margin:0;min-width:0;display:flex;flex-direction:column}.kit-quad>.card>.kit-pie{flex:1;align-content:center}
  .kit-q-table .table-wrap{flex:1}.kit-q-table .kit-pager{margin-top:auto}
  @media (max-width:900px){.kit-quad{grid-template-columns:1fr}.kit-q1{order:1}.kit-q-table{order:2}.kit-q2{order:3}.kit-q4{order:4}}
@@ -1752,7 +1776,7 @@ const Etsy=(()=>{
  </style>`);
 
  Object.assign(Ext,{
-  views:{dashboard:dashboardView,launches:launchesView,insights:insightsView,annual:yearView,pricing:pricingView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
+  views:{dashboard:dashboardView,years:yoyView,launches:launchesView,insights:insightsView,annual:yearView,pricing:pricingView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
   afterRender,annualTop,plNote,importRefine,settingsCard,activityFilter,txBadge,
   bizName:()=>{const n=state.settings.name,sh=state.settings.shop?shopName(state.settings.shop):'';return sh?(n?`${n} · ${sh}`:sh):(n||(state.shops.length>1?'All shops':state.shops[0]?.name||''));},
   importTag:(name,rows)=>{const id='i'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,20),dates=rows.map(r=>r.date).sort();
