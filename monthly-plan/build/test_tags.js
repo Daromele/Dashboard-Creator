@@ -18,5 +18,7 @@ module.exports=({eq,ok})=>{
   const bad=JSON.parse(JSON.stringify(s));bad.tags.push({id:'tg-x',name:'digital PRODUCTS'},{id:'',name:'x'},'nope');bad.channels[3].tag='gone';bad.transactions[5].tag='gone';
   const W=B.validate(bad);
   eq('bad tags are dropped, never fatal', [W.tags.map(g=>g.id),'tag' in W.channels[3],'tag' in W.transactions[5]], [['tg-dig','tg-don'],false,false]);
+  const col=JSON.parse(JSON.stringify(s));col.tags[0].color=3;col.tags[1].color=9;const C=B.validate(col);
+  eq('a tag keeps a colour 1–8; anything else is dropped', [C.tags[0].color,'color' in C.tags[1]], [3,false]);
   const old=JSON.parse(JSON.stringify(s));delete old.tags;ok('an older backup without tags restores',!!B.validate(old)&&Array.isArray(B.validate(JSON.parse(JSON.stringify(old))).tags));
 };

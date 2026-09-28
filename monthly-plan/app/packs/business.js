@@ -24,9 +24,9 @@ const NICHE = {
   themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
   features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: true, invoices: true, channels: true },
   // offered as one-click sales channels in Settings; a channel added by name picks up its usual tag
-  suggestedChannels: ['Etsy', 'Shopify', 'Payhip', 'Gumroad', 'Fourthwall', 'Amazon', 'Patreon', 'Buy Me a Coffee', 'Ko-fi', 'Clients'],
-  suggestedTags: ['Digital products', 'Physical products', 'Services', 'Donations', 'Memberships', 'Sponsorships'],
-  channelTags: { etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', fourthwall: 'Digital products', shopify: 'Physical products', amazon: 'Physical products', patreon: 'Donations', 'buy me a coffee': 'Donations', 'ko-fi': 'Donations', clients: 'Services' },
+  suggestedChannels: ['Etsy', 'Shopify', 'Payhip', 'Gumroad', 'Fourthwall', 'Amazon', 'YouTube', 'Patreon', 'Buy Me a Coffee', 'Ko-fi', 'Clients'],
+  suggestedTags: ['Digital products', 'Physical products', 'Services', 'Ad revenue', 'Donations', 'Memberships', 'Sponsorships'],
+  channelTags: { etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', fourthwall: 'Digital products', shopify: 'Physical products', amazon: 'Physical products', patreon: 'Donations', 'buy me a coffee': 'Donations', 'ko-fi': 'Donations', clients: 'Services', youtube: 'Ad revenue', tiktok: 'Ad revenue', 'brand deals': 'Sponsorships' },
   // taxRate in basis points (2500 = 25%). mileageRate in thousandths of the currency per distance unit
   // (700 = 0.70 per mile or km); it starts at 0 because the allowed rate differs by country and year.
   settings: { taxRate: 2500, mileageRate: 0, distanceUnit: 'mi' },
@@ -250,7 +250,7 @@ const NICHE = {
       // three sales channels: design clients, an Etsy shop and the studio's own web shop.
       // Their sales and direct costs are tagged; rent, software and the like stay shared.
       // tags group the channels: client work is services, both shops sell prints
-      s.tags = [{ id: 'tg-services', name: 'Services' }, { id: 'tg-products', name: 'Physical products' }];
+      s.tags = [{ id: 'tg-services', name: 'Services', color: 1 }, { id: 'tg-products', name: 'Physical products', color: 2 }];
       s.channels = [{ id: 'ch-clients', name: 'Design clients', tag: 'tg-services' }, { id: 'ch-etsy', name: 'Etsy', tag: 'tg-products' }, { id: 'ch-web', name: 'Web shop', tag: 'tg-products' }];
       s.channelRules = { 'etsy': 'ch-etsy', 'invoice': 'ch-clients' };
       // product sales and their costs split roughly 60/40 between Etsy and the web shop

@@ -27,6 +27,12 @@ await p.selectOption('#transaction-form select[name=category]','product-sales');
 await p.click('#transaction-form button[type=submit]');await p.waitForTimeout(200);
 r=await p.evaluate(()=>{const t=state.transactions.find(t=>t.note==='Pattern sale');return [Biz.channelName(t.channel),t.tag||'',Biz.tagName(Biz.tagOf(t)),!!Budget.validate(JSON.parse(JSON.stringify(state)))];});
 ok('new channel gets usual tag, tx inherits',JSON.stringify(r)==='["Payhip","","Digital products",true]',JSON.stringify(r));
+// YouTube gets Ad revenue; a new tag takes an unused colour; colours can be changed
+await p.evaluate(()=>go('settings'));await p.click('[data-action="biz-quick-channel"][data-name="YouTube"]');await p.waitForTimeout(100);
+r=await p.evaluate(()=>{const c=Biz.channels().find(c=>c.name==='YouTube');const g=Biz.tags().find(g=>g.id===c.tag);return [g?.name,g?.color,new Set(Biz.tags().map(g=>g.color)).size===Biz.tags().length];});
+ok('YouTube → Ad revenue, with its own colour',r[0]==='Ad revenue'&&r[1]>=1&&r[2],JSON.stringify(r));
+await p.click('[data-action="biz-tag-color"][data-color="7"] >> nth=0');await p.waitForTimeout(100);
+ok('tag colour changes and shows on chips',await p.evaluate(()=>state.tags[0].color===7&&Biz.tagColor(state.tags[0].id)==='var(--tag-7)'));
 // donut slice opens filtered list
 await p.evaluate(()=>go('dashboard'));await p.waitForTimeout(300);
 const sl=await p.$('.mix-card .donut-key-row.has-slice');await sl.click();await p.waitForTimeout(200);

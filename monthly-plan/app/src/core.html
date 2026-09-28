@@ -1102,6 +1102,15 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .ladder-step b{min-width:92px;text-align:right}
 .biz-strip .row button.link{font-weight:650}
 :root{--ch-cogs:color-mix(in srgb,var(--ch-out) 48%,var(--card))}
+/* tag colours: eight hues a tag keeps on every chart and chip; brighter on the dark themes */
+:root{--tag-1:#6A4FC4; --tag-2:#C27A0E; --tag-3:#2A6FCB; --tag-4:#B53D8C; --tag-5:#0F8A82; --tag-6:#D24E30; --tag-7:#3A8534; --tag-8:#8E6236;}
+:root[data-theme="night"],:root[data-theme="midnight"]{--tag-1:#A08BEA; --tag-2:#F0AE3C; --tag-3:#62A3F2; --tag-4:#E27BBE; --tag-5:#3EC6BC; --tag-6:#F28466; --tag-7:#70C266; --tag-8:#C99A68;}
+.tag-chip{--tc:var(--accent)}
+.row .tag-chip,.slice-row .tag-chip{display:inline-block;width:auto}
+.tag-swatches{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tag-swatch{width:18px;height:18px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--rule-2);padding:0;cursor:pointer;background:var(--sw)}
+.tag-swatch[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.tag-swatch:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .kpis-lead{margin-bottom:var(--s5);grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1250px){.kpis-lead{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:620px){.kpis-lead{grid-template-columns:1fr 1fr}.kpis-lead .kpi:last-child{grid-column:1/-1}}
@@ -1162,7 +1171,7 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .channel-chip{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-2);font-size:11px;font-weight:600;vertical-align:1px}
 .channel-quick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 var(--s3)}.qchip{border:1px solid var(--rule-2);background:var(--card);color:var(--ink-2);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}.qchip:hover{border-color:var(--accent);color:var(--accent)}
 .channel-add{display:flex;gap:var(--s2);margin:var(--s4) 0 var(--s2)}.channel-add input{flex:1}
-.tag-chip{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--accent);font-size:11px;font-weight:600;vertical-align:1px}
+.tag-chip{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--tc) 15%,var(--card));color:color-mix(in srgb,var(--tc) 72%,var(--ink));font-size:11px;font-weight:600;vertical-align:1px}
 .channel-tag{width:auto;min-width:0;max-width:170px;padding:5px 28px 5px 10px;font-size:12px}
 /* Transactions: own dates, not the month picker; ticked rows and their actions */
 body[data-screen="activity"] .month-control,body[data-screen="activity"] #month-tabs{display:none}
@@ -1214,7 +1223,7 @@ tr.is-sel td{background:color-mix(in srgb,var(--accent) 7%,var(--card))}
    Everything niche-specific (groups, categories, tax lines, labels) comes from the pack P. */
 const Budget = ((P) => {
   const THEMES=P.themes.slice();
-  const MAX_QUICK_MEMORY=500,MAX_CHANNELS=30,MAX_TAGS=30;
+  const MAX_QUICK_MEMORY=500,MAX_CHANNELS=30,MAX_TAGS=30,TAG_COLORS=8;
   const CURRENCIES=['USD','EUR','GBP','CAD','AUD','NZD','INR','NGN','ZAR','JPY','CNY','CHF','SEK','NOK','DKK','PLN','CZK','HUF','RON','BGN','TRY','RUB','UAH','ILS','AED','SAR','QAR','KWD','EGP','KES','GHS','TZS','UGX','MAD','BRL','MXN','ARS','CLP','COP','PEN','SGD','HKD','MYR','THB','PHP','IDR','VND','KRW','TWD','PKR','BDT','LKR','NPR','ISK','HRK','RSD'];
   const DATE_FORMATS={auto:'Match my device',dmy:'21 Sep 2026',mdy:'Sep 21, 2026',ymd:'2026-09-21'};
   // A group's flags drive every view: type (income | expense | saving = money moved aside, e.g.
@@ -1499,6 +1508,7 @@ const Budget = ((P) => {
      if(!Array.isArray(s.tags))s.tags=[];
      const tagIds=new Set(),tagNames=new Set();
      s.tags=s.tags.filter(g=>{const ok=object(g)&&id(g.id)&&!tagIds.has(g.id)&&str(g.name,40)&&g.name.trim()&&!tagNames.has(g.name.trim().toLowerCase());if(ok){tagIds.add(g.id);tagNames.add(g.name.trim().toLowerCase());}return ok;}).slice(0,MAX_TAGS);
+     s.tags.forEach(g=>{if(g.color!==undefined&&!(Number.isInteger(g.color)&&g.color>=1&&g.color<=TAG_COLORS))delete g.color;});
      s.channels.forEach(c=>{if(c.tag!==undefined&&!tagIds.has(c.tag))delete c.tag;});
      s.transactions.forEach(t=>{if(t.tag!==undefined&&!tagIds.has(t.tag))delete t.tag;});
     }
@@ -1559,7 +1569,7 @@ const Budget = ((P) => {
     if(S.extras)S.extras(s,{m,year,now,uid,days,shift,plusDays,totals:(st,mm)=>{invalidate(st);return totals(st,mm);}});
     return s;
   }
-  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,tagOf,breakdown,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
+  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
 })(NICHE);
 if(typeof module!=='undefined')module.exports=Budget;
 
@@ -3555,8 +3565,8 @@ const Biz=(()=>{
  const MIX_COLORS=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)'];
  function mixParts(rows,from,to,type,by,of,total){const none=by==='tag'?'Untagged':'No '+CH(),key=by==='tag'?'tag':'ch',keyIn=by==='tag'?'tagIn':'chIn';
   const pos=rows.filter(r=>r.amount>0),top=pos.slice(0,5),rest=pos.slice(5),share=n=>total?`${percent(n,total)}% of ${of}`:'';
-  const parts=top.map((r,i)=>[r.name||none,r.amount,r.id?MIX_COLORS[i]:'var(--ink-3)',share(r.amount),{type,from,to,[key]:r.id}]);
-  if(rest.length){const n=rest.reduce((a,r)=>a+r.amount,0);parts.push(['Other',n,MIX_COLORS[5],share(n),{type,from,to,[keyIn]:rest.map(r=>r.id)}]);}
+  const parts=top.map((r,i)=>[r.name||none,r.amount,!r.id?'var(--ink-3)':by==='tag'?tagColor(r.id):MIX_COLORS[i],share(r.amount),{type,from,to,[key]:r.id}]);
+  if(rest.length){const n=rest.reduce((a,r)=>a+r.amount,0);parts.push(['Other',n,by==='tag'?'var(--rule-2)':MIX_COLORS[5],share(n),{type,from,to,[keyIn]:rest.map(r=>r.id)}]);}
   return parts;}
  function mixCard(title,sub,type,by,from,to,label){const rows=Budget.breakdown(state,from,to,type,by),total=rows.filter(r=>r.amount>0).reduce((a,r)=>a+r.amount,0),of=type==='income'?L.income.toLowerCase():'expenses';
   const list=by==='tag'?tags():channels(),tagged=rows.some(r=>r.id&&r.amount>0);
@@ -3693,7 +3703,11 @@ const Biz=(()=>{
  function checkTag(name){name=String(name||'').trim();if(!name)return;if(name.length>40)throw Error('Keep the tag to 40 characters.');
   if(!findTag(name)&&tags().length>=Budget.MAX_TAGS)throw Error(`You can have up to ${Budget.MAX_TAGS} tags. Remove one in Settings first.`);}
  function ensureTag(name){name=String(name||'').trim();if(!name)return '';const hit=findTag(name);if(hit)return hit.id;
-  state.tags??=[];const g={id:Budget.uid(),name};state.tags.push(g);return g.id;}
+  state.tags??=[];const used=new Set(tags().map((x,i)=>tagColorN(x,i))),free=Array.from({length:Budget.TAG_COLORS},(_,i)=>i+1).find(n=>!used.has(n));
+  const g={id:Budget.uid(),name,color:free||tags().length%Budget.TAG_COLORS+1};state.tags.push(g);return g.id;}
+ // a tag's colour number: its own, else by position, so older tags still get distinct colours
+ const tagColorN=(g,i)=>g.color||i%Budget.TAG_COLORS+1;
+ const tagColor=id=>{const i=tags().findIndex(g=>g.id===id);return i<0?'var(--ink-3)':`var(--tag-${tagColorN(tags()[i],i)})`;};
  const tagOf=t=>Budget.tagOf(state,t);
  // the tag a channel would give, by name, for the form hint: its own tag, else the usual one for a new channel
  const channelTagName=name=>{const c=findChannel(name);return c?tagName(c.tag):usualTag(name);};
@@ -3701,7 +3715,7 @@ const Biz=(()=>{
   return `<label class="full">Tag <span class="dim">(optional)</span><input name="tag" list="tag-options" maxlength="40" autocomplete="off" value="${esc(own&&own!==from?own:'')}" placeholder="${esc(from?'Uses '+from:'e.g. Digital products, Donations')}"><datalist id="tag-options">${tags().map(g=>`<option value="${esc(g.name)}">`).join('')}</datalist><small>Groups entries in the tag charts. Blank uses the ${esc(CH())}’s tag.</small></label>`;};
  // on save: a tag equal to the channel's is not stored, so changing the channel's tag later moves it too
  function tagForSave(name,channelName){name=String(name||'').trim();if(!name)return '';checkTag(name);return channelTagName(channelName).toLowerCase()===name.toLowerCase()?'':name;}
- const tagChip=t=>{const g=F.channels&&tagOf(t);return g?`<small class="tag-chip">${esc(tagName(g))}</small>`:'';};
+ const tagChip=t=>{const g=F.channels&&tagOf(t);return g?`<small class="tag-chip" style="--tc:${tagColor(g)}">${esc(tagName(g))}</small>`:'';};
  const channelList=()=>`<datalist id="channel-options">${channels().map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>`;
  const channelField=(id,label=L.channelOne||'Sales channel')=>F.channels?`<label class="full">${label} <span class="dim">(optional)</span><input name="channel" list="channel-options" maxlength="40" autocomplete="off" value="${esc(channelName(id))}" placeholder="e.g. Etsy, Shopify, YouTube">${channelList()}<small>Where this sale or cost belongs. Leave blank for costs the whole business shares, like software or insurance.</small></label>`:'';
  const channelChip=t=>F.channels&&t.channel&&channelName(t.channel)?`<small class="channel-chip">${esc(channelName(t.channel))}</small>`:'';
@@ -3736,7 +3750,7 @@ const Biz=(()=>{
   return `<section class="card" id="tags-card"><div class="goal-icon">${ico('tags')}</div><h2>Tags</h2><p class="subtitle">Group your ${esc(CH())}s by what they earn from, like <b>Digital products</b> for Etsy and Payhip or <b>Donations</b> for Patreon and Buy Me a Coffee. Give each ${esc(CH())} a tag above; its entries follow. Any entry, a cost included, can also carry its own tag. The dashboard and annual overview chart money in and out by tag.</p>`+
    `<form id="biz-tag-form" class="channel-add"><input name="name" maxlength="40" required placeholder="New tag, e.g. Digital products" aria-label="New tag name"><button class="btn small primary">Add tag</button></form>`+
    (quick.length?`<div class="channel-quick"><span class="small muted">Quick add</span>${quick.map(n=>`<button class="qchip" data-action="biz-quick-tag" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}</div>`:'')+
-   (tags().length?tags().map(g=>{const chs=channels().filter(c=>c.tag===g.id).map(c=>c.name);return `<div class="row"><div><strong>${esc(g.name)}</strong><small>${chs.length?esc(chs.join(', '))+' · ':''}${counts.get(g.id)||0} transaction${counts.get(g.id)===1?'':'s'}</small></div><div class="category-actions"><button class="icon-action" data-action="biz-rename-tag" data-id="${g.id}" title="Rename ${esc(g.name)}" aria-label="Rename ${esc(g.name)}">${ico('edit')}</button><button class="icon-action danger" data-action="biz-delete-tag" data-id="${g.id}" title="Remove ${esc(g.name)}" aria-label="Remove ${esc(g.name)}">${ico('trash')}</button></div></div>`;}).join(''):`<p class="small muted" style="margin-top:14px">No tags yet.</p>`)+`</section>`;
+   (tags().length?tags().map(g=>{const chs=channels().filter(c=>c.tag===g.id).map(c=>c.name);const n=tagColorN(g,tags().indexOf(g));return `<div class="row"><div><strong><small class="tag-chip" style="--tc:var(--tag-${n});margin-left:0">${esc(g.name)}</small></strong><small>${chs.length?esc(chs.join(', '))+' · ':''}${counts.get(g.id)||0} transaction${counts.get(g.id)===1?'':'s'}</small><div class="tag-swatches" role="group" aria-label="Colour for ${esc(g.name)}">${Array.from({length:Budget.TAG_COLORS},(_,i)=>`<button type="button" class="tag-swatch" style="--sw:var(--tag-${i+1})" data-action="biz-tag-color" data-id="${g.id}" data-color="${i+1}" aria-pressed="${n===i+1}" aria-label="Colour ${i+1}${n===i+1?', chosen':''}"></button>`).join('')}</div></div><div class="category-actions"><button class="icon-action" data-action="biz-rename-tag" data-id="${g.id}" title="Rename ${esc(g.name)}" aria-label="Rename ${esc(g.name)}">${ico('edit')}</button><button class="icon-action danger" data-action="biz-delete-tag" data-id="${g.id}" title="Remove ${esc(g.name)}" aria-label="Remove ${esc(g.name)}">${ico('trash')}</button></div></div>`;}).join(''):`<p class="small muted" style="margin-top:14px">No tags yet.</p>`)+`</section>`;
  }
  function channelForm(id){const c=channels().find(x=>x.id===id);if(!c)return;
   modal('Rename channel','Tagged transactions keep their tag under the new name.',`<form id="biz-channel-form" data-id="${id}"><div class="fields"><label class="full">Channel name<input name="name" maxlength="40" required value="${esc(c.name)}"></label></div>${formFoot('Save name')}</form>`);}
@@ -3777,6 +3791,7 @@ const Biz=(()=>{
   if(a==='manage-tags'){go('settings');requestAnimationFrame(()=>$('#tags-card')?.scrollIntoView({behavior:'smooth',block:'start'}));}
   if(a==='manage-streams'){go('settings');requestAnimationFrame(()=>$('#biz-channel-form')?.closest('section')?.scrollIntoView({behavior:'smooth',block:'start'}));}
   if(a==='biz-rename-channel')channelForm(id);
+  if(a==='biz-tag-color'){const g=tags().find(x=>x.id===id),n=+b.dataset.color;if(g&&Number.isInteger(n)&&n>=1&&n<=Budget.TAG_COLORS&&g.color!==n)commit(()=>{g.color=n;},`${g.name} colour changed`);}
   if(a==='biz-quick-tag'){const n=b.dataset.name;try{checkTag(n);}catch(err){return toast(err.message);}if(!findTag(n))commit(()=>ensureTag(n),`${n} added`);}
   if(a==='biz-rename-tag'){const g=tags().find(x=>x.id===id);if(g)modal('Rename tag','Tagged entries and channels keep the tag under its new name.',`<form id="biz-tag-form" data-id="${id}"><div class="fields"><label class="full">Tag name<input name="name" maxlength="40" required value="${esc(g.name)}"></label></div>${formFoot('Save name')}</form>`);}
   if(a==='biz-delete-tag'){const g=tags().find(x=>x.id===id);if(!g)return;const n=state.transactions.filter(t=>tagOf(t)===id).length;
@@ -3848,7 +3863,7 @@ const Biz=(()=>{
  if(F.invoices)views.invoices=invoicesView;
  return {views,dashboard,mixGrid,mixCard,settingsCard,taxLineField,annualCharts,cashflowAnnual,range,columns,statementRows,
   channels,channelName,channelIdByName:name=>findChannel(name)?.id||'',checkChannel,ensureChannel,channelField,channelChip,channelSelect,channelList,channelFilter,channelMatch,channelFiltered,clearChannelFilter,channelsCard,offerChannelSimilar,
-  tags,tagName,tagOf,ensureTag,checkTag,tagField,tagForSave,tagChip,tagFilter,tagsCard,setTxFilter};
+  tags,tagName,tagOf,tagColor,ensureTag,checkTag,tagField,tagForSave,tagChip,tagFilter,tagsCard,setTxFilter};
 })();
 render();
 </script></body></html>

@@ -220,7 +220,7 @@ const NICHE = {
     ],
     extras: (s, { m, year, now, uid, totals }) => {
       const monthNo = +m.slice(5, 7), key = i => `${year}-${String(i).padStart(2, '0')}`;
-      s.tags = [{ id: 'tg-ads', name: 'Ad revenue' }, { id: 'tg-donations', name: 'Donations' }, { id: 'tg-digital', name: 'Digital products' }, { id: 'tg-sponsor', name: 'Sponsorships' }, { id: 'tg-aff', name: 'Affiliate income' }];
+      s.tags = [{ id: 'tg-ads', name: 'Ad revenue', color: 6 }, { id: 'tg-donations', name: 'Donations', color: 4 }, { id: 'tg-digital', name: 'Digital products', color: 1 }, { id: 'tg-sponsor', name: 'Sponsorships', color: 3 }, { id: 'tg-aff', name: 'Affiliate income', color: 5 }];
       s.channels = [{ id: 'ch-yt', name: 'YouTube', tag: 'tg-ads' }, { id: 'ch-patreon', name: 'Patreon', tag: 'tg-donations' }, { id: 'ch-etsy', name: 'Etsy', tag: 'tg-digital' }, { id: 'ch-brands', name: 'Brand deals', tag: 'tg-sponsor' }, { id: 'ch-aff', name: 'Affiliates', tag: 'tg-aff' }];
       s.channelRules = { adsense: 'ch-yt', youtube: 'ch-yt', patreon: 'ch-patreon', etsy: 'ch-etsy', sponsor: 'ch-brands', amazon: 'ch-aff' };
       // brand deals as invoices: paid ones sit in income, the latest are still open, two of them late
