@@ -122,7 +122,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.click('[data-action="etsy-clear"]');await p.selectOption('#etsy-import-shop',kilnId);
   await p.setInputFiles('#etsy-files',[path.join(dir,'kiln_statement.csv')]);await p.waitForTimeout(200);await p.click('[data-action="etsy-import"]');await p.waitForTimeout(150);
   check('second shop imported',await st(id=>state.transactions.filter(t=>t.shop===id).length>15,kilnId));
-  check('import toast says what arrived',/Kiln Pots: payment account statement \d+ new/.test(await p.locator('#toast').innerText()),await p.locator('#toast').innerText());
+  check('import toast says what arrived',/Kiln Pots: payment account statement \(\d+ new\)/.test(await p.locator('#toast').innerText()),await p.locator('#toast').innerText());
   // ---- the picker scopes every screen and the printout ----
   await p.evaluate(()=>go('shops'));await p.click('[data-action="etsy-span"][data-span="month"]');const shops=await text();
   check('comparison lists both shops',shops.includes('Fern Prints')&&shops.includes('Kiln Pots')&&shops.includes('All shops'),shops.slice(0,400));

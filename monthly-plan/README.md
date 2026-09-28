@@ -92,6 +92,7 @@ do not change.
 - **New listings.** `launches()` counts a listing as new the month it is first seen (a listing fee or a sale) with an ID above every listing seen in earlier months; Etsy's files carry no creation date. A listing fee on a day the listing sold is a renewal. The first month with data is the baseline.
 - **Goals.** `settings.goals` holds a monthly revenue goal per shop (`''` = all shops together).
 - **Storage.** The pack sets `storage.idb`, so the core saves to IndexedDB (`<key>-data`) instead of localStorage, which holds about 5 MB shared by every file:// page. The first open moves data found in localStorage across; without IndexedDB it falls back to localStorage. Budget and Profit Plan are unchanged.
+- **Demo files.** `node build/demo_data.js` writes three made-up shops (Jan 2025 – Sep 2026) in Etsy's layouts to `listing-kit/demo-data/` (ignored by git; zipped as `listing-kit/Shop_Insights_Demo_Data.zip`) for the listing video.
 - **Test data.** `build/etsy_fixtures.js` writes synthetic files in Etsy's layouts. Never commit a seller's
   real exports: the sold order items file holds buyers' names and addresses.
 

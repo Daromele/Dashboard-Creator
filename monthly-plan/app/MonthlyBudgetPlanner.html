@@ -1746,8 +1746,9 @@ const P=NICHE,L=P.labels,KEY=P.storage.key+'-v1';
 const Ext={views:{},afterRender(){},printScope:()=>'',txTag:()=>({}),annualTop:()=>'',plNote:()=>'',importRefine:null,importTag:null,activityFilter:null,txBadge:null,bizName:null,settingsCard:null};
 // an edited transaction keeps the shop and import reference it came with; a new one gets the current shop
 const txOrigin=t=>t?Object.fromEntries(['shop','ref','src'].filter(k=>t[k]!==undefined).map(k=>[k,t[k]])):Ext.txTag();
-const MAX_TRANSACTIONS=20000;
-const LIMIT_MESSAGE='This planner holds up to 20,000 transactions in browser storage. Download a backup and start a fresh planner file for older years.';
+// IndexedDB editions (Shop Insights) have room for far more: one busy Etsy shop writes ~6 statement lines an order
+const MAX_TRANSACTIONS=P.storage.idb?100000:20000;
+const LIMIT_MESSAGE=`This planner holds up to ${MAX_TRANSACTIONS.toLocaleString('en-US')} transactions in browser storage. Download a backup and start a fresh planner file for older years.`;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clone=o=>JSON.parse(JSON.stringify(o));

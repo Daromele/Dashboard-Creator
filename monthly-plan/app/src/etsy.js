@@ -779,7 +779,7 @@ const Etsy=(()=>{
  function heroCard(m,S,cur,noStmt){const goal=goalOf(),kept=S.revenue>0?S.takeHome/S.revenue:null;
   const fact=(l,v)=>`<div class="hero-fact"><span>${l}</span><strong>${v}</strong></div>`;
   return `<section class="hero kit-hero"><div><div class="eyebrow">Take-home${noStmt?' · estimated':''} · ${monthName(m)}</div><h2 class="number${S.takeHome<0?' alert':''}" data-count="${S.takeHome}">${fmt(S.takeHome)}</h2>`+
-   `<p>${S.revenue>0?`What ${esc(scopeName())} kept from ${fmt(S.revenue)} of sales after every ${etsyOnly()?'Etsy ':''}fee, ad and subscription: <b>${pc(kept,0)}</b> of every dollar${S.orders?`, across ${num(S.orders)} order${S.orders===1?'':'s'}`:''}.`:'No sales recorded this month yet.'}</p>`+
+   `<p>${S.revenue>0?`What ${scopeName()==='All shops'?'your shops':esc(scopeName())} kept from ${fmt(S.revenue)} of sales after every ${etsyOnly()?'Etsy ':''}fee, ad and subscription: <b>${pc(kept,0)}</b> of every dollar${S.orders?`, across ${num(S.orders)} order${S.orders===1?'':'s'}`:''}.`:'No sales recorded this month yet.'}</p>`+
    `<div class="hero-foot">${button('Import files →','go-etsy-import','pop small')}${button('Fees & ads','go-fees','quiet small')}</div></div>`+
    `<div class="hero-side">${fact('Sales, after buyer tax',fmt(S.revenue))}${fact(etsyOnly()?'Etsy fees':'Fees',(S.fees?'−':'')+fmt(S.fees))}${fact('Ads &amp; Etsy Plus',(S.marketing?'−':'')+fmt(S.marketing))}`+
    `<div class="hero-meter" title="Kept ${pc(kept,0)}"><i style="width:${Math.max(0,Math.min(100,(kept||0)*100))}%"></i></div>${fact('Take-home',fmt(S.takeHome))}`+
@@ -1040,7 +1040,7 @@ const Etsy=(()=>{
   const kept=S.revenue>0?S.takeHome/S.revenue:null,best=done.reduce((a,b)=>b.revenue>a.revenue?b:a),slow=done.reduce((a,b)=>b.revenue<a.revenue?b:a);
   const avgTH=Math.round(S.takeHome/upto),fact=(l,v)=>`<div class="hero-fact"><span>${l}</span><strong>${v}</strong></div>`;
   const hero=`<section class="hero kit-hero"><div><div class="eyebrow">Take-home · ${y}${upto<12?' so far':''}</div><h2 class="number${S.takeHome<0?' alert':''}" data-count="${S.takeHome}">${fmt(S.takeHome)}</h2>`+
-   `<p>What ${esc(scopeName())} kept from ${fmt(S.revenue)} of sales over ${upto} month${upto===1?'':'s'}: <b>${pc(kept,0)}</b> of every dollar, about <b>${fmt(avgTH)}</b> a month.</p>`+
+   `<p>What ${scopeName()==='All shops'?'your shops':esc(scopeName())} kept from ${fmt(S.revenue)} of sales over ${upto} month${upto===1?'':'s'}: <b>${pc(kept,0)}</b> of every dollar, about <b>${fmt(avgTH)}</b> a month.</p>`+
    `<div class="kit-yr-strip" aria-hidden="true">${months.map((mo,i)=>{const x=M[i],mx=Math.max(...done.map(d=>d.revenue),1);return `<span title="${shortMonth(mo)}: ${x?fmt(x.revenue):'—'}"><i style="height:${x?Math.max(4,x.revenue/mx*100):0}%"></i><em>${shortMonth(mo).charAt(0)}</em></span>`;}).join('')}</div></div>`+
    `<div class="hero-side">${fact('Sales, after buyer tax',fmt(S.revenue))}${fact(etsyOnly()?'Etsy fees':'Fees',(S.fees?'−':'')+fmt(S.fees))}${fact('Ads &amp; Etsy Plus',(S.marketing?'−':'')+fmt(S.marketing))}`+
    `<div class="hero-meter" title="Kept ${pc(kept,0)}"><i style="width:${Math.max(0,Math.min(100,(kept||0)*100))}%"></i></div>${fact('Take-home',fmt(S.takeHome))}${fact('Orders',num(orders))}</div></section>`;
@@ -1332,7 +1332,7 @@ const Etsy=(()=>{
   session.files=session.sources.flatMap((src,i)=>{if(src.error)return [{name:src.name,kind:null,records:[],items:[],issues:[],notes:[],error:src.error,src:i}];
    const r=D.read(src.name,src.text,{platform:plat,maps:state.settings.columnMaps||{}});r.src=i;return r.twin?[r,{...r.twin,src:i,twinOf:true}]:[r];});}
  async function readFiles(list){
-  const files=[...list].slice(0,24);if(!files.length)return;
+  const all=[...list],files=all.slice(0,60);if(!files.length)return;if(all.length>files.length)toast(`Only the first 60 of ${all.length} files were read. Drop the rest in a second go.`);
   const sources=[];for(const f of files)sources.push(f.size>10e6?{name:f.name,error:'Files must be smaller than 10 MB.'}:{name:f.name,text:await f.text()});
   const shop=$('#etsy-import-shop')?.value||session?.shop||state.settings.shop||state.shops[0]?.id||'';
   session={shop,sources:[...(session?.sources||[]),...sources],files:[]};parseSession();render();
@@ -1349,7 +1349,9 @@ const Etsy=(()=>{
   if(!plan.length)return toast('Nothing new to import.');
   const newLines=plan.filter(x=>x.f.kind==='statement').reduce((n,x)=>n+x.r.added,0);
   if(state.transactions.length+newLines>MAX_TRANSACTIONS)return toast(LIMIT_MESSAGE);
-  const summary=`${shopName(shop)}: `+plan.map(({r})=>`${D.kindName(r.kind,r.platform).replace(/^(?!Shopify|Square)\w/,c=>c.toLowerCase())} ${r.kind==='listings'?(r.added||r.same)+' listings':r.kind==='orders'?num(r.added)+' new orders, '+num(r.items)+' items':num(r.added)+' new'+(r.updated?', '+num(r.updated)+' updated':'')}`).join(' · ');
+  // one short line per kind of file, however many files were dropped
+  const by=new Map();for(const {r} of plan){const k=D.kindName(r.kind,r.platform);let x=by.get(k);if(!x)by.set(k,x={kind:r.kind,files:0,added:0,items:0,updated:0,same:0});x.files++;x.added+=r.added||0;x.items+=r.items||0;x.updated+=r.updated||0;x.same+=r.same||0;}
+  const summary=`${shopName(shop)}: `+[...by.entries()].map(([k,x])=>{const name=(x.files>1?`${x.files} `:'')+k.replace(/^(?!Shopify|Square)\w/,c=>c.toLowerCase())+(x.files>1&&!/s$/.test(k)?'s':'');return `${name} (${x.kind==='listings'?num(x.added||x.same)+' listings':x.kind==='orders'?num(x.added)+' new orders':num(x.added)+' new'+(x.updated?', '+num(x.updated)+' updated':'')})`;}).join(' · ');
   let latest='';
   commit(()=>{for(const {f} of plan){const r=D.merge(state,shop,f,{uid:Budget.uid,today:today()});if(r.error)continue;
     // months that receive Etsy lines open again, as with any import
