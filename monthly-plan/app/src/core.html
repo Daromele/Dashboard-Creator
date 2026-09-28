@@ -1107,10 +1107,6 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 :root[data-theme="night"],:root[data-theme="midnight"]{--tag-1:#A08BEA; --tag-2:#F0AE3C; --tag-3:#62A3F2; --tag-4:#E27BBE; --tag-5:#3EC6BC; --tag-6:#F28466; --tag-7:#70C266; --tag-8:#C99A68;}
 .tag-chip{--tc:var(--accent)}
 .row .tag-chip,.slice-row .tag-chip{display:inline-block;width:auto}
-.tag-swatches{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-.tag-swatch{width:18px;height:18px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--rule-2);padding:0;cursor:pointer;background:var(--sw)}
-.tag-swatch[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
-.tag-swatch:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .kpis-lead{margin-bottom:var(--s5);grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1250px){.kpis-lead{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:620px){.kpis-lead{grid-template-columns:1fr 1fr}.kpis-lead .kpi:last-child{grid-column:1/-1}}
@@ -1245,7 +1241,7 @@ const Budget = ((P) => {
   const cents = s => {if(!/^\d{1,8}(\.\d{1,2})?$/.test(String(s).trim())) throw Error('Use a positive amount with up to two decimal places.');return Math.round(Number(s)*100);};
   const blank = () => ({version:1,...(P.id!=='budget'?{niche:P.id}:{}),settings:{name:'',currency:'USD',symbol:'',dateFormat:'auto',theme:THEMES[0],hiddenNav:[],...JSON.parse(JSON.stringify(P.settings||{}))},baseline:{},
     categories:P.categories.map(([id,name,group,taxLine])=>({id,name,group,archived:false,...(taxLine?{taxLine}:{})})),
-    months:{},transactions:[],goals:[],reviews:{},schedules:[],snapshots:{},quickMemory:{},importMap:{},...(P.features.mileage?{mileage:[]}:{}),...(P.features.invoices?{invoices:[]}:{}),...(P.features.channels?{channels:[],channelRules:{},tags:[]}:{})});
+    months:{},transactions:[],goals:[],reviews:{},schedules:[],snapshots:{},quickMemory:{},importMap:{},...(P.features.mileage?{mileage:[]}:{}),...(P.features.invoices?{invoices:[]}:{}),...(P.features.channels?{channels:[],channelRules:{},tags:[],tagRules:{}}:{})});
   const month = (s,m) => s.months[m] || {plan:{},opening:0,note:'',closed:false};
   // The usual amounts repeat every month; a month stores only the categories it changes.
   const planFor = (s,m) => ({...(s.baseline||{}),...(month(s,m).plan||{})});
@@ -1400,6 +1396,9 @@ const Budget = ((P) => {
     for(const m of monthsBetween(from,to))for(const t of transactions(s,m)){if(t.date<from||t.date>to)continue;const c=s.categories.find(c=>c.id===t.category);if(!c||group(c).type!==type)continue;
       let k=by==='tag'?tagOf(s,t):t.channel||'';if(!names.has(k))k='';sums.set(k,(sums.get(k)||0)+t.amount);}
     return [...sums.entries()].map(([id,amount])=>({id,name:names.get(id)||'',amount})).sort((a,b)=>b.amount-a.amount);}
+  const tagFor=(s,note)=>{const k=matchKey(note);if(!k)return '';
+    const hit=Object.entries(s.tagRules||{}).filter(([r])=>r===k||k.startsWith(r+' ')).sort((a,b)=>b[0].length-a[0].length).find(([,id])=>(s.tags||[]).some(g=>g.id===id));
+    return hit?hit[1]:'';};
   const channelFor=(s,note)=>{const k=matchKey(note);if(!k)return '';
     const hit=Object.entries(s.channelRules||{}).filter(([r])=>r===k||k.startsWith(r+' ')).sort((a,b)=>b[0].length-a[0].length).find(([,id])=>(s.channels||[]).some(c=>c.id===id));
     return hit?hit[1]:'';};
@@ -1508,6 +1507,8 @@ const Budget = ((P) => {
      if(!Array.isArray(s.tags))s.tags=[];
      const tagIds=new Set(),tagNames=new Set();
      s.tags=s.tags.filter(g=>{const ok=object(g)&&id(g.id)&&!tagIds.has(g.id)&&str(g.name,40)&&g.name.trim()&&!tagNames.has(g.name.trim().toLowerCase());if(ok){tagIds.add(g.id);tagNames.add(g.name.trim().toLowerCase());}return ok;}).slice(0,MAX_TAGS);
+     if(!object(s.tagRules))s.tagRules={};
+     Object.entries(s.tagRules).forEach(([k,v])=>{if(!str(k,80)||!k||!tagIds.has(v))delete s.tagRules[k];});
      s.tags.forEach(g=>{if(g.color!==undefined&&!(Number.isInteger(g.color)&&g.color>=1&&g.color<=TAG_COLORS))delete g.color;});
      s.channels.forEach(c=>{if(c.tag!==undefined&&!tagIds.has(c.tag))delete c.tag;});
      s.transactions.forEach(t=>{if(t.tag!==undefined&&!tagIds.has(t.tag))delete t.tag;});
@@ -1569,7 +1570,7 @@ const Budget = ((P) => {
     if(S.extras)S.extras(s,{m,year,now,uid,days,shift,plusDays,totals:(st,mm)=>{invalidate(st);return totals(st,mm);}});
     return s;
   }
-  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
+  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,tagFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
 })(NICHE);
 if(typeof module!=='undefined')module.exports=Budget;
 
@@ -2253,22 +2254,47 @@ function bulkBar(filtered,pageRows){if(!txSel.size)return '';const n=txSel.size,
   (ch&&Biz.channels().length?`<select id="bulk-channel" aria-label="Set ${esc(L.channelOne||'channel')} of the selected"><option value="">Set ${esc(L.channelShort||'channel')}…</option><option value="__none">No ${esc(L.channelShort||'channel')} (shared)</option>${Biz.channels().map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>`:'')+
   (ch?`<select id="bulk-tag" aria-label="Set tag of the selected"><option value="">Set tag…</option><option value="__inherit">Use the ${esc(L.channelShort||'channel')}’s tag</option>${Biz.tags().map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}<option value="__new">New tag…</option></select>`:'')+
   `${button('Delete','bulk-delete','small danger')}</div></div>`;}
+// After a category, channel or tag change on some entries: offer the same for look-alike
+// transactions (same merchant), and to remember it for future imports and Quick Log.
+const SIMILAR={
+ category:{rules:'categoryRules',name:v=>category(v)?.name||'',now:x=>x.category,can:x=>canRecategorise(x),set:(x,v)=>{x.category=v;},verb:'Move',to:'to'},
+ channel:{rules:'channelRules',name:v=>P.features.channels?Biz.channelName(v):'',now:x=>x.channel||'',can:x=>editable(x),set:(x,v)=>{x.channel=v;},verb:'Assign',to:'to'},
+ tag:{rules:'tagRules',name:v=>P.features.channels?Biz.tagName(v):'',now:x=>Biz.tagOf(x),can:x=>editable(x),set:(x,v)=>Biz.setTag(x,v),verb:'Tag',to:'as'}};
+function similarFor(kind,value,rows){const K=SIMILAR[kind],ids=new Set(rows.map(t=>t.id)),keys=[...new Set(rows.map(t=>Budget.matchKey(t.note)).filter(Boolean))];
+ const same=keys.length?state.transactions.filter(x=>!ids.has(x.id)&&K.now(x)!==value&&keys.some(k=>Budget.sameMerchant(Budget.matchKey(x.note),k))):[];
+ return {keys,same,open:same.filter(K.can),newRules:keys.filter(k=>state[K.rules]?.[k]!==value)};}
+function offerSimilarFor(kind,value,rows,lead){const K=SIMILAR[kind],name=K.name(value);if(!name||!rows.length)return;
+ const {keys,same,open,newRules}=similarFor(kind,value,rows);if(!same.length&&!newRules.length)return;
+ const held=same.length-open.length,shown=keys.slice(0,4).map(k=>`“${esc(k)}”`).join(', ')+(keys.length>4?` and ${keys.length-4} more`:'');
+ const list=[...same].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6).map(x=>`<div class="row"><div><strong>${esc(x.note||category(x.category).name)}</strong><small>${dateName(x.date)}, ${x.date.slice(0,4)}${K.name(K.now(x))?' · now '+esc(K.name(K.now(x))):''}${K.can(x)?'':' · stays as it is'}</small></div><span class="number">${fmt(x.amount)}</span></div>`).join('');
+ modal(`${K.verb} similar transactions too?`,`${lead} <b>${esc(name)}</b>.${same.length?` ${same.length} other transaction${same.length===1?' looks':'s look'} like ${rows.length===1?'it':'them'}.`:''}`,
+  `<form id="similar-any-form" data-kind="${kind}" data-value="${esc(value)}" data-ids="${esc(rows.map(t=>t.id).join(','))}">${list}${same.length>6?`<p class="small muted" style="margin-top:8px">…and ${same.length-6} more.</p>`:''}`+
+  (same.length&&!open.length?`<p class="small muted" style="margin:10px 0">${same.length===1?'It is':'All '+same.length+' are'} in a closed month, so ${same.length===1?'it stays':'they stay'} as ${same.length===1?'it is':'they are'}. Reopen the month to change ${same.length===1?'it':'them'}.</p>`:'')+(open.length?`<label class="checkline choice"><input type="checkbox" name="others" ${open.length?'checked':'disabled'}><span><b>${K.verb} ${open.length===same.length?(same.length===1?'it':'all '+same.length):open.length+' of '+same.length} ${K.to} ${esc(name)}</b>${held?`<br><small>${held} in a closed month${kind==='category'?' or matched to a recurring payment':''} ${held===1?'stays':'stay'} as ${held===1?'it is':'they are'}.</small>`:''}</span></label>`:'')+
+  (newRules.length?`<label class="checkline choice"><input type="checkbox" name="future" checked><span><b>Use ${esc(name)} for future ${shown} transactions</b><br><small>Bank imports and Quick Log will apply it. Manage rules in Settings.</small></span></label>`:'')+
+  `${formFoot('Apply',`<button type="button" class="btn" data-action="dismiss">Only ${rows.length===1?'this one':'these'}</button>`).replace('<button type="button" class="btn" data-action="dismiss">Cancel</button>','')}</form>`);}
+document.addEventListener('submit',e=>{if(e.target.id!=='similar-any-form')return;e.preventDefault();const f=new FormData(e.target),d=e.target.dataset,K=SIMILAR[d.kind],v=d.value;closeModal();if(!K||!K.name(v))return;
+ const rows=state.transactions.filter(t=>d.ids.split(',').includes(t.id)),{keys,open,newRules}=similarFor(d.kind,v,rows),others=f.get('others')==='on',future=f.get('future')==='on';
+ const ids=new Set(others?open.map(x=>x.id):[]);if(!ids.size&&!(future&&newRules.length))return;
+ commit(()=>{state.transactions.forEach(x=>{if(ids.has(x.id)){K.set(x,v);if(d.kind==='category'&&x.scheduleKey)delete x.scheduleKey;}});if(future){state[K.rules]??={};newRules.forEach(k=>state[K.rules][k]=v);}},
+  [ids.size&&`${ids.size} more set to ${K.name(v)}`,future&&newRules.length&&`future ${newRules.length===1?'“'+newRules[0]+'”':newRules.length+' kinds of'} transactions will be too`].filter(Boolean).join(' · '));});
 function selectedRows(){return state.transactions.filter(t=>txSel.has(t.id)&&editable(t));}
-function bulkApply(fn,what){const rows=selectedRows();if(!rows.length)return toast('Nothing selected can be changed. Closed months are protected.');const ids=new Set(rows.map(t=>t.id));
- commit(()=>state.transactions.forEach(t=>{if(ids.has(t.id))fn(t);}),`${what} · ${rows.length} transaction${rows.length===1?'':'s'}`);}
+function bulkApply(fn,what,offer){const rows=selectedRows();if(!rows.length)return toast('Nothing selected can be changed. Closed months are protected.');const ids=new Set(rows.map(t=>t.id));
+ commit(()=>state.transactions.forEach(t=>{if(ids.has(t.id))fn(t);}),`${what} · ${rows.length} transaction${rows.length===1?'':'s'}`);
+ if(offer)offerSimilarFor(offer[0],offer[1],state.transactions.filter(t=>ids.has(t.id)),`You ${offer[0]==='category'?'moved':'set'} ${rows.length} transaction${rows.length===1?'':'s'} ${offer[0]==='category'?'to':'to'}`);}
 document.addEventListener('change',e=>{const el=e.target;
  if(el.dataset?.sel){if(el.checked)txSel.add(el.dataset.sel);else txSel.delete(el.dataset.sel);render();return;}
  if(el.id==='tx-sel-page'){const rows=activityList.slice(activityPage*100,(activityPage+1)*100).filter(editable);rows.forEach(t=>el.checked?txSel.add(t.id):txSel.delete(t.id));render();return;}
  if(el.id==='tx-range'){txRange=TX_RANGES.some(r=>r[0]===el.value)?el.value:'all';if(txRange==='custom'&&!txFrom&&!txTo){txFrom=selected+'-01';txTo=Budget.endOf(selected);}activityPage=0;render();return;}
  if(el.id==='tx-from'||el.id==='tx-to'){const v=el.value;if(v&&!Budget.validDate(v))return;if(el.id==='tx-from')txFrom=v;else txTo=v;if(txFrom&&txTo&&txTo<txFrom)[txFrom,txTo]=[txTo,txFrom];activityPage=0;render();return;}
- if(el.id==='bulk-category'){const c=category(el.value);if(!c)return;bulkApply(t=>{t.category=c.id;if(t.scheduleKey)delete t.scheduleKey;},`Moved to ${c.name}`);return;}
- if(el.id==='bulk-channel'){const v=el.value;if(!v)return;if(v!=='__none'&&!Biz.channelName(v))return;bulkApply(t=>{if(v==='__none')delete t.channel;else t.channel=v;},v==='__none'?'Channel cleared':`Tagged ${Biz.channelName(v)}`);return;}
+ if(el.id==='bulk-category'){const c=category(el.value);if(!c)return;bulkApply(t=>{t.category=c.id;if(t.scheduleKey)delete t.scheduleKey;},`Moved to ${c.name}`,['category',c.id]);return;}
+ if(el.id==='bulk-channel'){const v=el.value;if(!v)return;if(v!=='__none'&&!Biz.channelName(v))return;bulkApply(t=>{if(v==='__none')delete t.channel;else t.channel=v;},v==='__none'?'Channel cleared':`Set to ${Biz.channelName(v)}`,v==='__none'?null:['channel',v]);return;}
  if(el.id==='bulk-tag'){const v=el.value;if(!v)return;
   if(v==='__new'){el.value='';modal('New tag for the selected',`${txSel.size} transaction${txSel.size===1?'':'s'} will carry it.`,`<form id="bulk-tag-form"><div class="fields"><label class="full">Tag name<input name="name" maxlength="40" required placeholder="e.g. Digital products" list="bulk-tag-options"><datalist id="bulk-tag-options">${Biz.tags().map(g=>`<option value="${esc(g.name)}">`).join('')}</datalist></label></div>${formFoot('Apply tag')}</form>`);return;}
-  if(v!=='__inherit'&&!Biz.tagName(v))return;bulkApply(t=>{if(v==='__inherit')delete t.tag;else t.tag=v;},v==='__inherit'?'Tags follow their channel':`Tagged ${Biz.tagName(v)}`);return;}});
+  if(v!=='__inherit'&&!Biz.tagName(v))return;bulkApply(t=>{if(v==='__inherit')delete t.tag;else Biz.setTag(t,v);},v==='__inherit'?'Tags follow their channel':`Tagged ${Biz.tagName(v)}`,v==='__inherit'?null:['tag',v]);return;}});
 document.addEventListener('submit',e=>{if(e.target.id!=='bulk-tag-form')return;e.preventDefault();const name=String(new FormData(e.target).get('name')||'').trim();if(!name)return;
  try{Biz.checkTag(name);}catch(err){return toast(err.message);}closeModal();const rows=selectedRows();if(!rows.length)return;const ids=new Set(rows.map(t=>t.id));
- commit(()=>{const id=Biz.ensureTag(name);state.transactions.forEach(t=>{if(ids.has(t.id))t.tag=id;});},`Tagged ${name} · ${rows.length} transaction${rows.length===1?'':'s'}`);});
+ let id='';commit(()=>{id=Biz.ensureTag(name);state.transactions.forEach(t=>{if(ids.has(t.id))Biz.setTag(t,id);});},`Tagged ${name} · ${rows.length} transaction${rows.length===1?'':'s'}`);
+ offerSimilarFor('tag',id,state.transactions.filter(t=>ids.has(t.id)),`You tagged ${rows.length} transaction${rows.length===1?'':'s'} as`);});
 const GOAL_SORTS=[['name:asc','Name (A\u2013Z)'],['name:desc','Name (Z\u2013A)'],['percent:desc','Progress (closest first)'],['percent:asc','Progress (furthest first)'],['saved:desc','Saved or paid (most first)'],['remaining:desc','Left to go (most first)'],['target:desc','Target amount (largest first)'],['due:asc','Target date (soonest first)'],['kind:asc','Type (saving, then debt)']];
 function sortGoals(rows){
  const dir=goalSort.dir==='desc'?-1:1,k=goalSort.key;
@@ -2479,7 +2505,7 @@ function startFreshDialog(){
 async function startFresh(keep){
  if(backupFolder){try{if(await backupFolder.queryPermission({mode:'readwrite'})==='granted'){const file=await backupFolder.getFileHandle(`${P.storage.file}-before-start-fresh-${Budget.today()}.json`,{create:true}),w=await file.createWritable();try{await w.write(JSON.stringify(state,null,2));}finally{await w.close();}}}catch{}}
  const next=Budget.blank();
- if(keep==='setup'){next.settings=clone(state.settings);next.categories=clone(state.categories);if(P.features.channels){next.channels=clone(state.channels||[]);next.channelRules=clone(state.channelRules||{});next.tags=clone(state.tags||[]);}}
+ if(keep==='setup'){next.settings=clone(state.settings);next.categories=clone(state.categories);if(P.features.channels){next.channels=clone(state.channels||[]);next.channelRules=clone(state.channelRules||{});next.tags=clone(state.tags||[]);next.tagRules=clone(state.tagRules||{});}}
  csvSession=null;selected=Budget.today().slice(0,7);screen='dashboard';closeModal();
  commit(()=>state=next,keep==='setup'?'Planner cleared · categories and settings kept':'Planner erased · starting from new');
 }
@@ -2615,7 +2641,7 @@ document.addEventListener('input',e=>{if(e.target.dataset.plan||e.target.dataset
  if(e.target.id==='goal-search'){goalSearch=e.target.value;clearTimeout(goalSearchTimer);goalSearchTimer=setTimeout(render,180);}});
 document.addEventListener('submit',e=>{const form=e.target;if(!['transaction-form','category-form','goal-form','repeat-form','note-form','review-form','settings-form'].includes(form.id))return;e.preventDefault();const f=new FormData(form),id=form.dataset.id;try{
  switch(form.id){
- case 'transaction-form':{if(!id&&state.transactions.length>=MAX_TRANSACTIONS)throw Error(LIMIT_MESSAGE);const date=f.get('date'),cat=f.get('category');if(!Budget.validDate(date)||date>Budget.today())throw Error('Use a valid date today or earlier.');if(!writable(date.slice(0,7)))throw Error('That month is closed. Reopen it before adding or moving a transaction.');if(!category(cat))throw Error('Choose a category.');const amount=Budget.cents(f.get('amount'))*(f.get('direction')==='reverse'?-1:1);if(!amount)throw Error('Enter an amount greater than zero.');const old=state.transactions.find(t=>t.id===id);if(old?.scheduleKey&&!writable(old.scheduleKey.split('@')[1].slice(0,7)))throw Error('Reopen the scheduled month before editing this linked transaction.');const chName=P.features.channels?String(f.get('channel')||'').trim():'';if(chName)Biz.checkChannel(chName);const tgName=P.features.channels?Biz.tagForSave(f.get('tag'),chName):'';const t={id:id||Budget.uid(),date,category:cat,amount,note:f.get('note').trim()};const fxCur=f.get('fxCurrency')||'',fxRaw=String(f.get('fxAmount')||'').trim();if(fxCur&&fxCur!==state.settings.currency&&Budget.CURRENCIES.includes(fxCur)&&fxRaw){const o=Budget.cents(fxRaw);if(!o)throw Error('Enter the amount in '+fxCur+'.');t.fx={currency:fxCur,amount:o*Math.sign(amount)};}if(old?.scheduleKey&&old.category===cat&&amount>0)t.scheduleKey=old.scheduleKey;closeModal();commit(()=>{if(chName)t.channel=Biz.ensureChannel(chName);if(tgName)t.tag=Biz.ensureTag(tgName);if(t.fx){state.fxRates??={};state.fxRates[t.fx.currency]=Math.round(Math.abs(t.amount/t.fx.amount)*1e6)/1e6;}if(id)state.transactions=state.transactions.map(x=>x.id===id?t:x);else state.transactions.push(t);selected=date.slice(0,7);},'Transaction saved');if(old&&old.category!==cat)offerSimilar(t);else if(P.features.channels&&old&&t.channel&&old.channel!==t.channel)Biz.offerChannelSimilar(t);break;}
+ case 'transaction-form':{if(!id&&state.transactions.length>=MAX_TRANSACTIONS)throw Error(LIMIT_MESSAGE);const date=f.get('date'),cat=f.get('category');if(!Budget.validDate(date)||date>Budget.today())throw Error('Use a valid date today or earlier.');if(!writable(date.slice(0,7)))throw Error('That month is closed. Reopen it before adding or moving a transaction.');if(!category(cat))throw Error('Choose a category.');const amount=Budget.cents(f.get('amount'))*(f.get('direction')==='reverse'?-1:1);if(!amount)throw Error('Enter an amount greater than zero.');const old=state.transactions.find(t=>t.id===id);if(old?.scheduleKey&&!writable(old.scheduleKey.split('@')[1].slice(0,7)))throw Error('Reopen the scheduled month before editing this linked transaction.');const chName=P.features.channels?String(f.get('channel')||'').trim():'';if(chName)Biz.checkChannel(chName);const tgName=P.features.channels?Biz.tagForSave(f.get('tag'),chName):'';const t={id:id||Budget.uid(),date,category:cat,amount,note:f.get('note').trim()};const fxCur=f.get('fxCurrency')||'',fxRaw=String(f.get('fxAmount')||'').trim();if(fxCur&&fxCur!==state.settings.currency&&Budget.CURRENCIES.includes(fxCur)&&fxRaw){const o=Budget.cents(fxRaw);if(!o)throw Error('Enter the amount in '+fxCur+'.');t.fx={currency:fxCur,amount:o*Math.sign(amount)};}if(old?.scheduleKey&&old.category===cat&&amount>0)t.scheduleKey=old.scheduleKey;closeModal();commit(()=>{if(chName)t.channel=Biz.ensureChannel(chName);if(tgName)Biz.setTag(t,Biz.ensureTag(tgName));if(t.fx){state.fxRates??={};state.fxRates[t.fx.currency]=Math.round(Math.abs(t.amount/t.fx.amount)*1e6)/1e6;}if(id)state.transactions=state.transactions.map(x=>x.id===id?t:x);else state.transactions.push(t);selected=date.slice(0,7);},'Transaction saved');if(old&&old.category!==cat)offerSimilar(t);else if(P.features.channels&&old&&t.channel&&old.channel!==t.channel)Biz.offerChannelSimilar(t);else if(P.features.channels&&t.tag&&(!old||Biz.tagOf(old)!==Biz.tagOf(t))){const saved=state.transactions.find(x=>x.id===t.id);if(saved)offerSimilarFor('tag',saved.tag,[saved],`You tagged “${esc(saved.note)}” as`);}break;}
  case 'category-form':{const name=f.get('name').trim(),existing=category(id);if(!name)throw Error('Give the category a name.');if(state.categories.some(c=>c.id!==id&&c.name.toLowerCase()===name.toLowerCase()))throw Error('A category already uses that name.');if(!id&&state.categories.length>=300)throw Error('This planner supports up to 300 categories.');closeModal();const taxLine=P.features.taxLines&&Budget.TAX_LINES[f.get('taxLine')]?f.get('taxLine'):'';commit(()=>{let saved=existing;if(existing){existing.name=name;existing.archived=f.get('archived')==='on';if(f.get('group'))existing.group=f.get('group');}else state.categories.push(saved={id:Budget.uid(),name,group:f.get('group'),archived:false});if(P.features.taxLines){if(taxLine)saved.taxLine=taxLine;else delete saved.taxLine;}},'Category saved');break;}
  case 'goal-form':{const cat=category(f.get('category'));
   const g={id:id||Budget.uid(),name:f.get('name').trim(),category:f.get('category'),kind:cat&&Budget.isDebt(cat)?'debt':'saving',target:Budget.cents(f.get('target')),opening:Budget.cents(f.get('opening')),start:f.get('start'),due:f.get('due')};
@@ -3087,7 +3113,7 @@ function closeWelcome(){const dialog=$('#welcome-tour');
 
 document.addEventListener('input',e=>{if(e.target.id==='quick-entry')updateQuickPreview();});
 document.addEventListener('submit',e=>{
- if(e.target.id!=='quick-log-form')return;e.preventDefault();try{const f=new FormData(e.target),q=Budget.parseQuick(f.get('entry'),state.categories,state.quickMemory),cat=f.get('category')||q.category,date=f.get('date');if(!cat||!category(cat))throw Error('Choose the category for this entry.');if(!Budget.validDate(date)||date>Budget.today()||!writable(date.slice(0,7)))throw Error('Choose a valid date in an open month.');if(state.transactions.length>=MAX_TRANSACTIONS)throw Error(LIMIT_MESSAGE);closeModal();commit(()=>{state.quickMemory[Budget.quickKey(q.note)]=cat;{const mk=Object.keys(state.quickMemory);if(mk.length>Budget.MAX_QUICK_MEMORY)delete state.quickMemory[mk[0]];}{const ch=P.features.channels?Budget.channelFor(state,q.note):'';state.transactions.push({id:Budget.uid(),date,category:cat,amount:q.amount,note:q.note,...(ch?{channel:ch}:{})});}selected=date.slice(0,7);},`${q.note} logged · category remembered`);}catch(err){formError(err);}
+ if(e.target.id!=='quick-log-form')return;e.preventDefault();try{const f=new FormData(e.target),q=Budget.parseQuick(f.get('entry'),state.categories,state.quickMemory),cat=f.get('category')||q.category,date=f.get('date');if(!cat||!category(cat))throw Error('Choose the category for this entry.');if(!Budget.validDate(date)||date>Budget.today()||!writable(date.slice(0,7)))throw Error('Choose a valid date in an open month.');if(state.transactions.length>=MAX_TRANSACTIONS)throw Error(LIMIT_MESSAGE);closeModal();commit(()=>{state.quickMemory[Budget.quickKey(q.note)]=cat;{const mk=Object.keys(state.quickMemory);if(mk.length>Budget.MAX_QUICK_MEMORY)delete state.quickMemory[mk[0]];}{const ch=P.features.channels?Budget.channelFor(state,q.note):'',nt={id:Budget.uid(),date,category:cat,amount:q.amount,note:q.note,...(ch?{channel:ch}:{})};state.transactions.push(P.features.channels?Biz.ruleTag(nt):nt);}selected=date.slice(0,7);},`${q.note} logged · category remembered`);}catch(err){formError(err);}
 });
 document.addEventListener('change',e=>{if(e.target.id==='annual-category-chart'){annualCategory=e.target.value;render();return;}const id=e.target.dataset.navToggle;if(!id)return;commit(()=>{const hidden=new Set(state.settings.hiddenNav||[]);e.target.checked?hidden.delete(id):hidden.add(id);state.settings.hiddenNav=optionalNav.filter(x=>hidden.has(x));},e.target.checked?'View added to sidebar':'View hidden from sidebar');});
 document.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='q'&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)&&!$('#modal').open){e.preventDefault();quickLog();}});
@@ -3289,7 +3315,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('button[data-acti
   if(!fresh.length)return toast('Every selected row is already in your planner.');
   const reopen=[...new Set(fresh.filter(r=>r.closedMonth).map(r=>r.date.slice(0,7)))];
   commit(()=>{reopen.forEach(m=>{ensure(m).closed=false;});
-   state.transactions.push(...fresh.map(r=>{const ch=P.features.channels?rowChannel(r):'';return {id:Budget.uid(),date:r.date,note:r.note,category:r.category,amount:r.amount,...(r.fx?{fx:r.fx}:{}),...(ch&&Biz.channelName(ch)?{channel:ch}:{})};}));
+   state.transactions.push(...fresh.map(r=>{const ch=P.features.channels?rowChannel(r):'';const nt={id:Budget.uid(),date:r.date,note:r.note,category:r.category,amount:r.amount,...(r.fx?{fx:r.fx}:{}),...(ch&&Biz.channelName(ch)?{channel:ch}:{})};return P.features.channels?Biz.ruleTag(nt):nt;}));
    fresh.forEach(r=>{if(r.fx){state.fxRates??={};state.fxRates[r.fx.currency]=Number(s.options.rates[r.fx.currency]);}});
    if(s.platform&&s.platform.name!=='Platform'){state.platformSources??={};state.platformSources[s.platform.key]={name:s.platform.name,last:Budget.today()};}
    // remember these choices so the next statement matches itself
@@ -3709,6 +3735,10 @@ const Biz=(()=>{
  const tagColorN=(g,i)=>g.color||i%Budget.TAG_COLORS+1;
  const tagColor=id=>{const i=tags().findIndex(g=>g.id===id);return i<0?'var(--ink-3)':`var(--tag-${tagColorN(tags()[i],i)})`;};
  const tagOf=t=>Budget.tagOf(state,t);
+ // give an entry a tag: stored only when it differs from its channel's, so it keeps following the channel
+ const setTag=(t,id)=>{const c=t.channel&&channels().find(c=>c.id===t.channel);if(!id||(c&&c.tag===id))delete t.tag;else t.tag=id;};
+ // a remembered tag rule for a new entry (import, Quick Log)
+ const ruleTag=t=>{const id=Budget.tagFor(state,t.note);if(id)setTag(t,id);return t;};
  // the tag a channel would give, by name, for the form hint: its own tag, else the usual one for a new channel
  const channelTagName=name=>{const c=findChannel(name);return c?tagName(c.tag):usualTag(name);};
  const tagField=t=>{if(!F.channels)return '';const own=t?.tag&&tagName(t.tag),from=t?.channel?tagName(channels().find(c=>c.id===t.channel)?.tag):'';
@@ -3750,7 +3780,7 @@ const Biz=(()=>{
   return `<section class="card" id="tags-card"><div class="goal-icon">${ico('tags')}</div><h2>Tags</h2><p class="subtitle">Group your ${esc(CH())}s by what they earn from, like <b>Digital products</b> for Etsy and Payhip or <b>Donations</b> for Patreon and Buy Me a Coffee. Give each ${esc(CH())} a tag above; its entries follow. Any entry, a cost included, can also carry its own tag. The dashboard and annual overview chart money in and out by tag.</p>`+
    `<form id="biz-tag-form" class="channel-add"><input name="name" maxlength="40" required placeholder="New tag, e.g. Digital products" aria-label="New tag name"><button class="btn small primary">Add tag</button></form>`+
    (quick.length?`<div class="channel-quick"><span class="small muted">Quick add</span>${quick.map(n=>`<button class="qchip" data-action="biz-quick-tag" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}</div>`:'')+
-   (tags().length?tags().map(g=>{const chs=channels().filter(c=>c.tag===g.id).map(c=>c.name);const n=tagColorN(g,tags().indexOf(g));return `<div class="row"><div><strong><small class="tag-chip" style="--tc:var(--tag-${n});margin-left:0">${esc(g.name)}</small></strong><small>${chs.length?esc(chs.join(', '))+' · ':''}${counts.get(g.id)||0} transaction${counts.get(g.id)===1?'':'s'}</small><div class="tag-swatches" role="group" aria-label="Colour for ${esc(g.name)}">${Array.from({length:Budget.TAG_COLORS},(_,i)=>`<button type="button" class="tag-swatch" style="--sw:var(--tag-${i+1})" data-action="biz-tag-color" data-id="${g.id}" data-color="${i+1}" aria-pressed="${n===i+1}" aria-label="Colour ${i+1}${n===i+1?', chosen':''}"></button>`).join('')}</div></div><div class="category-actions"><button class="icon-action" data-action="biz-rename-tag" data-id="${g.id}" title="Rename ${esc(g.name)}" aria-label="Rename ${esc(g.name)}">${ico('edit')}</button><button class="icon-action danger" data-action="biz-delete-tag" data-id="${g.id}" title="Remove ${esc(g.name)}" aria-label="Remove ${esc(g.name)}">${ico('trash')}</button></div></div>`;}).join(''):`<p class="small muted" style="margin-top:14px">No tags yet.</p>`)+`</section>`;
+   (tags().length?tags().map(g=>{const chs=channels().filter(c=>c.tag===g.id).map(c=>c.name);const n=tagColorN(g,tags().indexOf(g));return `<div class="row"><div><strong><small class="tag-chip" style="--tc:var(--tag-${n});margin-left:0">${esc(g.name)}</small></strong><small>${chs.length?esc(chs.join(', '))+' · ':''}${counts.get(g.id)||0} transaction${counts.get(g.id)===1?'':'s'}</small></div><div class="category-actions"><button class="icon-action" data-action="biz-rename-tag" data-id="${g.id}" title="Rename ${esc(g.name)}" aria-label="Rename ${esc(g.name)}">${ico('edit')}</button><button class="icon-action danger" data-action="biz-delete-tag" data-id="${g.id}" title="Remove ${esc(g.name)}" aria-label="Remove ${esc(g.name)}">${ico('trash')}</button></div></div>`;}).join(''):`<p class="small muted" style="margin-top:14px">No tags yet.</p>`)+(()=>{const rules=Object.entries(state.tagRules||{}).filter(([,id])=>tagName(id));return rules.length?`<h3 class="sub-head">Tag rules</h3><p class="small muted">Imported and Quick Log transactions whose description starts like this get the tag shown.</p>${rules.sort((a,b)=>a[0].localeCompare(b[0])).map(([k,id])=>`<div class="row"><div><strong>“${esc(k)}”</strong><small>→ ${esc(tagName(id))}</small></div><button class="icon-action" data-action="biz-remove-tag-rule" data-key="${esc(k)}" title="Remove this rule" aria-label="Remove the tag rule for ${esc(k)}">${ico('trash')}</button></div>`).join('')}`:'';})()+`</section>`;
  }
  function channelForm(id){const c=channels().find(x=>x.id===id);if(!c)return;
   modal('Rename channel','Tagged transactions keep their tag under the new name.',`<form id="biz-channel-form" data-id="${id}"><div class="fields"><label class="full">Channel name<input name="name" maxlength="40" required value="${esc(c.name)}"></label></div>${formFoot('Save name')}</form>`);}
@@ -3791,13 +3821,13 @@ const Biz=(()=>{
   if(a==='manage-tags'){go('settings');requestAnimationFrame(()=>$('#tags-card')?.scrollIntoView({behavior:'smooth',block:'start'}));}
   if(a==='manage-streams'){go('settings');requestAnimationFrame(()=>$('#biz-channel-form')?.closest('section')?.scrollIntoView({behavior:'smooth',block:'start'}));}
   if(a==='biz-rename-channel')channelForm(id);
-  if(a==='biz-tag-color'){const g=tags().find(x=>x.id===id),n=+b.dataset.color;if(g&&Number.isInteger(n)&&n>=1&&n<=Budget.TAG_COLORS&&g.color!==n)commit(()=>{g.color=n;},`${g.name} colour changed`);}
   if(a==='biz-quick-tag'){const n=b.dataset.name;try{checkTag(n);}catch(err){return toast(err.message);}if(!findTag(n))commit(()=>ensureTag(n),`${n} added`);}
   if(a==='biz-rename-tag'){const g=tags().find(x=>x.id===id);if(g)modal('Rename tag','Tagged entries and channels keep the tag under its new name.',`<form id="biz-tag-form" data-id="${id}"><div class="fields"><label class="full">Tag name<input name="name" maxlength="40" required value="${esc(g.name)}"></label></div>${formFoot('Save name')}</form>`);}
   if(a==='biz-delete-tag'){const g=tags().find(x=>x.id===id);if(!g)return;const n=state.transactions.filter(t=>tagOf(t)===id).length;
    modal(`Remove ${esc(g.name)}?`,n?`${n} transaction${n===1?' uses':'s use'} this tag. No amount changes; they show as untagged.`:'Nothing uses this tag yet.',`<div class="formfoot">${button('Cancel','dismiss')}${button('Remove tag','biz-confirm-delete-tag','danger',`data-id="${id}"`)}</div>`);}
+  if(a==='biz-remove-tag-rule'){const k=b.dataset.key;if(state.tagRules&&Object.hasOwn(state.tagRules,k))commit(()=>delete state.tagRules[k],'Tag rule removed');}
   if(a==='biz-confirm-delete-tag'){const g=tags().find(x=>x.id===id);if(!g)return;closeModal();
-   commit(()=>{state.tags=tags().filter(x=>x.id!==id);channels().forEach(c=>{if(c.tag===id)delete c.tag;});state.transactions.forEach(t=>{if(t.tag===id)delete t.tag;});if(txTag===id)txTag='all';},`${g.name} removed`);}
+   commit(()=>{state.tags=tags().filter(x=>x.id!==id);Object.keys(state.tagRules||{}).forEach(k=>{if(state.tagRules[k]===id)delete state.tagRules[k];});channels().forEach(c=>{if(c.tag===id)delete c.tag;});state.transactions.forEach(t=>{if(t.tag===id)delete t.tag;});if(txTag===id)txTag='all';},`${g.name} removed`);}
   if(a==='biz-delete-channel')deleteChannelDialog(id);
   if(a==='biz-confirm-delete-channel'){const c=channels().find(x=>x.id===id);if(!c)return;closeModal();
    commit(()=>{state.channels=channels().filter(x=>x.id!==id);state.transactions.forEach(t=>{if(t.channel===id)delete t.channel;});(state.invoices||[]).forEach(v=>{if(v.channel===id)delete v.channel;});
@@ -3863,7 +3893,7 @@ const Biz=(()=>{
  if(F.invoices)views.invoices=invoicesView;
  return {views,dashboard,mixGrid,mixCard,settingsCard,taxLineField,annualCharts,cashflowAnnual,range,columns,statementRows,
   channels,channelName,channelIdByName:name=>findChannel(name)?.id||'',checkChannel,ensureChannel,channelField,channelChip,channelSelect,channelList,channelFilter,channelMatch,channelFiltered,clearChannelFilter,channelsCard,offerChannelSimilar,
-  tags,tagName,tagOf,tagColor,ensureTag,checkTag,tagField,tagForSave,tagChip,tagFilter,tagsCard,setTxFilter};
+  tags,tagName,tagOf,tagColor,setTag,ruleTag,ensureTag,checkTag,tagField,tagForSave,tagChip,tagFilter,tagsCard,setTxFilter};
 })();
 render();
 </script></body></html>
