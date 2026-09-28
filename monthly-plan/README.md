@@ -105,6 +105,14 @@ locked, and printing, CSV exports and folder backups open an upsell. Sample mode
 (`jps-shop-insights-trial`), and a trial backup restores into the full app. `node build/trial_test.js` proves all of it
 against the demo files. The buy link is `BUY_URL` at the top of `make_trial.py`.
 
+## Free take-home check (the hosted demo)
+
+`app/src/snapshot.html` is a separate ~20 KB page written for the web, not a copy of the app: it reads one shop's Etsy
+statements (and sold order items, if given) and shows one report on the latest 3 months, then what the full app adds.
+It has no saving, no shops, no screens to unlock. `node build/make_snapshot.js` fills in the buy link and the sample
+shop (worked out from the demo files) and writes `app/ShopInsightsDemo.html`; `node build/snapshot_test.js` checks it
+agrees with the full app to the cent and stores nothing. Host that one file as `index.html`.
+
 ## Build and test
 
 ```

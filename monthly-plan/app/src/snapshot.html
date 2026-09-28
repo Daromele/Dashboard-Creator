@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shop Insights · Free Take-Home Check</title>
+<meta name="description" content="See what your Etsy shop really keeps after every fee and ad. Free, private, in your browser.">
+<style>
+:root{--page:#faf6f1;--card:#fff;--ink:#2a1d15;--ink-2:#5d4c40;--ink-3:#8c7b6e;--rule:#ece3d9;--sunk:#f4ede5;--accent:#a8481f;--accent-soft:#f8e9df;--ok:#1f7a54;--over:#d23f31;--ads:#e38a80;--off:#f0b8b1;--ship:#b86a2e;--plus:#8a7f9a;--hero:#2f2018;--r:16px}
+@media (prefers-color-scheme:dark){:root{--page:#171210;--card:#211a16;--ink:#f3ebe4;--ink-2:#cdbfb3;--ink-3:#9a8b80;--rule:#342a24;--sunk:#2a221d;--accent:#e0875c;--accent-soft:#3a271d;--ok:#4cbc8a;--over:#ef6a5c;--hero:#0f0b09}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 60px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}.logo{width:34px;height:34px;border-radius:10px;background:#f4b43a;color:#2a1d15;display:grid;place-items:center;font-weight:800}
+.brand small{display:block;font-weight:500;color:var(--ink-3);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);background:var(--card);color:var(--ink);border-radius:999px;padding:9px 16px;font-family:inherit;font-weight:600;font-size:14px;line-height:1;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin:18px 0 10px;letter-spacing:-.02em}.lede{color:var(--ink-2);font-size:17px;max-width:62ch;margin:0 0 22px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);padding:22px;margin-bottom:18px}
+.drop{border:2px dashed var(--rule);border-radius:var(--r);padding:34px 20px;text-align:center;background:var(--card);transition:.15s}.drop.on{border-color:var(--accent);background:var(--accent-soft)}
+.drop b{font-size:18px;display:block;margin-bottom:6px}.drop p{margin:0 0 16px;color:var(--ink-3)}.drop .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}.how div{background:var(--sunk);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--ink-2)}.how b{color:var(--ink);display:block}
+.note{font-size:13px;color:var(--ink-3)}.warn{color:var(--over)}
+.hero{background:var(--hero);color:#f7eee7;border-radius:20px;padding:28px;display:grid;grid-template-columns:1.3fr 1fr;gap:28px;margin-bottom:18px}
+.hero .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.7}.hero .big{font-size:clamp(44px,8vw,86px);font-weight:700;letter-spacing:-.03em;line-height:1;margin:8px 0 12px}
+.hero p{margin:0;opacity:.85;max-width:44ch}.facts div{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #ffffff1c;font-size:14px}.facts strong{font-variant-numeric:tabular-nums}
+.facts .meter{display:block;padding:0;border:0;height:8px;border-radius:4px;background:#ffffff22;margin:12px 0;overflow:hidden}.meter i{display:block;height:100%;background:#4cbc8a}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card h2{margin:0 0 4px;font-size:18px}.card .sub{margin:0 0 16px;color:var(--ink-3);font-size:13px}
+.bars{display:grid;gap:9px}.bar{display:grid;grid-template-columns:minmax(120px,190px) 1fr 84px;gap:10px;align-items:center;font-size:14px}.bar .t{height:12px;background:var(--sunk);border-radius:6px;overflow:hidden}.bar .t i{display:block;height:100%}.bar b{text-align:right;font-variant-numeric:tabular-nums}
+.cols{display:flex;gap:18px;align-items:flex-end;height:190px;padding-top:24px}.col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.col .pair{display:flex;gap:6px;align-items:flex-end;height:100%;width:100%;justify-content:center}.col .pair i{width:34%;max-width:46px;display:block;position:relative}.col small{color:var(--ink-3)}
+.col .pair i span{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--ink-2);white-space:nowrap;font-style:normal}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink-2)}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:6px 0;border-bottom:1px solid var(--rule)}td{padding:8px 0;border-bottom:1px solid var(--rule)}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.name{max-width:0;width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:12px}
+.tip{display:flex;gap:12px;align-items:flex-start;background:var(--accent-soft);border-radius:12px;padding:14px 16px;margin-top:6px}.tip b{display:block}
+.more{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:14px 0 18px}.more div{border:1px solid var(--rule);border-radius:12px;padding:14px;background:var(--sunk)}.more b{display:block;margin-bottom:4px}.more span{font-size:13px;color:var(--ink-2)}
+.cta{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--r);padding:20px 22px}.cta b{font-size:18px}
+footer{margin-top:30px;color:var(--ink-3);font-size:12px;text-align:center}
+[hidden]{display:none!important}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:760px){.hero,.grid2{grid-template-columns:1fr}.bar{grid-template-columns:110px 1fr 74px}}
+</style></head><body>
+<div class="wrap">
+<header class="top"><div class="brand"><span class="logo">S</span><div>Shop Insights<small>Free take-home check</small></div></div><a class="btn primary" data-buy href="#">Get the full app</a></header>
+
+<section id="start">
+<h1>What does your Etsy shop really keep?</h1>
+<p class="lede">Drop in your Etsy payment account statements and see your take-home after every Etsy fee and ad for your latest 3 months. It runs in your browser: nothing is uploaded and nothing is saved.</p>
+<div class="drop" id="drop"><b>Drop your Etsy files here</b><p>Payment account statements (one CSV per month), and your sold order items if you have them</p>
+<div class="row"><label class="btn primary">Choose files<input type="file" id="files" class="sr" multiple accept=".csv,text/csv"></label><button class="btn" id="sample">See a sample shop</button></div>
+<p class="note" id="msg" style="margin:14px 0 0"></p></div>
+<div class="how"><div><b>Statements</b>Shop Manager → Finances → Monthly statements → Download CSV</div><div><b>Sold order items</b>Shop Manager → Settings → Options → Download Data → Order Items</div><div><b>Private</b>Read on this device only. Close the tab and it is gone.</div></div>
+</section>
+
+<section id="report" hidden></section>
+
+<footer>Shop Insights free take-home check by JPS Digital Pages · A snapshot of one shop’s latest 3 months · The full app keeps your books, every month and every shop.</footer>
+</div>
+<script>
+const BUY_URL=/*@@BUY_URL@@*/'';
+//@@ENGINE
+// Everything the check knows: Etsy's payment account statement and sold order items, read in the browser.
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function parseCSV(text){const rows=[];let row=[],f='',q=false;text=text.replace(/^﻿/,'');
+ for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
+  else if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f='';}else f+=c;}
+ if(f||row.length){row.push(f);rows.push(row);}return rows.filter(r=>r.some(x=>x.trim()));}
+const cents=v=>{v=String(v??'').trim();if(!v||v==='--')return 0;const neg=/^-|^\(|−/.test(v),n=parseFloat(v.replace(/[^\d.]/g,''));return Number.isFinite(n)?Math.round(n*100)*(neg?-1:1):0;};
+function iso(v){v=String(v||'').trim();let m=v.match(/^([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})$/);if(m){const mo=MONTHS.findIndex(x=>x.toLowerCase().startsWith(m[1].toLowerCase().slice(0,3)));if(mo>=0)return `${m[3]}-${String(mo+1).padStart(2,'0')}-${m[2].padStart(2,'0')}`;}
+ m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);if(m)return `${m[3].length===2?'20'+m[3]:m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;m=v.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:'';}
+const key=h=>h.toLowerCase().replace(/[^a-z]/g,'');
+// which file is which, by its columns
+function readFile(name,text){const rows=parseCSV(text);if(rows.length<2)return {name,error:'This file is empty.'};const h=rows[0].map(key),ix=k=>h.indexOf(k);
+ if(ix('type')>=0&&ix('net')>=0&&ix('title')>=0){const out=[];for(const r of rows.slice(1)){const date=iso(r[ix('date')]);if(!date)continue;out.push({date,type:(r[ix('type')]||'').trim(),title:(r[ix('title')]||'').trim(),info:(r[ix('info')]||'').trim(),amount:cents(r[ix('amount')]),fees:cents(r[ix('feestaxes')]),net:cents(r[ix('net')])});}return {name,kind:'statement',lines:out};}
+ if(ix('orderid')>=0&&ix('itemname')>=0){const out=[];for(const r of rows.slice(1)){const date=iso(r[ix('saledate')]);if(!date)continue;out.push({date,order:r[ix('orderid')],item:(r[ix('itemname')]||'').trim(),qty:+r[ix('quantity')]||1,total:cents(r[ix('itemtotal')]),discount:cents(r[ix('discountamount')]),country:(r[ix('shipcountry')]||'').trim()});}return {name,kind:'orders',items:out};}
+ return {name,error:'Not an Etsy statement or sold order items file. The full app also reads listings, reviews and deposits.'};}
+// the latest 3 calendar months present in the files
+function windowOf(files){const ds=files.flatMap(f=>(f.lines||f.items||[]).map(x=>x.date)).sort(),last=ds.at(-1);if(!last)return null;let y=+last.slice(0,4),m=+last.slice(5,7)-2;if(m<1){m+=12;y--;}return {from:`${y}-${String(m).padStart(2,'0')}-01`,to:last,older:ds[0]<`${y}-${String(m).padStart(2,'0')}-01`};}
+function analyze(files){const W=windowOf(files);if(!W)return null;const inW=d=>d>=W.from&&d<=W.to;
+ const S={sales:0,buyerTax:0,refunds:0,transaction:0,processing:0,listing:0,ads:0,offsite:0,plus:0,labels:0,other:0,takeHome:0,orders:new Set(),payouts:0,paid:0,months:{}};
+ const mo=d=>S.months[d.slice(0,7)]??={sales:0,takeHome:0};
+ // the same file dropped twice counts once (Etsy itself writes identical lines, e.g. two listing fees on one day)
+ const uniq=new Map();for(const f of files.filter(f=>f.kind==='statement'))uniq.set(JSON.stringify(f.lines),f);
+ const lines=[...uniq.values()].flatMap(f=>f.lines).filter(l=>inW(l.date));
+ for(const l of lines){
+  const T=l.type.toLowerCase(),t=l.title.toLowerCase(),v=l.fees||l.net;
+  if(T==='deposit'){S.payouts++;S.paid+=cents((l.title.match(/[\d,.]+/)||[''])[0]);continue;}
+  // take-home is after every Etsy fee, ad and subscription; labels are postage, shown apart (as in the full app)
+  if(T==='shipping'||/label|postage/.test(t)){S.labels-=v;continue;}
+  S.takeHome+=l.net;mo(l.date).takeHome+=l.net;
+  if(T==='sale'){S.sales+=l.amount;S.orders.add((l.title.match(/\d{5,}/)||[l.title])[0]);mo(l.date).sales+=l.amount;}
+  else if((T==='tax'||T==='vat')&&/paid by buyer/.test(t)){S.buyerTax-=l.net;mo(l.date).sales+=l.net;}
+  else if(T==='refund'){S.refunds-=l.net;mo(l.date).sales+=l.net;}
+  else if(/offsite/.test(t))S.offsite-=v;
+  else if(/etsy ads|ads fee/.test(t))S.ads-=v;
+  else if(/etsy plus|subscription/.test(t))S.plus-=v;
+  else if(/transaction|share (&|and) save/.test(t))S.transaction-=v;
+  else if(/processing/.test(t))S.processing-=v;
+  else if(/listing|renew/.test(t))S.listing-=v;
+  else S.other-=v;}
+ const itemFiles=new Map();for(const f of files.filter(f=>f.kind==='orders'))itemFiles.set(JSON.stringify(f.items),f);
+ const items=[...itemFiles.values()].flatMap(f=>f.items).filter(i=>inW(i.date)),prod={},country={},ords={};
+ for(const i of items){prod[i.item]=(prod[i.item]||0)+i.total;if(!ords[i.order]){ords[i.order]=1;country[i.country||'Not recorded']=(country[i.country||'Not recorded']||0)+1;}}
+ const revenue=S.sales-S.buyerTax-S.refunds,orders=S.orders.size||Object.keys(ords).length;
+ const sd=lines.map(l=>l.date).sort();
+ return {from:sd[0]||W.from,to:sd.at(-1)||W.to,older:W.older,statements:lines.length>0,revenue,takeHome:S.takeHome,orders,payouts:S.payouts,paid:S.paid,
+  parts:[['Etsy transaction fees',S.transaction],['Payment processing',S.processing],['Listing fees',S.listing],['Your Etsy Ads',S.ads],['Offsite Ads fees',S.offsite],['Etsy Plus & subscriptions',S.plus],['Other Etsy charges',S.other]].filter(p=>p[1]>0),labels:S.labels,
+  months:Object.entries(S.months).sort().map(([m,x])=>({m,...x})),products:Object.entries(prod).sort((a,b)=>b[1]-a[1]).slice(0,5),countries:Object.entries(country).sort((a,b)=>b[1]-a[1]).slice(0,5),countryCount:Object.keys(country).length,itemOrders:Object.keys(ords).length};}
+//@@END
+const SAMPLE=/*@@SAMPLE@@*/null;
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=c=>(c<0?'−':'')+'$'+(Math.abs(c)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=(a,b,d=0)=>b?(a/b*100).toFixed(d)+'%':'—';
+const dname=d=>`${MONTHS[+d.slice(5,7)-1].slice(0,3)} ${+d.slice(8)}, ${d.slice(0,4)}`;
+document.querySelectorAll('[data-buy]').forEach(a=>a.href=BUY_URL);
+function render(R,sample){
+ const kept=R.revenue>0?R.takeHome/R.revenue:0,cost=R.parts.reduce((n,p)=>n+p[1],0),mx=Math.max(1,...R.months.map(m=>m.sales));
+ const colors=['var(--over)','#e05a4a','#ea7b6d','var(--ads)','var(--off)','var(--plus)','var(--ship)','#b9a89b'];
+ const bigCost=[...R.parts].sort((a,b)=>b[1]-a[1])[0];
+ const tip=R.revenue>0&&bigCost?`<div class="tip"><span>💡</span><div><b>${esc(bigCost[0])} took ${pct(bigCost[1],R.revenue,1)} of your sales</b>${/Ads/.test(bigCost[0])?'That is more than most shops spend on ads. The full app shows which months it paid off.':'The full app tracks it month by month, shop by shop, and flags when it grows.'}</div></div>`:'';
+ $('#report').innerHTML=`${sample?'<p class="note">This is a made-up sample shop. <button class="btn" id="again" style="padding:6px 12px;font-size:13px">Check my own shop</button></p>':`<p class="note">${R.older?`Your files go back further: this check reads your latest 3 months. The full app keeps every month. `:''}<button class="btn" id="again" style="padding:6px 12px;font-size:13px">Check other files</button></p>`}
+ <section class="hero"><div><div class="eyebrow">Take-home · ${dname(R.from)} – ${dname(R.to)}</div><div class="big">${money(R.takeHome)}</div><p>${R.revenue>0?`What you kept from ${money(R.revenue)} of sales after every Etsy fee, ad and subscription: <b>${pct(R.takeHome,R.revenue)}</b> of every dollar${R.orders?`, across ${R.orders.toLocaleString('en-US')} orders`:''}.`:'No sales in these months.'}</p></div>
+ <div class="facts"><div><span>Sales, after buyer tax</span><strong>${money(R.revenue)}</strong></div><div><span>Etsy fees &amp; ads</span><strong>−${money(cost)}</strong></div><div class="meter"><i style="width:${Math.max(0,Math.min(100,kept*100))}%"></i></div><div><span>Take-home</span><strong>${money(R.takeHome)}</strong></div>${R.labels?`<div><span>Shipping labels bought on Etsy</span><strong>−${money(R.labels)}</strong></div>`:''}${R.payouts?`<div><span>Paid to your bank · ${R.payouts} payouts</span><strong>${money(R.paid)}</strong></div>`:''}</div></section>
+ <div class="grid2"><section class="card"><h2>Where every dollar went</h2><p class="sub">Share of ${money(R.revenue)} in sales</p><div class="bars"><div class="bar"><span>You kept</span><div class="t"><i style="width:${Math.max(0,kept*100)}%;background:var(--ok)"></i></div><b>${money(R.takeHome)}</b></div>${R.parts.map((p,i)=>`<div class="bar"><span>${esc(p[0])}</span><div class="t"><i style="width:${Math.max(1,p[1]/Math.max(1,R.revenue)*100)}%;background:${colors[i%colors.length]}"></i></div><b>${money(p[1])}</b></div>`).join('')}</div>${tip}</section>
+ <section class="card"><h2>Month by month</h2><p class="sub">Sales and what you kept</p><div class="legend"><span><i style="background:#c9dfd3"></i>Sales</span><span><i style="background:var(--ok)"></i>Take-home</span></div><div class="cols">${R.months.map(m=>`<div class="col"><div class="pair"><i style="height:${m.sales/mx*100}%;background:#c9dfd3"><span>${money(m.sales).replace(/\.\d\d$/,'')}</span></i><i style="height:${Math.max(0,m.takeHome)/mx*100}%;background:var(--ok)"></i></div><small>${MONTHS[+m.m.slice(5)-1].slice(0,3)}</small></div>`).join('')}</div></section></div>
+ ${R.products.length?`<div class="grid2"><section class="card"><h2>Your top sellers</h2><p class="sub">By sales, items after discounts</p><table><thead><tr><th>Product</th><th class="n">Sales</th></tr></thead><tbody>${R.products.map(([n,v])=>`<tr><td class="name" title="${esc(n)}">${esc(n)}</td><td class="n">${money(v)}</td></tr>`).join('')}</tbody></table></section>
+ <section class="card"><h2>Where orders go</h2><p class="sub">${R.countryCount} countries · top 5 by orders</p><table><thead><tr><th>Country</th><th class="n">Orders</th><th class="n">Share</th></tr></thead><tbody>${R.countries.map(([n,v])=>`<tr><td>${esc(n)}</td><td class="n">${v}</td><td class="n">${pct(v,R.itemOrders)}</td></tr>`).join('')}</tbody></table></section></div>`:`<section class="card"><h2>Add your sold order items</h2><p class="sub">Drop your sold order items file too, to see your top sellers and where your orders go.</p></section>`}
+ <section class="card"><h2>The full Shop Insights app goes much further</h2><p class="sub">Everything above, plus:</p><div class="more">
+ <div><b>Every month, every year</b><span>Your whole history, Year at a glance and year over year.</span></div><div><b>Every shop together</b><span>Run several Etsy shops? See each one and all of them combined.</span></div>
+ <div><b>Insights and a to-do list</b><span>A shop health score, what to fix next and the products to double down on.</span></div><div><b>Profit per product</b><span>Add your costs and see what each product really makes.</span></div>
+ <div><b>Tax made simple</b><span>Quarterly set-aside, buyer tax Etsy remitted and a Schedule C summary.</span></div><div><b>Buyers and reviews</b><span>Repeat buyers, countries by month and every review in one place.</span></div>
+ <div><b>New listings, coupons, seasonality</b><span>Whether new listings brought sales, which codes pay, and your busy months.</span></div><div><b>Yours to keep</b><span>Saved on your computer, backups, printing and CSV exports. One purchase, no subscription.</span></div></div>
+ <div class="cta"><div><b>Keep your numbers, every month.</b><div class="note">One file, works offline, private to your browser.</div></div><a class="btn primary" data-buy href="${BUY_URL}">Get Shop Insights</a></div></section>`;
+ $('#start').hidden=true;$('#report').hidden=false;$('#again').onclick=()=>{$('#report').hidden=true;$('#start').hidden=false;$('#msg').textContent='';};window.scrollTo(0,0);}
+async function handle(list){const files=[];for(const f of [...list].slice(0,40)){if(f.size>15e6){files.push({name:f.name,error:'Too large.'});continue;}files.push(readFile(f.name,await f.text()));}
+ const ok=files.filter(f=>!f.error),bad=files.filter(f=>f.error),R=ok.length?analyze(ok):null;
+ if(!R||!R.statements){$('#msg').innerHTML=`<span class="warn">${bad.length?esc(bad[0].name)+': '+esc(bad[0].error):'Add at least one payment account statement: it holds the fees.'}</span>`;return;}
+ render(R,false);}
+$('#files').onchange=e=>handle(e.target.files);
+const drop=$('#drop');['dragenter','dragover'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('on');}));['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('on');}));
+drop.addEventListener('drop',e=>handle(e.dataTransfer.files));
+$('#sample').onclick=()=>render(SAMPLE,true);
+</script></body></html>
