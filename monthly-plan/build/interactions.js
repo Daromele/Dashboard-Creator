@@ -57,7 +57,7 @@ const foot=await p.evaluate(()=>({txt:document.querySelector('.tx-total .num b')
 ok(tag+' footer total equals the card',foot.txt===foot.want,JSON.stringify(foot));
 // charts use round axis steps
 await p.evaluate(()=>go('dashboard'));
-ok(tag+' round axis labels',await p.evaluate(()=>[...document.querySelectorAll('.chart-axis-label')].every(e=>/^-?[^0-9-]*[0-9,]*[05]00$|^-?[^0-9-]*0$|^-?[^0-9-]*[0-9,]*,000$|[0-9]k$/.test(e.textContent.replace(/\s/g,'')))),await p.evaluate(()=>[...document.querySelectorAll('.chart-axis-label')].map(e=>e.textContent).join(' ')));
+ok(tag+' round axis labels',await p.evaluate(()=>[...document.querySelectorAll('.chart-axis-label')].every(e=>/^-?[^0-9-]*[0-9,]*[05]0$|^-?[^0-9-]*0$|^-?[^0-9-]*[0-9,]*,000$|[0-9]k$/.test(e.textContent.replace(/\s/g,'')))),await p.evaluate(()=>[...document.querySelectorAll('.chart-axis-label')].map(e=>e.textContent).join(' ')));
 if(tag!=='mp'){
  await p.evaluate(()=>go('insights'));
  const h=await p.evaluate(()=>({txt:document.querySelector('#content').innerText,H:Budget.health(state,selected)}));
