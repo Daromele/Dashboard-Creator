@@ -122,6 +122,8 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.click('[data-action="etsy-clear"]');await p.selectOption('#etsy-import-shop',kilnId);
   await p.setInputFiles('#etsy-files',[path.join(dir,'kiln_statement.csv')]);await p.waitForTimeout(200);await p.click('[data-action="etsy-import"]');await p.waitForTimeout(150);
   check('second shop imported',await st(id=>state.transactions.filter(t=>t.shop===id).length>15,kilnId));
+  check('the import screen stays on the shop just imported into',await p.evaluate(id=>document.querySelector('#etsy-import-shop').value===id,kilnId));
+  check('imported files lists that shop\'s files',/Imported files[\s\S]*Kiln Pots/.test(await text())&&/kiln_statement\.csv/.test(await text()));
   check('import toast says what arrived',/Kiln Pots: payment account statement \(\d+ new\)/.test(await p.locator('#toast').innerText()),await p.locator('#toast').innerText());
   // ---- the picker scopes every screen and the printout ----
   await p.evaluate(()=>go('shops'));await p.click('[data-action="etsy-span"][data-span="month"]');const shops=await text();

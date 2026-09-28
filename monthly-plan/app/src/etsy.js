@@ -1320,8 +1320,10 @@ const Etsy=(()=>{
  const whatOf=r=>[r.lines&&`${num(r.lines)} ${r.kind==='bank'?'bank':'statement'} line${r.lines===1?'':'s'}`,r.orders&&`${num(r.orders)} order${r.orders===1?'':'s'} (${num(r.items)} items)`,r.listings&&`${num(r.listings)} listings`,r.reviews&&`${num(r.reviews)} review${r.reviews===1?'':'s'}`,r.deposits&&`${num(r.deposits)} deposit${r.deposits===1?'':'s'}`].filter(Boolean).join(', ');
  // ---------- import ----------
  let session=null;   // {shop, files:[parsed]}
+ // the shop files go into stays chosen after an import, until another is picked
+ let importShop='',importsAll=false;
  function importView(){
-  const shops=state.shops,target=session?.shop||state.settings.shop||shops[0]?.id||'';
+  const shops=state.shops,target=session?.shop||(shops.some(x=>x.id===importShop)?importShop:'')||state.settings.shop||shops[0]?.id||'';
   const tp=target?platOf(target):'etsy',tpl=PLAT[tp];
   // what each file brings in and which screens it fills, so a missing number points to the missing file
   const GIVES={statement:['Every sale, fee, ad, credit, tax line and payout, exactly as Etsy charged it','Dashboard take-home · Fees & ads · Your Etsy statement · Profit & loss · Tax'],
@@ -1363,8 +1365,9 @@ const Etsy=(()=>{
   return parts.length?parts.join(' · '):'Nothing new';
  }
  function recentImports(){
-  const shop=state.settings.shop,list=state.etsy.imports.map((x,i)=>({...x,i})).filter(x=>!shop||x.shop===shop||(x.kind==='bank'&&!x.shop)).slice(-40).reverse();if(!list.length)return '';
-  return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${esc(scopeName())} · Move sends everything a file brought in to another shop. Delete removes it. Costs you typed in yourself are never touched.</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${x.shop?esc(shopName(x.shop)):'<span class="dim">Shared</span>'}</td><td>${esc(x.name)}</td><td>${D.kindName(x.kind,x.platform)}</td><td class="nw">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print nw etsy-row-actions">${button('Move','etsy-move-import','small quiet',`data-i="${x.i}"`)}${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  const shops=state.shops,shop=importsAll?'':(session?.shop||(shops.some(x=>x.id===importShop)?importShop:'')||state.settings.shop||shops[0]?.id||''),list=state.etsy.imports.map((x,i)=>({...x,i})).filter(x=>!shop||x.shop===shop||(x.kind==='bank'&&!x.shop)).reverse();if(!state.etsy.imports.length)return '';
+  const toggle=shops.length>1?`<div class="segment no-print" aria-label="Which files">${[[false,shopName(shop||importShop||shops[0]?.id)||'This shop'],[true,'All shops']].map(([v,l])=>`<button data-action="etsy-imports-all" data-v="${v}" aria-pressed="${importsAll===v}">${esc(l)}</button>`).join('')}</div>`:'';
+  return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${num(list.length)} file${list.length===1?'':'s'} · ${esc(shop?shopName(shop):'All shops')} · Move sends everything a file brought in to another shop. Delete removes it. Costs you typed in yourself are never touched.</p></div>${toggle}</div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${x.shop?esc(shopName(x.shop)):'<span class="dim">Shared</span>'}</td><td>${esc(x.name)}</td><td>${D.kindName(x.kind,x.platform)}</td><td class="nw">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print nw etsy-row-actions">${button('Move','etsy-move-import','small quiet',`data-i="${x.i}"`)}${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
  }
  // files are kept as text while on this screen, so they can be read again for another shop or a column match
  function parseSession(){if(!session)return;const plat=session.shop?platOf(session.shop):'';
@@ -1398,7 +1401,7 @@ const Etsy=(()=>{
     if(['statement','orders'].includes(f.kind)&&f.to>latest)latest=f.to;}
    state.settings.shop=state.shops.length>1?state.settings.shop:'';
    D.syncEstimates(state,{today:today()});
-   if(latest)selected=(latest>today()?today():latest).slice(0,7);session=null;},summary);
+   if(latest)selected=(latest>today()?today():latest).slice(0,7);importShop=shop;session=null;},summary);
  }
  // ---------- shop picker in the top bar ----------
  // One color language across every screen: money in is green, money out is red, what is left
@@ -1448,7 +1451,7 @@ const Etsy=(()=>{
  document.addEventListener('change',e=>{
   if(e.target.id==='shop-picker'){const v=e.target.value;if(v==='__add'){e.target.value=state.settings.shop;return shopForm();}
    if(v&&!state.shops.some(x=>x.id===v))return;commit(()=>state.settings.shop=state.shops.length===1?'':v,v?`Showing ${shopName(v)}`:'Showing all shops');return;}
-  if(e.target.id==='etsy-import-shop'){session={...(session||{sources:[],files:[]}),shop:e.target.value};parseSession();render();return;}
+  if(e.target.id==='etsy-import-shop'){importShop=e.target.value;session={...(session||{sources:[],files:[]}),shop:e.target.value};parseSession();render();return;}
   if(e.target.id==='etsy-files'){readFiles(e.target.files).catch(err=>toast(err.message));}
  });
  document.addEventListener('dragover',e=>{const z=e.target.closest?.('#etsy-drop');if(!z)return;e.preventDefault();z.classList.add('over');});
@@ -1457,6 +1460,7 @@ const Etsy=(()=>{
  document.addEventListener('click',e=>{const b=e.target.closest('button[data-action^="etsy-"],button[data-action="go-etsy-import"]');if(!b)return;const a=b.dataset.action,id=b.dataset.id;try{switch(a){
   case 'go-etsy-import':if($('#welcome-tour')?.open)closeWelcome();break;
   case 'etsy-pulse':showPulse(+b.dataset.i);break;
+  case 'etsy-imports-all':importsAll=b.dataset.v==='true';render();break;
   case 'etsy-ins-span':insSpan=b.dataset.k==='ytd'?'ytd':'month';render();break;
   case 'etsy-shops-layout':shopsLayout=b.dataset.k==='grid'?'grid':'table';render();break;
   case 'etsy-shop-img-rm':{const k=b.dataset.kind==='logo'?'logo':'image';commit(()=>{const sh=state.shops.find(v=>v.id===b.dataset.id);if(sh)delete sh[k];},k==='logo'?'Logo removed':'Cover photo removed');break;}
