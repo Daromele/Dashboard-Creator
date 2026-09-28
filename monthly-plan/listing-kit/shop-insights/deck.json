@@ -17,113 +17,141 @@
    "dark": true,
    "label": "Hero",
    "eyebrow": "Profit dashboard for Etsy sellers",
-   "headline": "Every shop.<br>One true number.",
+   "headline": "What your shop<br>really keeps.",
    "pills": [
+    "Every fee &amp; ad",
     "One shop or several",
-    "Works offline",
-    "No subscription"
+    "Private &amp; offline",
+    "One-time purchase"
    ],
    "image": "tab-dashboard.jpg",
    "alt": "Shop Insights dashboard"
   },
   {
+   "dark": true,
+   "label": "How it works",
+   "eyebrow": "How it works",
+   "headline": "Three steps. No spreadsheets.",
+   "sub": "Add your shop, drop in your Etsy downloads, and every tab fills in.",
+   "image": "steps.jpg",
+   "foot": "Made-up sample shops shown"
+  },
+  {
    "dark": false,
-   "label": "Channels",
-   "eyebrow": "Several shops",
-   "headline": "Which shop pays best?",
-   "sub": "What each Etsy shop keeps out of every dollar, side by side.",
-   "image": "tab-kept.jpg",
-   "foot": "Fictional sample shops shown"
+   "label": "Insights",
+   "eyebrow": "Insights",
+   "headline": "Know what to do next.",
+   "sub": "A shop health score and a to-do list, from your own numbers.",
+   "image": "tab-insights.jpg",
+   "foot": "Made-up sample shops shown"
   },
   {
    "dark": true,
-   "label": "Dashboard",
-   "eyebrow": "Your dashboard",
-   "headline": "Take-home, not just sales.",
-   "sub": "Revenue after every fee, ad and refund, with a monthly goal to aim for.",
-   "image": "tab-dash-fern.jpg",
-   "foot": "Fictional sample figures shown"
-  },
-  {
-   "dark": false,
-   "label": "Fees & ads",
+   "label": "Fees",
    "eyebrow": "Fees &amp; ads",
    "headline": "See exactly what Etsy kept.",
-   "sub": "Every fee, ad and credit, by order and by month.",
+   "sub": "Your statement laid out like Etsy’s, matching it to the cent.",
    "image": "tab-fees.jpg",
-   "foot": "Credits taken off the fee they belong to"
+   "foot": "Made-up sample shops shown"
+  },
+  {
+   "dark": false,
+   "label": "Year",
+   "eyebrow": "Year at a glance",
+   "headline": "Your whole year, one screen.",
+   "sub": "Take-home, fees and ads month by month, with your best months ranked.",
+   "image": "tab-annual.jpg",
+   "foot": "Made-up sample shops shown"
   },
   {
    "dark": true,
+   "label": "Shops",
+   "eyebrow": "Several shops",
+   "headline": "Every shop, side by side.",
+   "sub": "Add your logo and see what each shop really keeps.",
+   "image": "tab-shops.jpg",
+   "foot": "Made-up sample shops shown"
+  },
+  {
+   "dark": false,
    "label": "Products",
    "eyebrow": "Products",
-   "headline": "Know what makes money.",
-   "sub": "Profit per product after Etsy’s cut and your own cost per item.",
+   "headline": "Know which products pay.",
+   "sub": "Sales, profit and listing health for every product.",
    "image": "tab-products.jpg",
-   "foot": "Listing health · unsold listings · CSV export"
-  },
-  {
-   "dark": false,
-   "label": "Pricing calculator",
-   "eyebrow": "Pricing calculator",
-   "headline": "Price for the margin you want.",
-   "sub": "What one sale keeps you, and the lowest price that hits your target.",
-   "image": "tab-pricing.jpg",
-   "foot": "Uses your own fee rates"
+   "foot": "Made-up sample shops shown"
   },
   {
    "dark": true,
-   "label": "Import",
-   "eyebrow": "Import",
-   "headline": "Drop in your exports.",
-   "sub": "Drop in Etsy’s exports. Read by their columns, duplicates skipped.",
-   "image": "tab-import.jpg",
-   "foot": "Buyer names and addresses are never stored"
+   "label": "New listings",
+   "eyebrow": "New listings",
+   "headline": "Do new listings bring sales?",
+   "sub": "See what each month’s new listings went on to sell.",
+   "image": "tab-launches.jpg",
+   "foot": "Made-up sample shops shown"
   },
   {
    "dark": false,
-   "label": "Statement",
-   "eyebrow": "Your Etsy statement",
-   "headline": "Matches Etsy to the cent.",
-   "sub": "Sales, fees, credits, ads and taxes, laid out month by month.",
-   "image": "tab-statement.jpg",
-   "foot": "Share &amp; Save and Etsy Plus credits shown apart"
+   "label": "Customers",
+   "eyebrow": "Buyers",
+   "headline": "See who buys, and from where.",
+   "sub": "Repeat buyers, every country and when your top countries buy.",
+   "image": "tab-customers.jpg",
+   "foot": "Made-up sample shops shown"
   },
   {
    "dark": true,
-   "label": "Profit & loss",
+   "label": "Reviews",
+   "eyebrow": "Reviews",
+   "headline": "Every review in one place.",
+   "sub": "Star ratings over time and the reviews that need a reply.",
+   "image": "tab-reviews.jpg",
+   "foot": "Made-up sample shops shown"
+  },
+  {
+   "dark": false,
+   "label": "Years",
+   "eyebrow": "Year over year",
+   "headline": "Ten years, side by side.",
+   "sub": "Each shop’s profit over time, and every year’s change.",
+   "image": "tab-years.jpg",
+   "foot": "Made-up sample shops shown"
+  },
+  {
+   "dark": true,
+   "label": "P&L",
    "eyebrow": "Profit &amp; loss",
    "headline": "A real profit &amp; loss.",
-   "sub": "By month, quarter or year, with your monthly averages to date.",
+   "sub": "By month, quarter or year, with monthly averages.",
    "image": "tab-pl.jpg",
-   "foot": "Cash basis · print or export"
+   "foot": "Made-up sample shops shown"
   },
   {
    "dark": false,
    "label": "Tax",
    "eyebrow": "Tax time",
    "headline": "Tax time, sorted.",
-   "sub": "A Schedule C summary and quarterly set-asides your accountant can use.",
+   "sub": "A Schedule C summary for your accountant, plus quarterly set-aside.",
    "image": "tab-taxlines.jpg",
-   "foot": "Organised records, not tax advice"
+   "foot": "Made-up sample shops shown"
   },
   {
    "dark": true,
-   "label": "Reviews",
-   "eyebrow": "Reviews",
-   "headline": "Hear what buyers say.",
-   "sub": "Star ratings, trends and the reviews that need a reply.",
-   "image": "tab-reviews.jpg",
-   "foot": "From your Etsy reviews download"
+   "label": "Pricing",
+   "eyebrow": "Pricing calculator",
+   "headline": "Price for the margin you want.",
+   "sub": "What one sale keeps you after every Etsy fee, ad and cost.",
+   "image": "tab-pricing.jpg",
+   "foot": "Made-up sample shops shown"
   },
   {
    "dark": false,
-   "label": "Seasonality",
-   "eyebrow": "Seasonality",
-   "headline": "Plan for your busy months.",
-   "sub": "Last year’s sales show what’s coming, month by month.",
-   "image": "tab-seasonality.jpg",
-   "foot": "Stock up before the rush"
+   "label": "Private",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Your data stays yours.",
+   "sub": "Files are read on your computer. Nothing is uploaded, ever.",
+   "image": "tab-import.jpg",
+   "foot": "Made-up sample shops shown"
   },
   {
    "kind": "themes",
@@ -177,21 +205,21 @@
   }
  ],
  "listing": {
-  "title": "Etsy Seller Profit Dashboard, Etsy Fee & Sales Tracker, Multi Shop Take-Home, Pricing Calculator, Schedule C, Offline HTML",
+  "title": "Etsy Seller Dashboard, Etsy Profit Tracker, Etsy Fee Calculator, Multi Shop Take-Home, Schedule C Tax Summary, Offline App",
   "tags": [
    "etsy seller tool",
    "etsy profit tracker",
    "etsy fee calculator",
    "seller dashboard",
+   "etsy spreadsheet",
+   "etsy bookkeeping",
    "small business",
    "sales tracker",
-   "seller spreadsheet",
    "schedule c",
    "pricing calculator",
-   "etsy shop planner",
    "multi shop tracker",
-   "craft business",
-   "etsy bookkeeping"
+   "etsy shop planner",
+   "craft business"
   ],
   "description_file": "description.txt"
  }

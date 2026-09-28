@@ -1,0 +1,33 @@
+SHOP INSIGHTS | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open ShopInsights.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find. It works offline once open.
+
+THREE STEPS
+1. Add your shop on the Import files screen (you can add your logo later on Shops).
+2. Drop in your Etsy downloads for that shop, several at once:
+   - Payment account statements: Shop Manager > Finances > Monthly statements > Download CSV (one per month)
+   - Sold order items: Shop Manager > Settings > Options > Download Data > Order Items
+   - Listings: Shop Manager > Settings > Options > Download Data > Listings
+   - Etsy Payments Deposits: Shop Manager > Settings > Options > Download Data
+   - Reviews: your Etsy account > Privacy settings > Download data (reviews.json)
+3. Review your summaries. Every tab fills in by itself.
+Run more than one shop? Add each one and import its files into it. Etsy downloads the shop that is open in Shop Manager, so switch shops there first.
+Importing the same file twice is safe: anything already there is skipped.
+
+SAMPLE
+Explore sample data in the sidebar fills every screen with made-up shops in a separate session. Return to my shops brings your own numbers back.
+
+MORE VIEWS
+Insights, Year over year, Fees & ads and Transactions start switched off to keep the sidebar short. Turn them on in Settings & backup > Simplify your sidebar.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one file. Keep it outside the app. To move to another computer, copy the HTML file and your backup across and use Restore backup. Chrome and Edge can also write a dated backup to a folder you choose each day.
+
+PRIVACY
+Your files are read on your computer and never uploaded. Buyer names, emails and addresses are never stored.
+
+HELP
+The How to use screen inside the app explains every tab. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+
+Shop Insights is not affiliated with, or endorsed by, Etsy, Inc. It organizes your records; it is not tax advice.

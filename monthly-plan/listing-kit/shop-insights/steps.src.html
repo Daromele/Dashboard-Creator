@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Shop Insights · How it works</title>
+<style>
+/*@@FONTS@@*/
+:root{--bold:#3A2419;--ink:#2A1A12;--pop:#F2B441;--paper:#FBF7F2;--calm:#A3461F;--ok:#1f7a54;--rule:#eadfd3;--muted:#8b7a6d}
+*{box-sizing:border-box;margin:0}
+html,body{background:#1d130d;height:100%}
+body{display:grid;place-items:center;overflow:hidden}
+#stage{width:1500px;height:1125px;position:relative;background:var(--bold);color:#fff;font-family:Montserrat,system-ui,sans-serif;overflow:hidden;transform-origin:center}
+.glow{position:absolute;inset:0;background:radial-gradient(900px 600px at 80% -10%,#6b3a1f55,transparent 60%),radial-gradient(700px 500px at 0% 110%,#f2b44122,transparent 60%)}
+header{position:absolute;top:58px;left:0;right:0;text-align:center}
+.eyebrow{font-size:18px;letter-spacing:.32em;text-transform:uppercase;color:var(--pop);font-weight:700}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:66px;font-weight:700;margin-top:14px;letter-spacing:-.01em}
+.steps{position:absolute;top:224px;left:100px;right:100px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.step{border-radius:18px;padding:20px 22px;background:#ffffff10;border:2px solid #ffffff1c;display:flex;gap:16px;align-items:center;transition:none}
+.step .n{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:22px;background:#ffffff1f;flex:none}
+.step b{display:block;font-size:22px}.step span{font-size:15px;opacity:.75}
+.step.on{background:#F2B44126;border-color:var(--pop)}.step.on .n{background:var(--pop);color:var(--ink)}
+.step.done .n{background:var(--ok);color:#fff}
+.win{position:absolute;left:100px;right:100px;top:352px;bottom:96px;background:var(--paper);border-radius:18px;box-shadow:0 30px 80px #0008;overflow:hidden;color:var(--ink)}
+.bar{height:44px;background:#efe6dc;display:flex;align-items:center;gap:8px;padding:0 18px}.bar i{width:12px;height:12px;border-radius:50%;background:#d9c9ba}.bar em{margin-left:14px;font-style:normal;font-size:14px;color:var(--muted);font-weight:600}
+.scene{position:absolute;inset:44px 0 0 0;padding:42px 56px;opacity:0}
+.label{font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--calm)}
+.big{font-family:'Playfair Display',Georgia,serif;font-size:40px;margin:8px 0 26px}
+/* step 1 */
+.field{display:flex;gap:14px;align-items:center}.input{flex:1;height:70px;border:2px solid var(--rule);border-radius:14px;background:#fff;display:flex;align-items:center;padding:0 22px;font-size:28px;font-weight:600}
+.caret{display:inline-block;width:3px;height:34px;background:var(--calm);margin-left:3px}
+.btn{height:70px;padding:0 34px;border-radius:999px;background:var(--calm);color:#fff;font-weight:700;font-size:24px;display:grid;place-items:center}
+.shopcard{margin-top:34px;display:flex;align-items:center;gap:20px;background:#fff;border:1px solid var(--rule);border-radius:18px;padding:18px 22px;width:560px}
+.shopcard img{width:74px;height:74px;border-radius:16px}.shopcard b{font-size:26px;display:block}.shopcard span{color:var(--muted);font-size:17px}
+/* step 2 */
+.zone{position:absolute;left:470px;right:56px;top:120px;height:230px;border:3px dashed #d6c4b3;border-radius:20px;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:22px;font-weight:600}
+.zone b{display:block;color:var(--ink);font-size:28px;margin-bottom:6px}
+.file{position:absolute;left:56px;width:360px;height:52px;background:#fff;border:1px solid var(--rule);border-radius:12px;display:flex;align-items:center;gap:12px;padding:0 14px;font-size:17px;font-weight:600;box-shadow:0 6px 16px #3a241914}
+.file i{width:30px;height:36px;border-radius:5px;background:#e9dccf;flex:none;position:relative;font-style:normal;font-size:10px;font-weight:800;color:var(--calm);display:grid;place-items:end center;padding-bottom:3px}
+.rows{position:absolute;left:470px;right:56px;top:376px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:11px 4px;border-bottom:1px solid var(--rule);font-size:19px;opacity:0}
+.row b{font-weight:700}.row .ok{color:var(--ok);font-weight:700}
+/* step 3 */
+.shot{position:absolute;left:56px;right:56px;top:96px;bottom:34px;border-radius:12px;overflow:hidden;box-shadow:0 14px 40px #3a24192e;background:#fff}
+.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0}
+.tabs{display:flex;gap:10px;position:absolute;left:56px;top:34px}
+.tab{padding:10px 18px;border-radius:999px;border:1px solid var(--rule);font-weight:700;font-size:17px;background:#fff;color:var(--muted)}.tab.on{background:var(--calm);border-color:var(--calm);color:#fff}
+.progress{position:absolute;left:100px;right:100px;bottom:52px;height:6px;border-radius:3px;background:#ffffff1a;overflow:hidden}.progress i{display:block;height:100%;background:var(--pop);width:0}
+.foot{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:14px;opacity:.55;letter-spacing:.06em}
+</style></head><body>
+<div id="stage"><div class="glow"></div>
+<header><div class="eyebrow">How it works</div><h1>Your real numbers in three steps</h1></header>
+<div class="steps"><div class="step" id="st1"><span class="n">1</span><div><b>Add your shop</b><span>Name it, add your logo</span></div></div>
+<div class="step" id="st2"><span class="n">2</span><div><b>Drop in your Etsy files</b><span>Straight from Shop Manager</span></div></div>
+<div class="step" id="st3"><span class="n">3</span><div><b>Review your summaries</b><span>Every tab fills in by itself</span></div></div></div>
+<div class="win"><div class="bar"><i></i><i></i><i></i><em>Shop Insights</em></div>
+ <div class="scene" id="sc1"><div class="label">Step 1 · Your shops</div><div class="big">Add your shop</div>
+  <div class="field"><div class="input"><span id="typed"></span><span class="caret" id="caret"></span></div><div class="btn" id="addbtn">Add shop</div></div>
+  <div class="shopcard" id="shopcard"><img src="/*@@LOGO@@*/" alt=""><div><b>Fern &amp; Fable Prints</b><span>Etsy shop · ready for files</span></div></div></div>
+ <div class="scene" id="sc2"><div class="label">Step 2 · Import files</div><div class="big">Drop in your Etsy files</div>
+  <div class="zone" id="zone"><div><b>Drop Etsy files here</b>Statements, orders, listings, reviews, deposits</div></div>
+  <div id="files"></div><div class="rows" id="rows"></div></div>
+ <div class="scene" id="sc3"><div class="tabs" id="tabs"></div><div class="shot" id="shot"></div></div>
+</div>
+<div class="progress"><i id="prog"></i></div><div class="foot">Shop Insights · JPS Digital Pages · sample shop, made-up numbers</div>
+</div>
+<script>
+const SHOTS=/*@@SHOTS@@*/[];const DUR=15;
+const FILES=[['CSV','etsy_statement_2026_9.csv','Payment account statement','927 new lines'],['CSV','EtsySoldOrderItems2026.csv','Sold order items','1,021 new orders'],['CSV','EtsyListingsDownload.csv','Listings','23 listings'],['JSON','reviews.json','Reviews','719 new reviews'],['CSV','EtsyDeposits2026.csv','Etsy Payments Deposits','38 new payouts']];
+const $=s=>document.querySelector(s),clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),ease=x=>{x=clamp(x);return 1-Math.pow(1-x,3);},seg=(t,a,b)=>ease((t-a)/(b-a));
+$('#files').innerHTML=FILES.map((f,i)=>`<div class="file" id="f${i}" style="top:${120+i*62}px"><i>${f[0]}</i>${f[1]}</div>`).join('');
+$('#rows').innerHTML=FILES.map((f,i)=>`<div class="row" id="r${i}"><span><b>${f[2]}</b></span><span class="ok">✓ ${f[3]}</span></div>`).join('');
+$('#tabs').innerHTML=SHOTS.map((s,i)=>`<div class="tab" id="tb${i}">${s.name}</div>`).join('');
+$('#shot').innerHTML=SHOTS.map((s,i)=>`<img id="im${i}" src="${s.src}" alt="">`).join('');
+const NAME='Fern & Fable Prints';
+function scene(id,t,a,b){const o=Math.min(seg(t,a,a+.45),1-seg(t,b-.4,b));const el=$(id);el.style.opacity=o;el.style.transform=`translateY(${(1-seg(t,a,a+.45))*24}px)`;return o>0;}
+function seek(t){
+ t=clamp(t,0,DUR);$('#prog').style.width=(t/DUR*100)+'%';
+ const s1=t<4.7,s2=t>=4.7&&t<9.6,s3=t>=9.6;
+ [['#st1',0.3,4.7],['#st2',4.7,9.6],['#st3',9.6,99]].forEach(([id,a,b])=>{const el=$(id);el.classList.toggle('on',t>=a&&t<b);el.classList.toggle('done',t>=b);el.querySelector('.n').textContent=t>=b?'✓':id.slice(-1);});
+ // step 1: type the name, press the button, the shop appears
+ scene('#sc1',t,.3,4.7);const n=Math.round(clamp((t-1.1)/1.6)*NAME.length);$('#typed').textContent=NAME.slice(0,n);$('#caret').style.opacity=t<3.1&&Math.floor(t*2.2)%2===0?1:0;
+ const pr=t>3.0&&t<3.25;$('#addbtn').style.transform=`scale(${pr?.94:1})`;const sc=seg(t,3.35,3.9);$('#shopcard').style.opacity=sc;$('#shopcard').style.transform=`translateY(${(1-sc)*20}px) scale(${.96+.04*sc})`;
+ // step 2: files fly into the drop zone, then each is recognised
+ scene('#sc2',t,4.7,9.6);const drop=seg(t,5.1,7.2)>0;
+ FILES.forEach((f,i)=>{const a=5.2+i*.32,p=seg(t,a,a+.55),el=$('#f'+i);el.style.transform=`translate(${p*640}px,${p*(150-i*62)}px) scale(${1-p*.35})`;el.style.opacity=1-seg(t,a+.45,a+.6);
+  const r=seg(t,7.1+i*.28,7.4+i*.28),row=$('#r'+i);row.style.opacity=r;row.style.transform=`translateX(${(1-r)*18}px)`;});
+ $('#zone').style.borderColor=t>5.2&&t<7.1?'#A3461F':'#d6c4b3';$('#zone').style.background=t>5.2&&t<7.1?'#f7e9df':'transparent';
+ // step 3: the dashboard, the take-home counting up, then other tabs
+ scene('#sc3',t,9.6,99);const k=SHOTS.length,slot=(DUR-.4-11.2)/(k-1);let cur=0;for(let i=1;i<k;i++)if(t>=11.2+(i-1)*slot)cur=i;
+ SHOTS.forEach((s,i)=>{const start=i===0?9.8:11.2+(i-1)*slot;$('#im'+i).style.opacity=i===cur?seg(t,start,start+.45):(i===cur-1?1:0);$('#im'+i).style.zIndex=i===cur?2:1;$('#tb'+i).classList.toggle('on',i===cur);});
+}
+window.seek=seek;window.DUR=DUR;
+// plays on a loop unless ?frame is given (the video renderer seeks frame by frame)
+if(!/[?&]frame/.test(location.search)){const t0=performance.now();(function loop(now){seek(((now-t0)/1000)%DUR);requestAnimationFrame(loop);})(t0);}
+function fit(){const s=Math.min(innerWidth/1500,innerHeight/1125);$('#stage').style.transform=/[?&]frame/.test(location.search)?'none':`scale(${s})`;}addEventListener('resize',fit);fit();
+</script></body></html>

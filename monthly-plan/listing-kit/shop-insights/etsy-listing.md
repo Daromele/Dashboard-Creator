@@ -1,3 +1,12 @@
+# Shop Insights · Etsy listing
+
+## Title (122 characters)
+Etsy Seller Dashboard, Etsy Profit Tracker, Etsy Fee Calculator, Multi Shop Take-Home, Schedule C Tax Summary, Offline App
+
+## Tags (13)
+etsy seller tool, etsy profit tracker, etsy fee calculator, seller dashboard, etsy spreadsheet, etsy bookkeeping, small business, sales tracker, schedule c, pricing calculator, multi shop tracker, etsy shop planner, craft business
+
+## Description
 Know what your Etsy shop really keeps. Shop Insights turns the files Etsy already gives you into a clear, beautiful dashboard: your take-home after every fee, ad and credit, for one shop or several.
 
 Try it free first: [link to the free take-home check]
@@ -35,3 +44,9 @@ GOOD TO KNOW
 • Screenshots show made-up sample shops.
 • Shop Insights is not affiliated with, or endorsed by, Etsy, Inc.
 • It organizes your records; it is not tax advice.
+
+## Media
+- Photos: `Shop_Insights_Etsy_Mockups.html`, one screenshot per slide at 1500×1125 (16 slides; use the first 10–20).
+- Video: `Shop_Insights_How_It_Works.mp4` (15 s, 1440×1080, no sound).
+- Download file: `Shop_Insights_Download.zip` (ShopInsights.html, START_HERE.txt, LICENSE.txt).
+- Replace `[link to the free take-home check]` with your Netlify link once it is live.
