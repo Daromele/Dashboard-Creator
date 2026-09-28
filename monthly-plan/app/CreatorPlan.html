@@ -507,6 +507,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .hero{background:var(--bold);color:var(--on-bold);border-radius:var(--r-lg);padding:var(--s6) var(--s7);display:grid;grid-template-columns:1.3fr 1fr;gap:var(--s7);margin-bottom:var(--s4);position:relative;overflow:hidden}
 .hero .eyebrow{color:var(--on-bold-dim)}
 .hero h2{font-size:38px;font-weight:700;margin:var(--s2) 0 var(--s3);letter-spacing:-.03em}
+/* the one number that matters most: sized to its column, so it stays huge without overflowing */
+.hero>div:first-child{container-type:inline-size;min-width:0}
+.hero h2.hero-big{font-size:clamp(30px,min(19cqi,calc(100cqi / (var(--n,9) * .5))),128px);line-height:.95;letter-spacing:-.045em;margin:var(--s3) 0 var(--s4);white-space:nowrap}
+.hero-big .cents{font-size:.42em;letter-spacing:-.01em;margin-left:.04em;vertical-align:.95em;opacity:.8}
 .hero p{color:var(--on-bold-dim);font-size:13px;max-width:44ch;line-height:1.6}
 .hero .hero-foot{margin-top:var(--s5)}
 .hero-side{border-left:1px solid #ffffff1f;padding:var(--s1) 0 var(--s1) var(--s6);display:grid;align-content:center;gap:var(--s3)}
@@ -714,7 +718,7 @@ dialog::backdrop{background:rgba(27,21,36,.42);backdrop-filter:blur(3px)}
 @media(max-width:900px){.app{display:block}.rail{position:fixed;left:0;top:0;width:250px;transform:translateX(-100%);transition:transform .18s}.menu-open .rail{transform:translateX(0)}.menu-open .scrim{display:block;position:fixed;inset:0;background:#160c2470;z-index:35}.mobile-menu,.mobile-close{display:inline-grid}.mobile-close{position:absolute;right:8px;top:8px;color:var(--on-bold)}.grid2{gap:15px}.pagehead h1{font-size:27px}.card{padding:20px}.topbar-in{padding:12px 20px}.hero{gap:20px}.footer{margin-bottom:20px}}
 @media(max-width:620px){.page{padding:23px 16px 30px}.topbar-in{padding:10px 12px;gap:6px}.topbar .btn{padding:8px 11px;font-size:12px}.topbar .btn svg{display:none}.top-left{gap:5px}.month-switch{gap:2px}.month-switch input{width:131px;font-size:12px}.month-switch .ibtn{width:29px;border:0;background:transparent}.mobile-menu{width:32px}.pagehead{flex-direction:column;gap:14px;margin-bottom:20px}.pagehead h1{font-size:27px}.pagehead .actions{width:100%}.subtitle{font-size:13px}.hero{grid-template-columns:1fr;padding:24px;gap:23px}.hero h2{font-size:40px}.hero-side{border-left:0;padding:20px 0 0;border-top:1px solid #ffffff25}.hero .hero-foot{margin-top:17px}.kpis{grid-template-columns:1fr 1fr}.kpi b{font-size:23px}.kpi{padding:15px}.grid2,.cards,.steps{grid-template-columns:1fr}.card{padding:20px}.table-card{padding:0}.cardhead{gap:10px}.cardhead h2{font-size:17px}.donut-wrap{gap:24px}.donut{width:150px;height:150px}.notice{align-items:flex-start;flex-direction:column;font-size:12px}.demo-banner{padding:10px 16px;font-size:11px}.demo-banner .btn{padding:5px 8px;font-size:10px}.fields{grid-template-columns:1fr}.full{grid-column:auto}.dialog-in{padding:22px}.calendar{min-width:620px}.calendar-scroll{overflow-x:auto;margin:-2px}.calday{min-height:105px}.legend{gap:9px;font-size:10px}.footer{flex-direction:column;gap:6px}.plan-summary{top:63px;font-size:11px;padding:11px}.plan-summary b{font-size:17px}.table-card .cardhead{padding:19px 17px 0}td,th{padding:10px}.table-wrap table{min-width:580px}.filters>*{flex:1;min-width:120px}.actions .btn{flex:1}.formfoot .btn{flex:1}.goal-total{font-size:31px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-@media print{body{background:white;font-size:11px;color:#222}.rail,.topbar,.pagehead .actions,.demo-banner,.toast,.scrim,dialog,.no-print,.footer button,.btn,.ibtn{display:none!important}.app{display:block}.page{max-width:none;padding:0}.pagehead{margin-bottom:18px}.hero,.card,.kpi{break-inside:avoid}.hero{background:#eee!important;color:#222}.hero p,.hero .eyebrow{color:#555}.hero-side{border-color:#aaa}.kpis{grid-template-columns:repeat(4,1fr)}.grid2{grid-template-columns:1fr 1fr}.card{padding:16px}.table-wrap{overflow:visible}.table-wrap table{min-width:0}.plan-summary{position:static}.print-title{display:block;font-size:11px;margin-bottom:18px}.calendar{min-width:0}.calendar-scroll{overflow:visible}input,select,textarea{border:0;padding:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media print{body{background:white;font-size:11px;color:#222}.rail,.topbar,.pagehead .actions,.demo-banner,.toast,.scrim,dialog,.no-print,.footer button,.btn,.ibtn{display:none!important}.app{display:block}.page{max-width:none;padding:0}.pagehead{margin-bottom:18px}.hero,.card,.kpi{break-inside:avoid}.hero{background:#eee!important;color:#222}.hero h2.hero-big{font-size:44px}.hero p,.hero .eyebrow{color:#555}.hero-side{border-color:#aaa}.kpis{grid-template-columns:repeat(4,1fr)}.grid2{grid-template-columns:1fr 1fr}.card{padding:16px}.table-wrap{overflow:visible}.table-wrap table{min-width:0}.plan-summary{position:static}.print-title{display:block;font-size:11px;margin-bottom:18px}.calendar{min-width:0}.calendar-scroll{overflow:visible}input,select,textarea{border:0;padding:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 
 .add-short{display:none}@media(max-width:900px){.rail{visibility:hidden}.menu-open .rail{visibility:visible}}@media(max-width:620px){.add-full{display:none}.add-short{display:inline}.topbar .actions{flex-shrink:0}.plan-summary{flex-wrap:wrap}.plan-summary .btn{margin-left:auto}}
 
@@ -2271,16 +2275,18 @@ function measureChartWidth(){
  const inner=(el?.clientWidth||1100)-104; // page gutters + card padding
  chartWidth=Math.round(Math.max(520,Math.min(1500,inner)));
 }
+// a big figure with its cents set smaller: "$1,384" + ".74" (any decimal mark, symbol before or after)
+function splitCents(txt){const m=String(txt).match(/^(.*\d)([.,]\d{1,3})(\D*)$/);return m?`${esc(m[1])}<span class="cents">${esc(m[2])}</span>${esc(m[3])}`:esc(txt);}
 function countUp(){
  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  cancelAnimationFrame(countTimer);
- const els=[...document.querySelectorAll('[data-count]')].map(el=>({el,to:+el.dataset.count,final:el.textContent}))
+ const els=[...document.querySelectorAll('[data-count]')].map(el=>({el,to:+el.dataset.count,final:el.dataset.split!==undefined?el.innerHTML:el.textContent,split:el.dataset.split!==undefined}))
    .filter(x=>Number.isFinite(x.to)&&x.to!==0);
  if(!els.length)return;
  const dur=620,start=performance.now();
  const step=t=>{
   const p=Math.min(1,(t-start)/dur),e=1-Math.pow(1-p,3);
-  for(const x of els){if(!x.el.isConnected)continue;x.el.textContent=p<1?fmt(Math.round(x.to*e)):x.final;}
+  for(const x of els){if(!x.el.isConnected)continue;if(x.split)x.el.innerHTML=p<1?splitCents(fmt(Math.round(x.to*e))):x.final;else x.el.textContent=p<1?fmt(Math.round(x.to*e)):x.final;}
   if(p<1)countTimer=requestAnimationFrame(step);
  };
  countTimer=requestAnimationFrame(step);
@@ -2364,7 +2370,7 @@ function commitmentsHero(t,r,active){
  const row=(n,k,l,sign='')=>`<div class="hero-fact${n?'':' is-zero'}"><span><i class="hero-dot hb-${k}"></i>${l}</span><strong>${n?sign:''}${fmt(n)}</strong></div>`;
  const budget=!t.expense.plan&&t.expense.actual>0?`<span class="hero-pill">${P.features.pl?'Costs paid · no monthly target':'Spent · no budget set'} <b>${fmt(t.expense.actual)}</b></span>`
   :t.expense.plan?`<span class="hero-pill${t.remaining<0?' over':''}">${L.expense} budget ${t.remaining<0?'overspent':'left'} <b>${fmt(Math.abs(t.remaining))}</b></span>`:'';
- return `<section class="hero"><div><div class="eyebrow">After your commitments</div><h2 class="number${r.after<0?' alert':''}" data-count="${r.after}">${fmt(r.after)}</h2><p>${active?(r.after<0?`Your commitments are ${fmt(short)} more than your tracked balance.`:(L.heroLead||'Yours to spend once unpaid bills and planned savings are covered.')):'Set a plan and log what happens, and this shows what is genuinely free this month.'}</p>${active?`<small class="hero-note">Estimate from entries through ${r.cutoff.endsWith('-00')?'the start of this month':dateName(r.cutoff)} · not a bank balance</small>`:''}<div class="hero-foot">${button('View monthly plan →','go-budget','pop small')}${button('Review payments','go-scheduled','quiet small')}</div></div>`+
+ return `<section class="hero"><div><div class="eyebrow">After your commitments</div><h2 class="hero-big number${r.after<0?' alert':''}" data-count="${r.after}" data-split style="--n:${fmt(r.after).length}" aria-label="${esc(fmt(r.after))}">${splitCents(fmt(r.after))}</h2><p>${active?(r.after<0?`Your commitments are ${fmt(short)} more than your tracked balance.`:(L.heroLead||'Yours to spend once unpaid bills and planned savings are covered.')):'Set a plan and log what happens, and this shows what is genuinely free this month.'}</p>${active?`<small class="hero-note">Estimate from entries through ${r.cutoff.endsWith('-00')?'the start of this month':dateName(r.cutoff)} · not a bank balance</small>`:''}<div class="hero-foot">${button('View monthly plan →','go-budget','pop small')}${button('Review payments','go-scheduled','quiet small')}</div></div>`+
   `<div class="hero-side"><div class="hero-fact hero-total"><span>Tracked balance</span><strong>${fmt(r.cash)}</strong></div>${bar}${row(r.fixed,'bills',parts[0][2],'−')}${row(r.saving,'save',parts[1][2],'−')}${row(free,'free',parts[2][2])}${budget?`<div class="hero-budget">${budget}</div>`:''}</div></section>`;
 }
 // Transactions screen: a group filter (by type, then by group) and a category filter that only
