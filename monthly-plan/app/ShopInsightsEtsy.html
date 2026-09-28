@@ -4170,9 +4170,9 @@ const Etsy=(()=>{
  const tile=(label,value,note,sp='',cls='')=>`<div class="kpi kit-tile"><div class="label">${label}</div><b class="${cls}">${value}</b>${sp}<small>${note}</small></div>`;
  const money=n=>`<span data-count="${n}">${fmt(n)}</span>`;
  // a line chart on its own scale (ratings, shares): the money chart's axis would print "$4.85"
- function line(series,labels,{min=0,max,f=String,title=''}={}){
+ function line(series,labels,{min=0,max,f=String,title='',H:HH=220}={}){
   const all=series.flatMap(s=>s.values.filter(Number.isFinite));if(!all.length)return '';
-  const hi=max??Math.max(...all),lo=Math.min(min,...all),W=700,H=220,pl=44,pr=16,pt=16,pb=28,X=i=>pl+i*(W-pl-pr)/Math.max(1,labels.length-1),Y=n=>pt+(hi-n)/((hi-lo)||1)*(H-pt-pb);
+  const hi=max??Math.max(...all),lo=Math.min(min,...all),W=700,H=HH,pl=44,pr=16,pt=16,pb=28,X=i=>pl+i*(W-pl-pr)/Math.max(1,labels.length-1),Y=n=>pt+(hi-n)/((hi-lo)||1)*(H-pt-pb);
   const ticks=Array.from({length:5},(_,i)=>lo+(hi-lo)*i/4);
   return `<div class="kit-line">${series.length>1?`<div class="legend">${series.map(s=>`<span><i class="dot" style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>`:''}<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${ticks.map(n=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(n).toFixed(1)}" y2="${Y(n).toFixed(1)}" class="chart-grid"/><text x="${pl-8}" y="${(Y(n)+4).toFixed(1)}" class="kit-axis" text-anchor="end">${esc(f(n))}</text>`).join('')}`+
    labels.map((l,i)=>(labels.length<=13||i%Math.ceil(labels.length/12)===0)?`<text x="${X(i).toFixed(1)}" y="${H-8}" class="kit-axis" text-anchor="middle">${esc(l)}</text>`:'').join('')+
@@ -4536,8 +4536,8 @@ const Etsy=(()=>{
   const table=`<section class="card table-card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('table')}</span>Year by year</h2><p>Ten years from ${shown[0].y}, with the change on the year before · ${cur.y} runs to ${dateName(cutoff)}</p></div></div><div class="table-wrap"><table class="kit-yoy" data-nosort><thead><tr><th></th>${cols.map(x=>`<th class="num">${x.y}${x.partial?'<small class="dim"> so far</small>':''}</th>`).join('')}</tr></thead><tbody>${rows.map(([l,f,v,cost])=>`<tr><td><b>${l}</b></td>${cols.map((x,i)=>{if(x.none)return '<td class="num dim">—</td>';const p=cols[i-1]&&!cols[i-1].none?cols[i-1]:null,c=v&&p&&!x.partial?ch(v(x),v(p)):null;return `<td class="num">${f(x)}${c!==null&&Number.isFinite(c)?`<small class="${(c>=0)!==!!cost?'kit-good':'kit-bad'}">${signed(c)}</small>`:''}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div></section>`;
   const shops=!state.settings.shop?state.shops:state.shops.filter(sh=>sh.id===state.settings.shop);
   const per=shops.map(sh=>{const v=D.forShop(state,sh.id);return {sh,vals:cols.map(c=>c.none?null:D.summary(v,`${c.y}-01-01`,c.y===last?cutoff:`${c.y}-12-31`).profit)};}).filter(x=>x.vals.some(v=>v));
-  const pieCard=per.length>1?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('globe')}</span>Net profit by shop</h2><p>${shown[0].y} – ${cur.y} · each shop’s share</p></div></div>${pie(per.map(x=>[x.sh.name,Math.max(0,x.vals.reduce((n,v)=>n+(v||0),0)),shopColor(x.sh.id)]),{label:'Net profit',center:compact(per.reduce((n,x)=>n+x.vals.reduce((a,v)=>a+(v||0),0),0)),sub:'NET PROFIT'})}</section>`:'';
-  const lineCard=per.length?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('insights')}</span>Net profit over ten years</h2><p>${per.length>1?'One line per shop':esc(per[0].sh.name)} · ${cols[0].y} – ${cols.at(-1).y}${cur.partial?` · ${cur.y} so far`:''}</p></div></div>${line(per.map(x=>({name:x.sh.name,values:x.vals,color:shopColor(x.sh.id)})),cols.map(c=>String(c.y)),{f:compact,title:'Net profit by year and shop'})}</section>`:'';
+  const pieCard=per.length>1?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('globe')}</span>Net profit by shop</h2><p>${shown[0].y===cur.y?cur.y+(cur.partial?' so far':''):`${shown[0].y} – ${cur.y}`} · each shop’s share</p></div></div>${pie(per.map(x=>[x.sh.name,Math.max(0,x.vals.reduce((n,v)=>n+(v||0),0)),shopColor(x.sh.id)]),{label:'Net profit',center:compact(per.reduce((n,x)=>n+x.vals.reduce((a,v)=>a+(v||0),0),0)),sub:'NET PROFIT'})}</section>`:'';
+  const lineCard=per.length?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('insights')}</span>Net profit over ten years</h2><p>${per.length>1?'One line per shop':esc(per[0].sh.name)} · ${cols[0].y} – ${cols.at(-1).y}${cur.partial?` · ${cur.y} so far`:''}</p></div></div>${line(per.map(x=>({name:x.sh.name,values:x.vals,color:shopColor(x.sh.id)})),cols.map(c=>String(c.y)),{f:compact,title:'Net profit by year and shop',H:per.length>1?380:240})}</section>`:'';
   const charts=pieCard?`<div class="grid2 equal">${pieCard}${lineCard}</div>`:lineCard;
   return head+kpis+charts+`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('insights')}</span>Every year at a glance</h2><p>Each column is a year’s sales: green is what you kept, red is what Etsy took${cur.partial?` · ${cur.y} so far, and its change is against the same days of ${cur.y-1}`:''}</p></div><button class="link" data-go="annual">Year at a glance</button></div>${chart}${strip}</section>`+table;
  }
@@ -4802,10 +4802,14 @@ const Etsy=(()=>{
   const parts=[r.added&&`${num(r.added)} new ${{statement:'line',orders:'order',deposits:'deposit'}[r.kind]||'review'}${r.added===1?'':'s'}`,r.items&&`${num(r.items)} new item${r.items===1?'':'s'}`,r.updated&&`${num(r.updated)} updated`,r.same&&`${num(r.same)} already here`,r.currency&&`currency set to ${r.currency}`].filter(Boolean);
   return parts.length?parts.join(' · '):'Nothing new';
  }
+ let impQ='',impKind='';
+ function filterImports(){const t=document.getElementById('etsy-imp-table');if(!t)return;const q=impQ.trim().toLowerCase();let n=0,all=0;
+  for(const r of t.tBodies[0].rows){all++;const ok=(!q||r.dataset.q.includes(q))&&(!impKind||r.dataset.k===impKind);r.hidden=!ok;if(ok)n++;}
+  const c=document.getElementById('etsy-imp-count');if(c)c.textContent=n===all?'':`${num(n)} of ${num(all)} shown`;}
  function recentImports(){
   const shops=state.shops,shop=importsAll?'':(session?.shop||(shops.some(x=>x.id===importShop)?importShop:'')||state.settings.shop||shops[0]?.id||''),list=state.etsy.imports.map((x,i)=>({...x,i})).filter(x=>!shop||x.shop===shop||(x.kind==='bank'&&!x.shop)).reverse();if(!state.etsy.imports.length)return '';
   const toggle=shops.length>1?`<div class="segment no-print" aria-label="Which files">${[[false,shopName(shop||importShop||shops[0]?.id)||'This shop'],[true,'All shops']].map(([v,l])=>`<button data-action="etsy-imports-all" data-v="${v}" aria-pressed="${importsAll===v}">${esc(l)}</button>`).join('')}</div>`:'';
-  return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${num(list.length)} file${list.length===1?'':'s'} · ${esc(shop?shopName(shop):'All shops')} · Move sends everything a file brought in to another shop. Delete removes it. Costs you typed in yourself are never touched.</p></div>${toggle}</div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr><td class="nw">${dateName(x.at)}</td><td>${x.shop?esc(shopName(x.shop)):'<span class="dim">Shared</span>'}</td><td>${esc(x.name)}</td><td>${D.kindName(x.kind,x.platform)}</td><td class="nw">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print nw etsy-row-actions">${button('Move','etsy-move-import','small quiet',`data-i="${x.i}"`)}${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  return `<section class="card table-card"><div class="cardhead"><div><h2>Imported files</h2><p>${num(list.length)} file${list.length===1?'':'s'} · ${esc(shop?shopName(shop):'All shops')} · Move sends everything a file brought in to another shop. Delete removes it. Costs you typed in yourself are never touched.</p></div>${toggle}</div><div class="kit-imp-tools no-print"><input type="search" id="etsy-imp-q" placeholder="Search file names" value="${esc(impQ)}" aria-label="Search imported files"><select id="etsy-imp-kind" aria-label="Kind of file"><option value="">Every kind</option>${[...new Set(list.map(x=>D.kindName(x.kind,x.platform)))].sort().map(k=>`<option ${k===impKind?'selected':''}>${esc(k)}</option>`).join('')}</select><span class="small muted" id="etsy-imp-count"></span></div><div class="table-wrap"><table id="etsy-imp-table"><thead><tr><th>Imported</th><th>Shop</th><th>File</th><th>Kind</th><th>Covers</th><th class="num">Rows</th><th class="no-print"></th></tr></thead><tbody>${list.map(x=>`<tr data-q="${esc((x.name+' '+(x.shop?shopName(x.shop):'')).toLowerCase())}" data-k="${esc(D.kindName(x.kind,x.platform))}"><td class="nw" data-v="${x.at}">${dateName(x.at)}</td><td>${x.shop?esc(shopName(x.shop)):'<span class="dim">Shared</span>'}</td><td>${esc(x.name)}</td><td>${D.kindName(x.kind,x.platform)}</td><td class="nw" data-v="${x.from||''}">${x.kind==='listings'?'Today’s listings':x.from?dateName(x.from)+(x.from.slice(0,4)!==x.to.slice(0,4)?' '+x.from.slice(0,4):'')+' – '+dateName(x.to)+' '+x.to.slice(0,4):'All dates'}</td><td class="num">${num(x.rows)}</td><td class="no-print nw etsy-row-actions">${button('Move','etsy-move-import','small quiet',`data-i="${x.i}"`)}${button('Delete','etsy-remove-import','small quiet',`data-i="${x.i}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;
  }
  // files are kept as text while on this screen, so they can be read again for another shop or a column match
  function parseSession(){if(!session)return;const plat=session.shop?platOf(session.shop):'';
@@ -4862,7 +4866,7 @@ const Etsy=(()=>{
   });}
  // every plain table sorts by clicking a column heading; totals rows stay at the bottom, and the choice sticks across re-renders
  const tblSort=new Map();
- const cellVal=td=>{const t=(td?.textContent||'').trim();if(!t||t==='—')return null;const n=t.replace(/[−–]/g,'-').match(/^\(?-?\$?\s*-?[\d,]*\.?\d+/);if(n&&/\d/.test(n[0]))return parseFloat(n[0].replace(/[^\d.-]/g,''))*(t.startsWith('(')||/^[−-]/.test(t)?(n[0].includes('-')?1:-1):1);const d=Date.parse(t.split(/\s·\s/)[0]+(/\d{4}/.test(t)?'':' 2000'));return Number.isFinite(d)?d:t.toLowerCase();};
+ const cellVal=td=>{if(td?.dataset.v!==undefined){const v=td.dataset.v;return v===''?null:/^-?\d+(\.\d+)?$/.test(v)?+v:v;}const t=(td?.textContent||'').trim();if(!t||t==='—')return null;const n=t.replace(/[−–]/g,'-').match(/^\(?-?\$?\s*-?[\d,]*\.?\d+/);if(n&&/\d/.test(n[0]))return parseFloat(n[0].replace(/[^\d.-]/g,''))*(t.startsWith('(')||/^[−-]/.test(t)?(n[0].includes('-')?1:-1):1);const d=Date.parse(t.split(/\s·\s/)[0]+(/\d{4}/.test(t)?'':' 2000'));return Number.isFinite(d)?d:t.toLowerCase();};
  function sortTables(){
   document.querySelectorAll('#content table').forEach(tb=>{if(tb.hasAttribute('data-nosort')||tb.closest('[data-nosort]')||!tb.tHead||!tb.tBodies[0])return;
    const rows=[...tb.tBodies[0].rows],pin=r=>r.classList.contains('group-total')||[...r.cells].some(c=>c.colSpan>1),firstPin=rows.findIndex(pin);if(rows.length<3||(firstPin>=0&&rows.slice(firstPin).some(r=>!pin(r)))||tb.querySelector('.group-head,.kit-sort'))return;
@@ -4874,7 +4878,7 @@ const Etsy=(()=>{
     rest.sort((a,b)=>{const x=cellVal(a.cells[st.i]),y=cellVal(b.cells[st.i]);if(x===null)return 1;if(y===null)return -1;return (x<y?-1:x>y?1:0)*st.dir;});[...rest,...fixed].forEach(r=>body.appendChild(r));
     [...tb.tHead.rows[0].cells].forEach((th,j)=>{th.dataset.sort=j===st.i?(st.dir<0?'desc':'asc'):'';th.setAttribute('aria-sort',j===st.i?(st.dir<0?'descending':'ascending'):'none');});};
    apply();});}
- function afterRender(){tintKpis();sortTables();if(screen==='shops')tintLogos();
+ function afterRender(){tintKpis();sortTables();filterImports();if(screen==='shops')tintLogos();
   const host=document.querySelector('.top-left');if(!host)return;let box=document.getElementById('shop-switch');
   if(!box){box=document.createElement('label');box.id='shop-switch';box.className='shop-control';host.appendChild(box);}
   const cur=state.settings.shop,opts=`${state.shops.length!==1?`<option value="">${state.shops.length?'All shops':'No shops yet'}</option>`:''}${state.shops.map(x=>`<option value="${x.id}" ${x.id===cur?'selected':''}>${esc(x.name)}</option>`).join('')}<option value="__add">＋ Add a shop…</option>`;
@@ -4889,6 +4893,7 @@ const Etsy=(()=>{
  document.addEventListener('change',e=>{
   if(e.target.id==='shop-picker'){const v=e.target.value;if(v==='__add'){e.target.value=state.settings.shop;return shopForm();}
    if(v&&!state.shops.some(x=>x.id===v))return;commit(()=>state.settings.shop=state.shops.length===1?'':v,v?`Showing ${shopName(v)}`:'Showing all shops');return;}
+  if(e.target.id==='etsy-imp-kind'){impKind=e.target.value;filterImports();return;}
   if(e.target.id==='etsy-import-shop'){importShop=e.target.value;session={...(session||{sources:[],files:[]}),shop:e.target.value};parseSession();render();return;}
   if(e.target.id==='etsy-files'){readFiles(e.target.files).catch(err=>toast(err.message));}
  });
@@ -4951,6 +4956,7 @@ const Etsy=(()=>{
     const fees={preset:String(f.get('preset')||'custom').slice(0,20),transaction:bp('transaction'),processing:bp('processing'),processingFixed:amt('processingFixed'),listing:amt('listing'),offsite:bp('offsite')};
     commit(()=>{state.settings.fees=fees;D.syncEstimates(state,{today:today()});},'Etsy fees saved · estimates updated');}
   }catch(err){if($('#modal').open)formError(err);else toast(err.message);}});
+ document.addEventListener('input',e=>{if(e.target.id==='etsy-imp-q'){impQ=e.target.value;filterImports();}});
  document.addEventListener('input',e=>{const f=e.target.closest?.('#etsy-calc');if(!f||!calc)return;readCalc(f);refreshCalc();});
  document.addEventListener('change',e=>{const t=e.target;
   // a cost per item: saved after focus has moved on, so Tab lands in the next row
@@ -5191,6 +5197,7 @@ const Etsy=(()=>{
  .kit-pct{display:inline-block;width:56px;height:6px;border-radius:3px;background:var(--sunk);margin-right:8px;vertical-align:middle;overflow:hidden}.kit-pct i{display:block;height:100%;background:var(--ok)}
  .kit-refused{margin:0 18px 14px;background:color-mix(in srgb,var(--over) 10%,var(--card));border-color:color-mix(in srgb,var(--over) 35%,var(--rule));color:var(--ink)}.kit-refused b:first-child{color:var(--over)}
  .kit-yoy td small{display:block;font-size:11px;margin-top:2px}.kit-yoy th small{font-weight:400}
+ .kit-imp-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:0 18px 12px}.kit-imp-tools input{flex:1;min-width:180px;max-width:320px}.kit-imp-tools input,.kit-imp-tools select{padding:8px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
  .kit-quad{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.kit-quad>.card{margin:0;min-width:0;display:flex;flex-direction:column}.kit-quad>.card>.kit-pie{flex:1;align-content:center}
  .kit-q-table .table-wrap{flex:1}.kit-q-table .kit-pager{margin-top:auto}
  @media (max-width:900px){.kit-quad{grid-template-columns:1fr}.kit-q1{order:1}.kit-q-table{order:2}.kit-q2{order:3}.kit-q4{order:4}}
