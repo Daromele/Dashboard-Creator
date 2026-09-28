@@ -656,9 +656,12 @@ const Etsy=(()=>{
  let span='all',ordersAll=false,productsAll=false;
  function range(kind=span){const m=selected,y=m.slice(0,4);
   if(kind==='month')return {from:m+'-01',to:Budget.endOf(m),label:monthName(m)};
+  if(kind==='quarter'){const q=Math.floor((+m.slice(5,7)-1)/3),a=`${y}-${String(q*3+1).padStart(2,'0')}`,z=`${y}-${String(q*3+3).padStart(2,'0')}`;return {from:a+'-01',to:Budget.endOf(z),label:`Q${q+1} ${y} · ${shortMonth(a)} – ${shortMonth(z)}`};}
   if(kind==='year')return {from:y+'-01-01',to:y+'-12-31',label:'Full year '+y};
+  if(kind==='custom'&&custom.from&&custom.to)return {from:custom.from,to:custom.to,label:`${dateName(custom.from)}${custom.from.slice(0,4)!==custom.to.slice(0,4)?' '+custom.from.slice(0,4):''} – ${dateName(custom.to)} ${custom.to.slice(0,4)}`};
   return {...D.ALL,label:'All time'};}
- const spanControl=()=>`<div class="pl-controls no-print"><div class="segment" aria-label="Period">${[['month','Month'],['year','Year'],['all','All time']].map(([k,l])=>`<button data-action="etsy-span" data-span="${k}" aria-pressed="${span===k}">${l}</button>`).join('')}</div><span class="small muted">${span==='all'?'Everything imported':'Follows the month picker'}</span></div>`;
+ let custom={from:'',to:''};
+ const spanControl=()=>`<div class="pl-controls no-print"><div class="segment" aria-label="Period">${[['month','Month'],['quarter','Quarter'],['year','Year'],['all','All time'],['custom','Custom']].map(([k,l])=>`<button data-action="etsy-span" data-span="${k}" aria-pressed="${span===k}">${l}</button>`).join('')}</div>${span==='custom'?`<form id="etsy-custom" class="kit-custom"><label>From<input type="date" name="from" value="${custom.from}" required></label><label>To<input type="date" name="to" value="${custom.to}" required></label><button class="btn small primary">Apply</button></form>`:''}<span class="small muted">${span==='all'?'Everything imported':span==='custom'?(custom.from?'Your own dates':'Choose the dates'):'Follows the month picker'}</span></div>`;
  // which platforms are on screen: Etsy wording when every shop in view is an Etsy shop
  const platOf=id=>D.platformOf(state,id),PLAT=Object.fromEntries(X.platforms);
  const inView=()=>state.settings.shop?[state.settings.shop]:state.shops.map(x=>x.id);
@@ -716,16 +719,16 @@ const Etsy=(()=>{
    points.map((p,i)=>`<circle class="kit-dot${p.y?'':' kit-dot-zero'}" cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${p.y?6:4.5}" style="--i:${i%40}" tabindex="0" data-tip="${tipOf(p.label,[{name:xName,value:xf(p.x),color:p.y?'var(--accent)':'var(--cat-6)'},{name:yName,value:yf(p.y)},...(p.note?[{name:p.note,value:''}]:[])])}"/>`).join('')+`</svg></div>`;
  }
  // stacked columns: parts of a whole per month (one colour per shop), 2px gaps between segments
- function stack(series,labels,{f=fmt,title='',overlay=null}={}){
+ function stack(series,labels,{f=fmt,title='',overlay=null}={}){const cf=f===fmt?compact:v=>f(Math.round(v));
   const tot=labels.map((_,i)=>series.reduce((n,s)=>n+(Number.isFinite(s.values[i])?Math.max(0,s.values[i]):0),0)),max=Math.max(1,...tot,...(overlay?overlay.values.filter(Number.isFinite):[]));if(!tot.some(Boolean))return '';
   const W=700,H=260,pl=52,pr=12,pt=22,pb=28,band=(W-pl-pr)/labels.length,bw=Math.min(38,band*.62),Y=v=>pt+(1-v/max)*(H-pt-pb),ticks=Array.from({length:5},(_,i)=>max*i/4);
   const cols=labels.map((l,i)=>{let base=H-pb;const x=pl+band*i+(band-bw)/2;
    const segs=series.map((s,si)=>{const v=Math.max(0,s.values[i]||0);if(!v)return '';const h=(H-pt-pb)*v/max,y=base-h;base=y;return `<rect class="kit-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" style="fill:${s.color};--i:${i}"/>`;}).join('');
    const tip=tipOf(l,[...series.filter(s=>s.values[i]).map(s=>({name:s.name,value:f(s.values[i]),color:s.color})),{name:'Total',value:f(tot[i])},...(overlay&&Number.isFinite(overlay.values[i])?[{name:overlay.name,value:f(overlay.values[i]),color:overlay.color}]:[])]);
-   return `<g class="kit-col" tabindex="0" data-tip="${tip}"><rect x="${(pl+band*i).toFixed(1)}" y="${pt}" width="${band.toFixed(1)}" height="${H-pt-pb}" fill="transparent"/>${segs}${tot[i]?`<text x="${(x+bw/2).toFixed(1)}" y="${(Y(tot[i])-6).toFixed(1)}" class="kit-axis" text-anchor="middle">${esc(compact(tot[i]))}</text>`:''}</g><text x="${(x+bw/2).toFixed(1)}" y="${H-8}" class="kit-axis" text-anchor="middle">${esc(l)}</text>`;}).join('');
+   return `<g class="kit-col" tabindex="0" data-tip="${tip}"><rect x="${(pl+band*i).toFixed(1)}" y="${pt}" width="${band.toFixed(1)}" height="${H-pt-pb}" fill="transparent"/>${segs}${tot[i]?`<text x="${(x+bw/2).toFixed(1)}" y="${(Y(tot[i])-6).toFixed(1)}" class="kit-axis" text-anchor="middle">${esc(cf(tot[i]))}</text>`:''}</g><text x="${(x+bw/2).toFixed(1)}" y="${H-8}" class="kit-axis" text-anchor="middle">${esc(l)}</text>`;}).join('');
   const ov=overlay?(()=>{const pts=overlay.values.map((v,i)=>Number.isFinite(v)?[pl+band*i+band/2,Y(Math.max(0,v)),i,v]:null).filter(Boolean);return pts.length?`<polyline class="kit-path kit-over" pathLength="100" points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" style="stroke:${overlay.color};--i:2"/>`+pts.map(p=>`<circle class="kit-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" style="fill:${overlay.color};--i:${p[2]};pointer-events:none"/>`).join(''):'';})():'';
   const keys=[...series,...(overlay?[{...overlay,line:true}]:[])];
-  return `<div class="kit-line">${keys.length>1?`<div class="legend">${keys.map(s=>`<span><i class="${s.line?'kit-key-line':'dot'}" style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>`:''}<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${ticks.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="chart-grid"/><text x="${pl-8}" y="${(Y(v)+4).toFixed(1)}" class="kit-axis" text-anchor="end">${esc(compact(v))}</text>`).join('')}${cols}${ov}</svg></div>`;
+  return `<div class="kit-line">${keys.length>1?`<div class="legend">${keys.map(s=>`<span><i class="${s.line?'kit-key-line':'dot'}" style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>`:''}<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${ticks.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="chart-grid"/><text x="${pl-8}" y="${(Y(v)+4).toFixed(1)}" class="kit-axis" text-anchor="end">${esc(cf(v))}</text>`).join('')}${cols}${ov}</svg></div>`;
  }
  function shopStack(months,ok,overlay){
   if(state.settings.shop||state.shops.length<2)return '';
@@ -953,6 +956,19 @@ const Etsy=(()=>{
    :`<section class="card">${noData('sold order items')}</section>`);
  }
  // ---------- customers ----------
+ let cPage=0,cSort={k:'orders',dir:-1};const C_PAGE=15;
+ function countriesTable(C,r){
+  const val={country:c=>c.country.toLowerCase(),orders:c=>c.orders,share:c=>c.orders,paid:c=>c.paid};
+  const list=[...C.countries].sort((a,b)=>{const x=val[cSort.k](a),y=val[cSort.k](b);return (x<y?-1:x>y?1:0)*cSort.dir||b.orders-a.orders;});
+  const pages=Math.max(1,Math.ceil(list.length/C_PAGE));cPage=Math.min(cPage,pages-1);const rows=list.slice(cPage*C_PAGE,(cPage+1)*C_PAGE);
+  const th=(k,l,cls='')=>`<th class="${cls}"><button class="kit-sort ${cSort.k===k?'on':''}" data-action="etsy-csort" data-k="${k}" aria-label="Sort by ${l}">${l}<span aria-hidden="true">${cSort.k===k?(cSort.dir<0?' ↓':' ↑'):''}</span></button></th>`;
+  return `<section class="card table-card"><div class="cardhead"><div><h2>All countries</h2><p>${esc(r.label)} · ${num(list.length)} countries · click a column to sort</p></div></div><div class="table-wrap"><table><thead><tr>${th('country','Country')}${th('orders','Orders','num')}${th('share','Share','num')}${th('paid','Paid for items','num')}</tr></thead><tbody>${rows.map(c=>`<tr><td>${esc(c.country)}</td><td class="num">${num(c.orders)}</td><td class="num">${pc(c.orders/C.orders,c.orders/C.orders<0.1?1:0)}</td><td class="num">${fmt(c.paid)}</td></tr>`).join('')}</tbody></table></div>`+
+   (pages>1?`<div class="row no-print kit-pager"><span class="small muted">${cPage*C_PAGE+1}–${Math.min(list.length,(cPage+1)*C_PAGE)} of ${num(list.length)} · page ${cPage+1} of ${pages}</span><div class="actions">${button('Previous','etsy-cpage','small',`data-d="-1" ${cPage===0?'disabled':''}`)}${button('Next','etsy-cpage','small',`data-d="1" ${cPage>=pages-1?'disabled':''}`)}</div></div>`:'')+`</section>`;}
+ // orders month by month, split into a buyer's first order and repeat orders
+ function newReturning(r){const all=D.scoped(state,state.etsy.orders).slice().sort((a,b)=>a.date.localeCompare(b.date)),seen=new Set(),by=new Map();
+  for(const o of all){const first=!o.buyer||!seen.has(o.buyer);if(o.buyer)seen.add(o.buyer);if(o.date<r.from||o.date>r.to)continue;const k=o.date.slice(0,7);let x=by.get(k);if(!x)by.set(k,x={n:0,r:0});first?x.n++:x.r++;}
+  const ms=[...by.keys()].sort().slice(-12);if(!ms.length)return '<p class="small muted">No orders in this period.</p>';
+  return stack([{name:'First order',values:ms.map(k=>by.get(k).n),color:'var(--cat-1)'},{name:'Returning buyer',values:ms.map(k=>by.get(k).r),color:'var(--cat-5)'}],ms.map(shortMonth),{title:'New and returning orders by month',f:num});}
  function customersView(){
   const r=range(),C=D.customers(state,r.from,r.to),top=C.countries.slice(0,15);
   return pagehead('What sells',`Customers · ${esc(r.label)}`,'Only the country and a scrambled buyer key are kept from your order files. Names, emails and addresses are never stored.',scopeNote())+spanControl()+
@@ -960,8 +976,9 @@ const Etsy=(()=>{
    (C.orders?`<div class="kpis">${stat('Buyers',num(C.buyers),`${num(C.orders)} orders`)}${stat('Repeat buyers',num(C.repeat),`${pc(C.buyers?C.repeat/C.buyers:null,0)} of buyers came back`)}${stat('Orders from repeat buyers',pc(C.orders?C.repeatOrders/C.orders:null,0),`${num(C.repeatOrders)} orders`)}${stat('Countries',num(C.countries.length),`Top: ${esc(C.countries[0]?.country||'—')} ${pc(C.orders?C.countries[0].orders/C.orders:null,0)}`)}</div>`+
     `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Where orders go</h2><p>${esc(r.label)} · share of ${num(C.orders)} orders</p></div></div>${pie(fold(C.countries.map(c=>[c.country,c.orders]),'Other countries'),{label:'Orders',f:num,center:num(C.countries.length),sub:'COUNTRIES'})}</section>`+
     `<section class="card"><div class="cardhead"><div><h2>New and returning buyers</h2><p>${esc(r.label)} · share of ${num(C.buyers)} buyers</p></div></div>${pie([['Bought once',C.buyers-C.repeat,'var(--cat-1)'],['Came back',C.repeat,'var(--cat-5)']],{label:'Buyers',donut:false,f:num})}<p class="small muted" style="margin-top:12px">Buyers are matched on their Etsy name as it appears in the export, so a buyer who changed it counts twice.</p></section></div>`+
-    `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>How often buyers order</h2><p>Buyers by number of orders in this period</p></div></div>${compareBarChart([{name:'Buyers',values:C.spread.map(x=>x[1]),color:'var(--accent)'}],C.spread.map(x=>x[0]),'Buyers by number of orders','vertical',num)}</section>`+
-    `<section class="card table-card"><div class="cardhead"><div><h2>Top countries</h2><p>${esc(r.label)}</p></div></div><div class="table-wrap"><table><thead><tr><th>Country</th><th class="num">Orders</th><th class="num">Share</th><th class="num">Paid for items</th></tr></thead><tbody>${top.map(c=>`<tr><td>${esc(c.country)}</td><td class="num">${num(c.orders)}</td><td class="num">${pc(c.orders/C.orders,c.orders/C.orders<0.1?1:0)}</td><td class="num">${fmt(c.paid)}</td></tr>`).join('')}</tbody></table></div></section></div>`
+    `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>How often buyers order</h2><p>Buyers by number of orders in this period</p></div></div>${compareBarChart([{name:'Buyers',values:C.spread.map(x=>x[1]),color:'var(--accent)'}],C.spread.map(x=>x[0]),'Buyers by number of orders','vertical',num)}`+
+     `<div class="kit-split"><h3 class="kit-calc-sub">New and returning orders by month</h3><p class="small muted">Orders from a buyer’s first purchase, and from buyers who had bought before</p>${newReturning(r)}</div></section>`+
+    countriesTable(C,r)+`</div>`
    :`<section class="card">${noData('sold order items')}</section>`);
  }
  // ---------- reviews ----------
@@ -1151,7 +1168,9 @@ const Etsy=(()=>{
   case 'etsy-psort':pSort=['sales','profit','margin','units'].includes(b.dataset.sort)?b.dataset.sort:'sales';render();break;
   case 'etsy-products-csv':productsCSV();break;
   case 'etsy-calc-use':{const f=document.getElementById('etsy-calc');calc.price=+b.dataset.price||calc.price;if(f)f.elements.price.value=val(calc.price);refreshCalc();break;}
-  case 'etsy-span':span=['month','year','all'].includes(b.dataset.span)?b.dataset.span:'all';render();break;
+  case 'etsy-span':span=['month','quarter','year','all','custom'].includes(b.dataset.span)?b.dataset.span:'all';if(span==='custom'&&!custom.from){const q=range('quarter');custom={from:q.from,to:q.to};}render();break;
+  case 'etsy-cpage':cPage=Math.max(0,cPage+(+b.dataset.d||0));render();break;
+  case 'etsy-csort':{const k=b.dataset.k;cSort=cSort.k===k?{k,dir:-cSort.dir}:{k,dir:k==='country'?1:-1};cPage=0;render();break;}
   case 'etsy-orders-all':ordersAll=!ordersAll;render();break;
   case 'etsy-products-all':productsAll=!productsAll;render();break;
   case 'etsy-scope':if(state.shops.some(x=>x.id===b.dataset.shop))commit(()=>state.settings.shop=b.dataset.shop,`Showing ${shopName(b.dataset.shop)}`);break;
@@ -1173,6 +1192,8 @@ const Etsy=(()=>{
   case 'etsy-map':mapForm(+b.dataset.i);break;
   case 'etsy-import':runImport();break;
  }}catch(err){toast(err.message);}});
+ document.addEventListener('submit',e=>{if(e.target.id!=='etsy-custom')return;e.preventDefault();const f=new FormData(e.target),a=String(f.get('from')||''),z=String(f.get('to')||'');
+  if(!Budget.validDate(a)||!Budget.validDate(z))return toast('Choose both dates.');custom=a<=z?{from:a,to:z}:{from:z,to:a};render();});
  document.addEventListener('submit',e=>{if(e.target.id!=='etsy-map-form')return;e.preventDefault();const i=+e.target.dataset.i,f=new FormData(e.target),file=session?.files.find(x=>x.src===i);if(!file?.headers)return closeModal();
   const m={};for(const [k] of MAP_FIELDS){const v=String(f.get(k)||'');if(v&&file.headers.includes(v))m[k]=v;}
   if(!m.date||!(m.sales||m.subtotal||m.net))return formError(Error('Choose at least the date and the sale amount (or subtotal, or net payout).'));
@@ -1216,6 +1237,11 @@ const Etsy=(()=>{
  .shop-control select{height:36px;border-radius:10px;border:1px solid var(--rule-2);background:var(--card);color:var(--ink);font:600 14px var(--ui);padding:0 30px 0 10px;max-width:220px}
  .etsy-row-actions .btn+.btn{margin-left:6px}
  .etsy-map-row{margin-top:6px}
+ .kit-hero h2{font-size:clamp(56px,8vw,104px);line-height:1;margin:14px 0 18px}
+ .kit-custom{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.kit-custom label{display:flex;flex-direction:column;font-size:11px;color:var(--ink-3);gap:2px}.kit-custom input{height:32px}
+ .kit-split{margin-top:20px;padding-top:16px;border-top:1px solid var(--rule)}
+ .kit-sort{background:none;border:0;padding:0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit;cursor:pointer}.kit-sort.on{color:var(--accent)}th.num .kit-sort{margin-left:auto}
+ .kit-pager{padding:12px 20px}
  #etsy-payouts>div>div,#etsy-payouts>div{min-width:0}#etsy-payouts .compare-bars{max-width:100%;overflow-x:auto}
  .kit-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:4px}
  .kit-flow-t{background:var(--paper-2,var(--rule));border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
