@@ -571,6 +571,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .donut-key{flex:1;min-width:0}
 /* in a narrow card the donut sits on top, centred, with its key in two columns underneath */
 .card:has(> .donut-wrap){container-type:inline-size}
+/* many rows: two legend columns wherever the key has the width for them */
+@container (min-width:460px) and (max-width:640px){.donut-key.many{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(var(--rows),auto);grid-auto-flow:column;column-gap:28px}}
+@container (min-width:900px){.donut-key.many{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(var(--rows),auto);grid-auto-flow:column;column-gap:28px}}
 @container (max-width:640px){.donut-wrap{flex-direction:column;align-items:stretch;gap:16px}.donut{margin:0 auto}
  .donut-key .row{align-items:center;padding:7px 4px}.donut-key .row em{display:none}.donut-key .row>div{min-width:0}
  .donut-key .row small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2488,10 +2491,10 @@ function activitySummary(list){
   if(ty==='expense'&&t.amount>0)byCat.set(c.id,(byCat.get(c.id)||0)+t.amount);});
  const ranked=[...byCat.entries()].sort((a,b)=>b[1]-a[1]);
  const total=ranked.reduce((n,[,v])=>n+v,0);
- const colors=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)'];
- const parts=ranked.slice(0,5).map(([id,v],i)=>[category(id).name,v,colors[i],`${total?percent(v,total):0}% of these expenses`,{src:'activity',pos:true,cats:[id]}]);
- const other=ranked.slice(5).reduce((n,[,v])=>n+v,0);
- if(other)parts.push(['Other categories',other,colors[5],`${percent(other,total)}% of these expenses`,{src:'activity',pos:true,cats:ranked.slice(5).map(([id])=>id)}]);
+ const colors=SLICE_COLORS;
+ const N=namedSlices(ranked.length),parts=ranked.slice(0,N).map(([id,v],i)=>[category(id).name,v,colors[i],`${total?percent(v,total):0}% of these expenses`,{src:'activity',pos:true,cats:[id]}]);
+ const other=ranked.slice(N).reduce((n,[,v])=>n+v,0);
+ if(other)parts.push(['Other categories',other,colors[8],`${percent(other,total)}% of these expenses`,{src:'activity',pos:true,cats:ranked.slice(N).map(([id])=>id)}]);
  const types=[[L.income,byType.income,'var(--cat-3)'],[L.expense,byType.expense,'var(--cat-2)'],[L.saving,byType.saving,'var(--cat-1)'],...(byType.transfer?[[L.transfer,byType.transfer,'var(--rule-2)']]:[])];
  const max=Math.max(1,...types.map(([,v])=>Math.abs(v)));
  return `<div class="grid2 equal activity-charts">`+
@@ -3257,6 +3260,11 @@ function compareBarChart(series,labels,title,orientation='vertical',format=fmt){
   `<b>${esc(label)}</b></div>`).join('')}</div></div>`;
 }
 
+// Eight distinct hues for named slices; grey for the rest. Up to nine rows show by name,
+// so "Other" only appears when it groups two or more.
+const SLICE_COLORS=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--tag-6)','var(--tag-7)','var(--tag-8)','var(--cat-6)'];
+const namedSlices=n=>n<=9?9:8;
+const sharePct=(n,total)=>{const p=total?percent(n,total):0;return p===0&&n>0?'<1%':p+'%';};
 function donutMarkup(parts,total,label){
  let offset=0;
  const ring=parts.map(([name,n,color])=>{
@@ -3267,18 +3275,18 @@ function donutMarkup(parts,total,label){
    detail.push(m?{name:m[2],value:m[1]}:{name:part,value:''});
   });
   const spec=parts.find(p=>p[0]===name)?.[4],sl=spec?` data-slice="${esc(JSON.stringify(spec))}" data-slice-name="${esc(name)}"`:'';
-  const seg=`<circle class="donut-seg" cx="80" cy="80" r="68" fill="none" stroke="${color}" stroke-width="11" stroke-dasharray="${len} ${427.26-len}" stroke-dashoffset="${-offset}" tabindex="0" role="${spec?'button':'img'}"${sl} aria-label="${esc(name+': '+fmt(n)+', '+pct+'% of '+label+(spec?'. Show these transactions':''))}" data-tip="${esc(JSON.stringify({t:name,r:[{name:'Amount',value:fmt(n),color},{name:'of '+label,value:pct+'%'},...detail]}))}"/>`;
+  const seg=`<circle class="donut-seg" cx="80" cy="80" r="68" fill="none" stroke="${color}" stroke-width="11" stroke-dasharray="${len} ${427.26-len}" stroke-dashoffset="${-offset}" tabindex="0" role="${spec?'button':'img'}"${sl} aria-label="${esc(name+': '+fmt(n)+', '+pct+'% of '+label+(spec?'. Show these transactions':''))}" data-tip="${esc(JSON.stringify({t:name,r:[{name:'Amount',value:fmt(n),color},{name:'of '+label,value:sharePct(n,total)},...detail]}))}"/>`;
   offset+=len;return seg;
  }).join('');
- return `<div class="donut-wrap"><div class="donut"><svg viewBox="0 0 160 160" role="img" aria-label="${esc(label)}"><circle cx="80" cy="80" r="68" fill="none" stroke="var(--rule)" stroke-width="11"/>${ring}</svg><div class="donut-mid"><strong>${compact(total)}</strong><small>${esc(label.toUpperCase())}</small></div></div><div class="donut-key">${parts.map(([name,n,color,extra,spec],i)=>`<div class="row donut-key-row${spec?' has-slice':''}" tabindex="0"${spec?` role="button" data-slice="${esc(JSON.stringify(spec))}" data-slice-name="${esc(name)}"`:''} data-tip="${esc(JSON.stringify({t:name,r:[{name:'Amount',value:fmt(n),color},{name:'of '+label,value:(total?percent(n,total):0)+'%'},...String(extra||'').split(' · ').filter(Boolean).map(part=>{const mm=String(part).match(/^(\S+)\s+(.+)$/);return mm?{name:mm[2],value:mm[1]}:{name:part,value:''};})]}))}"><div><small><i class="dot" style="background:${color}"></i>${esc(name)}</small>${extra?`<em>${extra}</em>`:''}</div><strong class="donut-value"><span>${esc(fmt(n))}</span><small>${total?percent(n,total):0}%</small></strong></div>`).join('')}</div></div>`;
+ return `<div class="donut-wrap"><div class="donut"><svg viewBox="0 0 160 160" role="img" aria-label="${esc(label)}"><circle cx="80" cy="80" r="68" fill="none" stroke="var(--rule)" stroke-width="11"/>${ring}</svg><div class="donut-mid"><strong>${compact(total)}</strong><small>${esc(label.toUpperCase())}</small></div></div><div class="donut-key${parts.length>5?' many':''}" style="--rows:${Math.ceil(parts.length/2)}">${parts.map(([name,n,color,extra,spec],i)=>`<div class="row donut-key-row${spec?' has-slice':''}" tabindex="0"${spec?` role="button" data-slice="${esc(JSON.stringify(spec))}" data-slice-name="${esc(name)}"`:''} data-tip="${esc(JSON.stringify({t:name,r:[{name:'Amount',value:fmt(n),color},{name:'of '+label,value:sharePct(n,total)},...String(extra||'').split(' · ').filter(Boolean).map(part=>{const mm=String(part).match(/^(\S+)\s+(.+)$/);return mm?{name:mm[2],value:mm[1]}:{name:part,value:''};})]}))}"><div><small><i class="dot" style="background:${color}"></i>${esc(name)}</small>${extra?`<em>${extra}</em>`:''}</div><strong class="donut-value"><span>${esc(fmt(n))}</span><small>${sharePct(n,total)}</small></strong></div>`).join('')}</div></div>`;
 }
 
 // Where this month's spending went: each slice opens the transactions behind it
 function spendingCard(t,title='Where the money went'){
- const spend=Budget.rows(state,selected).filter(c=>c.type==='expense'&&c.actual>0).sort((a,b)=>b.actual-a.actual),total=spend.reduce((n,c)=>n+c.actual,0),colors=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)'];
+ const spend=Budget.rows(state,selected).filter(c=>c.type==='expense'&&c.actual>0).sort((a,b)=>b.actual-a.actual),total=spend.reduce((n,c)=>n+c.actual,0),colors=SLICE_COLORS;
  const range={from:selected+'-01',to:selected+'-'+String(Budget.days(selected)).padStart(2,'0')},share=n=>t.income.actual?`${percent(n,t.income.actual)}% of ${L.income.toLowerCase()}`:'';
- const mix=spend.slice(0,5).map((c,i)=>[c.name,c.actual,colors[i],share(c.actual),{cats:[c.id],...range}]),other=spend.slice(5).reduce((n,c)=>n+c.actual,0);
- if(other)mix.push(['Other',other,colors[5],share(other),{cats:spend.slice(5).map(c=>c.id),...range}]);
+ const N=namedSlices(spend.length),mix=spend.slice(0,N).map((c,i)=>[c.name,c.actual,colors[i],share(c.actual),{cats:[c.id],...range}]),other=spend.slice(N).reduce((n,c)=>n+c.actual,0);
+ if(other)mix.push(['Other',other,colors[8],share(other),{cats:spend.slice(N).map(c=>c.id),...range}]);
  return `<section class="card"><div class="cardhead"><div><h2>${esc(title)}</h2><p>${monthName(selected)} · click a slice to see its transactions</p></div></div>${mix.length?donutMarkup(mix,total,'spent'):empty('No spending yet this month','Log or import an expense to see where the money goes.','add','Add an entry')}</section>`;
 }
 function cashflowTrend(){const year=selected.slice(0,4),months=Budget.annual(state,year),cutoff=Budget.today().slice(0,7),values=months.map(m=>m.month<=cutoff?m.net:null);return `<section class="card"><div class="cardhead"><div><h2>Cash flow over time</h2><p>Income − expenses − contributions · future months are blank</p></div><span class="pill">${year}</span></div>${areaChart([{name:'Net cash flow',values,color:'var(--accent)'}],months.map(m=>shortMonth(m.month)),'Monthly net cash flow')}</section>`;}
@@ -3856,11 +3864,11 @@ const Biz=(()=>{
  }
 
  // Where money came from and went, as four donuts: by channel and tag in, by category and tag out.
- const MIX_COLORS=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)'];
+ const MIX_COLORS=SLICE_COLORS;
  function mixParts(rows,from,to,type,by,of,total){const none=by==='tag'?'Untagged':'No '+CH(),key=by==='tag'?'tag':'ch',keyIn=by==='tag'?'tagIn':'chIn';
-  const pos=rows.filter(r=>r.amount>0),top=pos.slice(0,5),rest=pos.slice(5),share=n=>total?`${percent(n,total)}% of ${of}`:'';
+  const pos=rows.filter(r=>r.amount>0),N=namedSlices(pos.length),top=pos.slice(0,N),rest=pos.slice(N),share=n=>total?`${percent(n,total)}% of ${of}`:'';
   const parts=top.map((r,i)=>[r.name||none,r.amount,!r.id?'var(--ink-3)':by==='tag'?tagColor(r.id):MIX_COLORS[i],share(r.amount),{type,from,to,[key]:r.id}]);
-  if(rest.length){const n=rest.reduce((a,r)=>a+r.amount,0);parts.push(['Other',n,by==='tag'?'var(--rule-2)':MIX_COLORS[5],share(n),{type,from,to,[keyIn]:rest.map(r=>r.id)}]);}
+  if(rest.length){const n=rest.reduce((a,r)=>a+r.amount,0);parts.push(['Other',n,by==='tag'?'var(--rule-2)':MIX_COLORS[8],share(n),{type,from,to,[keyIn]:rest.map(r=>r.id)}]);}
   return parts;}
  function mixCard(title,sub,type,by,from,to,label){const rows=Budget.breakdown(state,from,to,type,by),total=rows.filter(r=>r.amount>0).reduce((a,r)=>a+r.amount,0),of=type==='income'?L.income.toLowerCase():'expenses';
   const list=by==='tag'?tags():channels(),tagged=rows.some(r=>r.id&&r.amount>0);
@@ -3875,9 +3883,9 @@ const Biz=(()=>{
  // Annual overview for business editions: actual revenue against actual costs, then the mix of each.
  function annualCharts(y){
   const cutoff=today().slice(0,7),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),pm=months.map(m=>m<=cutoff?Budget.plMonth(state,m):null);
-  const end=y===cutoff.slice(0,4)?today():y+'-12-31',Y=Budget.pl(state,y+'-01-01',end),colors=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)'];
-  const mix=(lines,total,of)=>{const ranked=[...lines].filter(l=>l.amount>0).sort((a,b)=>b.amount-a.amount),rg={from:y+'-01-01',to:end},parts=ranked.slice(0,5).map((l,i)=>[l.name,l.amount,colors[i],`${percent(l.amount,total)}% of ${of}`,{cats:[l.id],...rg}]),rest=ranked.slice(5).reduce((n,l)=>n+l.amount,0);
-   if(rest)parts.push(['Other categories',rest,colors[5],`${percent(rest,total)}% of ${of}`,{cats:ranked.slice(5).map(l=>l.id),...rg}]);return parts;};
+  const end=y===cutoff.slice(0,4)?today():y+'-12-31',Y=Budget.pl(state,y+'-01-01',end),colors=SLICE_COLORS;
+  const mix=(lines,total,of)=>{const ranked=[...lines].filter(l=>l.amount>0).sort((a,b)=>b.amount-a.amount),rg={from:y+'-01-01',to:end},N=namedSlices(ranked.length),parts=ranked.slice(0,N).map((l,i)=>[l.name,l.amount,colors[i],`${percent(l.amount,total)}% of ${of}`,{cats:[l.id],...rg}]),rest=ranked.slice(N).reduce((n,l)=>n+l.amount,0);
+   if(rest)parts.push(['Other categories',rest,colors[8],`${percent(rest,total)}% of ${of}`,{cats:ranked.slice(N).map(l=>l.id),...rg}]);return parts;};
   const costs=[...Y.cogs.lines,...Y.opex.groups.flatMap(g=>g.lines)],costTotal=Y.cogs.total+Y.opex.total,revMix=mix(Y.revenue.lines,Y.revenue.total,L.income.toLowerCase()),costMix=mix(costs,costTotal,'expenses');
   const when=y===cutoff.slice(0,4)?`${y} to date`:y>cutoff.slice(0,4)?`${y} · nothing recorded yet`:`Full year ${y}`;
   return `<section class="card"><div class="cardhead"><div><h2>${esc(L.income)} vs expenses</h2><p>Recorded each month · expenses are cost of goods sold plus running costs · future months are blank</p></div></div>${areaChart([{name:L.income,values:pm.map(p=>p?p.revenue.total:null),color:'var(--ch-in)'},{name:'Expenses',values:pm.map(p=>p?p.cogs.total+p.opex.total:null),color:'var(--ch-out)'}],months.map(shortMonth),`${L.income} and expenses by month`)}<div class="chart-summary"><span><small>${esc(L.income)}</small><b>${fmt(Y.revenue.total)}</b></span><span><small>Expenses</small><b>${fmt(costTotal)}</b></span><span><small>Net profit</small><b>${acct(Y.net)}</b></span><span><small>Expenses as a share of ${esc(L.income.toLowerCase())}</small><b>${Y.revenue.total?percent(costTotal,Y.revenue.total)+'%':'—'}</b></span></div></section>`+
