@@ -146,6 +146,10 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());await p.waitForTimeout(300);
   for(const s of SCREENS){await p.evaluate(s=>go(s),s);await p.waitForTimeout(40);await shot('sample-'+s);}
   for(const s of ['fees','products','coupons','customers','reviews','shops'])for(const k of ['month','year','all']){await p.evaluate(s=>go(s),s);await p.click(`[data-action="etsy-span"][data-span="${k}"]`);}
+  await p.evaluate(()=>go('insights'));const si=await text();check('sample insights',si.includes('of 100')&&si.includes('Do this next'),si.slice(0,900));
+  await p.locator('.kit-check').first().click();check('a tip can be ticked off',await p.evaluate(()=>Object.keys(state.settings.insightsDone||{}).length===1&&document.querySelectorAll('.kit-act.kit-done').length===1));
+  await p.locator('.kit-done .kit-check').first().click();check('and unticked',await p.evaluate(()=>!Object.keys(state.settings.insightsDone||{}).length));
+  await p.evaluate(()=>go('annual'));const sa=await text();check('sample year at a glance',sa.includes('at a glance')&&sa.includes('Every month')&&sa.includes('Month by month'),sa.slice(0,300));
   await p.evaluate(()=>go('dashboard'));const sd=await text();check('sample dashboard',sd.includes('Take-home')&&sd.includes('Shop by shop')&&sd.includes('Copper Kiln Ceramics'),sd.slice(0,300));
   await p.selectOption('#shop-picker','kiln');await p.evaluate(()=>go('products'));check('sample scoped to one shop',!(await text()).includes('Botanical Fern'));
   await p.emulateMedia({media:'print'});await shot('print-products-kiln');await p.emulateMedia({media:'screen'});

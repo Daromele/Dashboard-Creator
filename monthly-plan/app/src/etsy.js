@@ -983,14 +983,65 @@ const Etsy=(()=>{
     countryMonths(r)
    :`<section class="card">${noData('sold order items')}</section>`);
  }
+ // ---------- year at a glance: the whole year in one screen ----------
+ function yearView(){
+  const y=selected.slice(0,4),cutoff=today().slice(0,7),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`);
+  const om=D.orderMonths(state,y),PO=D.payouts(state,y),live=i=>months[i]<=cutoff&&(om[i].statement||om[i].estimated||om[i].orders);
+  const M=months.map((mo,i)=>live(i)?{...D.summary(state,mo+'-01',Budget.endOf(mo)),om:om[i],paid:PO.months[i].total}:null);
+  const S=D.summary(state,y+'-01-01',y===cutoff.slice(0,4)?Budget.endOf(cutoff):y+'-12-31'),done=M.filter(Boolean),upto=done.length;
+  const head=pagehead('The bigger picture',`${y} at a glance`,y===cutoff.slice(0,4)?`January to ${monthName(cutoff).split(' ')[0]} · the rest of the year fills in as you import`:y<cutoff.slice(0,4)?'The full year':'Nothing yet: this year hasn’t started',button('Print','print','quiet'));
+  if(!upto)return head+`<section class="card">${noData('a payment account statement or sold order items for '+y)}</section>`;
+  const orders=done.reduce((n,x)=>n+(x.orders||x.om.orders),0),est=done.filter(x=>!x.om.statement&&x.om.orders).map((x,i)=>x.om.month);
+  const kept=S.revenue>0?S.takeHome/S.revenue:null,best=done.reduce((a,b)=>b.revenue>a.revenue?b:a),slow=done.reduce((a,b)=>b.revenue<a.revenue?b:a);
+  const avgTH=Math.round(S.takeHome/upto),fact=(l,v)=>`<div class="hero-fact"><span>${l}</span><strong>${v}</strong></div>`;
+  const hero=`<section class="hero kit-hero"><div><div class="eyebrow">Take-home · ${y}${upto<12?' so far':''}</div><h2 class="number${S.takeHome<0?' alert':''}" data-count="${S.takeHome}">${fmt(S.takeHome)}</h2>`+
+   `<p>What ${esc(scopeName())} kept from ${fmt(S.revenue)} of sales over ${upto} month${upto===1?'':'s'}: <b>${pc(kept,0)}</b> of every dollar, about <b>${fmt(avgTH)}</b> a month.</p>`+
+   `<div class="kit-yr-strip" aria-hidden="true">${months.map((mo,i)=>{const x=M[i],mx=Math.max(...done.map(d=>d.revenue),1);return `<span title="${shortMonth(mo)}: ${x?fmt(x.revenue):'—'}"><i style="height:${x?Math.max(4,x.revenue/mx*100):0}%"></i><em>${shortMonth(mo).charAt(0)}</em></span>`;}).join('')}</div></div>`+
+   `<div class="hero-side">${fact('Sales, after buyer tax',fmt(S.revenue))}${fact(etsyOnly()?'Etsy fees':'Fees',(S.fees?'−':'')+fmt(S.fees))}${fact('Ads &amp; Etsy Plus',(S.marketing?'−':'')+fmt(S.marketing))}`+
+   `<div class="hero-meter" title="Kept ${pc(kept,0)}"><i style="width:${Math.max(0,Math.min(100,(kept||0)*100))}%"></i></div>${fact('Take-home',fmt(S.takeHome))}${fact('Orders',num(orders))}</div></section>`;
+  const sp=f=>spark(M.map(x=>x?f(x):null));
+  const kpis=`<div class="kpis etsy-kpis">`+
+   tile(L.income,fmt(S.revenue),`${fmt(Math.round(S.revenue/upto))} a month on average`,sp(x=>x.revenue))+
+   tile('Orders',num(orders),`${num(Math.round(orders/upto))} a month · average order ${fmt(orders?Math.round(S.revenue/orders):0)}`,sp(x=>x.orders||x.om.orders))+
+   tile('Paid out to your bank',fmt(PO.total),PO.count?`${num(PO.count)} payouts`:'No payouts recorded',sp(x=>x.paid||null))+
+   tile('Net profit',fmt(S.profit),S.profit===S.takeHome?'Same as take-home · no own costs yet':'After your own costs too',sp(x=>x.profit),S.profit<0?'warn':'')+
+   tile(costWord(),pc(S.costShare),`${fmt(S.etsyCosts)} of ${L.income.toLowerCase()}`,sp(x=>x.costShare))+
+   tile('Your Etsy Ads',fmt(S.ownAds),`${pc(S.ownAdsShare)} of revenue${S.offsite?` · Offsite Ads fees ${fmt(S.offsite)} apart`:''}`,sp(x=>x.ownAds))+
+   tile('Best month',shortMonth(best.om.month),`${fmt(best.revenue)} in sales`)+
+   tile('Slowest month',shortMonth(slow.om.month),`${fmt(slow.revenue)} in sales`)+`</div>`;
+  // each month's sales split into what was kept and what Etsy took
+  const nz=f=>months.map((_,i)=>M[i]?Math.max(0,f(M[i])):null);
+  const multi=!state.settings.shop&&state.shops.length>1;
+  const chart=(multi&&shopStack(months,i=>!!M[i],{name:'Take-home',values:M.map(x=>x?x.takeHome:null),color:'var(--ink)'}))||
+   stack([{name:'Take-home',values:nz(x=>x.takeHome-x.labels),color:C_IN},{name:etsyOnly()?'Etsy fees':'Fees',values:nz(x=>x.fees),color:C_FEE},{name:'Ads & marketing',values:nz(x=>x.marketing),color:C_ADS},{name:'Shipping labels',values:nz(x=>x.labels),color:C_SHIP}].filter(s=>s.values.some(v=>v>0)),months.map(shortMonth),{title:`${L.income} by month, split into take-home and costs`});
+  const monthCard=`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('insights')}</span>Month by month</h2><p>${multi?`${L.income} by shop, with take-home as a line`:'Each column is a month’s sales: green is what you kept, red is what Etsy took'}${est.length?` · ${est.map(shortMonth).join(', ')} estimated from sold orders`:''}</p></div><button class="link" data-go="pl">Profit &amp; loss</button></div>${chart}</section>`;
+  const split=[['Take-home after labels',Math.max(0,S.takeHome-S.labels),C_IN],[etsyOnly()?'Etsy fees':'Fees',S.fees,C_FEE],['Your Etsy Ads',S.ownAdsPaid,C_ADS],['Offsite Ads fees',S.offsite,C_OFF],['Etsy Plus & other marketing',S.plusOther,'var(--cat-6)'],['Shipping labels',S.labels,C_SHIP]];
+  const rank=[...done].sort((a,b)=>b.revenue-a.revenue),mx=rank[0].revenue||1;
+  const side=multi?(()=>{const rows=D.compare(state,y+'-01-01',S.to).filter(x=>x.revenue>0);return rows.length>1?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('globe')}</span>${L.income} by shop</h2><p>${y} · ${fmt(S.revenue)} across ${rows.length} shops</p></div><button class="link" data-go="shops">Compare shops</button></div>${pie(rows.map(x=>[x.name,x.revenue,shopColor(x.id)]),{label:L.income,center:compact(S.revenue),sub:'ALL SHOPS'})}</section>`:'';})():'';
+  const ranks=`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('calendar')}</span>Months ranked</h2><p>${y} · by sales, best first</p></div><button class="link" data-go="seasonality">Seasonality</button></div><ol class="kit-rankbars">${rank.map((x,i)=>`<li><span>${shortMonth(x.om.month)}</span><div><i style="width:${Math.max(2,x.revenue/mx*100)}%;background:${i===0?C_IN:i===rank.length-1&&rank.length>2?C_FEE:'color-mix(in srgb,var(--ok) 45%,var(--card))'}"></i></div><b class="number">${fmt(x.revenue)}</b><small>${pc(x.revenue>0?x.takeHome/x.revenue:null,0)} kept</small></li>`).join('')}</ol></section>`;
+  const where=`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('coins')}</span>Where the year’s sales went</h2><p>${y} · share of ${fmt(S.revenue)}</p></div><button class="link" data-go="fees">Fees &amp; ads</button></div>${pie(split,{label:L.income,center:pc(kept,0),sub:'KEPT'})}</section>`;
+  const tot={orders,rev:S.revenue,fees:S.fees,mkt:S.marketing,th:S.takeHome,profit:S.profit,paid:PO.total};
+  const table=`<section class="card table-card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('table')}</span>Every month</h2><p>${y} · shaded by sales · estimated months are built from sold orders at your fee rates</p></div></div><div class="table-wrap"><table class="kit-yr-table"><thead><tr><th>Month</th><th class="num">Orders</th><th class="num">${L.income}</th><th class="num">${etsyOnly()?'Etsy fees':'Fees'}</th><th class="num">Ads &amp; marketing</th><th class="num">Take-home</th><th class="num">Kept</th><th class="num">Net profit</th><th class="num">Paid out</th><th>From</th></tr></thead><tbody>`+
+   months.map((mo,i)=>{const x=M[i];if(!x)return `<tr class="dim"><td>${shortMonth(mo)}</td><td class="num" colspan="8">${mo>cutoff?'Still to come':'Nothing imported'}</td><td></td></tr>`;
+    return `<tr><td><b>${shortMonth(mo)}</b></td><td class="num">${num(x.orders||x.om.orders)}</td><td class="num kit-heat" style="--h:${Math.round(x.revenue/mx*60)}%">${fmt(x.revenue)}</td><td class="num neg">${x.fees?'−'+fmt(x.fees):'—'}</td><td class="num neg">${x.marketing?'−'+fmt(x.marketing):'—'}</td><td class="num"><b>${Biz.acct(x.takeHome)}</b></td><td class="num">${pc(x.revenue>0?x.takeHome/x.revenue:null,0)}</td><td class="num">${Biz.acct(x.profit)}</td><td class="num">${x.paid?fmt(x.paid):'—'}</td><td>${x.om.statement?'<span class="pill kit-pill-ok">Statement</span>':'<span class="pill">Estimated</span>'}</td></tr>`;}).join('')+
+   `<tr class="group-total"><td><b>${upto<12?'To date':'Year'}</b></td><td class="num"><b>${num(tot.orders)}</b></td><td class="num"><b>${fmt(tot.rev)}</b></td><td class="num neg"><b>−${fmt(tot.fees)}</b></td><td class="num neg"><b>−${fmt(tot.mkt)}</b></td><td class="num"><b>${Biz.acct(tot.th)}</b></td><td class="num"><b>${pc(kept,0)}</b></td><td class="num"><b>${Biz.acct(tot.profit)}</b></td><td class="num"><b>${tot.paid?fmt(tot.paid):'—'}</b></td><td></td></tr></tbody></table></div></section>`;
+  return head+(est.length?`<div class="notice"><span><b>${est.length} month${est.length===1?' is':'s are'} estimated</b> from sold orders (${est.map(shortMonth).join(', ')}): revenue is exact, fees are at your standard rates, and ads are missing until you import that month’s payment account statement.</span>${button('Import statements','go-etsy-import','small')}</div>`:'')+
+   hero+kpis+monthCard+`<div class="grid2 equal">${where}${side||ranks}</div>`+(side?ranks:'')+table;
+ }
  // ---------- insights: what to do next ----------
- // The last 90 days of data against the 90 before, turned into a health score, a short to-do list,
+ // The month (or the year to date) against the one before it, turned into a health score, a short to-do list,
  // the products to push and the ones to fix. Plain rules on the seller's own numbers, nothing guessed.
  const addDays=(d,n)=>{const x=new Date(d+'T12:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10);};
  const signed=(v,d=0)=>(v>0?'+':v<0?'−':'')+pc(Math.abs(v),d);
+ let insSpan='month';
+ const ord=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
  function shopHealth(){
-  const os=D.scoped(state,state.etsy.orders),last=[...os.map(o=>o.date),...state.transactions.filter(t=>t.ref&&!t.est).map(t=>t.date)].sort().at(-1);if(!last)return null;
-  const end=last>Budget.today()?Budget.today():last,cur={from:addDays(end,-89),to:end},prev={from:addDays(end,-179),to:addDays(end,-90)};
+  const os=D.scoped(state,state.etsy.orders),m=selected,y=m.slice(0,4),py=String(+y-1),mm=m.slice(5,7),ytd=insSpan==='ytd';
+  let end=Budget.endOf(m);if(end>Budget.today())end=Budget.today();
+  const cur=ytd?{from:y+'-01-01',to:end}:{from:m+'-01',to:end},pm=Budget.shift(m,-1),prev=ytd?{from:py+'-01-01',to:(x=>x<Budget.endOf(py+'-'+mm)?x:Budget.endOf(py+'-'+mm))(py+end.slice(4))}:{from:pm+'-01',to:(x=>x<Budget.endOf(pm)?x:Budget.endOf(pm))(pm+end.slice(7))};
+  // a month still under way is compared with the same days of the month (or year) before
+  const part=end<Budget.endOf(m),curL=ytd?`${y} to date`:monthName(m)+(part?` to the ${ord(+end.slice(8))}`:''),prevL=ytd?`the same days of ${py}`:monthName(pm)+(part?` to the same day`:''),span=ytd?'this year':'this month';
+  if(![...os.map(o=>o.date),...state.transactions.filter(t=>t.ref&&!t.est).map(t=>t.date)].some(d=>d>=cur.from&&d<=cur.to))return {empty:true,curL};
   const S=D.summary(state,cur.from,cur.to),S0=D.summary(state,prev.from,prev.to),PP=D.productProfit(state,cur.from,cur.to),P0=D.products(state,prev.from,prev.to),C=D.customers(state,cur.from,cur.to);
   const RY=D.reviewStats(state,addDays(end,-364),end),RQ=D.reviewStats(state,cur.from,cur.to);
   const rev=S.revenue||PP.total,rev0=S0.revenue||P0.total,growth=rev0>0?rev/rev0-1:null,kept=S.revenue>0?S.takeHome/S.revenue:null;
@@ -998,54 +1049,57 @@ const Etsy=(()=>{
   const clamp=v=>Math.max(0,Math.min(100,Math.round(v)));
   const parts=[
    kept!==null&&{icon:'wallet',name:'Take-home kept',value:pc(kept,0),score:clamp((kept-0.4)/0.35*100),note:'of revenue after Etsy fees and ads'},
-   growth!==null&&{icon:'insights',name:'Sales trend',value:signed(growth),score:clamp(50+growth*150),note:'last 90 days vs the 90 before'},
+   growth!==null&&{icon:'insights',name:'Sales trend',value:signed(growth),score:clamp(50+growth*150),note:`${curL} vs ${prevL}`},
    RY.avg!==null&&{icon:'review',name:'Buyer happiness',value:RY.avg.toFixed(2)+' ★',score:clamp((RY.avg-4)/0.9*100),note:`${num(RY.count)} reviews in 12 months`},
-   selling!==null&&{icon:'tags',name:'Listings selling',value:pc(selling,0),score:clamp(selling/0.6*100),note:`${num(ls.length-PP.unsold.length)} of ${num(ls.length)} sold in 90 days`},
+   selling!==null&&{icon:'tags',name:'Listings selling',value:pc(selling,0),score:clamp(selling/0.6*100),note:`${num(ls.length-PP.unsold.length)} of ${num(ls.length)} sold ${span}`},
    ls.length&&{icon:'check',name:'Listings in shape',value:pc(PP.health.ok/ls.length,0),score:clamp(PP.health.ok/ls.length*100),note:'10 photos, 13 tags and a full title'},
    C.buyers>=10&&{icon:'history',name:'Buyers coming back',value:pc(C.repeat/C.buyers,0),score:clamp(C.repeat/C.buyers/0.15*100),note:`${num(C.repeat)} of ${num(C.buyers)} buyers`}].filter(Boolean);
   const score=parts.length?Math.round(parts.reduce((n,p)=>n+p.score,0)/parts.length):null;
   // to-do list: bad first, then worth a look, then what is working
-  const acts=[],act=(tone,icon,title,why,go,label)=>acts.push({tone,icon,title,why,go,label});
-  if(growth!==null&&growth<=-0.15)act('bad','insights',`Sales are down ${pc(-growth,0)}`,`${fmt(rev)} in the last 90 days against ${fmt(rev0)} before. Check the products that slipped below and refresh them first.`,'go-products','See products');
-  if(growth!==null&&growth>=0.15)act('good','insights',`Sales are up ${pc(growth,0)}`,`${fmt(rev)} in the last 90 days against ${fmt(rev0)} before. Keep your best sellers stocked and visible.`,'go-products','See products');
-  if(S.costShare!==null&&S.costShare>0.3)act('bad','coins',`Etsy keeps ${pc(S.costShare,0)} of every sale`,'Fees and ads above 30% of revenue leave little to keep. See which cost grew on Fees & ads.','go-fees','Fees & ads');
-  if(S.ownAds>0&&S.ownAdsShare>0.1)act('warn','spark',`Etsy Ads cost ${pc(S.ownAdsShare,0)} of revenue`,`${fmt(S.ownAds)} billed in 90 days. Lower the daily budget, or switch ads off for listings that get clicks but no sales.`,'go-fees','Fees & ads');
-  if(PP.unsold.length)act('warn','tags',`${num(PP.unsold.length)} listing${PP.unsold.length>1?'s':''} had no sales in 90 days`,'Renewing each costs a listing fee. Give them new photos and titles, or let them expire.','go-products','Review listings');
-  if(PP.health.photos)act('warn','edit',`${num(PP.health.photos)} listing${PP.health.photos>1?'s use':' uses'} fewer than 10 photos`,'More photos, especially in use and to scale, is one of the easiest wins on Etsy.','go-products','Review listings');
-  if(PP.health.tags)act('warn','tags',`${num(PP.health.tags)} listing${PP.health.tags>1?'s use':' uses'} fewer than 13 tags`,'Every empty tag is a search you can’t show up in. Use all 13, with phrases buyers type.','go-products','Review listings');
-  if(PP.list.length>=5&&PP.top(3)>0.6)act('warn','compass',`Your top 3 products bring ${pc(PP.top(3),0)} of sales`,'Add variations of them (colours, sizes, bundles) so one slow listing can’t sink the month.','go-products','See products');
-  const thin=PP.list.filter(p=>p.unit!==null&&p.margin<0.15);if(thin.length)act('bad','coins',`${num(thin.length)} product${thin.length>1?'s make':' makes'} under 15% after costs`,'Raise the price or cut the cost. The pricing calculator shows the price for the margin you want.','go-pricing','Pricing calculator');
-  if(RQ.low.length)act('bad','review',`${num(RQ.low.length)} review${RQ.low.length>1?'s':''} of 3 stars or less lately`,'Reply to each one and look for a pattern in item, shipping or photos.','go-reviews','Read reviews');
-  else if(RY.avg>=4.8&&RY.count>=10)act('good','review',`Buyers love your shop: ${RY.avg.toFixed(2)} stars`,'Quote your best reviews in listing descriptions and photos.','go-reviews','Read reviews');
-  if(C.buyers>=20){const rr=C.repeat/C.buyers;if(rr<0.05)act('warn','history',`Only ${pc(rr,0)} of buyers come back`,'Send a thank-you coupon to past buyers from Etsy’s Marketing → Sales and discounts.','go-coupons','Coupons');else if(rr>=0.15)act('good','history',`${pc(rr,0)} of buyers come back`,'Loyal buyers: a new collection or a bundle for them is worth it.','go-customers','Customers');}
+  const acts=[],pk=(ytd?'ytd:':'m:')+m,act=(id,tone,icon,title,why,go,label)=>acts.push({key:id+'|'+pk,tone,icon,title,why,go,label});
+  if(growth!==null&&growth<=-0.15)act('down','bad','insights',`Sales are down ${pc(-growth,0)}`,`${fmt(rev)} in ${curL} against ${fmt(rev0)} in ${prevL}. Check the products that slipped below and refresh them first.`,'go-products','See products');
+  if(growth!==null&&growth>=0.15)act('up','good','insights',`Sales are up ${pc(growth,0)}`,`${fmt(rev)} in ${curL} against ${fmt(rev0)} in ${prevL}. Keep your best sellers stocked and visible.`,'go-products','See products');
+  if(S.costShare!==null&&S.costShare>0.3)act('costs','bad','coins',`Etsy keeps ${pc(S.costShare,0)} of every sale`,'Fees and ads above 30% of revenue leave little to keep. See which cost grew on Fees & ads.','go-fees','Fees & ads');
+  if(S.ownAds>0&&S.ownAdsShare>0.1)act('ads','warn','spark',`Etsy Ads cost ${pc(S.ownAdsShare,0)} of revenue`,`${fmt(S.ownAds)} billed ${span}. Lower the daily budget, or switch ads off for listings that get clicks but no sales.`,'go-fees','Fees & ads');
+  if(PP.unsold.length)act('unsold','warn','tags',`${num(PP.unsold.length)} listing${PP.unsold.length>1?'s':''} had no sales ${span}`,'Renewing each costs a listing fee. Give them new photos and titles, or let them expire.','go-products','Review listings');
+  if(PP.health.photos)act('photos','warn','edit',`${num(PP.health.photos)} listing${PP.health.photos>1?'s use':' uses'} fewer than 10 photos`,'More photos, especially in use and to scale, is one of the easiest wins on Etsy.','go-products','Review listings');
+  if(PP.health.tags)act('tags','warn','tags',`${num(PP.health.tags)} listing${PP.health.tags>1?'s use':' uses'} fewer than 13 tags`,'Every empty tag is a search you can’t show up in. Use all 13, with phrases buyers type.','go-products','Review listings');
+  if(PP.list.length>=5&&PP.top(3)>0.6)act('top3','warn','compass',`Your top 3 products bring ${pc(PP.top(3),0)} of sales`,'Add variations of them (colours, sizes, bundles) so one slow listing can’t sink the month.','go-products','See products');
+  const thin=PP.list.filter(p=>p.unit!==null&&p.margin<0.15);if(thin.length)act('thin','bad','coins',`${num(thin.length)} product${thin.length>1?'s make':' makes'} under 15% after costs`,'Raise the price or cut the cost. The pricing calculator shows the price for the margin you want.','go-pricing','Pricing calculator');
+  if(RQ.low.length)act('lowrev','bad','review',`${num(RQ.low.length)} review${RQ.low.length>1?'s':''} of 3 stars or less ${span}`,'Reply to each one and look for a pattern in item, shipping or photos.','go-reviews','Read reviews');
+  else if(RY.avg>=4.8&&RY.count>=10)act('love','good','review',`Buyers love your shop: ${RY.avg.toFixed(2)} stars`,'Quote your best reviews in listing descriptions and photos.','go-reviews','Read reviews');
+  if(C.buyers>=20){const rr=C.repeat/C.buyers;if(rr<0.05)act('repeat','warn','history',`Only ${pc(rr,0)} of buyers come back`,'Send a thank-you coupon to past buyers from Etsy’s Marketing → Sales and discounts.','go-coupons','Coupons');else if(rr>=0.15)act('loyal','good','history',`${pc(rr,0)} of buyers come back`,'Loyal buyers: a new collection or a bundle for them is worth it.','go-customers','Customers');}
   const Z=D.seasonality(state),nx=+addDays(end,20).slice(5,7)-1,past=Z.years.filter(y=>y.orders);
   if(past.length){const avg=past.reduce((n,y)=>n+y.months[nx].paid,0)/past.length,base=past.reduce((n,y)=>n+y.paid/12,0)/past.length;
-   if(base>0&&avg/base-1>=0.2)act('good','calendar',`${monthName(addDays(end,20).slice(0,7)).split(' ')[0]} is usually ${pc(avg/base-1,0)} busier`,'Stock up, and renew and promote your best listings a few weeks ahead.','go-seasonality','Seasonality');}
+   if(base>0&&avg/base-1>=0.2)act('season','good','calendar',`${monthName(addDays(end,20).slice(0,7)).split(' ')[0]} is usually ${pc(avg/base-1,0)} busier`,'Stock up, and renew and promote your best listings a few weeks ahead.','go-seasonality','Seasonality');}
   const rank={bad:0,warn:1,good:2};acts.sort((a,b)=>rank[a.tone]-rank[b.tone]);
   // products to push and products to fix
   const trend=p=>{const b=before.get(p.key);return b&&b.net>0?p.net/b.net-1:null;};
-  const push=[...PP.list].sort((a,b)=>(b.profit-a.profit)||(b.net-a.net)).slice(0,5).map(p=>{const t=trend(p),why=[];if(p===PP.list[0])why.push('Top seller');if(t!==null&&t>=0.2)why.push('Growing '+signed(t));if(!before.get(p.key))why.push('New this quarter');if(p.unit!==null&&p.margin>=0.5)why.push(pc(p.margin,0)+' margin');if(!why.length)why.push(pc(PP.total?p.list/PP.total:0,0)+' of sales');return {...p,t,why};});
+  const push=[...PP.list].sort((a,b)=>(b.profit-a.profit)||(b.net-a.net)).slice(0,5).map(p=>{const t=trend(p),why=[];if(p===PP.list[0])why.push('Top seller');if(t!==null&&t>=0.2)why.push('Growing '+signed(t));if(!before.get(p.key))why.push(ytd?'New this year':'New this month');if(p.unit!==null&&p.margin>=0.5)why.push(pc(p.margin,0)+' margin');if(!why.length)why.push(pc(PP.total?p.list/PP.total:0,0)+' of sales');return {...p,t,why};});
   const fix=[];const seen=new Set(push.map(p=>p.key)),add=(k,name,v,why,x)=>{if(seen.has(k)||fix.length>=6)return;seen.add(k);fix.push({name,v,why,x});};
   PP.list.filter(p=>p.unit!==null&&p.margin<0.15).forEach(p=>add(p.key,p.name,fmt(p.net),['Only '+pc(p.margin,0)+' margin'],'Raise the price'));
   PP.list.map(p=>({p,t:trend(p)})).filter(x=>x.t!==null&&x.t<=-0.3).sort((a,b)=>a.t-b.t).forEach(({p,t})=>add(p.key,p.name,fmt(p.net),['Sales '+signed(t)],'Refresh photos and title'));
-  P0.list.filter(p=>p.net>0&&!PP.list.some(q=>q.key===p.key)).sort((a,b)=>b.net-a.net).forEach(p=>add(p.key,p.name,'No sales',[`Sold ${fmt(p.net)} the 90 days before`],'Check it is still active'));
+  P0.list.filter(p=>p.net>0&&!PP.list.some(q=>q.key===p.key)).sort((a,b)=>b.net-a.net).forEach(p=>add(p.key,p.name,'No sales',[`Sold ${fmt(p.net)} in ${prevL}`],'Check it is still active'));
   PP.unsold.filter(l=>l.flags.length).forEach(l=>add('l:'+l.title,l.title,'No sales',l.flags,'Fix the listing'));
-  return {cur,end,rev,rev0,growth,S,parts,score,acts,push,fix,listings:ls.length,orders:os.length};
+  return {cur,end,curL,prevL,span,rev,rev0,growth,S,parts,score,acts,push,fix,listings:ls.length,orders:os.length};
  }
  function scoreRing(v){const tone=v>=75?'good':v>=55?'warn':'bad';
   return `<div class="kit-ring kit-t-${tone}"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" class="kit-ring-track" pathLength="100"/><circle cx="60" cy="60" r="50" class="kit-ring-val" pathLength="100" style="stroke-dasharray:${v} 100"/></svg><b class="number">${v}</b><small>of 100</small></div>`;}
  function insightsView(){
-  const I=hasData()&&shopHealth();
-  if(!I)return pagehead('Your shops','Insights','What to do next, from your own numbers.',scopeNote())+`<section class="card">${noData('sold order items or a payment account statement')}</section>`;
+  const I=hasData()&&shopHealth(),seg=`<div class="pl-controls no-print"><div class="segment" aria-label="Period">${[['month','Month'],['ytd','Year to date']].map(([k,l])=>`<button data-action="etsy-ins-span" data-k="${k}" aria-pressed="${insSpan===k}">${l}</button>`).join('')}</div><span class="small muted">Follows the month picker</span></div>`;
+  const head=pagehead('Your shops','Insights',`What to do next, from your own numbers: ${insSpan==='ytd'?'the year so far against the same months last year':'this month against the month before'}.`,scopeNote())+seg;
+  if(!I)return head+`<section class="card">${noData('sold order items or a payment account statement')}</section>`;
+  if(I.empty)return head+`<section class="card">${empty(`Nothing imported for ${I.curL}`,'Pick another month at the top, or import this month’s files.','go-etsy-import','Import files')}</section>`;
+  const doneMap=state.settings.insightsDone||{},isDone=a=>!!doneMap[a.key],open=I.acts.filter(a=>!isDone(a)),fin=I.acts.filter(isDone),todo=I.acts.filter(a=>a.tone!=='good');
   const tone=I.score===null?'warn':I.score>=75?'good':I.score>=55?'warn':'bad',word={good:'Thriving',warn:'Steady, with room to grow',bad:'Needs attention'}[tone];
-  const period=`${dateName(I.cur.from)} – ${dateName(I.end)}`;
-  const hero=`<section class="card kit-ins-hero kit-t-${tone}">${I.score!==null?scoreRing(I.score):''}<div class="kit-ins-lead"><small class="kit-eyebrow">Shop health · last 90 days</small><h2>${word}</h2><p>${period} · ${fmt(I.rev)} in sales${I.growth!==null?`, <span class="kit-delta ${I.growth>=0?'up':'down'}">${signed(I.growth)}</span> on the 90 days before`:''}. ${num(I.acts.filter(a=>a.tone!=='good').length)} thing${I.acts.filter(a=>a.tone!=='good').length===1?'':'s'} to look at below.</p></div>`+
+  const hero=`<section class="card kit-ins-hero kit-t-${tone}">${I.score!==null?scoreRing(I.score):''}<div class="kit-ins-lead"><small class="kit-eyebrow">Shop health · ${esc(I.curL)}</small><h2>${word}</h2><p>${fmt(I.rev)} in sales${I.growth!==null?`, <span class="kit-delta ${I.growth>=0?'up':'down'}">${signed(I.growth)}</span> on ${esc(I.prevL)}`:''}. ${todo.length?`${num(todo.filter(a=>!isDone(a)).length)} of ${num(todo.length)} thing${todo.length===1?'':'s'} still to look at below.`:'Nothing urgent below.'}</p></div>`+
    `<div class="kit-ins-parts">${I.parts.map(p=>{const t=p.score>=70?'good':p.score>=45?'warn':'bad';return `<div class="kit-ins-part kit-t-${t}"><span class="kit-ins-ico">${ico(p.icon)}</span><div><div class="kit-ins-row"><b>${p.name}</b><b class="number">${p.value}</b></div><div class="kit-ins-bar"><i style="width:${Math.max(4,p.score)}%"></i></div><small>${p.note}</small></div></div>`;}).join('')}</div></section>`;
-  const acts=I.acts.length?`<section class="card"><div class="cardhead"><div><h2>Do this next</h2><p>Most urgent first · red needs fixing, amber is worth a look, green is working</p></div></div><div class="kit-acts">${I.acts.map(a=>`<article class="kit-act kit-t-${a.tone}"><span class="kit-act-ico">${ico(a.icon)}</span><div><h3>${esc(a.title)}</h3><p>${esc(a.why)}</p>${button(a.label+' →',a.go,'small quiet')}</div></article>`).join('')}</div></section>`:'';
+  const actCard=a=>`<article class="kit-act kit-t-${a.tone}${isDone(a)?' kit-done':''}"><label class="kit-check no-print" title="${isDone(a)?'Mark as not done':'Mark as done'}"><input type="checkbox" data-ins-done="${esc(a.key)}" ${isDone(a)?'checked':''} aria-label="Done: ${esc(a.title)}"><span>${ico('check')}</span></label><span class="kit-act-ico">${ico(a.icon)}</span><div><h3>${esc(a.title)}</h3>${isDone(a)?`<p>Done ${dateName(doneMap[a.key])}</p>`:`<p>${esc(a.why)}</p>${button(a.label+' →',a.go,'small quiet')}`}</div></article>`;
+  const acts=I.acts.length?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('check')}</span>Do this next</h2><p>Most urgent first · tick a card when it’s done · red needs fixing, amber is worth a look, green is working</p></div><div class="kit-prog"><b class="number">${num(fin.length)} / ${num(I.acts.length)}</b><small>done</small><div class="kit-ins-bar"><i style="width:${Math.round((fin.length/I.acts.length)*100)}%;background:var(--ok)"></i></div></div></div><div class="kit-acts">${open.map(actCard).join('')}</div>${fin.length?`<h3 class="kit-calc-sub" style="margin-top:18px">Done</h3><div class="kit-acts">${fin.map(actCard).join('')}</div>`:''}${!open.length?`<p class="kit-allgood">${ico('check')} All done for ${esc(I.curL)}.</p>`:''}</section>`:'';
   const card=(p,i)=>`<li><span class="kit-rank">${i+1}</span><div><b title="${esc(p.name)}">${esc(p.name)}</b><div class="kit-chips">${p.why.map(w=>`<span>${esc(w)}</span>`).join('')}</div></div><div class="num"><b class="number">${fmt(p.net)}</b><small>${num(p.units)} sold${p.unit!==null?` · ${pc(p.margin,0)} margin`:''}</small></div></li>`;
-  const lists=`<div class="grid2 equal"><section class="card kit-ins-list kit-t-good"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('up')}</span>Double down on</h2><p>Your most profitable products in the last 90 days: keep them stocked, renewed and in your ads</p></div></div>${I.push.length?`<ol>${I.push.map(card).join('')}</ol>`:'<p class="small muted">No sales in the last 90 days.</p>'}</section>`+
+  const lists=`<div class="grid2 equal"><section class="card kit-ins-list kit-t-good"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('up')}</span>Double down on</h2><p>Your most profitable products, ${esc(I.curL)}: keep them stocked, renewed and in your ads</p></div></div>${I.push.length?`<ol>${I.push.map(card).join('')}</ol>`:'<p class="small muted">No sales in the last 90 days.</p>'}</section>`+
    `<section class="card kit-ins-list kit-t-warn"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('edit')}</span>Revisit</h2><p>Products that slipped, stopped selling or make too little</p></div></div>${I.fix.length?`<ol>${I.fix.map((f,i)=>`<li><span class="kit-rank">${i+1}</span><div><b title="${esc(f.name)}">${esc(f.name)}</b><div class="kit-chips">${f.why.map(w=>`<span>${esc(w)}</span>`).join('')}</div></div><div class="num"><b class="number">${esc(f.v)}</b><small>${esc(f.x)}</small></div></li>`).join('')}</ol>`:`<p class="kit-allgood">${ico('check')} Nothing slipping. Every product that sold before is still selling.</p>`}</section></div>`;
-  return pagehead('Your shops','Insights','What to do next, from your own numbers: the last 90 days against the 90 before.',scopeNote())+hero+acts+lists+
+  return head+hero+acts+lists+
    `<p class="small muted">${ico('help')} Rules of thumb, not guarantees: each tip comes from your imported files${I.listings?'':'. Import your listings file to get listing tips'}.</p>`;
  }
  // ---------- reviews ----------
@@ -1090,15 +1144,19 @@ const Etsy=(()=>{
  const layoutToggle=()=>`<div class="segment no-print" aria-label="Layout">${[['table','Table'],['grid','Grid']].map(([k,l])=>`<button data-action="etsy-shops-layout" data-k="${k}" aria-pressed="${shopsLayout===k}">${l}</button>`).join('')}</div>`;
  function shopsGrid(rows,T,r){
   return `<section class="card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${esc(r.label)} · all shops together: ${fmt(T.revenue)} revenue, ${Biz.acct(T.takeHome)} take-home</p></div>${layoutToggle()}</div><div class="kit-shop-grid">${rows.map(x=>{const sh=state.shops.find(v=>v.id===x.id)||{};
-   return `<article class="kit-shop-card"><div class="kit-shop-img" style="--c:${shopColor(x.id)}">${sh.image?`<img src="${sh.image}" alt="">`:`<span>${esc((x.name||'?').trim().charAt(0).toUpperCase())}</span>`}<label class="kit-shop-upload no-print" title="${sh.image?'Change picture':'Add a picture'}">${sh.image?'Change picture':'＋ Add picture'}<input type="file" accept="image/*" data-shop-img="${x.id}" class="sr-only"></label>${sh.image?`<button class="kit-shop-rm no-print" data-action="etsy-shop-img-rm" data-id="${x.id}" aria-label="Remove picture">×</button>`:''}</div>`+
-    `<div class="kit-shop-body"><div class="kit-shop-top"><i class="dot" style="background:${shopColor(x.id)}"></i><button class="link" data-action="etsy-scope" data-shop="${x.id}"><b>${esc(x.name)}</b></button></div>`+
+   const ini=esc((x.name||'?').trim().charAt(0).toUpperCase()),up=(kind,l)=>`<label class="kit-shop-upload no-print">${l}<input type="file" accept="image/*" data-shop-img="${x.id}" data-kind="${kind}" class="sr-only"></label>`;
+   return `<article class="kit-shop-card"><div class="kit-shop-img" style="--c:${shopColor(x.id)}">${sh.image?`<img src="${sh.image}" alt="">`:''}<div class="kit-shop-ups">${up('image',sh.image?'Change cover':'＋ Cover photo')}${up('logo',sh.logo?'Change logo':'＋ Logo')}</div>${sh.image?`<button class="kit-shop-rm no-print" data-action="etsy-shop-img-rm" data-id="${x.id}" data-kind="image" aria-label="Remove cover photo" title="Remove cover photo">×</button>`:''}</div>`+
+    `<div class="kit-shop-logo" style="--c:${shopColor(x.id)}">${sh.logo?`<img src="${sh.logo}" alt="${esc(x.name)} logo"><button class="kit-shop-rm no-print" data-action="etsy-shop-img-rm" data-id="${x.id}" data-kind="logo" aria-label="Remove logo" title="Remove logo">×</button>`:`<span>${ini}</span>`}</div>`+
+    `<div class="kit-shop-body"><div class="kit-shop-top"><button class="link" data-action="etsy-scope" data-shop="${x.id}"><b>${esc(x.name)}</b></button></div>`+
     `<div class="kit-shop-big"><b class="number">${Biz.acct(x.takeHome)}</b><small>take-home · ${pc(x.kept,0)} kept</small></div>`+
     `<div class="kit-shop-rows">${[['Revenue',fmt(x.revenue),'up'],['Etsy costs',fmt(x.etsyCosts),'coins'],['Orders',num(x.orders||x.soldOrders),'log'],['Average order',x.aov?fmt(x.aov):'—','wallet'],['Listings',num(x.listings),'tags'],['Rating',x.rating?x.rating.toFixed(2)+' ★':'—','review']].map(([l,v,i])=>`<div><span>${ico(i)}${l}</span><b class="number">${v}</b></div>`).join('')}</div>`+
     `<div class="kit-shop-meter"><i style="width:${Math.max(0,Math.min(100,(x.kept||0)*100))}%"></i></div></div></article>`;}).join('')}</div></section>`;}
  // pictures are shrunk to a small JPEG before they are saved, so the file stays light
- function shopPicture(file,id){if(!file||!/^image\//.test(file.type))return toast('Choose an image file.');const img=new Image(),url=URL.createObjectURL(file);
-  img.onload=()=>{const W=640,H=360,c=document.createElement('canvas');c.width=W;c.height=H;const k=Math.max(W/img.width,H/img.height),w=img.width*k,h=img.height*k;c.getContext('2d').drawImage(img,(W-w)/2,(H-h)/2,w,h);URL.revokeObjectURL(url);
-   const data=c.toDataURL('image/jpeg',0.8);if(data.length>200000)return toast('That picture is too large.');commit(()=>{const sh=state.shops.find(v=>v.id===id);if(sh)sh.image=data;},'Picture added');};
+ // a cover photo fills a 16:9 banner; a logo is kept whole (transparent PNG) in a square
+ function shopPicture(file,id,logo=false){if(!file||!/^image\//.test(file.type))return toast('Choose an image file.');const img=new Image(),url=URL.createObjectURL(file);
+  img.onload=()=>{const W=logo?256:640,H=logo?256:360,c=document.createElement('canvas');c.width=W;c.height=H;const k=(logo?Math.min:Math.max)(W/img.width,H/img.height),w=img.width*k,h=img.height*k;c.getContext('2d').drawImage(img,(W-w)/2,(H-h)/2,w,h);URL.revokeObjectURL(url);
+   let data=c.toDataURL(logo?'image/png':'image/jpeg',0.8);if(logo&&data.length>200000)data=c.toDataURL('image/webp',0.85);if(data.length>200000)return toast('That picture is too large.');
+   commit(()=>{const sh=state.shops.find(v=>v.id===id);if(sh)sh[logo?'logo':'image']=data;},logo?'Logo added':'Cover photo added');};
   img.onerror=()=>{URL.revokeObjectURL(url);toast('Could not read that image.');};img.src=url;}
  // What each shop or channel keeps of every dollar it sells, after its platform's fees and ads
  function keptCard(rows,r){const list=rows.filter(x=>x.revenue>0).sort((a,b)=>(b.kept??-9)-(a.kept??-9));if(list.length<2)return '';
@@ -1237,9 +1295,13 @@ const Etsy=(()=>{
  const POS=/revenue|sales|income|received|paid out|take-home|kept|orders|average order|payout|buyers|gross profit|collected|listings|rating|products sold/i,
   NEG=/expense|fee|cost|ads|marketing|refund|behind|discount|tax paid|spent|owed|never sold|should have/i,NET=/profit|cash flow|net|set aside|left/i;
  const C_IN='var(--ok)',C_FEE='var(--over)',C_ADS='color-mix(in srgb,var(--over) 62%,var(--card))',C_OFF='color-mix(in srgb,var(--over) 38%,var(--card))',C_SHIP='var(--ch-out)',C_SALES='var(--ch-in)';
+ // icons on the KPI cards of the main screens, picked from the card's label
+ const KPI_ICONS=[[/paid out|payout/i,'wallet'],[/ads/i,'spark'],[/fees|cost|expense/i,'coins'],[/take-home|net profit|profit|kept/i,'insights'],[/cash flow/i,'history'],[/average order/i,'tags'],[/orders/i,'log'],[/revenue|sales|income/i,'up'],[/repeat|return/i,'history'],[/buyers/i,'review'],[/countr/i,'globe'],[/best month|slowest month/i,'calendar'],[/rating|review/i,'review'],[/listing|product/i,'tags'],[/tax/i,'shield']];
+ const KPI_ICON_SCREENS=['dashboard','annual','pl','fees','customers','products'];
  function tintKpis(){
   document.querySelectorAll('#content .kpi').forEach(k=>{const l=(k.querySelector('.label')?.textContent||'').trim();if(!l||k.dataset.tone)return;
    const tone=NET.test(l)&&!/fees|cost/i.test(l)?'net':NEG.test(l)?'neg':POS.test(l)?'pos':'neutral';k.dataset.tone=tone;k.classList.add('kit-tone-'+tone);
+   if(KPI_ICON_SCREENS.includes(screen)){const hit=KPI_ICONS.find(([re])=>re.test(l));const lb=k.querySelector('.label');if(hit&&lb&&!lb.querySelector('.kit-kpi-ico')){lb.insertAdjacentHTML('afterbegin',`<span class="kit-kpi-ico" aria-hidden="true">${ico(hit[1])}</span>`);k.classList.add('kit-has-ico');}}
    // good or bad direction: for costs, going up is bad
    const good=d=>tone==='neg'?d<0:d>0;
    const pl=k.querySelector('.kit-spark polyline');if(pl){const pts=pl.getAttribute('points').trim().split(/\s+/).map(p=>+p.split(',')[1]);if(pts.length>1){const d=pts.at(-2)-pts.at(-1);if(d)k.querySelector('.kit-spark').style.setProperty('--spark',good(d)?'var(--ok)':'var(--over)');}}
@@ -1269,8 +1331,9 @@ const Etsy=(()=>{
  document.addEventListener('click',e=>{const b=e.target.closest('button[data-action^="etsy-"],button[data-action="go-etsy-import"]');if(!b)return;const a=b.dataset.action,id=b.dataset.id;try{switch(a){
   case 'go-etsy-import':if($('#welcome-tour')?.open)closeWelcome();break;
   case 'etsy-pulse':showPulse(+b.dataset.i);break;
+  case 'etsy-ins-span':insSpan=b.dataset.k==='ytd'?'ytd':'month';render();break;
   case 'etsy-shops-layout':shopsLayout=b.dataset.k==='grid'?'grid':'table';render();break;
-  case 'etsy-shop-img-rm':commit(()=>{const sh=state.shops.find(v=>v.id===b.dataset.id);if(sh)delete sh.image;},'Picture removed');break;
+  case 'etsy-shop-img-rm':{const k=b.dataset.kind==='logo'?'logo':'image';commit(()=>{const sh=state.shops.find(v=>v.id===b.dataset.id);if(sh)delete sh[k];},k==='logo'?'Logo removed':'Cover photo removed');break;}
   case 'etsy-pulse-step':{const box=document.getElementById('etsy-pulse');showPulse((+box?.dataset.at||0)+(+b.dataset.d||1));break;}
   case 'etsy-goal':goalForm();break;
   case 'etsy-psort':pSort=['sales','profit','margin','units'].includes(b.dataset.sort)?b.dataset.sort:'sales';render();break;
@@ -1325,7 +1388,8 @@ const Etsy=(()=>{
    const v=raw?Math.round(Number(raw)*100):null,k=t.dataset.cost;setTimeout(()=>commit(()=>{state.etsy.costs??={};if(v===null)delete state.etsy.costs[k];else state.etsy.costs[k]=v;},v===null?'Cost cleared':`Cost saved · ${fmt(v)} an item`),0);return;}
   if(t.closest?.('#etsy-fees-form')&&t.name==='preset'){const p=X.presets.find(x=>x[0]===t.value);if(!p)return;const [, ,tx,pr,fx,li,of]=p,el=t.form.elements;el.transaction.value=tx/100;el.processing.value=pr/100;el.processingFixed.value=(fx/100).toFixed(2);el.listing.value=(li/100).toFixed(2);el.offsite.value=of/100;return;}
   if(t.closest?.('#etsy-calc')&&t.name==='listing'){const l=state.etsy.listings.find(x=>x.id===t.value);calc.listing=t.value;if(l){calc.price=l.price;t.form.elements.price.value=val(l.price);}refreshCalc();return;}
-  if(t.dataset?.shopImg){shopPicture(t.files?.[0],t.dataset.shopImg);return;}
+  if(t.dataset?.insDone){const k=t.dataset.insDone,on=t.checked;commit(()=>{const d=state.settings.insightsDone||(state.settings.insightsDone={});if(on)d[k]=Budget.today();else delete d[k];},on?'Marked as done':'Marked as not done');return;}
+  if(t.dataset?.shopImg){shopPicture(t.files?.[0],t.dataset.shopImg,t.dataset.kind==='logo');return;}
   if(t.id==='source-filter'){txSource=['all','statement','estimated','bank','mine'].includes(t.value)?t.value:'all';render();}
  });
  document.addEventListener('submit',e=>{if(e.target.id!=='etsy-move-form')return;e.preventDefault();
@@ -1348,9 +1412,11 @@ const Etsy=(()=>{
  .etsy-map-row{margin-top:6px}
  .kit-shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
  .kit-shop-card{border:1px solid var(--rule);border-radius:16px;overflow:hidden;background:var(--card);display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}.kit-shop-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
- .kit-shop-img{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 55%,var(--card)),color-mix(in srgb,var(--c) 18%,var(--card)));display:grid;place-items:center}
- .kit-shop-img img{width:100%;height:100%;object-fit:cover;display:block}.kit-shop-img>span{font:700 48px var(--display,var(--ui));color:#fff;opacity:.9}
- .kit-shop-upload{position:absolute;left:10px;bottom:10px;background:#000000a0;color:#fff;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:99px;cursor:pointer;opacity:0;transition:opacity .2s}.kit-shop-card:hover .kit-shop-upload,.kit-shop-img:not(:has(img)) .kit-shop-upload{opacity:1}
+ .kit-shop-img{position:relative;aspect-ratio:16/9;background:color-mix(in srgb,var(--c) 30%,var(--card));display:grid;place-items:center}
+ .kit-shop-img img{width:100%;height:100%;object-fit:cover;display:block}
+ .kit-shop-logo{width:72px;height:72px;border-radius:18px;margin:-40px 0 0 16px;position:relative;z-index:1;background:var(--card);border:3px solid var(--card);box-shadow:var(--shadow-sm);display:grid;place-items:center;overflow:hidden}.kit-shop-logo img{width:100%;height:100%;object-fit:contain;background:#fff}.kit-shop-logo>span{width:100%;height:100%;display:grid;place-items:center;background:var(--c);color:#fff;font:700 30px var(--display,var(--ui));border-radius:14px}.kit-shop-logo .kit-shop-rm{width:22px;height:22px;right:2px;top:2px}.kit-shop-card:hover .kit-shop-logo .kit-shop-rm{opacity:1}
+ .kit-shop-ups{position:absolute;right:10px;bottom:10px;display:flex;gap:6px}.kit-shop-ups .kit-shop-upload{position:static}
+ .kit-shop-upload{position:absolute;left:10px;bottom:10px;background:#000000a0;color:#fff;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:99px;cursor:pointer;opacity:0;transition:opacity .2s}.kit-shop-card:hover .kit-shop-upload,.kit-shop-card:not(:has(img)) .kit-shop-upload{opacity:1}
  .kit-shop-rm{position:absolute;right:8px;top:8px;width:26px;height:26px;border-radius:50%;border:0;background:#000000a0;color:#fff;cursor:pointer;opacity:0}.kit-shop-card:hover .kit-shop-rm{opacity:1}
  .kit-shop-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px}.kit-shop-top{display:flex;align-items:center;gap:8px}
  .kit-shop-big b{font-size:26px;letter-spacing:-.02em;display:block}.kit-shop-big small{color:var(--ink-3);font-size:12px}
@@ -1529,6 +1595,19 @@ const Etsy=(()=>{
  .kit-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.kit-chips span{font-size:11px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--t) 14%,var(--card));color:var(--ink-2)}
  .kit-allgood{display:flex;gap:8px;align-items:center;color:var(--ok)}.kit-allgood svg,p.small svg{width:15px;height:15px;vertical-align:-3px}
  @media (max-width:760px){.kit-ins-hero{grid-template-columns:1fr;justify-items:start}.kit-acts{grid-template-columns:1fr}}
+ .kit-yr-strip{display:flex;gap:6px;align-items:flex-end;height:64px;margin:18px 0 4px;max-width:420px}.kit-yr-strip span{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px}
+ .kit-yr-strip i{display:block;width:100%;border-radius:3px 3px 0 0;background:color-mix(in srgb,var(--on-bold,#fff) 70%,transparent)}.kit-yr-strip em{font-style:normal;font-size:10px;opacity:.6}
+ .kit-rankbars{list-style:none;margin:0;padding:0;display:grid;gap:7px}.kit-rankbars li{display:grid;grid-template-columns:40px 1fr 90px 64px;gap:10px;align-items:center;font-size:13.5px}
+ .kit-rankbars li div{height:12px;background:var(--sunk);border-radius:6px;overflow:hidden}.kit-rankbars i{display:block;height:100%;border-radius:6px}.kit-rankbars b{text-align:right}.kit-rankbars small{color:var(--ink-3);text-align:right}
+ .kit-yr-table td.neg{color:var(--over)}.kit-pill-ok{background:color-mix(in srgb,var(--ok) 14%,var(--card));color:var(--ok)}
+ .kpi .label:has(.kit-kpi-ico){display:flex;align-items:center;gap:8px}.kpi.kit-has-ico .label::before{display:none!important}
+ .kit-kpi-ico{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;flex:none;background:color-mix(in srgb,var(--tc,var(--ink-3)) 16%,var(--card));color:var(--tc,var(--ink-2))}.kpi .label .kit-kpi-ico svg{display:block;width:14px;height:14px;stroke-width:2}
+ .kpi.kit-tone-pos{--tc:var(--ok)}.kpi.kit-tone-neg{--tc:var(--over)}.kpi.kit-tone-net{--tc:var(--accent)}
+ .kit-act{position:relative}.kit-check{position:absolute;right:12px;top:12px;cursor:pointer}.kit-check input{position:absolute;opacity:0;width:1px;height:1px}
+ .kit-check span{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;border:2px solid color-mix(in srgb,var(--t) 45%,var(--rule));background:var(--card);color:transparent;transition:.15s}
+ .kit-check span svg{width:14px;height:14px;stroke-width:3}.kit-check input:checked+span{background:var(--ok);border-color:var(--ok);color:#fff}.kit-check input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+ .kit-act h3{padding-right:30px}.kit-act.kit-done{--t:var(--ink-3);background:var(--sunk);border-left-color:var(--ok);opacity:.75}.kit-act.kit-done h3{text-decoration:line-through;text-decoration-color:var(--ink-3)}
+ .kit-prog{min-width:130px;text-align:right}.kit-prog b{font-size:20px}.kit-prog small{color:var(--ink-3);margin-left:4px}.kit-prog .kit-ins-bar{margin:6px 0 0}
  .kit-quad{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.kit-quad>.card{margin:0;min-width:0;display:flex;flex-direction:column}.kit-quad>.card>.kit-pie{flex:1;align-content:center}
  .kit-q-table .table-wrap{flex:1}.kit-q-table .kit-pager{margin-top:auto}
  @media (max-width:900px){.kit-quad{grid-template-columns:1fr}.kit-q1{order:1}.kit-q-table{order:2}.kit-q2{order:3}.kit-q4{order:4}}
@@ -1573,7 +1652,7 @@ const Etsy=(()=>{
  </style>`);
 
  Object.assign(Ext,{
-  views:{dashboard:dashboardView,insights:insightsView,pricing:pricingView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
+  views:{dashboard:dashboardView,insights:insightsView,annual:yearView,pricing:pricingView,'etsy-import':importView,shops:shopsView,fees:feesView,products:productsView,coupons:couponsView,customers:customersView,reviews:reviewsView,seasonality:seasonalityView},
   afterRender,annualTop,plNote,importRefine,settingsCard,activityFilter,txBadge,
   bizName:()=>{const n=state.settings.name,sh=state.settings.shop?shopName(state.settings.shop):'';return sh?(n?`${n} · ${sh}`:sh):(n||(state.shops.length>1?'All shops':state.shops[0]?.name||''));},
   importTag:(name,rows)=>{const id='i'+Budget.uid().replace(/[^A-Za-z0-9]/g,'').slice(0,20),dates=rows.map(r=>r.date).sort();
