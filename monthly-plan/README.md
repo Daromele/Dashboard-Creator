@@ -96,6 +96,15 @@ do not change.
 - **Test data.** `build/etsy_fixtures.js` writes synthetic files in Etsy's layouts. Never commit a seller's
   real exports: the sold order items file holds buyers' names and addresses.
 
+## Free trial
+
+`python3 build/make_trial.py` generates `app/ShopInsightsTrial.html` from the built full app (never hand-edit it; every
+patch asserts its anchor). On the visitor's own data it keeps one shop and the last 3 months of whatever files they drop
+in; Fees & ads, Products, P&L and Insights show their first sections, Tax, the pricing calculator and New listings are
+locked, and printing, CSV exports and folder backups open an upsell. Sample mode shows everything. Storage is namespaced
+(`jps-shop-insights-trial`), and a trial backup restores into the full app. `node build/trial_test.js` proves all of it
+against the demo files. The buy link is `BUY_URL` at the top of `make_trial.py`.
+
 ## Build and test
 
 ```
