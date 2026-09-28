@@ -1305,7 +1305,7 @@ const Budget = ((P) => {
     const tids=new Set();s.transactions.forEach(t=>{if(!object(t)||!id(t.id)||tids.has(t.id)||!validDate(t.date)||!ids.has(t.category)||!amount(t.amount)||!t.amount||!str(t.note,500))fail();tids.add(t.id);});
     // several shops: every shop-tagged record must point at a shop this file knows
     if(P.features.shops){if(s.shops===undefined)s.shops=[];if(!Array.isArray(s.shops)||s.shops.length>24)fail();
-     const shops=new Set(),platforms=(P.etsy?.platforms||[]).map(x=>x[0]);s.shops.forEach(x=>{if(!object(x)||!id(x.id)||shops.has(x.id)||!str(x.name,60)||!x.name.trim()||(x.platform!==undefined&&!platforms.includes(x.platform)))fail();shops.add(x.id);});
+     const shops=new Set(),platforms=(P.etsy?.platforms||[]).map(x=>x[0]);s.shops.forEach(x=>{if(!object(x)||!id(x.id)||shops.has(x.id)||!str(x.name,60)||!x.name.trim()||(x.platform!==undefined&&!platforms.includes(x.platform)))fail();if(x.image!==undefined&&!(str(x.image,200000)&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(x.image)))delete x.image;shops.add(x.id);});
      if(!str(s.settings.shop??'',80)||(s.settings.shop&&!shops.has(s.settings.shop)))s.settings.shop='';
      s.transactions.forEach(t=>{if((t.shop!==undefined&&!shops.has(t.shop))||(t.ref!==undefined&&!str(t.ref,40))||(t.src!==undefined&&!str(t.src,40))||(t.est!==undefined&&t.est!==true)||(t.imp!==undefined&&!(str(t.imp,40)&&/^[A-Za-z0-9_-]+$/.test(t.imp)))||(t.n!==undefined&&!(Number.isSafeInteger(t.n)&&t.n>0)))fail();});
      if(P.features.etsy){if(s.etsy===undefined)s.etsy={};if(!object(s.etsy))fail();
