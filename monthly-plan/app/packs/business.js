@@ -9,7 +9,7 @@
 const NICHE = {
   id: 'business',
   product: {
-    name: 'Profit Plan', mark: 'P', publisher: 'JPS DIGITAL PAGES', version: '1.2',
+    name: 'Profit Plan', mark: 'P', publisher: 'JPS DIGITAL PAGES', version: '1.3',
     tagline: 'Freelance & small-business books', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Profit Plan · Sales, Expenses, P&amp;L &amp; Quarterly Tax', themeColor: '#182635',
     description: 'Profit Plan by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',
@@ -23,6 +23,10 @@ const NICHE = {
   editions: { budget: 'Monthly Plan, the household budget edition', creator: 'Creator Plan, the creator edition' },
   themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
   features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: true, invoices: true, channels: true },
+  // offered as one-click sales channels in Settings; a channel added by name picks up its usual tag
+  suggestedChannels: ['Etsy', 'Shopify', 'Payhip', 'Gumroad', 'Fourthwall', 'Amazon', 'Patreon', 'Buy Me a Coffee', 'Ko-fi', 'Clients'],
+  suggestedTags: ['Digital products', 'Physical products', 'Services', 'Donations', 'Memberships', 'Sponsorships'],
+  channelTags: { etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', fourthwall: 'Digital products', shopify: 'Physical products', amazon: 'Physical products', patreon: 'Donations', 'buy me a coffee': 'Donations', 'ko-fi': 'Donations', clients: 'Services' },
   // taxRate in basis points (2500 = 25%). mileageRate in thousandths of the currency per distance unit
   // (700 = 0.70 per mile or km); it starts at 0 because the allowed rate differs by country and year.
   settings: { taxRate: 2500, mileageRate: 0, distanceUnit: 'mi' },
@@ -124,10 +128,10 @@ const NICHE = {
     platforms: { paypal: { sale: 'client-work', refund: 'client-work' }, stripe: { sale: 'client-work', refund: 'client-work' }, youtube: { sale: 'other-biz-income', refund: 'other-biz-income' }, patreon: { sale: 'retainers', refund: 'retainers' }, substack: { sale: 'retainers', refund: 'retainers' } } },
 
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['pl', 'Profit & loss', 'insights'], ['budget', 'Monthly targets', 'plan'], ['activity', 'Transactions', 'log'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['annual', 'Annual overview', 'outlook'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   optionalNav: ['invoices', 'mileage', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
-  navGroups: [['Your business', ['dashboard', 'pl', 'budget', 'activity', 'invoices']], ['Tax time', ['tax', 'taxlines', 'mileage']], ['Your rhythm', ['annual', 'goals', 'scheduled', 'calendar', 'insights', 'review']]],
-  navGroupRest: 'Make it yours',
+  navGroups: [['Your business', ['dashboard', 'activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Invoices & tax', ['invoices', 'tax', 'taxlines', 'mileage']]],
+  navGroupRest: 'Settings & help',
 
   labels: {
     income: 'Revenue', expense: 'Expenses', saving: 'Transfers & draws', savingShort: 'Transfers', savingOne: 'Transfer',
@@ -166,6 +170,8 @@ const NICHE = {
     ],
     meanings: [['Revenue', 'Money in from sales'], ['Gross profit', 'Revenue − cost of goods'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, draws, card payoffs']],
     details: [
+      ['Tags: grouping sales channels', 'A tag groups sales channels by what they earn from, for example Etsy and Payhip under <b>Digital products</b>, Patreon and Buy Me a Coffee under <b>Donations</b>. Set each sales channel’s tag in <b>Settings</b>; its entries follow, and a well-known name picks up its usual tag when you add it. Any entry, a cost included, can also carry its own tag in <b>Edit transaction</b>. The dashboard and annual overview chart money in and out by tag, and the Transactions screen filters by it.'],
+      ['Combing through transactions', 'The Transactions screen keeps its own dates, apart from the month picker: all time, this or last month, the last 3 months, this or last year, or custom dates. Tick rows, or <b>Select all</b> matching, to change their category, channel or tag, or to delete them, in one step. Every bulk change can be undone. Rows in a closed month cannot be ticked. <b>Export CSV</b> saves exactly the rows shown.'],
       ['Dig into any number', 'Click a card at the top of the dashboard to see the transactions behind it; <b>Avg. monthly cash flow</b> opens the Annual overview. Click a slice of any donut to list its transactions. On Transactions, pick a group and then a category, sort any column, and read the total of what is shown at the bottom.'],
       ['Business health', 'Shows your <b>cash runway</b> (how many months your tracked cash would cover costs if sales stopped), your <b>break-even revenue</b> (what you need to sell each month to cover running costs at your gross margin), margins month by month, costs against their usual level, and whether one client or channel carries too much of the business. Averages use up to three recent complete months. It reads only what you record and is not financial advice.'],
       ['Chasing late invoices', 'On Invoices, overdue ones get a <b>Reminder</b> button. It writes a polite reminder with the invoice number, amount and dates; edit it if you like, copy it, and paste it into an email.'],
@@ -243,7 +249,9 @@ const NICHE = {
       }
       // three sales channels: design clients, an Etsy shop and the studio's own web shop.
       // Their sales and direct costs are tagged; rent, software and the like stay shared.
-      s.channels = [{ id: 'ch-clients', name: 'Design clients' }, { id: 'ch-etsy', name: 'Etsy' }, { id: 'ch-web', name: 'Web shop' }];
+      // tags group the channels: client work is services, both shops sell prints
+      s.tags = [{ id: 'tg-services', name: 'Services' }, { id: 'tg-products', name: 'Physical products' }];
+      s.channels = [{ id: 'ch-clients', name: 'Design clients', tag: 'tg-services' }, { id: 'ch-etsy', name: 'Etsy', tag: 'tg-products' }, { id: 'ch-web', name: 'Web shop', tag: 'tg-products' }];
       s.channelRules = { 'etsy': 'ch-etsy', 'invoice': 'ch-clients' };
       // product sales and their costs split roughly 60/40 between Etsy and the web shop
       const seen = {}, split = [];

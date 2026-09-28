@@ -27,7 +27,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());await p.waitForTimeout(200);
   for(const s of SCREENS){await p.evaluate(s=>go(s),s);await p.waitForTimeout(60);await shot('sample-'+s);}
   await p.evaluate(()=>go('dashboard'));
-  const dash=await text();check('dashboard glance',dash.includes('Profit this month')&&dash.includes('Money in')&&dash.includes('You keep')&&dash.includes('Tax pot')&&dash.includes('by channel'),dash.slice(0,300));
+  const dash=await text();check('dashboard glance',dash.includes('Profit this month')&&dash.includes('Money in')&&dash.includes('Net profit, last 6 months')&&/tax pot/i.test(dash)&&dash.includes('by channel')&&dash.includes('by tag')&&dash.includes('Expenses by tag')&&!/You keep|Where the plan stands|Planned dates to watch|Something to work toward|Monthly intention|Cash flow over time/.test(dash),dash.slice(0,300));
   check('dashboard order: kpis, hero, profit',await p.evaluate(()=>{const c=document.querySelector('#content'),k=c.querySelector('.kpis-lead'),h=c.querySelector('.hero'),g=c.querySelector('.glance');return !!(k&&h&&g)&&!!(k.compareDocumentPosition(h)&Node.DOCUMENT_POSITION_FOLLOWING)&&!!(h.compareDocumentPosition(g)&Node.DOCUMENT_POSITION_FOLLOWING);}));
   // sales channels: profit by channel adds up to the whole business
   await p.evaluate(()=>go('pl'));await p.click('[data-action="biz-period"][data-kind="ytd"]');

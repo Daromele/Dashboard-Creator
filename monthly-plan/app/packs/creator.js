@@ -8,7 +8,7 @@
 const NICHE = {
   id: 'creator',
   product: {
-    name: 'Creator Plan', mark: 'C', publisher: 'JPS DIGITAL PAGES', version: '1.1',
+    name: 'Creator Plan', mark: 'C', publisher: 'JPS DIGITAL PAGES', version: '1.2',
     tagline: 'Books for YouTubers, streamers & online creators', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Creator Plan · Income Streams, Brand Deals, P&amp;L &amp; Tax Set-Aside', themeColor: '#2A1F3D',
     description: 'Creator Plan by JPS Digital Pages. Track ad revenue, brand deals, memberships, affiliates and product sales in one place, see profit for each income stream, chase late sponsor invoices and set money aside for tax. Works offline.',
@@ -26,7 +26,11 @@ const NICHE = {
   settings: { taxRate: 2500, mileageRate: 0, distanceUnit: 'mi' },
   tourTopics: 'income streams, brand deals, tax set-asides and backups',
   // offered as one-click income streams in Settings
-  suggestedChannels: ['YouTube', 'TikTok', 'Instagram', 'Twitch', 'Patreon', 'Substack', 'Podcast', 'Etsy', 'Shopify', 'Brand deals', 'Affiliates'],
+  suggestedChannels: ['YouTube', 'TikTok', 'Instagram', 'Twitch', 'Patreon', 'Buy Me a Coffee', 'Ko-fi', 'Substack', 'Podcast', 'Etsy', 'Payhip', 'Gumroad', 'Fourthwall', 'Shopify', 'Brand deals', 'Affiliates'],
+  // tags group streams (Etsy, Payhip → Digital products; Patreon, Buy Me a Coffee → Donations);
+  // a stream added by name picks up its usual tag
+  suggestedTags: ['Ad revenue', 'Sponsorships', 'Donations', 'Memberships', 'Digital products', 'Merch', 'Affiliate income'],
+  channelTags: { youtube: 'Ad revenue', tiktok: 'Ad revenue', podcast: 'Ad revenue', instagram: 'Sponsorships', 'brand deals': 'Sponsorships', twitch: 'Donations', patreon: 'Donations', 'buy me a coffee': 'Donations', 'ko-fi': 'Donations', substack: 'Memberships', etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', fourthwall: 'Merch', shopify: 'Merch', affiliates: 'Affiliate income' },
 
   // type: income | expense | saving (money moved aside: not income, not an expense)
   // cogs: cost of goods sold · other: income below operating profit · tax: counts as tax set aside
@@ -126,10 +130,10 @@ const NICHE = {
       kofi: { sale: 'tips', refund: 'tips' }, buymeacoffee: { sale: 'tips', refund: 'tips' }, shopify: { sale: 'merch', refund: 'merch' }, paypal: { sale: 'sponsorships', refund: 'sponsorships' } } },
   defaults: { category: 'ad-revenue', schedule: 'software', annualCategory: 'ad-revenue', payout: 'platform-payout', quickSetup: ['ad-revenue', 'sponsorships', 'memberships', 'editors', 'software', 'tax-reserve'] },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['pl', 'Profit & loss', 'insights'], ['budget', 'Monthly targets', 'plan'], ['activity', 'Transactions', 'log'], ['invoices', 'Brand deals & invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['annual', 'Annual overview', 'outlook'], ['goals', 'Reserves & goals', 'umbrella'], ['scheduled', 'Recurring costs', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Creator health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['insights', 'Creator health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Brand deals & invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   optionalNav: ['invoices', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
-  navGroups: [['Your creator business', ['dashboard', 'pl', 'budget', 'activity', 'invoices']], ['Tax time', ['tax', 'taxlines']], ['Your rhythm', ['annual', 'goals', 'scheduled', 'calendar', 'insights', 'review']]],
-  navGroupRest: 'Make it yours',
+  navGroups: [['Your creator business', ['dashboard', 'activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Deals & tax', ['invoices', 'tax', 'taxlines', 'mileage']]],
+  navGroupRest: 'Settings & help',
 
   labels: {
     income: 'Income', expense: 'Expenses', saving: 'Transfers & draws', savingShort: 'Transfers', savingOne: 'Transfer',
@@ -168,6 +172,8 @@ const NICHE = {
     ],
     meanings: [['Income', 'Every payout, deal and sale'], ['Gross profit', 'Income − merch costs'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, your pay, card payoffs']],
     details: [
+      ['Tags: grouping income streams', 'A tag groups income streams by what they earn from, for example YouTube and TikTok under <b>Ad revenue</b>, Patreon and Buy Me a Coffee under <b>Donations</b>, Etsy and Payhip under <b>Digital products</b>. Set each income stream’s tag in <b>Settings</b>; its entries follow, and a well-known name picks up its usual tag when you add it. Any entry, a cost included, can also carry its own tag in <b>Edit transaction</b>. The dashboard and annual overview chart money in and out by tag, and the Transactions screen filters by it.'],
+      ['Combing through transactions', 'The Transactions screen keeps its own dates, apart from the month picker: all time, this or last month, the last 3 months, this or last year, or custom dates. Tick rows, or <b>Select all</b> matching, to change their category, stream or tag, or to delete them, in one step. Every bulk change can be undone. Rows in a closed month cannot be ticked. <b>Export CSV</b> saves exactly the rows shown.'],
       ['Income streams', 'Add a stream for each place you earn in <b>Settings → Income streams</b> (one click for YouTube, TikTok, Patreon and more), or type a new one on a transaction. Tag payouts and the costs that clearly belong to a stream, such as Patreon fees or a shoot for one sponsor. Leave shared costs like software untagged. Profit &amp; loss shows profit for each stream, and you can view the statement for one stream at a time. On import, tag rows in bulk; Creator Plan offers to remember the stream for similar descriptions.'],
       ['Platform statements: YouTube, Patreon, Etsy and more', 'Import each platform’s own statement on the Import screen: YouTube (AdSense) transactions, a Patreon earnings export, an Etsy monthly statement, a PayPal activity download, Stripe or Shopify Payments exports, or any file with gross and fee columns (Gumroad, Ko-fi, Substack and similar). Creator Plan recognises it, splits each payout into what you earned and the platform’s cut, and tags the entries with that platform’s stream if you have one. Tax a platform withholds, such as YouTube’s US withholding, lands in tax paid. After that, bank deposits from that platform go to <b>Platform payouts &amp; top-ups (already imported)</b>, a transfer, so nothing is counted twice.'],
       ['Brand deals', 'Log each sponsorship as an invoice when you agree it, with the brand as the client. It becomes income on the day you mark it paid. Overdue deals get a <b>Reminder</b> button that writes a polite chase-up you can copy into an email.'],
@@ -214,7 +220,8 @@ const NICHE = {
     ],
     extras: (s, { m, year, now, uid, totals }) => {
       const monthNo = +m.slice(5, 7), key = i => `${year}-${String(i).padStart(2, '0')}`;
-      s.channels = [{ id: 'ch-yt', name: 'YouTube' }, { id: 'ch-patreon', name: 'Patreon' }, { id: 'ch-etsy', name: 'Etsy' }, { id: 'ch-brands', name: 'Brand deals' }, { id: 'ch-aff', name: 'Affiliates' }];
+      s.tags = [{ id: 'tg-ads', name: 'Ad revenue' }, { id: 'tg-donations', name: 'Donations' }, { id: 'tg-digital', name: 'Digital products' }, { id: 'tg-sponsor', name: 'Sponsorships' }, { id: 'tg-aff', name: 'Affiliate income' }];
+      s.channels = [{ id: 'ch-yt', name: 'YouTube', tag: 'tg-ads' }, { id: 'ch-patreon', name: 'Patreon', tag: 'tg-donations' }, { id: 'ch-etsy', name: 'Etsy', tag: 'tg-digital' }, { id: 'ch-brands', name: 'Brand deals', tag: 'tg-sponsor' }, { id: 'ch-aff', name: 'Affiliates', tag: 'tg-aff' }];
       s.channelRules = { adsense: 'ch-yt', youtube: 'ch-yt', patreon: 'ch-patreon', etsy: 'ch-etsy', sponsor: 'ch-brands', amazon: 'ch-aff' };
       // brand deals as invoices: paid ones sit in income, the latest are still open, two of them late
       const brands = ['Lumen Paints', 'Craftbox Co.', 'Brightside Tools', 'Hearth & Loom', 'Pixel Paper'], deals = ['60-second integration', 'Dedicated video', 'Shorts + Instagram package', 'Tutorial sponsorship'];
