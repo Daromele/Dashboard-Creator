@@ -23,7 +23,7 @@ const NICHE = {
   themes: ['kiln', 'ledger', 'sage', 'linen', 'fjord', 'slate', 'night', 'midnight'],
   features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: false, invoices: false, shops: true, etsy: true },
   // taxRate in basis points (2500 = 25%) · shop: '' shows every shop together
-  settings: { taxRate: 2500, shop: '', hiddenNav: ['years'] },
+  settings: { taxRate: 2500, shop: '', hiddenNav: ['insights', 'years', 'fees', 'activity'] },
 
   groups: [
     { id: 'revenue', label: 'Shop sales', type: 'income', taxLine: 'L1' },

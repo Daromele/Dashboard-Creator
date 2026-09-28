@@ -25,7 +25,8 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   const st=(f,arg)=>p.evaluate(f,arg);
   check('title',(await p.title()).startsWith('Shop Insights'));
   const nav=await p.locator('#nav').innerText();
-  check('nav has the Etsy hubs',['Import files','Fees & ads','Products','Buyers & reviews','Tax','Planning'].every(x=>nav.includes(x))&&!nav.includes('Coupons')&&!nav.includes('Schedule C'),nav);
+  check('nav has the Etsy hubs',['Import files','Year at a glance','Products','Buyers & reviews','Tax','Planning'].every(x=>nav.includes(x))&&!nav.includes('Coupons')&&!nav.includes('Schedule C'),nav);
+  check('Insights, Year over year, Fees & ads and Transactions start switched off',!['Insights','Year over year','Fees & ads','Transactions'].some(x=>nav.includes(x)),nav);
   check('sidebar stays short',(await p.locator('#nav .navlink').count())<=14,String(await p.locator('#nav .navlink').count()));
   await p.evaluate(()=>go('reviews'));
   check('a hub shows its screens as tabs',(await p.locator('.hub-tabs button').allTextContents()).join()==='Customers,Reviews'&&(await p.locator('#nav [aria-current=page]').innerText()).includes('Buyers'));

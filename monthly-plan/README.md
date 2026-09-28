@@ -88,6 +88,7 @@ do not change.
   transactions export becomes statement-like lines with exact fees. Months with orders but no such lines are
   estimated at `settings.channelFees` (defaults in the pack's `etsy.channelRates`). A file is refused by a shop
   on another platform. `compare` gives each shop's take-home per dollar (`kept`).
+- **Sidebar defaults.** New books start with Insights, Year over year, Fees & ads and Transactions switched off (`settings.hiddenNav` in the pack); Settings → Simplify your sidebar turns them on.
 - **Insights.** `shopHealth()` compares the last 90 days with the 90 before: a health score, a to-do list, products to push and products to fix, all from plain rules on the imported numbers.
 - **New listings.** `launches()` counts a listing as new the month it is first seen (a listing fee or a sale) with an ID above every listing seen in earlier months; Etsy's files carry no creation date. A listing fee on a day the listing sold is a renewal. The first month with data is the baseline.
 - **Goals.** `settings.goals` holds a monthly revenue goal per shop (`''` = all shops together).
