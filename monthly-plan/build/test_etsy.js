@@ -188,8 +188,8 @@ module.exports=({eq,ok})=>{
    eq('totals and costed count', [PP.costed,PP.profit], [1,PP.list.reduce((n,p)=>n+p.profit,0)]);
    const bad=copy(z);bad.settings.fees={transaction:-1,processing:300,preset:'uk'};bad.settings.goals={'':50000,ghost:1000,fern:-5};bad.etsy.costs={'1400000001':250,x:-3,y:'1'};
    const w=B.validate(bad);eq('bad fees, goals and costs are dropped, never fatal', [w.settings.fees,w.settings.goals,w.etsy.costs], [{processing:300,preset:'uk'},{'':50000},{'1400000001':250}]);
-  {const z2=copy(z);z2.settings.insightsDone={'unsold|m:2026-09':'2026-09-12',bad:'yesterday',['x'.repeat(90)]:'2026-09-01'};z2.shops[0].logo='data:image/png;base64,iVBORw0KGgo=';z2.shops[0].image='javascript:alert(1)';
-   const w=B.validate(z2);eq('done tips keep valid dates only; a logo is kept, a bad picture dropped', [w.settings.insightsDone,w.shops[0].logo,w.shops[0].image], [{'unsold|m:2026-09':'2026-09-12'},'data:image/png;base64,iVBORw0KGgo=',undefined]);}}
+  {const z2=copy(z);z2.settings.insightsDone={'unsold|m:2026-09':'2026-09-12',bad:'yesterday',['x'.repeat(90)]:'2026-09-01'};z2.shops[0].logo='data:image/png;base64,iVBORw0KGgo=';z2.shops[0].image='javascript:alert(1)';z2.shops[0].tint='#a1b2c3';
+   const w=B.validate(z2);eq('done tips keep valid dates only; a logo is kept, a bad picture dropped', [w.settings.insightsDone,w.shops[0].logo,w.shops[0].image,w.shops[0].tint,B.validate({...copy(z),shops:[{...z.shops[0],tint:'red; x'}]}).shops[0].tint], [{'unsold|m:2026-09':'2026-09-12'},'data:image/png;base64,iVBORw0KGgo=',undefined,'#a1b2c3',undefined]);}}
 
   // ---- Etsy only for now: the other platforms are built but switched off ----
   eq('only Etsy is switched on', B.P.etsy.enabledPlatforms, ['etsy']);

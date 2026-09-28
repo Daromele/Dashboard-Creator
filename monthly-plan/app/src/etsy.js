@@ -1093,8 +1093,15 @@ const Etsy=(()=>{
   const growth=shown.map((x,i)=>{const p=shown[i-1];return p?(x.partial?ch(x.same,p.same):ch(x.rev,p.rev)):null;});
   const strip=`<div class="kit-launch-strip" style="grid-template-columns:${(52/7).toFixed(2)}% repeat(${shown.length},1fr) ${(12/7).toFixed(2)}%"><span class="small muted">vs year before</span>${growth.map(g=>`<b class="${g===null?'dim':g>=0?'kit-good':'kit-bad'}">${g===null?'—':signed(g)}</b>`).join('')}</div>`;
   const rows=[['Sales',x=>fmt(x.rev),x=>x.rev],['Take-home',x=>Biz.acct(x.th),x=>x.th],['Kept',x=>pc(x.kept,0),null],[etsyOnly()?'Etsy fees':'Fees',x=>fmt(x.fees),x=>x.fees,true],['Ads & marketing',x=>fmt(x.ads),x=>x.ads,true],['Net profit',x=>Biz.acct(x.profit),x=>x.profit],['Orders',x=>num(x.orders),x=>x.orders],['Average order',x=>x.aov?fmt(x.aov):'—',x=>x.aov],['Buyers',x=>x.buyers?num(x.buyers):'—',x=>x.buyers],['Buyers who came back',x=>pc(x.repeat,0),null],['Rating',x=>x.rating?x.rating.toFixed(2)+' ★':'—',null],['Reviews',x=>x.reviews?num(x.reviews):'—',x=>x.reviews]];
-  const table=`<section class="card table-card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('table')}</span>Year by year</h2><p>Each year, with the change on the year before · ${cur.y} runs to ${dateName(cutoff)}</p></div></div><div class="table-wrap"><table class="kit-yoy" data-nosort><thead><tr><th></th>${shown.map(x=>`<th class="num">${x.y}${x.partial?'<small class="dim"> so far</small>':''}</th>`).join('')}</tr></thead><tbody>${rows.map(([l,f,v,cost])=>`<tr><td><b>${l}</b></td>${shown.map((x,i)=>{const p=shown[i-1],c=v&&p&&!x.partial?ch(v(x),v(p)):null;return `<td class="num">${f(x)}${c!==null&&Number.isFinite(c)?`<small class="${(c>=0)!==!!cost?'kit-good':'kit-bad'}">${signed(c)}</small>`:''}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div></section>`;
-  return head+kpis+`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('insights')}</span>Every year at a glance</h2><p>Each column is a year’s sales: green is what you kept, red is what Etsy took${cur.partial?` · ${cur.y} so far, and its change is against the same days of ${cur.y-1}`:''}</p></div><button class="link" data-go="annual">Year at a glance</button></div>${chart}${strip}</section>`+table;
+  // ten columns from the first year shown; years still to come stay blank until their files are imported
+  const cols=Array.from({length:10},(_,i)=>shown[0].y+i).map(y=>shown.find(x=>x.y===y)||{y,none:true});
+  const table=`<section class="card table-card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('table')}</span>Year by year</h2><p>Ten years from ${shown[0].y}, with the change on the year before · ${cur.y} runs to ${dateName(cutoff)}</p></div></div><div class="table-wrap"><table class="kit-yoy" data-nosort><thead><tr><th></th>${cols.map(x=>`<th class="num">${x.y}${x.partial?'<small class="dim"> so far</small>':''}</th>`).join('')}</tr></thead><tbody>${rows.map(([l,f,v,cost])=>`<tr><td><b>${l}</b></td>${cols.map((x,i)=>{if(x.none)return '<td class="num dim">—</td>';const p=cols[i-1]&&!cols[i-1].none?cols[i-1]:null,c=v&&p&&!x.partial?ch(v(x),v(p)):null;return `<td class="num">${f(x)}${c!==null&&Number.isFinite(c)?`<small class="${(c>=0)!==!!cost?'kit-good':'kit-bad'}">${signed(c)}</small>`:''}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div></section>`;
+  const shops=!state.settings.shop?state.shops:state.shops.filter(sh=>sh.id===state.settings.shop);
+  const per=shops.map(sh=>{const v=D.forShop(state,sh.id);return {sh,vals:cols.map(c=>c.none?null:D.summary(v,`${c.y}-01-01`,c.y===last?cutoff:`${c.y}-12-31`).profit)};}).filter(x=>x.vals.some(v=>v));
+  const pieCard=per.length>1?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('globe')}</span>Net profit by shop</h2><p>${shown[0].y} – ${cur.y} · each shop’s share</p></div></div>${pie(per.map(x=>[x.sh.name,Math.max(0,x.vals.reduce((n,v)=>n+(v||0),0)),shopColor(x.sh.id)]),{label:'Net profit',center:compact(per.reduce((n,x)=>n+x.vals.reduce((a,v)=>a+(v||0),0),0)),sub:'NET PROFIT'})}</section>`:'';
+  const lineCard=per.length?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('insights')}</span>Net profit over ten years</h2><p>${per.length>1?'One line per shop':esc(per[0].sh.name)} · ${cols[0].y} – ${cols.at(-1).y}${cur.partial?` · ${cur.y} so far`:''}</p></div></div>${line(per.map(x=>({name:x.sh.name,values:x.vals,color:shopColor(x.sh.id)})),cols.map(c=>String(c.y)),{f:compact,title:'Net profit by year and shop'})}</section>`:'';
+  const charts=pieCard?`<div class="grid2 equal">${pieCard}${lineCard}</div>`:lineCard;
+  return head+kpis+charts+`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('insights')}</span>Every year at a glance</h2><p>Each column is a year’s sales: green is what you kept, red is what Etsy took${cur.partial?` · ${cur.y} so far, and its change is against the same days of ${cur.y-1}`:''}</p></div><button class="link" data-go="annual">Year at a glance</button></div>${chart}${strip}</section>`+table;
  }
  // ---------- insights: what to do next ----------
  // The month (or the year to date) against the one before it, turned into a health score, a short to-do list,
@@ -1237,18 +1244,27 @@ const Etsy=(()=>{
  function shopsGrid(rows,T,r){
   return `<section class="card"><div class="cardhead"><div><h2>Shop by shop</h2><p>${esc(r.label)} · all shops together: ${fmt(T.revenue)} revenue, ${Biz.acct(T.takeHome)} take-home</p></div>${layoutToggle()}</div><div class="kit-shop-grid">${rows.map(x=>{const sh=state.shops.find(v=>v.id===x.id)||{};
    const ini=esc((x.name||'?').trim().charAt(0).toUpperCase()),up=(kind,l)=>`<label class="kit-shop-upload no-print">${l}<input type="file" accept="image/*" data-shop-img="${x.id}" data-kind="${kind}" class="sr-only"></label>`;
-   return `<article class="kit-shop-card"><div class="kit-shop-img" style="--c:${shopColor(x.id)}">${sh.image?`<img src="${sh.image}" alt="">`:''}<div class="kit-shop-ups">${up('image',sh.image?'Change cover':'＋ Cover photo')}${up('logo',sh.logo?'Change logo':'＋ Logo')}</div>${sh.image?`<button class="kit-shop-rm no-print" data-action="etsy-shop-img-rm" data-id="${x.id}" data-kind="image" aria-label="Remove cover photo" title="Remove cover photo">×</button>`:''}</div>`+
+   return `<article class="kit-shop-card"><div class="kit-shop-img" style="--c:${sh.tint||shopColor(x.id)}">${sh.image?`<img src="${sh.image}" alt="">`:''}<div class="kit-shop-ups">${up('image',sh.image?'Change cover':'＋ Cover photo')}${up('logo',sh.logo?'Change logo':'＋ Logo')}</div>${sh.image?`<button class="kit-shop-rm no-print" data-action="etsy-shop-img-rm" data-id="${x.id}" data-kind="image" aria-label="Remove cover photo" title="Remove cover photo">×</button>`:''}</div>`+
     `<div class="kit-shop-logo" style="--c:${shopColor(x.id)}">${sh.logo?`<img src="${sh.logo}" alt="${esc(x.name)} logo"><button class="kit-shop-rm no-print" data-action="etsy-shop-img-rm" data-id="${x.id}" data-kind="logo" aria-label="Remove logo" title="Remove logo">×</button>`:`<span>${ini}</span>`}</div>`+
     `<div class="kit-shop-body"><div class="kit-shop-top"><button class="link" data-action="etsy-scope" data-shop="${x.id}"><b>${esc(x.name)}</b></button></div>`+
     `<div class="kit-shop-big"><b class="number">${Biz.acct(x.takeHome)}</b><small>take-home · ${pc(x.kept,0)} kept</small></div>`+
     `<div class="kit-shop-rows">${[['Revenue',fmt(x.revenue),'up'],['Etsy costs',fmt(x.etsyCosts),'coins'],['Orders',num(x.orders||x.soldOrders),'log'],['Average order',x.aov?fmt(x.aov):'—','wallet'],['Listings',num(x.listings),'tags'],['Rating',x.rating?x.rating.toFixed(2)+' ★':'—','review']].map(([l,v])=>`<div><span>${l}</span><b class="number">${v}</b></div>`).join('')}</div>`+
     `<div class="kit-shop-meter"><i style="width:${Math.max(0,Math.min(100,(x.kept||0)*100))}%"></i></div></div></article>`;}).join('')}</div></section>`;}
  // pictures are shrunk to a small JPEG before they are saved, so the file stays light
+ // the logo's most prominent colour, for the banner until a cover photo is added: colourful pixels count most,
+ // near-white, near-black and see-through ones are left out
+ function logoTint(canvas){try{const {data}=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height),bins=new Map();
+  for(let i=0;i<data.length;i+=16){const r=data[i],g=data[i+1],b=data[i+2];if(data[i+3]<200)continue;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);if(mn>232||mx<28)continue;
+   const k=(r>>5)<<6|(g>>5)<<3|(b>>5),x=bins.get(k)||{w:0,c:0,r:0,g:0,b:0};x.w+=0.3+(mx-mn)/mx;x.c++;x.r+=r;x.g+=g;x.b+=b;bins.set(k,x);}
+  const top=[...bins.values()].sort((a,b)=>b.w-a.w)[0];if(!top)return '';
+  return '#'+[top.r,top.g,top.b].map(v=>Math.round(v/top.c).toString(16).padStart(2,'0')).join('');}catch{return '';}}
+ // logos added before tints existed get theirs the first time the shop cards show
+ const tinting=new Set();function tintLogos(){for(const sh of state.shops)if(sh.logo&&!sh.tint&&!tinting.has(sh.id)){tinting.add(sh.id);const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=64;c.getContext('2d').drawImage(img,0,0,64,64);const t=logoTint(c);if(t){sh.tint=t;save();render();}};img.src=sh.logo;}}
  // a cover photo fills a 16:9 banner; a logo is kept whole (transparent PNG) in a square
  function shopPicture(file,id,logo=false){if(!file||!/^image\//.test(file.type))return toast('Choose an image file.');const img=new Image(),url=URL.createObjectURL(file);
   img.onload=()=>{const W=logo?256:640,H=logo?256:360,c=document.createElement('canvas');c.width=W;c.height=H;const k=(logo?Math.min:Math.max)(W/img.width,H/img.height),w=img.width*k,h=img.height*k;c.getContext('2d').drawImage(img,(W-w)/2,(H-h)/2,w,h);URL.revokeObjectURL(url);
    let data=c.toDataURL(logo?'image/png':'image/jpeg',0.8);if(logo&&data.length>200000)data=c.toDataURL('image/webp',0.85);if(data.length>200000)return toast('That picture is too large.');
-   commit(()=>{const sh=state.shops.find(v=>v.id===id);if(sh)sh[logo?'logo':'image']=data;},logo?'Logo added':'Cover photo added');};
+   const tint=logo?logoTint(c):'';commit(()=>{const sh=state.shops.find(v=>v.id===id);if(!sh)return;sh[logo?'logo':'image']=data;if(tint)sh.tint=tint;},logo?'Logo added':'Cover photo added');};
   img.onerror=()=>{URL.revokeObjectURL(url);toast('Could not read that image.');};img.src=url;}
  // What each shop or channel keeps of every dollar it sells, after its platform's fees and ads
  function keptCard(rows,r){const list=rows.filter(x=>x.revenue>0).sort((a,b)=>(b.kept??-9)-(a.kept??-9));if(list.length<2)return '';
@@ -1392,8 +1408,8 @@ const Etsy=(()=>{
   NEG=/expense|fee|cost|ads|marketing|refund|behind|discount|tax paid|spent|owed|never sold|should have/i,NET=/profit|cash flow|net|set aside|left/i;
  const C_IN='var(--ok)',C_FEE='var(--over)',C_ADS='color-mix(in srgb,var(--over) 62%,var(--card))',C_OFF='color-mix(in srgb,var(--over) 38%,var(--card))',C_SHIP='var(--ch-out)',C_SALES='var(--ch-in)';
  // icons on the KPI cards of the main screens, picked from the card's label
- const KPI_ICONS=[[/paid out|payout/i,'wallet'],[/ads/i,'spark'],[/fees|cost|expense/i,'coins'],[/take-home|net profit|profit|kept/i,'insights'],[/cash flow/i,'history'],[/average order/i,'tags'],[/orders/i,'log'],[/revenue|sales|income/i,'up'],[/repeat|return/i,'history'],[/buyers/i,'review'],[/countr/i,'globe'],[/best month|slowest month/i,'calendar'],[/rating|review/i,'review'],[/listing|product/i,'tags'],[/tax/i,'shield']];
- const KPI_ICON_SCREENS=['dashboard','annual','pl','fees','customers','products'];
+ const KPI_ICONS=[[/so far/i,'calendar'],[/best full year/i,'outlook'],[/growth a year/i,'insights'],[/paid out|payout/i,'wallet'],[/ads/i,'spark'],[/fees|cost|expense/i,'coins'],[/take-home|net profit|profit|kept/i,'insights'],[/cash flow/i,'history'],[/average order/i,'tags'],[/orders/i,'log'],[/revenue|sales|income/i,'up'],[/repeat|return/i,'history'],[/buyers/i,'review'],[/countr/i,'globe'],[/best month|slowest month/i,'calendar'],[/rating|review/i,'review'],[/listing|product/i,'tags'],[/tax/i,'shield']];
+ const KPI_ICON_SCREENS=['dashboard','annual','years','pl','fees','customers','products'];
  function tintKpis(){
   document.querySelectorAll('#content .kpi').forEach(k=>{const l=(k.querySelector('.label')?.textContent||'').trim();if(!l||k.dataset.tone)return;
    const tone=NET.test(l)&&!/fees|cost/i.test(l)?'net':NEG.test(l)?'neg':POS.test(l)?'pos':'neutral';k.dataset.tone=tone;k.classList.add('kit-tone-'+tone);
@@ -1417,7 +1433,7 @@ const Etsy=(()=>{
     rest.sort((a,b)=>{const x=cellVal(a.cells[st.i]),y=cellVal(b.cells[st.i]);if(x===null)return 1;if(y===null)return -1;return (x<y?-1:x>y?1:0)*st.dir;});[...rest,...fixed].forEach(r=>body.appendChild(r));
     [...tb.tHead.rows[0].cells].forEach((th,j)=>{th.dataset.sort=j===st.i?(st.dir<0?'desc':'asc'):'';th.setAttribute('aria-sort',j===st.i?(st.dir<0?'descending':'ascending'):'none');});};
    apply();});}
- function afterRender(){tintKpis();sortTables();
+ function afterRender(){tintKpis();sortTables();if(screen==='shops')tintLogos();
   const host=document.querySelector('.top-left');if(!host)return;let box=document.getElementById('shop-switch');
   if(!box){box=document.createElement('label');box.id='shop-switch';box.className='shop-control';host.appendChild(box);}
   const cur=state.settings.shop,opts=`${state.shops.length!==1?`<option value="">${state.shops.length?'All shops':'No shops yet'}</option>`:''}${state.shops.map(x=>`<option value="${x.id}" ${x.id===cur?'selected':''}>${esc(x.name)}</option>`).join('')}<option value="__add">＋ Add a shop…</option>`;
@@ -1694,7 +1710,8 @@ const Etsy=(()=>{
  .kit-ins-part{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-md);padding:12px 14px}
  .kit-ins-ico,.kit-act-ico,.kit-h-ico{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--t,var(--accent)) 14%,var(--card));color:var(--t,var(--accent));flex:none}
  .kit-file-cell{display:flex;gap:12px;align-items:flex-start}.kit-shop-rows span svg{width:13px;height:13px;margin-right:6px;vertical-align:-2px;color:var(--ink-3)}
- .kit-ins-ico svg,.kit-act-ico svg{width:18px;height:18px;stroke-width:1.9}.kit-h-ico{width:28px;height:28px;border-radius:8px;margin-right:10px;vertical-align:-7px}.kit-h-ico svg{width:15px;height:15px;stroke-width:2}
+ .kit-ins-ico svg,.kit-act-ico svg{width:18px;height:18px;stroke-width:1.9}.kit-h-ico{width:28px;height:28px;border-radius:8px;margin-right:10px;vertical-align:middle}
+ h2:has(>.kit-h-ico){display:flex;align-items:center}.kit-h-ico svg{width:15px;height:15px;stroke-width:2}
  .kit-ins-row{display:flex;justify-content:space-between;gap:8px;font-size:14px}.kit-ins-part small{color:var(--ink-3);font-size:12px}
  .kit-ins-bar{height:6px;border-radius:3px;background:var(--sunk);margin:7px 0 5px;overflow:hidden}.kit-ins-bar i{display:block;height:100%;background:var(--t);border-radius:3px}
  .kit-acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
