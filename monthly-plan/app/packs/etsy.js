@@ -91,7 +91,7 @@ const NICHE = {
       tiktok: [['statement', 'Order settlement export · revenue and every TikTok Shop fee', 'TikTok Shop Seller Center → Finance → Transactions (or Statements) → Export. An orders export with product names also works; fees are then estimated.', 'tiktok_settlement.csv']],
       faire: [['statement', 'Orders export · what each retailer ordered', 'Faire brand portal → Orders → Export. If the file has Faire’s commission, it is used; otherwise it is estimated at your rate in Settings.', 'faire_orders.csv']],
       gumroad: [['statement', 'Sales export · every sale with Gumroad’s fees', 'Gumroad → Sales (or Customers) → Export → the CSV arrives by email.', 'Sales_2026.csv']],
-      payhip: [['statement', 'Sales export · every sale', 'Payhip → Sales → Export CSV. If the columns aren’t recognised, match them once.', 'payhip_sales.csv']],
+      payhip: [['statement', 'Sales export · every sale', 'Payhip → Sales → Export CSV. If the columns aren’t recognized, match them once.', 'payhip_sales.csv']],
       fourthwall: [['statement', 'Orders export · sales, production and fees', 'Fourthwall → Orders → Export CSV. Production costs, when listed, go to cost of goods.', 'fourthwall_orders.csv']],
       other: [['statement', 'Any sales CSV · Ko-fi, Big Cartel, Squarespace, your own site…', 'Download the sales or orders CSV from the store, drop it here and match its columns once: date, amount, and fees if it has them.', 'sales.csv']],
       ebay: [['statement', 'Transaction report · every order, fee, refund and label, with what sold', 'Seller Hub → Payments → Reports → Transaction report → choose the dates → Download CSV. One file gives both the money and the orders.', 'Transaction_report.csv']],
@@ -127,7 +127,7 @@ const NICHE = {
     { id: 'L22', line: '22', label: 'Supplies', part: 'expense' },
     { id: 'L23', line: '23', label: 'Taxes and licenses', part: 'expense' },
     { id: 'L25', line: '25', label: 'Utilities', part: 'expense' },
-    { id: 'L27b', line: '27b', label: 'Other expenses (itemised in Part V)', part: 'expense' },
+    { id: 'L27b', line: '27b', label: 'Other expenses (itemized in Part V)', part: 'expense' },
     { id: 'N', line: '—', label: 'Not on Schedule C (personal, or reported elsewhere)', part: 'none', exclude: true },
   ],
   taxQuarters: [
@@ -196,12 +196,12 @@ const NICHE = {
       ['Pricing calculator', 'Enter a price, what you charge for shipping, any discount, your ad spend and your own costs, and see what one sale leaves you. Set the margin you want to keep and it finds the lowest price that does.'],
       ['Sales tax and VAT buyers pay', 'Etsy adds sales tax or VAT to the buyer’s payment and then takes it straight back to pay the state. The statement shows both. Shop Insights records the tax as a minus line under revenue, so it is never counted as income or as a cost.'],
       ['Several shops', 'Every import belongs to one shop. The shop picker at the top shows one shop or all of them together; every screen and printout follows it. Costs you log with <b>All shops</b> selected are shared costs: they appear in the combined view only.'],
-      ['Importing twice, moving and deleting', 'Each statement line, order, item and review is recognised when it comes back, so an overlapping or repeated file never counts twice. Under <b>Imported files</b> you can move a file to another shop or delete it, with undo. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
+      ['Importing twice, moving and deleting', 'Each statement line, order, item and review is recognized when it comes back, so an overlapping or repeated file never counts twice. Under <b>Imported files</b> you can move a file to another shop or delete it, with undo. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
       ['Coming soon: other places you sell', 'Shopify, Square, Amazon Handmade, eBay and more are coming in a free update. Until then, sales from elsewhere can be logged as transactions or brought in with a bank CSV, and they count in your profit, tax and Schedule C.'],
       ['Bank files', 'Import your bank’s CSV for costs Etsy never sees. Money in that matches an Etsy payout is filed as an Etsy deposit (its sales are already counted); anything else that came in is other revenue.'],
       ['Privacy', 'The sold order items file includes buyer names and addresses. Shop Insights keeps only the country and a scrambled key to count repeat buyers. Names and addresses are never stored.'],
       ['Listings and sales', 'Etsy’s listings file has no listing number, so listings are matched to sales by the start of their title. A listing you renamed may show as unsold.'],
-      ['Tax lines and your accountant', 'Each category carries a Schedule C line. It is an organised record, not tax advice or a filed return. Shop Insights is not affiliated with Etsy, Inc.'],
+      ['Tax lines and your accountant', 'Each category carries a Schedule C line. It is an organized record, not tax advice or a filed return. Shop Insights is not affiliated with Etsy, Inc.'],
     ],
   },
 
@@ -228,7 +228,7 @@ const NICHE = {
       const E = s.etsy = { orders: [], items: [], listings: [], reviews: [], imports: [] };
       const season = [0.7, 0.75, 0.85, 0.9, 1, 0.9, 0.85, 0.9, 1, 1.2, 1.6, 1.9];
       const countries = [['United States', 68, 0.065], ['United Kingdom', 9, 0.2], ['Canada', 8, 0], ['Australia', 5, 0], ['Germany', 4, 0.19], ['France', 2, 0.2], ['Netherlands', 2, 0.21], ['Ireland', 2, 0.23]];
-      const words = { 5: ['Beautiful, even better in person!', 'Arrived quickly and so well packed.', 'Perfect gift, my sister loved it.', 'Gorgeous quality. Will order again.', 'Exactly as pictured.', ''], 4: ['Lovely, took a little longer to arrive.', 'Nice, colours slightly different to the photos.'], 3: ['Fine, but the corner was bent.'], 2: ['Smaller than I expected.'], 1: ['Arrived broken. The seller did offer a refund.'] };
+      const words = { 5: ['Beautiful, even better in person!', 'Arrived quickly and so well packed.', 'Perfect gift, my sister loved it.', 'Gorgeous quality. Will order again.', 'Exactly as pictured.', ''], 4: ['Lovely, took a little longer to arrive.', 'Nice, colors slightly different to the photos.'], 3: ['Fine, but the corner was bent.'], 2: ['Smaller than I expected.'], 1: ['Arrived broken. The seller did offer a refund.'] };
       const shops = [
         { id: 'fern', orders: 34, ship: 4.5, freeOver: 35, label: 0, ads: [1.2, 2.8], plus: true, codes: [['WELCOME10', 0.1], ['FALL20', 0.2], ['THANKYOU15', 0.15]],
           list: [['Botanical Fern Print, Vintage Style Wall Art, Green Leaf Poster', 18, 9, 10, 13], ['Mushroom Art Print, Cottagecore Forest Illustration', 16, 8, 10, 13], ['Wildflower Meadow Print, Watercolor Botanical Poster', 22, 6, 9, 13],

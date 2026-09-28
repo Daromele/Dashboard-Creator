@@ -96,7 +96,7 @@ const NICHE = {
       tiktok: [['statement', 'Order settlement export · revenue and every TikTok Shop fee', 'TikTok Shop Seller Center → Finance → Transactions (or Statements) → Export. An orders export with product names also works; fees are then estimated.', 'tiktok_settlement.csv']],
       faire: [['statement', 'Orders export · what each retailer ordered', 'Faire brand portal → Orders → Export. If the file has Faire’s commission, it is used; otherwise it is estimated at your rate in Settings.', 'faire_orders.csv']],
       gumroad: [['statement', 'Sales export · every sale with Gumroad’s fees', 'Gumroad → Sales (or Customers) → Export → the CSV arrives by email.', 'Sales_2026.csv']],
-      payhip: [['statement', 'Sales export · every sale', 'Payhip → Sales → Export CSV. If the columns aren’t recognised, match them once.', 'payhip_sales.csv']],
+      payhip: [['statement', 'Sales export · every sale', 'Payhip → Sales → Export CSV. If the columns aren’t recognized, match them once.', 'payhip_sales.csv']],
       fourthwall: [['statement', 'Orders export · sales, production and fees', 'Fourthwall → Orders → Export CSV. Production costs, when listed, go to cost of goods.', 'fourthwall_orders.csv']],
       other: [['statement', 'Any sales CSV · Ko-fi, Big Cartel, Squarespace, your own site…', 'Download the sales or orders CSV from the store, drop it here and match its columns once: date, amount, and fees if it has them.', 'sales.csv']],
       ebay: [['statement', 'Transaction report · every order, fee, refund and label, with what sold', 'Seller Hub → Payments → Reports → Transaction report → choose the dates → Download CSV. One file gives both the money and the orders.', 'Transaction_report.csv']],
@@ -132,7 +132,7 @@ const NICHE = {
     { id: 'L22', line: '22', label: 'Supplies', part: 'expense' },
     { id: 'L23', line: '23', label: 'Taxes and licenses', part: 'expense' },
     { id: 'L25', line: '25', label: 'Utilities', part: 'expense' },
-    { id: 'L27b', line: '27b', label: 'Other expenses (itemised in Part V)', part: 'expense' },
+    { id: 'L27b', line: '27b', label: 'Other expenses (itemized in Part V)', part: 'expense' },
     { id: 'N', line: '—', label: 'Not on Schedule C (personal, or reported elsewhere)', part: 'none', exclude: true },
   ],
   taxQuarters: [
@@ -201,12 +201,12 @@ const NICHE = {
       ['Pricing calculator', 'Enter a price, what you charge for shipping, any discount, your ad spend and your own costs, and see what one sale leaves you. Set the margin you want to keep and it finds the lowest price that does.'],
       ['Sales tax and VAT buyers pay', 'Etsy adds sales tax or VAT to the buyer’s payment and then takes it straight back to pay the state. The statement shows both. Shop Insights records the tax as a minus line under revenue, so it is never counted as income or as a cost.'],
       ['Several shops', 'Every import belongs to one shop. The shop picker at the top shows one shop or all of them together; every screen and printout follows it. Costs you log with <b>All shops</b> selected are shared costs: they appear in the combined view only.'],
-      ['Importing twice, moving and deleting', 'Each statement line, order, item and review is recognised when it comes back, so an overlapping or repeated file never counts twice. Under <b>Imported files</b> you can move a file to another shop or delete it, with undo. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
+      ['Importing twice, moving and deleting', 'Each statement line, order, item and review is recognized when it comes back, so an overlapping or repeated file never counts twice. Under <b>Imported files</b> you can move a file to another shop or delete it, with undo. A listings file replaces that shop’s listings, because it is a snapshot of the shop today.'],
       ['Coming soon: other places you sell', 'Shopify, Square, Amazon Handmade, eBay and more are coming in a free update. Until then, sales from elsewhere can be logged as transactions or brought in with a bank CSV, and they count in your profit, tax and Schedule C.'],
       ['Bank files', 'Import your bank’s CSV for costs Etsy never sees. Money in that matches an Etsy payout is filed as an Etsy deposit (its sales are already counted); anything else that came in is other revenue.'],
       ['Privacy', 'The sold order items file includes buyer names and addresses. Shop Insights keeps only the country and a scrambled key to count repeat buyers. Names and addresses are never stored.'],
       ['Listings and sales', 'Etsy’s listings file has no listing number, so listings are matched to sales by the start of their title. A listing you renamed may show as unsold.'],
-      ['Tax lines and your accountant', 'Each category carries a Schedule C line. It is an organised record, not tax advice or a filed return. Shop Insights is not affiliated with Etsy, Inc.'],
+      ['Tax lines and your accountant', 'Each category carries a Schedule C line. It is an organized record, not tax advice or a filed return. Shop Insights is not affiliated with Etsy, Inc.'],
     ],
   },
 
@@ -233,7 +233,7 @@ const NICHE = {
       const E = s.etsy = { orders: [], items: [], listings: [], reviews: [], imports: [] };
       const season = [0.7, 0.75, 0.85, 0.9, 1, 0.9, 0.85, 0.9, 1, 1.2, 1.6, 1.9];
       const countries = [['United States', 68, 0.065], ['United Kingdom', 9, 0.2], ['Canada', 8, 0], ['Australia', 5, 0], ['Germany', 4, 0.19], ['France', 2, 0.2], ['Netherlands', 2, 0.21], ['Ireland', 2, 0.23]];
-      const words = { 5: ['Beautiful, even better in person!', 'Arrived quickly and so well packed.', 'Perfect gift, my sister loved it.', 'Gorgeous quality. Will order again.', 'Exactly as pictured.', ''], 4: ['Lovely, took a little longer to arrive.', 'Nice, colours slightly different to the photos.'], 3: ['Fine, but the corner was bent.'], 2: ['Smaller than I expected.'], 1: ['Arrived broken. The seller did offer a refund.'] };
+      const words = { 5: ['Beautiful, even better in person!', 'Arrived quickly and so well packed.', 'Perfect gift, my sister loved it.', 'Gorgeous quality. Will order again.', 'Exactly as pictured.', ''], 4: ['Lovely, took a little longer to arrive.', 'Nice, colors slightly different to the photos.'], 3: ['Fine, but the corner was bent.'], 2: ['Smaller than I expected.'], 1: ['Arrived broken. The seller did offer a refund.'] };
       const shops = [
         { id: 'fern', orders: 34, ship: 4.5, freeOver: 35, label: 0, ads: [1.2, 2.8], plus: true, codes: [['WELCOME10', 0.1], ['FALL20', 0.2], ['THANKYOU15', 0.15]],
           list: [['Botanical Fern Print, Vintage Style Wall Art, Green Leaf Poster', 18, 9, 10, 13], ['Mushroom Art Print, Cottagecore Forest Illustration', 16, 8, 10, 13], ['Wildflower Meadow Print, Watercolor Botanical Poster', 22, 6, 9, 13],
@@ -3484,7 +3484,7 @@ const EtsyData=((P,B,CSV)=>{
     if(hit)hit.amount+=amount;else lines.set(key,{date,category:cls.category,amount,ref,note:[title,info].filter(Boolean).join(' · ').slice(0,160),key,type});
    }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
   const records=[...lines.values()].filter(x=>x.amount);
-  return {records,issues,currencies,notes:unknown.size?[`Unrecognised line types filed under Other Etsy fees: ${[...unknown].join(', ')}`]:[]};
+  return {records,issues,currencies,notes:unknown.size?[`Unrecognized line types filed under Other Etsy fees: ${[...unknown].join(', ')}`]:[]};
  }
  // ---------- sold order items ----------
  // Discount, shipping and sales tax are order-level: Etsy writes them once per order, not per item.
@@ -3541,17 +3541,17 @@ const EtsyData=((P,B,CSV)=>{
  const cols=headers=>{const h=headers.map(head);return k=>h.indexOf(k);};
  // Shopify orders export: one row per line item; order-level columns are filled on the order's first row
  function shopifyOrders(rows,headers){
-  const ix=cols(headers),c=Object.fromEntries(['name','email','financial status','currency','subtotal','shipping','taxes','discount code','discount amount','created at','paid at','lineitem quantity','lineitem name','lineitem price','lineitem sku','shipping country','billing country','cancelled at','refunded amount','id'].map(k=>[k,ix(k)]));
+  const ix=cols(headers),c=Object.fromEntries(['name','email','financial status','currency','subtotal','shipping','taxes','discount code','discount amount','created at','paid at','lineitem quantity','lineitem name','lineitem price','lineitem sku','shipping country','billing country','canceled at','refunded amount','id'].map(k=>[k,ix(k)]));
   const orders=new Map(),items=[],issues=[],currencies=new Set();let skipped=0;
   rows.forEach((r,n)=>{const g=k=>c[k]>=0?String(r.cells[c[k]]??'').trim():'';
    try{const name=g('name');if(!name)throw Error('No order name');
     let o=orders.get(name);
-    if(!o){orders.set(name,o={name,id:'',date:'',status:'',cancelled:false,buyer:'',country:'',coupon:'',discount:0,shipping:0,tax:0,refund:0,list:0,units:0,items:[]});}
+    if(!o){orders.set(name,o={name,id:'',date:'',status:'',canceled:false,buyer:'',country:'',coupon:'',discount:0,shipping:0,tax:0,refund:0,list:0,units:0,items:[]});}
     // the first row of an order carries its totals; later rows only their line item
     if(!o.date&&(g('created at')||g('paid at')))o.date=day(g('created at')||g('paid at'));
     if(g('id')&&!o.id)o.id=g('id').replace(/\D/g,'');
     if(g('financial status'))o.status=norm(g('financial status'));
-    if(g('cancelled at'))o.cancelled=true;
+    if(g('canceled at'))o.canceled=true;
     if(g('email')&&!o.buyer)o.buyer=hash(norm(g('email'))).slice(0,12);
     if(!o.country)o.country=(g('shipping country')||g('billing country')).slice(0,60);
     if(g('discount code')&&!o.coupon)o.coupon=g('discount code').slice(0,80);
@@ -3565,13 +3565,13 @@ const EtsyData=((P,B,CSV)=>{
    }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
   const records=[];
   for(const o of orders.values()){
-   if(o.cancelled||['voided','refunded','expired'].includes(o.status)){skipped++;continue;}
+   if(o.canceled||['voided','refunded','expired'].includes(o.status)){skipped++;continue;}
    if(!o.date){issues.push(`Order ${o.name}: no date`);continue;}
    const id='sh'+(o.id||o.name.replace(/[^A-Za-z0-9]/g,'')).slice(0,36);
    o.items.forEach(i=>items.push({id:'h'+hash([id,i.name,i.sku,i.n].join('|')),order:id,listing:'',name:i.name,qty:i.qty,price:i.price,total:i.total,sku:i.sku}));
    const list=o.items.reduce((a,i)=>a+i.total,0);
    records.push({id,date:o.date,buyer:o.buyer,country:o.country,coupon:o.coupon,discount:Math.min(o.discount,list),shipDiscount:0,shipping:o.shipping,tax:o.tax,list,units:o.items.reduce((a,i)=>a+i.qty,0),...(o.refund?{refund:o.refund}:{})});}
-  return {records,items,issues,currencies,notes:skipped?[`${skipped} cancelled, voided or fully refunded order${skipped===1?'':'s'} left out.`]:[]};
+  return {records,items,issues,currencies,notes:skipped?[`${skipped} canceled, voided or fully refunded order${skipped===1?'':'s'} left out.`]:[]};
  }
  // Square transactions export: one row per payment or refund, with the exact Square fee
  function squareTx(rows,headers){
@@ -3715,7 +3715,7 @@ const EtsyData=((P,B,CSV)=>{
     if(date<o.date)o.date=date;o.list+=goods;o.discount+=disc;o.shipping+=ship;o.tax+=tax;o.units+=qty;
     items.push({id:'h'+hash([id,what,get(r,c.sku),n].join('|')),order:id,listing:'',name:what||`${P0} sale`,qty,price:Math.round(goods/qty),total:goods,sku:get(r,c.sku).slice(0,80)});
    }catch(e){issues.push(`Line ${r.line}: ${e.message}`);}});
-  const list=[...orders.values()].map(o=>({...o,discount:Math.min(o.discount,o.list)})),notes=skipped?[`${skipped} cancelled, pending, refunded or payout row${skipped===1?'':'s'} left out.`]:[];
+  const list=[...orders.values()].map(o=>({...o,discount:Math.min(o.discount,o.list)})),notes=skipped?[`${skipped} canceled, pending, refunded or payout row${skipped===1?'':'s'} left out.`]:[];
   if(!hasFees)notes.push(`No fees in this file: ${P0} fees are estimated at your rate in Settings.`);
   return hasFees?{kind:'statement',records:[...lines.values()].filter(x=>x.amount),issues,currencies,notes,twin:{records:list,items}}:{kind:'orders',records:list,items,issues,currencies,notes};
  }
@@ -3749,7 +3749,7 @@ const EtsyData=((P,B,CSV)=>{
    records.push({id:'r'+hash(n>1?base+'#'+n:base),date,stars,message,order});}catch(e){issues.push(`Review ${i+1}: ${e.message}`);}});
   return {records,issues,currencies:new Set(),notes:[]};
  }
- // Etsy's other download options, recognised so the import screen can say what to use instead
+ // Etsy's other download options, recognized so the import screen can say what to use instead
  function otherReport(rows){const has=(...k)=>rows.some(r=>k.every(x=>r.includes(x)));
   if(has('order id','number of items')||has('order id','order net'))return 'This is Etsy’s Orders report (one row per order). You don’t need it: the Order Items report has the same orders item by item, and the monthly payment account statement has every fee.';
   if(rows.some(r=>r.some(x=>/gross amount|net amount|posted/.test(x))))return 'This is Etsy’s Payments Sales report (for 1099-K checks). You don’t need it: the payment account statement has the same payments plus every Etsy fee and ad.';
@@ -4140,7 +4140,7 @@ const Etsy=(()=>{
    `<text x="${(pl+W-pr)/2}" y="${H-2}" class="kit-axis-title" text-anchor="middle">${esc(xName)}</text><text x="12" y="${pt+4}" class="kit-axis-title">${esc(yName)}</text>`+
    points.map((p,i)=>`<circle class="kit-dot${p.y?'':' kit-dot-zero'}" cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${p.y?6:4.5}" style="--i:${i%40}" tabindex="0" data-tip="${tipOf(p.label,[{name:xName,value:xf(p.x),color:p.y?'var(--accent)':'var(--cat-6)'},{name:yName,value:yf(p.y)},...(p.note?[{name:p.note,value:''}]:[])])}"/>`).join('')+`</svg></div>`;
  }
- // stacked columns: parts of a whole per month (one colour per shop), 2px gaps between segments
+ // stacked columns: parts of a whole per month (one color per shop), 2px gaps between segments
  function stack(series,labels,{f=fmt,title='',overlay=null}={}){const cf=f===fmt?compact:v=>f(Math.round(v));
   const tot=labels.map((_,i)=>series.reduce((n,s)=>n+(Number.isFinite(s.values[i])?Math.max(0,s.values[i]):0),0)),max=Math.max(1,...tot,...(overlay?overlay.values.filter(Number.isFinite):[]));if(!tot.some(Boolean))return '';
   const W=700,H=260,pl=52,pr=12,pt=22,pb=28,band=(W-pl-pr)/labels.length,bw=Math.min(38,band*.62),Y=v=>pt+(1-v/max)*(H-pt-pb),ticks=Array.from({length:5},(_,i)=>max*i/4);
@@ -4160,7 +4160,7 @@ const Etsy=(()=>{
   if(rest.length)series.push({name:`${rest.length} other shop${rest.length===1?'':'s'}`,values:months.map((_,i)=>rest.reduce((n,x)=>n+(x.vals[i]||0),0)),color:colors[5]});
   return stack(series,months.map(shortMonth),{title:`${L.income} by shop and month`,overlay});
  }
- // a shop keeps its colour everywhere: its place in your shop list, never its rank
+ // a shop keeps its color everywhere: its place in your shop list, never its rank
  const shopColor=id=>{const i=state.shops.findIndex(s=>s.id===id);return i>=0&&i<5?colors[i]:colors[5];};
  const heat=(v,max)=>{const t=max>0?Math.max(0,v)/max:0;return `background:color-mix(in oklab,var(--accent) ${Math.round(6+t*70)}%,var(--card));color:${t>0.5?'var(--accent-ink)':'var(--ink)'}`;};
 
@@ -4373,7 +4373,7 @@ const Etsy=(()=>{
     `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Orders with a discount</h2><p>${esc(r.label)} · ${num(C.orders)} orders</p></div></div>${pie([['Discounted',C.discounted,'var(--cat-2)'],['Full price',C.orders-C.discounted,'var(--cat-1)']],{label:'Orders',donut:false,f:num})}</section>`+
     `<section class="card"><div class="cardhead"><div><h2>What buyers paid of the list price</h2><p>${esc(r.label)} · items only, before shipping and tax</p></div></div>${pie([['Paid for items',C.paid,'var(--cat-5)'],['Discounts',C.discount,'var(--cat-2)']],{label:'List price',center:pc(C.list?C.paid/C.list:null,0),sub:'PAID'})}</section></div>`+
     `<div class="grid2 equal"><section class="card"><div class="cardhead"><div><h2>Discount by coupon code</h2><p>Share of the ${fmt(C.discount+C.shipDiscount)} given away</p></div></div>${C.codes.length?pie(fold(C.codes.map(c=>[c.code||'No code (sale or offer)',c.discount]),'Other codes'),{label:'Discount'}):'<p class="small muted">No discounted orders in this period.</p>'}</section>`+
-    `<section class="card table-card"><div class="cardhead"><div><h2>By coupon code</h2><p>Sales and offers without a code are grouped together</p></div></div>${C.codes.length?`<div class="table-wrap"><table><thead><tr><th>Code</th><th class="num">Orders</th><th class="num">Discount</th><th class="num">Average</th></tr></thead><tbody>${C.codes.map(c=>`<tr><td>${c.code?`<b>${esc(c.code)}</b>`:'<span class="dim">No code (sale or offer)</span>'}</td><td class="num">${num(c.orders)}</td><td class="num">${fmt(c.discount)}</td><td class="num">${fmt(Math.round(c.discount/c.orders))}</td></tr>`).join('')}</tbody></table></div>`:'<p class="small muted">No discounted orders in this period.</p>'}</section></div>`+
+    `<section class="card table-card"><div class="cardhead"><div><h2>By coupon code</h2><p>Sales and offers without a code are grouped together</p></div></div>${C.codes.length?`<div class="table-wrap"><table class="kit-codes"><thead><tr><th>Code</th><th class="num">Orders</th><th class="num">Discount</th><th class="num">Average</th></tr></thead><tbody>${C.codes.map(c=>`<tr><td>${c.code?`<b title="${esc(c.code)}">${esc(c.code)}</b>`:'<span class="dim">No code (sale or offer)</span>'}</td><td class="num">${num(c.orders)}</td><td class="num">${fmt(c.discount)}</td><td class="num">${fmt(Math.round(c.discount/c.orders))}</td></tr>`).join('')}</tbody></table></div>`:'<p class="small muted">No discounted orders in this period.</p>'}</section></div>`+
     (months.some(m=>mm.get(m))?`<section class="card"><div class="cardhead"><div><h2>Discounted orders by month, ${y}</h2><p>Hover a month for the share discounted</p></div></div>${compareBarChart([{name:'Orders',values:months.map(m=>mm.get(m)?.orders??null),color:'var(--ch-in)'},{name:'Discounted',values:months.map(m=>mm.get(m)?.discounted??null),color:'var(--cat-2)'}],months.map(shortMonth),'Orders and discounted orders by month','vertical',num)}</section>`:'')
    :`<section class="card">${noData('sold order items')}</section>`);
  }
@@ -4485,7 +4485,7 @@ const Etsy=(()=>{
   if(PP.unsold.length)act('unsold','warn','tags',`${num(PP.unsold.length)} listing${PP.unsold.length>1?'s':''} had no sales ${span}`,'Renewing each costs a listing fee. Give them new photos and titles, or let them expire.','go-products','Review listings');
   if(PP.health.photos)act('photos','warn','edit',`${num(PP.health.photos)} listing${PP.health.photos>1?'s use':' uses'} fewer than 10 photos`,'More photos, especially in use and to scale, is one of the easiest wins on Etsy.','go-products','Review listings');
   if(PP.health.tags)act('tags','warn','tags',`${num(PP.health.tags)} listing${PP.health.tags>1?'s use':' uses'} fewer than 13 tags`,'Every empty tag is a search you can’t show up in. Use all 13, with phrases buyers type.','go-products','Review listings');
-  if(PP.list.length>=5&&PP.top(3)>0.6)act('top3','warn','compass',`Your top 3 products bring ${pc(PP.top(3),0)} of sales`,'Add variations of them (colours, sizes, bundles) so one slow listing can’t sink the month.','go-products','See products');
+  if(PP.list.length>=5&&PP.top(3)>0.6)act('top3','warn','compass',`Your top 3 products bring ${pc(PP.top(3),0)} of sales`,'Add variations of them (colors, sizes, bundles) so one slow listing can’t sink the month.','go-products','See products');
   const thin=PP.list.filter(p=>p.unit!==null&&p.margin<0.15);if(thin.length)act('thin','bad','coins',`${num(thin.length)} product${thin.length>1?'s make':' makes'} under 15% after costs`,'Raise the price or cut the cost. The pricing calculator shows the price for the margin you want.','go-pricing','Pricing calculator');
   if(RQ.low.length)act('lowrev','bad','review',`${num(RQ.low.length)} review${RQ.low.length>1?'s':''} of 3 stars or less ${span}`,'Reply to each one and look for a pattern in item, shipping or photos.','go-reviews','Read reviews');
   else if(RY.avg>=4.8&&RY.count>=10)act('love','good','review',`Buyers love your shop: ${RY.avg.toFixed(2)} stars`,'Quote your best reviews in listing descriptions and photos.','go-reviews','Read reviews');
@@ -4515,8 +4515,8 @@ const Etsy=(()=>{
   const tone=I.score===null?'warn':I.score>=75?'good':I.score>=55?'warn':'bad',word={good:'Thriving',warn:'Steady, with room to grow',bad:'Needs attention'}[tone];
   const hero=`<section class="card kit-ins-hero kit-t-${tone}">${I.score!==null?scoreRing(I.score):''}<div class="kit-ins-lead"><small class="kit-eyebrow">Shop health · ${esc(I.curL)}</small><h2>${word}</h2><p>${fmt(I.rev)} in sales${I.growth!==null?`, <span class="kit-delta ${I.growth>=0?'up':'down'}">${signed(I.growth)}</span> on ${esc(I.prevL)}`:''}. ${todo.length?`${num(todo.filter(a=>!isDone(a)).length)} of ${num(todo.length)} thing${todo.length===1?'':'s'} still to look at below.`:'Nothing urgent below.'}</p></div>`+
    `<div class="kit-ins-parts">${I.parts.map(p=>{const t=p.score>=70?'good':p.score>=45?'warn':'bad';return `<div class="kit-ins-part kit-t-${t}"><span class="kit-ins-ico">${ico(p.icon)}</span><div><div class="kit-ins-row"><b>${p.name}</b><b class="number">${p.value}</b></div><div class="kit-ins-bar"><i style="width:${Math.max(4,p.score)}%"></i></div><small>${p.note}</small></div></div>`;}).join('')}</div></section>`;
-  const actCard=a=>`<article class="kit-act kit-t-${a.tone}${isDone(a)?' kit-done':''}"><label class="kit-check no-print" title="${isDone(a)?'Mark as not done':'Mark as done'}"><input type="checkbox" data-ins-done="${esc(a.key)}" ${isDone(a)?'checked':''} aria-label="Done: ${esc(a.title)}"><span>${ico('check')}</span></label><span class="kit-act-ico">${ico(a.icon)}</span><div><h3>${esc(a.title)}</h3>${isDone(a)?`<p>Done ${dateName(doneMap[a.key])}</p>`:`<p>${esc(a.why)}</p>${button(a.label+' →',a.go,'small quiet')}`}</div></article>`;
-  const acts=I.acts.length?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('check')}</span>Do this next</h2><p>Most urgent first · tick a card when it’s done · red needs fixing, amber is worth a look, green is working</p></div><div class="kit-prog"><b class="number">${num(fin.length)} / ${num(I.acts.length)}</b><small>done</small><div class="kit-ins-bar"><i style="width:${Math.round((fin.length/I.acts.length)*100)}%;background:var(--ok)"></i></div></div></div><div class="kit-acts">${open.map(actCard).join('')}</div>${fin.length?`<h3 class="kit-calc-sub" style="margin-top:18px">Done</h3><div class="kit-acts">${fin.map(actCard).join('')}</div>`:''}${!open.length?`<p class="kit-allgood">${ico('check')} All done for ${esc(I.curL)}.</p>`:''}</section>`:'';
+  const actCard=a=>`<article class="kit-act kit-t-${a.tone}${isDone(a)?' kit-done':''}"><label class="kit-check no-print" title="${isDone(a)?'Uncheck':'Check off'}"><input type="checkbox" data-ins-done="${esc(a.key)}" ${isDone(a)?'checked':''} aria-label="Done: ${esc(a.title)}"><span>${ico('check')}</span></label><span class="kit-act-ico">${ico(a.icon)}</span><div><h3>${esc(a.title)}</h3>${isDone(a)?`<p>Done ${dateName(doneMap[a.key])}</p>`:`<p>${esc(a.why)}</p>${button(a.label+' →',a.go,'small quiet')}`}</div></article>`;
+  const acts=I.acts.length?`<section class="card"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('check')}</span>Do this next</h2><p>Most urgent first · check a card off when it’s done</p><p class="kit-legend-dots"><span><i class="kit-t-bad"></i>Needs fixing</span><span><i class="kit-t-warn"></i>Worth a look</span><span><i class="kit-t-good"></i>Working well</span></p></div><div class="kit-prog"><b class="number">${num(fin.length)} / ${num(I.acts.length)}</b><small>done</small><div class="kit-ins-bar"><i style="width:${Math.round((fin.length/I.acts.length)*100)}%;background:var(--ok)"></i></div></div></div><div class="kit-acts">${open.map(actCard).join('')}</div>${fin.length?`<h3 class="kit-calc-sub" style="margin-top:18px">Done</h3><div class="kit-acts">${fin.map(actCard).join('')}</div>`:''}${!open.length?`<p class="kit-allgood">${ico('check')} All done for ${esc(I.curL)}.</p>`:''}</section>`:'';
   const card=(p,i)=>`<li><span class="kit-rank">${i+1}</span><div><b title="${esc(p.name)}">${esc(p.name)}</b><div class="kit-chips">${p.why.map(w=>`<span>${esc(w)}</span>`).join('')}</div></div><div class="num"><b class="number">${fmt(p.net)}</b><small>${num(p.units)} sold${p.unit!==null?` · ${pc(p.margin,0)} margin`:''}</small></div></li>`;
   const lists=`<div class="grid2 equal"><section class="card kit-ins-list kit-t-good"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('up')}</span>Double down on</h2><p>Your most profitable products, ${esc(I.curL)}: keep them stocked, renewed and in your ads</p></div></div>${I.push.length?`<ol>${I.push.map(card).join('')}</ol>`:'<p class="small muted">No sales in the last 90 days.</p>'}</section>`+
    `<section class="card kit-ins-list kit-t-warn"><div class="cardhead"><div><h2><span class="kit-h-ico">${ico('edit')}</span>Revisit</h2><p>Products that slipped, stopped selling or make too little</p></div></div>${I.fix.length?`<ol>${I.fix.map((f,i)=>`<li><span class="kit-rank">${i+1}</span><div><b title="${esc(f.name)}">${esc(f.name)}</b><div class="kit-chips">${f.why.map(w=>`<span>${esc(w)}</span>`).join('')}</div></div><div class="num"><b class="number">${esc(f.v)}</b><small>${esc(f.x)}</small></div></li>`).join('')}</ol>`:`<p class="kit-allgood">${ico('check')} Nothing slipping. Every product that sold before is still selling.</p>`}</section></div>`;
@@ -4526,7 +4526,7 @@ const Etsy=(()=>{
  // ---------- reviews ----------
  function reviewsView(){
   const r=range(),R=D.reviewStats(state,r.from,r.to),stars=n=>'★'.repeat(n)+'☆'.repeat(5-n),recentMonths=R.months.slice(-24);
-  // star ratings are ordered, so one hue from light (1★) to dark (5★) instead of five unrelated colours
+  // star ratings are ordered, so one hue from light (1★) to dark (5★) instead of five unrelated colors
   const ramp=[18,32,48,66,100].map(p=>`color-mix(in oklab,var(--accent) ${p}%,var(--card))`);
   const lo=R.count?Math.max(1,Math.floor(Math.min(...recentMonths.map(x=>x.avg))*2)/2-0.5):1;
   return pagehead('What buyers say',`Reviews · ${esc(r.label)}`,'From reviews.json.',scopeNote())+spanControl()+
@@ -4570,7 +4570,7 @@ const Etsy=(()=>{
     `<div class="kit-shop-logo" style="--c:${shopColor(x.id)}">${sh.logo?`<img src="${sh.logo}" alt="${esc(x.name)} logo"><button class="kit-shop-rm no-print" data-action="etsy-shop-img-rm" data-id="${x.id}" data-kind="logo" aria-label="Remove logo" title="Remove logo">×</button>`:`<span>${ini}</span>`}</div>`+
     `<div class="kit-shop-body"><div class="kit-shop-top"><button class="link" data-action="etsy-scope" data-shop="${x.id}"><b>${esc(x.name)}</b></button></div>`+
     `<div class="kit-shop-big"><b class="number">${Biz.acct(x.takeHome)}</b><small>take-home · ${pc(x.kept,0)} kept</small></div>`+
-    `<div class="kit-shop-rows">${[['Revenue',fmt(x.revenue),'up'],['Etsy costs',fmt(x.etsyCosts),'coins'],['Orders',num(x.orders||x.soldOrders),'log'],['Average order',x.aov?fmt(x.aov):'—','wallet'],['Listings',num(x.listings),'tags'],['Rating',x.rating?x.rating.toFixed(2)+' ★':'—','review']].map(([l,v,i])=>`<div><span>${ico(i)}${l}</span><b class="number">${v}</b></div>`).join('')}</div>`+
+    `<div class="kit-shop-rows">${[['Revenue',fmt(x.revenue),'up'],['Etsy costs',fmt(x.etsyCosts),'coins'],['Orders',num(x.orders||x.soldOrders),'log'],['Average order',x.aov?fmt(x.aov):'—','wallet'],['Listings',num(x.listings),'tags'],['Rating',x.rating?x.rating.toFixed(2)+' ★':'—','review']].map(([l,v])=>`<div><span>${l}</span><b class="number">${v}</b></div>`).join('')}</div>`+
     `<div class="kit-shop-meter"><i style="width:${Math.max(0,Math.min(100,(x.kept||0)*100))}%"></i></div></div></article>`;}).join('')}</div></section>`;}
  // pictures are shrunk to a small JPEG before they are saved, so the file stays light
  // a cover photo fills a 16:9 banner; a logo is kept whole (transparent PNG) in a square
@@ -4655,13 +4655,13 @@ const Etsy=(()=>{
   if(session?.files.length){
    const rows=session.files.map(f=>({f,r:D.merge(clone(state),target,f,{dry:true})}));
    const ready=rows.filter(x=>!x.r.error&&(x.r.added||x.r.updated||x.r.items)).length;
-   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognised as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.kindName(f.kind,f.platform):'<span class="warn">Not recognised</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}${f.headers&&(f.generic?f.platform===tp:tp!=='etsy')&&!f.twinOf?`<div class="etsy-map-row">${button(f.mapped?'Columns matched · change':f.generic&&!f.error?'Check columns':'Match columns','etsy-map','small quiet',`data-i="${f.src}"`)}</div>`:''}</td></tr>`).join('')}</tbody></table></div></section>`;
+   preview=`<section class="card table-card"><div class="cardhead"><div><h2>Ready to import</h2><p>${session.files.length} file${session.files.length===1?'':'s'} into <b>${esc(shopName(target)||'—')}</b></p></div><div class="actions">${button('Clear','etsy-clear','small')}${button(`Import ${ready} file${ready===1?'':'s'}`,'etsy-import','small primary',ready&&target?'':'disabled')}</div></div><div class="table-wrap"><table class="etsy-files"><thead><tr><th>File</th><th>Recognized as</th><th>Dates</th><th class="num">Rows</th><th>What happens</th></tr></thead><tbody>${rows.map(({f,r})=>`<tr><td><b>${esc(f.name)}</b>${f.issues.length?`<small class="warn etsy-item">${f.issues.length} row${f.issues.length===1?'':'s'} skipped: ${esc(f.issues.slice(0,2).join(' · '))}</small>`:''}${f.notes.map(n=>`<small class="dim etsy-item">${esc(n)}</small>`).join('')}</td><td>${f.kind?D.kindName(f.kind,f.platform):'<span class="warn">Not recognized</span>'}</td><td class="nw">${f.from?dateName(f.from)+(f.from.slice(0,4)!==f.to.slice(0,4)?' '+f.from.slice(0,4):'')+(f.to!==f.from?' – '+dateName(f.to):'')+' '+f.to.slice(0,4):'—'}</td><td class="num">${num(f.records.length)}${f.kind==='orders'?`<small class="dim etsy-item">${num(f.items.length)} items</small>`:''}</td><td>${r.error?`<span class="warn">${esc(r.error)}</span>`:outcome(r)}${f.headers&&(f.generic?f.platform===tp:tp!=='etsy')&&!f.twinOf?`<div class="etsy-map-row">${button(f.mapped?'Columns matched · change':f.generic&&!f.error?'Check columns':'Match columns','etsy-map','small quiet',`data-i="${f.src}"`)}</div>`:''}</td></tr>`).join('')}</tbody></table></div></section>`;
   }
-  return pagehead('Bring in your sales files','Import files',X.platforms.filter(([v])=>D.enabled(v)).length>1?'Choose the shop, then drop in its exports. Each file is recognised by its columns. Anything already imported is skipped.':'Choose the shop, then drop in its Etsy exports: payment account statements, sold order items, listings, reviews and deposits. Each file is recognised by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
+  return pagehead('Bring in your sales files','Import files',X.platforms.filter(([v])=>D.enabled(v)).length>1?'Choose the shop, then drop in its exports. Each file is recognized by its columns. Anything already imported is skipped.':'Choose the shop, then drop in its Etsy exports: payment account statements, sold order items, listings, reviews and deposits. Each file is recognized by its columns. Anything already imported is skipped.',button('Import a bank CSV','go-import','quiet'))+
    `<section class="card etsy-import-card"><div class="etsy-import-top">`+
    `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">1</span><div><h2>${shops.length?'Choose the shop':'Name your first shop'}</h2><p>${shops.length?'Files go into this shop, whatever the picker at the top shows.':'One entry per Etsy shop. You can add more later.'}</p></div></div>`+
    `<div class="etsy-shop-row">${shopPick}</div>${shops.length?`<p class="etsy-shop-meta">${ico('history')}<span>${esc(held(target))}</span></p>`:''}</div>`+
-   `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">2</span><div><h2>Add the files</h2><p>${tp==='etsy'?'Statements, order items, listings and reviews, together or one at a time.':tp==='shopify'?'Your orders export, and the payouts transactions export for exact fees.':tp==='square'?'Square transactions and item detail, together or one at a time.':tp==='amazon'?'Your Date Range Report: it brings in both the money and the orders.':tp==='ebay'?'Your transaction report: it brings in both the money and the orders.':tp!=='other'?`Your ${esc(tpl)} sales or orders export. If its columns aren’t recognised, match them once.`:'Any store’s sales or orders CSV: drop it in and match its columns once. You can also log sales as transactions.'}</p></div></div>`+
+   `<div class="etsy-import-step"><div class="etsy-step-head"><span class="etsy-step-no">2</span><div><h2>Add the files</h2><p>${tp==='etsy'?'Statements, order items, listings and reviews, together or one at a time.':tp==='shopify'?'Your orders export, and the payouts transactions export for exact fees.':tp==='square'?'Square transactions and item detail, together or one at a time.':tp==='amazon'?'Your Date Range Report: it brings in both the money and the orders.':tp==='ebay'?'Your transaction report: it brings in both the money and the orders.':tp!=='other'?`Your ${esc(tpl)} sales or orders export. If its columns aren’t recognized, match them once.`:'Any store’s sales or orders CSV: drop it in and match its columns once. You can also log sales as transactions.'}</p></div></div>`+
    `<label class="etsy-drop${shops.length?'':' disabled'}" id="etsy-drop"><span class="etsy-drop-icon">${ico('up')}</span><b>Drop ${tp==='other'?'sales':esc(tpl)} files here</b><small>${tp==='etsy'?'.csv and reviews.json':'.csv files'} · several at once · read on this device only</small><span class="btn small etsy-drop-btn">Choose files</span><input class="sr-only" type="file" id="etsy-files" accept=".csv,.json,text/csv,application/json" multiple ${shops.length?'':'disabled'}></label></div>`+
    `</div></section>`+
    preview+
@@ -4710,7 +4710,7 @@ const Etsy=(()=>{
    if(latest)selected=(latest>today()?today():latest).slice(0,7);session=null;},summary);
  }
  // ---------- shop picker in the top bar ----------
- // One colour language across every screen: money in is green, money out is red, what is left
+ // One color language across every screen: money in is green, money out is red, what is left
  // is the accent. KPI tiles are tinted by what they measure, and each sparkline and "vs last
  // month" note is green when the change is good for the seller and red when it is not.
  const POS=/revenue|sales|income|received|paid out|take-home|kept|orders|average order|payout|buyers|gross profit|collected|listings|rating|products sold/i,
@@ -4809,7 +4809,7 @@ const Etsy=(()=>{
    const v=raw?Math.round(Number(raw)*100):null,k=t.dataset.cost;setTimeout(()=>commit(()=>{state.etsy.costs??={};if(v===null)delete state.etsy.costs[k];else state.etsy.costs[k]=v;},v===null?'Cost cleared':`Cost saved · ${fmt(v)} an item`),0);return;}
   if(t.closest?.('#etsy-fees-form')&&t.name==='preset'){const p=X.presets.find(x=>x[0]===t.value);if(!p)return;const [, ,tx,pr,fx,li,of]=p,el=t.form.elements;el.transaction.value=tx/100;el.processing.value=pr/100;el.processingFixed.value=(fx/100).toFixed(2);el.listing.value=(li/100).toFixed(2);el.offsite.value=of/100;return;}
   if(t.closest?.('#etsy-calc')&&t.name==='listing'){const l=state.etsy.listings.find(x=>x.id===t.value);calc.listing=t.value;if(l){calc.price=l.price;t.form.elements.price.value=val(l.price);}refreshCalc();return;}
-  if(t.dataset?.insDone){const k=t.dataset.insDone,on=t.checked;commit(()=>{const d=state.settings.insightsDone||(state.settings.insightsDone={});if(on)d[k]=Budget.today();else delete d[k];},on?'Marked as done':'Marked as not done');return;}
+  if(t.dataset?.insDone){const k=t.dataset.insDone,on=t.checked;commit(()=>{const d=state.settings.insightsDone||(state.settings.insightsDone={});if(on)d[k]=Budget.today();else delete d[k];},on?'Checked off':'Unchecked');return;}
   if(t.dataset?.shopImg){shopPicture(t.files?.[0],t.dataset.shopImg,t.dataset.kind==='logo');return;}
   if(t.id==='source-filter'){txSource=['all','statement','estimated','bank','mine'].includes(t.value)?t.value:'all';render();}
  });
@@ -4841,7 +4841,7 @@ const Etsy=(()=>{
  .kit-shop-rm{position:absolute;right:8px;top:8px;width:26px;height:26px;border-radius:50%;border:0;background:#000000a0;color:#fff;cursor:pointer;opacity:0}.kit-shop-card:hover .kit-shop-rm{opacity:1}
  .kit-shop-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px}.kit-shop-top{display:flex;align-items:center;gap:8px}
  .kit-shop-big b{font-size:26px;letter-spacing:-.02em;display:block}.kit-shop-big small{color:var(--ink-3);font-size:12px}
- .kit-shop-rows{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}.kit-shop-rows div{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);padding-bottom:4px}
+ .kit-shop-rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 14px}.kit-shop-rows div{display:flex;justify-content:space-between;gap:8px;white-space:nowrap;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule);padding-bottom:4px}
  .kit-shop-meter{height:6px;border-radius:6px;background:var(--rule);overflow:hidden}.kit-shop-meter i{display:block;height:100%;background:var(--ok)}
  .kit-files td{vertical-align:top;padding-top:14px;padding-bottom:14px}.kit-files td small{display:block;color:var(--ink-3);font-size:11.5px;margin:3px 0 6px;max-width:44ch}.kit-files td .pill{font-size:10.5px}
  .kit-fills span{display:inline-block;background:var(--sunk);border-radius:99px;padding:2px 8px;margin:0 4px 4px 0;font-size:11.5px;color:var(--ink-2)}
@@ -5029,6 +5029,8 @@ const Etsy=(()=>{
  .kit-check span svg{width:14px;height:14px;stroke-width:3}.kit-check input:checked+span{background:var(--ok);border-color:var(--ok);color:#fff}.kit-check input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
  .kit-act h3{padding-right:30px}.kit-act.kit-done{--t:var(--ink-3);background:var(--sunk);border-left-color:var(--ok);opacity:.75}.kit-act.kit-done h3{text-decoration:line-through;text-decoration-color:var(--ink-3)}
  .kit-prog{min-width:130px;text-align:right}.kit-prog b{font-size:20px}.kit-prog small{color:var(--ink-3);margin-left:4px}.kit-prog .kit-ins-bar{margin:6px 0 0}
+ .kit-codes td:first-child{white-space:normal;min-width:14ch;max-width:26ch}.kit-codes td:first-child b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;line-height:1.3}
+ .kit-legend-dots{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px!important}.kit-legend-dots span{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2)}.kit-legend-dots i{width:9px;height:9px;border-radius:50%;background:var(--t)}
  .kit-quad{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.kit-quad>.card{margin:0;min-width:0;display:flex;flex-direction:column}.kit-quad>.card>.kit-pie{flex:1;align-content:center}
  .kit-q-table .table-wrap{flex:1}.kit-q-table .kit-pager{margin-top:auto}
  @media (max-width:900px){.kit-quad{grid-template-columns:1fr}.kit-q1{order:1}.kit-q-table{order:2}.kit-q2{order:3}.kit-q4{order:4}}
