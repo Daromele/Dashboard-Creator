@@ -52,7 +52,7 @@ const NICHE = {
     ['taxes', 'Taxes paid', 'bills'], ['retirement', 'Retirement contributions', 'investment'],
     ['card-payoff', 'Credit card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between my accounts', 'transfer'],
     // added in v2.2
-    ['platform-payout', 'Platform payouts & top-ups (already imported)', 'transfer'],
+    ['platform-payout', 'PayPal & app transfers (already counted)', 'transfer'],
   ],
   // Quick Log: a word in the description → category id
   aliases: { coffee: 'dining', cafe: 'dining', lunch: 'dining', dinner: 'dining', restaurant: 'dining', takeaway: 'dining', groceries: 'groceries', grocery: 'groceries', supermarket: 'groceries', food: 'groceries', rent: 'housing', mortgage: 'housing', electric: 'utilities', water: 'utilities', gas: 'utilities', utility: 'utilities', phone: 'internet', internet: 'internet', netflix: 'streaming', spotify: 'streaming', streaming: 'streaming', subscription: 'memberships', fuel: 'transport', petrol: 'transport', uber: 'transport', taxi: 'transport', bus: 'transport', train: 'transport', salary: 'salary', paycheck: 'salary', payday: 'salary', freelance: 'side', client: 'side', sidehustle: 'side', partner: 'spouse', spouse: 'spouse', creditcard: 'credit', loan: 'loan', travel: 'travel', holiday: 'travel', emergency: 'emergency', invest: 'investing', investment: 'investing', autopay: 'card-payoff', cardpayment: 'card-payoff', transfer: 'own-transfer', retirement: 'retirement', '401k': 'retirement', ira: 'retirement', pension: 'retirement', irs: 'taxes', taxes: 'taxes', propertytax: 'taxes' },
@@ -92,6 +92,7 @@ const NICHE = {
     plannedIncome: 'PLANNED INCOME', subscriptionKpi: 'Subscription plan', yourName: 'Your name (optional)', yourNameHint: 'What should we call you?',
     greeting: '’s month at a glance', greetingPlain: 'Your month at a glance', planTitle: 'Your monthly plan', categoryPlaceholder: 'e.g. Childcare',
     categorySub: 'Make your budget fit your life.', directionNormal: 'Income received / expense paid / contribution',
+    statementKinds: 'a bank or PayPal statement',
     importNote: 'Card and bank statements work best. Spending in another currency is converted at a rate you choose on the review screen. A PayPal statement, or one from a side hustle such as Etsy or YouTube, is recognised too; what you earn there is filed as side income.',
     exitDemo: 'Return to my budget', demoOnly: 'Your budget only', notePlaceholder: 'e.g. Weekly groceries',
     incomeOne: 'Income', savedCol: 'Saved', transfer: 'Transfers (not counted)', transferOne: 'Transfer', netHint: 'Income − expenses − savings',
