@@ -46,4 +46,19 @@ await p.evaluate(()=>go('taxlines'));const sum=await p.evaluate(()=>document.que
 ok('year-end summary',/Operating income/.test(sum)&&/General allowance, 5%/.test(sum)&&/IVA for the year/.test(sum));
 await p.evaluate(()=>go('dashboard'));ok('dashboard shows the quarter',/IVA, IRPF & money owed/.test(await p.evaluate(()=>document.querySelector('#content').innerText)));
 await p.evaluate(()=>go('settings'));ok('Spanish settings',await p.evaluate(()=>!!document.querySelector('#biz-es-form')));
+// 6. the checklist: tick an item, export an IVA book, and the back button
+await p.evaluate(()=>go('filings'));const ch=await p.evaluate(()=>document.querySelector('#content').innerText);
+ok('checklist screen',/Send your gestor/i.test(ch)&&/Modelo 303 · IVA/.test(ch)&&/Modelo 390/.test(ch)&&/Modelo 347/.test(ch)&&/Coming up/.test(ch));
+const key=await p.evaluate(()=>document.querySelector('[data-check$=":bank"]:not(:checked)').dataset.check);
+await p.check(`[data-check="${key}"]`);await p.waitForTimeout(120);
+ok('ticking keeps the date',await p.evaluate(k=>state.checklist[k]===Budget.today(),key));
+const [dl]=await Promise.all([p.waitForEvent('download'),p.click('[data-action="biz-es-books"][data-kind="issued"] >> nth=2')]);
+const text=require('fs').readFileSync(await dl.path(),'utf8');
+ok('IVA book CSV has base, IVA and withholding',/Base,"?IVA rate/.test(text.replace(/"/g,''))&&/Total/.test(text),text.slice(0,200));
+if(OUT)await p.screenshot({path:OUT+'/es-checklist.png',fullPage:true});
+await p.evaluate(()=>go('dashboard',true));await p.click('button[data-go="filings"].check-next');await p.waitForTimeout(100);
+ok('dashboard → checklist shows a back link',await p.evaluate(()=>screen==='filings'&&/Dashboard/.test(document.querySelector('.back-link')?.innerText||'')));
+await p.click('.back-link');await p.waitForTimeout(100);
+ok('back returns to the dashboard',await p.evaluate(()=>screen==='dashboard'&&!document.querySelector('.back-link')));
+await p.click('.navlink[data-go="invoices"]');ok('the sidebar starts afresh (no back link)',await p.evaluate(()=>!document.querySelector('.back-link')));
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();

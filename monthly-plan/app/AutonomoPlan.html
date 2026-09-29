@@ -33,7 +33,7 @@ const NICHE = {
   suggestedTags: ['Services', 'Digital products', 'Physical products', 'Courses & workshops', 'Ad revenue', 'Memberships'],
   channelTags: { clients: 'Services', etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', amazon: 'Physical products', shopify: 'Physical products', wallapop: 'Physical products', patreon: 'Memberships', 'ko-fi': 'Memberships', youtube: 'Ad revenue' },
   // taxRate is unused by the Spanish tax screens but kept so a backup validates like the other editions
-  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, es: { exempt130: false, lowIncome: 0, planaUntil: '' } },
+  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, es: { exempt130: false, lowIncome: 0, planaUntil: '', cadence: 'quarterly', docsDay: 10 } },
   tourTopics: 'IVA, IRPF, the cuota, imports and backups',
 
   // type: income | expense | saving (money moved aside) · cogs: purchases for what you sell
@@ -112,9 +112,9 @@ const NICHE = {
   platformDefaults: { sale: 'platform-sales', refund: 'platform-sales', fees: 'platform-fees', ads: 'advertising', shipping: 'shipping', feeTax: 'platform-fees', payout: '__skip', conversion: '__skip', taxWithheld: 'irpf-paid', purchase: '', other: '',
     platforms: { paypal: { sale: 'services', refund: 'services' }, stripe: { sale: 'services', refund: 'services' }, youtube: { sale: 'other-activity', refund: 'other-activity' }, patreon: { sale: 'retainers', refund: 'retainers' }, substack: { sale: 'retainers', refund: 'retainers' } } },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Invoices', 'table'], ['tax', 'IVA & IRPF quarters', 'shield'], ['taxlines', 'Year-end summary', 'tags'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['invoices', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
-  navGroups: [['Your business', ['dashboard', 'activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Invoices & Hacienda', ['invoices', 'tax', 'taxlines']]],
+  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Invoices', 'table'], ['tax', 'IVA & IRPF quarters', 'shield'], ['filings', 'Checklist & gestor', 'check'], ['taxlines', 'Year-end summary', 'tags'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  optionalNav: ['filings', 'invoices', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
+  navGroups: [['Your business', ['dashboard', 'activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Invoices & Hacienda', ['invoices', 'tax', 'filings', 'taxlines']]],
   navGroupRest: 'Settings & help',
 
   labels: {
@@ -174,6 +174,7 @@ const NICHE = {
       ['Invoices and Verifactu', 'Record here the invoices you issue, with their base, IVA and withholding, to follow who owes you. Autónomo Plan is not invoicing software: from 1 July 2027, invoices from autónomos must be produced by software that meets the Verifactu rules. Number invoices in an unbroken series and keep copies.'],
       ['Selling on Etsy, Amazon and other platforms', 'Platform sales start at 0% IVA because who charges the IVA depends on what you sell and to whom: for many digital sales to EU consumers the platform collects it, and B2B or cross-border rules differ. Set the right rate with your gestor, and ask whether you need the ROI (intra-EU operator) registration, Modelo 349 or the OSS. Import the platform’s statement so each sale is split from its fees.'],
       ['Year-end summary and the Renta', 'The Year-end summary groups the year by the lines of the Renta activity section, with the 5% allowance, the IVA totals by rate and the withholding you had. A rough income-tax estimate uses the general 2026 scale and the personal allowance only; your region’s scale, family allowances and reductions change it. Hand the CSVs to your gestor.'],
+      ['Checklist & gestor', 'The Checklist lists, for each quarter, the documents your gestor needs (invoices you issued, invoices and receipts for your costs, bank and platform statements, cuota receipts, rent and payroll where they apply) and the forms that follow: Modelo 303, 130, and 111 or 115 when you withheld tax. The year adds the January summaries (390, 190, 180), the 347 in February, the Renta and the papers each needs, such as your clients’ withholding certificates. Set in Settings whether your gestor wants documents every month or every quarter, and by which day. Tick items as you go; the <b>IVA book CSV</b> buttons export the period’s issued or received side with base, IVA and withholding.'],
       ['Dates to remember', 'Modelos 303, 130, 111 and 115: 1–20 April, July and October, and 1–30 January. Modelo 390 (annual IVA summary): by 30 January. Modelo 347 (anyone you dealt with for more than €3,005.06 in the year): February. Renta: April to 30 June.'],
       ['Tags, channels and bulk changes', 'Group income by where it comes from (channels: clients, Etsy, Amazon…) and by kind (tags: services, digital products…). Tick rows in Transactions to change their category, channel, tag or IVA in one step. Every change can be undone.'],
       ['Money in other currencies', 'Record what reached or left your account in euros, and open <b>In another currency?</b> on the transaction to keep the original amount. Imports convert rows in another currency at a rate you set on the review screen.'],
@@ -237,6 +238,9 @@ const NICHE = {
         else if (['platform-sales', 'platform-fees'].includes(t.category)) { t.channel = 'ch-etsy'; if (t.category === 'platform-sales') t.note = 'Etsy deposit · sewing patterns'; }
       });
       s.invoices.forEach(v => { v.channel = 'ch-clients'; });
+      // the first two quarters are sent and filed; the third is still open
+      s.checklist = {};
+      [[1, '04'], [2, '07']].forEach(([q, m]) => ['issued', 'received', 'bank', 'platforms', 'cuota', 'rent', '303', '130', '115'].forEach((k, i) => { const d = `${year}-${m}-${String(i < 6 ? 8 : 17).padStart(2, '0')}`; if (d <= now) s.checklist[`${year}-Q${q}:${k}`] = d; }));
       for (let i = 2; i <= 12; i++) {
         const prev = `${year}-${String(i - 1).padStart(2, '0')}`, key = `${year}-${String(i).padStart(2, '0')}`;
         s.months[key].opening = totals(s, prev).cash;
@@ -1356,11 +1360,19 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 :root{--tag-1:#6A4FC4; --tag-2:#C27A0E; --tag-3:#2A6FCB; --tag-4:#B53D8C; --tag-5:#0F8A82; --tag-6:#D24E30; --tag-7:#3A8534; --tag-8:#8E6236;}
 :root[data-theme="night"],:root[data-theme="midnight"]{--tag-1:#A08BEA; --tag-2:#F0AE3C; --tag-3:#62A3F2; --tag-4:#E27BBE; --tag-5:#3EC6BC; --tag-6:#F28466; --tag-7:#70C266; --tag-8:#C99A68;}
 .tag-chip{--tc:var(--accent)}
+.back-link{display:inline-flex;align-items:center;gap:4px;margin:-6px 0 12px;padding:5px 12px 5px 9px;border:1px solid var(--rule-2);border-radius:999px;background:var(--card);color:var(--ink-2);font:600 12px/1.2 inherit;font-family:inherit;cursor:pointer}.back-link:hover{border-color:var(--accent);color:var(--accent)}
 .row .tag-chip,.slice-row .tag-chip{display:inline-block;width:auto}
 .kpis-lead{margin-bottom:var(--s5);grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1250px){.kpis-lead{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:620px){.kpis-lead{grid-template-columns:1fr 1fr}.kpis-lead .kpi:last-child{grid-column:1/-1}}
 .kpis-lead .kpi{background:color-mix(in srgb,var(--accent) 8%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);box-shadow:none}
+.check-card .cardhead{margin-bottom:6px}.check-card.is-next{box-shadow:0 0 0 2px var(--accent)}
+.check-group{margin-top:14px}.check-group h3{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin:0 0 4px}
+.check-item{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--rule);cursor:pointer}
+.check-item input{width:18px;height:18px;flex:none;accent-color:var(--accent)}.check-text{flex:1;min-width:0}.check-text b{display:block;font-weight:600}.check-text small{color:var(--ink-3)}
+.check-due{flex:none;font-size:12px;color:var(--ink-2);white-space:nowrap}.check-item.is-done .check-text b{text-decoration:line-through;color:var(--ink-3)}.check-item.is-late .check-due{color:var(--over);font-weight:700}
+.check-next{width:100%;margin-top:12px;border:1px dashed var(--rule-2);border-radius:var(--r-md);background:transparent;padding:10px 12px;font:inherit;color:inherit;text-align:left;cursor:pointer}
+@media(max-width:620px){.check-item{flex-wrap:wrap}.check-due{width:100%;padding-left:30px}}
 .es-form{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule)}.es-form h3{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin:0 0 4px}
 .es-total span:first-child{font-weight:700}.vat-split{margin:-4px 0 0;color:var(--ink-2)}.vat-split:empty{display:none}
 .biz-strip{display:grid;grid-template-columns:minmax(0,2.3fr) minmax(260px,1fr);gap:var(--s4);margin:var(--s5) 0 var(--s4)}
@@ -1696,10 +1708,10 @@ const Budget = ((P) => {
     let carry=0,paid130=0,cumInc=0,cumExp=0,cumRet=0,cumCuota=0;
     const quarters=[1,2,3,4].map(n=>{
       const from=`${y}-${pad(3*n-2)}-01`,to=endOf(`${y}-${pad(3*n)}`),q={n,label:'Q'+n,from,to,started:from<=asOf,due:workday(n<4?`${y}-${pad(3*n+1)}-20`:`${+y+1}-01-30`),
-        income:0,expenses:0,ivaOut:0,ivaIn:0,retIn:0,retOut:0,cuota:0,cuotaMonths:new Set(),byRate:{}};
+        income:0,expenses:0,ivaOut:0,ivaIn:0,retIn:0,retOut:0,ret111:0,ret115:0,payroll:false,cuota:0,cuotaMonths:new Set(),byRate:{}};
       for(const m of monthsBetween(from,to))for(const t of transactions(s,m)){const c=cat.get(t.category);if(!c)continue;const g=group(c),sp=vatSplit(t);
         if(g.type==='income'){q.ivaOut+=sp.vat;if(active(c)){q.income+=sp.base;q.retIn+=sp.ret;}if(active(c)){const r=t.vat||0;q.byRate[r]=(q.byRate[r]||0)+sp.base;}}
-        else if(g.type==='expense'){q.ivaIn+=sp.vat;q.retOut+=sp.ret;if(active(c))q.expenses+=sp.base;if(g.cuota){q.cuota+=t.amount;q.cuotaMonths.add(m);}}}
+        else if(g.type==='expense'){q.ivaIn+=sp.vat;q.retOut+=sp.ret;if(sp.ret){if(taxLineFor(c)==='G5')q.ret115+=sp.ret;else q.ret111+=sp.ret;}if(taxLineFor(c)==='G2'&&t.amount>0)q.payroll=true;if(active(c))q.expenses+=sp.base;if(g.cuota){q.cuota+=t.amount;q.cuotaMonths.add(m);}}}
       // Modelo 303: a negative result is carried to the next quarter; in the fourth you choose refund or carry
       const due303=q.ivaOut-q.ivaIn-carry;q.carryIn=carry;
       if(due303<0){q.pay303=0;q.credit303=-due303;carry=n<4?-due303:0;}else{q.pay303=due303;q.credit303=0;carry=0;}
@@ -1718,6 +1730,58 @@ const Budget = ((P) => {
     const incomeTax=Math.max(0,irpfScale(taxable)-irpfScale(Math.min(taxable,PERSONAL_MIN*100))),instalments=ytd.reduce((a,q)=>a+q.pay130,0);
     return {year:y,quarters,settings:E,months,net,allowance,taxable,withheld,instalments,incomeTax,renta:incomeTax-withheld-instalments,
       cuota:{monthlyNet:ssMonthly,...bracket,paid:cuotaPaid,paidMonths:cuotaMonths,avgPaid:cuotaMonths?Math.round(cuotaPaid/cuotaMonths):0,plana:!!E.planaUntil&&E.planaUntil>=asOf}};
+  }
+  // What to send your gestor and what to file, period by period, with the dates. Documents are due
+  // on the day you agreed with your gestor after each month or quarter; forms on Hacienda's dates.
+  function esChecklist(s,y,asOf=today()){
+    const eur=n=>(n/100).toLocaleString('en-GB',{style:'currency',currency:s.settings.currency||'EUR'}),T=esTax(s,y,asOf),E={cadence:'quarterly',docsDay:10,...T.settings},pad=n=>String(n).padStart(2,'0'),cat=new Map(s.categories.map(c=>[c.id,c]));
+    const line=c=>taxLineFor(c),inRange=(t,a,b)=>t.date>=a&&t.date<=b,all=s.transactions.filter(t=>t.date.slice(0,4)===y);
+    const docsDue=to=>{const m=shift(to.slice(0,7),1);return `${m}-${pad(E.docsDay)}`;};
+    const docs=(key,from,to)=>{const tx=all.filter(t=>inRange(t,from,to)),of=f=>tx.filter(t=>{const c=cat.get(t.category);return c&&f(c,group(c));});
+      const inv=(s.invoices||[]).filter(v=>v.issued>=from&&v.issued<=to),costs=of((c,g)=>g.type==='expense'),chans=[...new Set(of((c,g)=>g.type==='income').map(t=>t.channel).filter(Boolean))].map(id=>(s.channels||[]).find(c=>c.id===id)?.name).filter(n=>n&&!/^clients?$/i.test(n));
+      const cuotas=of((c,g)=>g.cuota).length,rent=of(c=>line(c)==='G5').length,pay=of(c=>line(c)==='G2'||line(c)==='G3').length;
+      return [
+        {key:`${key}:issued`,label:'Invoices you issued (facturas emitidas)',detail:inv.length?`${inv.length} invoice${inv.length===1?'':'s'} issued in this period`:'No invoices recorded here; include any you issued elsewhere',books:'issued'},
+        {key:`${key}:received`,label:'Invoices and receipts for your costs (facturas recibidas)',detail:`${costs.length} cost${costs.length===1?'':'s'} recorded; full invoices with your NIF, not just card tickets`,books:'received'},
+        {key:`${key}:bank`,label:'Bank statements for the business account (extractos)',detail:'Every account and card the business uses'},
+        ...(chans.length||Object.keys(s.platformSources||{}).length?[{key:`${key}:platforms`,label:'Platform statements and fee invoices',detail:chans.length?chans.join(', '):'Etsy, PayPal, Stripe and similar'}]:[]),
+        {key:`${key}:cuota`,label:'Cuota receipts (recibos de autónomos)',detail:cuotas?`${cuotas} cuota${cuotas===1?'':'s'} recorded`:'From Seguridad Social or your bank'},
+        ...(rent?[{key:`${key}:rent`,label:'Rent invoices for your workplace',detail:'The landlord’s invoice shows the IVA and the 19% you withhold'}]:[]),
+        ...(pay?[{key:`${key}:payroll`,label:'Payslips and staff Seguridad Social',detail:'Nóminas and the TC1/TC2 or RLC/RNT'}]:[]),
+      ].map(d=>({...d,kind:'doc',due:docsDue(to)}));};
+    const periods=T.quarters.map(q=>{const key=`${y}-Q${q.n}`,any111=q.ret111>0||q.payroll;
+      const forms=[
+        {key:`${key}:303`,label:'Modelo 303 · IVA',detail:q.started?(q.pay303?`About ${eur(q.pay303)} to pay`:q.credit303?`About ${eur(q.credit303)} in your favour`:'Nothing to pay so far'):'',est:q.pay303},
+        ...(T.settings.exempt130?[]:[{key:`${key}:130`,label:'Modelo 130 · IRPF instalment',detail:q.started?(q.pay130?`About ${eur(q.pay130)} to pay`:'Nothing to pay so far; still file it'):'',est:q.pay130}]),
+        ...(any111?[{key:`${key}:111`,label:'Modelo 111 · withholding on professionals and staff',detail:q.ret111?`About ${eur(q.ret111)} withheld`:'Withholding on payroll',est:q.ret111}]:[]),
+        ...(q.ret115?[{key:`${key}:115`,label:'Modelo 115 · withholding on rent',detail:`About ${eur(q.ret115)} withheld`,est:q.ret115}]:[]),
+      ].map(f=>({...f,kind:'form',due:q.due}));
+      const months=[0,1,2].map(i=>{const m=`${y}-${pad(3*q.n-2+i)}`;return {key:`${y}-M${m.slice(5)}`,label:m,from:m+'-01',to:endOf(m)};});
+      const docItems=E.cadence==='monthly'?months.flatMap(m=>docs(m.key,m.from,m.to).map(d=>({...d,month:m.label}))):docs(key,q.from,q.to);
+      return {key,label:q.label,from:q.from,to:q.to,started:q.started,due:q.due,items:[...docItems,...forms]};});
+    // the year: January summaries, February's 347, the Renta, and what the gestor needs for them
+    const yk=`${y}-Y`,ny=+y+1,feb=`${ny}-02-${pad(days(`${ny}-02`))}`,any111=T.quarters.some(q=>q.ret111>0||q.payroll),any115=T.quarters.some(q=>q.ret115>0);
+    const byClient=new Map();(s.invoices||[]).filter(v=>v.issued.slice(0,4)===y).forEach(v=>{const a=v.amount+Math.round(v.amount*(v.vat||0)/10000);byClient.set(v.client,(byClient.get(v.client)||0)+a);});
+    const over=[...byClient.entries()].filter(([,a])=>a>300506).sort((a,b)=>b[1]-a[1]);
+    const certs=[...new Set((s.invoices||[]).filter(v=>v.ret&&v.paid&&v.paid.date.slice(0,4)===y).map(v=>v.client))];
+    const bigKit=all.filter(t=>line(cat.get(t.category)||{})==='G12'&&vatSplit(t).base>30000).length,used=id=>all.some(t=>t.category===id);
+    const year={key:yk,label:'Year',annual:true,started:`${y}-01-01`<=asOf,items:[
+      {key:`${yk}:certs`,label:'Withholding certificates from your clients',detail:certs.length?certs.join(', '):'From each client who kept back IRPF',kind:'doc',due:`${ny}-01-31`},
+      {key:`${yk}:bank`,label:'Bank’s annual tax certificate',detail:'Interest, loans and fees for the year',kind:'doc',due:`${ny}-03-31`},
+      ...(bigKit?[{key:`${yk}:assets`,label:'Invoices for equipment over €300',detail:`${bigKit} item${bigKit===1?'':'s'}: your gestor depreciates them`,kind:'doc',due:`${ny}-01-15`}]:[]),
+      ...(used('stock')||used('materials')?[{key:`${yk}:stock`,label:'Stock count at 31 December',detail:'What you hold of goods and materials, at cost',kind:'doc',due:`${ny}-01-15`}]:[]),
+      ...(used('home-utilities')?[{key:`${yk}:home`,label:'Home office details',detail:'Square metres used for work and the utility bills',kind:'doc',due:`${ny}-03-31`}]:[]),
+      {key:`${yk}:personal`,label:'Personal papers for the Renta',detail:'Pension plan, mortgage, family, rental and other income',kind:'doc',due:`${ny}-03-31`},
+      {key:`${yk}:390`,label:'Modelo 390 · annual IVA summary',detail:'The four 303s added up',kind:'form',due:workday(`${ny}-01-30`)},
+      ...(any111?[{key:`${yk}:190`,label:'Modelo 190 · annual withholding summary',detail:'The year’s 111s',kind:'form',due:workday(`${ny}-01-31`)}]:[]),
+      ...(any115?[{key:`${yk}:180`,label:'Modelo 180 · annual rent withholding summary',detail:'The year’s 115s',kind:'form',due:workday(`${ny}-01-31`)}]:[]),
+      {key:`${yk}:347`,label:'Modelo 347 · anyone over €3,005.06 in the year',detail:over.length?over.map(([n,a])=>`${n} ${eur(a)}`).join(', ')+'; add suppliers above the limit':'No client above the limit in your invoices; check suppliers too',kind:'form',due:workday(feb)},
+      {key:`${yk}:renta`,label:'Renta · Modelo 100',detail:T.renta>=0?`Roughly ${eur(T.renta)} still to pay on profit so far`:`Roughly ${eur(-T.renta)} back on profit so far`,kind:'form',due:workday(`${ny}-06-30`)},
+      {key:`${yk}:cuota`,label:'Check the cuota regularisation',detail:'Seguridad Social compares your declared income with your brackets after the Renta',kind:'form',due:null},
+    ]};
+    const done=s.checklist||{},list=[...periods,year];
+    list.forEach(p=>p.items.forEach(i=>{i.done=done[i.key]||'';i.late=!i.done&&!!i.due&&i.due<asOf;}));
+    return {year:y,settings:E,periods:list,next:list.flatMap(p=>p.items.filter(i=>!i.done&&i.due&&i.due>=asOf&&(p.started||p.annual)).map(i=>({...i,period:p.label}))).sort((a,b)=>a.due.localeCompare(b.due))};
   }
   const taxLineFor=c=>{if(!TAX_LINES)return '';const own=c.taxLine;if(own&&TAX_LINES[own])return own;return (P.categoryTaxLines||{})[c.id]||group(c).taxLine||'';};
   const mileageAmount=(miles,rate)=>Math.round(miles*rate/100);   // miles in tenths, rate in tenths of a cent
@@ -1828,7 +1892,9 @@ const Budget = ((P) => {
      s.transactions.forEach(t=>{if(t.vat!==undefined&&(!okV(t.vat)||!t.vat))delete t.vat;if(t.ret!==undefined&&(!okR(t.ret)||!t.ret))delete t.ret;});
      s.categories.forEach(c=>{if(c.vat!==undefined&&!okV(c.vat))delete c.vat;});
      (s.invoices||[]).forEach(v=>{if(v.vat!==undefined&&(!okV(v.vat)||!v.vat))delete v.vat;if(v.ret!==undefined&&(!okR(v.ret)||!v.ret))delete v.ret;});
-     const e=object(s.settings.es)?s.settings.es:{};s.settings.es={exempt130:e.exempt130===true,lowIncome:[0,25,50,75,100].includes(e.lowIncome)?e.lowIncome:0,planaUntil:validDate(e.planaUntil)?e.planaUntil:''};}
+     const e=object(s.settings.es)?s.settings.es:{};s.settings.es={exempt130:e.exempt130===true,lowIncome:[0,25,50,75,100].includes(e.lowIncome)?e.lowIncome:0,planaUntil:validDate(e.planaUntil)?e.planaUntil:'',cadence:e.cadence==='monthly'?'monthly':'quarterly',docsDay:Number.isInteger(e.docsDay)&&e.docsDay>=1&&e.docsDay<=15?e.docsDay:10};
+     // ticked checklist items: key → the date ticked. Anything else is dropped.
+     if(!object(s.checklist))s.checklist={};Object.entries(s.checklist).forEach(([k,v])=>{if(!/^\d{4}-(Q[1-4]|M(0[1-9]|1[0-2])|Y):[a-z0-9-]{1,20}$/.test(k)||!validDate(v))delete s.checklist[k];});}
     s.categories.forEach(c=>{if(c.taxLine!==undefined&&!(TAX_LINES&&typeof c.taxLine==='string'&&Object.hasOwn(TAX_LINES,c.taxLine)))delete c.taxLine;});
     if(P.features.tax){const r=s.settings.taxRate;if(r===undefined)s.settings.taxRate=P.settings.taxRate;else if(!Number.isInteger(r)||r<0||r>9000)fail();}
     if(P.features.mileage){const r=s.settings.mileageRate;if(r===undefined)s.settings.mileageRate=P.settings.mileageRate;else if(!Number.isInteger(r)||r<0||r>100000)fail();
@@ -1881,7 +1947,7 @@ const Budget = ((P) => {
     if(S.extras)S.extras(s,{m,year,now,uid,days,shift,plusDays,totals:(st,mm)=>{invalidate(st);return totals(st,mm);}});
     return s;
   }
-  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,tagFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,VAT_RATES,RET_RATES,vatSplit,netOf,esTax,cuotaFor,irpfScale,workday,CUOTA_TRAMOS,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,invoiceTotal,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
+  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,tagFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,VAT_RATES,RET_RATES,vatSplit,netOf,esTax,esChecklist,cuotaFor,irpfScale,workday,CUOTA_TRAMOS,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,invoiceTotal,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
 })(NICHE);
 if(typeof module!=='undefined')module.exports=Budget;
 
@@ -2313,11 +2379,14 @@ const kpiIco=icon=>`<span class="kpi-ico" aria-hidden="true">${ico(icon)}</span>
 const kpi=(label,n,note,icon='wallet',color='')=>`<div class="kpi"><div class="label">${kpiIco(icon)}${label}</div><b class="${color}" data-count="${n}">${fmt(n)}</b><small>${note}</small></div>`;
 const meter=(a,b)=>`<div class="meter"><i class="${a>b?'over':''}" style="width:${Math.min(100,Math.max(0,percent(a,b)))}%"></i></div>`;
 const empty=(title,body,action='',label='')=>`<div class="empty">${ico('compass')}<h3>${title}</h3><p>${body}</p>${action?button(label,action,'primary'):''}</div>`;
-const pagehead=(eyebrow,title,subtitle,actions='')=>`<div class="pagehead"><div class="pagehead-text">${eyebrow?`<div class="eyebrow${/\b(19|20)\d{2}\b/.test(eyebrow)?' period':''}">${eyebrow}</div>`:''}<h1>${title}</h1>${subtitle?`<p class="subtitle">${subtitle}</p>`:''}</div>${actions?`<div class="actions no-print">${actions}</div>`:''}</div>`;
+const screenName=id=>(navItems.find(n=>n[0]===id)||[,({import:'Import',review:'Weekly review'})[id]||'previous page'])[1];
+const backLink=()=>{const b=navStack.at(-1);return b&&b.screen!==screen?`<button class="back-link no-print" data-action="nav-back" aria-label="Back to ${esc(screenName(b.screen))}">← ${esc(screenName(b.screen))}</button>`:'';};
+const pagehead=(eyebrow,title,subtitle,actions='')=>`${backLink()}<div class="pagehead"><div class="pagehead-text">${eyebrow?`<div class="eyebrow${/\b(19|20)\d{2}\b/.test(eyebrow)?' period':''}">${eyebrow}</div>`:''}<h1>${title}</h1>${subtitle?`<p class="subtitle">${subtitle}</p>`:''}</div>${actions?`<div class="actions no-print">${actions}</div>`:''}</div>`;
 const navItems=P.nav;
 const optionalNav=P.optionalNav;
 const navGroup=id=>(P.navGroups.find(([,ids])=>ids.includes(id))||[P.navGroupRest])[0];
-function go(id){if(screen==='budget'&&budgetDirty&&!saveBudgetInputs())return;screen=id;document.body.classList.remove('menu-open');render();window.scrollTo({top:0});$('#content').focus({preventScroll:true});}
+let navStack=[];
+function go(id,top=false){if(screen==='budget'&&budgetDirty&&!saveBudgetInputs())return;if(top)navStack=[];else if(id!==screen){navStack.push({screen,y:window.scrollY});if(navStack.length>20)navStack.shift();}screen=id;document.body.classList.remove('menu-open');render();window.scrollTo({top:0});$('#content').focus({preventScroll:true});}
 function focusKey(el){
  if(!el||el===document.body||el===document.documentElement)return '';
  if(el.id)return '#'+CSS.escape(el.id);
@@ -2877,7 +2946,7 @@ document.addEventListener('submit',e=>{if(e.target.id!=='rate-form')return;e.pre
 function rulesCard(){const r=Object.entries(state.categoryRules||{}).filter(([,id])=>category(id));if(!r.length)return '';
  return `<section class="card"><div class="cardhead"><div><h2>Category rules</h2><p>Transactions whose description starts like this go to the category shown, on import and in Quick Log.</p></div><span class="pill">${r.length}</span></div>${r.sort((a,b)=>a[0].localeCompare(b[0])).map(([k,id])=>`<div class="row"><div><strong>“${esc(k)}”</strong><small>→ ${esc(category(id).name)}</small></div><button class="icon-action" data-action="remove-rule" data-key="${esc(k)}" title="Remove this rule" aria-label="Remove the rule for ${esc(k)}">${ico('trash')}</button></div>`).join('')}</section>`;}
 function restoreFile(file){if(!file)return;if(file.size>20e6)return toast('Backup is too large (maximum 20 MB).');file.text().then(raw=>{restorePending=Budget.validate(JSON.parse(raw));modal('Review your backup','Restoring replaces the current planner. Download your current backup first if you need it.',`<div class="row"><span>Transactions</span><b>${restorePending.transactions.length}</b></div><div class="row"><span>Saved months</span><b>${Object.keys(restorePending.months).length}</b></div><div class="row"><span>Goals</span><b>${restorePending.goals.length}</b></div><div class="row"><span>Currency</span><b>${restorePending.settings.currency}</b></div><div class="formfoot">${button('Back up current data','backup')}${button('Cancel','dismiss')}${button('Restore this backup','confirm-restore','primary')}</div>`);}).catch(e=>toast('Could not restore: '+e.message));}
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.go)return go(b.dataset.go);if(b.dataset.theme)return commit(()=>state.settings.theme=b.dataset.theme,'Palette updated');const a=b.dataset.action,id=b.dataset.id;if(!a)return;if(screen==='budget'&&budgetDirty&&!['save-budget','menu','dismiss'].includes(a)&&!saveBudgetInputs())return;
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.go)return go(b.dataset.go,b.classList.contains('navlink'));if(b.dataset.theme)return commit(()=>state.settings.theme=b.dataset.theme,'Palette updated');const a=b.dataset.action,id=b.dataset.id;if(!a)return;if(screen==='budget'&&budgetDirty&&!['save-budget','menu','dismiss'].includes(a)&&!saveBudgetInputs())return;
  if(a.startsWith('go-'))return go(a.slice(3));
  switch(a){
  case 'menu':document.body.classList.toggle('menu-open');break;
@@ -2888,6 +2957,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)r
  case 'activity-next':activityPage++;render();break;
  case 'add':transactionForm();break;
  case 'add-date':transactionForm('','',b.dataset.date);break;
+ case 'nav-back':{const b=navStack.pop();if(!b)break;if(screen==='budget'&&budgetDirty&&!saveBudgetInputs()){navStack.push(b);break;}screen=b.screen;render();window.scrollTo({top:b.y||0});break;}
  case 'edit-transaction':transactionForm(id);break;
  case 'tx-sel-all':activityList.filter(editable).forEach(t=>txSel.add(t.id));render();break;
  case 'tx-sel-none':txSel.clear();render();break;
@@ -3842,7 +3912,8 @@ const Biz=(()=>{
    `<section class="card table-card no-print"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Category → Renta line</h2><p>Every income and expense category lands on one line. Transfers, draws and tax payments never do.</p></div></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Line</th></tr></thead><tbody>${mapRows}</tbody></table></div></section>`;
  }
  function esSettingsCard(){const E=state.settings.es||{};
-  return `<section class="card"><div class="goal-icon">${ico('shield')}</div><h2>IVA, IRPF &amp; the cuota</h2><p class="subtitle">Used by IVA &amp; IRPF quarters and the year-end summary.</p><form id="biz-es-form" style="margin-top:20px"><div class="fields">`+
+  return `<section class="card"><div class="goal-icon">${ico('shield')}</div><h2>IVA, IRPF &amp; the cuota</h2><p class="subtitle">Used by IVA &amp; IRPF quarters, the checklist and the year-end summary.</p><form id="biz-es-form" style="margin-top:20px"><div class="fields">`+
+   `<label>Your gestor wants documents<select name="cadence"><option value="quarterly" ${E.cadence!=='monthly'?'selected':''}>Every quarter</option><option value="monthly" ${E.cadence==='monthly'?'selected':''}>Every month</option></select></label><label>By day<input type="number" name="docsDay" min="1" max="15" step="1" value="${E.docsDay||10}"><small>Of the month after the period</small></label>`+
    `<label class="full">Tarifa plana ends on<input type="date" name="planaUntil" value="${esc(E.planaUntil||'')}" min="2000-01-01" max="9998-12-31"><small>Leave empty if you are not on it. The €80 flat rate lasts 12 months, sometimes 12 more.</small></label>`+
    `<label class="checkline full"><input type="checkbox" name="exempt130" ${E.exempt130?'checked':''}><span>I do not file Modelo 130: at least 70% of last year’s income had IRPF withholding.</span></label>`+
    `<label class="full">Low-income deduction on the 130<select name="lowIncome">${[[0,'None · last year’s net profit was over €12,000'],[100,'€100 a quarter · up to €9,000'],[75,'€75 · up to €10,000'],[50,'€50 · up to €11,000'],[25,'€25 · up to €12,000']].map(([v,l])=>`<option value="${v}" ${(E.lowIncome||0)===v?'selected':''}>${l}</option>`).join('')}</select><small>Based on last year’s net profit from the activity.</small></label>`+
@@ -3852,7 +3923,35 @@ const Biz=(()=>{
   if(!q.started)return `<p class="small muted">${q.label} ${y} has not started.</p>`;const total=q.pay303+q.pay130+Math.max(0,q.retOut),days=Math.round((Date.parse(q.due)-Date.parse(t0))/864e5);
   return `<div class="pot"><div class="pot-head"><div><div class="glance-label">${q.label} ${y} · so far</div><div class="pot-num number">${fmt(total)}</div><small class="pot-of">IVA ${fmt(q.pay303)}${q.credit303?` (${fmt(q.credit303)} in your favour)`:''} · IRPF ${T.settings.exempt130?'not filed':fmt(q.pay130)}</small></div></div></div>`+
    (days>=0?`<div class="due-chip"><span class="due-days"><b class="number">${days}</b><small>day${days===1?'':'s'}</small></span><div><strong>Modelo 303${T.settings.exempt130?'':' & 130'}</strong><small>Due ${fullDate(q.due)}</small></div></div>`:'')+
+   (n=>n?`<button class="row check-next" data-go="filings"><span><small class="dim">Next on your checklist</small><br><b>${esc(n.label)}</b></span><span class="pill">${dateName(n.due)}</span></button>`:'')(Budget.esChecklist(state,y,t0).next[0])+
    `<div class="row" style="margin-top:12px"><span>Cuota bracket so far</span><span class="number">${T.months?`${fmt(T.cuota.cuota)} / month`:'—'}</span></div>`;}
+
+
+ // ---------- Spain: the filing checklist and what to send the gestor ----------
+ function filingsView(){
+  const y=selected.slice(0,4),t0=today(),C=Budget.esChecklist(state,y,t0),E=C.settings,cur=C.periods.find(p=>!p.annual&&p.from<=t0&&p.to>=t0);
+  const row=i=>`<label class="check-item${i.done?' is-done':''}${i.late?' is-late':''}"><input type="checkbox" data-check="${i.key}" ${i.done?'checked':''}><span class="check-text"><b>${esc(i.label)}</b><small>${esc(i.detail||'')}${i.done?` · done ${dateName(i.done)}`:''}</small></span>${i.books?`<button type="button" class="btn small quiet" data-action="biz-es-books" data-kind="${i.books}" data-key="${i.key}">IVA book CSV</button>`:''}<span class="check-due">${i.due?(i.late?'Late · ':'')+dateName(i.due):'After the Renta'}</span></label>`;
+  const group=(title,items)=>items.length?`<div class="check-group"><h3>${title}</h3>${items.map(row).join('')}</div>`:'';
+  const monthsIn=p=>[...new Set(p.items.filter(i=>i.month).map(i=>i.month))];
+  const card=p=>{const docs=p.items.filter(i=>i.kind==='doc'),forms=p.items.filter(i=>i.kind==='form'),left=p.items.filter(i=>!i.done).length;
+   const docsBlock=E.cadence==='monthly'&&!p.annual?monthsIn(p).map(m=>group(`Send your gestor · ${monthName(m)}`,docs.filter(i=>i.month===m))).join(''):group(p.annual?'Send your gestor':`Send your gestor · by ${dateName(docs[0]?.due||p.due)}`,docs);
+   return `<section class="card check-card${p===cur?' is-next':''}" id="check-${p.key}"><div class="cardhead"><div><h2>${p.annual?`The year ${y}`:`${p.label} · ${shortMonth(p.from.slice(0,7))} – ${shortMonth(p.to.slice(0,7))}`}</h2><p>${p.annual?`Summaries in January and February ${+y+1}, the Renta by 30 June`:`Forms due ${dateName(p.due)}`}</p></div><span class="pill ${left?'':'good'}">${left?`${left} to do`:'All done'}</span></div>${p.started||p.annual?docsBlock+group(p.annual?'File or check':'File',forms):'<p class="small muted">This quarter has not started.</p>'}</section>`;};
+  const next=C.next.slice(0,5);
+  return pagehead(`Checklist · ${y}`,'What to send and file, and when',`Documents go to your gestor ${E.cadence==='monthly'?'every month':'every quarter'}, by day ${E.docsDay}. Forms follow Hacienda’s dates; if you pay by direct debit, file by the 15th.`,button('Gestor settings','biz-rate','quiet'))+
+   `<div class="grid2"><section class="card"><div class="cardhead"><div><h2>Coming up</h2><p>The next open items, soonest first</p></div></div>${next.length?next.map(i=>`<div class="row"><div><strong>${esc(i.label)}</strong><small>${esc(i.period==='Year'?'Year '+y:i.period)} · ${i.kind==='doc'?'to your gestor':'to file'}</small></div><span class="pill">${dateName(i.due)}</span></div>`).join(''):'<p class="small muted">Nothing open with a date ahead. Well done.</p>'}</section>`+
+   `<section class="card"><h2>How it works</h2><p class="subtitle">Tick an item when it is sent or filed; the date is kept with your books. Most gestorías file the forms themselves: your part is sending the documents in time and having the money ready. The amounts are estimates from your entries.</p><div class="row"><span>Quarterly forms</span><span>1–20 Apr, Jul, Oct · 1–30 Jan</span></div><div class="row"><span>Modelo 390, 190, 180</span><span>January</span></div><div class="row"><span>Modelo 347</span><span>February</span></div><div class="row"><span>Renta</span><span>April – 30 June</span></div></section></div>`+
+   C.periods.map(card).join('')+ES_NOTE;
+ }
+ // Libro registro: the issued or received side of the IVA books for a period, as CSV
+ function ivaBooksCSV(kind,key){const C=Budget.esChecklist(state,key.slice(0,4)),p=C.periods.find(p=>p.items.some(i=>i.key===key));if(!p)return;
+  const it=p.items.find(i=>i.key===key),from=it.month?it.month+'-01':p.from,to=it.month?Budget.endOf(it.month):p.to;
+  const rows=state.transactions.filter(t=>t.date>=from&&t.date<=to&&Budget.type(category(t.category))===(kind==='issued'?'income':'expense')).sort((a,b)=>a.date.localeCompare(b.date));
+  const r=[[`${bizName()} · ${kind==='issued'?'IVA book, issued (facturas emitidas)':'IVA book, received (facturas recibidas)'} · ${from} to ${to}`],['Amounts in EUR. Base, IVA and withholding worked back from the amount that moved in the bank.'],[],['Date','Description','Category','Channel','Base','IVA rate','IVA','Withholding rate','Withholding','Total']];
+  let b=0,v=0,w=0;rows.forEach(t=>{const sp=Budget.vatSplit(t);b+=sp.base;v+=sp.vat;w+=sp.ret;r.push([t.date,safe(t.note),safe(category(t.category).name),safe(channelName(t.channel)),val(sp.base),(t.vat||0)/100+'%',val(sp.vat),t.ret?t.ret/100+'%':'',t.ret?val(sp.ret):'',val(t.amount)]);});
+  r.push([],['Total','','','',val(b),'',val(v),'',val(w),val(b+v-w)]);
+  download(`${P.storage.file}-iva-${kind}-${from}_${to}.csv`,csv(r),'text/csv;charset=utf-8');toast(`${rows.length} ${kind==='issued'?'income':'cost'} entr${rows.length===1?'y':'ies'} exported.`);}
+ document.addEventListener('change',e=>{const k=e.target.dataset?.check;if(!k||!F.vat)return;const on=e.target.checked;
+  commit(()=>{state.checklist??={};if(on)state.checklist[k]=today();else delete state.checklist[k];},on?'Ticked':'Unticked');});
 
  // ---------- Schedule C summary ----------
  function taxlinesView(){
@@ -4063,6 +4162,7 @@ const Biz=(()=>{
   case 'biz-log-tax':transactionForm('',id);break;
   case 'biz-rate':go('settings');setTimeout(()=>document.querySelector('#biz-settings-form input,#biz-es-form input')?.focus(),60);break;
   case 'biz-sc-csv':summaryCSV();break;
+  case 'biz-es-books':ivaBooksCSV(b.dataset.kind,b.dataset.key);break;
   case 'biz-sc-detail':detailCSV();break;
   case 'biz-add-trip':tripForm();break;
   case 'biz-edit-trip':tripForm(id);break;
@@ -4096,7 +4196,8 @@ const Biz=(()=>{
    else{checkTag(name);commit(()=>ensureTag(name),`${name} added`);}break;}
   case 'biz-range':{const from=f.get('from'),to=f.get('to');if(!Budget.validDate(from)||!Budget.validDate(to))throw Error('Choose two valid dates.');if(to<from)throw Error('The end date is before the start date.');if(Budget.monthsBetween(from,to).length>120)throw Error('Choose a range of ten years or less.');period={kind:'custom',from,to};render();break;}
   case 'biz-es-form':{const plana=f.get('planaUntil')||'',low=+f.get('lowIncome');if(plana&&!Budget.validDate(plana))throw Error('Use a valid date.');
-   commit(()=>{state.settings.es={exempt130:f.get('exempt130')==='on',lowIncome:[0,25,50,75,100].includes(low)?low:0,planaUntil:plana};},'Tax settings saved');break;}
+   const day=Math.round(+f.get('docsDay'));if(!(day>=1&&day<=15))throw Error('Choose a day from 1 to 15.');
+   commit(()=>{state.settings.es={exempt130:f.get('exempt130')==='on',lowIncome:[0,25,50,75,100].includes(low)?low:0,planaUntil:plana,cadence:f.get('cadence')==='monthly'?'monthly':'quarterly',docsDay:day};},'Tax settings saved');break;}
   case 'biz-settings-form':{const next={};
    if(F.tax){const r=Math.round(Number(f.get('taxRate'))*100);if(!Number.isFinite(r)||r<0||r>9000)throw Error('Use a set-aside rate from 0 to 90%.');next.taxRate=r;}
    if(F.mileage){const r=Math.round(Number(f.get('mileageRate'))*1000);if(!Number.isFinite(r)||r<0||r>10000)throw Error('Use a mileage rate from 0 to 10 per unit of distance.');next.mileageRate=r;next.distanceUnit=f.get('distanceUnit')==='km'?'km':'mi';}
@@ -4306,6 +4407,7 @@ const Biz=(()=>{
  if(F.pl)views.insights=healthView;
  if(F.tax)views.tax=F.vat?esView:taxView;
  if(F.taxLines)views.taxlines=F.vat?esSummaryView:taxlinesView;
+ if(F.vat)views.filings=filingsView;
  if(F.mileage)views.mileage=mileageView;
  if(F.invoices)views.invoices=invoicesView;
  return {views,dashboard,mixGrid,mixCard,settingsCard,taxLineField,annualCharts,cashflowAnnual,range,columns,statementRows,

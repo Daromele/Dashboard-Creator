@@ -28,7 +28,7 @@ const NICHE = {
   suggestedTags: ['Services', 'Digital products', 'Physical products', 'Courses & workshops', 'Ad revenue', 'Memberships'],
   channelTags: { clients: 'Services', etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', amazon: 'Physical products', shopify: 'Physical products', wallapop: 'Physical products', patreon: 'Memberships', 'ko-fi': 'Memberships', youtube: 'Ad revenue' },
   // taxRate is unused by the Spanish tax screens but kept so a backup validates like the other editions
-  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, es: { exempt130: false, lowIncome: 0, planaUntil: '' } },
+  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, es: { exempt130: false, lowIncome: 0, planaUntil: '', cadence: 'quarterly', docsDay: 10 } },
   tourTopics: 'IVA, IRPF, the cuota, imports and backups',
 
   // type: income | expense | saving (money moved aside) · cogs: purchases for what you sell
@@ -107,9 +107,9 @@ const NICHE = {
   platformDefaults: { sale: 'platform-sales', refund: 'platform-sales', fees: 'platform-fees', ads: 'advertising', shipping: 'shipping', feeTax: 'platform-fees', payout: '__skip', conversion: '__skip', taxWithheld: 'irpf-paid', purchase: '', other: '',
     platforms: { paypal: { sale: 'services', refund: 'services' }, stripe: { sale: 'services', refund: 'services' }, youtube: { sale: 'other-activity', refund: 'other-activity' }, patreon: { sale: 'retainers', refund: 'retainers' }, substack: { sale: 'retainers', refund: 'retainers' } } },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Invoices', 'table'], ['tax', 'IVA & IRPF quarters', 'shield'], ['taxlines', 'Year-end summary', 'tags'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['invoices', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
-  navGroups: [['Your business', ['dashboard', 'activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Invoices & Hacienda', ['invoices', 'tax', 'taxlines']]],
+  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Invoices', 'table'], ['tax', 'IVA & IRPF quarters', 'shield'], ['filings', 'Checklist & gestor', 'check'], ['taxlines', 'Year-end summary', 'tags'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  optionalNav: ['filings', 'invoices', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
+  navGroups: [['Your business', ['dashboard', 'activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Invoices & Hacienda', ['invoices', 'tax', 'filings', 'taxlines']]],
   navGroupRest: 'Settings & help',
 
   labels: {
@@ -169,6 +169,7 @@ const NICHE = {
       ['Invoices and Verifactu', 'Record here the invoices you issue, with their base, IVA and withholding, to follow who owes you. Autónomo Plan is not invoicing software: from 1 July 2027, invoices from autónomos must be produced by software that meets the Verifactu rules. Number invoices in an unbroken series and keep copies.'],
       ['Selling on Etsy, Amazon and other platforms', 'Platform sales start at 0% IVA because who charges the IVA depends on what you sell and to whom: for many digital sales to EU consumers the platform collects it, and B2B or cross-border rules differ. Set the right rate with your gestor, and ask whether you need the ROI (intra-EU operator) registration, Modelo 349 or the OSS. Import the platform’s statement so each sale is split from its fees.'],
       ['Year-end summary and the Renta', 'The Year-end summary groups the year by the lines of the Renta activity section, with the 5% allowance, the IVA totals by rate and the withholding you had. A rough income-tax estimate uses the general 2026 scale and the personal allowance only; your region’s scale, family allowances and reductions change it. Hand the CSVs to your gestor.'],
+      ['Checklist & gestor', 'The Checklist lists, for each quarter, the documents your gestor needs (invoices you issued, invoices and receipts for your costs, bank and platform statements, cuota receipts, rent and payroll where they apply) and the forms that follow: Modelo 303, 130, and 111 or 115 when you withheld tax. The year adds the January summaries (390, 190, 180), the 347 in February, the Renta and the papers each needs, such as your clients’ withholding certificates. Set in Settings whether your gestor wants documents every month or every quarter, and by which day. Tick items as you go; the <b>IVA book CSV</b> buttons export the period’s issued or received side with base, IVA and withholding.'],
       ['Dates to remember', 'Modelos 303, 130, 111 and 115: 1–20 April, July and October, and 1–30 January. Modelo 390 (annual IVA summary): by 30 January. Modelo 347 (anyone you dealt with for more than €3,005.06 in the year): February. Renta: April to 30 June.'],
       ['Tags, channels and bulk changes', 'Group income by where it comes from (channels: clients, Etsy, Amazon…) and by kind (tags: services, digital products…). Tick rows in Transactions to change their category, channel, tag or IVA in one step. Every change can be undone.'],
       ['Money in other currencies', 'Record what reached or left your account in euros, and open <b>In another currency?</b> on the transaction to keep the original amount. Imports convert rows in another currency at a rate you set on the review screen.'],
@@ -232,6 +233,9 @@ const NICHE = {
         else if (['platform-sales', 'platform-fees'].includes(t.category)) { t.channel = 'ch-etsy'; if (t.category === 'platform-sales') t.note = 'Etsy deposit · sewing patterns'; }
       });
       s.invoices.forEach(v => { v.channel = 'ch-clients'; });
+      // the first two quarters are sent and filed; the third is still open
+      s.checklist = {};
+      [[1, '04'], [2, '07']].forEach(([q, m]) => ['issued', 'received', 'bank', 'platforms', 'cuota', 'rent', '303', '130', '115'].forEach((k, i) => { const d = `${year}-${m}-${String(i < 6 ? 8 : 17).padStart(2, '0')}`; if (d <= now) s.checklist[`${year}-Q${q}:${k}`] = d; }));
       for (let i = 2; i <= 12; i++) {
         const prev = `${year}-${String(i - 1).padStart(2, '0')}`, key = `${year}-${String(i).padStart(2, '0')}`;
         s.months[key].opening = totals(s, prev).cash;

@@ -43,8 +43,8 @@ async function capture(file){
       title:document.title+[...document.head.querySelectorAll('meta,link,title')].map(e=>e.outerHTML).join(''),rail:document.querySelector('.rail').innerHTML.replace(/ · v(1\.[89]|2\.[0-3])</,' · v<'),modal:document.querySelector('#modal').open?document.querySelector('#modal-body').innerHTML:''};});};
   for(const mode of ['blank','sample']){
     if(mode==='sample')await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());
-    for(const s of SCREENS){await p.evaluate(s=>{go(s);},s);await grab(mode+':'+s);}
-    await p.evaluate(()=>go('dashboard'));
+    for(const s of SCREENS){await p.evaluate(s=>{go(s,true);},s);await grab(mode+':'+s);}
+    await p.evaluate(()=>go('dashboard',true));
     for(const [k,js] of Object.entries(DIALOGS)){
       await p.evaluate(js=>{try{eval(js);}catch(e){}},js);await grab(mode+':dialog:'+k);
       await p.evaluate(()=>{const m=document.querySelector('#modal');if(m.open)m.close();});

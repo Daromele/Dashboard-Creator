@@ -51,6 +51,19 @@ module.exports=({eq,ok})=>{
   // backups: bad rates are dropped, settings get defaults
   const bad=JSON.parse(JSON.stringify(s));bad.transactions[0].vat=1800;bad.transactions[0].ret=1234;bad.categories[0].vat=5;bad.settings.es={lowIncome:30,planaUntil:'nope'};
   const V=B.validate(bad);
-  eq('bad rates dropped, never fatal', ['vat' in V.transactions[0],'ret' in V.transactions[0],'vat' in V.categories[0],V.settings.es], [false,false,false,{exempt130:false,lowIncome:0,planaUntil:''}]);
+  eq('bad rates dropped, never fatal', ['vat' in V.transactions[0],'ret' in V.transactions[0],'vat' in V.categories[0],V.settings.es], [false,false,false,{exempt130:false,lowIncome:0,planaUntil:'',cadence:'quarterly',docsDay:10}]);
+  // the checklist: documents by the gestor's day, forms on Hacienda's dates, the year's summaries
+  const cs=B.validate(JSON.parse(JSON.stringify(s)));cs.checklist={'2026-Q1:303':'2026-04-15','junk':'2026-01-01','2026-Q1:bank':'nope'};
+  const CV=B.validate(cs);eq('checklist ticks kept, junk dropped', CV.checklist, {'2026-Q1:303':'2026-04-15'});
+  const C=B.esChecklist(CV,'2026','2026-09-30'),[c1,,c3]=C.periods,Y=C.periods.at(-1),find=(p,k)=>p.items.find(i=>i.key.endsWith(':'+k));
+  eq('Q1: documents by the 10th, forms on the 20th', [find(c1,'bank').due,find(c1,'303').due,find(c1,'303').done], ['2026-04-10','2026-04-20','2026-04-15']);
+  ok('Q1 130 unticked and past its date is late', find(c1,'130').late===true&&find(c1,'303').late===false);
+  ok('Q3: rent withholding brings the 115 and rent invoices', !!find(c3,'115')&&!!find(c3,'rent')&&!find(c3,'111'));
+  eq('the year: January, February and June dates', [find(Y,'390').due,find(Y,'180').due,find(Y,'347').due,find(Y,'renta').due], ['2027-02-01','2027-02-01','2027-03-01','2027-06-30']);  // 30 Jan and 31 Jan 2027 fall on a weekend; so does 28 Feb
+  ok('no 190 without professional or payroll withholding', !find(Y,'190'));
+  eq('next open item', [C.next[0].key,C.next[0].due], ['2026-Q3:issued','2026-10-10']);
+  const mo=JSON.parse(JSON.stringify(CV));mo.settings.es.cadence='monthly';mo.settings.es.docsDay=5;
+  const M=B.esChecklist(B.validate(mo),'2026','2026-09-30');
+  eq('monthly cadence: documents per month, by the 5th', M.periods[0].items.filter(i=>i.key.endsWith(':bank')).map(i=>[i.key,i.due]), [['2026-M01:bank','2026-02-05'],['2026-M02:bank','2026-03-05'],['2026-M03:bank','2026-04-05']]);
   ok('a new planner is in euros, dates day-first, categories carry IVA', B.blank().settings.currency==='EUR'&&B.blank().settings.dateFormat==='dmy'&&B.blank().categories.find(c=>c.id==='services').vat===2100);
 };
