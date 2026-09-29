@@ -10,7 +10,7 @@ const ok=(n,c,x='')=>{console.log((c?'ok   ':'FAIL ')+n+(c?'':' '+x));if(!c)proc
 const F='file:///home/user/Dashboard-Creator/monthly-plan/app/AutonomoPlan.html';
 await p.goto(F);await p.evaluate(()=>{localStorage.setItem('jps-autonomo-plan-welcome-v1','1');localStorage.setItem('jps-autonomo-plan-manual-backup',String(Date.now()));});await p.goto(F);await p.waitForTimeout(300);
 ok('new planner in euros',await p.evaluate(()=>state.settings.currency==='EUR'&&state.settings.dateFormat==='dmy'));
-ok('estimates off by default: no IVA screens',await p.evaluate(()=>!document.querySelector('.navlink[data-go="tax"]')&&!!document.querySelector('.navlink[data-go="report"]')));
+ok('estimates on by default, next to the records',await p.evaluate(()=>!!document.querySelector('.navlink[data-go="tax"]')&&!!document.querySelector('.navlink[data-go="report"]')));
 // R1. income in dollars: USD 100 gross, 8 fees at 0.9 → payout €82.80
 await p.evaluate(()=>go('income',true));await p.click('#content [data-action="biz-rec-add-income"]');
 await p.fill('#rec-payer','Upwork');await p.selectOption('#rec-cur','USD');await p.fill('#rec-rate','0.9');
@@ -27,6 +27,17 @@ await p.click(`[data-action="biz-rec-dup"][data-id="${r.id}"]`);await p.waitForT
 ok('duplicate moves a month on',await p.evaluate(d=>document.querySelector('#rec-form [name=date]').value.slice(0,7)===Budget.shift(d.slice(0,7),1)&&document.querySelector('#rec-payer').value==='Upwork',r.date));
 await p.evaluate(d=>{document.querySelector('#rec-form [name=date]').value=d;},r.date);await p.click('#rec-form button[type=submit]');await p.waitForTimeout(150);
 ok('duplicate saved as missing evidence',await p.evaluate(()=>state.transactions.filter(t=>t.note==='March payout').map(t=>Budget.recOf(state,t).status).sort().join()==='complete,missing'));
+// R2b. a Spanish client: €1,000 + 21% IVA − 15% withholding → payout €1,060, and the set-aside shows it
+await p.click('#content [data-action="biz-rec-add-income"]');await p.selectOption('#rec-form [name=act]','prof');
+ok('IVA follows the activity',await p.evaluate(()=>document.querySelector('#rec-vat').value==='2100'));
+await p.fill('#rec-payer','Estudio Norte');await p.selectOption('#rec-form [name=ret]','1500');await p.fill('#rec-form [name=gross]','1000');await p.fill('#rec-form [name=note]','Factura 7');await p.waitForTimeout(80);
+ok('payout includes IVA less withholding',await p.evaluate(()=>document.querySelector('#rec-form [name=payout]').value==='1060.00'));
+await p.click('#rec-form button[type=submit]');await p.waitForTimeout(150);
+ok('saved with IVA and withholding',await p.evaluate(()=>{const t=state.transactions.find(t=>t.note==='Factura 7');return t&&t.amount===106000&&t.rec.vat===2100&&t.rec.ret===1500;}));
+await p.evaluate(()=>go('dashboard',true));const db=await p.evaluate(()=>document.querySelector('#content').innerText);
+ok('dashboard shows the monthly set-aside',/Set aside each month/.test(db)&&/This quarter so far/.test(db));
+await p.evaluate(()=>go('tax',true));ok('tax screen has the month table',await p.evaluate(()=>!!document.querySelector('.set-aside table')&&/Modelo 303/.test(document.querySelector('#content').innerText)));
+await p.evaluate(()=>{const t=state.transactions.find(t=>t.note==='Factura 7');state.transactions=state.transactions.filter(x=>x!==t);save();render();});
 // R3. an expense in euros used half for the business
 await p.evaluate(()=>go('expenses',true));await p.click('#content [data-action="biz-rec-add-expense"]');
 await p.fill('#rec-form [name=vendor]','Movistar');await p.selectOption('#rec-form [name=category]','software');await p.fill('#rec-form [name=amount]','60');await p.fill('#rec-form [name=pct]','50');
