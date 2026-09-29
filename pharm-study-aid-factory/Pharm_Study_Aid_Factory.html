@@ -640,6 +640,14 @@ button, input, select { font: inherit; color: inherit; }
               <option value="index">Index card (4/page)</option>
             </select>
           </div>
+          <div class="field" id="paperCol">
+            <label for="paperSelect">Paper size</label>
+            <select class="custom-select" id="paperSelect">
+              <option value="letter" selected>US Letter</option>
+              <option value="a4">A4</option>
+              <option value="a5">A5</option>
+            </select>
+          </div>
           <div class="field" id="badgeCol">
             <label for="badgeSelect">Warning strips</label>
             <select class="custom-select" id="badgeSelect">
@@ -1212,32 +1220,48 @@ class PdfSlide {
   addText(t, o) { this.ops.push(['text', t, o || {}]); return this; }
   addTable(rows, o) { this.ops.push(['table', rows, o || {}]); return this; }
   addScissors(x, y, vertical) { this.ops.push(['scissors', x, y, vertical]); return this; }
-  _render(doc, W, H) {
+  _render(doc, W, H, fit) {
     const bg = pdfColor(this.background && this.background.color);
-    if (bg && bg.join() !== '255,255,255') { doc.setFillColor(...bg); doc.rect(0, 0, W, H, 'F'); }
+    if (bg && bg.join() !== '255,255,255') { doc.setFillColor(...bg); doc.rect(0, 0, fit ? fit.pw : W, fit ? fit.ph : H, 'F'); }
+    // Scale the US Letter layout onto the target paper, centred (keeps duplex backs aligned)
+    if (fit) doc.internal.write('q', `${fit.s.toFixed(5)} 0 0 ${fit.s.toFixed(5)} ${(fit.ox * 72).toFixed(3)} ${(72 * fit.ph * (1 - fit.s) - 72 * fit.oy).toFixed(3)} cm`);
     this.ops.forEach(op => {
       if (op[0] === 'shape') pdfDrawShape(doc, op[1], op[2]);
       else if (op[0] === 'text') pdfDrawText(doc, op[1], op[2]);
       else if (op[0] === 'table') pdfDrawTable(doc, op[1], op[2]);
       else if (op[0] === 'scissors') pdfDrawScissors(doc, op[1], op[2], op[3]);
     });
+    if (fit) doc.internal.write('Q');
   }
+}
+
+// Paper sizes in inches (portrait). Layouts are drawn on US Letter and scaled to fit.
+const PAPER_SIZES = { letter: { w: 8.5, h: 11, label: 'US Letter' }, a4: { w: 8.2677, h: 11.6929, label: 'A4' }, a5: { w: 5.8268, h: 8.2677, label: 'A5' } };
+
+function paperFitScale(paper, W, H) {
+  const p = PAPER_SIZES[paper] || PAPER_SIZES.letter;
+  const PW = W > H ? p.h : p.w, PH = W > H ? p.w : p.h;
+  return Math.min(PW / W, PH / H);
 }
 
 class PdfDeck {
   constructor() {
     this.ShapeType = { rect: 'rect', line: 'line', roundRect: 'roundRect' };
-    this.slides = []; this._layouts = {}; this.layout = null; this.title = '';
+    this.slides = []; this._layouts = {}; this.layout = null; this.title = ''; this.paper = 'letter';
   }
   defineLayout(l) { this._layouts[l.name] = l; }
   addSlide() { const s = new PdfSlide(); this.slides.push(s); return s; }
   build() {
     const l = this._layouts[this.layout] || { width: 8.5, height: 11 };
-    const W = l.width, H = l.height, orient = W > H ? 'landscape' : 'portrait';
-    const doc = new jspdf.jsPDF({ unit: 'in', format: [W, H], orientation: orient, compress: true });
+    const W = l.width, H = l.height, landscape = W > H, orient = landscape ? 'landscape' : 'portrait';
+    const paper = PAPER_SIZES[this.paper] || PAPER_SIZES.letter;
+    const PW = landscape ? paper.h : paper.w, PH = landscape ? paper.w : paper.h;
+    const s = Math.min(PW / W, PH / H);
+    const fit = Math.abs(s - 1) < 1e-4 && Math.abs(PW - W) < 1e-4 ? null : { s, ox: (PW - W * s) / 2, oy: (PH - H * s) / 2, pw: PW, ph: PH };
+    const doc = new jspdf.jsPDF({ unit: 'in', format: [PW, PH], orientation: orient, compress: true });
     doc.__hasMontserrat = pdfRegisterFonts(doc);
     doc.setProperties({ title: this.title, creator: 'Clinical Study Aid Factory' });
-    this.slides.forEach((s, i) => { if (i > 0) doc.addPage([W, H], orient); s._render(doc, W, H); });
+    this.slides.forEach((sl, i) => { if (i > 0) doc.addPage([PW, PH], orient); sl._render(doc, W, H, fit); });
     return doc;
   }
   async writeFile({ fileName }) { this.build().save(fileName); }
@@ -1265,7 +1289,7 @@ function addWorksheetCover(P, tDef, pages, brandText) {
     const bx = W / 2 - 3, by = midY + 2.1;
     s.addShape(P.ShapeType.rect, { x: bx, y: by, w: 6, h: 2.1, fill: { color: 'FFFFFF' }, line: { color: C.PR, pt: 1.5 } });
     s.addText('HOW TO USE', { x: bx, y: by + 0.15, w: 6, h: 0.35, fontSize: 13, bold: true, color: C.PR, align: 'center', fontFace: 'Montserrat' });
-    s.addText('• Print at 100% / "Actual Size" on US Letter paper.\n• Work from memory first, then check your notes and textbook.\n• Reprint blank copies for each drug class or exam unit.',
+    s.addText('• Print at 100% / "Actual Size" on ' + (PAPER_SIZES[P.paper] || PAPER_SIZES.letter).label + ' paper.\n• Work from memory first, then check your notes and textbook.\n• Reprint blank copies for each drug class or exam unit.',
         { x: bx + 0.3, y: by + 0.55, w: 5.4, h: 1.4, fontSize: 11, color: C.TX, fontFace: 'Montserrat', valign: 'top', lineSpacing: 20 });
     if (brandText) s.addText(brandText, { x: 0.5, y: H - 0.8, w: W - 1, h: 0.4, fontSize: 12, color: '999999', align: 'center', fontFace: 'Montserrat' });
 }
@@ -1294,11 +1318,13 @@ function addDuplexTestPair(P, cols, rows, startX, startY, cardW, cardH) {
         s.addText(`ALIGNMENT TEST · ${side}`, { x: px, y: py, w: sideIdx === 0 ? pw - 1.4 : pw, h: 0.55, fontSize: 13, bold: true, color: 'FFFFFF', align: 'center', fontFace: 'Montserrat' });
 
         if (sideIdx === 0) { // 1-inch scale check inside the header bar
-            const rx = px + pw - 1.35, ry = py + 0.36;
-            s.addShape(P.ShapeType.line, { x: rx, y: ry, w: 1, h: 0, line: { color: 'FFFFFF', pt: 1 } });
+            // Drawn at 1/scale so it prints at exactly 1 inch on any paper size
+            const inch = 1 / (P.fitScale || 1);
+            const rx = px + pw - 0.2 - inch, ry = py + 0.36;
+            s.addShape(P.ShapeType.line, { x: rx, y: ry, w: inch, h: 0, line: { color: 'FFFFFF', pt: 1 } });
             s.addShape(P.ShapeType.line, { x: rx, y: ry - 0.08, w: 0, h: 0.16, line: { color: 'FFFFFF', pt: 1 } });
-            s.addShape(P.ShapeType.line, { x: rx + 1, y: ry - 0.08, w: 0, h: 0.16, line: { color: 'FFFFFF', pt: 1 } });
-            s.addText('= 1 inch', { x: rx, y: py + 0.03, w: 1, h: 0.25, fontSize: 7, color: 'FFFFFF', align: 'center', fontFace: 'Montserrat', margin: 0 });
+            s.addShape(P.ShapeType.line, { x: rx + inch, y: ry - 0.08, w: 0, h: 0.16, line: { color: 'FFFFFF', pt: 1 } });
+            s.addText('= 1 inch', { x: rx, y: py + 0.03, w: inch, h: 0.25, fontSize: 7, color: 'FFFFFF', align: 'center', fontFace: 'Montserrat', margin: 0 });
         }
     });
 }
@@ -2245,6 +2271,10 @@ async function go(mode = 'pdf') {
     classColorMap = {}; colorIndex = 0;
     P = mode === 'pptx' ? new PptxGenJS() : new PdfDeck();
     P.title = tDef.title;
+    const paper = document.getElementById('paperSelect') ? document.getElementById('paperSelect').value : 'letter';
+    if (mode === 'pptx' && paper !== 'letter') throw new Error('Editable PPTX is US Letter only. Switch paper size to US Letter.');
+    P.paper = paper;
+    P.fitScale = paperFitScale(paper, tDef.layout === 'landscape' ? 11 : 8.5, tDef.layout === 'landscape' ? 8.5 : 11);
     P.defineLayout({name:'LETTER', width: tDef.layout==='landscape'?11:8.5, height: tDef.layout==='landscape'?8.5:11});
     P.layout = 'LETTER';
 
@@ -2309,7 +2339,7 @@ async function go(mode = 'pdf') {
         
         ins.addShape(P.ShapeType.rect, {x:0.5, y:1.5, w:3.6, h:3.5, fill:{color: 'F9F9F9'}, line:{color: 'E0E0E0', pt: 1}});
         ins.addText("PRINTING SETTINGS", {x:0.75, y:1.7, w:3.2, h:0.4, fontSize: 13, bold: true, color: C.PR, fontFace: 'Montserrat', margin: 0});
-        const printItems = [['Paper:', 'Heavy cardstock, 8.5 x 11 in'], ['Scale:', '100% / Actual Size'], ['Sides:', 'Print double-sided'], ['Flip:', 'On the long edge'], ['Color:', 'Full color']];
+        const printItems = [['Paper:', 'Heavy cardstock, ' + (paper === 'letter' ? 'US Letter (8.5 x 11 in)' : PAPER_SIZES[paper].label)], ['Scale:', '100% / Actual Size'], ['Sides:', 'Print double-sided'], ['Flip:', 'On the long edge'], ['Color:', 'Full color']];
         if (productPages) printItems.push(['Test first:', 'Print pages 3-4 on plain paper to check alignment']);
         addBulletList(ins, printItems, 0.75, 2.25, 3.15, 0.42);
 
@@ -2703,7 +2733,8 @@ async function go(mode = 'pdf') {
         if (previewWin) previewWin.location.href = url; else window.open(url, '_blank');
         sp(100,'✅ Preview opened in a new tab');
     } else {
-        await P.writeFile({fileName: `Study_Deck_${sanitizedTitle}.${mode === 'pptx' ? 'pptx' : 'pdf'}`});
+        const paperTag = paper === 'letter' ? '' : '_' + paper.toUpperCase();
+        await P.writeFile({fileName: `Study_Deck_${sanitizedTitle}${paperTag}.${mode === 'pptx' ? 'pptx' : 'pdf'}`});
         sp(100,'✅ Download complete!');
     }
   } catch(e) {
@@ -2763,14 +2794,14 @@ async function go(mode = 'pdf') {
     }
     $('deckMeta').textContent = meta;
     if (isFlashKey(k)) $('uiTags').querySelectorAll('.tag').forEach(tg => { if (/Per Page/.test(tg.textContent)) tg.textContent = `${perPage()} Per Page`; });
-    $('summaryText').textContent = `${t.title} — ${meta}`;
+    $('summaryText').textContent = `${t.title} — ${meta} · ${PAPER_SIZES[$('paperSelect').value].label}`;
   }
 
   // ---- settings persistence (per-browser convenience only) ----
   function save() {
     try {
       localStorage.setItem(STORE, JSON.stringify({
-        template: activeTemplate, theme: activeTheme, format: $('formatSelect').value, badges: $('badgeSelect').value,
+        template: activeTemplate, theme: activeTheme, format: $('formatSelect').value, badges: $('badgeSelect').value, paper: $('paperSelect').value,
         brand: $('brandText').value, productPages: $('productPages').checked, autoPreview: $('autoPreview').checked
       }));
     } catch (e) { /* storage unavailable */ }
@@ -2781,6 +2812,7 @@ async function go(mode = 'pdf') {
     if (!s) return;
     if (s.format) $('formatSelect').value = s.format;
     if (s.badges) $('badgeSelect').value = s.badges;
+    if (s.paper && PAPER_SIZES[s.paper]) $('paperSelect').value = s.paper;
     if (typeof s.brand === 'string') $('brandText').value = s.brand;
     if (typeof s.productPages === 'boolean') $('productPages').checked = s.productPages;
     if (typeof s.autoPreview === 'boolean') $('autoPreview').checked = s.autoPreview;
@@ -2825,13 +2857,24 @@ async function go(mode = 'pdf') {
       if (mode === 'inline') setStatus(failed ? 'err' : 'ok', failed ? $('pt').textContent.replace('❌ ', '') : 'Up to date');
     } finally {
       busy = false;
+      applyPaperRules();
       setTimeout(() => { $('pw').style.display = 'none'; }, 1500);
       if (queued) { queued = false; schedulePreview(100); }
     }
   };
 
   // ---- hook into existing controls ----
-  function afterChange() { renderDeckList(); refreshMeta(); save(); schedulePreview(); }
+  function applyPaperRules() {
+    const a5 = $('paperSelect').querySelector('option[value="a5"]');
+    const flash = isFlashKey(activeTemplate);
+    a5.disabled = flash;
+    a5.textContent = flash ? 'A5 (worksheets only)' : 'A5';
+    if (flash && $('paperSelect').value === 'a5') $('paperSelect').value = 'a4';
+    const letter = $('paperSelect').value === 'letter';
+    $('btnPptx').disabled = !letter;
+    $('btnPptx').title = letter ? 'Editable PowerPoint (US Letter)' : 'Editable PPTX is available for US Letter only';
+  }
+  function afterChange() { applyPaperRules(); renderDeckList(); refreshMeta(); save(); schedulePreview(); }
   const baseSetTemplate = setTemplate;
   window.setTemplate = setTemplate = function (k) {
     const keepQty = k === activeTemplate ? $('qtySelect').value : null;
@@ -2847,7 +2890,7 @@ async function go(mode = 'pdf') {
     $('templateSelect').value = b.dataset.key; setTemplate(b.dataset.key);
   });
   $('deckSearch').addEventListener('input', renderDeckList);
-  ['qtySelect', 'badgeSelect', 'productPages'].forEach(id => $(id).addEventListener('change', afterChange));
+  ['qtySelect', 'badgeSelect', 'productPages', 'paperSelect'].forEach(id => $(id).addEventListener('change', afterChange));
   $('brandText').addEventListener('input', () => { save(); schedulePreview(900); });
   $('autoPreview').addEventListener('change', () => { save(); if ($('autoPreview').checked) schedulePreview(0); });
 
