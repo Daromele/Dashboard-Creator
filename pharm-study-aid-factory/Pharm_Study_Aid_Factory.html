@@ -1826,15 +1826,15 @@ async function go(mode = 'pdf') {
                     sf.addText("My Notes / Clues:", { x: cx + (0.2*fontScale), y: cy + cardH - (0.6*fontScale), w: cardW - (0.4*fontScale), h: 0.15*fontScale, fontSize: 7 * fontScale, color: '#AAAAAA', italic: true, fontFace: 'Montserrat' });
                     
                     if (showBadges && (drug.blackBox || drug.highAlert)) {
-                        let bText = drug.blackBox ? "⬛ BLACK BOX" : "⚠️ HIGH ALERT";
+                        let bText = drug.blackBox ? "BLACK BOX WARNING" : "HIGH-ALERT MEDICATION";
                         let bColor = drug.blackBox ? '000000' : 'C1121F';
-                        let bWidth = 1.0 * fontScale;
-                        let bHeight = 0.18 * fontScale;
-                        let bx = cx + cardW - bWidth - (0.15 * fontScale);
-                        let by = cy + (0.42 * fontScale); // Positioned inside the white area, top right
+                        let bWidth = cardW - (0.2 * fontScale);
+                        let bHeight = 0.16 * fontScale;
+                        let bx = cx + (0.1 * fontScale);
+                        let by = cy + (0.45 * fontScale); // Sits flush under the title bar, same width
                         
-                        sf.addShape(P.ShapeType.roundRect, { x: bx, y: by, w: bWidth, h: bHeight, fill: {color: bColor}, roundness: 0.2 });
-                        sf.addText(bText, { x: bx, y: by, w: bWidth, h: bHeight, fontSize: 5 * fontScale, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', fontFace: 'Montserrat' });
+                        sf.addShape(P.ShapeType.rect, { x: bx, y: by, w: bWidth, h: bHeight, fill: {color: bColor} });
+                        sf.addText(bText, { x: bx, y: by, w: bWidth, h: bHeight, margin: 0, fontSize: 5.5 * fontScale, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', fontFace: 'Montserrat' });
                     }
 
                     if (brandText) {
