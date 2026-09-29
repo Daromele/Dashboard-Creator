@@ -445,7 +445,9 @@ button, input, select { font: inherit; color: inherit; }
 .kbd { font-size: 11.5px; color: var(--tx-3); }
 .kbd kbd { font-family: inherit; font-size: 11px; padding: 2px 6px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 5px; background: var(--panel-2); color: var(--tx-2); }
 
-.main { display: grid; grid-template-columns: 290px minmax(380px, 460px) 1fr; min-height: 0; }
+.app { --sb-w: 290px; }
+.app.collapsed { --sb-w: 68px; }
+.main { display: grid; grid-template-columns: var(--sb-w) minmax(380px, 460px) 1fr; min-height: 0; transition: grid-template-columns .2s ease; }
 
 /* Deck list */
 .sidebar { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
@@ -528,7 +530,7 @@ button, input, select { font: inherit; color: inherit; }
 .btn-primary { background: var(--ac); border-color: var(--ac); color: var(--ac-tx); }
 .btn-primary:hover:not(:disabled) { filter: brightness(1.08); border-color: var(--ac); }
 .btn-sm { padding: 6px 10px; font-size: 12.5px; }
-.actionbar { position: fixed; left: 290px; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: color-mix(in srgb, var(--panel) 88%, transparent); backdrop-filter: blur(10px); border-top: 1px solid var(--line); z-index: 5; }
+.actionbar { position: fixed; left: var(--sb-w); right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: color-mix(in srgb, var(--panel) 88%, transparent); backdrop-filter: blur(10px); border-top: 1px solid var(--line); z-index: 5; }
 .actionbar .summary { flex: 1; min-width: 0; }
 .actionbar .summary .t { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prog-wrap { display: none; margin-top: 4px; }
@@ -538,9 +540,10 @@ button, input, select { font: inherit; color: inherit; }
 .actionbar .btn-primary { padding: 11px 20px; font-size: 14.5px; }
 
 @media (max-width: 1100px) {
-  .main { grid-template-columns: 260px 1fr; }
+  .app { --sb-w: 260px; }
+  .app.collapsed { --sb-w: 68px; }
+  .main { grid-template-columns: var(--sb-w) 1fr; }
   .preview { display: none; }
-  .actionbar { left: 260px; }
 }
 @media (max-width: 720px) {
   .app { height: auto; }
@@ -571,6 +574,24 @@ button, input, select { font: inherit; color: inherit; }
 .sidebar .decks::-webkit-scrollbar { width: 8px; }
 .sidebar .decks::-webkit-scrollbar-thumb { background: #2C4658; border-radius: 8px; }
 @media (prefers-color-scheme: dark) { .sidebar { --panel: #0B141A; --panel-2: #121E26; } }
+
+/* Collapsible sidebar */
+.side-head { display: flex; align-items: center; gap: 8px; padding: 14px 10px 10px 14px; }
+.side-head .search { flex: 1; padding: 0; min-width: 0; }
+.side-toggle { flex-shrink: 0; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; border: 1px solid var(--line-2); background: var(--panel-2); color: var(--tx-2); cursor: pointer; transition: .15s; }
+.side-toggle:hover { color: var(--tx); border-color: var(--tx-3); }
+.side-toggle svg { transition: transform .2s; }
+.app.collapsed .side-toggle svg { transform: rotate(180deg); }
+.app.collapsed .side-head { justify-content: center; padding: 14px 0 10px; }
+.app.collapsed .side-head .search, .app.collapsed .deck > span:last-child { display: none; }
+.app.collapsed .decks { padding: 0 8px 16px; overflow-x: hidden; }
+.app.collapsed .deck { justify-content: center; padding: 7px 0; }
+.app.collapsed .deck-group { font-size: 0; padding: 10px 6px 6px; }
+.app.collapsed .deck-group::after { content: ''; display: block; height: 1px; background: var(--line-2); }
+.app.collapsed .deck-ic { width: 36px; height: 36px; font-size: 17px; }
+.app.collapsed .deck.active { box-shadow: none; }
+.app.collapsed .deck.active .deck-ic { box-shadow: 0 0 0 2px var(--ac); }
+@media (max-width: 720px) { .side-toggle { display: none; } }
 </style>
 </head>
 <body>
@@ -586,7 +607,12 @@ button, input, select { font: inherit; color: inherit; }
   <div class="main">
     <!-- Deck list -->
     <aside class="sidebar">
-      <div class="search"><input type="search" id="deckSearch" placeholder="Search decks…" autocomplete="off"></div>
+      <div class="side-head">
+        <div class="search"><input type="search" id="deckSearch" placeholder="Search decks…" autocomplete="off"></div>
+        <button class="side-toggle" id="sideToggle" type="button" title="Collapse sidebar ( [ )" aria-label="Collapse sidebar" aria-expanded="true">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg>
+        </button>
+      </div>
       <nav class="decks" id="deckList"></nav>
       <!-- Kept for the generator logic; the list above drives it -->
       <select id="templateSelect" onchange="setTemplate(this.value)" hidden></select>
@@ -1682,6 +1708,86 @@ const CLASS_FAMILY = {
     });
 });
 
+// ==========================================
+// DECK REGISTRY v2: split combined decks, add Critical Care
+// ==========================================
+const PHARM_CRITICAL = [
+    // Vasopressors & Inotropes
+    { cat: "Vasopressors & Inotropes", name: "Norepinephrine", class: "Vasopressor (Alpha-1 > Beta-1 Agonist)", use: "Septic shock (first-line), severe hypotension", moa: "Alpha-1 vasoconstriction with some beta-1 inotropy", sideEffects: "Tissue ischemia, extravasation necrosis, arrhythmias", notes: "Levophed. Central line preferred. Titrate to MAP 65+. Extravasation: phentolamine.", highAlert: true },
+    { cat: "Vasopressors & Inotropes", name: "Epinephrine", class: "Vasopressor / Inotrope (Alpha + Beta Agonist)", use: "Cardiac arrest, anaphylaxis, shock", moa: "Alpha vasoconstriction plus beta-1 inotropy and beta-2 bronchodilation", sideEffects: "Tachyarrhythmias, hypertension, hyperglycemia, lactic acidosis", notes: "Arrest: 1 mg IV every 3-5 min. Anaphylaxis: IM in the outer thigh (1 mg/mL).", highAlert: true },
+    { cat: "Vasopressors & Inotropes", name: "Vasopressin", class: "Vasopressor (V1 Agonist)", use: "Septic shock (added to norepinephrine)", moa: "V1 receptor vasoconstriction, independent of catecholamines", sideEffects: "Digital and mesenteric ischemia, hyponatremia", notes: "Usually a fixed dose, not titrated. Spares norepinephrine.", highAlert: true },
+    { cat: "Vasopressors & Inotropes", name: "Phenylephrine", class: "Vasopressor (Pure Alpha-1 Agonist)", use: "Hypotension (especially during anesthesia)", moa: "Alpha-1 vasoconstriction; no beta effect", sideEffects: "Reflex bradycardia, reduced cardiac output, ischemia", notes: "Useful when heart rate is already fast. Can run peripherally short-term.", highAlert: true },
+    { cat: "Vasopressors & Inotropes", name: "Dopamine", class: "Vasopressor / Inotrope (Dose-Dependent)", use: "Shock, symptomatic bradycardia", moa: "Low dose: dopamine receptors; mid: beta-1; high: alpha-1", sideEffects: "Tachyarrhythmias, extravasation necrosis", notes: "More arrhythmias than norepinephrine in septic shock.", highAlert: true },
+    { cat: "Vasopressors & Inotropes", name: "Dobutamine", class: "Inotrope (Beta-1 Agonist)", use: "Cardiogenic shock, acute decompensated heart failure", moa: "Increases contractility with mild vasodilation", sideEffects: "Tachycardia, arrhythmias, hypotension", notes: "Not a vasopressor: BP can drop. Monitor ECG and BP closely.", highAlert: true },
+    { cat: "Vasopressors & Inotropes", name: "Milrinone", class: "Inotrope (PDE-3 Inhibitor)", use: "Acute decompensated heart failure, low cardiac output", moa: "Raises cAMP: stronger contraction plus vasodilation ('inodilator')", sideEffects: "Hypotension, arrhythmias", notes: "Renally cleared; reduce dose in kidney disease.", highAlert: true },
+    // Sedation & Analgesia
+    { cat: "Sedation & Analgesia", name: "Propofol", class: "Sedative-Hypnotic (IV Anesthetic)", use: "ICU sedation, anesthesia induction", moa: "Enhances GABA-A activity", sideEffects: "Hypotension, respiratory depression, high triglycerides, propofol infusion syndrome", notes: "Diprivan. Lipid emulsion: strict aseptic technique; change tubing per policy.", highAlert: true },
+    { cat: "Sedation & Analgesia", name: "Dexmedetomidine", class: "Sedative (Central Alpha-2 Agonist)", use: "ICU and procedural sedation", moa: "Alpha-2 agonism reduces sympathetic output", sideEffects: "Bradycardia, hypotension", notes: "Precedex. Minimal respiratory depression; patient stays arousable.", highAlert: true },
+    { cat: "Sedation & Analgesia", name: "Midazolam (IV)", class: "Benzodiazepine (IV Sedation)", use: "Procedural and ICU sedation, status epilepticus", moa: "Enhances GABA-A activity", sideEffects: "Respiratory depression, hypotension, delirium, accumulation", notes: "Accumulates in obesity and kidney failure. Reversal: flumazenil.", blackBox: true, highAlert: true },
+    { cat: "Sedation & Analgesia", name: "Ketamine", class: "Dissociative Anesthetic (NMDA Antagonist)", use: "RSI induction, analgesia, procedural sedation", moa: "Blocks NMDA receptors", sideEffects: "Emergence reactions, hypertension, tachycardia, increased secretions", notes: "Preserves airway reflexes and blood pressure.", highAlert: true },
+    { cat: "Sedation & Analgesia", name: "Fentanyl (IV)", class: "Opioid Analgesic (IV)", use: "ICU analgesia, procedural pain", moa: "Mu-opioid receptor agonist", sideEffects: "Respiratory depression, chest wall rigidity (rapid push), bradycardia", notes: "Analgesia-first sedation. Reversal: naloxone.", blackBox: true, highAlert: true },
+    { cat: "Sedation & Analgesia", name: "Etomidate", class: "Sedative-Hypnotic (Induction Agent)", use: "Rapid sequence intubation (RSI) induction", moa: "Enhances GABA-A activity", sideEffects: "Adrenal suppression, myoclonus, nausea/vomiting", notes: "Hemodynamically stable. Single induction dose only.", highAlert: true },
+    // Neuromuscular Blockers
+    { cat: "Neuromuscular Blockers", name: "Succinylcholine", class: "Depolarizing Neuromuscular Blocker", use: "RSI paralysis", moa: "Persistent depolarization at the nicotinic receptor", sideEffects: "Hyperkalemia, malignant hyperthermia, bradycardia, fasciculations", notes: "Avoid with hyperkalemia, older burns/crush injury, neuromuscular disease. Sedate first.", blackBox: true, highAlert: true },
+    { cat: "Neuromuscular Blockers", name: "Rocuronium", class: "Nondepolarizing Neuromuscular Blocker", use: "RSI, intubation, mechanical ventilation", moa: "Competitively blocks acetylcholine at nicotinic receptors", sideEffects: "Prolonged paralysis", notes: "No sedation or pain relief: always sedate. Reversal: sugammadex.", highAlert: true },
+    { cat: "Neuromuscular Blockers", name: "Vecuronium", class: "Nondepolarizing Neuromuscular Blocker", use: "Intubation, mechanical ventilation", moa: "Competitively blocks acetylcholine at nicotinic receptors", sideEffects: "Prolonged paralysis, especially in liver disease", notes: "Powder must be reconstituted. Reversal: sugammadex or neostigmine.", highAlert: true },
+    { cat: "Neuromuscular Blockers", name: "Cisatracurium", class: "Nondepolarizing Neuromuscular Blocker", use: "Paralysis in ICU (e.g., ARDS)", moa: "Competitively blocks acetylcholine at nicotinic receptors", sideEffects: "Prolonged paralysis, bradycardia", notes: "Organ-independent (Hofmann) elimination: good choice in liver or kidney failure.", highAlert: true },
+    // ACLS & Antiarrhythmics
+    { cat: "ACLS & Antiarrhythmics", name: "Adenosine", class: "Class V Antiarrhythmic", use: "Stable narrow-complex SVT", moa: "Briefly blocks AV node conduction", sideEffects: "Brief asystole, flushing, chest pressure, dyspnea", notes: "6 mg rapid IV push with flush, then 12 mg. Use the port closest to the heart." },
+    { cat: "ACLS & Antiarrhythmics", name: "Amiodarone (IV)", class: "Class III Antiarrhythmic", use: "VF/pulseless VT, stable VT, AFib", moa: "Blocks potassium channels, prolonging repolarization", sideEffects: "Hypotension, bradycardia, phlebitis", notes: "Arrest: 300 mg IV, then 150 mg. Long infusions: central line if possible.", highAlert: true },
+    { cat: "ACLS & Antiarrhythmics", name: "Lidocaine (IV)", class: "Class IB Antiarrhythmic", use: "VF/pulseless VT (alternative to amiodarone)", moa: "Blocks sodium channels in ventricular tissue", sideEffects: "CNS toxicity (confusion, seizures), bradycardia", notes: "Early toxicity: perioral numbness, tinnitus, metallic taste." },
+    { cat: "ACLS & Antiarrhythmics", name: "Atropine", class: "Anticholinergic (Antimuscarinic)", use: "Symptomatic bradycardia, organophosphate poisoning", moa: "Blocks vagal (muscarinic) effects on the heart", sideEffects: "Tachycardia, dry mouth, urinary retention, delirium", notes: "Bradycardia: 1 mg IV every 3-5 min, max 3 mg." },
+    { cat: "ACLS & Antiarrhythmics", name: "Procainamide", class: "Class IA Antiarrhythmic", use: "Stable wide-complex tachycardia, AFib with WPW", moa: "Blocks sodium channels, slowing conduction", sideEffects: "Hypotension, QT prolongation, lupus-like syndrome", notes: "Stop if QRS widens over 50%, hypotension, or arrhythmia is suppressed.", blackBox: true },
+    { cat: "ACLS & Antiarrhythmics", name: "Magnesium Sulfate", class: "Electrolyte / Antiarrhythmic", use: "Torsades de pointes, eclampsia seizures, low magnesium, severe asthma", moa: "Stabilizes cardiac and neuronal membranes", sideEffects: "Flushing, hypotension, lost reflexes, respiratory depression", notes: "Monitor reflexes, RR, urine output. Antidote: calcium gluconate.", highAlert: true },
+    // IV Antihypertensives
+    { cat: "IV Antihypertensives", name: "Nicardipine (IV)", class: "IV Calcium Channel Blocker (DHP)", use: "Hypertensive emergency, stroke BP control", moa: "Relaxes arterial smooth muscle", sideEffects: "Headache, reflex tachycardia, hypotension", notes: "Titratable drip. Rotate peripheral IV sites to limit phlebitis." },
+    { cat: "IV Antihypertensives", name: "Clevidipine", class: "IV Calcium Channel Blocker (Ultra-Short)", use: "Perioperative and emergency hypertension", moa: "Relaxes arterial smooth muscle", sideEffects: "Headache, reflex tachycardia, hypotension", notes: "Cleviprex. Lipid emulsion: avoid with soy or egg allergy. Works in minutes." },
+    { cat: "IV Antihypertensives", name: "Nitroprusside", class: "Direct Vasodilator (IV)", use: "Hypertensive emergency, acute heart failure", moa: "Releases nitric oxide, dilating arteries and veins", sideEffects: "Profound hypotension, cyanide/thiocyanate toxicity", notes: "Protect from light. Arterial line BP monitoring.", blackBox: true, highAlert: true },
+    { cat: "IV Antihypertensives", name: "Nitroglycerin (IV)", class: "Nitrate (IV)", use: "Acute coronary syndrome, pulmonary edema, hypertension", moa: "Releases nitric oxide, mainly dilating veins", sideEffects: "Headache, hypotension, reflex tachycardia", notes: "Avoid with recent PDE-5 inhibitor use or right ventricular infarct." },
+    // Emergency & Rescue
+    { cat: "Emergency & Rescue", name: "Sodium Bicarbonate", class: "Alkalinizing Agent", use: "Severe metabolic acidosis, TCA overdose, hyperkalemia", moa: "Buffers acid, raising blood pH", sideEffects: "Metabolic alkalosis, hypernatremia, fluid overload, extravasation injury", notes: "Not routine in cardiac arrest. Flush between bicarbonate and calcium (precipitates)." },
+    { cat: "Emergency & Rescue", name: "Calcium Chloride", class: "Electrolyte (IV Calcium)", use: "Hyperkalemia (cardiac protection), low calcium, CCB overdose", moa: "Stabilizes the cardiac membrane; replaces calcium", sideEffects: "Bradycardia, extravasation necrosis, hypercalcemia", notes: "About 3 times the calcium of calcium gluconate. Central line preferred." },
+    { cat: "Emergency & Rescue", name: "Hypertonic Saline (3%)", class: "Hyperosmolar Agent", use: "Raised intracranial pressure, severe symptomatic hyponatremia", moa: "Draws water out of brain cells", sideEffects: "Hypernatremia, fluid overload, osmotic demyelination if too fast", notes: "Frequent sodium checks. Chronic hyponatremia: correct slowly (limit per 24 hr).", highAlert: true },
+    { cat: "Emergency & Rescue", name: "Insulin Infusion (Regular)", class: "Short-Acting Insulin (IV)", use: "DKA, HHS, ICU hyperglycemia", moa: "Drives glucose and potassium into cells", sideEffects: "Hypoglycemia, hypokalemia", notes: "In DKA, confirm K+ is at least 3.3 before starting. Hourly glucose checks.", highAlert: true },
+    { cat: "Emergency & Rescue", name: "Potassium Chloride (IV)", class: "Electrolyte (IV Potassium)", use: "Hypokalemia", moa: "Replaces potassium", sideEffects: "Hyperkalemia, arrhythmias, IV-site pain and phlebitis", notes: "NEVER IV push. Always diluted and on a pump at a policy-limited rate.", highAlert: true },
+    { cat: "Emergency & Rescue", name: "Tranexamic Acid (TXA)", class: "Antifibrinolytic", use: "Trauma bleeding, postpartum hemorrhage, surgical bleeding", moa: "Blocks plasminogen activation, stabilizing clots", sideEffects: "Thrombosis, seizures (high doses), hypotension if pushed fast", notes: "Trauma: give within 3 hours of injury." },
+    { cat: "Emergency & Rescue", name: "4-Factor PCC", class: "Prothrombin Complex Concentrate", use: "Urgent warfarin reversal with major bleeding", moa: "Replaces factors II, VII, IX, X and proteins C and S", sideEffects: "Thrombosis, stroke", notes: "Kcentra. Give with IV vitamin K. Dosed by INR and weight.", blackBox: true, highAlert: true },
+    { cat: "Emergency & Rescue", name: "Albumin", class: "Colloid (Volume Expander)", use: "Hypovolemia, large-volume paracentesis, burns", moa: "Raises oncotic pressure, holding fluid in vessels", sideEffects: "Fluid overload, pulmonary edema", notes: "5% for volume; 25% pulls fluid into vessels. Blood product: follow consent policy." },
+    { cat: "Emergency & Rescue", name: "Dextrose 50% (D50W)", class: "Hypertonic Glucose", use: "Severe hypoglycemia; with insulin for hyperkalemia", moa: "Directly raises blood glucose", sideEffects: "Hyperglycemia, extravasation injury, phlebitis", notes: "Use a large vein. Recheck glucose in 15 minutes." }
+];
+
+// Split the combined decks using the colour families assigned above
+const splitDeck = (arr, cats) => arr.filter(d => cats.includes(d.cat));
+const PHARM_ENDO = splitDeck(PHARM_ENDO_GI, ['Insulins', 'Non-Insulin Diabetes Drugs', 'Thyroid Drugs', 'Corticosteroids']);
+const PHARM_GI = splitDeck(PHARM_ENDO_GI, ['Acid Reducers & GI Protectants', 'Antiemetics', 'Laxatives', 'Antidiarrheals']);
+const PHARM_PAIN = splitDeck(PHARM_PAIN_RESP, ['Non-Opioid Analgesics (NSAIDs & APAP)', 'Opioids & Reversal', 'Muscle Relaxants', 'Gout Drugs']);
+const PHARM_RESP = splitDeck(PHARM_PAIN_RESP, ['Bronchodilators', 'Asthma Controllers', 'Antihistamines, Cough & Cold']);
+if (PHARM_ENDO.length + PHARM_GI.length !== PHARM_ENDO_GI.length || PHARM_PAIN.length + PHARM_RESP.length !== PHARM_PAIN_RESP.length)
+    throw new Error('Deck split lost cards: check family names');
+
+const EXTRA_DECKS = { pharm_endo_9: PHARM_ENDO, pharm_gi_9: PHARM_GI, pharm_pain_9: PHARM_PAIN, pharm_resp_9: PHARM_RESP, pharm_crit_9: PHARM_CRITICAL };
+const EXTRA_TITLES = { pharm_endo_9: 'ENDOCRINE', pharm_gi_9: 'GASTROINTESTINAL', pharm_pain_9: 'PAIN & INFLAMMATION', pharm_resp_9: 'RESPIRATORY & ALLERGY', pharm_crit_9: 'CRITICAL CARE' };
+
+const deckTpl = (icon, title) => ({ icon, title, tags: ['Two-Sided', '9 Per Page', 'Deep Dive'], layout: 'portrait' });
+delete TEMPLATES.pharm_endo_gi_9;
+delete TEMPLATES.pharm_pain_resp_9;
+Object.assign(TEMPLATES, {
+    pharm_cardio_9: deckTpl('🫀', '1 - Cardiovascular & Renal'),
+    pharm_neuro_psych_9: deckTpl('🧠', '2 - Neuro & Psychiatric'),
+    pharm_endo_9: deckTpl('🩸', '3 - Endocrine'),
+    pharm_gi_9: deckTpl('🍽️', '4 - Gastrointestinal'),
+    pharm_antibiotics_9: deckTpl('🦠', '5 - Antibiotics & Antifungals'),
+    pharm_antivirals_9: deckTpl('🧬', '6 - Antivirals & HIV'),
+    pharm_immuno_9: deckTpl('🛡️', '7 - Immunosuppressants'),
+    pharm_pain_9: deckTpl('💊', '8 - Pain & Inflammation'),
+    pharm_resp_9: deckTpl('🫁', '9 - Respiratory & Allergy'),
+    pharm_crit_9: deckTpl('🚑', '10 - Critical Care & Emergency')
+});
+CATEGORIES['Pharmacology Flashcards'] = ['top200_9', 'pharm_cardio_9', 'pharm_neuro_psych_9', 'pharm_endo_9', 'pharm_gi_9', 'pharm_antibiotics_9',
+    'pharm_antivirals_9', 'pharm_immuno_9', 'pharm_pain_9', 'pharm_resp_9', 'pharm_crit_9'];
+const baseGetDataset = getDatasetForKey;
+getDatasetForKey = function (key) { return EXTRA_DECKS[key] || baseGetDataset(key); };
+
 const withCat = (arr, n, cat) => arr.slice(0, n).map(x => ({ ...x, cat }));
 // Top 200 prescribed drugs (ranked list supplied by the shop owner).
 // d(generic, brand, category, class, use, moa, sideEffects, notes, flags) — flags: 'BB' boxed warning, 'HA' ISMP high-alert
@@ -2148,7 +2254,8 @@ async function go(mode = 'pdf') {
         let dataset = getDatasetForKey(activeTemplate);
         let titleMain;
         
-        if (activeTemplate === 'top200_9') { titleMain = "TOP 200 DRUGS"; }
+        if (EXTRA_TITLES[activeTemplate]) { titleMain = EXTRA_TITLES[activeTemplate]; }
+        else if (activeTemplate === 'top200_9') { titleMain = "TOP 200 DRUGS"; }
         else if (activeTemplate === 'lab_values_9') { titleMain = "LAB VALUES"; }
         else if (activeTemplate === 'pharm_cardio_9') { titleMain = "CARDIOVASCULAR"; }
         else if (activeTemplate === 'pharm_neuro_psych_9') { titleMain = "NEURO & PSYCH"; }
@@ -2634,7 +2741,7 @@ async function go(mode = 'pdf') {
       html += `<div class="deck-group">${cat}</div>`;
       items.forEach(k => {
         const t = TEMPLATES[k];
-        html += `<button class="deck${k === activeTemplate ? ' active' : ''}" data-key="${k}">
+        html += `<button class="deck${k === activeTemplate ? ' active' : ''}" data-key="${k}" title="${t.title} · ${deckInfo(k)}">
           <span class="deck-ic">${t.icon}</span>
           <span><div class="deck-title">${t.title}</div><div class="deck-meta">${deckInfo(k)}</div></span></button>`;
       });
@@ -2750,10 +2857,23 @@ async function go(mode = 'pdf') {
   ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
   dz.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleCSV({ target: { files: [f] } }); });
 
+  // Collapsible sidebar (icons only when collapsed)
+  const app = document.querySelector('.app');
+  function setCollapsed(on) {
+    app.classList.toggle('collapsed', on);
+    $('sideToggle').setAttribute('aria-expanded', String(!on));
+    $('sideToggle').title = on ? 'Expand sidebar ( [ )' : 'Collapse sidebar ( [ )';
+    try { localStorage.setItem(STORE + '.collapsed', on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+  }
+  $('sideToggle').addEventListener('click', () => setCollapsed(!app.classList.contains('collapsed')));
+  try { if (localStorage.getItem(STORE + '.collapsed') === '1') setCollapsed(true); } catch (e) { /* storage unavailable */ }
+
   // Ctrl/Cmd + Enter downloads the PDF
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); go('pdf'); }
-    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); $('deckSearch').focus(); }
+    const typing = ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName);
+    if (e.key === '/' && !typing) { e.preventDefault(); setCollapsed(false); $('deckSearch').focus(); }
+    if (e.key === '[' && !typing) { e.preventDefault(); setCollapsed(!app.classList.contains('collapsed')); }
   });
 
   restore();
