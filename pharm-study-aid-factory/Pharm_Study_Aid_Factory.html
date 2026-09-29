@@ -2971,7 +2971,7 @@ async function go(mode = 'pdf') {
         const lgRows = Math.ceil(legend.length / lgCols);
         const lgRowH = Math.min(0.5, 3.1 / lgRows);
         const lgColW = 6.5 / lgCols; // 0.5in inner padding each side of the 7.5in panel
-        const lgSw = Math.min(0.32, lgRowH * 0.75);
+        const lgSw = Math.min(0.32, lgRowH * 0.75) * 0.6; // 40% smaller circles
         const lgFont = lgRowH >= 0.45 ? 10 : (lgRowH >= 0.3 ? 8 : 7);
         legend.forEach((name, i) => {
             const col = Math.floor(i / lgRows), row = i % lgRows; // fill down each column
