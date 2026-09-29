@@ -50,6 +50,8 @@ await p.click('[data-action="biz-th-period"][data-p="year"]');ok('period switch'
 await p.click('[data-action="biz-plana-toggle"]');await p.waitForTimeout(100);
 ok('tarifa plana toggles on and counts €80 for months without a cuota',await p.evaluate(()=>state.settings.es.plana===true&&/tarifa plana/i.test(document.querySelector('.take-home').innerText)&&/ON/.test(document.querySelector('.plana-toggle').innerText)));
 await p.click('[data-action="biz-plana-toggle"]');await p.waitForTimeout(100);ok('and off again',await p.evaluate(()=>state.settings.es.plana===false));
+ok('the month bar shows on the dashboard, not on the record lists',await p.evaluate(()=>{const v=()=>getComputedStyle(document.querySelector('.month-control')).display!=='none',d=v();go('income',true);const i=v();go('dashboard',true);return d&&!i;}));
+await p.click('[data-action="biz-th-period"][data-p="month"]');ok('the dashboard follows the chosen month',await p.evaluate(()=>{const m=Budget.shift(Budget.today().slice(0,7),-1);selected=m;render();const ok=/Income · /.test(document.querySelector('.kpis .kpi').innerText)&&document.querySelector('.take-home .eyebrow').innerText.toLowerCase().includes(monthName(m).toLowerCase());selected=Budget.today().slice(0,7);render();return ok;}));
 ok('dashboard warns about missing evidence',/1 record is missing supporting evidence/.test(await p.evaluate(()=>document.querySelector('#content').innerText)));
 await p.evaluate(()=>go('income',true));
 let [cdl]=await Promise.all([p.waitForEvent('download'),p.click('[data-action="biz-rec-csv-income"]')]);
