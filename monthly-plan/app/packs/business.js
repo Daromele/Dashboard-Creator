@@ -20,7 +20,7 @@ const NICHE = {
   },
   build: { file: 'ProfitPlanBusiness.html' },
   storage: { key: 'jps-profit-plan', file: 'profit-plan' },
-  editions: { budget: 'Monthly Plan, the household budget edition', creator: 'Creator Plan, the creator edition' },
+  editions: { budget: 'Monthly Plan, the household budget edition', creator: 'Creator Plan, the creator edition', autonomo: 'Autónomo Plan, the Spain edition' },
   themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
   features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: true, invoices: true, channels: true },
   // offered as one-click sales channels in Settings; a channel added by name picks up its usual tag
