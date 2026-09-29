@@ -762,6 +762,12 @@ dialog::backdrop{background:rgba(27,21,36,.42);backdrop-filter:blur(3px)}
 .hero{--hero-save:color-mix(in srgb,var(--pop) 45%,var(--bold));--hero-free:color-mix(in srgb,var(--on-bold) 88%,var(--bold))}
 .hero-note{display:block;margin-top:var(--s2);font-size:11px;color:var(--on-bold-dim);opacity:.8}
 .hero-total{padding-bottom:2px}.hero-total strong{font-size:20px}
+.take-home{--hb-fees:#E98A6B;--hb-exp:var(--pop);--hb-cuota:#9C8FE0;--hb-tax:#E0607E;--hb-home:color-mix(in srgb,var(--on-bold) 88%,var(--bold))}
+.take-home .hb-fees{background:var(--hb-fees)}.take-home .hb-exp{background:var(--hb-exp)}.take-home .hb-cuota{background:var(--hb-cuota)}.take-home .hb-tax{background:var(--hb-tax)}.take-home .hb-home{background:var(--hb-home)}
+.take-home .hero-side{gap:10px}.hero-profit{border-top:1px solid #ffffff26;padding-top:10px}.hero-profit strong{font-size:18px}.hero-profit strong.alert{color:var(--on-bold-alert)}
+.hero-sub{display:block;font-size:10.5px;opacity:.75;margin:2px 0 0 17px}.take-home .hero-fact.hero-total:last-of-type{border-top:1px solid #ffffff26;padding-top:10px}
+.hero-tab{border:1px solid transparent;font:inherit;font-size:12px;cursor:pointer}.hero-tab:hover{background:#ffffff22;color:var(--on-bold)}.hero-tab.on{background:var(--on-bold);color:var(--bold);font-weight:650}.hero-tab.on b{color:var(--bold)}
+.plana-toggle{margin-left:auto}.plana-toggle b{font:700 11px var(--num);letter-spacing:.04em}
 .hero-bar{display:flex;gap:2px;height:14px;border-radius:7px;background:#ffffff1a;overflow:hidden;margin:2px 0 var(--s1)}
 .hero-bar i{display:block;height:100%;border-radius:4px;min-width:3px}
 .hb-bills{background:var(--pop)}.hb-save{background:var(--hero-save)}.hb-free{background:var(--hero-free)}
@@ -1827,8 +1833,25 @@ const Budget = ((P) => {
       const net=q.income-q.expenses,iva=q.ivaOut-q.ivaIn,irpf=Math.round(net*R)-q.retIn+q.retOut;return {month:m,income:q.income,expenses:q.expenses,net,iva,irpf,total:iva+irpf};});
     const sum=months.reduce((a,x)=>a+x.total,0),cur=months.at(-1);
     return {rate:R,projected:proj,months,total:Math.max(0,sum),average:months.length?Math.max(0,Math.round(sum/months.length)):0,current:cur?Math.max(0,cur.total):0};}
+  // the startup reduced cuota (tarifa plana): on, and not past its end date if one is set
+  const PLANA=8000,planaOn=(E,d)=>!!E.plana&&(!E.planaUntil||E.planaUntil>=d);
+  // Take-home for a period: revenue (gross less refunds, before IVA) less platform fees, business
+  // costs (the business share, without deductible IVA), the cuota and income tax at the year's rate.
+  // Months without a cuota record count the expected one: the tarifa plana, or your usual cuota.
+  // IVA passes through to Hacienda and is shown apart. Indicative.
+  function takeHome(s,from,to,asOf=today()){const end=to<asOf?to:asOf,y=to.slice(0,4),E={plana:false,planaUntil:'',...(s.settings.es||{})},cat=new Map(s.categories.map(c=>[c.id,c]));
+    const o={from,to:end,revenue:0,fees:0,expenses:0,cuotaPaid:0,cuotaExpected:0,expectedMonths:0,withheld:0,ivaOut:0,ivaIn:0},paidMonths=new Set();
+    if(from>end)return {...o,cuota:0,profit:0,rate:0.2,incomeTax:0,takeHome:0,iva:0,plana:planaOn(E,asOf)};
+    for(const t of s.transactions){if(t.date<from||t.date>end)continue;const r=recOf(s,t);if(!r)continue;const c=cat.get(t.category),g=group(c);
+      if(r.kind==='income'){o.revenue+=r.grossEUR-r.refundsEUR;o.fees+=r.feesEUR;o.withheld+=r.retEUR||0;o.ivaOut+=r.ivaEUR||0;}
+      else if(g.cuota){o.cuotaPaid+=r.deductibleEUR;paidMonths.add(r.month);}else{o.expenses+=r.deductibleEUR;o.ivaIn+=r.ivaEUR||0;}}
+    // the cuota you usually pay this year, for months not recorded yet
+    const yr=s.transactions.filter(t=>t.date.slice(0,4)===y&&t.date<=asOf&&group(cat.get(t.category))?.cuota),usual=yr.length?Math.round(yr.reduce((a,t)=>a+t.amount,0)/new Set(yr.map(t=>t.date.slice(0,7))).size):0;
+    for(const m of monthsBetween(from,end))if(!paidMonths.has(m)){const exp=planaOn(E,endOf(m))?PLANA:usual;if(exp){o.cuotaExpected+=exp;o.expectedMonths++;}}
+    const cuota=o.cuotaPaid+o.cuotaExpected,profit=o.revenue-o.fees-o.expenses-cuota,rate=esMonths(s,y,asOf).rate,incomeTax=Math.max(0,Math.round(profit*rate));
+    return {...o,cuota,profit,rate,incomeTax,takeHome:profit-incomeTax,iva:o.ivaOut-o.ivaIn,plana:planaOn(E,asOf)};}
   function esTax(s,y,asOf=today()){
-    const E={exempt130:false,lowIncome:0,planaUntil:'',...(s.settings.es||{})},cat=new Map(s.categories.map(c=>[c.id,c]));
+    const E={exempt130:false,lowIncome:0,plana:false,planaUntil:'',...(s.settings.es||{})},cat=new Map(s.categories.map(c=>[c.id,c]));
     const active=c=>{const l=taxLineFor(c);return !(TAX_LINES&&TAX_LINES[l]?.exclude);};
     const pad=n=>String(n).padStart(2,'0');
     let carry=0,paid130=0,cumInc=0,cumExp=0,cumRet=0,cumCuota=0;
@@ -1853,7 +1876,7 @@ const Budget = ((P) => {
     const ssMonthly=months?Math.round(Math.max(0,net+cuotaPaid)*0.93/months):0,bracket=cuotaFor(ssMonthly);
     const incomeTax=Math.max(0,irpfScale(taxable)-irpfScale(Math.min(taxable,PERSONAL_MIN*100))),instalments=ytd.reduce((a,q)=>a+q.pay130,0);
     return {year:y,quarters,settings:E,months,net,allowance,taxable,withheld,instalments,incomeTax,renta:incomeTax-withheld-instalments,
-      cuota:{monthlyNet:ssMonthly,...bracket,paid:cuotaPaid,paidMonths:cuotaMonths,avgPaid:cuotaMonths?Math.round(cuotaPaid/cuotaMonths):0,plana:!!E.planaUntil&&E.planaUntil>=asOf}};
+      cuota:{monthlyNet:ssMonthly,...bracket,paid:cuotaPaid,paidMonths:cuotaMonths,avgPaid:cuotaMonths?Math.round(cuotaPaid/cuotaMonths):0,plana:planaOn(E,asOf)}};
   }
   // What to send your gestor and what to file, period by period, with the dates. Documents are due
   // on the day you agreed with your gestor after each month or quarter; forms on Hacienda's dates.
@@ -2032,7 +2055,7 @@ const Budget = ((P) => {
      s.transactions.forEach(t=>{if(t.vat!==undefined&&(!okV(t.vat)||!t.vat))delete t.vat;if(t.ret!==undefined&&(!okR(t.ret)||!t.ret))delete t.ret;});
      s.categories.forEach(c=>{if(c.vat!==undefined&&!okV(c.vat))delete c.vat;});
      (s.invoices||[]).forEach(v=>{if(v.vat!==undefined&&(!okV(v.vat)||!v.vat))delete v.vat;if(v.ret!==undefined&&(!okR(v.ret)||!v.ret))delete v.ret;});
-     const e=object(s.settings.es)?s.settings.es:{};s.settings.es={exempt130:e.exempt130===true,lowIncome:[0,25,50,75,100].includes(e.lowIncome)?e.lowIncome:0,planaUntil:validDate(e.planaUntil)?e.planaUntil:'',estimates:e.estimates===true,cadence:e.cadence==='monthly'?'monthly':'quarterly',docsDay:Number.isInteger(e.docsDay)&&e.docsDay>=1&&e.docsDay<=15?e.docsDay:10};
+     const e=object(s.settings.es)?s.settings.es:{};s.settings.es={exempt130:e.exempt130===true,lowIncome:[0,25,50,75,100].includes(e.lowIncome)?e.lowIncome:0,plana:e.plana===true||(e.plana===undefined&&validDate(e.planaUntil)),planaUntil:validDate(e.planaUntil)?e.planaUntil:'',estimates:e.estimates===true,cadence:e.cadence==='monthly'?'monthly':'quarterly',docsDay:Number.isInteger(e.docsDay)&&e.docsDay>=1&&e.docsDay<=15?e.docsDay:10};
      // ticked checklist items: key → the date ticked. Anything else is dropped.
      if(!object(s.checklist))s.checklist={};Object.entries(s.checklist).forEach(([k,v])=>{if(!/^\d{4}-(Q[1-4]|M(0[1-9]|1[0-2])|Y):[a-z0-9-]{1,20}$/.test(k)||!validDate(v))delete s.checklist[k];});}
     s.categories.forEach(c=>{if(c.taxLine!==undefined&&!(TAX_LINES&&typeof c.taxLine==='string'&&Object.hasOwn(TAX_LINES,c.taxLine)))delete c.taxLine;});
@@ -2087,7 +2110,7 @@ const Budget = ((P) => {
     if(S.extras)S.extras(s,{m,year,now,uid,days,shift,plusDays,totals:(st,mm)=>{invalidate(st);return totals(st,mm);}});
     return s;
   }
-  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,tagFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,VAT_RATES,RET_RATES,vatSplit,netOf,esTax,esMonths,esChecklist,recOf,recTax,recPayout,gestorReport,recCash,eur,ACTS,EV_TYPES,ACCOUNTS,EV_STATUS,cuotaFor,irpfScale,workday,CUOTA_TRAMOS,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,invoiceTotal,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
+  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,tagFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,VAT_RATES,RET_RATES,vatSplit,netOf,esTax,esMonths,takeHome,esChecklist,recOf,recTax,recPayout,gestorReport,recCash,eur,ACTS,EV_TYPES,ACCOUNTS,EV_STATUS,cuotaFor,irpfScale,workday,CUOTA_TRAMOS,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,invoiceTotal,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
 })(NICHE);
 if(typeof module!=='undefined')module.exports=Budget;
 
@@ -4032,7 +4055,7 @@ const Biz=(()=>{
    `<div class="row" style="margin-top:12px"><span>Bracket</span><span>Tramo ${C.table==='reduced'?C.tramo:C.tramo-3} of the ${C.table} table · ${fmt(C.from)}${C.to?' – '+fmt(C.to):'+'}</span></div>`+
    `<div class="row"><span>Minimum cuota in that bracket</span><span class="number">${fmt(C.cuota)} / month</span></div>`+
    `<div class="row"><span>You pay on average</span><span class="number">${C.paid?fmt(C.avgPaid)+' / month':'—'}</span></div><small class="dim">${C.paidMonths?`${C.paidMonths} cuota${C.paidMonths===1?'':'s'} logged in ${T.year}`:''}</small><div></div>`+
-   (C.plana?`<div class="notice"><span><b>You are on the tarifa plana</b> until ${fullDate(T.settings.planaUntil)}. Those months are not regularised; from then on, choose the bracket that fits your income.</span></div>`:
+   (C.plana?`<div class="notice"><span><b>You are on the tarifa plana</b>${T.settings.planaUntil?` until ${fullDate(T.settings.planaUntil)}`:''}. Those months are not regularised; from then on, choose the bracket that fits your income.</span></div>`:
     C.paid?`<p class="small ${diff>0?'warn':''}" style="margin-top:12px">${Math.abs(diff)<1000?'What you pay fits the bracket your income points to so far.':diff>0?`At this pace, the yearly regularisation could ask for about <b>${fmt(diff)}</b> more for these months. Consider choosing a higher bracket in Import@ss.`:`At this pace, you are paying about <b>${fmt(-diff)}</b> more than this bracket needs for these months; the regularisation would refund it, or you can choose a lower bracket.`}</p>`:`<p class="small muted" style="margin-top:12px">Log your cuota in ${esc(paidCat?.name||'the cuota category')} to compare.</p>`)+
    `<p class="small muted" style="margin-top:10px">2026 brackets, frozen at 2025 levels: minimum base × 31.5%. You can choose any base inside your bracket; this shows the minimum.</p></section>`;}
  function rentaCard(T){
@@ -4065,7 +4088,8 @@ const Biz=(()=>{
   return `<section class="card"><div class="goal-icon">${ico('shield')}</div><h2>IVA, IRPF &amp; the cuota</h2><p class="subtitle">Used by IVA &amp; IRPF quarters, the checklist and the year-end summary.</p><form id="biz-es-form" style="margin-top:20px"><div class="fields">`+
    `<label>Your gestor wants documents<select name="cadence"><option value="quarterly" ${E.cadence!=='monthly'?'selected':''}>Every quarter</option><option value="monthly" ${E.cadence==='monthly'?'selected':''}>Every month</option></select></label><label>By day<input type="number" name="docsDay" min="1" max="15" step="1" value="${E.docsDay||10}"><small>Of the month after the period</small></label>`+
    `<label class="checkline full"><input type="checkbox" name="estimates" ${E.estimates?'checked':''}><span><b>Show IVA &amp; IRPF estimates</b><br><small>Adds screens that estimate Modelo 303 and 130, your cuota bracket and the Renta, IVA fields on records and what to set aside each month. Indicative: compare them with your gestor’s figures.</small></span></label>`+
-   `<label class="full">Tarifa plana ends on<input type="date" name="planaUntil" value="${esc(E.planaUntil||'')}" min="2000-01-01" max="9998-12-31"><small>Leave empty if you are not on it. The €80 flat rate lasts 12 months, sometimes 12 more.</small></label>`+
+   `<label class="checkline full"><input type="checkbox" name="plana" ${E.plana?'checked':''}><span><b>Startup reduced cuota (tarifa plana)</b><br><small>€80 a month in your first 12 months, sometimes 12 more. Used for months without a cuota record.</small></span></label>`+
+   `<label class="full">Tarifa plana ends on<input type="date" name="planaUntil" value="${esc(E.planaUntil||'')}" min="2000-01-01" max="9998-12-31"><small>Optional. After this date the reduced cuota switches off by itself.</small></label>`+
    `<label class="checkline full"><input type="checkbox" name="exempt130" ${E.exempt130?'checked':''}><span>I do not file Modelo 130: at least 70% of last year’s income had IRPF withholding.</span></label>`+
    `<label class="full">Low-income deduction on the 130<select name="lowIncome">${[[0,'None · last year’s net profit was over €12,000'],[100,'€100 a quarter · up to €9,000'],[75,'€75 · up to €10,000'],[50,'€50 · up to €11,000'],[25,'€25 · up to €12,000']].map(([v,l])=>`<option value="${v}" ${(E.lowIncome||0)===v?'selected':''}>${l}</option>`).join('')}</select><small>Based on last year’s net profit from the activity.</small></label>`+
    `</div><div class="formfoot"><button class="btn primary">Save</button></div></form></section>`;}
@@ -4249,6 +4273,24 @@ const Biz=(()=>{
   const host=$('#ev-rows');let html=evRow();if(b.dataset.year)html=html.replace('<input type="hidden"',`<input name="evYear" type="number" min="1900" max="2999" value="${+recF.year-1}" aria-label="Tax year" class="ev-year"><input type="hidden"`);host.insertAdjacentHTML('beforeend',html);host.lastElementChild.querySelector('input[name=evUrl]').focus();});
 
  // ---------- Dashboard ----------
+ // Take-home: what is yours after fees, costs, the cuota and income tax, for the month, quarter or year
+ let thPeriod='month';
+ function takeHomeHero(){const t0=today(),y=t0.slice(0,4),m=t0.slice(0,7),q=Math.floor((+m.slice(5)-1)/3),qs=`${y}-${String(q*3+1).padStart(2,'0')}-01`;
+  const P0={month:[`${m}-01`,Budget.endOf(m),monthName(m)],quarter:[qs,Budget.endOf(Budget.shift(qs.slice(0,7),2)),`Q${q+1} ${y}`],year:[`${y}-01-01`,`${y}-12-31`,`${y} to date`]}[thPeriod],T=Budget.takeHome(state,P0[0],P0[1],t0);
+  const home=T.takeHome,parts=[[T.fees,'fees','Platform fees'],[T.expenses,'exp','Business expenses'],[T.cuota,'cuota','Cuota de autónomos'],[T.incomeTax,'tax','Income tax (IRPF)'],[Math.max(0,home),'home','Take home']],scale=Math.max(1,T.revenue,parts.reduce((a,p)=>a+p[0],0));
+  const tip=(name,n)=>esc(JSON.stringify({t:name,r:[{name:P0[2],value:fmt(n)},...(T.revenue>0?[{name:'of revenue',value:percent(n,T.revenue)+'%'}]:[])]}));
+  const bar=`<div class="hero-bar" role="img" aria-label="${esc(parts.map(([n,,l])=>l+' '+fmt(n)).join(', '))}">${parts.map(([n,k,l])=>n>0?`<i class="hb-${k}" style="width:${n/scale*100}%" tabindex="0" data-tip="${tip(l,n)}"></i>`:'').join('')}</div>`;
+  const row=(n,k,l,sign='−',sub='')=>`<div class="hero-fact${n?'':' is-zero'}"><span>${k?`<i class="hero-dot hb-${k}"></i>`:''}${l}${sub?`<small class="hero-sub">${sub}</small>`:''}</span><strong>${n&&sign?sign:''}${fmt(n)}</strong></div>`;
+  const pill=(p,l)=>`<button class="hero-pill hero-tab${thPeriod===p?' on':''}" data-action="biz-th-period" data-p="${p}" aria-pressed="${thPeriod===p}">${l}</button>`;
+  const cuotaSub=T.expectedMonths?`${fmt(T.cuotaExpected)} expected for ${T.expectedMonths} month${T.expectedMonths===1?'':'s'} not recorded yet`:'';
+  return `<section class="hero take-home"><div><div class="eyebrow">Take home · ${esc(P0[2])}</div><h2 class="hero-big number${home<0?' alert':''}" data-count="${home}" data-split style="--n:${fmt(home).length}" aria-label="${esc(fmt(home))}">${splitCents(fmt(home))}</h2>`+
+   `<p>Yours after platform fees, business expenses, your cuota and income tax. IVA you collect belongs to Hacienda and is left out.</p><small class="hero-note">Income tax at ${pctText(Math.round(T.rate*10000))} of profit${T.withheld?`, ${fmt(T.withheld)} of it already withheld by clients`:''} · indicative, compare with your gestor</small>`+
+   `<div class="hero-foot">${pill('month','This month')}${pill('quarter','This quarter')}${pill('year','Year to date')}<button class="hero-pill hero-tab plana-toggle${T.plana?' on':''}" data-action="biz-plana-toggle" aria-pressed="${T.plana}" title="Startup reduced cuota: €80 a month">Tarifa plana <b>${T.plana?'ON':'OFF'}</b></button></div></div>`+
+   `<div class="hero-side"><div class="hero-fact hero-total"><span>Revenue</span><strong>${fmt(T.revenue)}</strong></div>${bar}`+
+   row(T.fees,'fees','Platform fees')+row(T.expenses,'exp','Business expenses')+row(T.cuota,'cuota',`Cuota${T.plana?' · tarifa plana':''}`,'−',cuotaSub)+
+   `<div class="hero-fact hero-profit"><span>Profit</span><strong class="${T.profit<0?'alert':''}">${fmt(T.profit)}</strong></div>`+row(T.incomeTax,'tax','Income tax (IRPF)')+
+   `<div class="hero-fact hero-total"><span><i class="hero-dot hb-home"></i>Take home</span><strong>${fmt(home)}</strong></div>`+
+   (T.iva?`<div class="hero-budget"><span class="hero-pill">${T.iva>0?'IVA to pass to Hacienda':'IVA Hacienda owes you'} <b>${fmt(Math.abs(T.iva))}</b></span></div>`:'')+`</div></section>`;}
  function recDashboard(){const t0=today(),m=t0.slice(0,7),y=t0.slice(0,4),all=recAll(),M=all.filter(r=>r.month===m),Y=all.filter(r=>r.date.slice(0,4)===y&&r.date<=t0),s=(l,k)=>l.reduce((a,r)=>a+(r[k]||0),0);
   const inc=l=>l.filter(r=>r.kind==='income'),exp=l=>l.filter(r=>r.kind==='expense'),miss=all.filter(r=>r.status==='missing'),review=all.filter(r=>r.status==='review');
   const result=s(inc(Y),'grossEUR')-s(inc(Y),'refundsEUR')-s(inc(Y),'feesEUR')-s(exp(Y),'deductibleEUR');
@@ -4258,7 +4300,7 @@ const Biz=(()=>{
   const donut=(map,label,of)=>{const rows=[...map.entries()].filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]),total=rows.reduce((a,[,v])=>a+v,0),N=namedSlices(rows.length),parts=rows.slice(0,N).map(([n,v],i)=>[n,v,SLICE_COLORS[i],`${sharePct(v,total)} of ${of}`]),rest=rows.slice(N).reduce((a,[,v])=>a+v,0);if(rest)parts.push(['Other',rest,SLICE_COLORS[8],`${sharePct(rest,total)} of ${of}`]);return parts.length?donutMarkup(parts,total,label):empty('Nothing recorded yet',`Add a record to see this.`);};
   return pagehead(monthName(m),state.settings.name?`${esc(state.settings.name)} · your records`:'Your records at a glance','',button('Add expense','biz-rec-add-expense','quiet')+button('Add income','biz-rec-add-income','primary'))+
    (miss.length||review.length?`<div class="notice warning"><span><b>${miss.length} record${miss.length===1?' is':'s are'} missing supporting evidence.</b>${review.length?` ${review.length} marked Needs review.`:''} Add a Drive link or file name so your gestor package is complete.</span>${button('Open Evidence','go-evidence','small')}</div>`:'')+
-   `<div class="kpis kpis-lead">${kpi(`Income · ${shortMonth(m)}`,s(inc(M),'grossEUR'),'Gross, in euros','down')}${kpi(`Expenses · ${shortMonth(m)}`,s(exp(M),'amountEUR'),'In euros','up')}${kpi(`Gross income · ${y}`,s(inc(Y),'grossEUR'),'Year to date','insights')}${kpi(`Expenses · ${y}`,s(exp(Y),'amountEUR'),`Indicative deductible ${fmt(s(exp(Y),'deductibleEUR'))}`,'coins')}${kpi('Indicative result',result,'Year to date · review with your gestor','wallet',result<0?'warn':'')}</div>`+
+   `<div class="kpis kpis-lead">${kpi(`Income · ${shortMonth(m)}`,s(inc(M),'grossEUR'),'Gross, in euros','down')}${kpi(`Expenses · ${shortMonth(m)}`,s(exp(M),'amountEUR'),'In euros','up')}${kpi(`Gross income · ${y}`,s(inc(Y),'grossEUR'),'Year to date','insights')}${kpi(`Expenses · ${y}`,s(exp(Y),'amountEUR'),`Indicative deductible ${fmt(s(exp(Y),'deductibleEUR'))}`,'coins')}${kpi('Indicative result',result,'Year to date · review with your gestor','wallet',result<0?'warn':'')}</div>`+takeHomeHero()+
    (VAT&&state.settings.es?.estimates?`<div class="grid2">${setAsideCard(y,false)}<section class="card"><div class="cardhead"><div><h2>This quarter so far</h2><p>Estimated Modelo 303 and 130</p></div><button class="link" data-go="tax">Details</button></div>${esSide(true)}</section></div>`:'')+
    `<div class="grid2"><section class="card"><div class="cardhead"><div><h2>Income by activity</h2><p>${y} to date · gross, in euros</p></div><button class="link" data-go="income">Income</button></div>${acts.map(([n,v])=>`<div class="budget-row"><div class="row"><strong>${esc(n)}</strong><span class="number">${fmt(v)}</span></div><div class="meter"><i style="width:${v/actMax*100}%"></i></div></div>`).join('')}</section>`+
    `<section class="card"><div class="cardhead"><div><h2>Gestor package</h2><p>Ready when the evidence is</p></div></div><div class="row"><span>Records this year</span><b>${Y.length}</b></div><div class="row"><span>Missing evidence</span><b class="${miss.length?'warn':''}">${miss.length}</b></div><div class="row"><span>Reviewed by you</span><b>${Y.filter(r=>r.reviewed).length} of ${Y.length}</b></div>${(n=>n?`<button class="row check-next" data-go="filings"><span><small class="dim">Next on your checklist</small><br><b>${esc(n.label)}</b></span><span class="pill">${dateName(n.due)}</span></button>`:'')(Budget.esChecklist(state,y,t0).next[0])}<p style="margin-top:14px">${button('Build the gestor report','go-report','primary small')}</p></section></div>`+
@@ -4525,6 +4567,8 @@ const Biz=(()=>{
   case 'biz-rec-csv-expense':recCSV('expense');break;
   case 'biz-rep-range':repR={from:b.dataset.from,to:b.dataset.to};render();break;
   case 'biz-rep-print':printReport();break;
+  case 'biz-th-period':thPeriod=['month','quarter','year'].includes(b.dataset.p)?b.dataset.p:'month';render();break;
+  case 'biz-plana-toggle':{const on=!state.settings.es?.plana;commit(()=>{state.settings.es={...state.settings.es,plana:on};if(on&&state.settings.es.planaUntil&&state.settings.es.planaUntil<today())state.settings.es.planaUntil='';},on?'Tarifa plana on: €80 a month':'Tarifa plana off');break;}
   case 'biz-sc-detail':detailCSV();break;
   case 'biz-add-trip':tripForm();break;
   case 'biz-edit-trip':tripForm(id);break;
@@ -4559,7 +4603,7 @@ const Biz=(()=>{
   case 'biz-range':{const from=f.get('from'),to=f.get('to');if(!Budget.validDate(from)||!Budget.validDate(to))throw Error('Choose two valid dates.');if(to<from)throw Error('The end date is before the start date.');if(Budget.monthsBetween(from,to).length>120)throw Error('Choose a range of ten years or less.');period={kind:'custom',from,to};render();break;}
   case 'biz-es-form':{const plana=f.get('planaUntil')||'',low=+f.get('lowIncome');if(plana&&!Budget.validDate(plana))throw Error('Use a valid date.');
    const day=Math.round(+f.get('docsDay'));if(!(day>=1&&day<=15))throw Error('Choose a day from 1 to 15.');
-   commit(()=>{state.settings.es={exempt130:f.get('exempt130')==='on',lowIncome:[0,25,50,75,100].includes(low)?low:0,planaUntil:plana,estimates:f.get('estimates')==='on',cadence:f.get('cadence')==='monthly'?'monthly':'quarterly',docsDay:day};},'Tax settings saved');break;}
+   commit(()=>{state.settings.es={exempt130:f.get('exempt130')==='on',lowIncome:[0,25,50,75,100].includes(low)?low:0,plana:f.get('plana')==='on',planaUntil:plana,estimates:f.get('estimates')==='on',cadence:f.get('cadence')==='monthly'?'monthly':'quarterly',docsDay:day};},'Tax settings saved');break;}
   case 'biz-settings-form':{const next={};
    if(F.tax){const r=Math.round(Number(f.get('taxRate'))*100);if(!Number.isFinite(r)||r<0||r>9000)throw Error('Use a set-aside rate from 0 to 90%.');next.taxRate=r;}
    if(F.mileage){const r=Math.round(Number(f.get('mileageRate'))*1000);if(!Number.isFinite(r)||r<0||r>10000)throw Error('Use a mileage rate from 0 to 10 per unit of distance.');next.mileageRate=r;next.distanceUnit=f.get('distanceUnit')==='km'?'km':'mi';}

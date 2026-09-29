@@ -44,7 +44,13 @@ await p.fill('#rec-form [name=vendor]','Movistar');await p.selectOption('#rec-fo
 await p.fill('#rec-form [name=evUrl]','https://drive.google.com/file/d/xyz/view');await p.click('#rec-form button[type=submit]');await p.waitForTimeout(150);
 const rep=await p.evaluate(()=>{const d=Budget.today();return Budget.gestorReport(state,d.slice(0,4)+'-01-01',d.slice(0,4)+'-12-31').totals;});
 ok('report totals: gross, fees, deductible, result',rep.gross===18000&&rep.fees===1440&&rep.expenses===6000&&rep.deductible===3000&&rep.result===18000-1440-3000,JSON.stringify(rep));
-await p.evaluate(()=>go('dashboard',true));ok('dashboard warns about missing evidence',/1 record is missing supporting evidence/.test(await p.evaluate(()=>document.querySelector('#content').innerText)));
+await p.evaluate(()=>go('dashboard',true));
+ok('take-home panel with revenue, profit and take home',await p.evaluate(()=>{const h=document.querySelector('.take-home');return !!h&&/Revenue/.test(h.innerText)&&/Profit/.test(h.innerText)&&/Take home/.test(h.innerText);}));
+await p.click('[data-action="biz-th-period"][data-p="year"]');ok('period switch',await p.evaluate(()=>/to date/i.test(document.querySelector('.take-home .eyebrow').innerText)));
+await p.click('[data-action="biz-plana-toggle"]');await p.waitForTimeout(100);
+ok('tarifa plana toggles on and counts €80 for months without a cuota',await p.evaluate(()=>state.settings.es.plana===true&&/tarifa plana/i.test(document.querySelector('.take-home').innerText)&&/ON/.test(document.querySelector('.plana-toggle').innerText)));
+await p.click('[data-action="biz-plana-toggle"]');await p.waitForTimeout(100);ok('and off again',await p.evaluate(()=>state.settings.es.plana===false));
+ok('dashboard warns about missing evidence',/1 record is missing supporting evidence/.test(await p.evaluate(()=>document.querySelector('#content').innerText)));
 await p.evaluate(()=>go('income',true));
 let [cdl]=await Promise.all([p.waitForEvent('download'),p.click('[data-action="biz-rec-csv-income"]')]);
 let csv=require('fs').readFileSync(await cdl.path(),'utf8');ok('income CSV has original and euro columns',/USD/.test(csv)&&/82\.80/.test(csv)&&/drive\.google\.com/.test(csv),csv.slice(0,300));

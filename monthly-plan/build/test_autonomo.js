@@ -53,7 +53,7 @@ module.exports=({eq,ok})=>{
   // backups: bad rates are dropped, settings get defaults
   const bad=JSON.parse(JSON.stringify(s));bad.transactions[0].vat=1800;bad.transactions[0].ret=1234;bad.categories[0].vat=5;bad.settings.es={lowIncome:30,planaUntil:'nope',estimates:'yes'};
   const V=B.validate(bad);
-  eq('bad rates dropped, never fatal', ['vat' in V.transactions[0],'ret' in V.transactions[0],'vat' in V.categories[0],V.settings.es], [false,false,false,{exempt130:false,lowIncome:0,planaUntil:'',estimates:false,cadence:'quarterly',docsDay:10}]);
+  eq('bad rates dropped, never fatal', ['vat' in V.transactions[0],'ret' in V.transactions[0],'vat' in V.categories[0],V.settings.es], [false,false,false,{exempt130:false,lowIncome:0,plana:false,planaUntil:'',estimates:false,cadence:'quarterly',docsDay:10}]);
   // the checklist: documents by the gestor's day, forms on Hacienda's dates, the year's summaries
   const cs=B.validate(JSON.parse(JSON.stringify(s)));cs.checklist={'2026-Q1:303':'2026-04-15','junk':'2026-01-01','2026-Q1:bank':'nope'};
   const CV=B.validate(cs);eq('checklist ticks kept, junk dropped', CV.checklist, {'2026-Q1:303':'2026-04-15'});
@@ -100,6 +100,15 @@ module.exports=({eq,ok})=>{
   const MS=B.esMonths(EV,'2026','2026-03-31'),feb=MS.months.find(m=>m.month==='2026-02');
   eq('set aside in February: IVA plus 20% of profit less withheld', [feb.iva,feb.irpf,feb.total], [21000,20000-15000,26000]);
   ok('set-aside months run to the date', MS.months.length===3&&MS.total===MS.months.reduce((a,m)=>a+m.total,0));
+  // take-home: revenue less fees, costs, the cuota (recorded or expected) and income tax
+  const TH=JSON.parse(JSON.stringify(EV));TH.settings.es.plana=true;TH.settings.es.planaUntil='';
+  const H=B.takeHome(B.validate(TH),'2026-01-01','2026-03-31','2026-03-31');
+  eq('take-home parts for Q1', [H.revenue,H.fees,H.expenses,H.cuotaPaid,H.cuotaExpected,H.expectedMonths], [113500,720,2480,0,24000,3]);
+  eq('profit and take-home', [H.profit,H.takeHome], [113500-720-2480-24000,H.profit-Math.round(H.profit*H.rate)]);
+  eq('IVA kept apart', H.iva, 21000-521);
+  TH.settings.es.plana=false;ok('without the tarifa plana and no cuota logged, none is assumed', B.takeHome(B.validate(TH),'2026-01-01','2026-03-31','2026-03-31').cuota===0);
+  TH.settings.es.plana=true;TH.settings.es.planaUntil='2026-01-31';ok('the tarifa plana stops at its end date', B.takeHome(B.validate(TH),'2026-01-01','2026-03-31','2026-03-31').cuotaExpected===8000);
+  const mig=JSON.parse(JSON.stringify(EV));delete mig.settings.es.plana;mig.settings.es.planaUntil='2026-12-31';ok('an older backup with an end date turns the tarifa plana on', B.validate(mig).settings.es.plana===true);
   const badR=JSON.parse(JSON.stringify(R));badR.transactions[0].rec.evidence.push({id:'x',type:'nope',url:'javascript:alert(1)'});badR.transactions[1].rec.pct=250;
   const BV=B.validate(badR);
   ok('unsafe links dropped, shares clamped', BV.transactions[0].rec.evidence.every(e=>!/^javascript/i.test(e.url||''))&&BV.transactions[1].rec.pct<=100);
