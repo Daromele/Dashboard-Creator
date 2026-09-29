@@ -92,6 +92,7 @@ const NICHE = {
     plannedIncome: 'PLANNED INCOME', subscriptionKpi: 'Subscription plan', yourName: 'Your name (optional)', yourNameHint: 'What should we call you?',
     greeting: '’s month at a glance', greetingPlain: 'Your month at a glance', planTitle: 'Your monthly plan', categoryPlaceholder: 'e.g. Childcare',
     categorySub: 'Make your budget fit your life.', directionNormal: 'Income received / expense paid / contribution',
+    importNote: 'Card and bank statements work best. Spending in another currency is converted at a rate you choose on the review screen. A PayPal statement, or one from a side hustle such as Etsy or YouTube, is recognised too; what you earn there is filed as side income.',
     exitDemo: 'Return to my budget', demoOnly: 'Your budget only', notePlaceholder: 'e.g. Weekly groceries',
     incomeOne: 'Income', savedCol: 'Saved', transfer: 'Transfers (not counted)', transferOne: 'Transfer', netHint: 'Income − expenses − savings',
     savingRateEmpty: 'Log income to see your savings rate', savingRate: '% of income received',
