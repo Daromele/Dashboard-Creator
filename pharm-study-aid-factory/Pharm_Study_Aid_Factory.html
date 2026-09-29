@@ -686,7 +686,7 @@ const COLORS = {
 };
 
 const CATEGORIES = {
-  'Pharmacology Flashcards': ['top200_9', 'drug_cards_9', 'pharm_cardio_9', 'pharm_neuro_psych_9', 'pharm_endo_gi_9', 'pharm_antibiotics_9', 'pharm_antivirals_9', 'pharm_immuno_9', 'pharm_pain_resp_9'],
+  'Pharmacology Flashcards': ['top200_9', 'pharm_cardio_9', 'pharm_neuro_psych_9', 'pharm_endo_gi_9', 'pharm_antibiotics_9', 'pharm_antivirals_9', 'pharm_immuno_9', 'pharm_pain_resp_9'],
   'Clinical & Lab Decks': ['lab_values_9', 'med_abbrev_9', 'antidotes_9', 'suffixes_9', 'math_conversions_9'],
   'Custom Decks': ['custom_csv_9'],
   'Detailed Study Guides': ['drug_cards_4', 'study_matrix'],
@@ -695,7 +695,6 @@ const CATEGORIES = {
 
 const TEMPLATES = {
   top200_9: { icon: '💯', title: "Top 200 Drugs Flashcards", tags: ['Two-Sided', '200 Cards', 'Color-Coded by System'], layout: 'portrait' },
-  drug_cards_9: { icon: '🎴', title: "Top 108 Drugs Flashcards", tags: ['Two-Sided', '9 Per Page', 'Pharmacology'], layout: 'portrait' },
   pharm_cardio_9: { icon: '🫀', title: "1 - Cardiovascular & Renal", tags: ['Two-Sided', '9 Per Page', 'Deep Dive'], layout: 'portrait' },
   pharm_neuro_psych_9: { icon: '🧠', title: "2 - Neuro & Psychiatric", tags: ['Two-Sided', '9 Per Page', 'Deep Dive'], layout: 'portrait' },
   pharm_endo_gi_9: { icon: '🩸', title: "3 - Endocrine & GI", tags: ['Two-Sided', '9 Per Page', 'Deep Dive'], layout: 'portrait' },
@@ -718,7 +717,7 @@ const TEMPLATES = {
   pocket_cheat_sheet: { icon: '🩺', title: "Pocket Cheat Sheet", tags: ['Portrait', 'Foldable', 'Clinical Rotations'], layout: 'portrait' }
 };
 
-let activeTemplate = 'drug_cards_9';
+let activeTemplate = 'top200_9';
 let activeTheme = 'scrub_blue';
 let C = COLORS.scrub_blue;
 let P; 
@@ -1701,7 +1700,7 @@ const TOP_200 = [
     d("Montelukast", "Singulair", RS, "Leukotriene Receptor Antagonist", "Asthma maintenance, allergic rhinitis, exercise bronchospasm", "Blocks leukotriene receptors", "Headache, mood changes, nightmares, suicidal thoughts", "Evening dosing. Not for acute attacks. Report behavior changes.", 'BB'),
     d("Amoxicillin", "Amoxil", AI, "Aminopenicillin", "Ear, sinus, throat, skin infections; H. pylori", "Inhibits bacterial cell wall synthesis", "Diarrhea, rash, allergic reactions", "Ask about penicillin allergy. Finish the full course."),
     d("Fluticasone (Nasal/Inhaled)", "Flonase / Flovent", RS, "Corticosteroid", "Allergic rhinitis (nasal), asthma maintenance (inhaled)", "Reduces local airway inflammation", "Nosebleeds, oral thrush, hoarseness", "Rinse mouth after inhaled use. Not a rescue drug."),
-    d("Tamsulosin", "Flomax", WH, "Alpha-1 Blocker", "Benign prostatic hyperplasia", "Relaxes prostate and bladder-neck smooth muscle", "Dizziness, orthostatic hypotension, abnormal ejaculation", "Take 30 min after the same meal daily. Tell eye surgeon (floppy iris)."),
+    d("Tamsulosin", "Flomax", WH, "Alpha-1 Blocker (Uroselective)", "Benign prostatic hyperplasia", "Relaxes prostate and bladder-neck smooth muscle", "Dizziness, orthostatic hypotension, abnormal ejaculation", "Take 30 min after the same meal daily. Tell eye surgeon (floppy iris)."),
     d("Apixaban", "Eliquis", CV, "Factor Xa Inhibitor (DOAC)", "AFib stroke prevention, DVT/PE", "Directly inhibits factor Xa", "Bleeding, bruising", "No INR monitoring. Stopping early raises stroke risk. Reversal: andexanet alfa.", 'BB HA'),
     d("Simvastatin", "Zocor", CV, "Statin", "High cholesterol", "Inhibits HMG-CoA reductase", "Myopathy, rhabdomyolysis, raised LFTs", "Take in the evening. Many CYP3A4 interactions; avoid grapefruit."),
     d("Insulin Glargine", "Lantus / Basaglar / Toujeo", EN, "Long-Acting Insulin", "Type 1 and 2 diabetes (basal)", "Replaces basal insulin; promotes glucose uptake", "Hypoglycemia, weight gain, injection-site lipohypertrophy", "Once daily, same time. No peak. Do not mix with other insulins.", 'HA'),
@@ -1775,7 +1774,7 @@ const TOP_200 = [
     d("Folic Acid", "Folvite", VS, "Vitamin (B9)", "Folate deficiency, pregnancy (neural tube prevention), methotrexate", "Needed for DNA synthesis and red cell production", "Rarely: GI upset", "Can mask B12 deficiency anemia."),
     d("Rivaroxaban", "Xarelto", CV, "Factor Xa Inhibitor (DOAC)", "AFib stroke prevention, DVT/PE", "Directly inhibits factor Xa", "Bleeding, bruising", "15 and 20 mg doses with the evening meal. Stopping early raises stroke risk.", 'BB HA'),
     d("Fenofibrate", "Tricor", CV, "Fibrate", "High triglycerides", "Activates PPAR-alpha, increasing fat breakdown", "Myopathy (with statins), gallstones, raised LFTs", "Monitor kidney function."),
-    d("Triamcinolone", "Kenalog", IM, "Corticosteroid", "Skin inflammation (topical), joint injections", "Reduces inflammation and immune response", "Skin thinning (topical), raised glucose (injection)", "Avoid long use on face and skin folds."),
+    d("Triamcinolone", "Kenalog", IM, "Corticosteroid (Topical / Injectable)", "Skin inflammation (topical), joint injections", "Reduces inflammation and immune response", "Skin thinning (topical), raised glucose (injection)", "Avoid long use on face and skin folds."),
     d("Paroxetine", "Paxil", NP, "SSRI", "Depression, anxiety, PTSD, OCD", "Blocks serotonin reuptake", "Sedation, weight gain, sexual dysfunction, anticholinergic effects", "Worst SSRI discontinuation syndrome. Avoid in pregnancy.", 'BB'),
     d("Ferrous Sulfate", "Feosol", VS, "Iron Supplement", "Iron-deficiency anemia", "Replaces iron for hemoglobin production", "Constipation, dark stools, GI upset", "Best on empty stomach with vitamin C. Keep away from children."),
     d("Loratadine", "Claritin", AL, "2nd-Gen Antihistamine", "Allergic rhinitis, hives", "Blocks peripheral H1 receptors", "Headache, minimal drowsiness", "Once daily; non-sedating for most people."),
@@ -1809,7 +1808,7 @@ const TOP_200 = [
     d("Chlorthalidone", "Thalitone", CV, "Thiazide-Like Diuretic", "Hypertension, edema", "Blocks sodium reabsorption in the distal tubule", "Hypokalemia, hyponatremia, hyperuricemia", "Longer-acting than HCTZ. Take in the morning."),
     d("Oxybutynin", "Ditropan", RE, "Antimuscarinic (Bladder)", "Overactive bladder", "Blocks muscarinic receptors in the bladder", "Dry mouth, constipation, confusion in older adults", "Anticholinergic; avoid in older adults when possible (Beers)."),
     d("Pioglitazone", "Actos", EN, "Thiazolidinedione", "Type 2 diabetes", "Improves insulin sensitivity via PPAR-gamma", "Edema, weight gain, heart failure, fractures", "Avoid in heart failure. Monitor weight and LFTs.", 'BB'),
-    d("Ketoconazole", "Nizoral", ES, "Azole Antifungal", "Fungal skin infections, dandruff (topical)", "Inhibits ergosterol synthesis", "Topical: irritation. Oral: liver toxicity, QT prolongation", "Oral use is limited due to hepatotoxicity; many interactions.", 'BB'),
+    d("Ketoconazole", "Nizoral", ES, "Azole Antifungal (Topical)", "Fungal skin infections, dandruff (topical)", "Inhibits ergosterol synthesis", "Topical: irritation. Oral: liver toxicity, QT prolongation", "Oral use is limited due to hepatotoxicity; many interactions.", 'BB'),
     d("Irbesartan", "Avapro", CV, "ARB", "Hypertension, diabetic nephropathy", "Blocks angiotensin II receptors", "Dizziness, hyperkalemia", "Avoid in pregnancy.", 'BB'),
     d("Hydroxychloroquine", "Plaquenil", IM, "Antimalarial / DMARD", "Lupus, rheumatoid arthritis, malaria", "Modulates immune response", "Retinal toxicity, GI upset, QT prolongation", "Baseline and yearly eye exams."),
     d("Sulfamethoxazole / Trimethoprim", "Bactrim", AI, "Sulfonamide Antibiotic", "UTI, MRSA skin infections, PCP", "Blocks bacterial folate synthesis", "Rash, SJS, hyperkalemia, photosensitivity", "Drink plenty of water. Check sulfa allergy. Raises warfarin effect."),
@@ -1879,6 +1878,49 @@ const TOP_200 = [
     d("Torsemide", "Demadex", CV, "Loop Diuretic", "Edema, heart failure, hypertension", "Blocks Na/K/2Cl in the loop of Henle", "Hypokalemia, dehydration, dizziness", "Longer-acting than furosemide. Monitor K+ and weight."),
     d("Polyethylene Glycol 3350", "MiraLAX", GI, "Osmotic Laxative", "Constipation, bowel prep", "Draws water into the colon", "Bloating, cramping, diarrhea", "Mix in 4-8 oz of fluid. Works in 1-3 days.")
 ];
+// Drug families used to keep related classes next to each other (class -> family)
+const TOP_200_FAMILY = {};
+Object.entries({
+  'RAAS Blockers': ['ACE Inhibitor', 'ACE Inhibitor + Thiazide', 'ARB', 'ARB + Thiazide', 'ARNI', 'CCB + ACE Inhibitor'],
+  'Beta Blockers': ['Beta Blocker (Beta-1 Selective)', 'Beta Blocker (Non-Selective)', 'Beta Blocker with Alpha-1 Blockade', 'Beta-1 Selective Blocker (Vasodilating)'],
+  'Calcium Channel Blockers': ['Calcium Channel Blocker (DHP)', 'Calcium Channel Blocker (Non-DHP)'],
+  'Diuretics': ['Loop Diuretic', 'Thiazide Diuretic', 'Thiazide-Like Diuretic', 'K-Sparing + Thiazide Diuretic', 'Aldosterone Antagonist Diuretic'],
+  'Lipid-Lowering': ['Statin', 'Cholesterol Absorption Inhibitor', 'Fibrate', 'PCSK9 Inhibitor'],
+  'Anticoagulants': ['Factor Xa Inhibitor (DOAC)', 'Vitamin K Antagonist'],
+  'Antiplatelets': ['P2Y12 Inhibitor (Antiplatelet)', 'Antiplatelet / NSAID'],
+  'Other BP Drugs & Vasodilators': ['Alpha-1 Blocker', 'Central Alpha-2 Agonist', 'Direct Arterial Vasodilator', 'Nitrate Vasodilator'],
+  'Insulins': ['Rapid-Acting Insulin', 'Long-Acting Insulin', 'Ultra-Long-Acting Insulin'],
+  'Non-Insulin Diabetes Drugs': ['Biguanide', 'Sulfonylurea', 'DPP-4 Inhibitor', 'SGLT2 Inhibitor', 'GLP-1 Receptor Agonist', 'GIP / GLP-1 Receptor Agonist', 'Thiazolidinedione'],
+  'Antidepressants': ['SSRI', 'SNRI', 'Tricyclic Antidepressant', 'Tetracyclic Antidepressant', 'NDRI Antidepressant', 'SARI Antidepressant'],
+  'Anticonvulsants & Mood Stabilizers': ['Anticonvulsant', 'Anticonvulsant / Mood Stabilizer', 'Gabapentinoid Anticonvulsant', 'Mood Stabilizer'],
+  'Anxiety & Sleep': ['Anxiolytic (5-HT1A Partial Agonist)', 'Benzodiazepine', 'Benzodiazepine (Hypnotic)', 'Nonbenzodiazepine Hypnotic'],
+  'ADHD Medications': ['CNS Stimulant', 'CNS Stimulant (Prodrug)', 'Non-Stimulant ADHD Medication'],
+  'Migraine': ['Triptan (5-HT1B/1D Agonist)', 'CGRP Receptor Antagonist'],
+  'Dementia': ['Cholinesterase Inhibitor', 'NMDA Receptor Antagonist'],
+  'Rescue Bronchodilators': ['Short-Acting Beta-2 Agonist', 'SABA + SAMA'],
+  'Maintenance Inhalers': ['Corticosteroid', 'ICS + LABA', 'ICS + LAMA + LABA', 'LAMA'],
+  'Acid Reducers': ['Proton Pump Inhibitor', 'H2 Receptor Antagonist'],
+  'Laxatives': ['Osmotic Laxative', 'Stool Softener'],
+  'Penicillins': ['Aminopenicillin', 'Penicillin + Beta-Lactamase Inhibitor'],
+  'Cephalosporins': ['1st-Gen Cephalosporin', '3rd-Gen Cephalosporin'],
+  'Antivirals': ['Antiviral (Nucleoside Analog)', 'NRTI Combination', 'SARS-CoV-2 Protease Inhibitor + Booster'],
+  'Non-Opioid Analgesics': ['NSAID', 'NSAID (COX-2 Preferential)', 'NSAID (COX-2 Selective)', 'Analgesic / Antipyretic'],
+  'Opioids': ['Opioid Analgesic', 'Opioid Analgesic (Mu Agonist + SNRI)', 'Opioid Combination'],
+  'Muscle Relaxants': ['Skeletal Muscle Relaxant', 'Central Alpha-2 Agonist (Muscle Relaxant)', 'GABA-B Agonist (Muscle Relaxant)'],
+  'Contraceptives': ['Combined Oral Contraceptive', 'Combined Hormonal Contraceptive Ring', 'Progestin-Only Contraceptive'],
+  'Hormone Therapy': ['Estrogen', 'Progestin', 'Androgen'],
+  'Prostate & Erectile Health': ['Alpha-1 Blocker (Uroselective)', '5-Alpha Reductase Inhibitor', 'PDE-5 Inhibitor'],
+  'Antihistamines': ['1st-Gen Antihistamine', '1st-Gen Antihistamine (Vertigo)', '2nd-Gen Antihistamine', 'Intranasal Antihistamine'],
+  'Vitamins': ['Vitamin', 'Vitamin (B9)']
+}).forEach(([fam, classes]) => classes.forEach(c => { TOP_200_FAMILY[c] = fam; }));
+
+// Group for study: by body system, then drug family, then class, then prescribing rank.
+// The rank is kept on each card's notes line.
+const TOP_200_SYSTEM_ORDER = [CV, EN, NP, RS, GI, AI, PM, WH, IM, AL, RE, VS, ES];
+const t200Family = d => TOP_200_FAMILY[d.class] || d.class;
+TOP_200.forEach((drug, i) => { drug.rank = i + 1; drug.notes = drug.notes.replace(`${drug.brand}. `, `${drug.brand} (#${i + 1}). `); });
+TOP_200.sort((a, b) => (TOP_200_SYSTEM_ORDER.indexOf(a.cat) - TOP_200_SYSTEM_ORDER.indexOf(b.cat))
+    || t200Family(a).localeCompare(t200Family(b)) || a.class.localeCompare(b.class) || (a.rank - b.rank));
 
 // Adult reference ranges; exact ranges vary by laboratory (see disclaimer page).
 const LAB_VALUES = [
