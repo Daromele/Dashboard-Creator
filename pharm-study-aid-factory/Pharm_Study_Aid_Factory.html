@@ -555,6 +555,22 @@ button, input, select { font: inherit; color: inherit; }
 }
 
 #uploadRow, #colorRow { flex-direction: column; }
+
+/* Dark sidebar (in both light and dark mode) */
+.sidebar {
+  --panel: #10202A; --panel-2: #172B36; --line: #22394A; --line-2: #2C4658;
+  --tx: #E6EEF3; --tx-2: #A9BCC8; --tx-3: #7F97A6; --ac: #3CC4D4; --ac-2: rgba(60,196,212,.16);
+  background: var(--panel); color: var(--tx); border-right-color: #0B161D;
+}
+.sidebar .search input { color: var(--tx); }
+.sidebar .search input::placeholder { color: var(--tx-3); }
+.sidebar .deck:hover { background: rgba(255,255,255,.05); }
+.sidebar .deck.active { background: var(--ac-2); box-shadow: inset 3px 0 0 var(--ac); }
+.sidebar .deck-ic { background: rgba(255,255,255,.06); border-color: transparent; }
+.sidebar .deck.active .deck-ic { background: rgba(255,255,255,.1); }
+.sidebar .decks::-webkit-scrollbar { width: 8px; }
+.sidebar .decks::-webkit-scrollbar-thumb { background: #2C4658; border-radius: 8px; }
+@media (prefers-color-scheme: dark) { .sidebar { --panel: #0B141A; --panel-2: #121E26; } }
 </style>
 </head>
 <body>
