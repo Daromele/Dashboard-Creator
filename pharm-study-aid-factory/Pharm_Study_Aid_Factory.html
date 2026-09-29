@@ -1151,6 +1151,18 @@ function addDisclaimerPage(P, tDef, brandText) {
     s.addText(foot, { x: 0.5, y: H - 0.9, w: W - 1, h: 0.4, fontSize: 10, color: '999999', align: 'center', fontFace: 'Montserrat' });
 }
 
+// Bulleted list with a bold label per item: items = [[label, text], ...]
+function addBulletList(slide, items, x, y, w, rowH) {
+    items.forEach(([label, text], i) => {
+        const ry = y + i * rowH;
+        slide.addShape(P.ShapeType.roundRect, { x: x, y: ry + 0.075, w: 0.08, h: 0.08, rectRadius: 0.04, fill: { color: C.SE } });
+        slide.addText([
+            { text: label + '  ', options: { bold: true, color: C.PR } },
+            { text: text, options: { color: C.TX } }
+        ], { x: x + 0.2, y: ry, w: w - 0.2, h: rowH, fontSize: 10, valign: 'top', fontFace: 'Montserrat', margin: 0, lineSpacing: 13 });
+    });
+}
+
 // --- DATASETS & COLOR ASSIGNMENTS ---
 const DARK_PALETTE = [
     'B30000', '0047AB', '006400', '6A0DAD', 'B85E00', '006666', '800000',
@@ -1441,6 +1453,82 @@ const PHARM_PAIN_RESP = [
 ];
 
 // Fallback top drugs (keeps the original 108 if someone selects the general flashcards template)
+// Colour families for the single-system decks: each class maps to a broader family
+const CLASS_FAMILY = {
+  PHARM_CARDIO: {
+    'Beta Blockers': ['Beta Blocker (Selective)', 'Beta Blocker (Non-selective)', 'Beta/Alpha Blocker'],
+    'RAAS Blockers (ACE / ARB / ARNI)': ['ACE Inhibitor', 'Angiotensin II Receptor Blocker (ARB)', 'ARNI'],
+    'Calcium Channel Blockers': ['Calcium Channel Blocker (DHP)', 'Calcium Channel Blocker (Non-DHP)'],
+    'Lipid-Lowering Drugs': ['Statin / Antilipemic', 'Cholesterol Absorption Inhibitor', 'Bile Acid Sequestrant', 'Fibrate', 'PCSK9 Inhibitor'],
+    'Diuretics': ['Loop Diuretic', 'Thiazide Diuretic', 'Thiazide-like Diuretic', 'Potassium-Sparing Diuretic', 'Carbonic Anhydrase Inhibitor', 'Osmotic Diuretic'],
+    'Other BP Drugs & Vasodilators': ['Alpha-2 Agonist', 'Alpha-1 Blocker', 'Direct Vasodilator', 'Nitrate / Vasodilator'],
+    'Antiarrhythmics & Digoxin': ['Class III Antiarrhythmic', 'Class IC Antiarrhythmic', 'Cardiac Glycoside'],
+    'Anticoagulants': ['Anticoagulant (Vitamin K Antagonist)', 'Anticoagulant (Indirect Thrombin Inhibitor)', 'Low Molecular Weight Heparin (LMWH)', 'DOAC / Factor Xa Inhibitor', 'Direct Thrombin Inhibitor'],
+    'Antiplatelets & Thrombolytics': ['Antiplatelet Agent', 'Thrombolytic']
+  },
+  PHARM_NEURO_PSYCH: {
+    'Antidepressants': ['SSRI Antidepressant', 'SNRI Antidepressant', 'Tricyclic Antidepressant (TCA)', 'MAOI Antidepressant', 'NDRI Antidepressant', 'SARI Antidepressant', 'Atypical Antidepressant'],
+    'Antipsychotics': ['Typical Antipsychotic (High Potency)', 'Typical Antipsychotic (Low Potency)', 'Typical Antipsychotic', 'Atypical Antipsychotic'],
+    'Mood Stabilizers & Anticonvulsants': ['Mood Stabilizer', 'Anticonvulsant / Mood Stabilizer', 'Anticonvulsant', 'Anticonvulsant / GABA Analog'],
+    'Sedatives & Hypnotics': ['Benzodiazepine', 'Benzodiazepine (Short-Acting)', 'Non-Benzodiazepine Hypnotic'],
+    'ADHD Medications': ['CNS Stimulant', 'Non-Stimulant ADHD'],
+    "Parkinson's Drugs": ['Dopamine Precursor', 'Dopamine Agonist', 'MAO-B Inhibitor', 'Anticholinergic'],
+    'Dementia Drugs': ['Cholinesterase Inhibitor', 'NMDA Receptor Antagonist'],
+    'Migraine Drugs': ['Serotonin Receptor Agonist']
+  },
+  PHARM_ENDO_GI: {
+    'Insulins': ['Rapid-Acting Insulin', 'Short-Acting Insulin', 'Intermediate-Acting Insulin', 'Long-Acting Insulin'],
+    'Non-Insulin Diabetes Drugs': ['Biguanide Antidiabetic', 'Sulfonylurea Antidiabetic', 'Meglitinide Antidiabetic', 'Thiazolidinedione (TZD)', 'Alpha-Glucosidase Inhibitor', 'DPP-4 Inhibitor', 'SGLT2 Inhibitor', 'GLP-1 Receptor Agonist'],
+    'Thyroid Drugs': ['Thyroid Hormone Replacement', 'Antithyroid Agent'],
+    'Corticosteroids': ['Glucocorticoid / Corticosteroid', 'Mineralocorticoid'],
+    'Acid Reducers & GI Protectants': ['Proton Pump Inhibitor (PPI)', 'H2 Receptor Antagonist', 'Antacid', 'Mucosal Protectant', 'Prostaglandin Analog'],
+    'Antiemetics': ['5-HT3 Receptor Antagonist', 'Antiemetic / Phenothiazine', 'Prokinetic / Antiemetic'],
+    'Laxatives': ['Surfactant Laxative (Stool Softener)', 'Osmotic Laxative', 'Stimulant Laxative', 'Bulk-Forming Laxative'],
+    'Antidiarrheals': ['Antidiarrheal', 'Antidiarrheal / Antacid']
+  },
+  PHARM_ANTIBIOTICS: {
+    'Penicillins': ['Natural Penicillin', 'Aminopenicillin', 'Extended-Spectrum Penicillin'],
+    'Cephalosporins': ['Cephalosporin (1st Gen)', 'Cephalosporin (3rd Gen)', 'Cephalosporin (4th Gen)'],
+    'Carbapenems & Glycopeptides': ['Carbapenem Antibiotic', 'Glycopeptide Antibiotic'],
+    'Protein Synthesis Inhibitors': ['Macrolide Antibiotic', 'Lincosamide Antibiotic', 'Tetracycline Antibiotic', 'Aminoglycoside Antibiotic', 'Oxazolidinone Antibiotic'],
+    'Fluoroquinolones': ['Fluoroquinolone Antibiotic'],
+    'Sulfonamides & Urinary / Anaerobic Agents': ['Sulfonamide Antibiotic', 'Urinary Tract Antiseptic', 'Antibacterial / Antiprotozoal'],
+    'Antifungals': ['Antifungal (Azole)', 'Systemic Antifungal', 'Topical Antifungal'],
+    'TB Drugs': ['Antimycobacterial']
+  },
+  PHARM_ANTIVIRALS: {
+    'Herpes & CMV Antivirals': ['Anti-Herpes Antiviral', 'CMV Antiviral', 'CMV / Anti-Herpes Antiviral'],
+    'Influenza Antivirals': ['Anti-Influenza Antiviral'],
+    'HIV Antiretrovirals': ['NRTI (Antiretroviral)', 'NNRTI (Antiretroviral)', 'Protease Inhibitor (Antiretroviral)', 'Integrase Inhibitor (Antiretroviral)', 'CCR5 Antagonist', 'Fusion Inhibitor'],
+    'Hepatitis C & Broad-Spectrum': ['HCV Polymerase Inhibitor', 'HCV NS5A Inhibitor', 'Broad-spectrum Antiviral']
+  },
+  PHARM_IMMUNO: {
+    'Transplant Immunosuppressants': ['Calcineurin Inhibitor', 'mTOR Inhibitor', 'Antimetabolite Immunosuppressant'],
+    'Transplant Antibodies': ['IL-2 Receptor Antagonist (Monoclonal Antibody)', 'Polyclonal Antibody'],
+    'Conventional DMARDs': ['Antimetabolite / DMARD', 'DMARD', 'DMARD / Antimalarial'],
+    'TNF Inhibitors': ['Biologic DMARD (TNF Inhibitor)'],
+    'Other Targeted Biologics': ['CD20 Monoclonal Antibody', 'IL-12/23 Inhibitor', 'IL-4/13 Inhibitor']
+  },
+  PHARM_PAIN_RESP: {
+    'Non-Opioid Analgesics (NSAIDs & APAP)': ['Salicylate / NSAID', 'NSAID', 'COX-2 Inhibitor (NSAID)', 'NSAID (Highly Potent)', 'Non-Opioid Analgesic / Antipyretic'],
+    'Opioids & Reversal': ['Opioid Agonist', 'Opioid Analgesic', 'Opioid Agonist-Antagonist', 'Opioid Antagonist', 'Centrally Acting Analgesic'],
+    'Muscle Relaxants': ['Skeletal Muscle Relaxant'],
+    'Gout Drugs': ['Antigout (Xanthine Oxidase Inhibitor)', 'Antigout / Anti-inflammatory'],
+    'Bronchodilators': ['Short-Acting Beta-2 Agonist (SABA)', 'Long-Acting Beta-2 Agonist (LABA)', 'Short-Acting Muscarinic Antagonist (SAMA)', 'Long-Acting Muscarinic Antagonist (LAMA)', 'Methylxanthine'],
+    'Asthma Controllers': ['Inhaled Corticosteroid (ICS)', 'Leukotriene Receptor Antagonist'],
+    'Antihistamines, Cough & Cold': ['1st Gen Antihistamine', '2nd Gen Antihistamine', 'Decongestant', 'Expectorant', 'Antitussive']
+  }
+};
+[['PHARM_CARDIO', PHARM_CARDIO], ['PHARM_NEURO_PSYCH', PHARM_NEURO_PSYCH], ['PHARM_ENDO_GI', PHARM_ENDO_GI], ['PHARM_ANTIBIOTICS', PHARM_ANTIBIOTICS],
+ ['PHARM_ANTIVIRALS', PHARM_ANTIVIRALS], ['PHARM_IMMUNO', PHARM_IMMUNO], ['PHARM_PAIN_RESP', PHARM_PAIN_RESP]].forEach(([key, arr]) => {
+    const lookup = {};
+    Object.entries(CLASS_FAMILY[key]).forEach(([fam, classes]) => classes.forEach(c => { lookup[c] = fam; }));
+    arr.forEach(drug => {
+        if (!lookup[drug.class]) throw new Error(`No colour family for class "${drug.class}" in ${key}`);
+        drug.cat = lookup[drug.class];
+    });
+});
+
 const withCat = (arr, n, cat) => arr.slice(0, n).map(x => ({ ...x, cat }));
 // Top 200 prescribed drugs (ranked list supplied by the shop owner).
 // d(generic, brand, category, class, use, moa, sideEffects, notes, flags) — flags: 'BB' boxed warning, 'HA' ISMP high-alert
@@ -1916,13 +2004,19 @@ async function go(mode = 'pdf') {
         ins.addShape(P.ShapeType.rect, {x:0, y:0, w:8.5, h:1.2, fill:{color: C.PR}});
         ins.addText("CLINICAL STUDY DECK SETUP", {x: 0, y: 0.2, w: 8.5, h: 0.8, fontSize: 26, bold: true, color: 'FFFFFF', align: 'center', fontFace: 'Montserrat', letterSpacing: 2});
         
-        ins.addShape(P.ShapeType.rect, {x:0.5, y:1.5, w:3.6, h:3.5, fill:{color: '#F9F9F9'}, line:{color: C.LG, pt: 1}});
-        ins.addText("🖨️ PRINTING SETTINGS", {x:0.7, y:1.7, w:3.2, h:0.4, fontSize: 13, bold: true, color: C.PR, fontFace: 'Montserrat'});
-        ins.addText("• Paper: Heavy Cardstock (8.5x11\")\n• Scale: 100% or 'Actual Size'\n• Sides: Print Double-Sided\n• Binding: 'Flip on Long Edge'\n• Color: Print in Full Color" + (productPages ? "\n• Test first: print pages 3-4 on plain paper to check alignment" : ""), {x:0.7, y:2.2, w:3.2, h:2.5, fontSize: 11, color: C.TX, fontFace: 'Montserrat', lineSpacing: 18});
+        ins.addShape(P.ShapeType.rect, {x:0.5, y:1.5, w:3.6, h:3.5, fill:{color: 'F9F9F9'}, line:{color: 'E0E0E0', pt: 1}});
+        ins.addText("PRINTING SETTINGS", {x:0.75, y:1.7, w:3.2, h:0.4, fontSize: 13, bold: true, color: C.PR, fontFace: 'Montserrat', margin: 0});
+        const printItems = [['Paper:', 'Heavy cardstock, 8.5 x 11 in'], ['Scale:', '100% / Actual Size'], ['Sides:', 'Print double-sided'], ['Flip:', 'On the long edge'], ['Color:', 'Full color']];
+        if (productPages) printItems.push(['Test first:', 'Print pages 3-4 on plain paper to check alignment']);
+        addBulletList(ins, printItems, 0.75, 2.25, 3.15, 0.42);
 
-        ins.addShape(P.ShapeType.rect, {x:4.4, y:1.5, w:3.6, h:3.5, fill:{color: '#F9F9F9'}, line:{color: C.LG, pt: 1}});
-        ins.addText("💡 STUDY & ASSEMBLY", {x:4.6, y:1.7, w:3.2, h:0.4, fontSize: 13, bold: true, color: C.PR, fontFace: 'Montserrat'});
-        ins.addText("• Cutting: Use the dashed grid lines and scissor marks to cut cards precisely.\n• Active Recall: Look at the back category color first. Try to recall the details before flipping.\n• Notes Box: Use the dashed box on the front to write your own personal memory tricks.", {x:4.6, y:2.2, w:3.2, h:2.5, fontSize: 11, color: C.TX, fontFace: 'Montserrat', lineSpacing: 16});
+        ins.addShape(P.ShapeType.rect, {x:4.4, y:1.5, w:3.6, h:3.5, fill:{color: 'F9F9F9'}, line:{color: 'E0E0E0', pt: 1}});
+        ins.addText("STUDY & ASSEMBLY", {x:4.65, y:1.7, w:3.2, h:0.4, fontSize: 13, bold: true, color: C.PR, fontFace: 'Montserrat', margin: 0});
+        addBulletList(ins, [
+            ['Cut:', 'Follow the dashed lines, using the scissor marks as guides.'],
+            ['Recall:', 'Look at the colored back first and recall the details before flipping.'],
+            ['Notes:', 'Add your own memory tricks in the dashed box on the front.']
+        ], 4.65, 2.25, 3.15, 0.85);
 
         ins.addShape(P.ShapeType.rect, {x:0.5, y:5.3, w:7.5, h:4.8, fill:{color: '#FFFFFF'}, line:{color: C.PR, pt: 1.5}});
         ins.addText("🎨 COLOR CODING SYSTEM", {x:0.5, y:5.6, w:7.5, h:0.4, fontSize: 15, bold: true, color: C.PR, align: 'center', fontFace: 'Montserrat'});
@@ -1939,7 +2033,7 @@ async function go(mode = 'pdf') {
         const lgFont = lgRowH >= 0.45 ? 10 : (lgRowH >= 0.3 ? 8 : 7);
         legend.forEach((name, i) => {
             const col = Math.floor(i / lgRows), row = i % lgRows; // fill down each column
-            const bx = 0.7 + col * lgColW, by = 6.85 + row * lgRowH;
+            const bx = 0.7 + col * lgColW, by = 6.85 + (3.1 - lgRows * lgRowH) / 2 + row * lgRowH;
             ins.addShape(P.ShapeType.roundRect, {x: bx, y: by + (lgRowH - lgSw) / 2, w: lgSw, h: lgSw, fill:{color: getDarkClassColor(name)}});
             ins.addText(name, {x: bx + lgSw + 0.08, y: by, w: lgColW - lgSw - 0.15, h: lgRowH, fontSize: lgFont, bold: true, color: C.TX, valign: 'middle', fontFace: 'Montserrat', margin: 0});
         });
