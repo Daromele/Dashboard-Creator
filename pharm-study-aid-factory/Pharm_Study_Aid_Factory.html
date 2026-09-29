@@ -548,7 +548,7 @@ const COLORS = {
 };
 
 const CATEGORIES = {
-  'Pharmacology Flashcards': ['drug_cards_9', 'pharm_cardio_9', 'pharm_neuro_psych_9', 'pharm_endo_gi_9', 'pharm_antibiotics_9', 'pharm_antivirals_9', 'pharm_immuno_9', 'pharm_pain_resp_9'],
+  'Pharmacology Flashcards': ['top200_9', 'drug_cards_9', 'pharm_cardio_9', 'pharm_neuro_psych_9', 'pharm_endo_gi_9', 'pharm_antibiotics_9', 'pharm_antivirals_9', 'pharm_immuno_9', 'pharm_pain_resp_9'],
   'Clinical & Lab Decks': ['lab_values_9', 'med_abbrev_9', 'antidotes_9', 'suffixes_9', 'math_conversions_9'],
   'Custom Decks': ['custom_csv_9'],
   'Detailed Study Guides': ['drug_cards_4', 'study_matrix'],
@@ -556,6 +556,7 @@ const CATEGORIES = {
 };
 
 const TEMPLATES = {
+  top200_9: { icon: '💯', title: "Top 200 Drugs Flashcards", tags: ['Two-Sided', '200 Cards', 'Color-Coded by System'], layout: 'portrait' },
   drug_cards_9: { icon: '🎴', title: "Top 108 Drugs Flashcards", tags: ['Two-Sided', '9 Per Page', 'Pharmacology'], layout: 'portrait' },
   pharm_cardio_9: { icon: '🫀', title: "1 - Cardiovascular & Renal", tags: ['Two-Sided', '9 Per Page', 'Deep Dive'], layout: 'portrait' },
   pharm_neuro_psych_9: { icon: '🧠', title: "2 - Neuro & Psychiatric", tags: ['Two-Sided', '9 Per Page', 'Deep Dive'], layout: 'portrait' },
@@ -663,6 +664,7 @@ function initUI() {
 
 function getDatasetForKey(key) {
     if(key === 'custom_csv_9') return customDataset.length > 0 ? customDataset : [{cat:'Error', front:'No Data', def:'Please upload a CSV file first.', notes:'', extra:''}];
+    if(key === 'top200_9') return TOP_200;
     if(key === 'lab_values_9') return typeof LAB_VALUES !== 'undefined' ? LAB_VALUES : null;
     if(key === 'med_abbrev_9') return typeof MED_ABBREV !== 'undefined' ? MED_ABBREV : null;
     if(key === 'antidotes_9') return typeof ANTIDOTES !== 'undefined' ? ANTIDOTES : null;
@@ -1439,6 +1441,219 @@ const PHARM_PAIN_RESP = [
 ];
 
 // Fallback top drugs (keeps the original 108 if someone selects the general flashcards template)
+const withCat = (arr, n, cat) => arr.slice(0, n).map(x => ({ ...x, cat }));
+// Top 200 prescribed drugs (ranked list supplied by the shop owner).
+// d(generic, brand, category, class, use, moa, sideEffects, notes, flags) — flags: 'BB' boxed warning, 'HA' ISMP high-alert
+function d(name, brand, cat, cls, use, moa, sideEffects, notes, flags) {
+    flags = flags || '';
+    return { name, brand, cat, class: cls, use, moa, sideEffects, notes: `${brand}. ${notes}`, blackBox: flags.includes('BB'), highAlert: flags.includes('HA') };
+}
+const CV = 'Cardiovascular', EN = 'Endocrine', NP = 'Neuro & Psych', RS = 'Respiratory', GI = 'Gastrointestinal', AI = 'Anti-Infectives',
+      PM = 'Pain & Musculoskeletal', WH = "Women's & Men's Health", IM = 'Immunology', AL = 'Allergy', RE = 'Renal & Electrolytes',
+      VS = 'Vitamins & Supplements', ES = 'Eye & Skin';
+const TOP_200 = [
+    d("Atorvastatin", "Lipitor", CV, "Statin", "High cholesterol, CV risk reduction", "Inhibits HMG-CoA reductase, lowering LDL", "Muscle pain, rhabdomyolysis, raised LFTs", "Any time of day. Report unexplained muscle pain."),
+    d("Levothyroxine", "Synthroid", EN, "Thyroid Hormone", "Hypothyroidism", "Synthetic T4 replaces thyroid hormone", "Tachycardia, tremor, weight loss, insomnia (overdose)", "Empty stomach 30-60 min before breakfast. Separate from calcium/iron by 4 hr.", 'BB'),
+    d("Metformin", "Glucophage", EN, "Biguanide", "Type 2 diabetes", "Decreases liver glucose output; improves insulin sensitivity", "GI upset, diarrhea, B12 deficiency, rare lactic acidosis", "Take with meals. Hold for iodinated contrast; check kidney function.", 'BB'),
+    d("Amlodipine", "Norvasc", CV, "Calcium Channel Blocker (DHP)", "Hypertension, angina", "Blocks calcium entry into vascular smooth muscle", "Ankle edema, flushing, headache, dizziness", "Once daily. Edema is dose-related, not fluid overload."),
+    d("Lisinopril", "Zestril / Prinivil", CV, "ACE Inhibitor", "Hypertension, heart failure, post-MI", "Blocks conversion of angiotensin I to II", "Dry cough, hyperkalemia, angioedema, dizziness", "Monitor BP, K+, creatinine. Avoid in pregnancy.", 'BB'),
+    d("Albuterol", "ProAir / Ventolin", RS, "Short-Acting Beta-2 Agonist", "Acute bronchospasm, asthma, COPD", "Stimulates beta-2 receptors to relax airway muscle", "Tachycardia, tremor, nervousness, hypokalemia", "Rescue inhaler. Needing it more than 2 days/week signals poor control."),
+    d("Losartan", "Cozaar", CV, "ARB", "Hypertension, diabetic nephropathy", "Blocks angiotensin II at its receptor", "Dizziness, hyperkalemia, hypotension", "No ACE-inhibitor cough. Avoid in pregnancy.", 'BB'),
+    d("Metoprolol", "Lopressor / Toprol-XL", CV, "Beta Blocker (Beta-1 Selective)", "Hypertension, angina, heart failure, post-MI", "Blocks beta-1 receptors, lowering HR and contractility", "Bradycardia, fatigue, hypotension, masks hypoglycemia", "Check apical pulse/BP. Never stop abruptly.", 'BB'),
+    d("Rosuvastatin", "Crestor", CV, "Statin", "High cholesterol, CV risk reduction", "Inhibits HMG-CoA reductase", "Myalgia, raised LFTs, proteinuria", "High-intensity statin. Any time of day. Lower doses in Asian patients."),
+    d("Omeprazole", "Prilosec", GI, "Proton Pump Inhibitor", "GERD, ulcers, H. pylori (combo)", "Irreversibly blocks the gastric proton pump", "Headache, diarrhea; long-term: C. diff, fractures, low Mg, low B12", "Take 30-60 min before breakfast. Use the lowest effective duration."),
+    d("Gabapentin", "Neurontin", NP, "Gabapentinoid Anticonvulsant", "Neuropathic pain, postherpetic neuralgia, seizures", "Binds calcium channel alpha-2-delta subunit, reducing excitatory signals", "Drowsiness, dizziness, edema, ataxia", "Taper to stop. Respiratory depression risk with opioids. Adjust in kidney disease."),
+    d("Sertraline", "Zoloft", NP, "SSRI", "Depression, anxiety, OCD, PTSD, panic", "Blocks serotonin reuptake", "Nausea, diarrhea, insomnia, sexual dysfunction", "Takes 4-6 weeks. Watch for suicidal thoughts and serotonin syndrome.", 'BB'),
+    d("Escitalopram", "Lexapro", NP, "SSRI", "Depression, generalized anxiety", "Selectively blocks serotonin reuptake", "Nausea, insomnia, sexual dysfunction, QT prolongation", "Takes 4-6 weeks. Taper to stop.", 'BB'),
+    d("Semaglutide", "Ozempic / Wegovy / Rybelsus", EN, "GLP-1 Receptor Agonist", "Type 2 diabetes, weight management, CV risk", "Boosts glucose-dependent insulin, slows gastric emptying, reduces appetite", "Nausea, vomiting, diarrhea, pancreatitis, gallbladder disease", "Weekly injection (oral daily). Contraindicated with MTC/MEN2 history.", 'BB'),
+    d("Amphetamine Mixed Salts", "Adderall", NP, "CNS Stimulant", "ADHD, narcolepsy", "Releases dopamine and norepinephrine", "Insomnia, appetite loss, tachycardia, anxiety", "Schedule II. Give in the morning. Monitor BP, HR, growth.", 'BB'),
+    d("Pantoprazole", "Protonix", GI, "Proton Pump Inhibitor", "GERD, erosive esophagitis, GI bleed prophylaxis", "Irreversibly blocks the gastric proton pump", "Headache, diarrhea; long-term low Mg, C. diff", "Before breakfast. IV form used in hospital for GI bleeds."),
+    d("Bupropion", "Wellbutrin", NP, "NDRI Antidepressant", "Depression, seasonal affective disorder, smoking cessation", "Blocks dopamine and norepinephrine reuptake", "Insomnia, dry mouth, agitation, seizures (dose-related)", "No sexual side effects. Avoid with seizure or eating disorders.", 'BB'),
+    d("Hydrochlorothiazide", "Microzide", CV, "Thiazide Diuretic", "Hypertension, edema", "Blocks sodium reabsorption in the distal tubule", "Hypokalemia, hyponatremia, hyperglycemia, hyperuricemia", "Take in the morning. Monitor electrolytes. Sun sensitivity."),
+    d("Fluoxetine", "Prozac", NP, "SSRI", "Depression, OCD, bulimia, panic", "Blocks serotonin reuptake", "Insomnia, anxiety, nausea, sexual dysfunction", "Longest half-life SSRI; take in the morning.", 'BB'),
+    d("Trazodone", "Desyrel", NP, "SARI Antidepressant", "Depression; off-label insomnia", "Blocks serotonin 5-HT2A receptors and reuptake", "Sedation, orthostatic hypotension, priapism", "Give at bedtime. Priapism is an emergency.", 'BB'),
+    d("Montelukast", "Singulair", RS, "Leukotriene Receptor Antagonist", "Asthma maintenance, allergic rhinitis, exercise bronchospasm", "Blocks leukotriene receptors", "Headache, mood changes, nightmares, suicidal thoughts", "Evening dosing. Not for acute attacks. Report behavior changes.", 'BB'),
+    d("Amoxicillin", "Amoxil", AI, "Aminopenicillin", "Ear, sinus, throat, skin infections; H. pylori", "Inhibits bacterial cell wall synthesis", "Diarrhea, rash, allergic reactions", "Ask about penicillin allergy. Finish the full course."),
+    d("Fluticasone (Nasal/Inhaled)", "Flonase / Flovent", RS, "Corticosteroid", "Allergic rhinitis (nasal), asthma maintenance (inhaled)", "Reduces local airway inflammation", "Nosebleeds, oral thrush, hoarseness", "Rinse mouth after inhaled use. Not a rescue drug."),
+    d("Tamsulosin", "Flomax", WH, "Alpha-1 Blocker", "Benign prostatic hyperplasia", "Relaxes prostate and bladder-neck smooth muscle", "Dizziness, orthostatic hypotension, abnormal ejaculation", "Take 30 min after the same meal daily. Tell eye surgeon (floppy iris)."),
+    d("Apixaban", "Eliquis", CV, "Factor Xa Inhibitor (DOAC)", "AFib stroke prevention, DVT/PE", "Directly inhibits factor Xa", "Bleeding, bruising", "No INR monitoring. Stopping early raises stroke risk. Reversal: andexanet alfa.", 'BB HA'),
+    d("Simvastatin", "Zocor", CV, "Statin", "High cholesterol", "Inhibits HMG-CoA reductase", "Myopathy, rhabdomyolysis, raised LFTs", "Take in the evening. Many CYP3A4 interactions; avoid grapefruit."),
+    d("Insulin Glargine", "Lantus / Basaglar / Toujeo", EN, "Long-Acting Insulin", "Type 1 and 2 diabetes (basal)", "Replaces basal insulin; promotes glucose uptake", "Hypoglycemia, weight gain, injection-site lipohypertrophy", "Once daily, same time. No peak. Do not mix with other insulins.", 'HA'),
+    d("Empagliflozin", "Jardiance", EN, "SGLT2 Inhibitor", "Type 2 diabetes, heart failure, chronic kidney disease", "Blocks renal glucose reabsorption", "UTIs, genital yeast infections, dehydration, ketoacidosis", "Hold before surgery. Good genital hygiene; stay hydrated."),
+    d("Furosemide", "Lasix", CV, "Loop Diuretic", "Edema, heart failure, hypertension", "Blocks Na/K/2Cl in the loop of Henle", "Hypokalemia, dehydration, hypotension, ototoxicity", "Monitor K+, weight, I&O. Give IV push slowly.", 'BB'),
+    d("Meloxicam", "Mobic", PM, "NSAID (COX-2 Preferential)", "Osteoarthritis, rheumatoid arthritis", "Inhibits prostaglandin synthesis", "GI bleeding, kidney injury, edema, raised BP", "Take with food. Boxed warning: CV events and GI bleeding.", 'BB'),
+    d("Hydrocodone / Acetaminophen", "Norco / Vicodin", PM, "Opioid Combination", "Moderate to severe pain", "Mu-opioid agonist plus central analgesic", "Constipation, sedation, respiratory depression, dependence", "Schedule II. Count all acetaminophen (max 4 g/day).", 'BB HA'),
+    d("Tirzepatide", "Mounjaro / Zepbound", EN, "GIP / GLP-1 Receptor Agonist", "Type 2 diabetes, weight management", "Activates GIP and GLP-1 receptors to raise insulin and reduce appetite", "Nausea, vomiting, diarrhea, pancreatitis", "Weekly injection. May reduce oral contraceptive absorption.", 'BB'),
+    d("Methylphenidate", "Ritalin / Concerta", NP, "CNS Stimulant", "ADHD, narcolepsy", "Blocks dopamine and norepinephrine reuptake", "Insomnia, appetite loss, tachycardia", "Schedule II. Monitor growth in children. Morning dosing.", 'BB'),
+    d("Duloxetine", "Cymbalta", NP, "SNRI", "Depression, anxiety, neuropathic pain, fibromyalgia", "Blocks serotonin and norepinephrine reuptake", "Nausea, dry mouth, sweating, raised BP, liver injury", "Taper to stop (discontinuation syndrome). Avoid heavy alcohol.", 'BB'),
+    d("Prednisone", "Deltasone", EN, "Systemic Corticosteroid", "Inflammation, asthma flares, autoimmune disease", "Suppresses inflammation and immune response", "Hyperglycemia, insomnia, mood changes, infection risk, bone loss", "Take in the morning with food. Taper long courses."),
+    d("Carvedilol", "Coreg", CV, "Beta Blocker with Alpha-1 Blockade", "Heart failure, hypertension, post-MI", "Blocks beta-1, beta-2 and alpha-1 receptors", "Dizziness, orthostatic hypotension, bradycardia, fatigue", "Take with food. Do not stop abruptly."),
+    d("Famotidine", "Pepcid", GI, "H2 Receptor Antagonist", "GERD, peptic ulcer, heartburn", "Blocks histamine H2 receptors in the stomach", "Headache, dizziness, confusion in older adults", "Reduce dose in kidney disease."),
+    d("Ibuprofen", "Advil / Motrin", PM, "NSAID", "Pain, fever, inflammation", "Non-selectively inhibits COX-1 and COX-2", "GI upset/bleeding, kidney injury, raised BP", "Take with food. Avoid in late pregnancy and kidney disease.", 'BB'),
+    d("Buspirone", "Buspar", NP, "Anxiolytic (5-HT1A Partial Agonist)", "Generalized anxiety disorder", "Partial agonist at serotonin 5-HT1A receptors", "Dizziness, headache, nausea", "Not habit-forming. Takes 2-4 weeks. Not for acute panic."),
+    d("Venlafaxine", "Effexor XR", NP, "SNRI", "Depression, anxiety, panic", "Blocks serotonin and norepinephrine reuptake", "Nausea, sweating, raised BP, insomnia", "Severe discontinuation symptoms; taper slowly.", 'BB'),
+    d("Tramadol", "Ultram", PM, "Opioid Analgesic (Mu Agonist + SNRI)", "Moderate to severe pain", "Weak mu agonist; blocks serotonin/NE reuptake", "Nausea, dizziness, seizures, serotonin syndrome", "Schedule IV. Avoid with SSRIs/SNRIs and seizure history.", 'BB'),
+    d("Potassium Chloride", "K-Dur / Klor-Con", RE, "Electrolyte Supplement", "Hypokalemia prevention and treatment", "Replaces potassium", "GI irritation, hyperkalemia", "Take with food and a full glass of water; do not crush ER tabs."),
+    d("Hydroxyzine", "Atarax / Vistaril", AL, "1st-Gen Antihistamine", "Anxiety, itching, sedation", "Blocks H1 receptors centrally and peripherally", "Drowsiness, dry mouth, QT prolongation", "Fall risk in older adults (anticholinergic)."),
+    d("Allopurinol", "Zyloprim", PM, "Xanthine Oxidase Inhibitor", "Gout prevention, tumor lysis prevention", "Blocks uric acid production", "Rash (stop immediately), SJS, GI upset", "Not for acute attacks. Drink plenty of fluids."),
+    d("Clopidogrel", "Plavix", CV, "P2Y12 Inhibitor (Antiplatelet)", "ACS, after stents, stroke/MI prevention", "Irreversibly blocks platelet ADP receptors", "Bleeding, bruising, rare TTP", "Poor CYP2C19 metabolizers get less effect. Hold 5 days before surgery.", 'BB'),
+    d("Ergocalciferol (Vitamin D2)", "Drisdol", VS, "Vitamin", "Vitamin D deficiency, hypoparathyroidism", "Converted to active vitamin D; increases calcium absorption", "Hypercalcemia with excess (nausea, weakness)", "High-dose capsules are usually weekly."),
+    d("Cetirizine", "Zyrtec", AL, "2nd-Gen Antihistamine", "Allergic rhinitis, hives", "Blocks peripheral H1 receptors", "Mild drowsiness, dry mouth", "Most sedating 2nd-gen antihistamine."),
+    d("Ondansetron", "Zofran", GI, "5-HT3 Antagonist (Antiemetic)", "Nausea/vomiting (chemo, post-op)", "Blocks serotonin 5-HT3 receptors", "Headache, constipation, QT prolongation", "Check ECG risk factors. ODT dissolves on the tongue."),
+    d("Cyclobenzaprine", "Flexeril", PM, "Skeletal Muscle Relaxant", "Acute muscle spasm", "Acts centrally at the brainstem to reduce muscle tone", "Drowsiness, dry mouth, dizziness", "Short-term use only. Avoid in older adults (Beers)."),
+    d("Spironolactone", "Aldactone", CV, "Aldosterone Antagonist Diuretic", "Heart failure, hypertension, edema, acne", "Blocks aldosterone in the distal tubule", "Hyperkalemia, gynecomastia, menstrual changes", "Avoid potassium supplements and salt substitutes."),
+    d("Oxycodone", "Roxicodone / OxyContin", PM, "Opioid Analgesic", "Moderate to severe pain", "Mu-opioid receptor agonist", "Constipation, sedation, respiratory depression, dependence", "Schedule II. Never crush ER tablets. Keep naloxone available.", 'BB HA'),
+    d("Estradiol", "Estrace", WH, "Estrogen", "Menopausal symptoms, hypoestrogenism, osteoporosis prevention", "Replaces estrogen", "Breast tenderness, nausea, clots, stroke", "Add progestin if uterus present. Lowest dose, shortest time.", 'BB'),
+    d("Aspirin", "Bayer / Ecotrin", CV, "Antiplatelet / NSAID", "MI and stroke prevention, pain, fever", "Irreversibly inhibits COX, blocking thromboxane", "GI bleeding, tinnitus (toxicity)", "Avoid in children with viral illness (Reye's syndrome)."),
+    d("Glipizide", "Glucotrol", EN, "Sulfonylurea", "Type 2 diabetes", "Stimulates insulin release from beta cells", "Hypoglycemia, weight gain", "Take 30 min before breakfast. Do not skip meals.", 'HA'),
+    d("Zolpidem", "Ambien", NP, "Nonbenzodiazepine Hypnotic", "Insomnia", "Enhances GABA-A activity", "Next-day drowsiness, complex sleep behaviors", "Take right before bed with 7-8 hours to sleep. Lower dose in women.", 'BB'),
+    d("Lamotrigine", "Lamictal", NP, "Anticonvulsant / Mood Stabilizer", "Seizures, bipolar maintenance", "Blocks voltage-gated sodium channels", "Dizziness, rash, Stevens-Johnson syndrome", "Slow titration. Stop and report any rash.", 'BB'),
+    d("Alprazolam", "Xanax", NP, "Benzodiazepine", "Anxiety, panic disorder", "Enhances GABA-A activity", "Sedation, dependence, respiratory depression with opioids", "Schedule IV. Taper to stop; withdrawal can cause seizures.", 'BB'),
+    d("Citalopram", "Celexa", NP, "SSRI", "Depression", "Blocks serotonin reuptake", "Nausea, sexual dysfunction, QT prolongation", "Max 20 mg in patients over 60.", 'BB'),
+    d("Pregabalin", "Lyrica", NP, "Gabapentinoid Anticonvulsant", "Neuropathic pain, fibromyalgia, seizures", "Binds calcium channel alpha-2-delta subunit", "Dizziness, drowsiness, edema, weight gain", "Schedule V. Taper to stop."),
+    d("Cholecalciferol (Vitamin D3)", "Various", VS, "Vitamin", "Vitamin D deficiency, bone health", "Converted to active vitamin D; increases calcium absorption", "Hypercalcemia with excess", "Fat-soluble; take with a meal containing fat."),
+    d("Clonazepam", "Klonopin", NP, "Benzodiazepine", "Panic disorder, seizures", "Enhances GABA-A activity", "Sedation, ataxia, dependence", "Schedule IV. Long-acting; taper slowly.", 'BB'),
+    d("Azithromycin", "Zithromax", AI, "Macrolide Antibiotic", "Respiratory infections, chlamydia", "Inhibits bacterial protein synthesis (50S)", "Diarrhea, nausea, QT prolongation", "Short course (Z-Pak). Separate from Al/Mg antacids."),
+    d("Pravastatin", "Pravachol", CV, "Statin", "High cholesterol", "Inhibits HMG-CoA reductase", "Myalgia, raised LFTs", "Few CYP interactions compared with other statins."),
+    d("Valsartan", "Diovan", CV, "ARB", "Hypertension, heart failure", "Blocks angiotensin II receptors", "Dizziness, hyperkalemia, hypotension", "Avoid in pregnancy. Monitor K+ and creatinine.", 'BB'),
+    d("Ezetimibe", "Zetia", CV, "Cholesterol Absorption Inhibitor", "High cholesterol (with or without statin)", "Blocks intestinal cholesterol absorption", "Diarrhea, joint pain, raised LFTs with statins", "Take 2 hr before or 4 hr after bile acid sequestrants."),
+    d("Diclofenac", "Voltaren", PM, "NSAID", "Arthritis pain, inflammation (oral and topical gel)", "Inhibits COX-1 and COX-2", "GI bleeding, liver injury, raised BP", "Topical gel has less systemic exposure.", 'BB'),
+    d("Insulin Lispro", "Humalog / Admelog", EN, "Rapid-Acting Insulin", "Type 1 and 2 diabetes (mealtime)", "Promotes glucose uptake into cells", "Hypoglycemia, hypokalemia", "Onset ~15 min. Give within 15 min of eating.", 'HA'),
+    d("Norethindrone / Ethinyl Estradiol", "Loestrin / Junel", WH, "Combined Oral Contraceptive", "Pregnancy prevention", "Suppresses ovulation; thickens cervical mucus", "Spotting, nausea, clots, raised BP", "Smoking over age 35 greatly raises CV risk.", 'BB'),
+    d("Propranolol", "Inderal", CV, "Beta Blocker (Non-Selective)", "Hypertension, migraine prevention, tremor, anxiety", "Blocks beta-1 and beta-2 receptors", "Bradycardia, bronchospasm, fatigue, masks hypoglycemia", "Avoid in asthma. Do not stop abruptly.", 'BB'),
+    d("Latanoprost", "Xalatan", ES, "Prostaglandin Analog (Eye)", "Glaucoma, ocular hypertension", "Increases aqueous humor outflow", "Iris darkening, eyelash growth, eye redness", "One drop at bedtime. Remove contacts; wait 15 min."),
+    d("Atenolol", "Tenormin", CV, "Beta Blocker (Beta-1 Selective)", "Hypertension, angina, post-MI", "Blocks beta-1 receptors", "Bradycardia, fatigue, dizziness", "Renally cleared; adjust in kidney disease. Taper to stop.", 'BB'),
+    d("Lisdexamfetamine", "Vyvanse", NP, "CNS Stimulant (Prodrug)", "ADHD, binge-eating disorder", "Converted to dextroamphetamine; releases dopamine/NE", "Insomnia, appetite loss, tachycardia, dry mouth", "Schedule II. Capsule can be opened into water or yogurt.", 'BB'),
+    d("Doxycycline", "Vibramycin", AI, "Tetracycline Antibiotic", "Acne, Lyme disease, chlamydia, pneumonia", "Inhibits bacterial protein synthesis (30S)", "Photosensitivity, esophagitis, GI upset", "Full glass of water; stay upright 30 min. Avoid in pregnancy and young children."),
+    d("Amoxicillin / Clavulanate", "Augmentin", AI, "Penicillin + Beta-Lactamase Inhibitor", "Sinusitis, otitis, bites, skin and respiratory infections", "Cell wall inhibitor; clavulanate blocks beta-lactamase", "Diarrhea (more than amoxicillin), rash", "Take with food to reduce GI upset."),
+    d("Dulaglutide", "Trulicity", EN, "GLP-1 Receptor Agonist", "Type 2 diabetes, CV risk reduction", "Increases insulin, slows gastric emptying", "Nausea, vomiting, diarrhea, pancreatitis", "Once-weekly injection.", 'BB'),
+    d("Lisinopril / Hydrochlorothiazide", "Zestoretic", CV, "ACE Inhibitor + Thiazide", "Hypertension", "Blocks angiotensin II formation plus thiazide diuresis", "Cough, dizziness, electrolyte changes", "Monitor K+, Na+, creatinine. Avoid in pregnancy.", 'BB'),
+    d("Lorazepam", "Ativan", NP, "Benzodiazepine", "Anxiety, status epilepticus, sedation", "Enhances GABA-A activity", "Sedation, respiratory depression, dependence", "Schedule IV. IV drug of choice for status epilepticus.", 'BB'),
+    d("Fluticasone / Salmeterol", "Advair", RS, "ICS + LABA", "Asthma and COPD maintenance", "Reduces airway inflammation plus long-acting bronchodilation", "Thrush, hoarseness, headache", "Rinse mouth after use. Not for acute attacks."),
+    d("Insulin Aspart", "Novolog", EN, "Rapid-Acting Insulin", "Type 1 and 2 diabetes (mealtime)", "Promotes glucose uptake into cells", "Hypoglycemia, hypokalemia", "Give 5-10 min before meals.", 'HA'),
+    d("Celecoxib", "Celebrex", PM, "NSAID (COX-2 Selective)", "Osteoarthritis, rheumatoid arthritis, acute pain", "Selectively inhibits COX-2", "CV events, GI bleeding (less), edema", "Caution with sulfonamide allergy.", 'BB'),
+    d("Finasteride", "Proscar / Propecia", WH, "5-Alpha Reductase Inhibitor", "BPH, male-pattern hair loss", "Blocks conversion of testosterone to DHT", "Decreased libido, erectile dysfunction", "Pregnant people should not handle crushed tablets. Lowers PSA."),
+    d("Quetiapine", "Seroquel", NP, "Atypical Antipsychotic", "Schizophrenia, bipolar disorder, adjunct for depression", "Blocks dopamine D2 and serotonin 5-HT2A", "Sedation, weight gain, hyperglycemia, orthostasis", "Monitor weight, glucose, lipids.", 'BB'),
+    d("Clonidine", "Catapres", CV, "Central Alpha-2 Agonist", "Hypertension, ADHD, withdrawal symptoms", "Reduces sympathetic outflow from the brain", "Drowsiness, dry mouth, bradycardia", "Stopping abruptly causes rebound hypertension."),
+    d("Aripiprazole", "Abilify", NP, "Atypical Antipsychotic", "Schizophrenia, bipolar disorder, adjunct for depression", "Partial agonist at D2 and 5-HT1A", "Akathisia, insomnia, impulse-control problems", "Lower metabolic risk than other atypicals.", 'BB'),
+    d("Cephalexin", "Keflex", AI, "1st-Gen Cephalosporin", "Skin infections, UTI, strep throat", "Inhibits bacterial cell wall synthesis", "Diarrhea, rash", "Low cross-reactivity with penicillin allergy; ask about the reaction."),
+    d("Alendronate", "Fosamax", EN, "Bisphosphonate", "Osteoporosis", "Inhibits bone breakdown by osteoclasts", "Esophagitis, GI upset, rare jaw osteonecrosis", "Empty stomach, full glass of water, stay upright 30 min."),
+    d("Topiramate", "Topamax", NP, "Anticonvulsant", "Seizures, migraine prevention", "Blocks sodium channels, enhances GABA", "Cognitive slowing, paresthesia, kidney stones, weight loss", "Drink plenty of water. Teratogenic; reduces OC effectiveness at high doses."),
+    d("Tizanidine", "Zanaflex", PM, "Central Alpha-2 Agonist (Muscle Relaxant)", "Spasticity", "Reduces spinal motor neuron activity", "Drowsiness, hypotension, dry mouth, liver injury", "Avoid with ciprofloxacin or fluvoxamine. Taper to stop."),
+    d("Dapagliflozin", "Farxiga", EN, "SGLT2 Inhibitor", "Type 2 diabetes, heart failure, CKD", "Blocks renal glucose reabsorption", "Genital infections, UTIs, dehydration, ketoacidosis", "Hold before surgery. Stay hydrated."),
+    d("Oxycodone / Acetaminophen", "Percocet", PM, "Opioid Combination", "Moderate to severe pain", "Mu-opioid agonist plus central analgesic", "Constipation, sedation, respiratory depression", "Schedule II. Count total daily acetaminophen.", 'BB HA'),
+    d("Losartan / Hydrochlorothiazide", "Hyzaar", CV, "ARB + Thiazide", "Hypertension", "Blocks angiotensin II receptors plus thiazide diuresis", "Dizziness, electrolyte changes", "Avoid in pregnancy. Monitor K+.", 'BB'),
+    d("Olmesartan", "Benicar", CV, "ARB", "Hypertension", "Blocks angiotensin II receptors", "Dizziness, hyperkalemia, sprue-like diarrhea", "Report severe chronic diarrhea. Avoid in pregnancy.", 'BB'),
+    d("Testosterone", "AndroGel / Depo-Testosterone", WH, "Androgen", "Low testosterone (hypogonadism)", "Replaces testosterone", "Acne, polycythemia, raised BP, edema", "Gel: cover site and wash hands; avoid skin contact with women/children.", 'BB'),
+    d("Amitriptyline", "Elavil", NP, "Tricyclic Antidepressant", "Depression, neuropathic pain, migraine prevention", "Blocks serotonin and norepinephrine reuptake", "Sedation, dry mouth, constipation, orthostasis", "Give at bedtime. Overdose is highly cardiotoxic.", 'BB'),
+    d("Folic Acid", "Folvite", VS, "Vitamin (B9)", "Folate deficiency, pregnancy (neural tube prevention), methotrexate", "Needed for DNA synthesis and red cell production", "Rarely: GI upset", "Can mask B12 deficiency anemia."),
+    d("Rivaroxaban", "Xarelto", CV, "Factor Xa Inhibitor (DOAC)", "AFib stroke prevention, DVT/PE", "Directly inhibits factor Xa", "Bleeding, bruising", "15 and 20 mg doses with the evening meal. Stopping early raises stroke risk.", 'BB HA'),
+    d("Fenofibrate", "Tricor", CV, "Fibrate", "High triglycerides", "Activates PPAR-alpha, increasing fat breakdown", "Myopathy (with statins), gallstones, raised LFTs", "Monitor kidney function."),
+    d("Triamcinolone", "Kenalog", IM, "Corticosteroid", "Skin inflammation (topical), joint injections", "Reduces inflammation and immune response", "Skin thinning (topical), raised glucose (injection)", "Avoid long use on face and skin folds."),
+    d("Paroxetine", "Paxil", NP, "SSRI", "Depression, anxiety, PTSD, OCD", "Blocks serotonin reuptake", "Sedation, weight gain, sexual dysfunction, anticholinergic effects", "Worst SSRI discontinuation syndrome. Avoid in pregnancy.", 'BB'),
+    d("Ferrous Sulfate", "Feosol", VS, "Iron Supplement", "Iron-deficiency anemia", "Replaces iron for hemoglobin production", "Constipation, dark stools, GI upset", "Best on empty stomach with vitamin C. Keep away from children."),
+    d("Loratadine", "Claritin", AL, "2nd-Gen Antihistamine", "Allergic rhinitis, hives", "Blocks peripheral H1 receptors", "Headache, minimal drowsiness", "Once daily; non-sedating for most people."),
+    d("Warfarin", "Coumadin / Jantoven", CV, "Vitamin K Antagonist", "AFib, DVT/PE, mechanical valves", "Inhibits vitamin K-dependent clotting factors (II, VII, IX, X)", "Bleeding, bruising, skin necrosis", "Monitor INR (usually 2-3). Consistent vitamin K diet. Antidote: vitamin K.", 'BB HA'),
+    d("Valacyclovir", "Valtrex", AI, "Antiviral (Nucleoside Analog)", "Herpes zoster, genital herpes, cold sores", "Prodrug of acyclovir; inhibits viral DNA polymerase", "Headache, nausea, kidney injury", "Start early (within 72 hr for shingles). Stay hydrated."),
+    d("Budesonide / Formoterol", "Symbicort", RS, "ICS + LABA", "Asthma and COPD maintenance", "Reduces inflammation plus long-acting bronchodilation", "Thrush, hoarseness, tremor", "Rinse mouth after use. Some asthma plans also use it as reliever."),
+    d("Norgestimate / Ethinyl Estradiol", "Ortho Tri-Cyclen", WH, "Combined Oral Contraceptive", "Pregnancy prevention, acne", "Suppresses ovulation", "Spotting, nausea, clots", "Smoking over age 35 greatly raises CV risk.", 'BB'),
+    d("Fluticasone / Umeclidinium / Vilanterol", "Trelegy Ellipta", RS, "ICS + LAMA + LABA", "COPD and asthma maintenance", "Anti-inflammatory plus two long-acting bronchodilators", "Thrush, headache, upper respiratory infection", "One inhalation daily. Rinse mouth after use."),
+    d("Methocarbamol", "Robaxin", PM, "Skeletal Muscle Relaxant", "Acute muscle spasm", "General CNS depression", "Drowsiness, dizziness, dark urine", "Harmless urine color change (brown, black, green)."),
+    d("Acetaminophen", "Tylenol", PM, "Analgesic / Antipyretic", "Pain, fever", "Inhibits prostaglandin synthesis in the CNS", "Liver injury in overdose", "Max 4 g/day (lower with liver disease or alcohol use). Antidote: acetylcysteine."),
+    d("Diltiazem", "Cardizem", CV, "Calcium Channel Blocker (Non-DHP)", "AFib rate control, angina, hypertension", "Slows AV-node conduction; relaxes vessels", "Bradycardia, hypotension, edema, constipation", "Hold for low HR/BP. Many CYP3A4 interactions."),
+    d("Thyroid (Desiccated)", "Armour Thyroid", EN, "Thyroid Hormone", "Hypothyroidism", "Natural T3 and T4 from porcine thyroid", "Palpitations, tremor, insomnia (excess)", "Potency can vary more than levothyroxine.", 'BB'),
+    d("Baclofen", "Lioresal", PM, "GABA-B Agonist (Muscle Relaxant)", "Spasticity (MS, spinal cord injury)", "Activates GABA-B receptors in the spinal cord", "Drowsiness, weakness, dizziness", "Never stop abruptly (hallucinations, seizures)."),
+    d("Naproxen", "Aleve / Naprosyn", PM, "NSAID", "Pain, arthritis, gout, dysmenorrhea", "Non-selectively inhibits COX", "GI bleeding, kidney injury, raised BP", "Take with food. Twice-daily dosing.", 'BB'),
+    d("Sumatriptan", "Imitrex", NP, "Triptan (5-HT1B/1D Agonist)", "Acute migraine", "Constricts cranial blood vessels", "Chest tightness, tingling, dizziness", "Avoid with CAD or uncontrolled hypertension. Not for prevention."),
+    d("Prednisolone", "Millipred / Orapred", EN, "Systemic Corticosteroid", "Asthma flares, inflammation (liquid for children)", "Suppresses inflammation and immune response", "Hyperglycemia, mood changes, insomnia", "Take with food in the morning."),
+    d("Esomeprazole", "Nexium", GI, "Proton Pump Inhibitor", "GERD, erosive esophagitis, H. pylori", "Irreversibly blocks the gastric proton pump", "Headache, diarrhea; long-term low Mg, fractures", "Take at least 1 hr before a meal."),
+    d("Mirtazapine", "Remeron", NP, "Tetracyclic Antidepressant", "Depression", "Blocks alpha-2 receptors, increasing serotonin and NE", "Sedation, increased appetite, weight gain", "Bedtime dosing. Useful when sleep and appetite are poor.", 'BB'),
+    d("Levetiracetam", "Keppra", NP, "Anticonvulsant", "Focal and generalized seizures", "Binds synaptic vesicle protein SV2A", "Drowsiness, irritability, mood changes", "Few drug interactions. Adjust dose in kidney disease."),
+    d("Norethindrone", "Camila / Errin", WH, "Progestin-Only Contraceptive", "Pregnancy prevention (incl. breastfeeding)", "Thickens cervical mucus", "Irregular bleeding, headache", "Take at the same time daily; a 3-hr delay needs backup."),
+    d("Tadalafil", "Cialis", WH, "PDE-5 Inhibitor", "Erectile dysfunction, BPH, pulmonary hypertension", "Increases cGMP, relaxing smooth muscle", "Headache, flushing, back pain", "Never with nitrates (severe hypotension). Lasts up to 36 hr."),
+    d("Nifedipine", "Procardia / Adalat CC", CV, "Calcium Channel Blocker (DHP)", "Hypertension, angina, Raynaud's", "Relaxes vascular smooth muscle", "Edema, flushing, headache, reflex tachycardia", "Use extended-release; do not crush."),
+    d("Progesterone", "Prometrium", WH, "Progestin", "Endometrial protection with estrogen, amenorrhea", "Replaces progesterone", "Drowsiness, dizziness, breast tenderness", "Take at bedtime. Contains peanut oil.", 'BB'),
+    d("Insulin Degludec", "Tresiba", EN, "Ultra-Long-Acting Insulin", "Type 1 and 2 diabetes (basal)", "Replaces basal insulin; lasts over 42 hr", "Hypoglycemia, weight gain", "Once daily, flexible timing (8 hr apart minimum).", 'HA'),
+    d("Cyanocobalamin (Vitamin B12)", "Nascobal", VS, "Vitamin", "B12 deficiency, pernicious anemia", "Needed for red cell production and nerve function", "Rare: injection-site pain, hypokalemia early in treatment", "Pernicious anemia needs injection or nasal form."),
+    d("Hydralazine", "Apresoline", CV, "Direct Arterial Vasodilator", "Hypertension, heart failure (with nitrates)", "Relaxes arteriolar smooth muscle", "Reflex tachycardia, headache, lupus-like syndrome", "Often given with a beta blocker."),
+    d("Adalimumab", "Humira", IM, "TNF-Alpha Inhibitor", "RA, psoriasis, Crohn's, ulcerative colitis", "Monoclonal antibody that neutralizes TNF-alpha", "Serious infections, injection-site reactions, lymphoma", "Screen for TB and hepatitis B first. No live vaccines.", 'BB'),
+    d("Azelastine", "Astelin / Astepro", AL, "Intranasal Antihistamine", "Allergic and nonallergic rhinitis", "Blocks H1 receptors in the nose", "Bitter taste, drowsiness, nasal irritation", "Tilt head down while spraying to reduce bitter taste."),
+    d("Sitagliptin", "Januvia", EN, "DPP-4 Inhibitor", "Type 2 diabetes", "Increases incretin levels (GLP-1)", "Headache, nasopharyngitis, pancreatitis", "Weight neutral. Adjust dose in kidney disease."),
+    d("Glimepiride", "Amaryl", EN, "Sulfonylurea", "Type 2 diabetes", "Stimulates insulin release from beta cells", "Hypoglycemia, weight gain", "Take with breakfast. Caution in older adults.", 'HA'),
+    d("Chlorthalidone", "Thalitone", CV, "Thiazide-Like Diuretic", "Hypertension, edema", "Blocks sodium reabsorption in the distal tubule", "Hypokalemia, hyponatremia, hyperuricemia", "Longer-acting than HCTZ. Take in the morning."),
+    d("Oxybutynin", "Ditropan", RE, "Antimuscarinic (Bladder)", "Overactive bladder", "Blocks muscarinic receptors in the bladder", "Dry mouth, constipation, confusion in older adults", "Anticholinergic; avoid in older adults when possible (Beers)."),
+    d("Pioglitazone", "Actos", EN, "Thiazolidinedione", "Type 2 diabetes", "Improves insulin sensitivity via PPAR-gamma", "Edema, weight gain, heart failure, fractures", "Avoid in heart failure. Monitor weight and LFTs.", 'BB'),
+    d("Ketoconazole", "Nizoral", ES, "Azole Antifungal", "Fungal skin infections, dandruff (topical)", "Inhibits ergosterol synthesis", "Topical: irritation. Oral: liver toxicity, QT prolongation", "Oral use is limited due to hepatotoxicity; many interactions.", 'BB'),
+    d("Irbesartan", "Avapro", CV, "ARB", "Hypertension, diabetic nephropathy", "Blocks angiotensin II receptors", "Dizziness, hyperkalemia", "Avoid in pregnancy.", 'BB'),
+    d("Hydroxychloroquine", "Plaquenil", IM, "Antimalarial / DMARD", "Lupus, rheumatoid arthritis, malaria", "Modulates immune response", "Retinal toxicity, GI upset, QT prolongation", "Baseline and yearly eye exams."),
+    d("Sulfamethoxazole / Trimethoprim", "Bactrim", AI, "Sulfonamide Antibiotic", "UTI, MRSA skin infections, PCP", "Blocks bacterial folate synthesis", "Rash, SJS, hyperkalemia, photosensitivity", "Drink plenty of water. Check sulfa allergy. Raises warfarin effect."),
+    d("Benzonatate", "Tessalon", RS, "Antitussive", "Cough", "Numbs stretch receptors in the lungs", "Drowsiness, dizziness; choking if chewed", "Swallow whole. Fatal overdose in young children."),
+    d("Nitrofurantoin", "Macrobid", AI, "Urinary Antibacterial", "Uncomplicated UTI", "Damages bacterial DNA in the urine", "Nausea, brown urine, rare lung or liver toxicity", "Take with food. Avoid with poor kidney function."),
+    d("Isosorbide Mononitrate", "Imdur", CV, "Nitrate Vasodilator", "Angina prevention", "Releases nitric oxide, dilating veins", "Headache, dizziness, hypotension", "Needs a nitrate-free period daily. Never with PDE-5 inhibitors."),
+    d("Methylprednisolone", "Medrol", EN, "Systemic Corticosteroid", "Inflammation, allergic reactions, flares", "Suppresses inflammation and immune response", "Hyperglycemia, insomnia, mood changes", "Dose pack tapers over 6 days. Take with food."),
+    d("Triamterene / Hydrochlorothiazide", "Maxzide / Dyazide", CV, "K-Sparing + Thiazide Diuretic", "Hypertension, edema", "Blocks sodium channels plus thiazide diuresis", "Hyperkalemia, dizziness", "Avoid potassium supplements and salt substitutes.", 'BB'),
+    d("Levocetirizine", "Xyzal", AL, "2nd-Gen Antihistamine", "Allergic rhinitis, hives", "Blocks peripheral H1 receptors", "Drowsiness, dry mouth", "Take in the evening."),
+    d("Clindamycin", "Cleocin", AI, "Lincosamide Antibiotic", "Skin, dental, anaerobic infections", "Inhibits bacterial protein synthesis (50S)", "Diarrhea, C. difficile colitis, rash", "Report severe or persistent diarrhea.", 'BB'),
+    d("Atomoxetine", "Strattera", NP, "Non-Stimulant ADHD Medication", "ADHD", "Selectively blocks norepinephrine reuptake", "Nausea, decreased appetite, suicidal thoughts, liver injury", "Not controlled. Takes several weeks to work.", 'BB'),
+    d("Dexmethylphenidate", "Focalin", NP, "CNS Stimulant", "ADHD", "Blocks dopamine and norepinephrine reuptake", "Insomnia, appetite loss, tachycardia", "Schedule II. Morning dosing.", 'BB'),
+    d("Methotrexate", "Trexall / Otrexup", IM, "Antimetabolite / DMARD", "RA, psoriasis, cancers", "Folic acid antagonist", "Bone marrow suppression, liver toxicity, mouth sores", "Weekly (not daily) for RA. Folic acid supplement. Avoid pregnancy.", 'BB HA'),
+    d("Donepezil", "Aricept", NP, "Cholinesterase Inhibitor", "Alzheimer's dementia", "Increases acetylcholine in the brain", "Nausea, diarrhea, bradycardia, vivid dreams", "Slows decline; does not cure."),
+    d("Desvenlafaxine", "Pristiq", NP, "SNRI", "Depression", "Blocks serotonin and norepinephrine reuptake", "Nausea, sweating, raised BP", "Taper to stop.", 'BB'),
+    d("Ropinirole", "Requip", NP, "Dopamine Agonist", "Parkinson's disease, restless legs syndrome", "Stimulates dopamine receptors", "Nausea, sleep attacks, impulse-control disorders", "Warn about sudden sleepiness while driving."),
+    d("Clobetasol", "Temovate", ES, "Super-High-Potency Topical Steroid", "Severe psoriasis, eczema", "Reduces skin inflammation", "Skin thinning, striae, HPA suppression", "Limit to 2 weeks. Avoid face, groin, armpits."),
+    d("Fluticasone / Vilanterol", "Breo Ellipta", RS, "ICS + LABA", "Asthma and COPD maintenance", "Reduces inflammation plus long-acting bronchodilation", "Thrush, headache, upper respiratory infection", "Once daily. Rinse mouth after use."),
+    d("Albuterol / Ipratropium", "Combivent / DuoNeb", RS, "SABA + SAMA", "COPD bronchospasm", "Beta-2 agonist plus anticholinergic bronchodilation", "Dry mouth, tremor, tachycardia", "Avoid spraying into eyes (glaucoma risk)."),
+    d("Phentermine", "Adipex-P", EN, "Sympathomimetic Anorectic", "Short-term weight loss", "Releases norepinephrine, suppressing appetite", "Insomnia, raised BP and HR, dry mouth", "Schedule IV. Short-term use. Avoid with heart disease."),
+    d("Ofloxacin", "Floxin", AI, "Fluoroquinolone Antibiotic", "Ear and eye infections (drops)", "Inhibits bacterial DNA gyrase", "Local irritation, taste changes (drops)", "Systemic fluoroquinolones carry tendon rupture warnings."),
+    d("Mupirocin", "Bactroban", ES, "Topical Antibiotic", "Impetigo, MRSA nasal decolonization", "Inhibits bacterial protein synthesis", "Burning, itching at site", "Apply thin layer; wash hands afterward."),
+    d("Verapamil", "Calan", CV, "Calcium Channel Blocker (Non-DHP)", "Hypertension, angina, SVT, migraine prevention", "Slows SA/AV node conduction", "Constipation, bradycardia, hypotension", "Avoid with beta blockers in heart failure. Increase fiber."),
+    d("Olanzapine", "Zyprexa", NP, "Atypical Antipsychotic", "Schizophrenia, bipolar disorder", "Blocks D2 and 5-HT2A receptors", "Major weight gain, hyperglycemia, sedation", "Monitor weight, glucose, lipids.", 'BB'),
+    d("Metronidazole", "Flagyl", AI, "Nitroimidazole Antimicrobial", "C. diff, bacterial vaginosis, trichomoniasis", "Disrupts DNA in anaerobes and protozoa", "Metallic taste, nausea, neuropathy", "No alcohol during and for 3 days after.", 'BB'),
+    d("Prazosin", "Minipress", CV, "Alpha-1 Blocker", "Hypertension, PTSD nightmares (off-label)", "Blocks alpha-1 receptors, dilating vessels", "First-dose syncope, dizziness", "Give the first dose at bedtime."),
+    d("Ciprofloxacin", "Cipro", AI, "Fluoroquinolone Antibiotic", "UTI, GI infections, bone infections", "Inhibits bacterial DNA gyrase", "Tendon rupture, neuropathy, QT prolongation, C. diff", "Separate from dairy, antacids, iron by 2 hr.", 'BB'),
+    d("Sildenafil", "Viagra / Revatio", WH, "PDE-5 Inhibitor", "Erectile dysfunction, pulmonary hypertension", "Increases cGMP, relaxing smooth muscle", "Headache, flushing, blue-tinted vision", "Never with nitrates. Seek care for erections over 4 hr."),
+    d("Levonorgestrel / Ethinyl Estradiol", "Aviane / Seasonique", WH, "Combined Oral Contraceptive", "Pregnancy prevention", "Suppresses ovulation", "Spotting, nausea, clots", "Smoking over age 35 greatly raises CV risk.", 'BB'),
+    d("Evolocumab", "Repatha", CV, "PCSK9 Inhibitor", "High LDL, clinical ASCVD", "Antibody that keeps LDL receptors active", "Injection-site reactions, nasopharyngitis", "Subcut every 2 weeks or monthly."),
+    d("Mesalamine", "Lialda / Asacol", GI, "Aminosalicylate (5-ASA)", "Ulcerative colitis", "Reduces inflammation in the colon lining", "Headache, abdominal pain, kidney injury", "Swallow whole. Monitor kidney function."),
+    d("Memantine", "Namenda", NP, "NMDA Receptor Antagonist", "Moderate to severe Alzheimer's dementia", "Blocks excess glutamate activity", "Dizziness, headache, constipation", "Often combined with donepezil."),
+    d("Etonogestrel / Ethinyl Estradiol", "NuvaRing", WH, "Combined Hormonal Contraceptive Ring", "Pregnancy prevention", "Suppresses ovulation", "Vaginal irritation, headache, clots", "Leave in 3 weeks, out 1 week. Smoking over 35 raises CV risk.", 'BB'),
+    d("Diazepam", "Valium", NP, "Benzodiazepine", "Anxiety, muscle spasm, alcohol withdrawal, seizures", "Enhances GABA-A activity", "Sedation, ataxia, respiratory depression", "Schedule IV. Very long half-life; fall risk in older adults.", 'BB'),
+    d("Lithium", "Lithobid", NP, "Mood Stabilizer", "Bipolar disorder", "Alters sodium transport and neurotransmission", "Tremor, polyuria, thirst, hypothyroidism", "Level 0.6-1.2 mEq/L. Keep salt and fluid intake steady.", 'BB'),
+    d("Nortriptyline", "Pamelor", NP, "Tricyclic Antidepressant", "Depression, neuropathic pain", "Blocks norepinephrine and serotonin reuptake", "Dry mouth, constipation, orthostasis", "Fewer anticholinergic effects than amitriptyline.", 'BB'),
+    d("Timolol", "Timoptic", ES, "Beta Blocker (Eye)", "Glaucoma", "Reduces aqueous humor production", "Eye stinging, bradycardia, bronchospasm", "Systemic absorption possible; press on tear duct after drops."),
+    d("Cefdinir", "Omnicef", AI, "3rd-Gen Cephalosporin", "Otitis media, sinusitis, pneumonia, skin infections", "Inhibits bacterial cell wall synthesis", "Diarrhea, red stools (with iron)", "Separate from iron and antacids by 2 hr."),
+    d("Magnesium Salts", "Mag-Ox", RE, "Electrolyte Supplement", "Low magnesium, constipation, heartburn", "Replaces magnesium", "Diarrhea; toxicity in kidney failure", "Separate from many oral antibiotics."),
+    d("Meclizine", "Antivert", AL, "1st-Gen Antihistamine (Vertigo)", "Vertigo, motion sickness", "Blocks H1 receptors in the vestibular system", "Drowsiness, dry mouth", "Take 1 hr before travel. Fall risk in older adults."),
+    d("Cyclosporine", "Neoral / Sandimmune", IM, "Calcineurin Inhibitor", "Transplant rejection prevention, RA, psoriasis", "Inhibits calcineurin, blocking T-cell activation", "Nephrotoxicity, hypertension, gum overgrowth", "Monitor levels. Avoid grapefruit.", 'BB'),
+    d("Fluconazole", "Diflucan", AI, "Azole Antifungal", "Candida infections, cryptococcal meningitis", "Inhibits fungal ergosterol synthesis", "Headache, nausea, liver injury, QT prolongation", "Many interactions (raises warfarin effect)."),
+    d("Rimegepant", "Nurtec ODT", NP, "CGRP Receptor Antagonist", "Acute migraine and prevention", "Blocks CGRP receptors", "Nausea", "Dissolve on the tongue. No vasoconstriction (unlike triptans)."),
+    d("Tretinoin", "Retin-A", ES, "Topical Retinoid", "Acne, photoaging", "Increases skin cell turnover", "Dryness, peeling, sun sensitivity", "Apply at night; use sunscreen. Avoid in pregnancy."),
+    d("Lovastatin", "Mevacor", CV, "Statin", "High cholesterol", "Inhibits HMG-CoA reductase", "Myalgia, raised LFTs", "Take with the evening meal. Avoid grapefruit."),
+    d("Drospirenone / Ethinyl Estradiol", "Yaz / Yasmin", WH, "Combined Oral Contraceptive", "Pregnancy prevention, PMDD, acne", "Suppresses ovulation; drospirenone is anti-mineralocorticoid", "Hyperkalemia, clots, spotting", "Check K+ with ACE inhibitors or ARBs. Smoking over 35 raises risk.", 'BB'),
+    d("Tiotropium", "Spiriva", RS, "LAMA", "COPD and asthma maintenance", "Blocks muscarinic receptors in the airways", "Dry mouth, urinary retention, constipation", "Do not swallow capsules; use with the inhaler device."),
+    d("Docusate", "Colace", GI, "Stool Softener", "Constipation prevention", "Lets water into the stool", "Mild cramping, diarrhea", "Does not stimulate the bowel; drink plenty of water."),
+    d("Temazepam", "Restoril", NP, "Benzodiazepine (Hypnotic)", "Short-term insomnia", "Enhances GABA-A activity", "Drowsiness, dizziness, dependence", "Schedule IV. Take 30 min before bed.", 'BB'),
+    d("Benazepril", "Lotensin", CV, "ACE Inhibitor", "Hypertension", "Blocks conversion of angiotensin I to II", "Dry cough, hyperkalemia, angioedema", "Avoid in pregnancy.", 'BB'),
+    d("Brimonidine", "Alphagan", ES, "Alpha-2 Agonist (Eye)", "Glaucoma, ocular hypertension", "Reduces aqueous humor production", "Eye redness, dry mouth, fatigue", "Not for infants (CNS depression)."),
+    d("Sacubitril / Valsartan", "Entresto", CV, "ARNI", "Heart failure (HFrEF)", "Neprilysin inhibitor plus ARB", "Hypotension, hyperkalemia, angioedema", "36-hr washout after stopping an ACE inhibitor. Avoid in pregnancy.", 'BB'),
+    d("Valproate / Divalproex", "Depakote", NP, "Anticonvulsant / Mood Stabilizer", "Seizures, bipolar mania, migraine prevention", "Increases GABA; blocks sodium and calcium channels", "Liver toxicity, pancreatitis, tremor, weight gain", "Monitor LFTs and levels (50-100 mcg/mL). Highly teratogenic.", 'BB'),
+    d("Nebivolol", "Bystolic", CV, "Beta-1 Selective Blocker (Vasodilating)", "Hypertension", "Blocks beta-1; releases nitric oxide", "Headache, fatigue, bradycardia", "Do not stop abruptly."),
+    d("Acyclovir", "Zovirax", AI, "Antiviral (Nucleoside Analog)", "Herpes simplex, shingles, chickenpox", "Inhibits viral DNA polymerase", "Nausea, kidney injury (IV)", "Hydrate well, especially with IV use."),
+    d("Morphine", "MS Contin", PM, "Opioid Analgesic", "Severe pain", "Mu-opioid receptor agonist", "Respiratory depression, constipation, hypotension", "Schedule II. Never crush ER tablets. Antidote: naloxone.", 'BB HA'),
+    d("Doxazosin", "Cardura", CV, "Alpha-1 Blocker", "BPH, hypertension", "Blocks alpha-1 receptors", "First-dose syncope, dizziness", "First dose at bedtime."),
+    d("Amlodipine / Benazepril", "Lotrel", CV, "CCB + ACE Inhibitor", "Hypertension", "Vasodilation plus angiotensin blockade", "Edema, cough, dizziness", "Avoid in pregnancy.", 'BB'),
+    d("Nirmatrelvir / Ritonavir", "Paxlovid", AI, "SARS-CoV-2 Protease Inhibitor + Booster", "Mild-moderate COVID-19 in high-risk patients", "Blocks viral protease; ritonavir boosts levels", "Altered taste, diarrhea", "Start within 5 days of symptoms. Check all drug interactions.", 'BB'),
+    d("Emtricitabine / Tenofovir", "Truvada / Descovy", AI, "NRTI Combination", "HIV treatment, HIV PrEP", "Blocks HIV reverse transcriptase", "Nausea, kidney injury, bone loss", "Confirm HIV-negative before PrEP. HBV flare on stopping.", 'BB'),
+    d("Budesonide", "Pulmicort / Entocort", RS, "Corticosteroid", "Asthma (inhaled), Crohn's disease (oral)", "Local anti-inflammatory effect", "Thrush (inhaled), headache", "Rinse mouth after inhaled use."),
+    d("Tacrolimus", "Prograf", IM, "Calcineurin Inhibitor", "Organ transplant rejection prevention", "Inhibits calcineurin, blocking T-cell activation", "Nephrotoxicity, tremor, hyperglycemia, hyperkalemia", "Monitor trough levels. Avoid grapefruit.", 'BB'),
+    d("Dupilumab", "Dupixent", IM, "IL-4 / IL-13 Blocker (Monoclonal Antibody)", "Eczema, asthma, chronic sinusitis with polyps", "Blocks IL-4 and IL-13 signaling", "Conjunctivitis, injection-site reactions", "Subcut every 2 weeks. Avoid live vaccines."),
+    d("Enalapril", "Vasotec", CV, "ACE Inhibitor", "Hypertension, heart failure", "Blocks conversion of angiotensin I to II", "Dry cough, hyperkalemia, angioedema", "IV form: enalaprilat. Avoid in pregnancy.", 'BB'),
+    d("Anastrozole", "Arimidex", WH, "Aromatase Inhibitor", "Hormone-receptor-positive breast cancer (postmenopausal)", "Blocks estrogen production", "Hot flashes, joint pain, bone loss", "Monitor bone density."),
+    d("Melatonin", "Various", VS, "Sleep Aid / Supplement", "Insomnia, jet lag", "Mimics the natural sleep hormone", "Drowsiness, headache, vivid dreams", "Take 30-60 min before bed. Supplements are not FDA-regulated for dose accuracy."),
+    d("Torsemide", "Demadex", CV, "Loop Diuretic", "Edema, heart failure, hypertension", "Blocks Na/K/2Cl in the loop of Henle", "Hypokalemia, dehydration, dizziness", "Longer-acting than furosemide. Monitor K+ and weight."),
+    d("Polyethylene Glycol 3350", "MiraLAX", GI, "Osmotic Laxative", "Constipation, bowel prep", "Draws water into the colon", "Bloating, cramping, diarrhea", "Mix in 4-8 oz of fluid. Works in 1-3 days.")
+];
+
 // Adult reference ranges; exact ranges vary by laboratory (see disclaimer page).
 const LAB_VALUES = [
     { name: "Sodium (Na+)", class: "Electrolytes", use: "135-145 mEq/L", moa: "Main extracellular cation; controls fluid balance and nerve/muscle function", sideEffects: "High: thirst, agitation, seizures. Low: confusion, headache, seizures", notes: "Correct chronic hyponatremia slowly (risk of osmotic demyelination)." },
@@ -1617,7 +1832,7 @@ const MEDICAL_MATH = [
     { front: "Parkland Burn Formula", back: "4 mL × kg × %TBSA", cat: "Clinical Calculations", notes: "Lactated Ringer's over 24 hr: half in the first 8 hr from the time of burn, half over the next 16 hr.", example: "70 kg, 40%: 4 × 70 × 40 = 11,200 mL (5,600 mL in first 8 hr)" }
 ];
 
-const TOP_DRUGS = [...PHARM_CARDIO.slice(0,18), ...PHARM_NEURO_PSYCH.slice(0,18), ...PHARM_ENDO_GI.slice(0,18), ...PHARM_ANTIBIOTICS.slice(0,18), ...PHARM_ANTIVIRALS.slice(0,9), ...PHARM_IMMUNO.slice(0,9), ...PHARM_PAIN_RESP.slice(0,18)];
+const TOP_DRUGS = [...withCat(PHARM_CARDIO, 18, 'Cardiovascular & Renal'), ...withCat(PHARM_NEURO_PSYCH, 18, 'Neuro & Psych'), ...withCat(PHARM_ENDO_GI, 18, 'Endocrine & GI'), ...withCat(PHARM_ANTIBIOTICS, 18, 'Antibiotics & Antifungals'), ...withCat(PHARM_ANTIVIRALS, 9, 'Antivirals & HIV'), ...withCat(PHARM_IMMUNO, 9, 'Immunosuppressants'), ...withCat(PHARM_PAIN_RESP, 18, 'Pain, Inflammation & Respiratory')];
 
 initUI(); // Initialize UI after all arrays are loaded
 
@@ -1637,6 +1852,7 @@ async function go(mode = 'pdf') {
     const brandText = document.getElementById('brandText') ? document.getElementById('brandText').value.trim() : "";
     
     const productPages = document.getElementById('productPages').checked;
+    classColorMap = {}; colorIndex = 0;
     P = mode === 'pptx' ? new PptxGenJS() : new PdfDeck();
     P.title = tDef.title;
     P.defineLayout({name:'LETTER', width: tDef.layout==='landscape'?11:8.5, height: tDef.layout==='landscape'?8.5:11});
@@ -1648,7 +1864,8 @@ async function go(mode = 'pdf') {
         let dataset = getDatasetForKey(activeTemplate);
         let titleMain;
         
-        if (activeTemplate === 'lab_values_9') { titleMain = "LAB VALUES"; }
+        if (activeTemplate === 'top200_9') { titleMain = "TOP 200 DRUGS"; }
+        else if (activeTemplate === 'lab_values_9') { titleMain = "LAB VALUES"; }
         else if (activeTemplate === 'pharm_cardio_9') { titleMain = "CARDIOVASCULAR"; }
         else if (activeTemplate === 'pharm_neuro_psych_9') { titleMain = "NEURO & PSYCH"; }
         else if (activeTemplate === 'pharm_endo_gi_9') { titleMain = "ENDOCRINE & GI"; }
@@ -1709,23 +1926,23 @@ async function go(mode = 'pdf') {
 
         ins.addShape(P.ShapeType.rect, {x:0.5, y:5.3, w:7.5, h:4.8, fill:{color: '#FFFFFF'}, line:{color: C.PR, pt: 1.5}});
         ins.addText("🎨 COLOR CODING SYSTEM", {x:0.5, y:5.6, w:7.5, h:0.4, fontSize: 15, bold: true, color: C.PR, align: 'center', fontFace: 'Montserrat'});
-        ins.addText("Every unique medication class (or lab category) is automatically assigned its own distinct, high-contrast color. This visual grouping scientifically improves memory retention!", {x:1.0, y:6.1, w:6.5, h:0.6, fontSize: 11, color: C.TX, align: 'center', fontFace: 'Montserrat', italic: true});
+        ins.addText("Every group below has its own color, shown on both sides of each card. Use the color to group related cards and quiz yourself by class before flipping.", {x:1.0, y:6.1, w:6.5, h:0.6, fontSize: 11, color: C.TX, align: 'center', fontFace: 'Montserrat', italic: true});
         
-        let sampleClasses = [];
-        let uniqueClasses = [...new Set(dataset.map(d => d.cat || d.class || "Example"))].filter(Boolean);
-        for(let i=0; i<6; i++) {
-            sampleClasses.push(uniqueClasses[i % uniqueClasses.length] || "Example Class");
-        }
-        
-        for(let i=0; i<6; i++) {
-            let col = i % 2;
-            let row = Math.floor(i / 2);
-            let bx = 1.0 + (col * 3.5);
-            let by = 7.0 + (row * 0.9);
-            let cColor = getDarkClassColor(sampleClasses[i]);
-            ins.addShape(P.ShapeType.roundRect, {x: bx, y: by, w: 0.5, h: 0.5, fill:{color: cColor}, roundness: 0.2});
-            ins.addText(sampleClasses[i], {x: bx+0.6, y: by, w: 2.5, h: 0.5, fontSize: 10, bold: true, color: C.TX, valign: 'middle', fontFace: 'Montserrat'});
-        }
+        // Every colour group that appears on the printed cards, in deck order
+        const legend = [...new Set(dataset.slice(0, totalCardsGen).map(d => d.cat || d.class))].filter(Boolean);
+        if (legend.length > DARK_PALETTE.length) throw new Error(`This deck has ${legend.length} colour groups but only ${DARK_PALETTE.length} distinct colours exist. Add a 'cat' field to group it.`);
+        const lgCols = legend.length <= 6 ? 2 : 3;
+        const lgRows = Math.ceil(legend.length / lgCols);
+        const lgRowH = Math.min(0.5, 3.1 / lgRows);
+        const lgColW = 7.1 / lgCols;
+        const lgSw = Math.min(0.32, lgRowH * 0.75);
+        const lgFont = lgRowH >= 0.45 ? 10 : (lgRowH >= 0.3 ? 8 : 7);
+        legend.forEach((name, i) => {
+            const col = Math.floor(i / lgRows), row = i % lgRows; // fill down each column
+            const bx = 0.7 + col * lgColW, by = 6.85 + row * lgRowH;
+            ins.addShape(P.ShapeType.roundRect, {x: bx, y: by + (lgRowH - lgSw) / 2, w: lgSw, h: lgSw, fill:{color: getDarkClassColor(name)}});
+            ins.addText(name, {x: bx + lgSw + 0.08, y: by, w: lgColW - lgSw - 0.15, h: lgRowH, fontSize: lgFont, bold: true, color: C.TX, valign: 'middle', fontFace: 'Montserrat', margin: 0});
+        });
 
         if (productPages) addDuplexTestPair(P, cols, rows, startX, startY, cardW, cardH);
 
