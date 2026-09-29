@@ -2721,7 +2721,7 @@ function drawCheatContents(s, fams, pageOf, deckTitle) {
   const perCol = Math.ceil(fams.length / 2);
   fams.forEach((f, i) => {
     const x = i < perCol ? 0.7 : 5.9, y = 1.45 + (i % perCol) * Math.min(0.5, 6.4 / perCol);
-    s.addShape(P.ShapeType.roundRect, { x, y: y + 0.06, w: 0.22, h: 0.22, fill: { color: getDarkClassColor(f.name) } });
+    s.addShape(P.ShapeType.roundRect, { x, y: y + 0.06, w: 0.22, h: 0.22, rectRadius: 0.11, fill: { color: getDarkClassColor(f.name) } });
     s.addText(f.name, { x: x + 0.35, y, w: 3.7, h: 0.34, fontSize: 11, bold: true, color: C.TX, fontFace: 'Montserrat', margin: 0, valign: 'middle' });
     s.addText(`${f.drugs.length} drugs  ·  p. ${pageOf[f.name]}`, { x: x + 3.1, y, w: 1.4, h: 0.34, fontSize: 9.5, color: '777777', align: 'right', fontFace: 'Montserrat', margin: 0, valign: 'middle' });
   });
@@ -2970,13 +2970,13 @@ async function go(mode = 'pdf') {
         const lgCols = legend.length <= 6 ? 2 : 3;
         const lgRows = Math.ceil(legend.length / lgCols);
         const lgRowH = Math.min(0.5, 3.1 / lgRows);
-        const lgColW = 7.1 / lgCols;
+        const lgColW = 6.5 / lgCols; // 0.5in inner padding each side of the 7.5in panel
         const lgSw = Math.min(0.32, lgRowH * 0.75);
         const lgFont = lgRowH >= 0.45 ? 10 : (lgRowH >= 0.3 ? 8 : 7);
         legend.forEach((name, i) => {
             const col = Math.floor(i / lgRows), row = i % lgRows; // fill down each column
-            const bx = 0.7 + col * lgColW, by = 6.85 + (3.1 - lgRows * lgRowH) / 2 + row * lgRowH;
-            ins.addShape(P.ShapeType.roundRect, {x: bx, y: by + (lgRowH - lgSw) / 2, w: lgSw, h: lgSw, fill:{color: getDarkClassColor(name)}});
+            const bx = 1.0 + col * lgColW, by = 6.85 + (3.1 - lgRows * lgRowH) / 2 + row * lgRowH;
+            ins.addShape(P.ShapeType.roundRect, {x: bx, y: by + (lgRowH - lgSw) / 2, w: lgSw, h: lgSw, rectRadius: lgSw / 2, fill:{color: getDarkClassColor(name)}}); // circle
             ins.addText(name, {x: bx + lgSw + 0.08, y: by, w: lgColW - lgSw - 0.15, h: lgRowH, fontSize: lgFont, bold: true, color: C.TX, valign: 'middle', fontFace: 'Montserrat', margin: 0});
         });
 
