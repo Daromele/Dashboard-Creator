@@ -632,6 +632,10 @@ button, input, select { font: inherit; color: inherit; }
       <div class="section">
         <h3>Layout</h3>
         <div class="grid2">
+          <div class="field full" id="sourceCol" style="display:none">
+            <label for="sourceSelect">Drug set</label>
+            <select class="custom-select" id="sourceSelect"></select>
+          </div>
           <div class="field" id="formatCol">
             <label for="formatSelect">Card format</label>
             <select class="custom-select" id="formatSelect" onchange="setTemplate(activeTemplate)">
@@ -1024,7 +1028,7 @@ function pdfDrawShape(doc, type, o) {
   const ln = o.line || null;
   if (type === 'line') {
     pdfSetStroke(doc, ln || { color: '000000', pt: 1 });
-    doc.line(x, y, x + w, y + h);
+    if (o.flipV) doc.line(x, y + h, x + w, y); else doc.line(x, y, x + w, y + h);
     doc.setLineDashPattern([], 0);
     return;
   }
@@ -2250,6 +2254,611 @@ const MEDICAL_MATH = [
 
 const TOP_DRUGS = [...withCat(PHARM_CARDIO, 18, 'Cardiovascular & Renal'), ...withCat(PHARM_NEURO_PSYCH, 18, 'Neuro & Psych'), ...withCat(PHARM_ENDO_GI, 18, 'Endocrine & GI'), ...withCat(PHARM_ANTIBIOTICS, 18, 'Antibiotics & Antifungals'), ...withCat(PHARM_ANTIVIRALS, 9, 'Antivirals & HIV'), ...withCat(PHARM_IMMUNO, 9, 'Immunosuppressants'), ...withCat(PHARM_PAIN_RESP, 18, 'Pain, Inflammation & Respiratory')];
 
+// Disease concept map content (educational summaries for nursing students)
+const DISEASES = [
+  { name: "Hypertension", system: "Cardiovascular", def: "Persistently raised blood pressure (130/80 mmHg or higher on repeated readings).",
+    patho: "Increased vascular resistance and/or volume raises arterial pressure, damaging vessel walls and straining the heart over time.",
+    causes: "Primary: age, genetics, obesity, high sodium intake, inactivity, alcohol, smoking. Secondary: kidney disease, endocrine disorders, sleep apnea.",
+    signs: "Usually no symptoms ('silent killer'). Severe: headache, blurred vision, chest pain, nosebleeds.",
+    dx: "Repeated BP readings (office, home or ambulatory). BMP, lipids, glucose, urinalysis, ECG to look for organ damage.",
+    tx: "Lifestyle changes (DASH diet, less sodium, exercise). Thiazides, ACE inhibitors/ARBs, calcium channel blockers; add others as needed.",
+    nursing: "Correct cuff size, rested seated readings. Watch for orthostatic hypotension with new meds. Assess adherence and side effects.",
+    complications: "Stroke, MI, heart failure, kidney disease, retinopathy, aortic aneurysm.",
+    education: "Take meds daily even when feeling well. Home BP log, limit sodium and alcohol, stop smoking, rise slowly." },
+  { name: "Heart Failure", system: "Cardiovascular", def: "The heart cannot pump enough blood to meet the body's needs (reduced or preserved ejection fraction).",
+    patho: "Weak or stiff ventricle lowers output; RAAS and sympathetic activation retain fluid and increase workload, worsening failure.",
+    causes: "Coronary artery disease, prior MI, hypertension, valve disease, cardiomyopathy, arrhythmias.",
+    signs: "Left: dyspnea, orthopnea, crackles, fatigue. Right: edema, JVD, weight gain, ascites, hepatomegaly.",
+    dx: "BNP/NT-proBNP, echocardiogram (ejection fraction), chest X-ray, ECG, BMP.",
+    tx: "Diuretics, ACE inhibitor/ARB/ARNI, beta blocker, aldosterone antagonist, SGLT2 inhibitor. Sodium and fluid limits.",
+    nursing: "Daily weight same time and scale, strict I&O, lung sounds, edema checks, monitor K+ and kidney function.",
+    complications: "Pulmonary edema, arrhythmias, kidney injury, cardiogenic shock.",
+    education: "Report gain of 2-3 lb in a day or 5 lb in a week. Low sodium diet, take meds as prescribed, pace activities." },
+  { name: "Myocardial Infarction", system: "Cardiovascular", def: "Death of heart muscle from blocked coronary blood flow (heart attack).",
+    patho: "Plaque ruptures, a clot forms and blocks a coronary artery; the muscle it feeds becomes ischemic and dies without reperfusion.",
+    causes: "Atherosclerosis. Risks: smoking, hypertension, diabetes, high LDL, obesity, family history, age, male sex.",
+    signs: "Chest pressure radiating to arm, jaw or back; dyspnea, sweating, nausea. Women, older adults and diabetics may have atypical symptoms.",
+    dx: "12-lead ECG within 10 minutes (ST elevation = STEMI), serial troponins, echocardiogram, cardiac catheterization.",
+    tx: "Aspirin, nitroglycerin, oxygen if low SpO2, anticoagulant, P2Y12 inhibitor. STEMI: PCI or thrombolytics. Then beta blocker, statin, ACE inhibitor.",
+    nursing: "Continuous ECG, vital signs, pain assessment, IV access, time-critical care. Monitor for arrhythmias and bleeding.",
+    complications: "Arrhythmias, heart failure, cardiogenic shock, papillary muscle rupture, pericarditis.",
+    education: "Cardiac rehab, take antiplatelets without stopping, heart-healthy diet, call 911 for chest pain not relieved in 5 minutes." },
+  { name: "Atrial Fibrillation", system: "Cardiovascular", def: "Irregular, rapid atrial rhythm with no effective atrial contraction.",
+    patho: "Chaotic atrial electrical activity; blood pools in the atria (especially the left atrial appendage), allowing clots to form.",
+    causes: "Age, hypertension, heart failure, valve disease, hyperthyroidism, alcohol, sleep apnea, surgery.",
+    signs: "Irregularly irregular pulse, palpitations, fatigue, dizziness, dyspnea; may have no symptoms.",
+    dx: "ECG: no P waves, irregular R-R intervals. Echocardiogram, thyroid tests, CHA2DS2-VASc stroke risk score.",
+    tx: "Rate control (beta blocker, diltiazem, digoxin), rhythm control (amiodarone, cardioversion, ablation), anticoagulation (DOAC or warfarin).",
+    nursing: "Apical pulse for a full minute, monitor for stroke signs, bleeding precautions on anticoagulants.",
+    complications: "Stroke, heart failure, clots elsewhere, bleeding from anticoagulants.",
+    education: "Take anticoagulant exactly as prescribed, know stroke signs (BE FAST), report bleeding, limit alcohol." },
+  { name: "Deep Vein Thrombosis", system: "Cardiovascular", def: "A blood clot in a deep vein, usually in the leg.",
+    patho: "Virchow's triad: slow blood flow, vessel wall injury and hypercoagulability lead to clot formation.",
+    causes: "Immobility, surgery (especially orthopedic), cancer, pregnancy, estrogen therapy, prior clot, obesity.",
+    signs: "One-sided leg swelling, pain, warmth, redness. Can be silent.",
+    dx: "Compression (duplex) ultrasound, D-dimer (helps rule out), Wells score.",
+    tx: "Anticoagulation (DOAC, LMWH, heparin, warfarin). Thrombolysis or IVC filter in select cases.",
+    nursing: "Never massage the leg. Monitor for PE signs, bleeding, platelet count on heparin. Early mobility once anticoagulated.",
+    complications: "Pulmonary embolism, post-thrombotic syndrome, recurrence.",
+    education: "Take anticoagulants as ordered, move and stretch on long trips, stay hydrated, report sudden breathlessness." },
+  { name: "Pulmonary Embolism", system: "Respiratory", def: "A clot that travels to and blocks a pulmonary artery.",
+    patho: "A clot (usually from a leg DVT) lodges in the lungs, blocking blood flow and oxygen exchange and straining the right heart.",
+    causes: "DVT risk factors: immobility, surgery, cancer, pregnancy, estrogen, prior clot.",
+    signs: "Sudden dyspnea, pleuritic chest pain, tachycardia, tachypnea, anxiety, low SpO2, hemoptysis.",
+    dx: "CT pulmonary angiography, D-dimer (low-risk patients), ABG, ECG, echocardiogram.",
+    tx: "Oxygen, anticoagulation; thrombolytics or embolectomy for massive PE with shock.",
+    nursing: "High Fowler's, oxygen, continuous monitoring, IV access, prepare for emergency treatment, bleeding precautions.",
+    complications: "Right heart failure, shock, death, chronic pulmonary hypertension.",
+    education: "Continue anticoagulants, prevent DVT (movement, hydration, compression if ordered), know warning signs." },
+  { name: "Ischemic Stroke", system: "Neurological", def: "Loss of brain function from a blocked artery supplying the brain.",
+    patho: "A clot or narrowing stops blood flow; brain cells die within minutes, with a salvageable penumbra around the core.",
+    causes: "Atrial fibrillation (embolic), atherosclerosis, hypertension, diabetes, smoking, high cholesterol.",
+    signs: "BE FAST: Balance, Eyes, Face droop, Arm weakness, Speech difficulty, Time to call 911.",
+    dx: "Non-contrast CT first (rule out bleed), CT angiography, MRI, glucose check, NIH Stroke Scale.",
+    tx: "Alteplase/tenecteplase within the time window, thrombectomy for large vessel occlusion, then antiplatelets, statin, BP control.",
+    nursing: "Know last known well time, neuro checks, swallow screen before any oral intake, BP limits per protocol, fall precautions.",
+    complications: "Aspiration pneumonia, brain swelling, hemorrhagic conversion, DVT, depression.",
+    education: "BE FAST warning signs, control BP and diabetes, take antiplatelets or anticoagulants, rehab participation." },
+  { name: "Type 2 Diabetes Mellitus", system: "Endocrine", def: "Chronic high blood glucose from insulin resistance and declining insulin production.",
+    patho: "Cells respond poorly to insulin; the pancreas cannot keep up, so glucose builds up and damages blood vessels and nerves.",
+    causes: "Obesity, inactivity, family history, age, certain ethnic backgrounds, gestational diabetes history.",
+    signs: "Polyuria, polydipsia, fatigue, blurred vision, slow-healing wounds, frequent infections; often no symptoms early.",
+    dx: "A1C 6.5% or higher, fasting glucose 126 mg/dL or higher, 2-hr OGTT 200 or higher, random 200+ with symptoms.",
+    tx: "Diet and exercise, metformin, then GLP-1 agonists, SGLT2 inhibitors, DPP-4 inhibitors, sulfonylureas or insulin.",
+    nursing: "Glucose monitoring, hypoglycemia recognition, foot checks, insulin technique, A1C goals.",
+    complications: "Heart disease, stroke, kidney disease, retinopathy, neuropathy, foot ulcers, HHS.",
+    education: "Glucose self-checks, rule of 15 for lows, sick-day rules, daily foot care, regular eye exams." },
+  { name: "Diabetic Ketoacidosis (DKA)", system: "Endocrine", def: "Life-threatening high glucose with ketone production and metabolic acidosis.",
+    patho: "Severe insulin lack forces fat breakdown into ketones, causing acidosis; high glucose causes osmotic diuresis and dehydration.",
+    causes: "Type 1 diabetes, missed insulin, infection, new diagnosis, illness or stress. Can occur with SGLT2 inhibitors.",
+    signs: "Polyuria, thirst, nausea/vomiting, abdominal pain, fruity breath, Kussmaul breathing, confusion.",
+    dx: "Glucose usually over 250, pH under 7.3, bicarbonate under 18, ketones in blood/urine, raised anion gap.",
+    tx: "IV fluids first, IV regular insulin infusion, potassium replacement, add dextrose as glucose falls.",
+    nursing: "Hourly glucose, check K+ before insulin (hold if under 3.3), strict I&O, neuro checks, cardiac monitoring.",
+    complications: "Hypokalemia, hypoglycemia, cerebral edema (especially children), shock.",
+    education: "Never skip insulin when sick, check ketones when glucose high, sick-day plan, seek help early." },
+  { name: "Hypothyroidism", system: "Endocrine", def: "Too little thyroid hormone, slowing body metabolism.",
+    patho: "Low T3/T4 reduces metabolic rate in all tissues; primary disease causes high TSH as the pituitary tries to compensate.",
+    causes: "Hashimoto's thyroiditis (most common), thyroid surgery or radiation, iodine deficiency, lithium, amiodarone.",
+    signs: "Fatigue, weight gain, cold intolerance, constipation, dry skin, hair loss, bradycardia, depression.",
+    dx: "High TSH with low free T4 (primary). Thyroid antibodies for Hashimoto's.",
+    tx: "Levothyroxine, adjusted every 6-8 weeks by TSH.",
+    nursing: "Start low in older adults and heart disease (angina risk). Watch for signs of excess dosing. Monitor TSH.",
+    complications: "Myxedema coma (hypothermia, bradycardia, altered mental status), heart disease, infertility.",
+    education: "Take levothyroxine on an empty stomach at the same time daily, lifelong therapy, report palpitations." },
+  { name: "Hyperthyroidism (Graves' Disease)", system: "Endocrine", def: "Too much thyroid hormone, speeding up body metabolism.",
+    patho: "Excess T3/T4 increases metabolic rate and sympathetic effects; in Graves' antibodies stimulate the TSH receptor.",
+    causes: "Graves' disease (most common), toxic nodules, thyroiditis, excess thyroid medication.",
+    signs: "Weight loss, heat intolerance, tachycardia, tremor, anxiety, diarrhea, goiter; exophthalmos in Graves'.",
+    dx: "Low TSH with high free T4/T3, TSH receptor antibodies, radioactive iodine uptake scan.",
+    tx: "Methimazole (PTU in first trimester), beta blockers for symptoms, radioactive iodine or thyroidectomy.",
+    nursing: "Monitor HR and weight, cool calm environment, high-calorie diet, eye protection, watch for thyroid storm.",
+    complications: "Thyroid storm (fever, tachycardia, delirium), AFib, osteoporosis, vision problems.",
+    education: "Report fever or sore throat on antithyroid drugs (agranulocytosis), take meds consistently, follow-up labs." },
+  { name: "Asthma", system: "Respiratory", def: "Chronic airway inflammation with reversible bronchospasm.",
+    patho: "Triggers cause airway inflammation, bronchoconstriction and mucus production, narrowing airflow.",
+    causes: "Allergens, respiratory infections, exercise, cold air, smoke, stress, NSAIDs/aspirin in some people.",
+    signs: "Wheezing, cough (often at night), chest tightness, dyspnea. Severe: silent chest, inability to speak.",
+    dx: "Spirometry with bronchodilator reversibility, peak flow, allergy testing.",
+    tx: "Reliever (SABA or ICS-formoterol), controller inhaled corticosteroid, add LABA, leukotriene antagonist, biologics.",
+    nursing: "Assess breath sounds and SpO2, high Fowler's, give bronchodilators, watch for fatigue and a silent chest.",
+    complications: "Status asthmaticus, respiratory failure, pneumothorax.",
+    education: "Inhaler and spacer technique, asthma action plan, avoid triggers, rinse mouth after steroid inhalers." },
+  { name: "COPD", system: "Respiratory", def: "Progressive, mostly irreversible airflow limitation (emphysema and chronic bronchitis).",
+    patho: "Chronic irritation destroys alveoli and inflames airways, trapping air and reducing gas exchange.",
+    causes: "Smoking (main cause), occupational dusts and chemicals, air pollution, alpha-1 antitrypsin deficiency.",
+    signs: "Chronic cough, sputum, dyspnea on exertion, barrel chest, pursed-lip breathing, prolonged expiration.",
+    dx: "Spirometry: FEV1/FVC under 0.70 after bronchodilator. Chest X-ray, ABG, SpO2.",
+    tx: "Bronchodilators (LAMA, LABA), inhaled steroids for exacerbators, pulmonary rehab, oxygen if hypoxemic, vaccines.",
+    nursing: "Target SpO2 88-92% when prescribed, pursed-lip breathing, tripod positioning, nutrition, infection signs.",
+    complications: "Exacerbations, respiratory failure, cor pulmonale, pneumonia.",
+    education: "Smoking cessation, inhaler technique, energy conservation, vaccinations, recognize exacerbation early." },
+  { name: "Pneumonia", system: "Respiratory", def: "Infection of the lung tissue causing inflammation and fluid in the alveoli.",
+    patho: "Pathogens reach the alveoli; inflammation fills them with fluid and cells, impairing gas exchange.",
+    causes: "Bacteria (Streptococcus pneumoniae most common), viruses, fungi, aspiration. Risks: age, smoking, immobility, dysphagia.",
+    signs: "Fever, productive cough, pleuritic chest pain, dyspnea, crackles, tachypnea; older adults may present with confusion.",
+    dx: "Chest X-ray, CBC, sputum and blood cultures (before antibiotics), SpO2/ABG, procalcitonin.",
+    tx: "Antibiotics (by setting and risk), oxygen, fluids, fever control.",
+    nursing: "Cultures before antibiotics, elevate HOB, cough/deep breathe, incentive spirometer, mobilize, aspiration precautions.",
+    complications: "Sepsis, respiratory failure, pleural effusion, empyema.",
+    education: "Finish antibiotics, pneumococcal and flu vaccines, stop smoking, rest and hydrate." },
+  { name: "Tuberculosis", system: "Respiratory", def: "Airborne bacterial infection (Mycobacterium tuberculosis), mainly of the lungs.",
+    patho: "Inhaled bacteria form granulomas; they may stay latent or become active disease that damages lung tissue.",
+    causes: "Close contact with active TB. Risks: HIV, crowded living, incarceration, homelessness, travel to endemic areas.",
+    signs: "Cough over 3 weeks, hemoptysis, night sweats, fever, weight loss, fatigue.",
+    dx: "TB skin test or IGRA (infection), chest X-ray, sputum AFB smears and culture x3, NAAT.",
+    tx: "Active TB: RIPE therapy (rifampin, isoniazid, pyrazinamide, ethambutol) for 6+ months. Latent: shorter regimens.",
+    nursing: "Airborne precautions, negative-pressure room, N95 respirator, directly observed therapy, monitor LFTs.",
+    complications: "Drug resistance, spread to other organs, liver toxicity from drugs.",
+    education: "Take every dose, cover coughs, orange body fluids with rifampin, avoid alcohol, vitamin B6 with isoniazid." },
+  { name: "Acute Kidney Injury", system: "Renal", def: "Sudden loss of kidney function over hours to days.",
+    patho: "Reduced perfusion (prerenal), kidney tissue damage (intrinsic) or blocked outflow (postrenal) lowers filtration.",
+    causes: "Dehydration, shock, sepsis, nephrotoxic drugs (NSAIDs, contrast, aminoglycosides, vancomycin), obstruction.",
+    signs: "Reduced urine output, fluid overload, fatigue, confusion, nausea; may be found only on labs.",
+    dx: "Rising creatinine, urine output under 0.5 mL/kg/hr, BUN, electrolytes, urinalysis, renal ultrasound.",
+    tx: "Treat the cause, fluids if prerenal, stop nephrotoxins, adjust drug doses, dialysis if severe.",
+    nursing: "Strict I&O, daily weights, monitor K+ and ECG, avoid nephrotoxins, watch for fluid overload.",
+    complications: "Hyperkalemia, metabolic acidosis, fluid overload, progression to CKD.",
+    education: "Stay hydrated, avoid NSAIDs unless approved, follow up on kidney labs." },
+  { name: "Chronic Kidney Disease", system: "Renal", def: "Kidney damage or reduced function (GFR under 60) for 3 months or more.",
+    patho: "Progressive loss of nephrons causes waste retention, fluid and electrolyte imbalance, anemia and bone disease.",
+    causes: "Diabetes and hypertension (most common), glomerulonephritis, polycystic kidney disease.",
+    signs: "Early: none. Later: fatigue, edema, itching, nausea, reduced urine, uremic symptoms.",
+    dx: "eGFR, creatinine, urine albumin-to-creatinine ratio, electrolytes, CBC, renal ultrasound.",
+    tx: "Control BP and glucose, ACE inhibitor/ARB, SGLT2 inhibitor, diet limits, ESAs for anemia, phosphate binders, dialysis or transplant.",
+    nursing: "Monitor fluid status and electrolytes, protect access arm (no BP or sticks), adjust medication doses.",
+    complications: "Hyperkalemia, anemia, bone disease, heart disease, fluid overload.",
+    education: "Limit sodium, potassium and phosphorus as advised, avoid NSAIDs, protect fistula, keep dialysis schedule." },
+  { name: "Cirrhosis", system: "Gastrointestinal", def: "Late-stage scarring of the liver that impairs its function.",
+    patho: "Chronic injury replaces liver cells with scar tissue, raising portal pressure and reducing protein and clotting factor production.",
+    causes: "Alcohol, hepatitis B and C, fatty liver disease (MASLD), autoimmune and genetic disorders.",
+    signs: "Fatigue, jaundice, ascites, edema, spider angiomas, easy bruising, confusion, asterixis.",
+    dx: "LFTs, albumin, INR, bilirubin, platelets, ultrasound, elastography, biopsy.",
+    tx: "Treat the cause, no alcohol, diuretics and sodium limit for ascites, lactulose/rifaximin, beta blockers for varices, transplant.",
+    nursing: "Monitor mental status, bleeding, weight and abdominal girth, ammonia, avoid sedatives and acetaminophen overuse.",
+    complications: "Variceal bleeding, hepatic encephalopathy, SBP, hepatorenal syndrome, liver cancer.",
+    education: "No alcohol, low sodium diet, lactulose goal 2-3 soft stools daily, report bleeding or confusion." },
+  { name: "Acute Pancreatitis", system: "Gastrointestinal", def: "Sudden inflammation of the pancreas.",
+    patho: "Digestive enzymes activate inside the pancreas and digest its own tissue, causing inflammation that can become systemic.",
+    causes: "Gallstones and alcohol (most common), high triglycerides, some medications, ERCP, trauma.",
+    signs: "Severe epigastric pain radiating to the back, nausea/vomiting, fever, tachycardia; Cullen's or Grey Turner's sign in severe cases.",
+    dx: "Lipase over 3 times normal, CT or ultrasound, CBC, calcium, glucose, triglycerides.",
+    tx: "IV fluids, pain control, early feeding as tolerated, treat the cause (e.g., cholecystectomy).",
+    nursing: "Fluid balance, pain relief, monitor glucose and calcium, positioning (knees to chest), watch for respiratory distress.",
+    complications: "Pseudocyst, necrosis, infection, ARDS, shock, diabetes.",
+    education: "No alcohol, low-fat diet, report returning pain." },
+  { name: "Peptic Ulcer Disease", system: "Gastrointestinal", def: "Open sores in the stomach or duodenal lining.",
+    patho: "Acid and pepsin erode mucosa weakened by H. pylori infection or loss of protective prostaglandins.",
+    causes: "H. pylori infection, NSAIDs, smoking, alcohol, severe physical stress.",
+    signs: "Burning epigastric pain (gastric: worse with meals; duodenal: relieved by food), bloating, nausea. Bleeding: black stools, coffee-ground vomit.",
+    dx: "Upper endoscopy, H. pylori breath/stool/biopsy testing, CBC for anemia.",
+    tx: "PPIs, H. pylori eradication (antibiotic combination with PPI), stop NSAIDs, endoscopic treatment of bleeding.",
+    nursing: "Monitor for GI bleeding and perforation (sudden severe pain, rigid abdomen), hemoglobin, vital signs.",
+    complications: "GI bleeding, perforation, gastric outlet obstruction.",
+    education: "Finish H. pylori therapy, avoid NSAIDs, stop smoking, limit alcohol, report dark stools." },
+  { name: "Appendicitis", system: "Gastrointestinal", def: "Acute inflammation of the appendix.",
+    patho: "Blockage of the appendix leads to bacterial overgrowth, swelling and reduced blood flow; it can rupture.",
+    causes: "Fecalith, lymphoid swelling, infection. Most common in ages 10-30.",
+    signs: "Pain starting near the navel moving to the right lower quadrant (McBurney's point), anorexia, nausea, fever, rebound tenderness.",
+    dx: "CBC (raised WBC), CT abdomen (ultrasound in children and pregnancy), pregnancy test in females.",
+    tx: "Appendectomy (usually laparoscopic), antibiotics; some uncomplicated cases treated with antibiotics alone.",
+    nursing: "NPO, IV fluids, pain control. No heat and no laxatives or enemas. Sudden pain relief may mean rupture.",
+    complications: "Perforation, peritonitis, abscess, sepsis.",
+    education: "Post-op: early walking, incision care, report fever or increasing pain." },
+  { name: "Inflammatory Bowel Disease", system: "Gastrointestinal", def: "Chronic immune-mediated inflammation of the bowel: Crohn's disease and ulcerative colitis.",
+    patho: "Crohn's: patchy, full-thickness inflammation anywhere in the GI tract. UC: continuous mucosal inflammation from the rectum up the colon.",
+    causes: "Genetic, immune and environmental factors; smoking worsens Crohn's.",
+    signs: "Diarrhea (bloody in UC), abdominal pain, weight loss, fatigue, urgency; Crohn's may cause fistulas.",
+    dx: "Colonoscopy with biopsy, CBC, CRP, fecal calprotectin, imaging.",
+    tx: "Aminosalicylates, corticosteroids for flares, immunomodulators, biologics (anti-TNF, others), surgery.",
+    nursing: "Monitor stools, fluids and electrolytes, nutrition, skin around the anus, infection risk on immunosuppressants.",
+    complications: "Obstruction, fistulas, toxic megacolon, colon cancer, malnutrition.",
+    education: "Recognize flares, follow diet advice, keep vaccinations current, colon cancer screening." },
+  { name: "Sepsis", system: "Immune / Infectious", def: "Life-threatening organ dysfunction caused by a dysregulated response to infection.",
+    patho: "Widespread inflammation causes vasodilation, leaky capillaries and clotting problems, reducing tissue perfusion.",
+    causes: "Pneumonia, UTI, abdominal and skin infections, lines and catheters. Risks: age, immunosuppression, chronic illness.",
+    signs: "Fever or hypothermia, tachycardia, tachypnea, hypotension, confusion, reduced urine, mottled skin.",
+    dx: "Lactate, blood cultures x2 before antibiotics, CBC, BMP, LFTs, coagulation tests, source imaging.",
+    tx: "Hour-1 bundle: lactate, cultures, broad-spectrum antibiotics, 30 mL/kg crystalloid for hypotension or lactate 4+, vasopressors for MAP 65+.",
+    nursing: "Early recognition, frequent vital signs, MAP and urine output goals, repeat lactate, strict I&O.",
+    complications: "Septic shock, ARDS, kidney failure, DIC, death.",
+    education: "Know infection warning signs, complete antibiotics, vaccinations, seek care early." },
+  { name: "Urinary Tract Infection", system: "Renal", def: "Bacterial infection of the bladder (cystitis) or kidney (pyelonephritis).",
+    patho: "Bacteria (usually E. coli) ascend the urethra into the bladder and may reach the kidneys.",
+    causes: "Female anatomy, sexual activity, catheters, urinary retention, diabetes, pregnancy, menopause.",
+    signs: "Burning, frequency, urgency, suprapubic pain, cloudy urine. Pyelonephritis: fever, flank pain. Older adults: confusion.",
+    dx: "Urinalysis (nitrites, leukocyte esterase), urine culture (clean catch or sterile catheter sample).",
+    tx: "Antibiotics (nitrofurantoin, TMP-SMX, cephalosporins, fluoroquinolones per local resistance), fluids.",
+    nursing: "Collect culture before antibiotics, remove unnecessary catheters, encourage fluids, assess for sepsis.",
+    complications: "Pyelonephritis, urosepsis, kidney damage.",
+    education: "Finish antibiotics, wipe front to back, void after intercourse, drink fluids." },
+  { name: "Iron-Deficiency Anemia", system: "Hematologic", def: "Low hemoglobin from not enough iron to make red blood cells.",
+    patho: "Iron shortage produces small, pale (microcytic, hypochromic) red cells that carry less oxygen.",
+    causes: "Blood loss (GI, menstrual), pregnancy, poor intake, malabsorption (celiac, bariatric surgery).",
+    signs: "Fatigue, pallor, dyspnea on exertion, tachycardia, brittle nails, pica, cold intolerance.",
+    dx: "CBC (low Hgb, low MCV), low ferritin, low serum iron, high TIBC; look for a bleeding source.",
+    tx: "Oral iron (with vitamin C), IV iron if needed, treat the cause, transfusion if severe.",
+    nursing: "Monitor Hgb and symptoms, fall precautions, assess for bleeding, give liquid iron through a straw.",
+    complications: "Heart strain, heart failure, poor pregnancy outcomes, developmental delay in children.",
+    education: "Take iron on an empty stomach if tolerated, dark stools are expected, iron-rich foods, keep away from children." },
+  { name: "Sickle Cell Disease", system: "Hematologic", def: "Inherited disorder producing abnormal hemoglobin S that makes red cells sickle.",
+    patho: "Sickled cells block small vessels (vaso-occlusion) and break down early (hemolysis), causing pain and organ damage.",
+    causes: "Autosomal recessive inheritance. Crisis triggers: dehydration, infection, cold, hypoxia, stress.",
+    signs: "Pain crises, fatigue, jaundice, swelling of hands and feet (children), frequent infections.",
+    dx: "Newborn screening, hemoglobin electrophoresis, CBC, reticulocyte count.",
+    tx: "Hydroxyurea, pain control (opioids), IV fluids, oxygen if hypoxic, transfusions, antibiotics, stem cell transplant.",
+    nursing: "Prompt pain management, hydration, warmth, monitor for acute chest syndrome and stroke, infection prevention.",
+    complications: "Acute chest syndrome, stroke, splenic sequestration, organ damage, infections.",
+    education: "Stay hydrated, avoid cold and high altitude, vaccinations, early care for fever." },
+  { name: "Parkinson's Disease", system: "Neurological", def: "Progressive movement disorder from loss of dopamine-producing neurons.",
+    patho: "Neurons in the substantia nigra degenerate, reducing dopamine and upsetting the dopamine-acetylcholine balance.",
+    causes: "Mostly unknown; age, genetics and environmental exposures may contribute.",
+    signs: "Resting tremor (pill-rolling), rigidity, bradykinesia, shuffling gait, postural instability, masked face.",
+    dx: "Clinical diagnosis; response to levodopa supports it. Imaging to rule out other causes.",
+    tx: "Carbidopa/levodopa, dopamine agonists, MAO-B inhibitors, physical therapy, deep brain stimulation.",
+    nursing: "Fall prevention, give meds on time, swallow assessment, nutrition, monitor for orthostatic hypotension.",
+    complications: "Falls, aspiration pneumonia, dementia, depression.",
+    education: "Take meds on schedule, limit high-protein meals near levodopa, home safety, exercise." },
+  { name: "Alzheimer's Disease", system: "Neurological", def: "Progressive dementia with memory loss and cognitive decline.",
+    patho: "Beta-amyloid plaques and tau tangles damage neurons; acetylcholine levels fall.",
+    causes: "Age, family history, APOE-e4 gene, Down syndrome, cardiovascular risk factors.",
+    signs: "Short-term memory loss, confusion, word-finding problems, poor judgment, personality changes, wandering.",
+    dx: "Clinical assessment, cognitive tests (MoCA, MMSE), labs and imaging to rule out other causes.",
+    tx: "Cholinesterase inhibitors (donepezil), memantine, newer anti-amyloid therapies for early disease, supportive care.",
+    nursing: "Safety and wandering precautions, consistent routine, simple communication, caregiver support.",
+    complications: "Falls, aspiration, malnutrition, infections, caregiver burnout.",
+    education: "Home safety, routines, legal and care planning early, caregiver resources." },
+  { name: "Multiple Sclerosis", system: "Neurological", def: "Autoimmune demyelination of the brain and spinal cord.",
+    patho: "Immune attacks destroy myelin, slowing or blocking nerve signals; plaques form scattered through the CNS.",
+    causes: "Autoimmune; risks include female sex, age 20-40, low vitamin D, smoking, Epstein-Barr virus.",
+    signs: "Vision problems (optic neuritis), numbness, weakness, fatigue, spasticity, bladder problems, balance issues.",
+    dx: "MRI (lesions), lumbar puncture (oligoclonal bands), evoked potentials.",
+    tx: "Disease-modifying therapies, corticosteroids for relapses, symptom management (baclofen for spasticity).",
+    nursing: "Fatigue management, fall prevention, bladder care, skin checks, avoid overheating.",
+    complications: "Disability, UTIs, pressure injuries, depression.",
+    education: "Avoid heat, pace activities, report relapses, take DMTs as directed." },
+  { name: "Seizure Disorder (Epilepsy)", system: "Neurological", def: "Recurrent unprovoked seizures from abnormal brain electrical activity.",
+    patho: "Groups of neurons fire excessively and in sync, spreading to cause focal or generalized seizures.",
+    causes: "Genetic, brain injury, stroke, tumors, infection; triggers include missed meds, sleep loss, alcohol, flashing lights.",
+    signs: "Depends on type: convulsions, staring spells, jerking, loss of awareness, aura, post-ictal confusion.",
+    dx: "EEG, MRI, labs (glucose, sodium, drug levels), history from witnesses.",
+    tx: "Antiseizure medications (levetiracetam, lamotrigine, valproate, others), benzodiazepines for prolonged seizures, surgery.",
+    nursing: "Protect from injury, side-lying, time the seizure, nothing in the mouth, suction and oxygen ready.",
+    complications: "Status epilepticus (5+ minutes), injury, aspiration, SUDEP.",
+    education: "Take meds daily, sleep and avoid triggers, seizure action plan, driving laws, medical ID." },
+  { name: "Major Depressive Disorder", system: "Mental Health", def: "Persistent low mood or loss of interest for 2+ weeks, affecting daily function.",
+    patho: "Involves changes in neurotransmitters (serotonin, norepinephrine, dopamine), stress hormones and brain circuits.",
+    causes: "Genetics, trauma, chronic stress, medical illness, substance use, certain medications.",
+    signs: "Depressed mood, anhedonia, sleep and appetite changes, fatigue, worthlessness, poor concentration, suicidal thoughts.",
+    dx: "Clinical interview (DSM criteria), PHQ-9 screening, rule out thyroid and other causes.",
+    tx: "Psychotherapy, SSRIs/SNRIs and other antidepressants, ECT for severe cases, lifestyle support.",
+    nursing: "Suicide risk assessment and safety, therapeutic communication, monitor for early antidepressant side effects.",
+    complications: "Suicide, substance use, worsening physical health.",
+    education: "Antidepressants take weeks to work, do not stop suddenly, crisis line (988 in the US)." },
+  { name: "Schizophrenia", system: "Mental Health", def: "Chronic psychotic disorder affecting thinking, perception and behavior.",
+    patho: "Linked to dopamine excess in some brain pathways and changes in glutamate and brain structure.",
+    causes: "Genetics, prenatal and birth complications, cannabis use in adolescence, stress.",
+    signs: "Positive: hallucinations, delusions, disorganized speech. Negative: flat affect, withdrawal, poor motivation.",
+    dx: "Clinical diagnosis (DSM criteria); rule out substances and medical causes.",
+    tx: "Antipsychotics (atypical preferred), long-acting injections, psychosocial therapy, clozapine for resistant cases.",
+    nursing: "Safety, reality orientation, do not argue with delusions, monitor for EPS, NMS and metabolic effects.",
+    complications: "Suicide, substance use, metabolic syndrome from meds, social isolation.",
+    education: "Take medication consistently, report side effects, avoid drugs and alcohol, relapse warning signs." },
+  { name: "Preeclampsia", system: "Maternal / Obstetric", def: "New high blood pressure after 20 weeks of pregnancy with protein in urine or organ dysfunction.",
+    patho: "Abnormal placental development causes widespread blood vessel dysfunction and vasospasm.",
+    causes: "First pregnancy, prior preeclampsia, chronic hypertension, diabetes, multiple gestation, obesity, age over 35.",
+    signs: "BP 140/90 or higher, headache, visual changes, right upper quadrant pain, edema, hyperreflexia.",
+    dx: "BP readings, urine protein, platelets, LFTs, creatinine.",
+    tx: "Delivery is the cure. Antihypertensives (labetalol, hydralazine, nifedipine), magnesium sulfate for seizure prevention.",
+    nursing: "Monitor BP, reflexes, RR and urine output on magnesium; calcium gluconate at bedside; fetal monitoring.",
+    complications: "Eclampsia (seizures), HELLP syndrome, placental abruption, stroke.",
+    education: "Report headache, vision changes or abdominal pain; low-dose aspirin may be advised in future pregnancies." },
+  { name: "Osteoporosis", system: "Musculoskeletal", def: "Low bone mass and weakened bone structure, raising fracture risk.",
+    patho: "Bone breakdown outpaces bone formation, especially after menopause, making bones porous and fragile.",
+    causes: "Age, menopause, low calcium/vitamin D, steroids, smoking, alcohol, inactivity, small frame.",
+    signs: "Often none until a fracture; height loss, kyphosis, back pain.",
+    dx: "DEXA scan (T-score -2.5 or lower), fracture history, vitamin D level.",
+    tx: "Calcium and vitamin D, weight-bearing exercise, bisphosphonates, denosumab, anabolic agents.",
+    nursing: "Fall prevention, safe mobility, teach bisphosphonate administration.",
+    complications: "Hip, spine and wrist fractures, chronic pain, loss of independence.",
+    education: "Weight-bearing exercise, calcium-rich diet, home safety, take bisphosphonates upright with water." },
+  { name: "Rheumatoid Arthritis", system: "Musculoskeletal", def: "Chronic autoimmune inflammation of the joints.",
+    patho: "The immune system attacks the synovium, which thickens and erodes cartilage and bone.",
+    causes: "Autoimmune; risks include female sex, genetics, smoking.",
+    signs: "Symmetric joint pain and swelling (hands and wrists), morning stiffness over 1 hour, fatigue, nodules.",
+    dx: "Rheumatoid factor, anti-CCP antibodies, ESR/CRP, X-rays or ultrasound.",
+    tx: "DMARDs (methotrexate first-line), biologics, short-term steroids, NSAIDs for symptoms.",
+    nursing: "Joint protection, pain management, monitor for infection and methotrexate toxicity.",
+    complications: "Joint deformity, disability, heart disease, lung disease, infections.",
+    education: "Balance rest and activity, heat for stiffness, take methotrexate weekly not daily, avoid live vaccines on biologics." },
+  { name: "Cushing's Syndrome", system: "Endocrine", def: "Excess cortisol in the body.",
+    patho: "Too much cortisol raises glucose, breaks down protein, redistributes fat and suppresses immunity.",
+    causes: "Long-term corticosteroid use (most common), pituitary adenoma (Cushing's disease), adrenal tumors.",
+    signs: "Moon face, buffalo hump, central obesity, purple striae, thin skin, hyperglycemia, hypertension, weakness.",
+    dx: "24-hour urine cortisol, late-night salivary cortisol, dexamethasone suppression test, ACTH level, imaging.",
+    tx: "Taper steroids if the cause, surgery for tumors, medications that lower cortisol.",
+    nursing: "Monitor glucose, BP, fluid balance, infection signs and skin integrity; fall precautions.",
+    complications: "Diabetes, infections, osteoporosis, fractures, heart disease.",
+    education: "Never stop steroids abruptly, monitor glucose, infection prevention, medical ID." }
+];
+
+// ==========================================
+// WORKSHEETS: drug profiles, cheat sheets, disease maps, template bundle
+// Each entry: { usesSource, qty(), render(P, ctx) }. Drawn on US Letter; the
+// PDF engine scales to A4/A5.
+// ==========================================
+Object.assign(COLORS, {
+  pastel_rose:     { name: "Pastel Rose",     PR: 'B5476B', SE: 'D97C97', AC: 'F4B6C8', BG: 'FFF7F9', TX: '2A1A20' },
+  pastel_mint:     { name: "Pastel Mint",     PR: '2F8F6B', SE: '5DB892', AC: 'A9DEC6', BG: 'F4FBF7', TX: '15261F' },
+  pastel_lavender: { name: "Pastel Lavender", PR: '6B5CA5', SE: '9A8BD0', AC: 'CFC5EE', BG: 'F8F6FD', TX: '1E1A2E' },
+  pastel_peach:    { name: "Pastel Peach",    PR: 'C0663A', SE: 'E0936A', AC: 'F8C9AE', BG: 'FFF8F3', TX: '2B1B12' }
+});
+
+// Mix a hex colour with white (amount 0..1 of white)
+function tint(hex, amount) {
+  const h = String(hex).replace('#', '');
+  const c = [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16));
+  return c.map(v => Math.round(v + (255 - v) * amount).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
+// Brand name for a drug: explicit field, or a short capitalised first sentence of the notes
+function drugBrand(d) {
+  if (d.brand) return d.brand;
+  const first = String(d.notes || '').split('. ')[0];
+  const words = first.split(/\s+/);
+  if (first.length <= 32 && words.length <= 3 && words.every(w => /^[A-Z][A-Za-z\-\/]*$/.test(w))) return first;
+  return '';
+}
+// Nursing text without the leading brand sentence / rank tag
+function drugNursing(d) {
+  let n = String(d.notes || '');
+  const b = drugBrand(d);
+  if (b && n.startsWith(b)) n = n.slice(b.length).replace(/^\s*(\(#\d+\))?\.\s*/, '');
+  return n.trim();
+}
+
+const WS_LINE = 'D5DCE2';
+function wsTitleBand(s, W, kicker, title, rightText) {
+  s.addShape(P.ShapeType.rect, { x: 0, y: 0, w: W, h: 1.0, fill: { color: C.PR } });
+  s.addShape(P.ShapeType.rect, { x: 0, y: 1.0, w: W, h: 0.06, fill: { color: C.AC } });
+  s.addText(kicker, { x: 0.5, y: 0.14, w: W - 1, h: 0.25, fontSize: 9, bold: true, color: tint(C.PR, 0.7), fontFace: 'Montserrat', margin: 0 });
+  if (title) s.addText(title, { x: 0.5, y: 0.38, w: W - 3.4, h: 0.5, fontSize: 24, bold: true, color: 'FFFFFF', fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+  else s.addShape(P.ShapeType.line, { x: 0.5, y: 0.8, w: W - 3.6, h: 0, line: { color: tint(C.PR, 0.55), pt: 1 } });
+  if (rightText) s.addText(rightText, { x: W - 2.8, y: 0.38, w: 2.3, h: 0.5, fontSize: 10, bold: true, color: 'FFFFFF', align: 'right', fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+}
+function wsField(s, label, value, x, y, w) {
+  s.addText(label.toUpperCase(), { x, y, w, h: 0.2, fontSize: 7.5, bold: true, color: C.PR, fontFace: 'Montserrat', margin: 0 });
+  s.addShape(P.ShapeType.rect, { x, y: y + 0.22, w, h: 0.42, fill: { color: 'FFFFFF' }, line: { color: WS_LINE, pt: 0.75 } });
+  if (value) s.addText(value, { x: x + 0.08, y: y + 0.22, w: w - 0.16, h: 0.42, fontSize: 10.5, color: C.TX, fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+}
+function wsCheck(s, x, y, label, checked) {
+  s.addShape(P.ShapeType.rect, { x, y, w: 0.17, h: 0.17, fill: { color: checked ? C.PR : 'FFFFFF' }, line: { color: checked ? C.PR : '9AA6B1', pt: 0.75 } });
+  if (checked) {
+    s.addShape(P.ShapeType.line, { x: x + 0.035, y: y + 0.09, w: 0.035, h: 0.045, line: { color: 'FFFFFF', pt: 1.25 } });
+    s.addShape(P.ShapeType.line, { x: x + 0.07, y: y + 0.035, w: 0.07, h: 0.1, flipV: true, line: { color: 'FFFFFF', pt: 1.25 } });
+  }
+  s.addText(label, { x: x + 0.23, y: y - 0.04, w: 0.9, h: 0.25, fontSize: 9, color: C.TX, fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+}
+// Section box. mode: 'text' (pre-filled), 'lines' (ruled write-in), 'open' (empty)
+function wsSection(s, title, x, y, w, h, body, mode) {
+  s.addShape(P.ShapeType.rect, { x, y, w, h, fill: { color: 'FFFFFF' }, line: { color: WS_LINE, pt: 0.75 } });
+  if (title !== null) {
+    s.addShape(P.ShapeType.rect, { x, y, w, h: 0.3, fill: { color: tint(C.AC, 0.55) } });
+    s.addText(title.toUpperCase(), { x: x + 0.1, y, w: w - 0.2, h: 0.3, fontSize: 8, bold: true, color: C.PR, fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+  }
+  const top = y + (title !== null ? 0.3 : 0);
+  if (mode === 'text' && body) {
+    s.addText(body, { x: x + 0.12, y: top + 0.08, w: w - 0.24, h: y + h - top - 0.14, fontSize: 10, color: C.TX, fontFace: 'Montserrat', margin: 0, valign: 'top', lineSpacing: 14 });
+  } else if (mode === 'lines') {
+    for (let ly = top + 0.34; ly < y + h - 0.08; ly += 0.3)
+      s.addShape(P.ShapeType.line, { x: x + 0.12, y: ly, w: w - 0.24, h: 0, line: { color: 'E4E9ED', pt: 0.75 } });
+  }
+}
+function wsFooter(s, W, H, brandText, extra) {
+  const t = [brandText, extra].filter(Boolean).join('  ·  ');
+  if (t) s.addText(t, { x: 0.5, y: H - 0.42, w: W - 1, h: 0.22, fontSize: 8, color: '999999', align: 'center', fontFace: 'Montserrat', margin: 0 });
+}
+
+// ---------- Drug profile ----------
+function drawDrugProfile(s, d, mode, brandText) {
+  const W = 8.5, H = 11, filled = !!d;
+  wsTitleBand(s, W, 'DRUG PROFILE', filled ? d.name : '', filled ? d.cat : '');
+  wsField(s, 'Generic name', filled ? d.name : '', 0.5, 1.25, 2.4);
+  wsField(s, 'Brand name', filled ? drugBrand(d) : '', 3.05, 1.25, 2.2);
+  wsField(s, 'Drug class', filled ? d.class : '', 5.4, 1.25, 2.6);
+  wsField(s, 'Drug family / system', filled ? d.cat : '', 0.5, 1.95, 2.4);
+  s.addText('HIGH-ALERT MEDICATION', { x: 3.05, y: 1.95, w: 2.2, h: 0.2, fontSize: 7.5, bold: true, color: C.PR, fontFace: 'Montserrat', margin: 0 });
+  wsCheck(s, 3.1, 2.3, 'Yes', filled && !!d.highAlert); wsCheck(s, 3.9, 2.3, 'No', filled && !d.highAlert);
+  s.addText('BOXED (BLACK BOX) WARNING', { x: 5.4, y: 1.95, w: 2.6, h: 0.2, fontSize: 7.5, bold: true, color: C.PR, fontFace: 'Montserrat', margin: 0 });
+  wsCheck(s, 5.45, 2.3, 'Yes', filled && !!d.blackBox); wsCheck(s, 6.25, 2.3, 'No', filled && !d.blackBox);
+  s.addText('ROUTES (CHECK ALL THAT APPLY)', { x: 0.5, y: 2.68, w: 4, h: 0.2, fontSize: 7.5, bold: true, color: C.PR, fontFace: 'Montserrat', margin: 0 });
+  ['PO', 'IV', 'IM', 'SubQ', 'SL', 'Topical', 'Inhaled', 'Other'].forEach((r, i) => wsCheck(s, 0.55 + i * 0.95, 2.95, r, false));
+  const txt = filled && mode !== 'blank' ? 'text' : (mode === 'open' ? 'open' : 'lines');
+  const wr = mode === 'open' ? 'open' : 'lines';
+  wsSection(s, 'Therapeutic uses', 0.5, 3.35, 3.65, 1.5, filled ? d.use : '', txt);
+  wsSection(s, 'Mechanism of action', 0.5, 5.0, 3.65, 1.5, filled ? d.moa : '', txt);
+  wsSection(s, 'Adverse / side effects', 0.5, 6.65, 3.65, 1.9, filled ? d.sideEffects : '', txt);
+  wsSection(s, 'Nursing considerations', 4.35, 3.35, 3.65, 1.85, filled ? drugNursing(d) : '', txt);
+  wsSection(s, 'Contraindications', 4.35, 5.35, 3.65, 1.5, '', wr);
+  wsSection(s, 'Patient education', 4.35, 7.0, 3.65, 1.55, '', wr);
+  wsSection(s, 'My notes & memory tricks', 0.5, 8.7, 7.5, 1.6, '', wr);
+  wsFooter(s, W, H, brandText, filled ? 'Verify with a current drug reference before clinical use' : '');
+}
+
+// ---------- Cheat sheets (landscape) ----------
+const CHEAT_ROWS = 7;
+function cheatPages(ds) {
+  const fams = [];
+  ds.forEach(d => { const f = d.cat || d.class; let g = fams.find(x => x.name === f); if (!g) fams.push(g = { name: f, drugs: [] }); g.drugs.push(d); });
+  const pages = [];
+  fams.forEach(f => { for (let i = 0; i < f.drugs.length; i += CHEAT_ROWS) pages.push({ family: f.name, drugs: f.drugs.slice(i, i + CHEAT_ROWS), part: i / CHEAT_ROWS + 1, parts: Math.ceil(f.drugs.length / CHEAT_ROWS) }); });
+  return { fams, pages };
+}
+function drawCheatPage(s, pg, deckTitle, brandText) {
+  const W = 11, H = 8.5, col = getDarkClassColor(pg.family);
+  s.addShape(P.ShapeType.rect, { x: 0, y: 0, w: W, h: 0.95, fill: { color: col } });
+  s.addText(pg.family.toUpperCase() + (pg.parts > 1 ? `  (${pg.part}/${pg.parts})` : ''), { x: 0.5, y: 0.14, w: 7.5, h: 0.5, fontSize: 20, bold: true, color: 'FFFFFF', fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+  s.addText(deckTitle, { x: 0.5, y: 0.6, w: 7.5, h: 0.25, fontSize: 9, color: tint(col, 0.6), fontFace: 'Montserrat', margin: 0 });
+  s.addText('PHARMACOLOGY CHEAT SHEET', { x: 7.5, y: 0.14, w: 3, h: 0.5, fontSize: 9, bold: true, color: tint(col, 0.6), align: 'right', fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+  const head = ['DRUG', 'CLASS', 'USES', 'MECHANISM', 'SIDE EFFECTS', 'NURSING NOTES'];
+  const rows = [head.map(h => ({ text: h, options: { fill: col, color: 'FFFFFF', bold: true, fontSize: 8, align: 'left', valign: 'middle', margin: 4 } }))];
+  pg.drugs.forEach((d, i) => {
+    const fill = i % 2 ? 'F7F9FA' : 'FFFFFF';
+    const o = { fill, color: C.TX, fontSize: 8.5, valign: 'top', margin: 4 };
+    const brand = drugBrand(d);
+    const drugCell = [{ text: d.name + (brand ? '\n' : ''), options: { bold: true, color: col, fontSize: 9.5 } }];
+    if (brand) drugCell.push({ text: brand, options: { italic: true, color: '666666', fontSize: 8 } });
+    if (d.blackBox) drugCell.push({ text: '\nBOXED WARNING', options: { bold: true, color: 'B00020', fontSize: 6.5 } });
+    if (d.highAlert) drugCell.push({ text: '\nHIGH-ALERT', options: { bold: true, color: 'B00020', fontSize: 6.5 } });
+    rows.push([{ text: drugCell, options: o }, { text: d.class, options: o }, { text: d.use, options: o }, { text: d.moa, options: o }, { text: d.sideEffects, options: o }, { text: drugNursing(d), options: o }]);
+  });
+  s.addTable(rows, { x: 0.5, y: 1.15, w: 10, colW: [1.45, 1.45, 1.7, 1.8, 1.8, 1.8], rowH: 0.3, fontFace: 'Montserrat', border: { pt: 0.5, color: 'DDE3E8' } });
+  wsFooter(s, W, H, brandText, 'Verify with a current drug reference before clinical use');
+}
+function drawCheatContents(s, fams, pageOf, deckTitle) {
+  const W = 11;
+  wsTitleBand(s, W, 'PHARMACOLOGY CHEAT SHEETS', 'Contents', deckTitle);
+  const perCol = Math.ceil(fams.length / 2);
+  fams.forEach((f, i) => {
+    const x = i < perCol ? 0.7 : 5.9, y = 1.45 + (i % perCol) * Math.min(0.5, 6.4 / perCol);
+    s.addShape(P.ShapeType.roundRect, { x, y: y + 0.06, w: 0.22, h: 0.22, fill: { color: getDarkClassColor(f.name) } });
+    s.addText(f.name, { x: x + 0.35, y, w: 3.7, h: 0.34, fontSize: 11, bold: true, color: C.TX, fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+    s.addText(`${f.drugs.length} drugs  ·  p. ${pageOf[f.name]}`, { x: x + 3.1, y, w: 1.4, h: 0.34, fontSize: 9.5, color: '777777', align: 'right', fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+  });
+}
+
+// ---------- Disease concept map ----------
+const DISEASE_SECTIONS = [['Pathophysiology', 'patho'], ['Causes & risk factors', 'causes'], ['Signs & symptoms', 'signs'], ['Diagnostics & labs', 'dx'],
+  ['Treatment & medications', 'tx'], ['Nursing care', 'nursing'], ['Complications', 'complications'], ['Patient education', 'education']];
+function drawDiseaseMap(s, dz, mode, brandText) {
+  const W = 8.5, H = 11, filled = !!dz;
+  wsTitleBand(s, W, 'DISEASE CONCEPT MAP', filled ? dz.name : '', filled ? dz.system : '');
+  // Centre node
+  s.addShape(P.ShapeType.roundRect, { x: 1.4, y: 1.3, w: 5.7, h: 0.95, fill: { color: tint(C.AC, 0.7) }, line: { color: C.PR, pt: 1.25 }, rectRadius: 0.12 });
+  s.addText(mode === 'open' && !filled ? '' : 'WHAT IS IT?', { x: 1.55, y: 1.34, w: 5.4, h: 0.22, fontSize: 7.5, bold: true, color: C.PR, fontFace: 'Montserrat', margin: 0 });
+  if (filled) s.addText(dz.def, { x: 1.55, y: 1.55, w: 5.4, h: 0.64, fontSize: 10, color: C.TX, fontFace: 'Montserrat', margin: 0, valign: 'middle' });
+  // Connectors: node -> bus -> each column
+  s.addShape(P.ShapeType.line, { x: 4.25, y: 2.25, w: 0, h: 0.15, line: { color: C.SE, pt: 1.25 } });
+  s.addShape(P.ShapeType.line, { x: 2.325, y: 2.4, w: 3.85, h: 0, line: { color: C.SE, pt: 1.25 } });
+  s.addShape(P.ShapeType.line, { x: 2.325, y: 2.4, w: 0, h: 0.12, line: { color: C.SE, pt: 1.25 } });
+  s.addShape(P.ShapeType.line, { x: 6.175, y: 2.4, w: 0, h: 0.12, line: { color: C.SE, pt: 1.25 } });
+  const bodyMode = filled ? 'text' : (mode === 'lines' ? 'lines' : 'open'); // 'headings' = titled boxes, no ruling
+  DISEASE_SECTIONS.forEach(([title, key], i) => {
+    const x = i % 2 ? 4.35 : 0.5, y = 2.52 + Math.floor(i / 2) * 1.95;
+    wsSection(s, mode === 'open' && !filled ? null : title, x, y, 3.65, 1.85, filled ? dz[key] : '', bodyMode);
+  });
+  wsFooter(s, W, H, brandText, filled ? 'Educational summary. Verify with current references.' : '');
+}
+
+// ---------- Blank drug class comparison (portrait table) ----------
+function drawClassComparison(s, brandText) {
+  const W = 8.5, H = 11;
+  wsTitleBand(s, W, 'DRUG CLASS COMPARISON', '', '');
+  const head = ['DRUG', 'CLASS', 'USES', 'KEY SIDE EFFECTS', 'NURSING'];
+  const rows = [head.map(h => ({ text: h, options: { fill: C.PR, color: 'FFFFFF', bold: true, fontSize: 8, valign: 'middle', margin: 4 } }))];
+  for (let i = 0; i < 9; i++) rows.push(head.map(() => ({ text: '', options: { fill: i % 2 ? 'F7F9FA' : 'FFFFFF' } })));
+  s.addTable(rows, { x: 0.5, y: 1.3, w: 7.5, colW: [1.3, 1.3, 1.6, 1.65, 1.65], rowH: 0.95, border: { pt: 0.5, color: 'DDE3E8' } });
+  wsFooter(s, W, H, brandText, '');
+}
+
+const WS_SOURCES = () => (CATEGORIES['Pharmacology Flashcards'] || []).filter(k => TEMPLATES[k] && getDatasetForKey(k));
+function wsSource() {
+  const el = document.getElementById('sourceSelect');
+  const k = el && el.value && TEMPLATES[el.value] ? el.value : 'top200_9';
+  return { key: k, title: TEMPLATES[k].title, data: getDatasetForKey(k) };
+}
+const copiesQty = () => `<option value="1" selected>1 copy</option><option value="2">2 copies</option><option value="4">4 copies</option><option value="10">10 copies</option>`;
+
+const WORKSHEETS = {
+  drug_sheet_filled: {
+    usesSource: true,
+    qty: () => { const n = wsSource().data.length; return `<option value="1">1 page (sample)</option><option value="${n}" selected>${n} pages (every drug)</option>`; },
+    render: async (P, c) => {
+      const src = wsSource(); const list = src.data.slice(0, c.pages);
+      if (c.productPages) addWorksheetCover(P, { ...c.tDef, title: `${c.tDef.title}: ${src.title.replace(/^\d+ - /, '')}` }, list.length, c.brandText);
+      for (let i = 0; i < list.length; i++) {
+        if (i % 20 === 0) { sp(10 + (i / list.length) * 85, `Drug ${i + 1} of ${list.length}…`); await tick(); }
+        const s = P.addSlide(); s.background = { color: 'FFFFFF' }; drawDrugProfile(s, list[i], 'filled', c.brandText);
+      }
+    }
+  },
+  drug_sheet_blank: {
+    qty: copiesQty,
+    render: async (P, c) => {
+      if (c.productPages) addWorksheetCover(P, c.tDef, c.pages, c.brandText);
+      for (let i = 0; i < c.pages; i++) { const s = P.addSlide(); s.background = { color: 'FFFFFF' }; drawDrugProfile(s, null, 'blank', c.brandText); }
+    }
+  },
+  cheat_sheets: {
+    usesSource: true,
+    qty: () => { const n = cheatPages(wsSource().data).pages.length; return `<option value="${n}" selected>${n} pages (all drug families)</option>`; },
+    render: async (P, c) => {
+      const src = wsSource(); const { fams, pages } = cheatPages(src.data);
+      if (c.productPages) addWorksheetCover(P, { ...c.tDef, title: `${c.tDef.title}: ${src.title.replace(/^\d+ - /, '')}` }, pages.length, c.brandText);
+      const first = (c.productPages ? 1 : 0) + 2; // cover + contents come first
+      const pageOf = {}; pages.forEach((pg, i) => { if (!(pg.family in pageOf)) pageOf[pg.family] = first + i; });
+      fams.forEach(f => getDarkClassColor(f.name)); // stable colours in family order
+      const toc = P.addSlide(); toc.background = { color: 'FFFFFF' }; drawCheatContents(toc, fams, pageOf, src.title);
+      for (let i = 0; i < pages.length; i++) {
+        sp(10 + (i / pages.length) * 85, `Cheat sheet ${i + 1} of ${pages.length}…`); await tick();
+        const s = P.addSlide(); s.background = { color: 'FFFFFF' }; drawCheatPage(s, pages[i], src.title, c.brandText);
+      }
+    }
+  },
+  disease_map_filled: {
+    qty: () => `<option value="1">1 page (sample)</option><option value="${DISEASES.length}" selected>${DISEASES.length} pages (every disease)</option>`,
+    render: async (P, c) => {
+      const list = DISEASES.slice(0, c.pages);
+      if (c.productPages) addWorksheetCover(P, c.tDef, list.length, c.brandText);
+      for (const dz of list) { const s = P.addSlide(); s.background = { color: 'FFFFFF' }; drawDiseaseMap(s, dz, 'filled', c.brandText); }
+    }
+  },
+  disease_map_blank: {
+    qty: copiesQty,
+    render: async (P, c) => {
+      if (c.productPages) addWorksheetCover(P, c.tDef, c.pages * 3, c.brandText);
+      for (let i = 0; i < c.pages; i++) ['lines', 'headings', 'open'].forEach(m => { const s = P.addSlide(); s.background = { color: 'FFFFFF' }; drawDiseaseMap(s, null, m, c.brandText); });
+    }
+  },
+  template_bundle: {
+    qty: copiesQty,
+    render: async (P, c) => {
+      const set = [
+        s => drawDrugProfile(s, null, 'blank', c.brandText),
+        s => drawDrugProfile(s, null, 'open', c.brandText),
+        s => drawDiseaseMap(s, null, 'lines', c.brandText),
+        s => drawDiseaseMap(s, null, 'headings', c.brandText),
+        s => drawDiseaseMap(s, null, 'open', c.brandText),
+        s => drawClassComparison(s, c.brandText)
+      ];
+      if (c.productPages) addWorksheetCover(P, c.tDef, set.length * c.pages, c.brandText);
+      for (let i = 0; i < c.pages; i++) set.forEach(fn => { const s = P.addSlide(); s.background = { color: 'FFFFFF' }; fn(s); });
+    }
+  }
+};
+
+Object.assign(TEMPLATES, {
+  drug_sheet_filled: { icon: '🧾', title: 'Drug Worksheets (Pre-Filled)', tags: ['1 Drug Per Page', 'Pre-Filled + Write-In'], layout: 'portrait' },
+  drug_sheet_blank:  { icon: '🗒️', title: 'Drug Worksheet (Blank)', tags: ['Fill-In', 'Portrait'], layout: 'portrait' },
+  cheat_sheets:      { icon: '📋', title: 'Pharmacology Cheat Sheets', tags: ['By Drug Family', 'Landscape Tables'], layout: 'landscape' },
+  disease_map_filled:{ icon: '🏥', title: 'Disease Concept Maps (Pre-Filled)', tags: ['1 Disease Per Page', 'NCLEX Essentials'], layout: 'portrait' },
+  disease_map_blank: { icon: '🧩', title: 'Disease Concept Maps (Blank)', tags: ['3 Layouts', 'Fill-In'], layout: 'portrait' },
+  template_bundle:   { icon: '🎁', title: 'Printable Template Bundle', tags: ['6 Templates', 'Pastel + B&W Themes'], layout: 'portrait' }
+});
+CATEGORIES['Worksheets & Cheat Sheets'] = ['drug_sheet_filled', 'drug_sheet_blank', 'cheat_sheets', 'disease_map_filled', 'disease_map_blank', 'template_bundle'];
+// Keep Custom decks and Visual aids after the new group
+['Custom Decks', 'Detailed Study Guides', 'Visual Aids'].forEach(k => { if (CATEGORIES[k]) { const v = CATEGORIES[k]; delete CATEGORIES[k]; CATEGORIES[k] = v; } });
+
+// Worksheets supply their own length options
+const baseSetTemplateWS = setTemplate;
+setTemplate = function (key) {
+  baseSetTemplateWS(key);
+  const ws = WORKSHEETS[key];
+  if (ws) document.getElementById('qtySelect').innerHTML = ws.qty();
+  const sc = document.getElementById('sourceCol');
+  if (sc) sc.style.display = ws && ws.usesSource ? '' : 'none';
+};
+
 initUI(); // Initialize UI after all arrays are loaded
 
 // ==========================================
@@ -2535,6 +3144,8 @@ async function go(mode = 'pdf') {
             
             drawCutLines(sb, cols, rows, startX, startY, cardW, cardH);
         }
+    } else if (WORKSHEETS[activeTemplate]) {
+        await WORKSHEETS[activeTemplate].render(P, { tDef, pages, brandText, productPages });
     } else {
         if (productPages) addWorksheetCover(P, tDef, pages, brandText);
         for(let p = 0; p < pages; p++) {
@@ -2801,7 +3412,7 @@ async function go(mode = 'pdf') {
   function save() {
     try {
       localStorage.setItem(STORE, JSON.stringify({
-        template: activeTemplate, theme: activeTheme, format: $('formatSelect').value, badges: $('badgeSelect').value, paper: $('paperSelect').value,
+        template: activeTemplate, theme: activeTheme, format: $('formatSelect').value, badges: $('badgeSelect').value, paper: $('paperSelect').value, source: $('sourceSelect').value,
         brand: $('brandText').value, productPages: $('productPages').checked, autoPreview: $('autoPreview').checked
       }));
     } catch (e) { /* storage unavailable */ }
@@ -2813,6 +3424,7 @@ async function go(mode = 'pdf') {
     if (s.format) $('formatSelect').value = s.format;
     if (s.badges) $('badgeSelect').value = s.badges;
     if (s.paper && PAPER_SIZES[s.paper]) $('paperSelect').value = s.paper;
+    if (s.source && [...$('sourceSelect').options].some(o => o.value === s.source)) $('sourceSelect').value = s.source;
     if (typeof s.brand === 'string') $('brandText').value = s.brand;
     if (typeof s.productPages === 'boolean') $('productPages').checked = s.productPages;
     if (typeof s.autoPreview === 'boolean') $('autoPreview').checked = s.autoPreview;
@@ -2919,8 +3531,12 @@ async function go(mode = 'pdf') {
     if (e.key === '[' && !typing) { e.preventDefault(); setCollapsed(!app.classList.contains('collapsed')); }
   });
 
+  // Drug set picker for worksheets and cheat sheets
+  $('sourceSelect').innerHTML = WS_SOURCES().map(k => `<option value="${k}">${TEMPLATES[k].title} (${getDatasetForKey(k).length} drugs)</option>`).join('');
+  $('sourceSelect').addEventListener('change', () => setTemplate(activeTemplate));
+
   restore();
-  afterChange();
+  setTemplate(activeTemplate);
 })();
 </script>
 </body>
