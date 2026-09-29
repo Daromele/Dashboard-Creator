@@ -683,7 +683,9 @@ function setTemplate(key) {
     
     // Dynamically calculate pages based on actual dataset length
     const ds = getDatasetForKey(key) || [];
-    let maxPages = Math.ceil(ds.length / 9) || 1;
+    const fmt = document.getElementById('formatSelect').value;
+    const perPage = fmt === 'badge' ? 16 : (fmt === 'index' ? 4 : 9);
+    let maxPages = Math.ceil(ds.length / perPage) || 1;
     // If it's a non-flashcard template, default to a few pages
     if (!key.includes('_9') && key !== 'custom_csv_9') maxPages = 4; 
     
@@ -1273,7 +1275,7 @@ const PHARM_NEURO_PSYCH = [
     { name: "Clonazepam", class: "Benzodiazepine", use: "Panic disorder, seizure disorders", moa: "Enhances inhibitory effects of GABA", sideEffects: "Somnolence, cognitive impairment, ataxia", notes: "Klonopin. Longer acting than alprazolam. Taper slowly to avoid withdrawal.", blackBox: true },
     { name: "Midazolam", class: "Benzodiazepine (Short-Acting)", use: "Conscious sedation, anesthesia induction", moa: "Enhances GABA, causing profound amnesia and sedation", sideEffects: "Respiratory depression, apnea, hypotension", notes: "Versed. Used primarily in procedural settings (colonoscopy, intubation). Have flumazenil ready.", blackBox: true, highAlert: true },
     { name: "Zolpidem", class: "Non-Benzodiazepine Hypnotic", use: "Insomnia", moa: "Enhances GABA (binds selectively to omega-1 receptors)", sideEffects: "Daytime drowsiness, complex sleep behaviors (sleepwalking, sleep-driving)", notes: "Ambien. Take immediately before bed with 7-8 hours available to sleep.", blackBox: true },
-    { name: "Eszopiclone", class: "Non-Benzodiazepine Hypnotic", use: "Insomnia (sleep maintenance)", moa: "Interacts with GABA-receptor complexes", sideEffects: "Unpleasant metallic taste, headache, somnolence", notes: "Lunesta. Can be used for longer-term treatment of insomnia." },
+    { name: "Eszopiclone", class: "Non-Benzodiazepine Hypnotic", use: "Insomnia (sleep maintenance)", moa: "Interacts with GABA-receptor complexes", sideEffects: "Unpleasant metallic taste, headache, somnolence", notes: "Lunesta. Can be used for longer-term treatment of insomnia.", blackBox: true },
     { name: "Amphetamine Salts", class: "CNS Stimulant", use: "ADHD, Narcolepsy", moa: "Promotes release of dopamine and norepinephrine, inhibits reuptake", sideEffects: "Insomnia, decreased appetite, tachycardia, weight loss, anxiety", notes: "Adderall. High abuse potential (Schedule II). Give in the morning.", blackBox: true },
     { name: "Methylphenidate", class: "CNS Stimulant", use: "ADHD, Narcolepsy", moa: "Blocks reuptake of dopamine and norepinephrine", sideEffects: "Insomnia, anorexia, increased HR, delayed growth in kids", notes: "Ritalin/Concerta. Monitor growth (height/weight) in pediatric patients.", blackBox: true },
     { name: "Atomoxetine", class: "Non-Stimulant ADHD", use: "ADHD", moa: "Selective norepinephrine reuptake inhibitor", sideEffects: "GI upset, suicidal ideation, hepatotoxicity, somnolence", notes: "Strattera. Not a controlled substance. Takes 2-4 weeks for full effect.", blackBox: true },
@@ -1290,11 +1292,11 @@ const PHARM_NEURO_PSYCH = [
 const PHARM_ENDO_GI = [
     { name: "Insulin Lispro", class: "Rapid-Acting Insulin", use: "Type 1 & 2 Diabetes (Mealtime)", moa: "Promotes cellular uptake of glucose", sideEffects: "Hypoglycemia, hypokalemia", notes: "Humalog. Onset 15 mins. Ensure patient has food right in front of them.", highAlert: true },
     { name: "Insulin Aspart", class: "Rapid-Acting Insulin", use: "Type 1 & 2 Diabetes (Mealtime)", moa: "Promotes cellular uptake of glucose", sideEffects: "Hypoglycemia, hypokalemia", notes: "Novolog. Onset 10-20 mins. Give immediately before eating.", highAlert: true },
-    { name: "Regular Insulin", class: "Short-Acting Insulin", use: "Type 1 & 2 Diabetes, DKA", moa: "Promotes cellular uptake of glucose", sideEffects: "Hypoglycemia, hypokalemia", notes: "Humulin R. Onset 30-60 mins. The ONLY insulin that can be given IV.", highAlert: true },
+    { name: "Regular Insulin", class: "Short-Acting Insulin", use: "Type 1 & 2 Diabetes, DKA", moa: "Promotes cellular uptake of glucose", sideEffects: "Hypoglycemia, hypokalemia", notes: "Humulin R. Onset 30-60 mins. Standard insulin for IV infusions (e.g., DKA).", highAlert: true },
     { name: "NPH Insulin", class: "Intermediate-Acting Insulin", use: "Type 1 & 2 Diabetes", moa: "Promotes cellular uptake of glucose", sideEffects: "Hypoglycemia (highest risk at peak 4-12 hrs)", notes: "Humulin N. Cloudy appearance. Mix by rolling, not shaking. Draw Clear before Cloudy.", highAlert: true },
     { name: "Insulin Glargine", class: "Long-Acting Insulin", use: "Type 1 & 2 Diabetes", moa: "Promotes cellular uptake of glucose", sideEffects: "Hypoglycemia, lipohypertrophy", notes: "Lantus. No peak. Lasts 24 hours. Do NOT mix with other insulins in same syringe.", highAlert: true },
     { name: "Insulin Detemir", class: "Long-Acting Insulin", use: "Type 1 & 2 Diabetes", moa: "Promotes cellular uptake of glucose", sideEffects: "Hypoglycemia, injection site reactions", notes: "Levemir. Duration is dose-dependent. No pronounced peak.", highAlert: true },
-    { name: "Metformin", class: "Biguanide Antidiabetic", use: "Type 2 Diabetes", moa: "Decreases hepatic glucose production, increases insulin sensitivity", sideEffects: "GI upset, diarrhea, rare lactic acidosis, B12 deficiency", notes: "Glucophage. First-line T2DM drug. Hold 48hrs before/after iodine contrast dye.", blackBox: true },
+    { name: "Metformin", class: "Biguanide Antidiabetic", use: "Type 2 Diabetes", moa: "Decreases hepatic glucose production, increases insulin sensitivity", sideEffects: "GI upset, diarrhea, rare lactic acidosis, B12 deficiency", notes: "Glucophage. First-line T2DM drug. Hold at time of iodinated contrast and 48 hrs after; restart when renal function is stable.", blackBox: true },
     { name: "Glipizide", class: "Sulfonylurea Antidiabetic", use: "Type 2 Diabetes", moa: "Stimulates insulin release from pancreatic beta cells", sideEffects: "Hypoglycemia, weight gain, photosensitivity", notes: "Glucotrol. Take 30 mins before meals. Ensure patient eats to prevent hypoglycemia." },
     { name: "Glyburide", class: "Sulfonylurea Antidiabetic", use: "Type 2 Diabetes", moa: "Stimulates pancreatic insulin release", sideEffects: "Hypoglycemia, weight gain", notes: "Diabeta. Not recommended for elderly patients due to prolonged hypoglycemia risk." },
     { name: "Repaglinide", class: "Meglitinide Antidiabetic", use: "Type 2 Diabetes", moa: "Stimulates rapid, short-lived insulin release from pancreas", sideEffects: "Hypoglycemia, weight gain", notes: "Prandin. Must take immediately before meals. Skip dose if skipping meal." },
@@ -1347,7 +1349,7 @@ const PHARM_ANTIBIOTICS = [
     { name: "Sulfamethoxazole / Trimethoprim", class: "Sulfonamide Antibiotic", use: "UTIs, MRSA skin infections, Pneumocystis pneumonia", moa: "Inhibits folic acid synthesis in bacteria", sideEffects: "Photosensitivity, crystalluria, Stevens-Johnson Syndrome (SJS), hyperkalemia", notes: "Bactrim. Drink 8-10 glasses of water daily to prevent kidney stones. Check sulfa allergy." },
     { name: "Nitrofurantoin", class: "Urinary Tract Antiseptic", use: "Uncomplicated UTI treatment and prophylaxis", moa: "Damages bacterial DNA in the urinary tract", sideEffects: "Brown/orange/dark urine, GI upset, pulmonary toxicity (rare)", notes: "Macrobid. Take with food to minimize GI upset. Harmless urine color change." },
     { name: "Metronidazole", class: "Antibacterial / Antiprotozoal", use: "C. diff, Trichomoniasis, bacterial vaginosis, Giardia", moa: "Disrupts DNA structure in anaerobic bacteria/protozoa", sideEffects: "Metallic taste, dark urine, severe N/V with alcohol", notes: "Flagyl. ABSOLUTELY NO ALCOHOL during and 3 days after treatment (Disulfiram-like reaction).", blackBox: true },
-    { name: "Vancomycin", class: "Glycopeptide Antibiotic", use: "MRSA, severe C. diff (oral route only)", moa: "Inhibits bacterial cell wall synthesis", sideEffects: "Ototoxicity, Nephrotoxicity, Red Man Syndrome (flushing/hypotension)", notes: "Vancocin. Infuse IV slowly over 60+ mins. Monitor trough levels (10-20 mcg/mL).", highAlert: true },
+    { name: "Vancomycin", class: "Glycopeptide Antibiotic", use: "MRSA, severe C. diff (oral route only)", moa: "Inhibits bacterial cell wall synthesis", sideEffects: "Ototoxicity, Nephrotoxicity, Vancomycin infusion reaction (Red Man; flushing/hypotension)", notes: "Vancocin. Infuse IV slowly over 60+ mins. Monitor trough levels (10-20 mcg/mL).", highAlert: true },
     { name: "Linezolid", class: "Oxazolidinone Antibiotic", use: "VRE (Vancomycin-Resistant Enterococcus), MRSA", moa: "Inhibits bacterial protein synthesis (50S)", sideEffects: "Thrombocytopenia, optic neuropathy, Serotonin Syndrome", notes: "Zyvox. Weak MAOI activity. Avoid tyramine-rich foods and SSRI antidepressants." },
     { name: "Fluconazole", class: "Antifungal (Azole)", use: "Candidiasis (vaginal, oral, systemic), Cryptococcal meningitis", moa: "Inhibits fungal cell membrane synthesis", sideEffects: "Hepatotoxicity, headache, QT prolongation, GI upset", notes: "Diflucan. Many CYP450 drug interactions. Monitor liver enzymes (AST/ALT)." },
     { name: "Ketoconazole", class: "Antifungal (Azole)", use: "Systemic and superficial fungal infections", moa: "Inhibits ergosterol synthesis", sideEffects: "Severe hepatotoxicity, QT prolongation, gynecomastia", notes: "Requires highly acidic stomach for absorption. Potent CYP450 inhibitor.", blackBox: true },
@@ -1422,8 +1424,6 @@ const PHARM_PAIN_RESP = [
     { name: "Methocarbamol", class: "Skeletal Muscle Relaxant", use: "Muscle spasms", moa: "General CNS depression causing muscle relaxation", sideEffects: "Sedation, dizziness, brown/black or green urine", notes: "Robaxin. Warn patient about harmless urine color change." },
     { name: "Allopurinol", class: "Antigout (Xanthine Oxidase Inhibitor)", use: "Chronic gout prevention", moa: "Inhibits xanthine oxidase, preventing the production of uric acid", sideEffects: "Rash (SJS risk), hepatotoxicity, GI upset", notes: "Zyloprim. Drink lots of water. Prevents gout, but does NOT treat acute attacks." },
     { name: "Colchicine", class: "Antigout / Anti-inflammatory", use: "Acute gout attacks", moa: "Inhibits leukocyte migration and phagocytosis in joints", sideEffects: "Severe diarrhea, nausea, vomiting, myelosuppression", notes: "Colcrys. Stop medication immediately if severe GI symptoms occur (toxicity)." },
-    { name: "Methotrexate", class: "DMARD / Immunosuppressant", use: "Rheumatoid Arthritis, Psoriasis, Cancers", moa: "Folic acid antagonist, inhibits DNA synthesis and cell reproduction", sideEffects: "Severe bone marrow suppression, hepatotoxicity, mouth ulcers, teratogenic", notes: "Rheumatrex. Requires folic acid supplementation. Strictly avoid pregnancy.", blackBox: true },
-    { name: "Adalimumab", class: "Biologic DMARD (TNF Inhibitor)", use: "Rheumatoid Arthritis, Crohn's, Psoriasis", moa: "Monoclonal antibody that neutralizes Tumor Necrosis Factor (TNF)-alpha", sideEffects: "Severe infection risk (TB, fungal), injection site reactions, heart failure", notes: "Humira. Patients must be tested for latent TB prior to starting therapy.", blackBox: true },
     { name: "Albuterol", class: "Short-Acting Beta-2 Agonist (SABA)", use: "Acute asthma attacks, bronchospasm", moa: "Stimulates Beta-2 receptors in lungs, relaxing smooth muscle", sideEffects: "Tachycardia, palpitations, tremors, nervousness, hypokalemia", notes: "Ventolin/ProAir. The ultimate RESCUE inhaler. Use before inhaled corticosteroids." },
     { name: "Salmeterol", class: "Long-Acting Beta-2 Agonist (LABA)", use: "Asthma/COPD maintenance", moa: "Sustained stimulation of Beta-2 receptors", sideEffects: "Tachycardia, tremors, headache", notes: "Serevent. NEVER use as a rescue inhaler. For asthma, must be combined with an ICS.", blackBox: true },
     { name: "Ipratropium", class: "Short-Acting Muscarinic Antagonist (SAMA)", use: "COPD, Asthma exacerbations", moa: "Blocks acetylcholine in airway smooth muscle, causing bronchodilation", sideEffects: "Dry mouth, bitter taste, throat irritation", notes: "Atrovent. Often combined with albuterol (DuoNeb). Avoid spraying into eyes (can worsen narrow-angle glaucoma)." },
@@ -1563,7 +1563,8 @@ async function go(mode = 'pdf') {
                 for(let c=0; c<cols; c++) {
                     let idx = r*cols + c;
                     let globalIdx = (p * cardsPerPage) + idx;
-                    let drug = dataset[globalIdx % dataset.length]; // Wrap to fill the final page completely
+                    if (globalIdx >= dataset.length) continue; // leave unused slots on the last page blank
+                    let drug = dataset[globalIdx];
 
                     let cx = startX + (c * cardW), cy = startY + (r * cardH);
                     let clr = getDarkClassColor(drug.cat || drug.class);
@@ -1675,7 +1676,8 @@ async function go(mode = 'pdf') {
                     let mirrorCol = (cols - 1) - c;
                     let idx = r*cols + mirrorCol;
                     let globalIdx = (p * cardsPerPage) + idx;
-                    let drug = dataset[globalIdx % dataset.length];
+                    if (globalIdx >= dataset.length) continue;
+                    let drug = dataset[globalIdx];
 
                     let cx = startX + (c * cardW), cy = startY + (r * cardH);
                     let clr = getDarkClassColor(drug.cat || drug.class);
