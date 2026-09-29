@@ -10,16 +10,19 @@ const ok=(n,c,x='')=>{console.log((c?'ok   ':'FAIL ')+n+(c?'':' '+x));if(!c)proc
 const F='file:///home/user/Dashboard-Creator/monthly-plan/app/AutonomoPlan.html';
 await p.goto(F);await p.evaluate(()=>{localStorage.setItem('jps-autonomo-plan-welcome-v1','1');localStorage.setItem('jps-autonomo-plan-manual-backup',String(Date.now()));});await p.goto(F);await p.waitForTimeout(300);
 ok('new planner in euros',await p.evaluate(()=>state.settings.currency==='EUR'&&state.settings.dateFormat==='dmy'));
+ok('all the Profit Plan screens are in the sidebar',await p.evaluate(()=>['invoices','budget','scheduled','goals','calendar','insights','review','activity','pl','annual'].every(k=>document.querySelector(`.navlink[data-go="${k}"]`))));
+ok('Quick Log is in the top bar',await p.evaluate(()=>{const q=document.querySelector('.topbar [data-action="quick-log"]');return !!q&&getComputedStyle(q).display!=='none';}));
 ok('estimates on by default, next to the records',await p.evaluate(()=>!!document.querySelector('.navlink[data-go="tax"]')&&!!document.querySelector('.navlink[data-go="report"]')));
 // R1. income in dollars: USD 100 gross, 8 fees at 0.9 → payout €82.80
 await p.evaluate(()=>go('income',true));await p.click('#content [data-action="biz-rec-add-income"]');
 await p.fill('#rec-payer','Upwork');await p.selectOption('#rec-cur','USD');await p.fill('#rec-rate','0.9');
 await p.fill('#rec-form [name=gross]','100');await p.fill('#rec-form [name=fees]','8');await p.fill('#rec-form [name=note]','March payout');
-await p.fill('#rec-form [name=evUrl]','https://drive.google.com/file/d/abc/view');await p.waitForTimeout(80);
+await p.fill('#rec-form [name=evUrl]','https://drive.google.com/file/d/abc/view');await p.fill('#rec-form [name=tag]','Contract work');await p.waitForTimeout(80);
 ok('payout and euros worked out live',await p.evaluate(()=>document.querySelector('#rec-form [name=payout]').value==='92.00'&&/payout €82\.80/.test(document.querySelector('#rec-eur').innerText)));
 await p.click('#rec-form button[type=submit]');await p.waitForTimeout(150);
 let r=await p.evaluate(()=>state.transactions.find(t=>t.note==='March payout'));
 ok('income record saved in USD with euros',r&&r.amount===8280&&r.rec.cur==='USD'&&r.rec.gross===10000&&r.rec.fees===800&&r.rec.evidence.length===1,JSON.stringify(r));
+ok('the record keeps its tag',await p.evaluate(()=>{const t=state.transactions.find(t=>t.note==='March payout');return !!t.tag&&state.tags.find(g=>g.id===t.tag)?.name==='Contract work';}));
 ok('the payer is remembered',await p.evaluate(()=>Biz.channels().some(c=>c.name==='Upwork')));
 ok('the USD rate is remembered',await p.evaluate(()=>state.fxRates.USD===0.9));
 // R2. duplicate for next month: same payer and amounts, a month later, no evidence yet
@@ -35,7 +38,7 @@ ok('payout includes IVA less withholding',await p.evaluate(()=>document.querySel
 await p.click('#rec-form button[type=submit]');await p.waitForTimeout(150);
 ok('saved with IVA and withholding',await p.evaluate(()=>{const t=state.transactions.find(t=>t.note==='Factura 7');return t&&t.amount===106000&&t.rec.vat===2100&&t.rec.ret===1500;}));
 await p.evaluate(()=>go('dashboard',true));const db=await p.evaluate(()=>document.querySelector('#content').innerText);
-ok('dashboard shows the monthly set-aside',/Set aside each month/.test(db)&&/This quarter so far/.test(db));
+ok('dashboard shows the monthly set-aside',/Set aside each month/.test(db)&&/IVA, IRPF & money owed/i.test(db)&&/Profit this month/i.test(db));
 await p.evaluate(()=>go('tax',true));ok('tax screen has the month table',await p.evaluate(()=>!!document.querySelector('.set-aside table')&&/Modelo 303/.test(document.querySelector('#content').innerText)));
 await p.evaluate(()=>{const t=state.transactions.find(t=>t.note==='Factura 7');state.transactions=state.transactions.filter(x=>x!==t);save();render();});
 // R3. an expense in euros used half for the business

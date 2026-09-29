@@ -41,10 +41,11 @@ const NICHE = {
   incomeCategory: { digital: 'inc-digital', ai: 'inc-ai', prof: 'inc-prof', other: 'inc-other' },
   feesCategory: 'platform-fees',
   suggestedChannels: ['Etsy', 'YouTube / Google AdSense', 'Patreon', 'Fourthwall', 'Creative Market', 'Creative Fabrica', 'Payhip', 'Gumroad', 'Website sales', 'Affiliate income', 'Sponsorships', 'AI training client'],
-  suggestedTags: [],
-  channelTags: {},
+  suggestedTags: ['Digital products', 'Memberships', 'Ad revenue', 'Affiliates', 'Sponsorships', 'AI training', 'Services', 'Studio tools', 'Admin & compliance'],
+  // the usual tag for a payer, by name (a name that starts with one of these counts too, e.g. "Etsy — My Shop")
+  channelTags: { etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', fourthwall: 'Digital products', 'creative market': 'Digital products', 'creative fabrica': 'Digital products', 'website sales': 'Digital products', patreon: 'Memberships', 'buy me a coffee': 'Memberships', 'ko-fi': 'Memberships', youtube: 'Ad revenue', 'affiliate income': 'Affiliates', sponsorships: 'Sponsorships', 'ai training client': 'AI training', clients: 'Services' },
   // taxRate is unused by the Spanish tax screens but kept so a backup validates like the other editions
-  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, hiddenNav: ['invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review'], es: { exempt130: false, lowIncome: 0, plana: false, planaUntil: '', cadence: 'quarterly', docsDay: 10, estimates: true } },
+  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, hiddenNav: [], es: { exempt130: false, lowIncome: 0, plana: false, planaUntil: '', cadence: 'quarterly', docsDay: 10, estimates: true } },
   tourTopics: 'records, evidence, the gestor report and backups',
 
   // type: income | expense | saving (money moved aside) · cogs: purchases for what you sell
@@ -122,14 +123,15 @@ const NICHE = {
   platformDefaults: { sale: 'inc-digital', refund: 'inc-digital', fees: 'platform-fees', ads: 'advertising', shipping: 'other-expense', feeTax: 'platform-fees', payout: '__skip', conversion: '__skip', taxWithheld: 'irpf-paid', purchase: '', other: '',
     platforms: { paypal: { sale: 'inc-prof', refund: 'inc-prof' }, stripe: { sale: 'inc-prof', refund: 'inc-prof' } } },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['income', 'Income', 'down'], ['expenses', 'Expenses', 'up'], ['evidence', 'Evidence', 'link'], ['payers', 'Payers & platforms', 'globe'], ['report', 'Gestor report', 'print'], ['filings', 'Checklist & dates', 'check'], ['taxlines', 'Year-end summary', 'tags'], ['tax', 'IVA & IRPF estimates', 'shield'], ['activity', 'All transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['invoices', 'Invoices', 'table'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  nav: [['dashboard', 'Dashboard', 'today'], ['income', 'Income', 'down'], ['expenses', 'Expenses', 'up'], ['evidence', 'Evidence', 'link'], ['payers', 'Payers & platforms', 'globe'], ['invoices', 'Invoices', 'table'], ['report', 'Gestor report', 'print'], ['filings', 'Checklist & dates', 'check'], ['taxlines', 'Year-end summary', 'tags'], ['tax', 'IVA & IRPF estimates', 'shield'], ['activity', 'All transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   optionalNav: ['filings', 'taxlines', 'activity', 'pl', 'annual', 'invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review', 'guide'],
   // the estimate screens only appear when switched on in Settings
   estimateNav: ['tax', 'taxlines'],
-  navGroups: [['Records', ['dashboard', 'income', 'expenses', 'evidence', 'payers']], ['For your gestor', ['report', 'filings', 'taxlines', 'tax']], ['Reports & planning', ['activity', 'pl', 'annual', 'invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review']]],
+  navGroups: [['Records', ['dashboard', 'income', 'expenses', 'evidence', 'payers', 'invoices']], ['For your gestor', ['report', 'filings', 'taxlines', 'tax']], ['Your business', ['activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']]],
   navGroupRest: 'Settings & help',
 
   labels: {
+    channelShort: 'platform', channelOne: 'Payer / platform', channelsTitle: 'Payers & platforms', channelPlaceholder: 'e.g. Etsy, Patreon, a client',
     income: 'Revenue', expense: 'Expenses', saving: 'Transfers & draws', savingShort: 'Transfers', savingOne: 'Transfer',
     incomePlanned: 'Expected revenue', incomeReceived: 'Money received', expensesPaid: 'Money paid out', savedInvested: 'Transfers & draws',
     plannedContributions: 'Planned transfers', savingsFilter: 'Transfers & draws',
@@ -161,6 +163,7 @@ const NICHE = {
     { icon: 'globe', step: 'CURRENCIES', title: 'Earn in dollars, report in euros', text: '<p>Enter each amount in the currency it was paid in, with the euro rate for that day. The report shows the euro figures your gestor needs, with the original amount and rate beside each one.</p>' },
     { icon: 'link', step: 'EVIDENCE', title: 'The proof sits with the record', text: '<p>Paste a Google Drive or Dropbox link to the invoice, statement or screenshot. Records without one are marked <b>Missing</b>, so the gaps show before your gestor asks.</p>' },
     { icon: 'print', step: 'GESTOR', title: 'One report for any period', text: '<p><b>Gestor report</b> prints a month, a quarter or the year: totals by activity and platform, every record, and an appendix of evidence links. Save it as a PDF and send it.</p><p><b>Not tax, legal or financial advice.</b> Figures are indicative; your gestor files the forms.</p>' },
+    { icon: 'table', step: 'IMPORT', title: 'Or bring in a statement', text: '<p>Import a bank CSV, or a statement from Etsy, PayPal, Stripe and similar platforms: each sale is split from its fees, and amounts in another currency are converted at a rate you choose. Imported rows arrive as records marked <b>Missing</b> until you add their evidence.</p>', cta: { label: 'Import a statement', action: 'welcome-import' } },
     'backup',
     { icon: 'check', step: 'START', title: 'Start with one payment', text: '<p>Add the last payment you received, with its rate and a link to its confirmation. Your dashboard fills in from there.</p><p>Want a clean slate later? <b>Settings → Start fresh</b> clears the books in one step.</p>', cta: { label: 'Add a record', action: 'welcome-log' } },
   ],
@@ -220,13 +223,14 @@ const NICHE = {
     extras: (s, { m, year, now, uid, totals }) => {
       const monthNo = +m.slice(5, 7), pad = n => String(n).padStart(2, '0'), link = k => `https://drive.google.com/file/d/sample-${k}/view`;
       const usd = [1.09, 1.08, 1.08, 1.07, 1.08, 1.08, 1.09, 1.10, 1.11, 1.11, 1.12, 1.12].map(x => Math.round(1e6 / x) / 1e6);   // EUR per 1 USD
+      s.tags = [['tg-digital', 'Digital products'], ['tg-members', 'Memberships'], ['tg-ads', 'Ad revenue'], ['tg-ai', 'AI training'], ['tg-tools', 'Studio tools'], ['tg-admin', 'Admin & compliance'], ['tg-mkt', 'Marketing']].map(([id, name], i) => ({ id, name, color: i + 1 }));
       s.channels = [
-        { id: 'py-etsy-a', name: 'Etsy — Lumen Patterns', act: 'digital', cur: 'USD', acct: 'business-bank' },
-        { id: 'py-etsy-b', name: 'Etsy — Lumen Prints', act: 'digital', cur: 'USD', acct: 'business-bank' },
-        { id: 'py-patreon', name: 'Patreon', act: 'digital', cur: 'USD', acct: 'paypal' },
-        { id: 'py-youtube', name: 'YouTube / Google AdSense', act: 'digital', cur: 'USD', acct: 'business-bank' },
-        { id: 'py-cfabrica', name: 'Creative Fabrica', act: 'digital', cur: 'USD', acct: 'paypal' },
-        { id: 'py-ai', name: 'Northstar AI', act: 'ai', cur: 'USD', acct: 'personal-bank', evidence: [{ id: 'ev-1099', type: 'taxform', url: link('1099-northstar'), name: '1099-NEC Northstar AI.pdf', year: +year - 1 }] },
+        { id: 'py-etsy-a', name: 'Etsy — Lumen Patterns', act: 'digital', cur: 'USD', acct: 'business-bank', tag: 'tg-digital' },
+        { id: 'py-etsy-b', name: 'Etsy — Lumen Prints', act: 'digital', cur: 'USD', acct: 'business-bank', tag: 'tg-digital' },
+        { id: 'py-patreon', name: 'Patreon', act: 'digital', cur: 'USD', acct: 'paypal', tag: 'tg-members' },
+        { id: 'py-youtube', name: 'YouTube / Google AdSense', act: 'digital', cur: 'USD', acct: 'business-bank', tag: 'tg-ads' },
+        { id: 'py-cfabrica', name: 'Creative Fabrica', act: 'digital', cur: 'USD', acct: 'paypal', tag: 'tg-digital' },
+        { id: 'py-ai', name: 'Northstar AI', act: 'ai', cur: 'USD', acct: 'personal-bank', tag: 'tg-ai', evidence: [{ id: 'ev-1099', type: 'taxform', url: link('1099-northstar'), name: '1099-NEC Northstar AI.pdf', year: +year - 1 }] },
       ];
       s.transactions = s.transactions.filter(t => ['cuota', 'software', 'professional'].includes(t.category));
       // the recurring costs become records too, with their evidence
@@ -253,6 +257,9 @@ const NICHE = {
         if (i === 4) exp(`${k}-18`, 'PcComponentes', 'office-equipment', 'Monitor 27"', 32900, 'EUR', 5710, 80);
         if (i === 6) exp(`${k}-12`, 'Domestika', 'education', 'Illustration course', 3990, 'EUR', 692, 100, false);
       }
+      // costs by kind, for the expense tag chart
+      const costTag = { software: 'tg-tools', hosting: 'tg-tools', 'design-assets': 'tg-tools', 'office-equipment': 'tg-tools', education: 'tg-tools', cuota: 'tg-admin', professional: 'tg-admin', advertising: 'tg-mkt' };
+      s.transactions.forEach(t => { if (t.rec?.kind === 'expense' && costTag[t.category]) t.tag = costTag[t.category]; });
       s.checklist = {};
       [[1, '04'], [2, '07']].forEach(([q, mm]) => ['issued', 'received', 'bank', 'platforms', 'cuota'].forEach(k => { const d = `${year}-${mm}-08`; if (d <= now) s.checklist[`${year}-Q${q}:${k}`] = d; }));
       s.invoices = [];
@@ -1389,10 +1396,23 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .check-item{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--rule);cursor:pointer}
 .check-item input{width:18px;height:18px;flex:none;accent-color:var(--accent)}.check-text{flex:1;min-width:0}.check-text b{display:block;font-weight:600}.check-text small{color:var(--ink-3)}
 .check-due{flex:none;font-size:12px;color:var(--ink-2);white-space:nowrap}.check-item.is-done .check-text b{text-decoration:line-through;color:var(--ink-3)}.check-item.is-late .check-due{color:var(--over);font-weight:700}
-.set-aside-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:6px 0 14px}.set-aside-nums .pot-num{font-size:clamp(20px,2.4vw,28px)}
+.sa-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:8px 0 12px}
+.sa-panel{background:var(--sunk);border:1px solid var(--rule);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.sa-now{background:var(--accent-soft);border-color:var(--accent-line)}
+.sa-label{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}.sa-label svg{width:14px;height:14px;color:var(--accent)}
+.sa-num{font:700 clamp(22px,2.4vw,30px) var(--num);letter-spacing:-.02em;color:var(--ink)}
+.sa-split{display:flex;gap:2px;height:8px;border-radius:4px;background:var(--rule);overflow:hidden;margin-top:auto}.sa-split i{display:block;height:100%}
+.sa-iva{background:var(--cat-1)}.sa-irpf{background:var(--cat-4)}
+.sa-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}.sa-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}.sa-legend b{font:650 12px var(--num);color:var(--ink)}
+.sa-bars{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:58px;margin-top:auto}
+.sa-bar{display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;outline-offset:2px}.sa-bar i{display:block;width:100%;border-radius:3px 3px 1px 1px;background:color-mix(in srgb,var(--accent) 35%,transparent)}
+.sa-bar.is-now i{background:var(--accent)}.sa-bar.is-future i{background:none}.sa-bar small{font-size:9.5px;color:var(--ink-3);line-height:1}.sa-bar.is-now small{color:var(--accent);font-weight:700}
+.sa-track{margin-top:auto}.sa-pot-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);flex-wrap:wrap}
+.sa-move{align-self:flex-start;font-size:12px}.sa-table{margin-top:4px}.sa-table summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--accent);padding:6px 0}.sa-note{margin-top:8px}
+@media(max-width:900px){.sa-grid{grid-template-columns:1fr}.sa-bars{height:48px}}
 .check-next{width:100%;margin-top:12px;border:1px dashed var(--rule-2);border-radius:var(--r-md);background:transparent;padding:10px 12px;font:inherit;color:inherit;text-align:left;cursor:pointer}
 @media(max-width:620px){.check-item{flex-wrap:wrap}.check-due{width:100%;padding-left:30px}}
-.records .topbar [data-action="quick-log"]{display:none}
+
 .rec-quick{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;margin-bottom:var(--s3)}.rec-quick select,.rec-quick input{width:auto}
 body[data-screen="income"] .month-control,body[data-screen="income"] #month-tabs,body[data-screen="expenses"] .month-control,body[data-screen="expenses"] #month-tabs,body[data-screen="evidence"] .month-control,body[data-screen="evidence"] #month-tabs,body[data-screen="payers"] .month-control,body[data-screen="payers"] #month-tabs,body[data-screen="report"] .month-control,body[data-screen="report"] #month-tabs{display:none}
 .rec-table td small,.rec-table td .dim{display:block}.rec-table tr.is-reviewed td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
@@ -1524,6 +1544,8 @@ tr.is-sel td{background:color-mix(in srgb,var(--accent) 7%,var(--card))}
 const Budget = ((P) => {
   const THEMES=P.themes.slice();
   const MAX_QUICK_MEMORY=500,MAX_CHANNELS=30,MAX_TAGS=30,TAG_COLORS=8;
+  // the usual tag for a channel or payer by its name: an exact match, else the longest name it starts with ("Etsy — My Shop" → etsy)
+  const usualTagFor=name=>{const n=String(name||'').trim().toLowerCase(),T=P.channelTags||{};if(T[n])return T[n];const k=Object.keys(T).filter(k=>n.startsWith(k)&&!/[a-z0-9]/.test(n.charAt(k.length))).sort((a,b)=>b.length-a.length)[0];return k?T[k]:'';};
   const CURRENCIES=['USD','EUR','GBP','CAD','AUD','NZD','INR','NGN','ZAR','JPY','CNY','CHF','SEK','NOK','DKK','PLN','CZK','HUF','RON','BGN','TRY','RUB','UAH','ILS','AED','SAR','QAR','KWD','EGP','KES','GHS','TZS','UGX','MAD','BRL','MXN','ARS','CLP','COP','PEN','SGD','HKD','MYR','THB','PHP','IDR','VND','KRW','TWD','PKR','BDT','LKR','NPR','ISK','HRK','RSD'];
   const DATE_FORMATS={auto:'Match my device',dmy:'21 Sep 2026',mdy:'Sep 21, 2026',ymd:'2026-09-21'};
   // A group's flags drive every view: type (income | expense | saving = money moved aside, e.g.
@@ -1545,7 +1567,8 @@ const Budget = ((P) => {
   const cents = s => {if(!/^\d{1,8}(\.\d{1,2})?$/.test(String(s).trim())) throw Error('Use a positive amount with up to two decimal places.');return Math.round(Number(s)*100);};
   const blank = () => ({version:1,...(P.id!=='budget'?{niche:P.id}:{}),settings:{name:'',currency:'USD',symbol:'',dateFormat:'auto',theme:THEMES[0],hiddenNav:[],...JSON.parse(JSON.stringify(P.settings||{}))},baseline:{},
     categories:P.categories.map(([id,name,group,taxLine,vat])=>({id,name,group,archived:false,...(taxLine?{taxLine}:{}),...(P.features.vat&&vat!==undefined?{vat}:{})})),
-    months:{},transactions:[],goals:[],reviews:{},schedules:[],snapshots:{},quickMemory:{},importMap:{},...(P.features.mileage?{mileage:[]}:{}),...(P.features.invoices?{invoices:[]}:{}),...(P.features.channels?{channels:(P.seedPayers||[]).map(([id,name,act,cur])=>({id,name,...(act?{act}:{}),...(cur?{cur}:{})})),channelRules:{},tags:[],tagRules:{}}:{})});
+    months:{},transactions:[],goals:[],reviews:{},schedules:[],snapshots:{},quickMemory:{},importMap:{},...(P.features.mileage?{mileage:[]}:{}),...(P.features.invoices?{invoices:[]}:{}),...(P.features.channels?(()=>{const tags=[],tagId=n=>{if(!n)return '';let g=tags.find(x=>x.name===n);if(!g){g={id:'tg-'+(tags.length+1),name:n,color:tags.length%TAG_COLORS+1};tags.push(g);}return g.id;};
+      return {channels:(P.seedPayers||[]).map(([id,name,act,cur])=>{const tag=tagId(usualTagFor(name));return {id,name,...(act?{act}:{}),...(cur?{cur}:{}),...(tag?{tag}:{})};}),channelRules:{},tags,tagRules:{}};})():{})});
   const month = (s,m) => s.months[m] || {plan:{},opening:0,note:'',closed:false};
   // The usual amounts repeat every month; a month stores only the categories it changes.
   const planFor = (s,m) => ({...(s.baseline||{}),...(month(s,m).plan||{})});
@@ -1680,12 +1703,14 @@ const Budget = ((P) => {
     const act=r.act||ch?.act||(P.categoryActivity||{})[t.category]||'other',evidence=r.evidence||[],status=r.status||(evidence.length?'complete':'missing');
     const base={id:t.id,date:t.date,month:t.date.slice(0,7),kind,act,category:t.category,categoryName:c?.name||'',payer:t.channel||'',payerName:ch?.name||'',description:t.note,cur,rate,
       acct:r.acct||'',evidence,status,auto:!r.status,reviewed:r.reviewed||'',notes:r.notes||'',record:!!t.rec};
-    if(kind==='income'){const o=t.rec?r:{gross:Math.max(0,fx?fx.amount:t.amount),refunds:Math.max(0,-(fx?fx.amount:t.amount)),fees:0,payout:fx?fx.amount:t.amount};
-      const x=t.rec?recTax(r):{iva:0,ret:0};
+    // a plain entry with IVA or withholding (a paid invoice, Quick Log) is read on its base
+    const sp=!t.rec&&!fx&&P.features.vat&&(t.vat||t.ret)?vatSplit(t):null;
+    if(kind==='income'){const b=sp?sp.base:(fx?fx.amount:t.amount),o=t.rec?r:{gross:Math.max(0,b),refunds:Math.max(0,-b),fees:0,payout:fx?fx.amount:t.amount};
+      const x=t.rec?recTax(r):{iva:sp?sp.vat:0,ret:sp?sp.ret:0};
       return {...base,gross:o.gross,refunds:o.refunds,fees:o.fees,payout:o.payout,grossEUR:eur(o.gross,rate),refundsEUR:eur(o.refunds,rate),feesEUR:eur(o.fees,rate),payoutEUR:t.rec?eur(o.payout,rate):t.amount,vat:r.vat||0,ret:r.ret||0,ivaEUR:x.iva,retEUR:x.ret};}
     const amt=t.rec?r.amount:(fx?fx.amount:t.amount),pct=t.rec?(r.pct??100):100,amountEUR=t.rec?eur(amt,rate):t.amount;
-    const x=t.rec?recTax(r):{base:amountEUR,iva:0};
-    return {...base,vendor:r.vendor||ch?.name||'',amount:amt,amountEUR,vatShown:r.vatShown||0,vatShownEUR:eur(r.vatShown||0,rate),ivaDed:t.rec?ivaDed(r):false,ivaEUR:x.iva,pct,deductibleEUR:x.base};}
+    const x=t.rec?recTax(r):sp?{base:sp.base,iva:sp.vat}:{base:amountEUR,iva:0};
+    return {...base,vendor:r.vendor||ch?.name||'',amount:amt,amountEUR,vatShown:r.vatShown||(sp?sp.vat:0),vatShownEUR:eur(r.vatShown||0,rate)||(sp?sp.vat:0),ivaDed:t.rec?ivaDed(r):!!sp,ivaEUR:x.iva,pct,deductibleEUR:x.base};}
   // Everything the gestor needs for a period: totals, by activity, Digital Studio by platform,
   // the income and expense rows, and an index of the evidence behind them.
   function gestorReport(s,from,to){
@@ -2080,7 +2105,7 @@ const Budget = ((P) => {
     if(S.extras)S.extras(s,{m,year,now,uid,days,shift,plusDays,totals:(st,mm)=>{invalidate(st);return totals(st,mm);}});
     return s;
   }
-  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,tagFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,VAT_RATES,RET_RATES,vatSplit,netOf,esTax,esMonths,takeHome,esChecklist,recOf,recTax,recPayout,gestorReport,recCash,eur,ACTS,EV_TYPES,ACCOUNTS,EV_STATUS,cuotaFor,irpfScale,workday,CUOTA_TRAMOS,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,invoiceTotal,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
+  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,tagFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,VAT_RATES,RET_RATES,vatSplit,netOf,esTax,esMonths,takeHome,usualTagFor,esChecklist,recOf,recTax,recPayout,gestorReport,recCash,eur,ACTS,EV_TYPES,ACCOUNTS,EV_STATUS,cuotaFor,irpfScale,workday,CUOTA_TRAMOS,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,invoiceTotal,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
 })(NICHE);
 if(typeof module!=='undefined')module.exports=Budget;
 
@@ -4012,13 +4037,25 @@ const Biz=(()=>{
  // how much to put aside each month for IVA and IRPF, and why
  // the records dashboard reads the month chosen in the top bar: up to today in the current month, the whole month otherwise
  const viewAsOf=()=>{const t0=today();return selected===t0.slice(0,7)?t0:Budget.endOf(selected);};
- function setAsideCard(y,full,asOf=today()){const t0=asOf,M=Budget.esMonths(state,y,t0),cur=M.months.at(-1),thisYear=t0===today();
+ function setAsideCard(y,full,asOf=today()){const t0=asOf,M=Budget.esMonths(state,y,t0),cur=M.months.at(-1),live=t0===today(),rate=pctText(Math.round(M.rate*10000));
   if(!cur)return `<section class="card"><h2>Set aside each month</h2><p class="subtitle">Nothing recorded in ${y} yet.</p></section>`;
-  const row=x=>`<tr><td>${shortMonth(x.month)}</td><td class="num">${acct(x.net)}</td><td class="num">${acct(x.iva)}</td><td class="num">${acct(x.irpf)}</td><td class="num"><b>${acct(x.total)}</b></td></tr>`;
-  return `<section class="card set-aside"><div class="cardhead"><div><h2>Set aside each month</h2><p>IVA plus IRPF at ${pctText(Math.round(M.rate*10000))} of profit, less what clients withheld</p></div>${full?'':`<button class="link" data-go="tax">IVA &amp; IRPF</button>`}</div>`+
-   `<div class="set-aside-nums"><div><small class="dim">${thisYear?`${shortMonth(cur.month)} so far`:`${shortMonth(cur.month)}`}</small><div class="pot-num number">${fmt(M.current)}</div></div><div><small class="dim">Average per month, ${y}</small><div class="pot-num number">${fmt(M.average)}</div></div><div><small class="dim">For the year so far</small><div class="pot-num number">${fmt(M.total)}</div></div></div>`+
-   (full?`<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Profit</th><th class="num">IVA</th><th class="num">IRPF</th><th class="num">Set aside</th></tr></thead><tbody>${M.months.map(row).join('')}</tbody></table></div>`:'')+
-   `<p class="small muted" style="margin-top:10px">${M.rate>0.2?`At this year’s pace your income tax comes to about ${pctText(Math.round(M.rate*10000))} of profit, above the 20% Modelo 130 rate, so this covers the Renta too.`:'20% is what the Modelo 130 asks for; the Renta settles the difference.'} A month with a refund or a loss lowers the total. Indicative: compare it with your gestor’s figures.</p></section>`;}
+  // 1 · this month, split into IVA and IRPF
+  const iva=Math.max(0,cur.iva),irpf=Math.max(0,cur.irpf),split=Math.max(1,iva+irpf);
+  const month=`<div class="sa-panel sa-now"><div class="sa-label">${ico('calendar')}${live?`${shortMonth(cur.month)} so far`:monthName(cur.month)}</div><div class="sa-num number">${fmt(M.current)}</div>`+
+   `<div class="sa-split" role="img" aria-label="${esc(`IVA ${fmt(iva)}, IRPF ${fmt(irpf)}`)}">${iva?`<i class="sa-iva" style="width:${iva/split*100}%"></i>`:''}${irpf?`<i class="sa-irpf" style="width:${irpf/split*100}%"></i>`:''}</div>`+
+   `<div class="sa-legend"><span><i class="sa-iva"></i>IVA <b>${acct(cur.iva)}</b></span><span><i class="sa-irpf"></i>IRPF <b>${acct(cur.irpf)}</b></span></div></div>`;
+  // 2 · the rhythm: every month of the year as a small bar, this one highlighted
+  const all=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),by=new Map(M.months.map(x=>[x.month,x])),top=Math.max(1,...M.months.map(x=>Math.max(0,x.total)));
+  const bars=all.map(k=>{const x=by.get(k),v=x?Math.max(0,x.total):0;return `<div class="sa-bar${k===cur.month?' is-now':''}${x?'':' is-future'}" tabindex="0" data-tip="${esc(JSON.stringify({t:monthName(k),r:x?[{name:'Set aside',value:fmt(x.total)},{name:'IVA',value:acct(x.iva)},{name:'IRPF',value:acct(x.irpf)}]:[{name:'Not started',value:'—'}]}))}"><i style="height:${x?Math.max(4,v/top*100):0}%"></i><small>${shortMonth(k).slice(0,1)}</small></div>`;}).join('');
+  const rhythm=`<div class="sa-panel"><div class="sa-label">${ico('insights')}Average per month</div><div class="sa-num number">${fmt(M.average)}</div><div class="sa-bars" role="img" aria-label="Set aside by month">${bars}</div></div>`;
+  // 3 · the pot: what the year needs against what you have moved or paid
+  const have=state.transactions.filter(t=>t.date.slice(0,4)===y&&t.date<=t0&&Budget.group(category(t.category)||{group:''})?.tax).reduce((n,t)=>n+t.amount,0),need=M.total,fill=need?Math.min(100,have/need*100):100,gap=have-need,pot=esCat('tax-pot');
+  const potPanel=`<div class="sa-panel sa-pot"><div class="sa-label">${ico('shield')}Tax pot · ${y}</div><div class="sa-num number">${fmt(need)}</div><small class="dim">needed for the year so far</small>`+
+   `<div class="pot-track sa-track"><i class="${gap<0?'behind':''}" style="width:${fill}%"></i></div><div class="sa-pot-foot"><span>${fmt(have)} moved or paid</span><span class="pill ${gap<0?'warn':'good'}">${gap<0?`${fmt(-gap)} to go`:gap?`${fmt(gap)} ahead`:'On track'}</span></div>${pot?`<button class="link sa-move" data-action="biz-log-tax" data-id="${pot.id}">Move money to the pot</button>`:''}</div>`;
+  return `<section class="card set-aside"><div class="cardhead"><div><h2>Set aside each month</h2><p>IVA plus IRPF at ${rate} of profit, less what clients withheld</p></div>${full?'':`<button class="link" data-go="tax">IVA &amp; IRPF</button>`}</div>`+
+   `<div class="sa-grid">${month}${rhythm}${potPanel}</div>`+
+   (full?`<details class="sa-table"><summary>Month by month</summary><div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Profit</th><th class="num">IVA</th><th class="num">IRPF</th><th class="num">Set aside</th></tr></thead><tbody>${M.months.map(x=>`<tr><td>${shortMonth(x.month)}</td><td class="num">${acct(x.net)}</td><td class="num">${acct(x.iva)}</td><td class="num">${acct(x.irpf)}</td><td class="num"><b>${acct(x.total)}</b></td></tr>`).join('')}</tbody></table></div></details>`:'')+
+   `<p class="small muted sa-note">${M.rate>0.2?`At this year’s pace your income tax comes to about ${rate} of profit, above the 20% Modelo 130 rate, so this covers the Renta too.`:'20% is what the Modelo 130 asks for; the Renta settles the difference.'} A month with a refund or a loss lowers the total. Indicative: compare it with your gestor’s figures.</p></section>`;}
  function cuotaCard(T){const C=T.cuota,paidCat=esCat('cuota');
   if(!T.months)return `<section class="card"><h2>Your cuota de autónomos</h2><p class="subtitle">Nothing recorded in ${T.year} yet.</p></section>`;
   const diff=(C.cuota-C.avgPaid)*C.paidMonths;
@@ -4169,9 +4206,9 @@ const Biz=(()=>{
    `<div class="full ev-list"><div class="ev-head"><b>Evidence</b><button type="button" class="link" data-action="ev-row-add">+ Add a link or file</button></div><div id="ev-rows">${(dup||!r?[]:r.evidence).map(evRow).join('')||evRow()}</div><small class="dim">Paste a Google Drive or other link, or a file name you keep. Add as many as you need.</small></div>`+
    `<label class="full">Notes<textarea name="notes" rows="2" maxlength="1000">${esc(r?.notes||'')}</textarea></label><label class="checkline full"><input type="checkbox" name="reviewed" ${!dup&&r?.reviewed?'checked':''}><span>Reviewed by me</span></label>`;
   const payers=`<datalist id="rec-payers">${channels().map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>`,vendors=`<datalist id="rec-vendors">${[...new Set(recAll().filter(x=>x.kind==='expense'&&x.vendor).map(x=>x.vendor))].map(v=>`<option value="${esc(v)}">`).join('')}</datalist>`;
-  const body=inc?`<label>Date<input type="date" name="date" required value="${date}"></label><label>Activity<select name="act" id="rec-act">${actOptions(r?.act||'digital')}</select></label><label class="full">Income source / payer<input name="payer" id="rec-payer" list="rec-payers" required maxlength="40" autocomplete="off" value="${esc(r?.payerName||'')}" placeholder="e.g. Etsy — My Shop, Patreon, a client">${payers}</label><label class="full">Description<input name="note" maxlength="500" value="${esc(r?.description||'')}" placeholder="e.g. September 2026 platform activity"></label>${rateField}`+
+  const body=inc?`<label>Date<input type="date" name="date" required value="${date}"></label><label>Activity<select name="act" id="rec-act">${actOptions(r?.act||'digital')}</select></label><label class="full">Income source / payer<input name="payer" id="rec-payer" list="rec-payers" required maxlength="40" autocomplete="off" value="${esc(r?.payerName||'')}" placeholder="e.g. Etsy — My Shop, Patreon, a client">${payers}</label>${tagField(src)}<label class="full">Description<input name="note" maxlength="500" value="${esc(r?.description||'')}" placeholder="e.g. September 2026 platform activity"></label>${rateField}`+
     `<label>Gross income<input name="gross" type="number" min="0" step="0.01" value="${r?val(r.gross):''}" placeholder="0.00"></label><label>Refunds<input name="refunds" type="number" min="0" step="0.01" value="${r&&r.refunds?val(r.refunds):''}" placeholder="0.00"></label><label>Platform fees<input name="fees" type="number" min="0" step="0.01" value="${r&&r.fees?val(r.fees):''}" placeholder="0.00"></label>${taxIn}<label>Net payout<input name="payout" type="number" step="0.01" value="${r?val(r.payout):''}" placeholder="Gross − refunds − fees" data-auto="${r?'0':'1'}"><small>Filled in for you; change it if the payout differed</small></label><p class="full small rec-eur" id="rec-eur"></p>`+common
-   :`<label>Date<input type="date" name="date" required value="${date}"></label><label>Activity<select name="act">${actOptions(r?.act||'digital')}</select></label><label class="full">Vendor / payee<input name="vendor" list="rec-vendors" maxlength="100" autocomplete="off" value="${esc(r?.vendor||'')}" placeholder="e.g. Canva, Gestoría Martín">${vendors}</label><label class="full">Expense category<select name="category" required>${expenseCats().map(c=>`<option value="${c.id}" ${c.id===(r?.category||'software')?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label><label class="full">Description<input name="note" maxlength="500" value="${esc(r?.description||'')}" placeholder="What it was for"></label>${rateField}`+
+   :`<label>Date<input type="date" name="date" required value="${date}"></label><label>Activity<select name="act">${actOptions(r?.act||'digital')}</select></label><label class="full">Vendor / payee<input name="vendor" list="rec-vendors" maxlength="100" autocomplete="off" value="${esc(r?.vendor||'')}" placeholder="e.g. Canva, Gestoría Martín">${vendors}</label><label class="full">Expense category<select name="category" required>${expenseCats().map(c=>`<option value="${c.id}" ${c.id===(r?.category||'software')?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>${tagField(src)}<label class="full">Description<input name="note" maxlength="500" value="${esc(r?.description||'')}" placeholder="What it was for"></label>${rateField}`+
     `<label>Amount<input name="amount" type="number" min="0" step="0.01" required value="${r?val(r.amount):''}" placeholder="0.00"></label><label>VAT / tax shown<input name="vatShown" type="number" min="0" step="0.01" value="${r&&r.vatShown?val(r.vatShown):''}" placeholder="0.00"><small>As printed on the receipt, if any</small></label>${dedIva}<label>Business use %<input name="pct" type="number" min="0" max="100" step="1" value="${r?r.pct:100}"></label><p class="full small rec-eur" id="rec-eur"></p>`+common;
   modal(`${id?'Edit':dup?'Duplicate':'Add'} ${inc?'income':'expense'}`,inc?'Enter the amounts in the currency you were paid in. Euros are worked out from the rate.':'Enter the amount in the currency you paid in. The deductible amount is indicative, for your gestor to review.',`<form id="rec-form" data-kind="${kind}" data-id="${id}"><div class="fields">${body}</div>${formFoot(id?'Save changes':'Save record',id?`<button type="button" class="btn danger" data-action="delete-transaction" data-id="${id}">Delete</button>`:'')}</form>`);
   recPreview();}
@@ -4207,7 +4244,9 @@ const Biz=(()=>{
    rec={kind,act,vendor:String(d.get('vendor')||'').trim(),cur,rate,amount:amt,vatShown:c('vatShown'),ivaDed:d.get('ivaDed')==='on',pct,acct,evidence:ev,status,reviewed,notes};amount=Budget.eur(amt,rate);}
   const t={...(old||{}),id:id||Budget.uid(),date,category:catId,amount,note:String(d.get('note')||'').trim(),rec};delete t.vat;delete t.ret;delete t.fx;if(!inc)delete t.channel;
   closeModal();let dupMsg='';
+  const tg=tagForSave(d.get('tag'),inc?payerName:'');
   commit(()=>{if(inc){t.channel=ensureChannel(payerName);const ch=channels().find(x=>x.id===t.channel);if(ch){ch.act=act;ch.cur=cur;if(acct)ch.acct=acct;}}
+   if(tg)t.tag=ensureTag(tg);else delete t.tag;
    if(cur!=='EUR'){state.fxRates??={};state.fxRates[cur]=rate;}
    if(id)state.transactions=state.transactions.map(x=>x.id===id?t:x);else state.transactions.push(t);selected=date.slice(0,7);
    const me=Budget.recOf(state,t),twin=recAll().find(r=>r.id!==t.id&&r.kind===me.kind&&r.date===me.date&&r.cur===me.cur&&(inc?r.payer===me.payer&&r.gross===me.gross:r.vendor.toLowerCase()===me.vendor.toLowerCase()&&r.amount===me.amount));if(twin)dupMsg=' · looks like a duplicate of another record';},
@@ -4267,16 +4306,12 @@ const Biz=(()=>{
   const inc=l=>l.filter(r=>r.kind==='income'),exp=l=>l.filter(r=>r.kind==='expense'),miss=all.filter(r=>r.status==='missing'),review=all.filter(r=>r.status==='review');
   const result=s(inc(Y),'grossEUR')-s(inc(Y),'refundsEUR')-s(inc(Y),'feesEUR')-s(exp(Y),'deductibleEUR');
   const acts=(P.activities||[]).filter(([id])=>id!=='other'||inc(Y).some(r=>r.act==='other')).map(([id,n])=>[n,s(inc(Y).filter(r=>r.act===id),'grossEUR')]),actMax=Math.max(1,...acts.map(a=>a[1]));
-  const byPayer=new Map();inc(Y).forEach(r=>byPayer.set(r.payerName||'Unassigned',(byPayer.get(r.payerName||'Unassigned')||0)+r.grossEUR));
-  const byCat=new Map();exp(Y).forEach(r=>byCat.set(r.categoryName,(byCat.get(r.categoryName)||0)+r.amountEUR));
-  const donut=(map,label,of)=>{const rows=[...map.entries()].filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]),total=rows.reduce((a,[,v])=>a+v,0),N=namedSlices(rows.length),parts=rows.slice(0,N).map(([n,v],i)=>[n,v,SLICE_COLORS[i],`${sharePct(v,total)} of ${of}`]),rest=rows.slice(N).reduce((a,[,v])=>a+v,0);if(rest)parts.push(['Other',rest,SLICE_COLORS[8],`${sharePct(rest,total)} of ${of}`]);return parts.length?donutMarkup(parts,total,label):empty('Nothing recorded yet',`Add a record to see this.`);};
-  return pagehead(monthName(m),state.settings.name?`${esc(state.settings.name)} · your records`:'Your records at a glance','',button('Add expense','biz-rec-add-expense','quiet')+button('Add income','biz-rec-add-income','primary'))+
+  return pagehead(monthName(m),state.settings.name?`${esc(state.settings.name)} · your records`:'Your records at a glance','',button('Print summary','print','quiet')+button('Add expense','biz-rec-add-expense','quiet')+button('Add income','biz-rec-add-income','primary'))+
    (miss.length||review.length?`<div class="notice warning"><span><b>${miss.length} record${miss.length===1?' is':'s are'} missing supporting evidence.</b>${review.length?` ${review.length} marked Needs review.`:''} Add a Drive link or file name so your gestor package is complete.</span>${button('Open Evidence','go-evidence','small')}</div>`:'')+
    `<div class="kpis kpis-lead">${kpi(`Income · ${shortMonth(m)}`,s(inc(M),'grossEUR'),'Gross, in euros','down')}${kpi(`Expenses · ${shortMonth(m)}`,s(exp(M),'amountEUR'),'In euros','up')}${kpi(`Gross income · ${y}`,s(inc(Y),'grossEUR'),'Year to date','insights')}${kpi(`Expenses · ${y}`,s(exp(Y),'amountEUR'),`Indicative deductible ${fmt(s(exp(Y),'deductibleEUR'))}`,'coins')}${kpi('Indicative result',result,'Year to date · review with your gestor','wallet',result<0?'warn':'')}</div>`+takeHomeHero()+
-   (VAT&&state.settings.es?.estimates?`<div class="grid2">${setAsideCard(y,false,t0)}<section class="card"><div class="cardhead"><div><h2>This quarter so far</h2><p>Estimated Modelo 303 and 130</p></div><button class="link" data-go="tax">Details</button></div>${esSide(true)}</section></div>`:'')+
+   dashboard()+(VAT&&state.settings.es?.estimates?setAsideCard(y,false,t0):'')+
    `<div class="grid2"><section class="card"><div class="cardhead"><div><h2>Income by activity</h2><p>${y} to date · gross, in euros</p></div><button class="link" data-go="income">Income</button></div>${acts.map(([n,v])=>`<div class="budget-row"><div class="row"><strong>${esc(n)}</strong><span class="number">${fmt(v)}</span></div><div class="meter"><i style="width:${v/actMax*100}%"></i></div></div>`).join('')}</section>`+
-   `<section class="card"><div class="cardhead"><div><h2>Gestor package</h2><p>Ready when the evidence is</p></div></div><div class="row"><span>Records this year</span><b>${Y.length}</b></div><div class="row"><span>Missing evidence</span><b class="${miss.length?'warn':''}">${miss.length}</b></div><div class="row"><span>Reviewed by you</span><b>${Y.filter(r=>r.reviewed).length} of ${Y.length}</b></div>${(n=>n?`<button class="row check-next" data-go="filings"><span><small class="dim">Next on your checklist</small><br><b>${esc(n.label)}</b></span><span class="pill">${dateName(n.due)}</span></button>`:'')(Budget.esChecklist(state,y,t0).next[0])}<p style="margin-top:14px">${button('Build the gestor report','go-report','primary small')}</p></section></div>`+
-   `<div class="mix-grid"><section class="card mix-card"><div class="cardhead"><div><h2>Income by platform</h2><p>${y} to date · gross</p></div><button class="link" data-go="payers">Payers</button></div>${donut(byPayer,'income','income')}</section><section class="card mix-card"><div class="cardhead"><div><h2>Expenses by category</h2><p>${y} to date</p></div><button class="link" data-go="expenses">Expenses</button></div>${donut(byCat,'expenses','expenses')}</section></div>`;}
+   `<section class="card"><div class="cardhead"><div><h2>Gestor package</h2><p>Ready when the evidence is</p></div></div><div class="row"><span>Records this year</span><b>${Y.length}</b></div><div class="row"><span>Missing evidence</span><b class="${miss.length?'warn':''}">${miss.length}</b></div><div class="row"><span>Reviewed by you</span><b>${Y.filter(r=>r.reviewed).length} of ${Y.length}</b></div>${(n=>n?`<button class="row check-next" data-go="filings"><span><small class="dim">Next on your checklist</small><br><b>${esc(n.label)}</b></span><span class="pill">${dateName(n.due)}</span></button>`:'')(Budget.esChecklist(state,y,t0).next[0])}<p style="margin-top:14px">${button('Build the gestor report','go-report','primary small')}</p></section></div>`+mixGrid(Budget.totals(state,selected));}
 
  // ---------- CSV exports (match the workbook's Income and Expenses sheets) ----------
  function recCSV(kind){const list=recFiltered(kind).slice().reverse(),inc=kind==='income',n=x=>val(x);
@@ -4455,7 +4490,7 @@ const Biz=(()=>{
     `<div class="glance-trend-wrap"><div class="glance-sub">Net profit, last 6 months</div>${spark}</div>`
    :empty(`No ${W.sales} or costs yet this month`,'Log a payment you received or a cost you paid.','add','Add a transaction'))+`</section>`;
   let side='';
-  if(F.tax&&F.vat)side+=esSide();
+  if(F.tax&&F.vat){if(!F.records)side+=esSide();else if(state.settings.es?.estimates)side+=esSide(true);}
   else if(F.tax){const t=Budget.taxSetAside(state,y,undefined,m===t0.slice(0,7)?t0:Budget.endOf(m)),next=t.quarters.find(q=>q.due>=t0),need=Math.max(0,t.ytdShould),fill=need?Math.min(100,t.ytdHave/need*100):100;
    const daysTo=next?Math.round((Date.parse(next.due)-Date.parse(t0))/864e5):0;
    side+=`<div class="pot"><div class="pot-head"><div><div class="glance-label">Tax pot, ${y}</div><div class="pot-num number">${fmt(t.ytdHave)}</div><small class="pot-of">set aside · ${fmt(need)} needed so far</small></div>${aheadPill(t.balance)}</div><div class="pot-track" role="img" aria-label="${esc(`${fmt(t.ytdHave)} set aside of ${fmt(need)}`)}"><i class="${t.balance<0?'behind':''}" style="width:${fill}%"></i></div><small class="dim">${pctText(t.rate)} of net profit, the rate you set</small></div>`+
@@ -4621,7 +4656,7 @@ const Biz=(()=>{
  const tags=()=>state.tags||[];
  const tagName=id=>tags().find(g=>g.id===id)?.name||'';
  const findTag=name=>tags().find(g=>g.name.toLowerCase()===String(name).trim().toLowerCase());
- const usualTag=name=>P.channelTags?.[String(name).trim().toLowerCase()]||'';
+ const usualTag=name=>Budget.usualTagFor(name);
  function checkTag(name){name=String(name||'').trim();if(!name)return;if(name.length>40)throw Error('Keep the tag to 40 characters.');
   if(!findTag(name)&&tags().length>=Budget.MAX_TAGS)throw Error(`You can have up to ${Budget.MAX_TAGS} tags. Remove one in Settings first.`);}
  function ensureTag(name){name=String(name||'').trim();if(!name)return '';const hit=findTag(name);if(hit)return hit.id;
@@ -4764,7 +4799,9 @@ const Biz=(()=>{
   if(H.topClient&&H.topClient.share>=0.4&&H.topClient.clients>1)add('warn',`${esc(H.topClient.name)} is ${P100(H.topClient.share)} of invoiced ${L.income.toLowerCase()}`,`Relying on one ${W.client} is a risk if they pause or pay late. A second anchor ${W.client}, or a retainer, spreads it.`);
   if(H.topChannel&&H.topChannel.share>=0.6)add('warn',`${esc(H.topChannel.name)} brings in ${P100(H.topChannel.share)} of ${L.income.toLowerCase()}`,`Most of the money comes through one ${W.ch}, so a slow month, a fee rise or a rule change there reaches the whole business.`);
   if(R&&R.overdue){const k=R.open.filter(i=>i.overdue).length;add('bad',`${fmt(R.overdue)} is overdue`,`${k} invoice${k===1?' is':'s are'} past due. A short, friendly reminder usually does it.`,['Send reminders','go-invoices']);}
-  if(F.tax){const T=Budget.taxSetAside(state,m.slice(0,4),undefined,m===t0.slice(0,7)?t0:Budget.endOf(m));if(T.ytdShould>0)add(T.balance<0?'warn':'good',T.balance<0?`Tax pot is ${fmt(-T.balance)} behind`:`Tax pot is ${fmt(T.balance)} ahead`,`${fmt(T.ytdHave)} set aside against ${fmt(T.ytdShould)} at your ${pctText(T.rate)} rate. An estimate, not tax advice.`,T.balance<0?['Quarterly tax','go-tax']:null);}
+  if(F.tax&&F.vat){const asOf=m===t0.slice(0,7)?t0:Budget.endOf(m),y=m.slice(0,4),M=Budget.esMonths(state,y,asOf),have=state.transactions.filter(t=>t.date.slice(0,4)===y&&t.date<=asOf&&Budget.group(category(t.category)||{group:''})?.tax).reduce((n,t)=>n+t.amount,0),gap=have-M.total;
+   if(M.total>0)add(gap<0?'warn':'good',gap<0?`Tax pot is ${fmt(-gap)} behind`:`Tax pot is ${fmt(gap)} ahead`,`${fmt(have)} moved or paid against ${fmt(M.total)} of IVA and IRPF to set aside this year. An estimate, not tax advice.`,gap<0?['IVA & IRPF','go-tax']:null);}
+  else if(F.tax){const T=Budget.taxSetAside(state,m.slice(0,4),undefined,m===t0.slice(0,7)?t0:Budget.endOf(m));if(T.ytdShould>0)add(T.balance<0?'warn':'good',T.balance<0?`Tax pot is ${fmt(-T.balance)} behind`:`Tax pot is ${fmt(T.balance)} ahead`,`${fmt(T.ytdHave)} set aside against ${fmt(T.ytdShould)} at your ${pctText(T.rate)} rate. An estimate, not tax advice.`,T.balance<0?['Quarterly tax','go-tax']:null);}
   const order={bad:0,warn:1,good:2};notes.sort((a,b)=>order[a.tone]-order[b.tone]);
   const sliceAttr=(id,name)=>`data-slice="${esc(JSON.stringify({cats:[id],from:m+'-01',to:Budget.endOf(m)}))}" data-slice-name="${esc(name)}"`;
   const act=a=>!a?'':a[1]==='slice'?`<button class="link" ${sliceAttr(a[2],category(a[2])?.name||'')}>${a[0]} →</button>`:`<button class="link" data-action="${a[1]}">${a[0]} →</button>`;

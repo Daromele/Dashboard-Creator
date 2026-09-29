@@ -109,6 +109,13 @@ module.exports=({eq,ok})=>{
   TH.settings.es.plana=false;ok('without the tarifa plana and no cuota logged, none is assumed', B.takeHome(B.validate(TH),'2026-01-01','2026-03-31','2026-03-31').cuota===0);
   TH.settings.es.plana=true;TH.settings.es.planaUntil='2026-01-31';ok('the tarifa plana stops at its end date', B.takeHome(B.validate(TH),'2026-01-01','2026-03-31','2026-03-31').cuotaExpected===8000);
   const mig=JSON.parse(JSON.stringify(EV));delete mig.settings.es.plana;mig.settings.es.planaUntil='2026-12-31';ok('an older backup with an end date turns the tarifa plana on', B.validate(mig).settings.es.plana===true);
+  // plain entries with IVA (a paid invoice, Quick Log) read on their base
+  const PL=B.validate(JSON.parse(JSON.stringify(EV)));PL.transactions.push({id:'p1',date:'2026-03-02',category:'inc-prof',amount:106000,vat:2100,ret:1500,note:'Invoice paid'},{id:'p2',date:'2026-03-03',category:'software',amount:12100,vat:2100,note:'Adobe'});
+  const pi=B.recOf(PL,PL.transactions.at(-2)),pe=B.recOf(PL,PL.transactions.at(-1));
+  eq('paid invoice: gross on the base, IVA and withholding apart', [pi.grossEUR,pi.ivaEUR,pi.retEUR,pi.payoutEUR], [100000,21000,15000,106000]);
+  eq('plain receipt: deductible without its IVA', [pe.amountEUR,pe.ivaEUR,pe.deductibleEUR,pe.ivaDed], [12100,2100,10000,true]);
+  eq('usual tag by payer name or its start', [B.usualTagFor('Etsy — My Shop'),B.usualTagFor('etsy'),B.usualTagFor('Etsyland'),B.usualTagFor('YouTube / Google AdSense'),B.usualTagFor('Nobody')], ['Digital products','Digital products','','Ad revenue','']);
+  ok('seeded payers start with their tags', (b=>b.channels.find(c=>c.name==='Patreon')?.tag&&b.tags.some(t=>t.name==='Memberships'))(B.blank()));
   const badR=JSON.parse(JSON.stringify(R));badR.transactions[0].rec.evidence.push({id:'x',type:'nope',url:'javascript:alert(1)'});badR.transactions[1].rec.pct=250;
   const BV=B.validate(badR);
   ok('unsafe links dropped, shares clamped', BV.transactions[0].rec.evidence.every(e=>!/^javascript/i.test(e.url||''))&&BV.transactions[1].rec.pct<=100);

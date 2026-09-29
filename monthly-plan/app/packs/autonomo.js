@@ -36,10 +36,11 @@ const NICHE = {
   incomeCategory: { digital: 'inc-digital', ai: 'inc-ai', prof: 'inc-prof', other: 'inc-other' },
   feesCategory: 'platform-fees',
   suggestedChannels: ['Etsy', 'YouTube / Google AdSense', 'Patreon', 'Fourthwall', 'Creative Market', 'Creative Fabrica', 'Payhip', 'Gumroad', 'Website sales', 'Affiliate income', 'Sponsorships', 'AI training client'],
-  suggestedTags: [],
-  channelTags: {},
+  suggestedTags: ['Digital products', 'Memberships', 'Ad revenue', 'Affiliates', 'Sponsorships', 'AI training', 'Services', 'Studio tools', 'Admin & compliance'],
+  // the usual tag for a payer, by name (a name that starts with one of these counts too, e.g. "Etsy — My Shop")
+  channelTags: { etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', fourthwall: 'Digital products', 'creative market': 'Digital products', 'creative fabrica': 'Digital products', 'website sales': 'Digital products', patreon: 'Memberships', 'buy me a coffee': 'Memberships', 'ko-fi': 'Memberships', youtube: 'Ad revenue', 'affiliate income': 'Affiliates', sponsorships: 'Sponsorships', 'ai training client': 'AI training', clients: 'Services' },
   // taxRate is unused by the Spanish tax screens but kept so a backup validates like the other editions
-  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, hiddenNav: ['invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review'], es: { exempt130: false, lowIncome: 0, plana: false, planaUntil: '', cadence: 'quarterly', docsDay: 10, estimates: true } },
+  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, hiddenNav: [], es: { exempt130: false, lowIncome: 0, plana: false, planaUntil: '', cadence: 'quarterly', docsDay: 10, estimates: true } },
   tourTopics: 'records, evidence, the gestor report and backups',
 
   // type: income | expense | saving (money moved aside) · cogs: purchases for what you sell
@@ -117,14 +118,15 @@ const NICHE = {
   platformDefaults: { sale: 'inc-digital', refund: 'inc-digital', fees: 'platform-fees', ads: 'advertising', shipping: 'other-expense', feeTax: 'platform-fees', payout: '__skip', conversion: '__skip', taxWithheld: 'irpf-paid', purchase: '', other: '',
     platforms: { paypal: { sale: 'inc-prof', refund: 'inc-prof' }, stripe: { sale: 'inc-prof', refund: 'inc-prof' } } },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['income', 'Income', 'down'], ['expenses', 'Expenses', 'up'], ['evidence', 'Evidence', 'link'], ['payers', 'Payers & platforms', 'globe'], ['report', 'Gestor report', 'print'], ['filings', 'Checklist & dates', 'check'], ['taxlines', 'Year-end summary', 'tags'], ['tax', 'IVA & IRPF estimates', 'shield'], ['activity', 'All transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['invoices', 'Invoices', 'table'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  nav: [['dashboard', 'Dashboard', 'today'], ['income', 'Income', 'down'], ['expenses', 'Expenses', 'up'], ['evidence', 'Evidence', 'link'], ['payers', 'Payers & platforms', 'globe'], ['invoices', 'Invoices', 'table'], ['report', 'Gestor report', 'print'], ['filings', 'Checklist & dates', 'check'], ['taxlines', 'Year-end summary', 'tags'], ['tax', 'IVA & IRPF estimates', 'shield'], ['activity', 'All transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
   optionalNav: ['filings', 'taxlines', 'activity', 'pl', 'annual', 'invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review', 'guide'],
   // the estimate screens only appear when switched on in Settings
   estimateNav: ['tax', 'taxlines'],
-  navGroups: [['Records', ['dashboard', 'income', 'expenses', 'evidence', 'payers']], ['For your gestor', ['report', 'filings', 'taxlines', 'tax']], ['Reports & planning', ['activity', 'pl', 'annual', 'invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review']]],
+  navGroups: [['Records', ['dashboard', 'income', 'expenses', 'evidence', 'payers', 'invoices']], ['For your gestor', ['report', 'filings', 'taxlines', 'tax']], ['Your business', ['activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']]],
   navGroupRest: 'Settings & help',
 
   labels: {
+    channelShort: 'platform', channelOne: 'Payer / platform', channelsTitle: 'Payers & platforms', channelPlaceholder: 'e.g. Etsy, Patreon, a client',
     income: 'Revenue', expense: 'Expenses', saving: 'Transfers & draws', savingShort: 'Transfers', savingOne: 'Transfer',
     incomePlanned: 'Expected revenue', incomeReceived: 'Money received', expensesPaid: 'Money paid out', savedInvested: 'Transfers & draws',
     plannedContributions: 'Planned transfers', savingsFilter: 'Transfers & draws',
@@ -156,6 +158,7 @@ const NICHE = {
     { icon: 'globe', step: 'CURRENCIES', title: 'Earn in dollars, report in euros', text: '<p>Enter each amount in the currency it was paid in, with the euro rate for that day. The report shows the euro figures your gestor needs, with the original amount and rate beside each one.</p>' },
     { icon: 'link', step: 'EVIDENCE', title: 'The proof sits with the record', text: '<p>Paste a Google Drive or Dropbox link to the invoice, statement or screenshot. Records without one are marked <b>Missing</b>, so the gaps show before your gestor asks.</p>' },
     { icon: 'print', step: 'GESTOR', title: 'One report for any period', text: '<p><b>Gestor report</b> prints a month, a quarter or the year: totals by activity and platform, every record, and an appendix of evidence links. Save it as a PDF and send it.</p><p><b>Not tax, legal or financial advice.</b> Figures are indicative; your gestor files the forms.</p>' },
+    { icon: 'table', step: 'IMPORT', title: 'Or bring in a statement', text: '<p>Import a bank CSV, or a statement from Etsy, PayPal, Stripe and similar platforms: each sale is split from its fees, and amounts in another currency are converted at a rate you choose. Imported rows arrive as records marked <b>Missing</b> until you add their evidence.</p>', cta: { label: 'Import a statement', action: 'welcome-import' } },
     'backup',
     { icon: 'check', step: 'START', title: 'Start with one payment', text: '<p>Add the last payment you received, with its rate and a link to its confirmation. Your dashboard fills in from there.</p><p>Want a clean slate later? <b>Settings → Start fresh</b> clears the books in one step.</p>', cta: { label: 'Add a record', action: 'welcome-log' } },
   ],
@@ -215,13 +218,14 @@ const NICHE = {
     extras: (s, { m, year, now, uid, totals }) => {
       const monthNo = +m.slice(5, 7), pad = n => String(n).padStart(2, '0'), link = k => `https://drive.google.com/file/d/sample-${k}/view`;
       const usd = [1.09, 1.08, 1.08, 1.07, 1.08, 1.08, 1.09, 1.10, 1.11, 1.11, 1.12, 1.12].map(x => Math.round(1e6 / x) / 1e6);   // EUR per 1 USD
+      s.tags = [['tg-digital', 'Digital products'], ['tg-members', 'Memberships'], ['tg-ads', 'Ad revenue'], ['tg-ai', 'AI training'], ['tg-tools', 'Studio tools'], ['tg-admin', 'Admin & compliance'], ['tg-mkt', 'Marketing']].map(([id, name], i) => ({ id, name, color: i + 1 }));
       s.channels = [
-        { id: 'py-etsy-a', name: 'Etsy — Lumen Patterns', act: 'digital', cur: 'USD', acct: 'business-bank' },
-        { id: 'py-etsy-b', name: 'Etsy — Lumen Prints', act: 'digital', cur: 'USD', acct: 'business-bank' },
-        { id: 'py-patreon', name: 'Patreon', act: 'digital', cur: 'USD', acct: 'paypal' },
-        { id: 'py-youtube', name: 'YouTube / Google AdSense', act: 'digital', cur: 'USD', acct: 'business-bank' },
-        { id: 'py-cfabrica', name: 'Creative Fabrica', act: 'digital', cur: 'USD', acct: 'paypal' },
-        { id: 'py-ai', name: 'Northstar AI', act: 'ai', cur: 'USD', acct: 'personal-bank', evidence: [{ id: 'ev-1099', type: 'taxform', url: link('1099-northstar'), name: '1099-NEC Northstar AI.pdf', year: +year - 1 }] },
+        { id: 'py-etsy-a', name: 'Etsy — Lumen Patterns', act: 'digital', cur: 'USD', acct: 'business-bank', tag: 'tg-digital' },
+        { id: 'py-etsy-b', name: 'Etsy — Lumen Prints', act: 'digital', cur: 'USD', acct: 'business-bank', tag: 'tg-digital' },
+        { id: 'py-patreon', name: 'Patreon', act: 'digital', cur: 'USD', acct: 'paypal', tag: 'tg-members' },
+        { id: 'py-youtube', name: 'YouTube / Google AdSense', act: 'digital', cur: 'USD', acct: 'business-bank', tag: 'tg-ads' },
+        { id: 'py-cfabrica', name: 'Creative Fabrica', act: 'digital', cur: 'USD', acct: 'paypal', tag: 'tg-digital' },
+        { id: 'py-ai', name: 'Northstar AI', act: 'ai', cur: 'USD', acct: 'personal-bank', tag: 'tg-ai', evidence: [{ id: 'ev-1099', type: 'taxform', url: link('1099-northstar'), name: '1099-NEC Northstar AI.pdf', year: +year - 1 }] },
       ];
       s.transactions = s.transactions.filter(t => ['cuota', 'software', 'professional'].includes(t.category));
       // the recurring costs become records too, with their evidence
@@ -248,6 +252,9 @@ const NICHE = {
         if (i === 4) exp(`${k}-18`, 'PcComponentes', 'office-equipment', 'Monitor 27"', 32900, 'EUR', 5710, 80);
         if (i === 6) exp(`${k}-12`, 'Domestika', 'education', 'Illustration course', 3990, 'EUR', 692, 100, false);
       }
+      // costs by kind, for the expense tag chart
+      const costTag = { software: 'tg-tools', hosting: 'tg-tools', 'design-assets': 'tg-tools', 'office-equipment': 'tg-tools', education: 'tg-tools', cuota: 'tg-admin', professional: 'tg-admin', advertising: 'tg-mkt' };
+      s.transactions.forEach(t => { if (t.rec?.kind === 'expense' && costTag[t.category]) t.tag = costTag[t.category]; });
       s.checklist = {};
       [[1, '04'], [2, '07']].forEach(([q, mm]) => ['issued', 'received', 'bank', 'platforms', 'cuota'].forEach(k => { const d = `${year}-${mm}-08`; if (d <= now) s.checklist[`${year}-Q${q}:${k}`] = d; }));
       s.invoices = [];
