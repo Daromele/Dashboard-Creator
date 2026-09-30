@@ -1,0 +1,105 @@
+SHOP INSIGHTS · ETSY LISTING PACKET
+===================================
+
+Everything to publish the listing, in the order Etsy asks for it.
+
+
+1. PHOTOS  (folder 1_Photos, 16 × 2000×1500 JPG, upload in this order)
+   01-what-your-shop-really-keeps.jpg
+   02-three-steps-no-spreadsheets.jpg
+   03-know-what-to-do-next.jpg
+   04-see-exactly-what-etsy-kept.jpg
+   05-your-whole-year-one-screen.jpg
+   06-every-shop-side-by-side.jpg
+   07-know-which-products-pay.jpg
+   08-do-new-listings-bring-sales.jpg
+   09-see-who-buys-and-from-where.jpg
+   10-every-review-in-one-place.jpg
+   11-ten-years-side-by-side.jpg
+   12-a-real-profit-and-loss.jpg
+   13-tax-time-sorted.jpg
+   14-price-for-the-margin-you-want.jpg
+   15-your-data-stays-yours.jpg
+   16-eight-looks-light-and-dark.jpg
+   Photo 1 is the thumbnail. If your listing takes fewer photos, drop 08 first, then 12.
+
+2. VIDEO  (folder 2_Video)
+   Shop_Insights_How_It_Works.mp4 · 15 seconds · 1440×1080 · no sound
+
+3. TITLE  (122 characters)
+Etsy Seller Dashboard, Etsy Profit Tracker, Etsy Fee Calculator, Multi Shop Take-Home, Schedule C Tax Summary, Offline App
+
+4. ABOUT THIS LISTING
+   Type: Digital files
+   Who made it: I did
+   What is it: A finished product
+   When was it made: 2020 – 2026
+   Category: pick the closest match Etsy suggests for "business planner / spreadsheet template"
+   Renewal: Automatic
+
+5. DESCRIPTION  (paste as is; Etsy keeps the line breaks and • bullets)
+-------------------------------------------------------------------------
+Know what your Etsy shop really keeps. Shop Insights turns the files Etsy already gives you into a clear, beautiful dashboard: your take-home after every fee, ad and credit, for one shop or several.
+
+Try it free first: https://shop-insights-etsy-demo.netlify.app
+
+Works on Mac and PC in any modern browser (Chrome, Edge, Safari, Firefox). Everything stays on your computer. No logins, no server, no subscription.
+
+HOW IT WORKS
+1. Add your shop (and your logo, if you like)
+2. Drop in your Etsy downloads: payment account statements, sold order items, listings, reviews and deposits
+3. Review your summaries: every tab fills in by itself
+Importing the same file twice is safe: anything already there is skipped.
+
+WHAT YOU GET
+• Dashboard: take-home, revenue, orders, average order, Etsy fees, your Etsy Ads, net profit and cash flow, with a monthly goal
+• Insights: a shop health score, a to-do list you can check off, and the products to double down on or revisit
+• Your Etsy statement, laid out like Etsy's own and matching it to the cent, with payouts to your bank
+• Fees & ads: every fee, ad, credit and Offsite Ads charge, per order and per month
+• Year at a glance and Year over year: ten years side by side, and each shop's profit over time
+• Several shops: switch between them or see them all together, with your own logos
+• Products: sales, profit per product after Etsy's cut and your own costs, and listing health
+• New listings: what each month's new listings went on to sell
+• Buyers & reviews: repeat buyers, countries, when your top countries buy, and every review
+• Profit & loss by month, quarter or year
+• Tax: quarterly set-aside and a Schedule C summary for your accountant
+• Pricing calculator, coupons and seasonality
+• 8 color themes, light and dark
+
+PRIVACY
+Your files are read on your computer and never uploaded. Buyer names, emails and addresses in your exports are never stored: only the country and a scrambled buyer key (to count repeat buyers).
+
+GOOD TO KNOW
+• Digital download: you receive one HTML file. Nothing is shipped.
+• Best on a computer or tablet.
+• Download a backup now and then from Settings (or connect a backup folder).
+• Screenshots show made-up sample shops.
+• Shop Insights is not affiliated with, or endorsed by, Etsy, Inc.
+• It organizes your records; it is not tax advice.
+-------------------------------------------------------------------------
+
+6. TAGS  (13, each 20 characters or fewer; paste one at a time or comma separated)
+etsy seller tool, etsy profit tracker, etsy fee calculator, seller dashboard, etsy spreadsheet, etsy bookkeeping, small business, sales tracker, schedule c, pricing calculator, multi shop tracker, etsy shop planner, craft business
+
+7. MATERIALS (optional)
+   HTML file, digital download
+
+8. DIGITAL FILE  (folder 3_Digital_File)
+   Shop_Insights_Download.zip  →  ShopInsights.html, START_HERE.txt, LICENSE.txt
+
+9. PRICE & QUANTITY
+   Price: your choice. Quantity: 999 (digital listings never run out).
+
+10. BEFORE YOU PUBLISH
+   [ ] The description links your free take-home check (https://shop-insights-etsy-demo.netlify.app).
+       Etsy won't make it clickable, and its House Rules discourage sending shoppers off Etsy.
+       If you'd rather keep it off the listing, delete that one line; share it on social and your website instead.
+   [ ] After publishing, send me the listing URL: I'll point the free check's buy buttons at it
+       (they go to https://jpsdigitalpages.etsy.com today) and you re-upload index.html to Netlify.
+   [ ] Open the download ZIP once yourself and open ShopInsights.html, to see what buyers see.
+
+EXTRAS (folder 4_Extras, not uploaded to Etsy)
+   Shop_Insights_Etsy_Mockups.html   editable deck the photos came from
+   Shop_Insights_How_It_Works.html   the animation, loops in a browser
+   free-take-home-check_index.html   the Netlify page (rename to index.html)
+   Shop_Insights_Demo_Data.zip       three made-up shops for demos and videos

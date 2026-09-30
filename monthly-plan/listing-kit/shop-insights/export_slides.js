@@ -6,7 +6,7 @@ const DECK=path.join(__dirname,'../Shop_Insights_Etsy_Mockups.html'),OUT=path.jo
 fs.rmSync(OUT,{recursive:true,force:true});fs.mkdirSync(OUT);
 (async()=>{const b=await chromium.launch(),p=await (await b.newContext({viewport:{width:1600,height:1200},deviceScaleFactor:2})).newPage();
  await p.goto('file://'+DECK);await p.waitForTimeout(1000);await p.mouse.move(0,0);
- const slides=p.locator('.slide'),n=await slides.count(),names=await p.evaluate(()=>[...document.querySelectorAll('.slide')].map(s=>(s.dataset.label||s.getAttribute('aria-label')||s.querySelector('h1,h2')?.innerHTML.replace(/<br\s*\/?>/g,' ')||'').trim()));
+ const slides=p.locator('.slide'),n=await slides.count(),names=await p.evaluate(()=>[...document.querySelectorAll('.slide')].map(s=>(s.dataset.label||s.getAttribute('aria-label')||s.querySelector('h1,h2')?.innerHTML.replace(/<br\s*\/?>/g,' ').replace(/&amp;/g,'and')||'').trim()));
  for(let i=0;i<n;i++){const slug=(names[i]||'slide').toLowerCase().replace(/<[^>]+>/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
   const png=path.join(OUT,`${String(i+1).padStart(2,'0')}-${slug}.png`);await slides.nth(i).screenshot({path:png});
   execFileSync('python3',['-c',`from PIL import Image;im=Image.open("${png}").convert("RGB");im.resize((2000,1500),Image.LANCZOS).save("${png.replace(/\.png$/,'.jpg')}",quality=90,optimize=True)`]);fs.unlinkSync(png);}
