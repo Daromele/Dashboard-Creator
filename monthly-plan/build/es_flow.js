@@ -22,6 +22,8 @@ ok('payout and euros worked out live',await p.evaluate(()=>document.querySelecto
 await p.click('#rec-form button[type=submit]');await p.waitForTimeout(150);
 let r=await p.evaluate(()=>state.transactions.find(t=>t.note==='March payout'));
 ok('income record saved in USD with euros',r&&r.amount===8280&&r.rec.cur==='USD'&&r.rec.gross===10000&&r.rec.fees===800&&r.rec.evidence.length===1,JSON.stringify(r));
+ok('tagging a record offers the tag for its whole category',await p.evaluate(()=>$('#modal').open&&!!document.querySelector('[data-action="biz-cattag-apply"]')));
+await p.evaluate(()=>closeModal());
 ok('the record keeps its tag',await p.evaluate(()=>{const t=state.transactions.find(t=>t.note==='March payout');return !!t.tag&&state.tags.find(g=>g.id===t.tag)?.name==='Contract work';}));
 ok('the payer is remembered',await p.evaluate(()=>Biz.channels().some(c=>c.name==='Upwork')));
 ok('the USD rate is remembered',await p.evaluate(()=>state.fxRates.USD===0.9));
@@ -261,4 +263,18 @@ ok('N26: euros, the personal account, money in left out',await p.evaluate(()=>{c
 ok('N26: the landlord by name is recognised as rent from the reference; Simyo, Sanitas, the gym and OpenAI',er['Maria Example']?.[0]==='home-rent'&&er['Simyo']?.[0]==='home-utilities'&&er['Sanitas']?.[0]==='health-insurance'&&er['Forus Sevilla']?.[0]==='personal'&&er['OpenAI (ChatGPT)']?.[0]==='software',JSON.stringify(er));
 ok('N26: a dotted name is one merchant (water at 10% IVA), and the bank’s own fee is a bank fee although its reference names the water company',er['EMASESA']?.[0]==='home-utilities'&&er['EMASESA']?.[2]==='1000'&&er['N26']?.[0]==='bank-fees'&&!Object.keys(er).some(k=>/^E\.M/.test(k)),JSON.stringify(er));
 await p.evaluate(()=>closeModal());
+// 14. the gestor report as a spreadsheet and as one CSV
+await p.evaluate(()=>go('report',true));await p.waitForTimeout(100);
+let [xd]=await Promise.all([p.waitForEvent('download'),p.click('[data-action="biz-rep-xlsx"]')]);const xb=require('fs').readFileSync(await xd.path());
+ok('report spreadsheet: an .xlsx with its seven sheets',xd.suggestedFilename().endsWith('.xlsx')&&xb.slice(0,2).toString()==='PK'&&['Summary','By activity','By platform','Expenses by category','Income','Expenses','Evidence'].every(n=>xb.includes(Buffer.from(`name="${n}"`))));
+[xd]=await Promise.all([p.waitForEvent('download'),p.click('[data-action="biz-rep-csv"]')]);const xc=require('fs').readFileSync(await xd.path(),'utf8');
+ok('report CSV: the summary, then each section',/Total gross income/.test(xc)&&/"BY ACTIVITY"/.test(xc)&&/"INCOME"/.test(xc)&&/"EVIDENCE"/.test(xc));
+// 15. a tag set on one record can become its category's tag, for existing and future records
+await p.evaluate(()=>{const mk=(id,d,a,v)=>({id,date:d,category:'software',amount:a,note:v,rec:{kind:'expense',act:'digital',vendor:v,cur:'EUR',rate:1,amount:a,vatShown:0,pct:100,acct:'',evidence:[],status:'',reviewed:'',notes:''}});state.transactions=[mk('ta','2026-09-01',2000,'Canva'),mk('tb','2026-09-02',1500,'Notion')];state.catTags={};save();go('expenses',true);});
+await p.click('[data-action="biz-rec-edit"][data-id="ta"]');await p.waitForTimeout(100);await p.fill('#rec-form [name=tag]','Studio tools');await p.click('#rec-form button[type=submit]');await p.waitForTimeout(150);
+ok('after tagging, the app offers the tag for the whole category',await p.evaluate(()=>$('#modal').open&&!!document.querySelector('[data-action="biz-cattag-apply"]')));
+await p.click('[data-action="biz-cattag-apply"]');await p.waitForTimeout(100);
+ok('existing entries in the category carry it',await p.evaluate(()=>state.transactions.every(t=>Biz.tagName(Biz.tagOf(t))==='Studio tools')));
+await p.evaluate(()=>state.transactions.push({id:'tc',date:'2026-09-03',category:'software',amount:900,note:'Figma',rec:{kind:'expense',act:'digital',vendor:'Figma',cur:'EUR',rate:1,amount:900,vatShown:0,pct:100,acct:'',evidence:[],status:'',reviewed:'',notes:''}}));
+ok('and a new one follows',await p.evaluate(()=>Biz.tagName(Biz.tagOf(state.transactions.find(t=>t.id==='tc')))==='Studio tools'));
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();
