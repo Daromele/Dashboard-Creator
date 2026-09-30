@@ -170,9 +170,9 @@ await p.evaluate(()=>{state.transactions=[];state.expenseRules={};state.fxRates=
 await p.click('#content [data-action="biz-exp-open"]');
 await p.setInputFiles('#exp-files',[{name:'card_sep.csv',mimeType:'text/csv',buffer:Buffer.from(CARD)},{name:'banco_sep.csv',mimeType:'text/csv',buffer:Buffer.from(BANK)}]);await p.waitForTimeout(400);
 const expRows=()=>p.evaluate(()=>Object.fromEntries([...document.querySelectorAll('.exp-table tbody tr')].map(r=>[r.querySelector('.exp-name').value,[r.querySelector('[data-exp="cat"]').value,r.querySelector('[data-exp="p"]')?.value??'',r.querySelector('[data-exp="v"]')?.value??'']])));
-let er=await expRows();
-ok('card (purchases positive, USD) and Spanish bank (;, decimal comma) read and grouped',Object.keys(er).length===7&&er['Openai Chatgpt Subscr']?.[0]==='software'&&er['Alquiler']?.[0]==='home-rent'&&er['Iberdrola']?.[0]==='home-utilities',JSON.stringify(er));
-ok('card payments and groceries start as skipped, unknown merchants ask',er['Credito']?.[0]==='transfer'&&er['Mercadona']?.[0]==='personal'&&er['Wholefds Mkt']?.[0]==='',JSON.stringify(er));
+var er=await expRows();
+ok('card (purchases positive, USD) and Spanish bank (;, decimal comma) read and grouped',Object.keys(er).length===7&&er['OpenAI (ChatGPT)']?.[0]==='software'&&er['Alquiler']?.[0]==='home-rent'&&er['Iberdrola']?.[0]==='home-utilities',JSON.stringify(er));
+ok('card payments and groceries start as skipped, unknown merchants ask',er['Credito']?.[0]==='transfer'&&er['Mercadona']?.[0]==='personal'&&er['Wholefds']?.[0]==='',JSON.stringify(er));
 await p.fill('[data-exp="home"]','20');await p.dispatchEvent('[data-exp="home"]','change');await p.waitForTimeout(150);
 er=await expRows();ok('the home share sets rent to it and utilities to 30% of it',er['Alquiler'][1]==='20'&&er['Iberdrola'][1]==='6'&&er['Iberdrola'][2]==='2100');
 await p.selectOption('tr.to-do [data-exp="cat"]','personal');await p.waitForTimeout(150);
@@ -209,4 +209,38 @@ await p.click('[data-action="biz-recf-dup"]');ok('Show them lists just the pair'
 await p.click('[data-action="biz-notdup"] >> nth=0');await p.waitForTimeout(100);ok('Not a duplicate clears the flag',await p.evaluate(()=>!document.querySelector('[data-action="biz-notdup"]')));
 await p.click('[data-action="biz-recf-dup"]');await p.evaluate(()=>Biz.recAdd('income'));await p.fill('#rec-payer','Payhip — JPS');await p.dispatchEvent('#rec-payer','change');await p.selectOption('#rec-cur','USD');await p.fill('#rec-form [name=date]','2026-02-16');await p.dispatchEvent('#rec-form [name=date]','change');await p.waitForTimeout(300);
 ok('the income form fills in the ECB rate for its date',await p.evaluate(()=>$('#rec-rate').value==='0.902'));await p.evaluate(()=>closeModal());
+// 11. monthly bills: set up once, each month's record added by itself; a changing bill is an estimate to confirm
+await p.evaluate(()=>{state.transactions=[];state.bills=[];state.expenseRules={};state.settings.es.homePct=15;save();go('expenses',true);});
+await p.click('#content [data-action="biz-bills-open"]');await p.waitForTimeout(100);
+const bill=async(preset,name,amount,day,from)=>{await p.click(`[data-action="biz-bill-preset"] >> text=${preset}`);await p.fill('#bill-form [name=name]',name);await p.fill('#bill-form [name=amount]',amount);await p.fill('#bill-form [name=day]',day);await p.fill('#bill-form [name=from]',from);await p.click('#bill-form button[type=submit]');await p.waitForTimeout(200);};
+const mon=await p.evaluate(()=>Budget.today().slice(0,7)),prev=await p.evaluate(()=>Budget.shift(Budget.today().slice(0,7),-1));
+await bill('Rent','Rent','875','1',prev);await bill('Electricity','Energía XXI','93.41','1',prev);
+ok('bills listed with their business share from the home share',await p.evaluate(()=>{const r=[...document.querySelectorAll('.bill-row')].map(x=>x.innerText);return r.length===2&&/15% business/.test(r[0])&&/5% business/.test(r[1]);}));
+await p.evaluate(()=>closeModal());
+let bl=await p.evaluate(()=>state.transactions.map(t=>({v:t.rec.vendor,m:t.date.slice(0,7),a:t.amount,p:t.rec.pct,est:!!t.rec.est,d:Budget.recOf(state,t).deductibleEUR})));
+ok('last month and this month added for each bill',bl.length===4&&bl.filter(x=>x.v==='Rent').every(x=>x.a===87500&&x.p===15&&x.d===13125),JSON.stringify(bl));
+ok('a changing bill: the first month as typed, later ones marked as estimates',bl.filter(x=>x.v==='Energía XXI').map(x=>[x.m,x.est]).sort().join()===[[prev,false],[mon,true]].join(),JSON.stringify(bl));
+ok('the estimates notice shows',await p.evaluate(()=>/is an estimate/i.test($('#content').innerText)));
+await p.evaluate(m=>{const t=state.transactions.find(t=>t.rec.est);document.querySelector(`[data-action="biz-rec-edit"][data-id="${t.id}"]`).click();},mon);await p.waitForTimeout(150);
+await p.fill('#rec-form [name=amount]','101.20');await p.click('#rec-form button[type=submit]');await p.waitForTimeout(150);
+ok('saving the real amount confirms it and keeps it a bill',await p.evaluate(()=>{const t=state.transactions.find(t=>t.rec.vendor==='Energía XXI'&&t.amount===10120);return t&&!t.rec.est&&t.rec.src?.k==='bill';}));
+await p.evaluate(()=>{state.transactions=state.transactions.filter(t=>!(t.rec.vendor==='Rent'&&t.rec.est!==true&&t.date<Budget.today().slice(0,7)));save();});
+ok('a deleted month does not come back, and nothing is added twice',await p.evaluate(()=>Biz.billsRun(true)===0&&state.transactions.length===3));
+// 12. a US card statement: dollars, reference codes merged, a return set against its purchase, known merchants and US taxes
+const CHASE=`Card,Transaction Date,Post Date,Description,Category,Type,Amount,Memo
+1111,09/20/2026,09/21/2026,GOOGLE *FI PB6RBJ,Bills & Utilities,Sale,-26.01,
+1111,08/20/2026,08/21/2026,GOOGLE *FI NKGCw5,Bills & Utilities,Sale,-38.78,
+1111,09/12/2026,09/13/2026,ANTHROPIC* CLAUDE SUB,Office & Shipping,Sale,-21.32,
+1111,08/12/2026,08/13/2026,CLAUDE.AI SUBSCRIPTION,Office & Shipping,Sale,-21.32,
+1111,08/06/2026,08/07/2026,ALIEXPRESS,Merchandise & Inventory,Return,80.62,
+1111,08/05/2026,08/06/2026,ALIEXPRESS,Merchandise & Inventory,Sale,-80.62,
+1111,09/04/2026,09/04/2026,PURCHASE INTEREST CHARGE,Fees & Adjustments,Fee,-6.19,
+1111,06/16/2026,06/17/2026,US TREAS TAX PYMT,Bills & Utilities,Sale,-42.40,
+1111,09/01/2026,09/02/2026,Etsy*Monthly Bill,Merchandise & Inventory,Sale,-0.20,
+1111,08/26/2026,08/26/2026,AUTOMATIC PAYMENT - THANK,,Payment,40.00,`;
+await p.click('#content [data-action="biz-exp-open"]');await p.setInputFiles('#exp-files',[{name:'Chase1111_Activity_20260925.csv',mimeType:'text/csv',buffer:Buffer.from(CHASE)}]);await p.waitForTimeout(500);
+er=await expRows();
+ok('US card: dollars, card account, one Google Fi and one Anthropic, AliExpress cancelled by its return',await p.evaluate(()=>{const f=document.querySelector('.exp-file');return f.querySelector('[data-exp="cur"]').value==='USD'&&f.querySelector('[data-exp="acct"]').value==='card'&&/1 return set against/.test(f.innerText);})&&er['Google Fi']&&er['Anthropic (Claude)']&&!er['AliExpress']&&Object.keys(er).length===5,JSON.stringify(er));
+ok('card interest to bank fees, Etsy charges to platform fees, US taxes skipped',er['Card interest']?.[0]==='bank-fees'&&er['Etsy']?.[0]==='platform-fees'&&er['Treas Tax Pymt']?.[0]==='personal',JSON.stringify(er));
+await p.evaluate(()=>closeModal());
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();

@@ -74,6 +74,7 @@ const NICHE = {
     ['software', 'Software, subscriptions & AI tools', 'tools', 'G8', 2100], ['hosting', 'Hosting / domains', 'tools', 'G8', 2100], ['design-assets', 'Design assets', 'tools', 'G8', 2100],
     ['office-equipment', 'Office / equipment', 'office', 'G12', 2100],
     ['home-rent', 'Home office rent (work share)', 'home', 'G5', 0], ['home-utilities', 'Home utilities & internet (work share)', 'home', 'G9', 2100],
+    ['health-insurance', 'Health insurance (up to €500 a year per person)', 'other-expense', 'G13', 0],
     ['professional', 'Professional fees', 'services', 'G7', 2100], ['bank-fees', 'Bank / payment fees', 'services', 'G8', 0],
     ['travel', 'Travel / business', 'travel', 'G8', 1000], ['education', 'Education / research', 'travel', 'G8', 2100],
     ['cuota', 'Cuota de autónomos (Seguridad Social)', 'social', 'G4', 0],
@@ -129,7 +130,18 @@ const NICHE = {
   optionalNav: ['filings', 'taxlines', 'activity', 'pl', 'annual', 'invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review', 'guide'],
   // the estimate screens only appear when switched on in Settings
   estimateNav: ['tax', 'taxlines'],
-  addCategories: ['home-rent', 'home-utilities'],
+  addCategories: ['home-rent', 'home-utilities', 'health-insurance'],
+  // one name for a merchant that card statements write many ways (reference codes, domains, prefixes)
+  merchantNames: [
+    [/\betsy ?ads\b/, 'Etsy Ads'], [/\betsy\b/, 'Etsy'], [/\bamazon\b|\bamzn\b/, 'Amazon'], [/\baliexpress\b/, 'AliExpress'],
+    [/\bopenai\b|\bchatgpt\b/, 'OpenAI (ChatGPT)'], [/\banthropic\b|\bclaude\b/, 'Anthropic (Claude)'], [/\bmidjourney\b/, 'Midjourney'],
+    [/google.{0,4}workspace|\bgsuite\b/, 'Google Workspace'], [/google.{0,4}\bfi\b/, 'Google Fi'], [/google.{0,4}cloud/, 'Google Cloud'], [/google.{0,4}one\b/, 'Google One'], [/google.{0,4}ads\b/, 'Google Ads'],
+    [/\berank\b/, 'eRank'], [/\bgodaddy\b/, 'GoDaddy'], [/\bnetlify\b/, 'Netlify'], [/\bcanva\b/, 'Canva'], [/\belevenlabs\b/, 'ElevenLabs'], [/\bdescript\b/, 'Descript'],
+    [/\bintuit\b|\bquickbooks\b|\bqbooks\b/, 'QuickBooks'], [/\bloom\b/, 'Loom'], [/\btubebuddy/, 'TubeBuddy'], [/\batlassian\b/, 'Atlassian'],
+    [/interest charge/, 'Card interest'], [/foreign transaction fee/, 'Foreign transaction fees'], [/annual (membership )?fee/, 'Card annual fee'],
+    [/\biberdrola\b/, 'Iberdrola'], [/\bendesa\b/, 'Endesa'], [/\bnaturgy\b/, 'Naturgy'], [/energia xxi/, 'Energía XXI'], [/\bsimyo\b/, 'Simyo'], [/\bmovistar\b/, 'Movistar'], [/\bvodafone\b/, 'Vodafone'],
+    [/\bsanitas\b/, 'Sanitas'], [/\badeslas\b/, 'Adeslas'],
+  ],
   // how the business share of a home-office cost starts: the share of the home used for work, and for
   // utilities 30% of that (the usual rule when the home is declared on the 036/037)
   homeShare: { 'home-rent': 1, 'home-utilities': 0.3 },
@@ -138,16 +150,23 @@ const NICHE = {
     [/\b(alquiler|rent|arrendamiento|renta vivienda)\b/, 'home-rent'],
     [/\b(iberdrola|endesa|naturgy|holaluz|repsol|totalenergies|octopus|electric|electricidad|luz|agua|aigues|canal de isabel|emasesa|aqualia|gas natural|butano)\b/, 'home-utilities'],
     [/\b(movistar|vodafone|orange|digi|jazztel|masmovil|pepephone|yoigo|lowi|simyo|o2|fibra|internet|telefonica|finetwork)\b/, 'home-utilities'],
-    [/\b(openai|chatgpt|anthropic|claude|midjourney|canva|adobe|notion|figma|github|dropbox|zoom|capcut|elevenlabs|runway|perplexity|grammarly|microsoft|google ?(one|workspace|gsuite)|icloud|apple\.com|chatbase|jasper|descript|kit|convertkit|mailerlite|flodesk|tailwind|later|buffer|zapier|make\.com|airtable|clickup|trello|slack)\b/, 'software'],
     [/\b(etsy ads|facebk|facebook|meta ads|pinterest|google ads|tiktok ads)\b/, 'advertising'],
+    [/\b(etsy|payhip|gumroad|creative market|fourthwall)\b/, 'platform-fees'],
+    [/\b(openai|chatgpt|anthropic|claude|midjourney|canva|adobe|notion|figma|github|dropbox|zoom|capcut|elevenlabs|runway|perplexity|grammarly|microsoft|icloud|apple\.com|chatbase|jasper|descript|kit|convertkit|mailerlite|flodesk|tailwind|later|buffer|zapier|make\.com|airtable|clickup|trello|slack|loom|atlassian|intuit|quickbooks|qbooks|tubebuddy|erank|paddle|vidiq|marmalead|everbee)\b/, 'software'],
+    [/tubebuddy|vidiq/, 'software'],
+    [/google.{0,4}(one|workspace|gsuite|cloud|g1ai)|\bgoogle\b.*\b(ai|storage)\b/, 'software'],
+    [/google.{0,4}\bfi\b/, 'home-utilities'],
     [/\b(godaddy|namecheap|siteground|hostinger|squarespace|wix|shopify|cloudflare|vercel|netlify|bluehost|ionos|dinahosting)\b/, 'hosting'],
     [/\b(creative market|envato|freepik|shutterstock|adobe stock|creative fabrica|design cuts)\b/, 'design-assets'],
     [/\b(udemy|skillshare|domestika|coursera|masterclass|teachable)\b/, 'education'],
-    [/\b(gestor|gestoria|asesor|asesoria|abogado|notar)/, 'professional'],
+    [/\b(gestor|gestoria|asesor|asesoria|abogado|notar|cpa|accountant|accounting|bookkeep)/, 'professional'],
+    [/\b(sanitas|adeslas|asisa|dkv|mapfre salud|cigna|axa salud)\b/, 'health-insurance'],
+    [/\b(hotel|hostal|bypillow|booking\.com|airbnb|renfe|ryanair|vueling|iberia|alsa|blablacar)\b/, 'travel'],
     [/\b(tgss|seguridad social|cuota autonom|reta)\b/, 'cuota'],
-    [/\b(comision|commission|mantenimiento cuenta|bank fee|foreign transaction fee)\b/, 'bank-fees'],
+    [/\b(comision|commission|mantenimiento cuenta|bank fee|foreign transaction fee|interest charge|annual membership fee|annual fee)\b/, 'bank-fees'],
+    [/\b(us treas|irs|twc ui|franchise tax|state tax)\b/, 'personal'],
     [/\b(pago tarjeta|liquidacion tarjeta|recibo tarjeta|autopay|automatic payment|payment thank you|payment received|traspaso|transferencia a|bizum|starting balance|ending balance)\b/, 'transfer'],
-    [/\b(mercadona|carrefour|lidl|aldi|eroski|alcampo|consum|hipercor|el corte ingles|zara|primark|farmacia|restaurante?|bar|cafeteria|burger|mcdonald|glovo|just eat|uber eats|netflix|spotify|hbo|disney|prime video)\b/, 'personal'],
+    [/\b(forus|gimnasio|gym|basic ?fit|holmes place|mcfit|dreamfit|mercadona|carrefour|lidl|aldi|eroski|alcampo|consum|hipercor|el corte ingles|zara|primark|farmacia|restaurante?|bar|cafeteria|burger|mcdonald|glovo|just eat|uber eats|netflix|spotify|hbo|disney|prime video)\b/, 'personal'],
   ],
   navGroups: [['Records', ['dashboard', 'income', 'expenses', 'evidence', 'payers', 'invoices']], ['For your gestor', ['report', 'filings', 'taxlines', 'tax']], ['Your business', ['activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']]],
   navGroupRest: 'Settings & help',
@@ -201,7 +220,9 @@ const NICHE = {
     details: [
       ['Income records', 'One record per payout or statement: the date, the activity it belongs to, the payer or platform, and the amounts as the platform shows them (gross, refunds, fees and the payout that reached you), in their own currency. Add the euro rate and the euro figures follow. The report counts gross income less refunds, with platform fees as a cost.'],
       ['Importing statements, one record per payer and month', 'On Income, choose <b>Import statements</b> and pick your CSV exports, as many as you like at once: Etsy monthly statements, Payhip orders, the Fourthwall transactions report (it has the fees; the orders export doesn’t), Patreon’s earnings breakdown by month, Canva royalty payments, Creative Market sales, Creative Fabrica payouts, affiliate commissions, PayPal, Stripe, Shopify and YouTube. Each file is summed into one income record per month: sales less the tax buyers paid (the platform collects and passes it on), refunds, fees and the payout, in the file’s currency with a rate to euros for each month (remembered for next time). Ads and shipping become separate expenses; tax a platform withheld, such as US tax on Canva royalties, goes in the notes for your gestor. Choose 2026, 2025 or all months at the top. The first time, check which payer each file belongs to (two shops on one platform are told apart by the file name, e.g. “payhip jps.csv”); after that the app recognises them by their listings. Importing the same payer and month again replaces the record. PDFs can’t be read: download the CSV and link the PDF as evidence.'],
-      ['Expenses from your card and bank', 'On Expenses, choose <b>Import card & bank</b> and pick your credit card statement (subscriptions, AI tools) and your bank account statement (rent, electricity, water, internet) as CSV, several at once. Payments out are grouped by merchant: set each one once to a category with its business share and the IVA on its invoice, or to Personal, or to Card payment or transfer (so a card bill paid from the bank is not counted twice). The app remembers every merchant, so next month it only asks about new ones, and it leaves out payments already imported. Each payment becomes its own expense record, Missing until you link its invoice on Evidence. Common Spanish utilities, telecoms and software are recognised the first time.'],
+      ['Expenses from your card and bank', 'On Expenses, choose <b>Import card & bank</b> and pick your credit card statement (subscriptions, AI tools) and your bank account statement (rent, electricity, water, internet) as CSV, several at once. Payments out are grouped by merchant: set each one once to a category with its business share and the IVA on its invoice, or to Personal, or to Card payment or transfer (so a card bill paid from the bank is not counted twice). The app remembers every merchant, so next month it only asks about new ones, and it leaves out payments already imported. Each payment becomes its own expense record, Missing until you link its invoice on Evidence. Common Spanish utilities, telecoms and software are recognised the first time; US card files (Chase, Amex…) are read in dollars, reference codes are merged into one merchant, and returns are set against their purchase. N26: download the CSV from the web app (Downloads) rather than the PDF statement.'],
+      ['Monthly bills', 'For bills you pay every month from your bank (rent, phone and internet, electricity, water, health insurance, the gestoría, the cuota), choose <b>Monthly bills</b> on Expenses and set each one up once: its amount, day, category and IVA. Each month its expense record is added by itself on that day, with the business share from your home share. For a bill whose amount changes, tick “The amount changes”: the next months start from the last amount and are marked “Estimate: confirm the amount”; when the bill arrives, open the record, type the real amount and save. No bank file needed. If you also import that bank account, lines for a bill already recorded that month are left out as possible duplicates.'],
+      ['Health insurance', 'Private health insurance (Sanitas, Adeslas, DKV…) for yourself, your spouse and children under 25 is deductible for autónomos up to €500 a year per person (€1,500 with a disability). It carries no IVA.'],
       ['Expense records', 'One record per receipt or invoice: vendor, category, amount in its currency, euro rate and the share used for the business (100% unless it is shared with personal use). The deductible figure is indicative; your gestor decides what counts.'],
       ['Which euro rate?', 'You don’t need to type one. Autónomo Plan uses the European Central Bank’s reference rates, fetched from Frankfurter (a free service that republishes them; only the currency and dates are sent) and kept in your planner: a monthly statement gets the month’s average, a card payment its day’s rate, and Add income or Add expense fills in the rate for the date you enter. Offline, the latest known rate stands in and the record shows “Rate pending” until the app is next online, when it updates by itself. Records imported with a rate you typed can be switched to the ECB rates with one button on Income or Expenses.'],
       ['Possible duplicates', 'Records from the same business on the same date for the same amount are flagged on Income and Expenses, with a button to show just them. Delete the extra one, or choose “Not a duplicate”. The import dialogs also leave out rows that match a record you already have, and say so.'],
@@ -1432,6 +1453,8 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .exp-home{display:flex;gap:6px;align-items:center;white-space:nowrap}.exp-home input{width:80px}
 .exp-table{max-height:460px}.exp-table td{vertical-align:middle}.exp-table tr.to-do td{background:color-mix(in srgb,var(--pop) 10%,transparent)}.exp-name{width:100%;min-width:140px;padding:5px 7px;font-size:12.5px;font-weight:600}.exp-table td small{margin-top:3px}.exp-table select{max-width:220px;font-size:12.5px;padding:5px 7px}.exp-num{width:70px;padding:5px 7px;font-size:12.5px}
 .fx-tag{color:var(--ink-2)!important;background:var(--sunk)!important}.dup-tag .link{font-size:11px;margin-left:6px}.stmt-fx{font-size:11px;color:var(--ink-3);display:block}
+.bill-list{display:grid;gap:8px;margin:6px 0 12px}.bill-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--rule);border-radius:var(--r-md);padding:10px 12px}.bill-row small{display:block;color:var(--ink-2);margin-top:2px}.bill-row .actions{display:flex;gap:4px}
+.bill-presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 4px}.bill-presets .chip{border:1px solid var(--rule-2);background:var(--card);border-radius:999px;padding:5px 11px;font:inherit;font-size:12px;cursor:pointer}.bill-presets .chip:hover{border-color:var(--accent);color:var(--accent)}
 .stmt-scope{margin:0 0 12px}.stmt-table{margin-top:10px;max-height:340px;overflow:auto}.stmt-table td,.stmt-table th{padding:6px 8px;font-size:12.5px;vertical-align:top}.stmt-table td small{display:block;color:var(--ink-3);font-size:11px;font-weight:500}
 .stmt-table tr.is-off td{opacity:.45}.stmt-on{display:flex;gap:6px;align-items:center;white-space:nowrap;font-weight:600}.stmt-rate{width:96px;padding:5px 7px;font-size:12.5px}.stmt-adj{display:block;max-width:260px;white-space:normal}
 .stmt-row.stmt-key{font-weight:650;border-top:1px dashed var(--rule);padding-top:6px;margin-top:3px}.stmt-card .checkline{margin-top:10px}
@@ -1741,7 +1764,7 @@ const Budget = ((P) => {
     const ch=t.channel&&(s.channels||[]).find(x=>x.id===t.channel),r=t.rec||{},fx=t.fx,rate=r.rate||(fx?Math.abs(t.amount/fx.amount):1),cur=r.cur||(fx?fx.currency:s.settings.currency);
     const act=r.act||ch?.act||(P.categoryActivity||{})[t.category]||'other',evidence=r.evidence||[],status=r.status||(evidence.length?'complete':'missing');
     const base={id:t.id,date:t.date,month:t.date.slice(0,7),kind,act,category:t.category,categoryName:c?.name||'',payer:t.channel||'',payerName:ch?.name||'',description:t.note,cur,rate,
-      acct:r.acct||'',evidence,status,auto:!r.status,reviewed:r.reviewed||'',notes:r.notes||'',record:!!t.rec,fx:r.fx||'',notDup:!!r.notDup,src:r.src||null};
+      acct:r.acct||'',evidence,status,auto:!r.status,reviewed:r.reviewed||'',notes:r.notes||'',record:!!t.rec,fx:r.fx||'',notDup:!!r.notDup,src:r.src||null,est:!!r.est};
     // a plain entry with IVA or withholding (a paid invoice, Quick Log) is read on its base
     const sp=!t.rec&&!fx&&P.features.vat&&(t.vat||t.ret)?vatSplit(t):null;
     if(kind==='income'){const b=sp?sp.base:(fx?fx.amount:t.amount),o=t.rec?r:{gross:Math.max(0,b),refunds:Math.max(0,-b),fees:0,payout:fx?fx.amount:t.amount};
@@ -2084,9 +2107,12 @@ const Budget = ((P) => {
       if(ty==='income'){if(r.vat!==undefined&&!VAT_RATES.includes(r.vat))delete r.vat;if(r.ret!==undefined&&!RET_RATES.includes(r.ret))delete r.ret;}else{delete r.vat;delete r.ret;}
       if(r.ivaDed!==undefined&&(ty!=='expense'||typeof r.ivaDed!=='boolean'))delete r.ivaDed;
       if(!ACCOUNTS.includes(r.acct))r.acct='';if(!EV_STATUS.includes(r.status))r.status='';if(!validDate(r.reviewed))r.reviewed='';if(!str(r.notes,1000))r.notes='';if(ty==='expense'&&!str(r.vendor,100))r.vendor='';
-      r.evidence=cleanEv(r.evidence);if(r.fx!==undefined&&!['ecb','pending'].includes(r.fx))delete r.fx;if(r.notDup!==undefined&&r.notDup!==true)delete r.notDup;
+      r.evidence=cleanEv(r.evidence);if(r.fx!==undefined&&!['ecb','pending'].includes(r.fx))delete r.fx;if(r.notDup!==undefined&&r.notDup!==true)delete r.notDup;if(r.est!==undefined&&(r.est!==true||ty!=='expense'))delete r.est;
       if(r.src!==undefined){const o=r.src;if(!object(o)||typeof o.k!=='string'||!/^[a-z0-9]{1,40}$/.test(o.k)||!/^\d{4}-\d{2}$/.test(o.m))delete r.src;
        else r.src={k:o.k,m:o.m,f:typeof o.f==='string'?o.f.slice(0,200):'',...(typeof o.p==='string'&&o.p.length<=60?{p:o.p}:{}),...(['ads','shipping'].includes(o.x)?{x:o.x}:{}),...(typeof o.h==='string'&&/^[0-9a-z]{1,10}$/.test(o.h)?{h:o.h}:{})};}});
+     if(s.bills!==undefined){const cids=new Set(s.categories.map(c=>c.id)),ym=v=>typeof v==='string'&&/^\d{4}-\d{2}$/.test(v);s.bills=(Array.isArray(s.bills)?s.bills:[]).filter(b=>object(b)&&typeof b.id==='string'&&b.id.length<=40&&str(b.name,40)&&b.name&&cids.has(b.cat)&&cents(b.amount)&&b.amount>0&&Number.isInteger(b.day)&&b.day>=1&&b.day<=31&&ym(b.from)).slice(0,60)
+       .map(b=>({id:b.id,name:b.name,cat:b.cat,amount:b.amount,varies:b.varies===true,day:b.day,pct:Number.isInteger(b.pct)&&b.pct>=0&&b.pct<=100?b.pct:null,v:VAT_RATES.includes(b.v)?b.v:0,acct:ACCOUNTS.includes(b.acct)?b.acct:'',from:b.from,until:ym(b.until)&&b.until>=b.from?b.until:'',...(ym(b.last)?{last:b.last}:{})}));}
+     if(s.expenseFiles!==undefined){if(!object(s.expenseFiles))s.expenseFiles={};Object.keys(s.expenseFiles).forEach(k=>{const f=s.expenseFiles[k];if(k.length>40||!object(f)||!CURRENCIES.includes(f.cur)){delete s.expenseFiles[k];return;}s.expenseFiles[k]={cur:f.cur,acct:ACCOUNTS.includes(f.acct)?f.acct:'',flip:f.flip===true};});}
      if(s.expenseRules!==undefined){if(!object(s.expenseRules))s.expenseRules={};const cids=new Set(s.categories.map(c=>c.id));
       Object.keys(s.expenseRules).forEach(k=>{const r=s.expenseRules[k];if(k.length>60||!object(r)||!(r.skip==='personal'||r.skip==='transfer'||cids.has(r.c))){delete s.expenseRules[k];return;}
        s.expenseRules[k]={...(r.skip?{skip:r.skip}:{c:r.c,p:Number.isInteger(r.p)&&r.p>=0&&r.p<=100?r.p:100,v:VAT_RATES.includes(r.v)?r.v:0}),...(typeof r.n==='string'&&r.n?{n:r.n.slice(0,40)}:{})};});
@@ -4106,6 +4132,7 @@ async function fxRefresh(quiet){if(demo)return;const wait=state.transactions.fil
  commit(()=>ready.forEach(t=>{const r=state.transactions.find(x=>x.id===t.id)?.rec;if(!r||r.fx!=='pending')return;const rate=rateFor(t);r.rate=rate;r.fx='ecb';state.transactions.find(x=>x.id===t.id).amount=Budget.eur(r.kind==='income'?r.payout:r.amount,rate);}),`${ready.length} record${ready.length===1?'':'s'} updated to ECB rates`);}
 addEventListener('online',()=>fxRefresh(true));
 setTimeout(()=>{try{fxRefresh(true);}catch{}},2500);
+setTimeout(()=>{try{if(P.features.records)Biz.billsRun(true);}catch{}},1200);
 const Biz=(()=>{
  const F=P.features,today=()=>Budget.today();
  const bizName=()=>state.settings.name||'Your business';
@@ -4365,7 +4392,7 @@ const Biz=(()=>{
   new Set((r.kind==='income'?[r.gross,r.payout]:[r.amount]).filter(Boolean)).forEach(a=>{const k=[r.kind,party,r.date,a,r.cur].join('|'),prev=by.get(k);if(prev&&prev!==r.id){out.add(r.id);out.add(prev);}else if(!prev)by.set(k,r.id);});});return out;}
 
  // ---------- filters shared by Income, Expenses and Evidence ----------
- let recF={year:today().slice(0,4),range:'year',from:'',to:'',act:'all',payer:'all',cat:'all',cur:'all',acct:'all',status:'all',q:'',dup:false};
+ let recF={year:today().slice(0,4),range:'year',from:'',to:'',act:'all',payer:'all',cat:'all',cur:'all',acct:'all',status:'all',q:'',dup:false,est:false};
  function recBounds(){const y=recF.year,p=n=>String(n).padStart(2,'0');
   if(/^q[1-4]$/.test(recF.range)){const n=+recF.range[1];return [`${y}-${p(3*n-2)}-01`,Budget.endOf(`${y}-${p(3*n)}`)];}
   if(recF.range==='month'){const m=today().slice(0,7);return [m+'-01',Budget.endOf(m)];}
@@ -4373,7 +4400,7 @@ const Biz=(()=>{
   if(recF.range==='all')return ['0000-01-01','9999-12-31'];return [`${y}-01-01`,`${y}-12-31`];}
  const rangeLabel=()=>{const [a,b]=recBounds();return recF.range==='all'?'All time':recF.range==='year'?`Year ${recF.year}`:/^q/.test(recF.range)?`${recF.range.toUpperCase()} ${recF.year}`:recF.range==='month'?monthName(today().slice(0,7)):`${dateName(a)} – ${dateName(b)}`;};
  function recFiltered(kind){const [a,b]=recBounds(),q=recF.q.trim().toLowerCase(),all=recAll(),dups=recF.dup?dupIds(all):null;
-  return all.filter(r=>(!kind||r.kind===kind)&&(!dups||dups.has(r.id))&&r.date>=a&&r.date<=b&&(recF.act==='all'||r.act===recF.act)&&(recF.payer==='all'||(r.kind==='income'?r.payer===recF.payer:r.vendor===recF.payer))&&(recF.cat==='all'||r.category===recF.cat)&&(recF.cur==='all'||r.cur===recF.cur)&&(recF.acct==='all'||r.acct===recF.acct)&&(recF.status==='all'||r.status===recF.status)
+  return all.filter(r=>(!kind||r.kind===kind)&&(!dups||dups.has(r.id))&&(!recF.est||r.est)&&r.date>=a&&r.date<=b&&(recF.act==='all'||r.act===recF.act)&&(recF.payer==='all'||(r.kind==='income'?r.payer===recF.payer:r.vendor===recF.payer))&&(recF.cat==='all'||r.category===recF.cat)&&(recF.cur==='all'||r.cur===recF.cur)&&(recF.acct==='all'||r.acct===recF.acct)&&(recF.status==='all'||r.status===recF.status)
    &&(!q||[r.description,r.payerName,r.vendor,r.categoryName,r.notes,...r.evidence.map(e=>e.name+' '+e.url)].join(' ').toLowerCase().includes(q))).sort((x,y)=>y.date.localeCompare(x.date)||y.id.localeCompare(x.id));}
  function recFilters(kind){const years=[...new Set([today().slice(0,4),...state.transactions.map(t=>t.date.slice(0,4))])].sort().reverse();
   const sel=(key,label,opts)=>`<select data-recf="${key}" aria-label="${label}">${opts.map(([v,l])=>`<option value="${esc(v)}" ${recF[key]===v?'selected':''}>${esc(l)}</option>`).join('')}</select>`;
@@ -4389,13 +4416,13 @@ const Biz=(()=>{
  // ---------- Income and Expenses ----------
  function recList(kind){const list=recFiltered(kind),dup=dupIds(recAll()),inc=kind==='income',sum=k=>list.reduce((a,r)=>a+(r[k]||0),0);
   const head=inc?['Date','Payer / platform','Description','Gross','Refunds · fees','Net payout EUR','Evidence','']:['Date','Vendor','Category','Description','Amount','Business %','Indicative deductible EUR','Evidence',''];
-  const row=r=>{const cur=r.cur!=='EUR';return inc?`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.payerName||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.description)}${dup.has(r.id)?`<small class="dup-tag">Possible duplicate · same business, date and amount <button class="link" data-action="biz-notdup" data-id="${r.id}">Not a duplicate</button></small>`:''}${r.fx==='pending'?'<small class="dup-tag fx-tag">Rate pending: updates to the ECB rate when online</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.gross,r.cur))}${cur?`<small class="dim">${fmt(r.grossEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.refunds||r.fees?`${r.refunds?`<small class="dim">refunds</small>−${esc(fmtIn(r.refunds,r.cur))}`:''}${r.fees?`<small class="dim">fees</small>−${esc(fmtIn(r.fees,r.cur))}`:''}`:'<span class="dim">—</span>'}</td><td class="num"><b>${fmt(r.payoutEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`
-   :`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.vendor||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.categoryName)}</td><td>${esc(r.description)}${dup.has(r.id)?`<small class="dup-tag">Possible duplicate · same business, date and amount <button class="link" data-action="biz-notdup" data-id="${r.id}">Not a duplicate</button></small>`:''}${r.fx==='pending'?'<small class="dup-tag fx-tag">Rate pending: updates to the ECB rate when online</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.amount,r.cur))}${cur?`<small class="dim">${fmt(r.amountEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.pct}%</td><td class="num"><b>${fmt(r.deductibleEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`;};
+  const row=r=>{const cur=r.cur!=='EUR';return inc?`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.payerName||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.description)}${dup.has(r.id)?`<small class="dup-tag">Possible duplicate · same business, date and amount <button class="link" data-action="biz-notdup" data-id="${r.id}">Not a duplicate</button></small>`:''}${r.fx==='pending'?'<small class="dup-tag fx-tag">Rate pending: updates to the ECB rate when online</small>':''}${r.est?'<small class="dup-tag fx-tag">Estimate: confirm the amount</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.gross,r.cur))}${cur?`<small class="dim">${fmt(r.grossEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.refunds||r.fees?`${r.refunds?`<small class="dim">refunds</small>−${esc(fmtIn(r.refunds,r.cur))}`:''}${r.fees?`<small class="dim">fees</small>−${esc(fmtIn(r.fees,r.cur))}`:''}`:'<span class="dim">—</span>'}</td><td class="num"><b>${fmt(r.payoutEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`
+   :`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.vendor||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.categoryName)}</td><td>${esc(r.description)}${dup.has(r.id)?`<small class="dup-tag">Possible duplicate · same business, date and amount <button class="link" data-action="biz-notdup" data-id="${r.id}">Not a duplicate</button></small>`:''}${r.fx==='pending'?'<small class="dup-tag fx-tag">Rate pending: updates to the ECB rate when online</small>':''}${r.est?'<small class="dup-tag fx-tag">Estimate: confirm the amount</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.amount,r.cur))}${cur?`<small class="dim">${fmt(r.amountEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.pct}%</td><td class="num"><b>${fmt(r.deductibleEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`;};
   const kpis=inc?`${kpi('Gross income',sum('grossEUR'),rangeLabel(),'down')}${kpi('Refunds',sum('refundsEUR'),'In euros','history')}${kpi('Platform fees',sum('feesEUR'),'In euros','coins')}${kpi('Net payouts',sum('payoutEUR'),`${list.length} record${list.length===1?'':'s'}`,'wallet')}`
    :`${kpi('Expenses',sum('amountEUR'),rangeLabel(),'up')}${kpi('Indicative deductible',sum('deductibleEUR'),'After business-use %','shield')}${kpi('VAT shown on receipts',list.reduce((a,r)=>a+r.vatShownEUR,0),'As recorded; for your gestor','tags')}${kpi('Records',list.length*100,'','log').replace(/<b[^>]*>[^<]*<\/b>/,`<b>${list.length}</b>`)}`;
-  const miss=list.filter(r=>r.status==='missing').length,twins=list.filter(r=>dup.has(r.id)).length,old=list.filter(r=>r.src&&r.cur!=='EUR'&&r.fx!=='ecb').length;
-  return pagehead(rangeLabel(),inc?'Income':'Expenses',inc?'One record per payment or monthly platform summary. Amounts in the original currency, with the rate to euros.':'One record per receipt or invoice. Deductible amounts are indicative: review them with your gestor.',button(`Export CSV`,inc?'biz-rec-csv-income':'biz-rec-csv-expense','quiet')+button(inc?'Import statements':'Import card & bank','biz-'+(inc?'stmt':'exp')+'-open','quiet')+button(inc?'Add income':'Add expense',inc?'biz-rec-add-income':'biz-rec-add-expense','primary'))+
-   recFilters(kind)+`<div class="kpis">${kpis}</div>`+(twins||recF.dup?`<div class="notice warning no-print"><span><b>${twins} possible duplicate${twins===1?'':'s'}</b>: records from the same business on the same date for the same amount. Delete the extra one, or mark it “Not a duplicate”.</span>${button(recF.dup?'Show all':'Show them','biz-recf-dup','small')}</div>`:'')+
+  const ests=recAll().filter(r=>r.est&&r.kind===kind).length,miss=list.filter(r=>r.status==='missing').length,twins=list.filter(r=>dup.has(r.id)).length,old=list.filter(r=>r.src&&r.cur!=='EUR'&&r.fx!=='ecb').length;
+  return pagehead(rangeLabel(),inc?'Income':'Expenses',inc?'One record per payment or monthly platform summary. Amounts in the original currency, with the rate to euros.':'One record per receipt or invoice. Deductible amounts are indicative: review them with your gestor.',button(`Export CSV`,inc?'biz-rec-csv-income':'biz-rec-csv-expense','quiet')+(inc?'':button('Monthly bills','biz-bills-open','quiet'))+button(inc?'Import statements':'Import card & bank','biz-'+(inc?'stmt':'exp')+'-open','quiet')+button(inc?'Add income':'Add expense',inc?'biz-rec-add-income':'biz-rec-add-expense','primary'))+
+   recFilters(kind)+`<div class="kpis">${kpis}</div>`+(ests||recF.est?`<div class="notice no-print"><span><b>${ests} monthly bill${ests===1?' is an estimate':'s are estimates'}.</b> When the bill arrives, open the record, enter the real amount and save.</span>${button(recF.est?'Show all':'Show them','biz-recf-est','small')}</div>`:'')+(twins||recF.dup?`<div class="notice warning no-print"><span><b>${twins} possible duplicate${twins===1?'':'s'}</b>: records from the same business on the same date for the same amount. Delete the extra one, or mark it “Not a duplicate”.</span>${button(recF.dup?'Show all':'Show them','biz-recf-dup','small')}</div>`:'')+
    (old?`<div class="notice no-print"><span><b>${old} imported record${old===1?' uses':'s use'} a rate you typed.</b> Switch them to the ECB reference rates (the month’s average for statements, the day’s rate for card payments).</span>${button('Use ECB rates','biz-fx-update','small')}</div>`:'')+
    (miss?`<div class="notice warning no-print"><span><b>${miss} record${miss===1?' is':'s are'} missing evidence</b> in this view. Add a Drive link or file name to each.</span>${button('Show them','biz-recf-missing','small')}</div>`:'')+
    `<section class="card table-card"><div class="table-wrap"><table class="rec-table"><thead><tr>${head.map((h,i)=>`<th class="${inc?(i>=3&&i<=5?'num':''):(i>=4&&i<=6?'num':'')}">${h}</th>`).join('')}</tr></thead><tbody>${list.map(row).join('')}</tbody>`+
@@ -4535,8 +4562,11 @@ const Biz=(()=>{
  const plain=x=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
  // what a line says about who was paid: without payment words, months, company suffixes and references
  const MONTH_WORDS='enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|january|february|march|april|may|june|july|august|september|october|november|december|ene|feb|mar|abr|jun|jul|ago|sep|sept|set|oct|nov|dic|dec|jan|aug';
- const merchantName=d=>{const w=String(d||'').replace(new RegExp(`\\b(compra|compras|pago|pagos|tarj(eta)?|card|purchase|pos|en|at|recibo|adeudo|domiciliaci[oó]n|transferencia|contactless|visa|mastercard|debit|payment to|clientes|s\\.?a\\.?u?|s\\.?l\\.?u?|inc|ltd|llc|pty|gmbh|bv|${MONTH_WORDS})\\b`,'gi'),' ').replace(/[\d*#/\\|:_.,-]+/g,' ').replace(/\s+/g,' ').trim().split(' ').slice(0,3).join(' ');
-  return (w||String(d||'').slice(0,30)).toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase()).slice(0,40);};
+ const merchantName=d=>{const t=plain(d),known=(P.merchantNames||[]).find(([re])=>re.test(t));if(known)return known[1];
+  // reference codes ("PB6RBJ", "vB6CDJ", "NF61Y7TV4") and domain parts drop out: a word with a digit, without a vowel, or of one or two letters
+  const words=String(d||'').replace(new RegExp(`\\b(compra|compras|pago|pagos|tarj(eta)?|card|purchase|pos|en|at|in|recibo|adeudo|domiciliaci[oó]n|transferencia|contactless|visa|mastercard|debit|payment to|clientes|s\\.?a\\.?u?|s\\.?l\\.?u?|inc|ltd|llc|pty|gmbh|bv|www|com|net|org|io|co|es|${MONTH_WORDS})\\b`,'gi'),' ')
+   .split(/[\s*#/\\|:_.,-]+/).filter(w=>w&&!/\d/.test(w)&&/[aeiouy]/i.test(w)&&w.length>2).slice(0,3).join(' ');
+  return (words||String(d||'').slice(0,30)).toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase()).slice(0,40);};
  const expKey=d=>Budget.matchKey(merchantName(d))||plain(d).slice(0,40);
  const expRule=k=>{const R=state.expenseRules||{};if(R[k])return R[k];const hit=Object.keys(R).filter(r=>Budget.sameMerchant(k,r)).sort((a,b)=>b.length-a.length)[0];return hit?R[hit]:null;};
  const expHint=d=>{const t=plain(d);return (P.expenseHints||[]).find(([re])=>re.test(t))?.[1]||'';};
@@ -4558,12 +4588,21 @@ const Biz=(()=>{
     const list=body.map(r=>{let d;try{d=CSV.date(cell(r,g.date),order||'auto');}catch{return null;}const v=g.amount>=0?num(cell(r,g.amount)):num(cell(r,g.credit))-Math.abs(num(cell(r,g.debit)));
      const c=cell(r,g.currency).toUpperCase();return {date:d,desc:cell(r,g.note).slice(0,200),v,cur:Budget.CURRENCIES.includes(c)?c:''};}).filter(x=>x&&x.v&&x.desc&&!/\b(starting|opening|ending|closing) balance\b|\bsaldo (inicial|final|anterior)\b/i.test(x.desc));
     // card statements list purchases as positive amounts; bank statements as negative
-    F.flip=g.amount>=0&&list.filter(x=>x.v>0).length>list.length*0.7;F.cur=[...new Set(list.map(x=>x.cur).filter(Boolean))][0]||headCur||'EUR';F.acct='';F.all=list;F.seen=seen;expRows(F);
+    const fk=expFileKey(file.name),mem=state.expenseFiles?.[fk],usCard=/chase|amex|american express|capital ?one|discover|citi|wells fargo|bank of america|bofa|us bank/i.test(file.name)||(H.some(h=>/^post(ed|ing)? date$/i.test(String(h).trim()))&&H.some(h=>/^card$/i.test(String(h).trim())));
+    F.key=fk;F.flip=mem?mem.flip:g.amount>=0&&list.filter(x=>x.v>0).length>list.length*0.7;F.cur=mem?.cur||[...new Set(list.map(x=>x.cur).filter(Boolean))][0]||headCur||(usCard?'USD':'EUR');F.acct=mem?.acct??(usCard?'card':'');F.all=list;F.seen=seen;expRows(F);
    }catch(e){F.error=e.message;}}
   expMerchants();expRender();await expRates();}
- // the file's payments out, in its currency, less those already imported
- function expRows(F){F.rows=F.all.map(x=>({...x,out:F.flip?x.v:-x.v})).filter(x=>x.out>0).map(x=>{const h=fnv(`${x.date}|${x.out}|${x.desc}`).slice(0,10);return {...x,h,dup:F.seen.has(h),key:expKey(x.desc),month:x.date.slice(0,7)};});
-  const have=new Set(recAll().filter(r=>r.kind==='expense').map(r=>[expKey(r.vendor||r.description),r.date,r.amount,r.cur].join('|')));
+ // statements from the same account share a file name but for dates and numbers ("Chase1234_Activity_2026…")
+ const expFileKey=n=>String(n).toLowerCase().replace(/\.[^.]+$/,'').replace(/^[0-9a-f]{8}-/,'').replace(/[\d_ -]+/g,' ').trim().slice(0,40)||'file';
+ // the file's payments out, in its currency, less those already imported; a return cancels its purchase
+ // (the same merchant and amount), or comes off that merchant's latest earlier payment
+ function expRows(F){const signed=F.all.map(x=>({...x,out:F.flip?x.v:-x.v})),skip=/(payment thank you|automatic payment|autopay|payment received|pago tarjeta|traspaso|transferencia recibida|ingresos?|bizum recibido)/i;
+  const outs=signed.filter(x=>x.out>0),backs=signed.filter(x=>x.out<0&&!skip.test(x.desc));F.returns=0;
+  backs.forEach(b=>{const k=expKey(b.desc),amt=-b.out,same=outs.filter(o=>!o.gone&&expKey(o.desc)===k&&o.date<=b.date).sort((a,c)=>c.date.localeCompare(a.date)),hit=same.find(o=>o.out===amt)||same[0];
+   if(!hit)return;F.returns++;if(hit.out<=amt)hit.gone=true;else{hit.out-=amt;hit.desc=hit.desc;hit.less=(hit.less||0)+amt;}});
+  F.rows=outs.filter(x=>!x.gone).map(x=>{const h=fnv(`${x.date}|${x.out}|${x.desc}`).slice(0,10);return {...x,h,dup:F.seen.has(h),key:expKey(x.desc),month:x.date.slice(0,7)};});
+  const have=new Set(recAll().filter(r=>r.kind==='expense').map(r=>[expKey(r.vendor||r.description),r.date,r.amount,r.cur].join('|'))),billed=recAll().filter(r=>r.src?.k==='bill').map(r=>[expKey(r.vendor),r.month]);
+  F.rows.forEach(x=>{if(!x.dup&&billed.some(([k,m])=>m===x.month&&Budget.sameMerchant(k,x.key))){x.dup=true;x.twin=true;}});
   F.rows.forEach(x=>{if(!x.dup&&have.has([x.key,x.date,x.out,F.cur].join('|'))){x.dup=true;x.twin=true;}});
   F.dups=F.rows.filter(x=>x.dup&&!x.twin).length;F.twins=F.rows.filter(x=>x.twin).length;F.back=F.all.length-F.rows.length;}
  function expMerchants(){const old=exp.merchants,M=new Map();
@@ -4577,7 +4616,7 @@ const Biz=(()=>{
   exp.busy=true;expRender();try{for(const [cur,ms] of curs)await fxEnsure(cur,ms);}catch{}if(!exp)return;exp.busy=false;if($('#modal')?.open&&$('#exp-files'))expRender();}
  const expBiz=m=>m.cat&&m.cat!=='personal'&&m.cat!=='transfer';
  function expRender(){const box=$('#modal')?.open?$('#modal-body'):null,top=box?box.scrollTop:0,ok=exp.files.filter(F=>!F.error),ms=[...exp.merchants.values()];
-  const cats=state.categories.filter(c=>Budget.type(c)==='expense'&&!c.archived),opt=m=>`<option value="" ${m.cat?'':'selected'}>Choose…</option>${cats.map(c=>`<option value="${c.id}" ${m.cat===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}<option value="personal" ${m.cat==='personal'?'selected':''}>Personal · don’t import</option><option value="transfer" ${m.cat==='transfer'?'selected':''}>Card payment or transfer · don’t import</option>`;
+  const cats=state.categories.filter(c=>Budget.type(c)==='expense'&&!c.archived),opt=m=>`<option value="" ${m.cat?'':'selected'}>Choose…</option>${cats.map(c=>`<option value="${c.id}" ${m.cat===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}<option value="personal" ${m.cat==='personal'?'selected':''}>Personal, not for these books · don’t import</option><option value="transfer" ${m.cat==='transfer'?'selected':''}>Card payment or transfer · don’t import</option>`;
   const rows=ms.sort((a,b)=>(!!a.cat-!!b.cat)||(expBiz(b)-expBiz(a))||b.total-a.total),fmtM=m=>[...m.curs].map(c=>fmtIn(m.total,c)).join(' / ');
   const tr=m=>`<tr class="${m.cat?'':'to-do'} ${expBiz(m)||!m.cat?'':'is-off'}"><td><input class="exp-name" data-exp="name" data-k="${esc(m.key)}" value="${esc(m.name)}" maxlength="40" aria-label="Merchant name"><small>${m.n} payment${m.n===1?'':'s'} · ${esc(m.sample.slice(0,60))}${m.known?' · <b>remembered</b>':''}</small></td><td class="num">${fmtM(m)}</td>`+
    `<td><select data-exp="cat" data-k="${esc(m.key)}" aria-label="Category for ${esc(m.name)}">${opt(m)}</select></td>`+
@@ -4587,7 +4626,7 @@ const Biz=(()=>{
   modal('Import card & bank statements','Payments out, grouped by merchant. Set each merchant once; next month the app remembers it and only asks about new ones.',
    `<label class="stmt-drop"><input type="file" id="exp-files" accept=".csv,.txt,.tsv,.xls,.xlsx,text/csv" multiple>${ico('down')}<span><b>Choose card or bank CSV files</b><small>Your credit card statement for subscriptions and AI tools, and your bank account for rent, electricity, water and internet. Several at once is fine.</small></span></label>`+
    exp.files.map((F,i)=>F.error?`<div class="stmt-card is-error"><div class="stmt-head"><div><b>${esc(F.file)}</b><small class="warn">${esc(F.error)}</small></div><button type="button" class="ibtn" data-action="biz-exp-remove" data-i="${i}" aria-label="Remove">${ico('trash')}</button></div></div>`:
-    `<div class="exp-file"><div><b>${esc(F.file)}</b><small>${F.rows.length} payment${F.rows.length===1?'':'s'} out${F.dups?` · ${F.dups} already imported`:''}${F.twins?` · ${F.twins} possible duplicate${F.twins===1?'':'s'} of records you have (same merchant, date and amount), left out`:''}${F.back?` · ${F.back} money in or card payments left out`:''}</small></div>`+
+    `<div class="exp-file"><div><b>${esc(F.file)}</b><small>${F.rows.length} payment${F.rows.length===1?'':'s'} out${F.dups?` · ${F.dups} already imported`:''}${F.twins?` · ${F.twins} possible duplicate${F.twins===1?'':'s'} of records you have (same merchant, date and amount), left out`:''}${F.returns?` · ${F.returns} return${F.returns===1?'':'s'} set against ${F.returns===1?'its':'their'} purchase`:''}${F.back?` · ${F.back} money in, card payments or returns left out`:''}</small></div>`+
     `<label>Currency<select data-exp="cur" data-i="${i}">${curOptions(F.cur)}</select></label><label>Paid from<select data-exp="acct" data-i="${i}">${accOptions(F.acct)}</select></label><label class="exp-flip"><input type="checkbox" data-exp="flip" data-i="${i}" ${F.flip?'checked':''}><span>Purchases show as positive amounts</span></label><button type="button" class="ibtn" data-action="biz-exp-remove" data-i="${i}" aria-label="Remove">${ico('trash')}</button></div>`).join('')+
    (ok.some(F=>F.cur!=='EUR')?`<p class="small muted">${exp.busy?'Fetching the ECB reference rates…':'Amounts in other currencies use the ECB reference rate of each payment’s day; offline, they update by themselves later.'}</p>`:'')+
    (home?`<div class="notice"><span><b>What share of your home is used for work?</b> Home rent starts at that share and utilities at 30% of it, as declared on your 036/037.</span><label class="exp-home"><input type="number" data-exp="home" min="0" max="100" step="1" value="${state.settings.es?.homePct||''}" placeholder="e.g. 15"> %</label></div>`:'')+
@@ -4603,6 +4642,7 @@ const Biz=(()=>{
     const ecb=F.cur==='EUR'?1:fxDay(F.cur,x.date),rate=F.cur==='EUR'?1:Math.round((ecb||fxLatest(F.cur))*1e6)/1e6,v=+m.v||0,pct=Math.max(0,Math.min(100,Math.round(+m.p||0)));
     state.transactions.push({id:Budget.uid(),date:x.date,category:m.cat,amount:Budget.eur(x.out,rate),note:x.desc.slice(0,500),
      rec:{kind:'expense',act:(P.categoryActivity||{})[m.cat]||Budget.ACTS[0],vendor:m.name,cur:F.cur,rate,amount:x.out,vatShown:v?Math.round(x.out*v/(10000+v)):0,...(v?{ivaDed:true}:{}),pct,acct:F.acct||'',evidence:[],status:'',reviewed:'',notes:'',src:{k:'bank',m:x.month,f:F.file.slice(0,200),h:x.h},...(F.cur==='EUR'?{}:{fx:ecb?'ecb':'pending'})}});made++;}));
+   state.expenseFiles??={};files.forEach(F=>{state.expenseFiles[F.key]={cur:F.cur,acct:F.acct||'',flip:!!F.flip};});
    state.expenseRules??={};exp.merchants.forEach(m=>{if(!m.cat)return;state.expenseRules[m.key]=expBiz(m)?{c:m.cat,p:Math.max(0,Math.min(100,Math.round(+m.p||0))),v:+m.v||0,n:m.name}:{skip:m.cat,n:m.name};});},`${files.length} statement${files.length===1?'':'s'} imported`);
   closeModal();exp=null;toast(`${made} expense record${made===1?'':'s'} created. Link each invoice on Evidence as you collect them.`);go('expenses',true);fxRefresh(true);}
  document.addEventListener('change',e=>{if(!exp)return;const el=e.target;
@@ -4613,6 +4653,42 @@ const Biz=(()=>{
   else if(k==='home'){const v=Math.max(0,Math.min(100,Math.round(+el.value||0)));commit(()=>{state.settings.es={...state.settings.es,homePct:v};},`Home share set to ${v}%`);exp.merchants.forEach(x=>{if((P.homeShare||{})[x.cat]!==undefined)x.p=expShare(x.cat);});}
   else if(F&&k==='cur'){F.cur=el.value;expMerchants();}else if(F&&k==='acct')F.acct=el.value;else if(F&&k==='flip'){F.flip=el.checked;expRows(F);expMerchants();}
   expRender();});
+ // ---------- Monthly bills ----------
+ // Rent, phone, electricity, water, insurance, the cuota: set up once, and each month's expense record
+ // is added by itself on the bill's day, with its category, business share and IVA. A bill whose amount
+ // changes starts from last month's figure and is marked as an estimate until you confirm it (edit and
+ // save the record). Deleting one month's record does not bring it back.
+ const BILL_PRESETS=[['Rent','home-rent',0,false,1],['Electricity','home-utilities',2100,true,15],['Water','home-utilities',1000,true,15],['Internet & phone','home-utilities',2100,false,10],['Health insurance','health-insurance',0,false,3],['Gestoría','professional',2100,false,5],['Cuota de autónomos','cuota',0,false,30]];
+ const bills=()=>state.bills||[];
+ const billRecs=b=>state.transactions.filter(t=>t.rec?.src?.k==='bill'&&t.rec.src.p===b.id);
+ function billsRun(quiet){if(demo||!bills().length)return 0;const t0=today(),now=t0.slice(0,7),add=[];
+  bills().forEach(b=>{let m=b.last?Budget.shift(b.last,1):b.from;for(let n=0;n<36&&m<=now;n++,m=Budget.shift(m,1)){if(b.until&&m>b.until)break;const day=Math.min(b.day,Budget.days(m));if(m===now&&day>+t0.slice(8))break;add.push([b,m,`${m}-${String(day).padStart(2,'0')}`]);}});
+  if(!add.length)return 0;let made=0;
+  const run=()=>add.forEach(([b0,m,date])=>{const b=bills().find(x=>x.id===b0.id);if(!b)return;b.last=m;if(!writable(m)||!state.categories.some(c=>c.id===b.cat))return;
+   const prev=billRecs(b).sort((x,y)=>y.date.localeCompare(x.date))[0],amount=b.varies&&prev?prev.rec.amount:b.amount,v=b.v||0,est=b.varies&&!!prev;
+   state.transactions.push({id:Budget.uid(),date,category:b.cat,amount,note:`${b.name} · ${monthName(m)}`,rec:{kind:'expense',act:(P.categoryActivity||{})[b.cat]||Budget.ACTS[0],vendor:b.name,cur:'EUR',rate:1,amount,vatShown:v?Math.round(amount*v/(10000+v)):0,...(v?{ivaDed:true}:{}),
+    pct:b.pct===null||b.pct===undefined?expShare(b.cat):b.pct,acct:b.acct||'',evidence:[],status:'',reviewed:'',notes:est?'Monthly bill: the amount is an estimate from the last bill until you confirm it.':'Monthly bill.',src:{k:'bill',m,f:'',p:b.id},...(est?{est:true}:{})}});made++;});
+  if(quiet){run();Budget.invalidate(state);save();render();if(made)toast(`${made} monthly bill${made===1?'':'s'} added`);}else commit(run,`${made||'No'} monthly bill${made===1?'':'s'} added`);return made;}
+ function billsOpen(edit=''){const cats=state.categories.filter(c=>Budget.type(c)==='expense'&&!c.archived),b=bills().find(x=>x.id===edit),t0=today();
+  const list=bills().map(x=>`<div class="bill-row"><div><b>${esc(x.name)}</b><small>${esc(category(x.cat)?.name||'')} · ${x.varies?'about ':''}${fmt(x.amount)} on day ${x.day}${x.varies?' · amount changes':''} · ${x.pct===null||x.pct===undefined?`${expShare(x.cat)}% business (home share)`:`${x.pct}% business`}${x.until?` · until ${shortMonth(x.until)} ${x.until.slice(0,4)}`:''}</small></div><div class="actions"><button class="ibtn" data-action="biz-bill-edit" data-id="${x.id}" aria-label="Edit">${ico('edit')}</button><button class="ibtn" data-action="biz-bill-delete" data-id="${x.id}" aria-label="Remove">${ico('trash')}</button></div></div>`).join('');
+  const f=b||{name:'',cat:'home-utilities',amount:0,varies:false,day:1,pct:null,v:2100,acct:'',from:t0.slice(0,7),until:''};
+  modal('Monthly bills','Set a bill up once; each month its expense record is added by itself on its day. Bills that change (electricity, water) start from the last amount and are marked to confirm.',
+   (list?`<div class="bill-list">${list}</div>`:'<p class="small muted">No monthly bills yet.</p>')+
+   (b?'':`<div class="bill-presets"><small class="dim">Start from</small>${BILL_PRESETS.filter(([,c])=>state.categories.some(x=>x.id===c)).map(([n,c,v,var_,d],i)=>`<button type="button" class="chip" data-action="biz-bill-preset" data-i="${i}">${esc(n)}</button>`).join('')}</div>`)+
+   `<form id="bill-form" data-id="${b?b.id:''}"><h3 class="sub-head">${b?'Edit '+esc(b.name):'Add a bill'}</h3><div class="fields">`+
+   `<label>Name<input name="name" required maxlength="40" value="${esc(f.name)}" placeholder="e.g. Simyo, Energía XXI, Rent"></label><label>Category<select name="cat">${cats.map(c=>`<option value="${c.id}" ${c.id===f.cat?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>`+
+   `<label>Amount (€)<input name="amount" type="number" min="0.01" step="0.01" required value="${f.amount?val(f.amount):''}" placeholder="0.00"></label><label>Day of the month<input name="day" type="number" min="1" max="31" step="1" required value="${f.day}"></label>`+
+   `<label class="checkline full"><input type="checkbox" name="varies" ${f.varies?'checked':''}><span>The amount changes each month (electricity, water): use the last one as an estimate and ask me to confirm</span></label>`+
+   `<label>Business %<input name="pct" type="number" min="0" max="100" step="1" value="${f.pct===null||f.pct===undefined?'':f.pct}" placeholder="From your home share"><small>Blank: rent at your home share, utilities at 30% of it</small></label>`+
+   `<label>IVA on the bill<select name="v">${Budget.VAT_RATES.map(r=>`<option value="${r}" ${r===(f.v||0)?'selected':''}>${r?pctBp(r):'0% / none'}</option>`).join('')}</select></label>`+
+   `<label>Paid from<select name="acct">${accOptions(f.acct)}</select></label><label>Starts<input name="from" type="month" required value="${f.from}"><small>Months since then are added now</small></label><label>Ends <span class="dim">(optional)</span><input name="until" type="month" value="${f.until||''}"></label></div>`+
+   `<div class="formfoot">${b?button('Cancel','biz-bills-open'):button('Close','dismiss')}<button class="btn primary" type="submit">${b?'Save bill':'Add bill'}</button></div></form>`);}
+ function billSave(f){const d=new FormData(f),id=f.dataset.id,name=String(d.get('name')||'').trim(),amount=Budget.cents(String(d.get('amount')||'')),day=Math.round(+d.get('day')),from=String(d.get('from')||''),until=String(d.get('until')||''),cat=d.get('cat'),pct=String(d.get('pct')||'').trim();
+  if(!name)throw Error('Name the bill.');if(!(amount>0))throw Error('Enter the amount.');if(!(day>=1&&day<=31))throw Error('Choose a day from 1 to 31.');if(!/^\d{4}-\d{2}$/.test(from))throw Error('Choose the month it starts.');if(until&&(!/^\d{4}-\d{2}$/.test(until)||until<from))throw Error('The end month is before the start.');
+  if(!state.categories.some(c=>c.id===cat))throw Error('Choose a category.');const p=pct===''?null:Math.round(+pct);if(p!==null&&!(p>=0&&p<=100))throw Error('Business use is a percentage from 0 to 100.');
+  const bill={id:id||'bl-'+Budget.uid().slice(0,12),name:name.slice(0,40),cat,amount,varies:d.get('varies')==='on',day,pct:p,v:Budget.VAT_RATES.includes(+d.get('v'))?+d.get('v'):0,acct:d.get('acct')||'',from,until};
+  commit(()=>{state.bills??=[];const old=state.bills.find(x=>x.id===bill.id);if(old){bill.last=old.from===from?old.last:undefined;Object.assign(old,bill);if(!old.last)delete old.last;}else state.bills.push(bill);},id?'Bill saved':'Bill added');billsRun(true);billsOpen();}
+ document.addEventListener('submit',e=>{if(e.target.id!=='bill-form')return;e.preventDefault();try{billSave(e.target);}catch(err){actionError(err);}});
  function recPreview(){const f=$('#rec-form');if(!f)return;const g=n=>Budget.cents(f.querySelector(`[name=${n}]`)?.value||'0')||0,rate=+f.querySelector('[name=rate]').value||0,cur=f.querySelector('[name=cur]').value,E=x=>fmt(Math.round(x*rate)),out=$('#rec-eur');
   if(f.dataset.kind==='income'){const p=f.querySelector('[name=payout]'),rec={gross:g('gross'),refunds:g('refunds'),fees:g('fees'),vat:+(f.querySelector('[name=vat]')?.value||0),ret:+(f.querySelector('[name=ret]')?.value||0),rate,cur},x=Budget.recTax(rec);
    if(p.dataset.auto==='1')p.value=g('gross')?val(Budget.recPayout(rec)):'';
@@ -4984,6 +5060,11 @@ const Biz=(()=>{
   case 'biz-notdup':commit(()=>{const t=state.transactions.find(x=>x.id===id);if(t?.rec)t.rec.notDup=true;},'Marked as not a duplicate');break;
   case 'biz-fx-update':commit(()=>state.transactions.forEach(t=>{if(t.rec?.src&&t.rec.cur!=='EUR'&&t.rec.fx!=='ecb')t.rec.fx='pending';}),'Fetching ECB rates…');fxRefresh();break;
   case 'biz-exp-open':expOpen();break;
+  case 'biz-bills-open':billsOpen();break;
+  case 'biz-bill-edit':billsOpen(id);break;
+  case 'biz-bill-delete':{const x=bills().find(y=>y.id===id);if(x)commit(()=>{state.bills=bills().filter(y=>y.id!==id);},`${x.name} removed. Its past records stay.`);billsOpen();break;}
+  case 'biz-bill-preset':{const [n,c,v,var_,d]=BILL_PRESETS.filter(([,c])=>state.categories.some(x=>x.id===c))[+b.dataset.i]||[];const f=$('#bill-form');if(!f||!n)break;f.name.value=n;f.cat.value=c;f.v.value=String(v);f.varies.checked=var_;f.day.value=d;if(c==='cuota')f.pct.value='100';f.amount.focus();break;}
+  case 'biz-recf-est':recF.est=!recF.est;render();break;
   case 'biz-exp-remove':if(exp){exp.files.splice(+b.dataset.i,1);expMerchants();expRender();}break;
   case 'biz-exp-import':if(exp)expImport();break;
   case 'biz-stmt-remove':if(stmt){stmt.files.splice(+b.dataset.i,1);stmtRender();}break;
@@ -5242,7 +5323,7 @@ const Biz=(()=>{
  if(F.mileage)views.mileage=mileageView;
  if(F.invoices)views.invoices=invoicesView;
  return {views,dashboard,mixGrid,mixCard,settingsCard,taxLineField,annualCharts,cashflowAnnual,range,columns,statementRows,
-  channels,channelName,channelIdByName:name=>findChannel(name)?.id||'',checkChannel,ensureChannel,channelField,channelChip,channelSelect,channelList,channelFilter,channelMatch,channelFiltered,clearChannelFilter,channelsCard,offerChannelSimilar,recAdd:k=>recForm(k),stmtOpen,expOpen,
+  channels,channelName,channelIdByName:name=>findChannel(name)?.id||'',checkChannel,ensureChannel,channelField,channelChip,channelSelect,channelList,channelFilter,channelMatch,channelFiltered,clearChannelFilter,channelsCard,offerChannelSimilar,recAdd:k=>recForm(k),stmtOpen,expOpen,billsRun,
   tags,tagName,tagOf,tagColor,setTag,ruleTag,ensureTag,checkTag,tagField,tagForSave,tagChip,tagFilter,tagsCard,setTxFilter};
 })();
 render();
