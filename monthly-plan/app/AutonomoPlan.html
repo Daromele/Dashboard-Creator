@@ -178,7 +178,7 @@ const NICHE = {
     meanings: [['Base', 'The amount before IVA'], ['IVA repercutido', 'IVA you charged and owe'], ['IVA soportado', 'IVA you paid and can deduct'], ['Retención', 'IRPF a client kept back for you']],
     details: [
       ['Income records', 'One record per payout or statement: the date, the activity it belongs to, the payer or platform, and the amounts as the platform shows them (gross, refunds, fees and the payout that reached you), in their own currency. Add the euro rate and the euro figures follow. The report counts gross income less refunds, with platform fees as a cost.'],
-      ['Importing statements, one record per payer and month', 'On Income, choose <b>Import statements</b> and pick your CSV exports, as many as you like at once: Etsy monthly statements, Payhip and Fourthwall orders, Patreon earnings, Canva royalty payments, Creative Market sales, Creative Fabrica payouts, affiliate commissions, PayPal, Stripe, Shopify and YouTube. Each file is summed into one income record per month: sales less the tax buyers paid (the platform collects and passes it on), refunds, fees and the payout, in the file’s currency with a rate to euros for each month (remembered for next time). Ads and shipping become separate expenses; tax a platform withheld, such as US tax on Canva royalties, goes in the notes for your gestor. Choose 2026, 2025 or all months at the top. The first time, check which payer each file belongs to (two shops on one platform are told apart by the file name, e.g. “payhip jps.csv”); after that the app recognises them by their listings. Importing the same payer and month again replaces the record. PDFs can’t be read: download the CSV and link the PDF as evidence.'],
+      ['Importing statements, one record per payer and month', 'On Income, choose <b>Import statements</b> and pick your CSV exports, as many as you like at once: Etsy monthly statements, Payhip orders, the Fourthwall transactions report (it has the fees; the orders export doesn’t), Patreon earnings, Canva royalty payments, Creative Market sales, Creative Fabrica payouts, affiliate commissions, PayPal, Stripe, Shopify and YouTube. Each file is summed into one income record per month: sales less the tax buyers paid (the platform collects and passes it on), refunds, fees and the payout, in the file’s currency with a rate to euros for each month (remembered for next time). Ads and shipping become separate expenses; tax a platform withheld, such as US tax on Canva royalties, goes in the notes for your gestor. Choose 2026, 2025 or all months at the top. The first time, check which payer each file belongs to (two shops on one platform are told apart by the file name, e.g. “payhip jps.csv”); after that the app recognises them by their listings. Importing the same payer and month again replaces the record. PDFs can’t be read: download the CSV and link the PDF as evidence.'],
       ['Expense records', 'One record per receipt or invoice: vendor, category, amount in its currency, euro rate and the share used for the business (100% unless it is shared with personal use). The deductible figure is indicative; your gestor decides what counts.'],
       ['Which euro rate?', 'Use the rate for the day the money arrived or left: the one your bank or PayPal applied when you converted, or the ECB reference rate for that day. Autónomo Plan remembers the last rate for each currency and suggests it for the next record.'],
       ['Evidence links', 'Keep the files in Google Drive, Dropbox or OneDrive and paste a share link on the record, with its type (invoice, statement, payment confirmation…). A record with at least one link is Complete, one without is Missing; you can mark one Needs review, and tick Reviewed once you have checked it. Share the folder with your gestor, or set links to “anyone with the link”, so they open from the PDF.'],
@@ -2496,6 +2496,22 @@ const Platforms = (()=>{
     const cut=Math.abs(price)-Math.abs(earn||0);if(cut)out.push({...base,note:product+' · Creative Market’s share',amount:-s*cut,role:'fees'});});
    return out;}};
 
+ // ---- Fourthwall: Payouts › Transactions report (orders with their fees, refunds and payouts) ----
+ // "income" includes the tax buyers paid and "cost" passes it on, so the tax comes off the sale;
+ // the rest of the cost is Fourthwall's product and payment fees.
+ const fourthwallTx={id:'fourthwall',name:'Fourthwall',bank:/fourthwall/i,
+  detect:h=>has(h,'transaction_type','profit','income','cost','payment_fee'),
+  convert(h,rows){const c={date:find(h,'transaction_at (utc)',/^transaction_at/),type:find(h,'transaction_type'),status:find(h,'order.order.status',/status/),cur:find(h,'currency'),profit:find(h,'profit'),income:find(h,'income'),cost:find(h,'cost'),
+    tax:find(h,'tax'),fees:cols(h,'products.cost','payment_fee','fulfillment_cost','shipping_cost','order.thank_you_card_fee')};
+   const num=reader(rows,[c.profit,c.income,c.cost,c.tax,...c.fees]),out=[];
+   rows.forEach(r=>{const type=n(cell(r,c.type)),v=i=>num(cell(r,i))||0,base={date:cell(r,c.date),currency:upper(cell(r,c.cur))||'USD',line:r.line};
+    if(type==='order'){if(/cancel/i.test(cell(r,c.status)))return;const inc=v(c.income),tax=Math.abs(v(c.tax)),fee=c.fees.reduce((a,i)=>a+Math.abs(v(i)),0);
+     if(inc)out.push({...base,note:'Fourthwall order',amount:inc,role:'sale'});if(tax)out.push({...base,note:'Fourthwall order · tax paid by buyer',amount:-tax,role:'buyerTax'});if(fee)out.push({...base,note:'Fourthwall order · product & payment fees',amount:-fee,role:'fees'});}
+    else if(/refund|cancel/.test(type)){const pr=v(c.profit);if(pr)out.push({...base,note:`Fourthwall ${type}`,amount:pr,role:'refund'});}
+    else if(/payout/.test(type)){const a=Math.abs(v(c.cost)||v(c.profit));if(a)out.push({...base,note:'Fourthwall payout',amount:-a,role:'payout',memo:true});}
+    else{const pr=v(c.profit);if(pr)out.push({...base,note:`Fourthwall ${type||'entry'}`,amount:pr,role:'other'});}});
+   return out;}};
+
  // ---- Fourthwall: orders export; merchandise and donations less discounts, fees come with the payout ----
  const fourthwall={id:'fourthwall',name:'Fourthwall',bank:/fourthwall/i,
   detect:h=>has(h,'merchandise','donation','friendly_id'),
@@ -2514,7 +2530,7 @@ const Platforms = (()=>{
     out.push({date:cell(r,c.date),currency:upper(cell(r,c.cur))||'USD',line:r.line,note:`${program} · commission`,amount:a,role:'sale',title:program,program});});
    return out;}};
 
- const ADAPTERS=[etsy,shopify,shopifyPayouts,paypal,stripe,youtube,patreon,payhip,canva,creativeFabrica,creativeMarket,fourthwall,commissions,generic];
+ const ADAPTERS=[etsy,shopify,shopifyPayouts,paypal,stripe,youtube,patreon,payhip,canva,creativeFabrica,creativeMarket,fourthwallTx,fourthwall,commissions,generic];
  // Which platform wrote this file, if any. The name is what the review and streams show.
  function detect(headers,rows,fileName=''){
   const a=ADAPTERS.find(x=>{try{return x.detect(headers,rows||[]);}catch{return false;}});if(!a)return null;

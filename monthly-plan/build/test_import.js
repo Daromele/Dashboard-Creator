@@ -130,4 +130,11 @@ Aug 2026,1512.00,-120.96,-45.36,1345.68,USD`,'patreon-earnings.csv');
 39.04,USD,2025-11-18 19:12:53,Withdrawn,2026-01-14 14:06:21,Kit (formerly ConvertKit)
 10.00,USD,2025-11-20 19:12:53,Rejected,2026-01-14 14:06:21,Kit (formerly ConvertKit)`,'PartnerCommissionsExport.csv');
   eq('affiliate commissions: on their created date, rejected ones left out, the program named', [t.p.id,...pick(t.S[0],'month','gross','program')], ['commissions','2025-11',3904,'Kit (formerly ConvertKit)']);
+  t=sum(`id,original_id,transaction_at (UTC),transaction_type,sub_type,order.order.friendly_id,order.order.status,profit,income,cost,currency,products.price,products.cost,shipping_cost,shipping_price,tax,donation,discount,fulfillment_cost,payment_fee,refund_value,order.sample_credit_used,order.thank_you_card_fee
+1,a,2026-09-12T19:29:56.945945+0000,Order,COMMON,X1,DELIVERED,10.03,11.71,1.68,USD,12.99,0.38,0,0,0.67,0,1.95,0,0.63,0,,
+2,b,2026-09-13T19:29:56.945945+0000,Order,COMMON,X2,DELIVERED,11.64,12.73,1.09,USD,14.98,0.43,0,0,0,0,2.25,0,0.66,0,,
+3,c,2026-09-14T19:29:56.945945+0000,Order refund,COMMON,,,-5.00,0,5.00,USD,,,0,0,0,0,0,0,0,5.00,,
+4,d,2026-09-01T21:19:45.979979+0000,Requested payout,,,,-73.37,0,73.37,USD,,,0,0,0,0,0,0,0,0,,`,'Fourthwall-Shop-transactions-report.csv');
+  eq('fourthwall transactions: income less the buyer tax it passes on, product & payment fees, refunds, the payout apart', [t.p.id,...pick(t.S[0],'gross','buyerTax','fees','refunds','payout','payouts')], ['fourthwall',2377,67,210,500,1667,7337]);
+  eq('fourthwall transactions: the payout ties to Fourthwall’s own profit', t.S[0].payout, 1003+1164-500);
 };

@@ -2229,6 +2229,22 @@ const Platforms = (()=>{
     const cut=Math.abs(price)-Math.abs(earn||0);if(cut)out.push({...base,note:product+' · Creative Market’s share',amount:-s*cut,role:'fees'});});
    return out;}};
 
+ // ---- Fourthwall: Payouts › Transactions report (orders with their fees, refunds and payouts) ----
+ // "income" includes the tax buyers paid and "cost" passes it on, so the tax comes off the sale;
+ // the rest of the cost is Fourthwall's product and payment fees.
+ const fourthwallTx={id:'fourthwall',name:'Fourthwall',bank:/fourthwall/i,
+  detect:h=>has(h,'transaction_type','profit','income','cost','payment_fee'),
+  convert(h,rows){const c={date:find(h,'transaction_at (utc)',/^transaction_at/),type:find(h,'transaction_type'),status:find(h,'order.order.status',/status/),cur:find(h,'currency'),profit:find(h,'profit'),income:find(h,'income'),cost:find(h,'cost'),
+    tax:find(h,'tax'),fees:cols(h,'products.cost','payment_fee','fulfillment_cost','shipping_cost','order.thank_you_card_fee')};
+   const num=reader(rows,[c.profit,c.income,c.cost,c.tax,...c.fees]),out=[];
+   rows.forEach(r=>{const type=n(cell(r,c.type)),v=i=>num(cell(r,i))||0,base={date:cell(r,c.date),currency:upper(cell(r,c.cur))||'USD',line:r.line};
+    if(type==='order'){if(/cancel/i.test(cell(r,c.status)))return;const inc=v(c.income),tax=Math.abs(v(c.tax)),fee=c.fees.reduce((a,i)=>a+Math.abs(v(i)),0);
+     if(inc)out.push({...base,note:'Fourthwall order',amount:inc,role:'sale'});if(tax)out.push({...base,note:'Fourthwall order · tax paid by buyer',amount:-tax,role:'buyerTax'});if(fee)out.push({...base,note:'Fourthwall order · product & payment fees',amount:-fee,role:'fees'});}
+    else if(/refund|cancel/.test(type)){const pr=v(c.profit);if(pr)out.push({...base,note:`Fourthwall ${type}`,amount:pr,role:'refund'});}
+    else if(/payout/.test(type)){const a=Math.abs(v(c.cost)||v(c.profit));if(a)out.push({...base,note:'Fourthwall payout',amount:-a,role:'payout',memo:true});}
+    else{const pr=v(c.profit);if(pr)out.push({...base,note:`Fourthwall ${type||'entry'}`,amount:pr,role:'other'});}});
+   return out;}};
+
  // ---- Fourthwall: orders export; merchandise and donations less discounts, fees come with the payout ----
  const fourthwall={id:'fourthwall',name:'Fourthwall',bank:/fourthwall/i,
   detect:h=>has(h,'merchandise','donation','friendly_id'),
@@ -2247,7 +2263,7 @@ const Platforms = (()=>{
     out.push({date:cell(r,c.date),currency:upper(cell(r,c.cur))||'USD',line:r.line,note:`${program} · commission`,amount:a,role:'sale',title:program,program});});
    return out;}};
 
- const ADAPTERS=[etsy,shopify,shopifyPayouts,paypal,stripe,youtube,patreon,payhip,canva,creativeFabrica,creativeMarket,fourthwall,commissions,generic];
+ const ADAPTERS=[etsy,shopify,shopifyPayouts,paypal,stripe,youtube,patreon,payhip,canva,creativeFabrica,creativeMarket,fourthwallTx,fourthwall,commissions,generic];
  // Which platform wrote this file, if any. The name is what the review and streams show.
  function detect(headers,rows,fileName=''){
   const a=ADAPTERS.find(x=>{try{return x.detect(headers,rows||[]);}catch{return false;}});if(!a)return null;
