@@ -140,4 +140,12 @@ Aug 2026,1512.00,-120.96,-45.36,1345.68,USD`,'patreon-earnings.csv');
   t=sum(`Month - successful transactions,Currency,Membership gross earnings - Web and Android,Membership gross earnings - iOS app,One time purchase gross earnings - Web and Android,One time purchase gross earnings - iOS app,Total gross earnings,Patreon platform fees,Taxes on fees,Payment processing fees,Currency exchange fee,iOS app fee,Merch costs (items + shipping),Total payment processing fees,Refunds,Patreon adjustments,Recovered payments,Total net earnings
 2026-07,USD,70.00,0.00,30.00,0.00,100.00,-8.00,-1.00,-9.00,-1.00,0.00,0.00,-10.00,-20.00,15.00,5.00,81.00`,'patreon_earnings_breakdown_by_month.csv');
   eq('patreon breakdown: recovered payments and Patreon adjustments are income, fees and the tax on them, no gap left', [t.p.id,...pick(t.S[0],'sales','gross','refunds','fees','feeTax','payout','other')], ['patreon',12000,12000,2000,1900,100,8100,0]);
+  t=sum(`Date,Estimated revenue (USD)
+Total,20.001
+2026-01-01,6.816
+2026-01-02,7.491
+2026-01-31,0.004
+2026-02-01,5.690
+2026-02-02,0`,'Youtube.csv');
+  eq('youtube studio: daily estimates summed per month, fractions of a cent rounded once, the total row skipped', [t.p.id,t.S.map(x=>[x.month,x.gross,x.currency])], ['youtube',[['2026-01',1431,'USD'],['2026-02',569,'USD']]]);
 };

@@ -2339,6 +2339,15 @@ const Platforms = (()=>{
  const curIn=(raw,fallback='')=>{const x=String(raw||'');return /US\$|USD/i.test(x)?'USD':/€|EUR/i.test(x)?'EUR':/£|GBP/i.test(x)?'GBP':/CA\$|CAD/i.test(x)?'CAD':/A\$|AUD/i.test(x)?'AUD':fallback;};
  const cols=(h,...names)=>names.map(x=>find(h,x));
 
+ // ---- YouTube Studio: Analytics › Revenue › export (a date and the estimated revenue per day) ----
+ // Daily figures carry fractions of a cent, so each month is summed first and rounded once. These are
+ // YouTube's estimates; the AdSense payment a month later is the final figure (and shows any US tax withheld).
+ const youtubeStudio={id:'youtube',name:'YouTube',bank:/google|youtube|adsense/i,
+  detect:h=>h.length<=6&&find(h,'date',/^date$/,/^day$/)>=0&&find(h,/^estimated (partner )?revenue/,/^your estimated revenue/)>=0,
+  convert(h,rows){const c={date:find(h,'date',/^date$/,/^day$/),rev:find(h,/^estimated (partner )?revenue/,/^your estimated revenue/)},cur=(String(h[c.rev]).match(/\(([a-z]{3})\)/i)||[])[1]?.toUpperCase()||'USD',by=new Map();
+   rows.forEach(r=>{const d=cell(r,c.date);if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return;const v=parseFloat(String(cell(r,c.rev)).replace(/[^0-9.\-]/g,''));if(!Number.isFinite(v)||!v)return;const m=d.slice(0,7),x=by.get(m)||{sum:0,last:d,line:r.line};x.sum+=v;if(d>x.last)x.last=d;by.set(m,x);});
+   return [...by.entries()].map(([m,x])=>({date:x.last,currency:cur,line:x.line,note:'YouTube estimated revenue',amount:Math.round(x.sum*100),role:'sale'})).filter(x=>x.amount);}};
+
  // ---- Patreon: earnings by month (Insights › Earnings › Download, or the earnings breakdown) ----
  // Both layouts: gross, Patreon's fee and the tax on it, payment processing, merch, refunds, and in the
  // breakdown also Patreon's adjustments and recovered payments (earlier failed charges that went
@@ -2438,7 +2447,7 @@ const Platforms = (()=>{
     out.push({date:cell(r,c.date),currency:upper(cell(r,c.cur))||'USD',line:r.line,note:`${program} · commission`,amount:a,role:'sale',title:program,program});});
    return out;}};
 
- const ADAPTERS=[etsy,shopify,shopifyPayouts,paypal,stripe,youtube,patreon,payhip,canva,creativeFabrica,creativeMarket,fourthwallTx,fourthwall,commissions,generic];
+ const ADAPTERS=[etsy,shopify,shopifyPayouts,paypal,stripe,youtubeStudio,youtube,patreon,payhip,canva,creativeFabrica,creativeMarket,fourthwallTx,fourthwall,commissions,generic];
  // Which platform wrote this file, if any. The name is what the review and streams show.
  function detect(headers,rows,fileName=''){
   const a=ADAPTERS.find(x=>{try{return x.detect(headers,rows||[]);}catch{return false;}});if(!a)return null;
