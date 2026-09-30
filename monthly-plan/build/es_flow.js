@@ -183,4 +183,30 @@ await p.click('#content [data-action="biz-exp-open"]');
 await p.setInputFiles('#exp-files',[{name:'card_sep.csv',mimeType:'text/csv',buffer:Buffer.from(CARD)},{name:'banco_sep.csv',mimeType:'text/csv',buffer:Buffer.from(BANK)}]);await p.waitForTimeout(400);
 ok('the same statements again: payments recognised, merchants remembered, nothing to ask',await p.evaluate(()=>!document.querySelector('[data-action="biz-exp-import"]')&&!document.querySelector('tr.to-do')&&/already imported/.test(document.querySelector('.exp-file').innerText)));
 await p.evaluate(()=>closeModal());
+// 9. ECB rates without typing: offline the error shows in the dialog; online the month's average fills in; pending records update later
+const PH=`"Order ID",Email,"First Name","Last Name",Currency,"Amount Gross","Amount Net",Status,"Num of Items In Cart","Items In Cart","Payment Type","PayPal/Stripe Fee","Payhip Fee","Payhip Collected Sales Tax On Your Behalf","Payhip Collected Sales Tax Amount","Custom VAT Amount",Date
+"1",a@example.com,A,B,USD,20.00,18.00,COMPLETED,1,"Budget Sheet",paypal,1.00,1.00,0,0.00,0.00,"2026-01-12 10:00:00"
+"2",c@example.com,C,D,USD,30.00,27.00,COMPLETED,1,"Debt Tracker",stripe,1.50,1.50,0,0.00,0.00,"2026-02-14 10:00:00"`;
+const ecb=(a,b)=>{const out={};for(let d=new Date(a+'T00:00:00Z');d<=new Date(b+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1)){if([0,6].includes(d.getUTCDay()))continue;out[d.toISOString().slice(0,10)]={EUR:0.9+(d.getUTCMonth()+1)/1000};}return out;};
+let online=false;
+await p.route(/frankfurter/,async r=>{if(!online)return r.abort();const m=r.request().url().match(/(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})/);await r.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify({amount:1,base:'USD',rates:ecb(m[1],m[2])})});});
+await p.evaluate(()=>{state.transactions=[];state.fxRates={};state.fxECB={};save();go('income',true);});
+const phOpen=async()=>{await p.click('#content [data-action="biz-stmt-open"]');await p.setInputFiles('#stmt-files',[{name:'payhip jps.csv',mimeType:'text/csv',buffer:Buffer.from(PH)}]);await p.waitForTimeout(700);};
+await phOpen();await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(150);
+ok('an error shows inside the dialog, which stays open with its work',await p.evaluate(()=>$('#modal').open&&!$('#form-error').hidden&&/ECB rates/.test($('#form-error').innerText)&&document.querySelectorAll('.stmt-card').length===1));
+await p.evaluate(()=>closeModal());online=true;await phOpen();
+ok('online, each month’s ECB average fills in by itself',JSON.stringify(await p.evaluate(()=>[...document.querySelectorAll('.stmt-table tbody td:last-child')].map(x=>x.innerText.replace(/\s+/g,' '))))===JSON.stringify(['0.9010 ECB average','0.9020 ECB average']));
+await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(250);
+ok('records carry the ECB rate',JSON.stringify(await p.evaluate(()=>state.transactions.map(t=>[t.rec.rate,t.rec.fx,t.amount])))===JSON.stringify([[0.901,'ecb',1622],[0.902,'ecb',2435]]));
+online=false;await p.evaluate(()=>{state.transactions=[];state.fxECB={};state.fxRates={USD:0.95};save();render();});await phOpen();await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(250);
+ok('offline, the latest known rate stands in, marked pending',await p.evaluate(()=>state.transactions.every(t=>t.rec.fx==='pending'&&t.rec.rate===0.95)&&/Rate pending/i.test($('#content').innerText)));
+online=true;await p.evaluate(()=>fxRefresh());await p.waitForTimeout(700);
+ok('back online, pending records take the ECB rate',JSON.stringify(await p.evaluate(()=>state.transactions.map(t=>[t.rec.rate,t.rec.fx,t.amount])))===JSON.stringify([[0.901,'ecb',1622],[0.902,'ecb',2435]]));
+// 10. possible duplicates: the same business, date and amount
+await p.evaluate(()=>{const t=JSON.parse(JSON.stringify(state.transactions[0]));t.id='hand1';delete t.rec.src;state.transactions.push(t);save();render();});
+ok('a record typed by hand that matches an imported one is flagged',await p.evaluate(()=>/possible duplicate/i.test($('#content').innerText)&&document.querySelectorAll('[data-action="biz-notdup"]').length===2));
+await p.click('[data-action="biz-recf-dup"]');ok('Show them lists just the pair',await p.evaluate(()=>document.querySelectorAll('.rec-table tbody tr').length===2));
+await p.click('[data-action="biz-notdup"] >> nth=0');await p.waitForTimeout(100);ok('Not a duplicate clears the flag',await p.evaluate(()=>!document.querySelector('[data-action="biz-notdup"]')));
+await p.click('[data-action="biz-recf-dup"]');await p.evaluate(()=>Biz.recAdd('income'));await p.fill('#rec-payer','Payhip — JPS');await p.dispatchEvent('#rec-payer','change');await p.selectOption('#rec-cur','USD');await p.fill('#rec-form [name=date]','2026-02-16');await p.dispatchEvent('#rec-form [name=date]','change');await p.waitForTimeout(300);
+ok('the income form fills in the ECB rate for its date',await p.evaluate(()=>$('#rec-rate').value==='0.902'));await p.evaluate(()=>closeModal());
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();

@@ -203,7 +203,8 @@ const NICHE = {
       ['Importing statements, one record per payer and month', 'On Income, choose <b>Import statements</b> and pick your CSV exports, as many as you like at once: Etsy monthly statements, Payhip orders, the Fourthwall transactions report (it has the fees; the orders export doesn’t), Patreon’s earnings breakdown by month, Canva royalty payments, Creative Market sales, Creative Fabrica payouts, affiliate commissions, PayPal, Stripe, Shopify and YouTube. Each file is summed into one income record per month: sales less the tax buyers paid (the platform collects and passes it on), refunds, fees and the payout, in the file’s currency with a rate to euros for each month (remembered for next time). Ads and shipping become separate expenses; tax a platform withheld, such as US tax on Canva royalties, goes in the notes for your gestor. Choose 2026, 2025 or all months at the top. The first time, check which payer each file belongs to (two shops on one platform are told apart by the file name, e.g. “payhip jps.csv”); after that the app recognises them by their listings. Importing the same payer and month again replaces the record. PDFs can’t be read: download the CSV and link the PDF as evidence.'],
       ['Expenses from your card and bank', 'On Expenses, choose <b>Import card & bank</b> and pick your credit card statement (subscriptions, AI tools) and your bank account statement (rent, electricity, water, internet) as CSV, several at once. Payments out are grouped by merchant: set each one once to a category with its business share and the IVA on its invoice, or to Personal, or to Card payment or transfer (so a card bill paid from the bank is not counted twice). The app remembers every merchant, so next month it only asks about new ones, and it leaves out payments already imported. Each payment becomes its own expense record, Missing until you link its invoice on Evidence. Common Spanish utilities, telecoms and software are recognised the first time.'],
       ['Expense records', 'One record per receipt or invoice: vendor, category, amount in its currency, euro rate and the share used for the business (100% unless it is shared with personal use). The deductible figure is indicative; your gestor decides what counts.'],
-      ['Which euro rate?', 'Use the rate for the day the money arrived or left: the one your bank or PayPal applied when you converted, or the ECB reference rate for that day. Autónomo Plan remembers the last rate for each currency and suggests it for the next record.'],
+      ['Which euro rate?', 'You don’t need to type one. Autónomo Plan uses the European Central Bank’s reference rates, fetched from Frankfurter (a free service that republishes them; only the currency and dates are sent) and kept in your planner: a monthly statement gets the month’s average, a card payment its day’s rate, and Add income or Add expense fills in the rate for the date you enter. Offline, the latest known rate stands in and the record shows “Rate pending” until the app is next online, when it updates by itself. Records imported with a rate you typed can be switched to the ECB rates with one button on Income or Expenses.'],
+      ['Possible duplicates', 'Records from the same business on the same date for the same amount are flagged on Income and Expenses, with a button to show just them. Delete the extra one, or choose “Not a duplicate”. The import dialogs also leave out rows that match a record you already have, and say so.'],
       ['Evidence links', 'Keep the files in Google Drive, Dropbox or OneDrive and paste a share link on the record, with its type (invoice, statement, payment confirmation…). A record with at least one link is Complete, one without is Missing; you can mark one Needs review, and tick Reviewed once you have checked it. Share the folder with your gestor, or set links to “anyone with the link”, so they open from the PDF.'],
       ['Payers & platforms', 'Each payer remembers its activity, currency and account, so a new record starts filled in. Attach a yearly document to a payer, such as a US 1099 form, and it appears in the evidence appendix for that year.'],
       ['The gestor report', 'Choose a period (a month, a quarter, the year, or any dates) and add a note if needed. The report opens ready to print: a summary, totals by activity and by platform, every income and expense record with its original currency and rate, and an appendix of evidence links. In the print dialog choose <b>Save as PDF</b>.'],
@@ -1430,6 +1431,7 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .exp-flip{display:flex;gap:7px;align-items:center;font-size:12px;padding-bottom:9px}.exp-flip input{width:16px;height:16px;min-height:0;margin:0}
 .exp-home{display:flex;gap:6px;align-items:center;white-space:nowrap}.exp-home input{width:80px}
 .exp-table{max-height:460px}.exp-table td{vertical-align:middle}.exp-table tr.to-do td{background:color-mix(in srgb,var(--pop) 10%,transparent)}.exp-name{width:100%;min-width:140px;padding:5px 7px;font-size:12.5px;font-weight:600}.exp-table td small{margin-top:3px}.exp-table select{max-width:220px;font-size:12.5px;padding:5px 7px}.exp-num{width:70px;padding:5px 7px;font-size:12.5px}
+.fx-tag{color:var(--ink-2)!important;background:var(--sunk)!important}.dup-tag .link{font-size:11px;margin-left:6px}.stmt-fx{font-size:11px;color:var(--ink-3);display:block}
 .stmt-scope{margin:0 0 12px}.stmt-table{margin-top:10px;max-height:340px;overflow:auto}.stmt-table td,.stmt-table th{padding:6px 8px;font-size:12.5px;vertical-align:top}.stmt-table td small{display:block;color:var(--ink-3);font-size:11px;font-weight:500}
 .stmt-table tr.is-off td{opacity:.45}.stmt-on{display:flex;gap:6px;align-items:center;white-space:nowrap;font-weight:600}.stmt-rate{width:96px;padding:5px 7px;font-size:12.5px}.stmt-adj{display:block;max-width:260px;white-space:normal}
 .stmt-row.stmt-key{font-weight:650;border-top:1px dashed var(--rule);padding-top:6px;margin-top:3px}.stmt-card .checkline{margin-top:10px}
@@ -1739,7 +1741,7 @@ const Budget = ((P) => {
     const ch=t.channel&&(s.channels||[]).find(x=>x.id===t.channel),r=t.rec||{},fx=t.fx,rate=r.rate||(fx?Math.abs(t.amount/fx.amount):1),cur=r.cur||(fx?fx.currency:s.settings.currency);
     const act=r.act||ch?.act||(P.categoryActivity||{})[t.category]||'other',evidence=r.evidence||[],status=r.status||(evidence.length?'complete':'missing');
     const base={id:t.id,date:t.date,month:t.date.slice(0,7),kind,act,category:t.category,categoryName:c?.name||'',payer:t.channel||'',payerName:ch?.name||'',description:t.note,cur,rate,
-      acct:r.acct||'',evidence,status,auto:!r.status,reviewed:r.reviewed||'',notes:r.notes||'',record:!!t.rec};
+      acct:r.acct||'',evidence,status,auto:!r.status,reviewed:r.reviewed||'',notes:r.notes||'',record:!!t.rec,fx:r.fx||'',notDup:!!r.notDup,src:r.src||null};
     // a plain entry with IVA or withholding (a paid invoice, Quick Log) is read on its base
     const sp=!t.rec&&!fx&&P.features.vat&&(t.vat||t.ret)?vatSplit(t):null;
     if(kind==='income'){const b=sp?sp.base:(fx?fx.amount:t.amount),o=t.rec?r:{gross:Math.max(0,b),refunds:Math.max(0,-b),fees:0,payout:fx?fx.amount:t.amount};
@@ -2065,6 +2067,7 @@ const Budget = ((P) => {
     // money in another currency keeps its original amount; rates and platforms you import are remembered.
     // A bad value is dropped, never fatal, so an older or hand-edited backup always restores.
     s.transactions.forEach(t=>{if(t.fx!==undefined&&!(object(t.fx)&&CURRENCIES.includes(t.fx.currency)&&amount(t.fx.amount)&&t.fx.amount&&Math.sign(t.fx.amount)===Math.sign(t.amount)))delete t.fx;});
+    if(s.fxECB!==undefined){if(!object(s.fxECB))s.fxECB={};Object.keys(s.fxECB).forEach(k=>{const v=s.fxECB[k];if(!CURRENCIES.includes(k)||!object(v)){delete s.fxECB[k];return;}Object.keys(v).forEach(d=>{if(!validDate(d)||typeof v[d]!=='number'||!(v[d]>0&&v[d]<1e6))delete v[d];});});}
     if(s.fxMonthly!==undefined){if(!object(s.fxMonthly))s.fxMonthly={};Object.keys(s.fxMonthly).forEach(k=>{const v=s.fxMonthly[k];if(!CURRENCIES.includes(k)||!object(v)){delete s.fxMonthly[k];return;}Object.keys(v).forEach(m=>{if(!/^\d{4}-\d{2}$/.test(m)||typeof v[m]!=='number'||!(v[m]>0&&v[m]<1e6))delete v[m];});});}
     if(s.fxRates!==undefined){if(!object(s.fxRates))s.fxRates={};Object.entries(s.fxRates).forEach(([k,v])=>{if(!CURRENCIES.includes(k)||typeof v!=='number'||!(v>0&&v<1e6))delete s.fxRates[k];});}
     if(s.platformSources!==undefined){if(!object(s.platformSources))s.platformSources={};Object.entries(s.platformSources).forEach(([k,v])=>{if(!/^[a-z0-9]{1,30}$/.test(k)||!object(v)||!str(v.name,30)||!v.name.trim()||!validDate(v.last))delete s.platformSources[k];});}
@@ -2081,7 +2084,7 @@ const Budget = ((P) => {
       if(ty==='income'){if(r.vat!==undefined&&!VAT_RATES.includes(r.vat))delete r.vat;if(r.ret!==undefined&&!RET_RATES.includes(r.ret))delete r.ret;}else{delete r.vat;delete r.ret;}
       if(r.ivaDed!==undefined&&(ty!=='expense'||typeof r.ivaDed!=='boolean'))delete r.ivaDed;
       if(!ACCOUNTS.includes(r.acct))r.acct='';if(!EV_STATUS.includes(r.status))r.status='';if(!validDate(r.reviewed))r.reviewed='';if(!str(r.notes,1000))r.notes='';if(ty==='expense'&&!str(r.vendor,100))r.vendor='';
-      r.evidence=cleanEv(r.evidence);
+      r.evidence=cleanEv(r.evidence);if(r.fx!==undefined&&!['ecb','pending'].includes(r.fx))delete r.fx;if(r.notDup!==undefined&&r.notDup!==true)delete r.notDup;
       if(r.src!==undefined){const o=r.src;if(!object(o)||typeof o.k!=='string'||!/^[a-z0-9]{1,40}$/.test(o.k)||!/^\d{4}-\d{2}$/.test(o.m))delete r.src;
        else r.src={k:o.k,m:o.m,f:typeof o.f==='string'?o.f.slice(0,200):'',...(typeof o.p==='string'&&o.p.length<=60?{p:o.p}:{}),...(['ads','shipping'].includes(o.x)?{x:o.x}:{}),...(typeof o.h==='string'&&/^[0-9a-z]{1,10}$/.test(o.h)?{h:o.h}:{})};}});
      if(s.expenseRules!==undefined){if(!object(s.expenseRules))s.expenseRules={};const cids=new Set(s.categories.map(c=>c.id));
@@ -3119,6 +3122,8 @@ function suggestedCategoriesNotice(){const m=missingDefaults();if(!m.length)retu
 function modal(title,sub,body){returnFocus=document.activeElement;$('#modal-body').innerHTML=`<div class="dialog-head"><h2 id="modal-title">${title}</h2><button class="ibtn" data-action="dismiss" aria-label="Close dialog">${ico('cross')}</button></div><p class="subtitle">${sub}</p><div id="form-error" class="error" role="alert" hidden></div>${body}`;if(!$('#modal').open)$('#modal').showModal();}
 function closeModal(){$('#modal').close();returnFocus?.focus?.();}
 function formError(e){$('#form-error').hidden=false;$('#form-error').textContent=e.message||e;}
+// an error from a button: inside the open dialog, where it can be read and fixed without losing the work, else a toast
+function actionError(e){const box=$('#form-error');if($('#modal')?.open&&box){formError(e);box.scrollIntoView({block:'nearest',behavior:'smooth'});}else toast(e.message||String(e));}
 const formFoot=(label='Save',other='')=>`<div class="formfoot">${other}<button type="button" class="btn" data-action="dismiss">Cancel</button><button class="btn primary" type="submit">${label}</button></div>`;
 function categoryOptions(chosen='',filter=null){return Object.entries(Budget.GROUPS).map(([g,label])=>{const cs=state.categories.filter(c=>c.group===g&&(!c.archived||c.id===chosen)&&(!filter||filter(c)));return cs.length?`<optgroup label="${label}">${cs.map(c=>`<option value="${c.id}" ${c.id===chosen?'selected':''}>${esc(c.name)}</option>`).join('')}</optgroup>`:'';}).join('');}
 // Money in another currency: the amount above is what counts (what reached or left your account);
@@ -3498,7 +3503,7 @@ function rolloverDialog(){const prev=Budget.shift(selected,-1);if(!writable(sele
 function quickSetup(){if(!writable(selected))return toast('Reopen this month before setting up its budget.');const choices=P.defaults.quickSetup.filter(id=>category(id)&&!category(id).archived);if(!choices.length)return go('budget');modal('Start with the essentials','Only checked categories are updated. Leave categories unchecked to preserve them.',`<form id="quick-form"><div class="fields">${choices.map(id=>`<label class="full"><span><input type="checkbox" name="use" value="${id}" ${Budget.month(state,selected).plan[id]?.amount?'':'checked'}> ${esc(category(id).name)}</span><input type="number" name="${id}" step="0.01" min="0" max="99999999.99" value="${val(Budget.month(state,selected).plan[id]?.amount||0)}" aria-label="${esc(category(id).name)} quick amount"></label>`).join('')}</div><p class="small muted">${L.quickSetupNote||'You can add the rest of your categories, dates and contributions in Monthly budget. This creates a plan, not actual income or spending.'}</p>${formFoot(L.quickSetupSave||'Save starting budget')}</form>`);}
 function snapshotForm(){if(!writable(selected))return toast('Reopen this month to change its snapshot.');const v=state.snapshots?.[selected],mix=v?.debtMix||{credit:0,loans:0,mortgage:0,other:v?.debts||0};modal(monthName(selected)+' snapshot','Use month-end statement balances. Budget activity stays separate.',`<form id="snapshot-form"><div class="snapshot-group"><div><span class="eyebrow">Assets</span><h3>What you own</h3></div><div class="fields">${[['cash','Spending cash & accounts'],['savings','Savings & sinking funds'],['investments','Investment market value'],['other','Other assets']].map(([k,l])=>`<label>${l}<input type="number" name="${k}" min="0" max="99999999.99" step="0.01" required value="${val(v?.[k]||0)}"></label>`).join('')}</div></div><div class="snapshot-group"><div><span class="eyebrow">Liabilities</span><h3>What you owe</h3><p class="small muted">These balances create your liability-mix chart. Their sum becomes total debt.</p></div><div class="fields">${[['debtCredit','Credit cards',mix.credit],['debtLoans','Personal, student or auto loans',mix.loans],['debtMortgage','Mortgage',mix.mortgage],['debtOther','Other liabilities',mix.other]].map(([k,l,n])=>`<label>${l}<input type="number" name="${k}" min="0" max="99999999.99" step="0.01" required value="${val(n)}"></label>`).join('')}</div></div><label class="full">Note<textarea name="note" maxlength="1000">${esc(v?.note||'')}</textarea></label>${formFoot('Save snapshot')}</form>`);}
 function annualCSV(){const rows=[['Month','Group','Category','Planned','Actual','Plan minus actual','Currency']];Budget.annualCategories(state,selected.slice(0,4)).forEach(c=>c.months.forEach(m=>rows.push([m.month,Budget.GROUPS[c.group],/^[\s]*[=+\-@]/.test(c.name)?"'"+c.name:c.name,val(m.plan),val(m.actual),val(m.plan-m.actual),state.settings.currency])));download(`${P.storage.file}-${selected.slice(0,4)}-comparison.csv`,'\ufeff'+rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv;charset=utf-8');toast('Annual comparison download requested.');}
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.action,id=b.dataset.id;if(screen==='budget'&&budgetDirty)return;try{switch(a){case 'remove-schedule':confirmation('Remove this schedule?','Unrecorded reminders will be removed. Your monthly plan stays as it is. You can undo this change.','confirm-remove-schedule','Remove schedule',`data-id="${id}"`);break;case 'confirm-remove-schedule':{if(state.transactions.some(t=>t.scheduleKey?.startsWith(id+'@')))throw Error('A recorded payment still uses this schedule. Unlink it first.');const next=clone(state);next.schedules=next.schedules.filter(r=>r.id!==id);Budget.protectClosedSchedules(state,next);closeModal();commit(()=>state=next,'Schedule removed');break;}case 'quick-setup':quickSetup();break;case 'add-schedule':scheduleForm();break;case 'edit-schedule':scheduleForm(id);break;case 'pay-schedule':paySchedule(id,b.dataset.date);break;case 'schedule-plan':applyScheduleDialog();break;case 'rollover':rolloverDialog();break;case 'confirm-rollover':if(writable(selected)){const cash=Budget.totals(state,Budget.shift(selected,-1)).cash;if(Math.abs(cash)>9999999999)throw Error('Opening balance exceeds the supported amount.');closeModal();commit(()=>ensure(selected).opening=cash,'Opening balance carried');}break;case 'unlink-schedule':{const t=state.transactions.find(t=>t.id===id);if(t&&writable(t.date.slice(0,7))&&writable(t.scheduleKey.split('@')[1].slice(0,7)))commit(()=>delete t.scheduleKey,'Payment unlinked; transaction retained');break;}case 'snapshot':snapshotForm();break;case 'snapshot-month':selected=b.dataset.month;go('wealth');break;case 'annual-matrix-view':if(['heat','table'].includes(b.dataset.view)){annualMatrixView=b.dataset.view;render();}break;case 'annual-csv':annualCSV();break;}}catch(err){toast(err.message);}});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.action,id=b.dataset.id;if(screen==='budget'&&budgetDirty)return;try{switch(a){case 'remove-schedule':confirmation('Remove this schedule?','Unrecorded reminders will be removed. Your monthly plan stays as it is. You can undo this change.','confirm-remove-schedule','Remove schedule',`data-id="${id}"`);break;case 'confirm-remove-schedule':{if(state.transactions.some(t=>t.scheduleKey?.startsWith(id+'@')))throw Error('A recorded payment still uses this schedule. Unlink it first.');const next=clone(state);next.schedules=next.schedules.filter(r=>r.id!==id);Budget.protectClosedSchedules(state,next);closeModal();commit(()=>state=next,'Schedule removed');break;}case 'quick-setup':quickSetup();break;case 'add-schedule':scheduleForm();break;case 'edit-schedule':scheduleForm(id);break;case 'pay-schedule':paySchedule(id,b.dataset.date);break;case 'schedule-plan':applyScheduleDialog();break;case 'rollover':rolloverDialog();break;case 'confirm-rollover':if(writable(selected)){const cash=Budget.totals(state,Budget.shift(selected,-1)).cash;if(Math.abs(cash)>9999999999)throw Error('Opening balance exceeds the supported amount.');closeModal();commit(()=>ensure(selected).opening=cash,'Opening balance carried');}break;case 'unlink-schedule':{const t=state.transactions.find(t=>t.id===id);if(t&&writable(t.date.slice(0,7))&&writable(t.scheduleKey.split('@')[1].slice(0,7)))commit(()=>delete t.scheduleKey,'Payment unlinked; transaction retained');break;}case 'snapshot':snapshotForm();break;case 'snapshot-month':selected=b.dataset.month;go('wealth');break;case 'annual-matrix-view':if(['heat','table'].includes(b.dataset.view)){annualMatrixView=b.dataset.view;render();}break;case 'annual-csv':annualCSV();break;}}catch(err){actionError(err);}});
 document.addEventListener('change',e=>{
  if(e.target.id==='goal-filter'){goalFilter=e.target.value;return render();}
  if(e.target.id==='goal-sort'){const [key,dir]=e.target.value.split(':');
@@ -4069,6 +4074,38 @@ document.addEventListener('click',e=>{const b=e.target.closest('button[data-acti
 });
 /* Business editions: profit & loss, tax set-aside, tax-line summary, mileage and invoices.
    Each screen only appears when the niche pack switches its feature on. */
+// ---------- ECB reference rates ----------
+// Euros per unit of a currency on each working day, as published by the European Central Bank and
+// republished by Frankfurter (free, no key; only the currency and dates are sent). Fetched for the
+// currencies and months in use and kept in the planner (state.fxECB), so a range is fetched once.
+// Offline, the latest known rate stands in and the records it touches are marked pending; they are
+// corrected the next time the app is online.
+const FX_URLS=[(c,a,b)=>`https://api.frankfurter.dev/v1/${a}..${b}?base=${c}&symbols=EUR`,(c,a,b)=>`https://api.frankfurter.app/${a}..${b}?from=${c}&to=EUR`];
+const fxTried=new Set();
+const fxTable=cur=>state.fxECB?.[cur]||{};
+const dayShift=(d,n)=>new Date(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)+n)).toISOString().slice(0,10);
+// the rate for a day: that day's, else the last working day before it (up to ten days back)
+function fxDay(cur,date){if(cur==='EUR')return 1;const T=fxTable(cur);for(let i=0,d=date;i<10;i++,d=dayShift(d,-1))if(T[d])return T[d];return null;}
+// the average for a month, from its working days
+function fxMonth(cur,month){if(cur==='EUR')return 1;const v=Object.entries(fxTable(cur)).filter(([d])=>d.startsWith(month)).map(([,r])=>r);return v.length?Math.round(v.reduce((a,x)=>a+x,0)/v.length*1e6)/1e6:null;}
+// the most recent rate known, for when a month is not published or the app is offline
+function fxLatest(cur){if(cur==='EUR')return 1;const T=fxTable(cur),k=Object.keys(T).sort().at(-1);return k?T[k]:state.fxRates?.[cur]||null;}
+async function fxEnsure(cur,months){if(!cur||cur==='EUR'||typeof fetch!=='function')return true;const t0=Budget.today(),now=t0.slice(0,7);
+ const need=[...new Set(months)].filter(m=>m<=now&&(fxMonth(cur,m)===null||m===now)).sort();if(!need.length)return true;
+ const a=dayShift(need[0]+'-01',-10),b=[Budget.endOf(need.at(-1)),t0].sort()[0],key=`${cur}|${a}|${b}`;if(fxTried.has(key)&&need.every(m=>fxMonth(cur,m)!==null))return true;
+ for(const url of FX_URLS){try{const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),9000),r=await fetch(url(cur,a,b),{signal:ctl.signal});clearTimeout(tm);if(!r.ok)continue;
+   fxTried.add(key);const j=await r.json(),got=Object.entries(j.rates||{}).map(([d,v])=>[d,Number(v?.EUR)]).filter(([d,v])=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&v>0&&v<1e6);if(!got.length)continue;
+   state.fxECB??={};const T=state.fxECB[cur]??={};got.forEach(([d,v])=>{T[d]=Math.round(v*1e6)/1e6;});const ks=Object.keys(T).sort();if(ks.length>2000)ks.slice(0,ks.length-2000).forEach(k=>delete T[k]);save();return true;}catch{}}
+ return false;}
+// records waiting for a rate get the ECB one: a monthly statement the month's average, a payment its day's rate
+async function fxRefresh(quiet){if(demo)return;const wait=state.transactions.filter(t=>t.rec?.fx==='pending'&&t.rec.cur!=='EUR');if(!wait.length)return;
+ const byCur=new Map();wait.forEach(t=>{const l=byCur.get(t.rec.cur)||[];l.push(t.date.slice(0,7));byCur.set(t.rec.cur,l);});
+ for(const [cur,ms] of byCur)await fxEnsure(cur,ms);
+ const rateFor=t=>t.rec.src&&t.rec.src.k!=='bank'?fxMonth(t.rec.cur,t.date.slice(0,7)):fxDay(t.rec.cur,t.date),ready=wait.filter(t=>rateFor(t));
+ if(!ready.length){if(!quiet)toast('The ECB rates could not be reached. They update by themselves next time you are online.');return;}
+ commit(()=>ready.forEach(t=>{const r=state.transactions.find(x=>x.id===t.id)?.rec;if(!r||r.fx!=='pending')return;const rate=rateFor(t);r.rate=rate;r.fx='ecb';state.transactions.find(x=>x.id===t.id).amount=Budget.eur(r.kind==='income'?r.payout:r.amount,rate);}),`${ready.length} record${ready.length===1?'':'s'} updated to ECB rates`);}
+addEventListener('online',()=>fxRefresh(true));
+setTimeout(()=>{try{fxRefresh(true);}catch{}},2500);
 const Biz=(()=>{
  const F=P.features,today=()=>Budget.today();
  const bizName=()=>state.settings.name||'Your business';
@@ -4321,18 +4358,22 @@ const Biz=(()=>{
  const stChip=r=>`<span class="ev-chip ev-${r.status}" title="${r.auto?'Set automatically':'Set by you'}">${ST_NAME[r.status]}</span>`;
  const recAll=()=>state.transactions.map(t=>Budget.recOf(state,t)).filter(Boolean);
  // the same payer or vendor, date and amount twice
- function dupIds(list){const seen=new Map(),out=new Set();list.forEach(r=>{const k=[r.kind,r.kind==='income'?r.payer:r.vendor.toLowerCase(),r.date,r.kind==='income'?r.gross:r.amount,r.cur].join('|');if(seen.has(k)){out.add(r.id);out.add(seen.get(k));}else seen.set(k,r.id);});return out;}
+ // possible duplicates: the same business on the same date for the same amount (gross or payout for
+ // income), unless marked "not a duplicate"
+ const partyOf=r=>r.kind==='income'?(r.payer||expKey(r.payerName||r.description)):expKey(r.vendor||r.description);
+ function dupIds(list){const by=new Map(),out=new Set();list.forEach(r=>{if(r.notDup)return;const party=partyOf(r);if(!party)return;
+  new Set((r.kind==='income'?[r.gross,r.payout]:[r.amount]).filter(Boolean)).forEach(a=>{const k=[r.kind,party,r.date,a,r.cur].join('|'),prev=by.get(k);if(prev&&prev!==r.id){out.add(r.id);out.add(prev);}else if(!prev)by.set(k,r.id);});});return out;}
 
  // ---------- filters shared by Income, Expenses and Evidence ----------
- let recF={year:today().slice(0,4),range:'year',from:'',to:'',act:'all',payer:'all',cat:'all',cur:'all',acct:'all',status:'all',q:''};
+ let recF={year:today().slice(0,4),range:'year',from:'',to:'',act:'all',payer:'all',cat:'all',cur:'all',acct:'all',status:'all',q:'',dup:false};
  function recBounds(){const y=recF.year,p=n=>String(n).padStart(2,'0');
   if(/^q[1-4]$/.test(recF.range)){const n=+recF.range[1];return [`${y}-${p(3*n-2)}-01`,Budget.endOf(`${y}-${p(3*n)}`)];}
   if(recF.range==='month'){const m=today().slice(0,7);return [m+'-01',Budget.endOf(m)];}
   if(recF.range==='custom')return [recF.from||'0000-01-01',recF.to||'9999-12-31'];
   if(recF.range==='all')return ['0000-01-01','9999-12-31'];return [`${y}-01-01`,`${y}-12-31`];}
  const rangeLabel=()=>{const [a,b]=recBounds();return recF.range==='all'?'All time':recF.range==='year'?`Year ${recF.year}`:/^q/.test(recF.range)?`${recF.range.toUpperCase()} ${recF.year}`:recF.range==='month'?monthName(today().slice(0,7)):`${dateName(a)} – ${dateName(b)}`;};
- function recFiltered(kind){const [a,b]=recBounds(),q=recF.q.trim().toLowerCase();
-  return recAll().filter(r=>(!kind||r.kind===kind)&&r.date>=a&&r.date<=b&&(recF.act==='all'||r.act===recF.act)&&(recF.payer==='all'||(r.kind==='income'?r.payer===recF.payer:r.vendor===recF.payer))&&(recF.cat==='all'||r.category===recF.cat)&&(recF.cur==='all'||r.cur===recF.cur)&&(recF.acct==='all'||r.acct===recF.acct)&&(recF.status==='all'||r.status===recF.status)
+ function recFiltered(kind){const [a,b]=recBounds(),q=recF.q.trim().toLowerCase(),all=recAll(),dups=recF.dup?dupIds(all):null;
+  return all.filter(r=>(!kind||r.kind===kind)&&(!dups||dups.has(r.id))&&r.date>=a&&r.date<=b&&(recF.act==='all'||r.act===recF.act)&&(recF.payer==='all'||(r.kind==='income'?r.payer===recF.payer:r.vendor===recF.payer))&&(recF.cat==='all'||r.category===recF.cat)&&(recF.cur==='all'||r.cur===recF.cur)&&(recF.acct==='all'||r.acct===recF.acct)&&(recF.status==='all'||r.status===recF.status)
    &&(!q||[r.description,r.payerName,r.vendor,r.categoryName,r.notes,...r.evidence.map(e=>e.name+' '+e.url)].join(' ').toLowerCase().includes(q))).sort((x,y)=>y.date.localeCompare(x.date)||y.id.localeCompare(x.id));}
  function recFilters(kind){const years=[...new Set([today().slice(0,4),...state.transactions.map(t=>t.date.slice(0,4))])].sort().reverse();
   const sel=(key,label,opts)=>`<select data-recf="${key}" aria-label="${label}">${opts.map(([v,l])=>`<option value="${esc(v)}" ${recF[key]===v?'selected':''}>${esc(l)}</option>`).join('')}</select>`;
@@ -4348,13 +4389,15 @@ const Biz=(()=>{
  // ---------- Income and Expenses ----------
  function recList(kind){const list=recFiltered(kind),dup=dupIds(recAll()),inc=kind==='income',sum=k=>list.reduce((a,r)=>a+(r[k]||0),0);
   const head=inc?['Date','Payer / platform','Description','Gross','Refunds · fees','Net payout EUR','Evidence','']:['Date','Vendor','Category','Description','Amount','Business %','Indicative deductible EUR','Evidence',''];
-  const row=r=>{const cur=r.cur!=='EUR';return inc?`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.payerName||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.description)}${dup.has(r.id)?'<small class="dup-tag">Possible duplicate</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.gross,r.cur))}${cur?`<small class="dim">${fmt(r.grossEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.refunds||r.fees?`${r.refunds?`<small class="dim">refunds</small>−${esc(fmtIn(r.refunds,r.cur))}`:''}${r.fees?`<small class="dim">fees</small>−${esc(fmtIn(r.fees,r.cur))}`:''}`:'<span class="dim">—</span>'}</td><td class="num"><b>${fmt(r.payoutEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`
-   :`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.vendor||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.categoryName)}</td><td>${esc(r.description)}${dup.has(r.id)?'<small class="dup-tag">Possible duplicate</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.amount,r.cur))}${cur?`<small class="dim">${fmt(r.amountEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.pct}%</td><td class="num"><b>${fmt(r.deductibleEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`;};
+  const row=r=>{const cur=r.cur!=='EUR';return inc?`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.payerName||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.description)}${dup.has(r.id)?`<small class="dup-tag">Possible duplicate · same business, date and amount <button class="link" data-action="biz-notdup" data-id="${r.id}">Not a duplicate</button></small>`:''}${r.fx==='pending'?'<small class="dup-tag fx-tag">Rate pending: updates to the ECB rate when online</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.gross,r.cur))}${cur?`<small class="dim">${fmt(r.grossEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.refunds||r.fees?`${r.refunds?`<small class="dim">refunds</small>−${esc(fmtIn(r.refunds,r.cur))}`:''}${r.fees?`<small class="dim">fees</small>−${esc(fmtIn(r.fees,r.cur))}`:''}`:'<span class="dim">—</span>'}</td><td class="num"><b>${fmt(r.payoutEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`
+   :`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.vendor||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.categoryName)}</td><td>${esc(r.description)}${dup.has(r.id)?`<small class="dup-tag">Possible duplicate · same business, date and amount <button class="link" data-action="biz-notdup" data-id="${r.id}">Not a duplicate</button></small>`:''}${r.fx==='pending'?'<small class="dup-tag fx-tag">Rate pending: updates to the ECB rate when online</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.amount,r.cur))}${cur?`<small class="dim">${fmt(r.amountEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.pct}%</td><td class="num"><b>${fmt(r.deductibleEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`;};
   const kpis=inc?`${kpi('Gross income',sum('grossEUR'),rangeLabel(),'down')}${kpi('Refunds',sum('refundsEUR'),'In euros','history')}${kpi('Platform fees',sum('feesEUR'),'In euros','coins')}${kpi('Net payouts',sum('payoutEUR'),`${list.length} record${list.length===1?'':'s'}`,'wallet')}`
    :`${kpi('Expenses',sum('amountEUR'),rangeLabel(),'up')}${kpi('Indicative deductible',sum('deductibleEUR'),'After business-use %','shield')}${kpi('VAT shown on receipts',list.reduce((a,r)=>a+r.vatShownEUR,0),'As recorded; for your gestor','tags')}${kpi('Records',list.length*100,'','log').replace(/<b[^>]*>[^<]*<\/b>/,`<b>${list.length}</b>`)}`;
-  const miss=list.filter(r=>r.status==='missing').length;
+  const miss=list.filter(r=>r.status==='missing').length,twins=list.filter(r=>dup.has(r.id)).length,old=list.filter(r=>r.src&&r.cur!=='EUR'&&r.fx!=='ecb').length;
   return pagehead(rangeLabel(),inc?'Income':'Expenses',inc?'One record per payment or monthly platform summary. Amounts in the original currency, with the rate to euros.':'One record per receipt or invoice. Deductible amounts are indicative: review them with your gestor.',button(`Export CSV`,inc?'biz-rec-csv-income':'biz-rec-csv-expense','quiet')+button(inc?'Import statements':'Import card & bank','biz-'+(inc?'stmt':'exp')+'-open','quiet')+button(inc?'Add income':'Add expense',inc?'biz-rec-add-income':'biz-rec-add-expense','primary'))+
-   recFilters(kind)+`<div class="kpis">${kpis}</div>`+(miss?`<div class="notice warning no-print"><span><b>${miss} record${miss===1?' is':'s are'} missing evidence</b> in this view. Add a Drive link or file name to each.</span>${button('Show them','biz-recf-missing','small')}</div>`:'')+
+   recFilters(kind)+`<div class="kpis">${kpis}</div>`+(twins||recF.dup?`<div class="notice warning no-print"><span><b>${twins} possible duplicate${twins===1?'':'s'}</b>: records from the same business on the same date for the same amount. Delete the extra one, or mark it “Not a duplicate”.</span>${button(recF.dup?'Show all':'Show them','biz-recf-dup','small')}</div>`:'')+
+   (old?`<div class="notice no-print"><span><b>${old} imported record${old===1?' uses':'s use'} a rate you typed.</b> Switch them to the ECB reference rates (the month’s average for statements, the day’s rate for card payments).</span>${button('Use ECB rates','biz-fx-update','small')}</div>`:'')+
+   (miss?`<div class="notice warning no-print"><span><b>${miss} record${miss===1?' is':'s are'} missing evidence</b> in this view. Add a Drive link or file name to each.</span>${button('Show them','biz-recf-missing','small')}</div>`:'')+
    `<section class="card table-card"><div class="table-wrap"><table class="rec-table"><thead><tr>${head.map((h,i)=>`<th class="${inc?(i>=3&&i<=5?'num':''):(i>=4&&i<=6?'num':'')}">${h}</th>`).join('')}</tr></thead><tbody>${list.map(row).join('')}</tbody>`+
    (list.length?`<tfoot><tr class="tx-total">${inc?`<td colspan="3"><b>Total · ${list.length} records</b></td><td class="num"><b>${fmt(sum('grossEUR'))}</b></td><td class="num">−${fmt(sum('refundsEUR')+sum('feesEUR'))}</td><td class="num"><b>${fmt(sum('payoutEUR'))}</b></td><td colspan="2"></td>`:`<td colspan="4"><b>Total · ${list.length} records</b></td><td class="num"><b>${fmt(sum('amountEUR'))}</b></td><td></td><td class="num"><b>${fmt(sum('deductibleEUR'))}</b></td><td colspan="2"></td>`}</tr></tfoot>`:'')+
    `</table></div>${list.length?'':empty(inc?'No income in this view':'No expenses in this view','Change the period or filters, or add a record.',inc?'biz-rec-add-income':'biz-rec-add-expense',inc?'Add income':'Add expense')}</section>`;}
@@ -4395,7 +4438,9 @@ const Biz=(()=>{
  const nameWords=n=>String(n).toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>=3);
  const stmtFind=(F,m)=>state.transactions.filter(t=>t.rec?.src&&t.rec.src.k===F.key&&t.rec.src.m===m.month&&(t.channel===F.payer||t.rec.src.p===F.payer));
  const stmtScope=m=>{const y=today().slice(0,4);return stmt.scope==='all'||(stmt.scope==='last'?m.month.slice(0,4)===String(y-1):m.month.slice(0,4)===y);};
- const stmtRate=(cur,month)=>cur==='EUR'?1:(state.fxMonthly?.[cur]?.[month]||state.fxRates?.[cur]||'');
+ const stmtRate=(cur,month)=>cur==='EUR'?1:(fxMonth(cur,month)||'');
+ // an income record from another source (added by hand, another file) for the same payer and month with the same gross or payout
+ const stmtTwin=(F,m)=>F.payer!=='__new'&&state.transactions.some(t=>t.rec?.kind==='income'&&t.channel===F.payer&&t.date.slice(0,7)===m.month&&!(t.rec.src?.k===F.key)&&(t.rec.gross===m.gross||t.rec.payout===m.payout));
  function stmtOpen(){stmt={files:[],scope:'year'};stmtRender();}
  // the payer a file most likely belongs to: shared titles, then a payer named with words from the file name, then the platform's own
  function stmtGuess(F){const list=channels(),score=c=>(c.fp||[]).filter(h=>F.fp.includes(h)).length,best=list.map(c=>[c,score(c)]).sort((a,b)=>b[1]-a[1])[0];
@@ -4417,22 +4462,27 @@ const Biz=(()=>{
     F.months=sums.map(S=>({...S,on:true,rate:stmtRate(F.cur,S.month)}));stmt.files.push(F);fresh.push(F);
    }catch(e){stmt.files.push({...base,error:e.message});}}
   // guess payers once every file is in, so two shops on one platform are told apart the same way
-  fresh.forEach(F=>{F.payer=stmtGuess(F);F.newName=F.payer==='__new'?(F.program?F.program.replace(/\s*\(.*\)\s*/,'').slice(0,30)+' affiliate':`${F.platform}${F.words.length?' — '+F.words.slice(0,2).map(w=>w.length<=4?w.toUpperCase():w[0].toUpperCase()+w.slice(1)).join(' '):''}`).slice(0,40):'';});
-  stmtRender();}
+  fresh.forEach(F=>{F.payer=stmtGuess(F);F.months.forEach(m=>{if(stmtTwin(F,m))m.on=false;});F.newName=F.payer==='__new'?(F.program?F.program.replace(/\s*\(.*\)\s*/,'').slice(0,30)+' affiliate':`${F.platform}${F.words.length?' — '+F.words.slice(0,2).map(w=>w.length<=4?w.toUpperCase():w[0].toUpperCase()+w.slice(1)).join(' '):''}`).slice(0,40):'';});
+  stmtRender();await stmtRates();}
+ // the month's ECB average for each file's currency, fetched in the background while you review
+ async function stmtRates(){const curs=new Map();stmt.files.filter(F=>!F.error&&F.cur!=='EUR').forEach(F=>curs.set(F.cur,[...(curs.get(F.cur)||[]),...F.months.map(m=>m.month)]));if(!curs.size)return;
+  stmt.busy=true;stmtRender();try{for(const [cur,ms] of curs)await fxEnsure(cur,ms);}catch{}if(!stmt)return;stmt.busy=false;if(!$('#modal')?.open||!$('#stmt-files'))return;
+  stmt.files.forEach(F=>F.error||F.months.forEach(m=>{if(!m.rateSet)m.rate=stmtRate(F.cur,m.month);}));stmtRender();}
  function stmtCard(F,i){const x=`data-i="${i}"`,rm=`<button type="button" class="ibtn" data-action="biz-stmt-remove" ${x} aria-label="Remove">${ico('trash')}</button>`;
   if(F.error)return `<div class="stmt-card is-error"><div class="stmt-head"><div><b>${esc(F.file)}</b><small class="warn">${esc(F.error)}</small></div>${rm}</div></div>`;
   const C=v=>fmtIn(v,F.cur),shown=F.months.filter(stmtScope),hidden=F.months.length-shown.length,opts=channels().map(c=>`<option value="${c.id}" ${c.id===F.payer?'selected':''}>${esc(c.name)}</option>`).join('');
   const clash=F.payer!=='__new'&&stmt.files.some(o=>o!==F&&!o.error&&o.payer===F.payer&&o.key===F.key&&o.months.some(m=>m.on&&stmtScope(m)&&shown.some(n=>n.on&&n.month===m.month)));
   const row=(m,k)=>{const done=F.payer!=='__new'&&stmtFind(F,m).length,E=v=>F.cur==='EUR'||!(+m.rate>0)?'':`<small>${fmt(Math.round(v*m.rate))}</small>`,adj=m.other&&Math.abs(m.other)>Math.max(100,Math.abs(m.gross)*0.01);
-   return `<tr class="${m.on?'':'is-off'}"><td><label class="stmt-on"><input type="checkbox" data-stmt="on" ${x} data-m="${k}" ${m.on?'checked':''}><span>${monthName(m.month)}</span></label>${done?`<span class="pill small">${F.replace?'Replaces the one imported':'Imported · skipped'}</span>`:''}${adj?`<small class="warn stmt-adj" title="The platform’s own totals disagree with its lines this month">${C(m.other)} adjustment to match ${esc(F.platform)}’s reported earnings: check its dashboard</small>`:''}</td>`+
+   const twin=!done&&stmtTwin(F,m);
+   return `<tr class="${m.on?'':'is-off'}"><td><label class="stmt-on"><input type="checkbox" data-stmt="on" ${x} data-m="${k}" ${m.on?'checked':''}><span>${monthName(m.month)}</span></label>${done?`<span class="pill small">${F.replace?'Replaces the one imported':'Imported · skipped'}</span>`:''}${twin?`<small class="warn stmt-adj">Possible duplicate: a record from this payer this month has the same amount. Left out; tick to import anyway.</small>`:''}${adj?`<small class="warn stmt-adj" title="The platform’s own totals disagree with its lines this month">${C(m.other)} adjustment to match ${esc(F.platform)}’s reported earnings: check its dashboard</small>`:''}</td>`+
     `<td class="num">${C(m.gross)}${E(m.gross)}</td><td class="num">${m.refunds?'−'+C(m.refunds):'—'}</td><td class="num">${m.fees?'−'+C(m.fees):'—'}</td><td class="num"><b>${C(m.payout)}</b>${E(m.payout)}${m.withheld?`<small>after ${C(m.withheld)} tax withheld</small>`:''}</td>`+
-    `<td class="num">${m.ads>0||m.shipping>0?C(m.ads+m.shipping):'—'}</td>${F.cur==='EUR'?'':`<td><input type="number" class="stmt-rate" data-stmt="rate" ${x} data-m="${k}" min="0.000001" step="0.000001" value="${m.rate}" placeholder="rate" aria-label="EUR per 1 ${F.cur}, ${monthName(m.month)}"></td>`}</tr>`;};
+    `<td class="num">${m.ads>0||m.shipping>0?C(m.ads+m.shipping):'—'}</td>${F.cur==='EUR'?'':`<td class="num">${m.rate?Number(m.rate).toFixed(4):'—'}<span class="stmt-fx">${m.rate?'ECB average':stmt.busy?'fetching…':'pending: set when online'}</span></td>`}</tr>`;};
   const tax=F.months.some(m=>m.buyerTax)?`<p class="small muted">Gross is after the tax buyers paid, which ${esc(F.platform)} collects and passes on.</p>`:'',wh=F.months.some(m=>m.withheld)?`<p class="small muted">Tax withheld by ${esc(F.platform)} (for example US tax on royalties) is kept in each record’s notes: ask your gestor about the double-taxation credit and keep the year’s tax form.</p>`:'';
   return `<div class="stmt-card"><div class="stmt-head"><div><b>${esc(F.platform)}${F.program&&F.program!==F.platform?` · ${esc(F.program)}`:''}</b><small>${esc(F.file)} · ${F.months.length} month${F.months.length===1?'':'s'} · ${F.cur}</small></div>${rm}</div>`+
    `<div class="fields"><label>Payer<select data-stmt="payer" ${x}>${opts}<option value="__new" ${F.payer==='__new'?'selected':''}>New payer…</option></select></label>`+
    (F.payer==='__new'?`<label>New payer’s name<input data-stmt="newName" ${x} maxlength="40" value="${esc(F.newName)}"></label>`:'<span></span>')+
    `<label class="full">Link to the file <span class="dim">(optional)</span><input type="url" data-stmt="link" ${x} value="${esc(F.link)}" placeholder="https://drive.google.com/…"><small>The file name is kept as evidence either way</small></label></div>`+
-   (shown.length?`<div class="table-wrap stmt-table"><table><thead><tr><th>Month</th><th class="num">Gross</th><th class="num">Refunds</th><th class="num">Fees</th><th class="num">Payout</th><th class="num">Ads &amp; shipping</th>${F.cur==='EUR'?'':`<th>EUR per 1 ${F.cur}</th>`}</tr></thead><tbody>${F.months.map((m,k)=>stmtScope(m)?row(m,k):'').join('')}</tbody></table></div>`:`<p class="small muted">No months in this period.</p>`)+
+   (shown.length?`<div class="table-wrap stmt-table"><table><thead><tr><th>Month</th><th class="num">Gross</th><th class="num">Refunds</th><th class="num">Fees</th><th class="num">Payout</th><th class="num">Ads &amp; shipping</th>${F.cur==='EUR'?'':`<th class="num">EUR per 1 ${F.cur}</th>`}</tr></thead><tbody>${F.months.map((m,k)=>stmtScope(m)?row(m,k):'').join('')}</tbody></table></div>`:`<p class="small muted">No months in this period.</p>`)+
    (hidden?`<p class="small muted">${hidden} month${hidden===1?'':'s'} outside the period above are left out.</p>`:'')+tax+wh+
    (clash?`<p class="small warn">Another file uses this payer for the same months: choose the right payer for each.</p>`:'')+
    (F.payer!=='__new'&&shown.some(m=>stmtFind(F,m).length)?`<label class="checkline"><input type="checkbox" data-stmt="replace" ${x} ${F.replace?'checked':''}><span><b>Replace months already imported</b> from this payer (untick to skip them)</span></label>`:'')+`</div>`;}
@@ -4446,7 +4496,7 @@ const Biz=(()=>{
   const b=$('#modal-body');if(b&&top)b.scrollTop=top;}
  function stmtImport(){const t0=today(),pick=stmtPick();
   stmt.files.filter(F=>!F.error&&F.payer==='__new'&&F.months.some(m=>m.on&&stmtScope(m))).forEach(F=>{if(!String(F.newName).trim())throw Error('Name the new payer.');checkChannel(F.newName);});
-  pick.forEach(([F,m])=>{if(!(+m.rate>0&&+m.rate<1e6))throw Error(`Enter the rate for ${F.cur} in ${monthName(m.month)} (${F.platform}).`);if(!writable(m.month))throw Error(`${monthName(m.month)} is closed. Reopen it first.`);});
+  pick.forEach(([F,m])=>{if(!writable(m.month))throw Error(`${monthName(m.month)} is closed. Reopen it first.`);if(F.cur!=='EUR'&&!(stmtRate(F.cur,m.month)||fxLatest(F.cur)))throw Error(`No ${F.cur} rate is known yet. Connect to the internet for a moment so the app can fetch the ECB rates, then press Create again.`);});
   stmt.files.forEach(F=>{if(F.link&&!/^https?:\/\//i.test(F.link))throw Error('Links must start with http:// or https://');});
   const keys=pick.filter(([F])=>F.payer!=='__new').map(([F,m])=>F.payer+F.key+m.month);if(new Set(keys).size!==keys.length)throw Error('Two files use the same payer for the same month. Choose the right payer for each.');
   let made=0,skipped=0;
@@ -4455,19 +4505,18 @@ const Biz=(()=>{
     const ch=channels().find(c=>c.id===payer);if(!ch)return;const G={...F,payer};
     const old=stmtFind(G,m);if(old.length&&!F.replace){skipped++;return;}
     const gone=new Set(old.map(t=>t.id));state.transactions=state.transactions.filter(t=>!gone.has(t.id));
-    const act=ch.act||'digital',rate=F.cur==='EUR'?1:Math.round(+m.rate*1e6)/1e6,date=Budget.endOf(m.month)<=t0?Budget.endOf(m.month):m.to,acct=ch.acct||'';
-    if(F.cur!=='EUR'){state.fxRates??={};state.fxRates[F.cur]=rate;state.fxMonthly??={};(state.fxMonthly[F.cur]??={})[m.month]=rate;}
+    const ecb=F.cur==='EUR'?1:stmtRate(F.cur,m.month),act=ch.act||'digital',rate=F.cur==='EUR'?1:Math.round((ecb||fxLatest(F.cur))*1e6)/1e6,fx=F.cur==='EUR'?{}:{fx:ecb?'ecb':'pending'},date=Budget.endOf(m.month)<=t0?Budget.endOf(m.month):m.to,acct=ch.acct||'';
     ch.cur=F.cur;ch.act=act;ch.fp=[...new Set([...(ch.fp||[]),...F.fp])].slice(-400);if(!ch.fp.length)delete ch.fp;
     const ev=()=>[{id:Budget.uid(),type:'statement',url:F.link||'',name:F.file.slice(0,200)}],src=x=>({k:F.key,m:m.month,f:F.file.slice(0,200),p:payer,...(x?{x}:{})}),mon=monthName(m.month),who=F.program||F.platform;
     const cf=v=>fmtIn(v,F.cur),notes=[`From ${F.file}: sales ${cf(m.sales)}`+(m.buyerTax?`, less ${cf(m.buyerTax)} tax buyers paid (passed on by ${F.platform})`:'')+'.',m.feeTax?`Fees include ${cf(m.feeTax)} tax on ${F.platform}’s fees.`:'',m.other?`Includes a ${cf(m.other)} adjustment to match ${F.platform}’s reported earnings.`:'',m.withheld?`${cf(m.withheld)} tax withheld by ${F.platform} before paying: ask your gestor about the double-taxation credit.`:'',m.ads>0?`${F.platform} ads (${cf(m.ads)}) are a separate expense.`:'',m.payoutCount?`${m.payoutCount} deposit${m.payoutCount===1?'':'s'} to your bank: ${cf(m.payouts)}.`:''].filter(Boolean).join(' ').slice(0,1000);
     state.transactions.push({id:Budget.uid(),date,category:(P.incomeCategory||{})[act]||P.defaults.category,channel:payer,amount:Budget.eur(Math.max(0,m.payout),rate),note:`${mon} ${who}`,
-     rec:{kind:'income',act,cur:F.cur,rate,gross:Math.max(0,m.gross),refunds:Math.max(0,m.refunds),fees:Math.max(0,m.fees),payout:Math.max(0,m.payout),acct,evidence:ev(),status:'',reviewed:'',notes,src:src()}});made++;
+     rec:{kind:'income',act,cur:F.cur,rate,gross:Math.max(0,m.gross),refunds:Math.max(0,m.refunds),fees:Math.max(0,m.fees),payout:Math.max(0,m.payout),acct,evidence:ev(),status:'',reviewed:'',notes,src:src(),...fx}});made++;
     const cost=(amount,x,catId,vendor,what)=>{if(!(amount>0))return;const cat=state.categories.some(c=>c.id===catId&&!c.archived)?catId:state.categories.find(c=>Budget.type(c)==='expense'&&!c.archived)?.id;if(!cat)return;
-     state.transactions.push({id:Budget.uid(),date,category:cat,amount:Budget.eur(amount,rate),note:`${mon} ${what}`,rec:{kind:'expense',act,vendor,cur:F.cur,rate,amount,vatShown:0,pct:100,acct,evidence:ev(),status:'',reviewed:'',notes:`From ${F.file}, paid out of the ${F.platform} balance.`,src:src(x)}});made++;};
+     state.transactions.push({id:Budget.uid(),date,category:cat,amount:Budget.eur(amount,rate),note:`${mon} ${what}`,rec:{kind:'expense',act,vendor,cur:F.cur,rate,amount,vatShown:0,pct:100,acct,evidence:ev(),status:'',reviewed:'',notes:`From ${F.file}, paid out of the ${F.platform} balance.`,src:src(x),...fx}});made++;};
     cost(m.ads,'ads',(P.platformDefaults||{}).ads,`${F.platform} Ads`,`${F.platform} ads & promotion`);
     cost(m.shipping,'shipping',(P.platformDefaults||{}).shipping,`${F.platform} shipping`,`${F.platform} shipping & merch`);});
    const last=pick.map(([,m])=>m.month).sort().at(-1);if(last)selected=last;},`${pick.length} month${pick.length===1?'':'s'} imported`);
-  closeModal();stmt=null;toast(`${made} record${made===1?'':'s'} created${skipped?`, ${skipped} month${skipped===1?'':'s'} skipped`:''}. Add a link to each file on Evidence when you can.`);go('income',true);}
+  closeModal();stmt=null;toast(`${made} record${made===1?'':'s'} created${skipped?`, ${skipped} month${skipped===1?'':'s'} skipped`:''}. Add a link to each file on Evidence when you can.`);go('income',true);fxRefresh(true);}
  document.addEventListener('change',e=>{if(!stmt)return;const el=e.target;
   if(el.id==='stmt-files'){const files=[...el.files];el.value='';stmtRead(files);return;}
   const k=el.dataset?.stmt,F=stmt.files[+el.dataset.i];if(!k||!F)return;
@@ -4493,7 +4542,7 @@ const Biz=(()=>{
  const expHint=d=>{const t=plain(d);return (P.expenseHints||[]).find(([re])=>re.test(t))?.[1]||'';};
  const expShare=cat=>{const f=(P.homeShare||{})[cat];return f===undefined?100:Math.round((state.settings.es?.homePct||0)*f);};
  const expVat=(cat,cur)=>cur!=='EUR'?0:(category(cat)?.vat||0);
- function expOpen(){exp={files:[],merchants:new Map(),rates:{}};expRender();}
+ function expOpen(){exp={files:[],merchants:new Map()};expRender();}
  async function expRead(files){const seen=new Set(state.transactions.map(t=>t.rec?.src?.h).filter(Boolean));
   for(const file of files){const F={file:file.name,rows:[]};exp.files.push(F);
    try{if(/\.(xlsx?|pdf)$/i.test(file.name))throw Error('Save the statement as CSV first (in your bank’s download options, or open it in a spreadsheet and export CSV).');if(file.size>10e6)throw Error('Files must be smaller than 10 MB.');
@@ -4511,17 +4560,21 @@ const Biz=(()=>{
     // card statements list purchases as positive amounts; bank statements as negative
     F.flip=g.amount>=0&&list.filter(x=>x.v>0).length>list.length*0.7;F.cur=[...new Set(list.map(x=>x.cur).filter(Boolean))][0]||headCur||'EUR';F.acct='';F.all=list;F.seen=seen;expRows(F);
    }catch(e){F.error=e.message;}}
-  expMerchants();expRender();}
+  expMerchants();expRender();await expRates();}
  // the file's payments out, in its currency, less those already imported
  function expRows(F){F.rows=F.all.map(x=>({...x,out:F.flip?x.v:-x.v})).filter(x=>x.out>0).map(x=>{const h=fnv(`${x.date}|${x.out}|${x.desc}`).slice(0,10);return {...x,h,dup:F.seen.has(h),key:expKey(x.desc),month:x.date.slice(0,7)};});
-  F.dups=F.rows.filter(x=>x.dup).length;F.back=F.all.length-F.rows.length;}
+  const have=new Set(recAll().filter(r=>r.kind==='expense').map(r=>[expKey(r.vendor||r.description),r.date,r.amount,r.cur].join('|')));
+  F.rows.forEach(x=>{if(!x.dup&&have.has([x.key,x.date,x.out,F.cur].join('|'))){x.dup=true;x.twin=true;}});
+  F.dups=F.rows.filter(x=>x.dup&&!x.twin).length;F.twins=F.rows.filter(x=>x.twin).length;F.back=F.all.length-F.rows.length;}
  function expMerchants(){const old=exp.merchants,M=new Map();
   exp.files.filter(F=>!F.error).forEach(F=>F.rows.filter(x=>!x.dup).forEach(x=>{let m=M.get(x.key);
    if(!m){const prev=old.get(x.key),r=expRule(x.key),h=expHint(x.desc),cat=prev?prev.cat:r?(r.skip||r.c):h;
     m=prev?{...prev,n:0,total:0,curs:new Set()}:{key:x.key,name:r?.n||merchantName(x.desc),sample:x.desc,cat,p:r&&!r.skip?r.p:expShare(cat),v:r&&!r.skip?r.v:expVat(cat,F.cur),known:!!r,n:0,total:0,curs:new Set()};M.set(x.key,m);}
    m.n++;m.total+=x.out;m.curs.add(F.cur);}));
   exp.merchants=M;
-  exp.files.filter(F=>!F.error&&F.cur!=='EUR').forEach(F=>F.rows.forEach(x=>{const k=F.cur+'|'+x.month;if(exp.rates[k]===undefined)exp.rates[k]=stmtRate(F.cur,x.month);}));}
+}
+ async function expRates(){const curs=new Map();exp.files.filter(F=>!F.error&&F.cur!=='EUR').forEach(F=>curs.set(F.cur,[...(curs.get(F.cur)||[]),...F.rows.map(x=>x.month)]));if(!curs.size)return;
+  exp.busy=true;expRender();try{for(const [cur,ms] of curs)await fxEnsure(cur,ms);}catch{}if(!exp)return;exp.busy=false;if($('#modal')?.open&&$('#exp-files'))expRender();}
  const expBiz=m=>m.cat&&m.cat!=='personal'&&m.cat!=='transfer';
  function expRender(){const box=$('#modal')?.open?$('#modal-body'):null,top=box?box.scrollTop:0,ok=exp.files.filter(F=>!F.error),ms=[...exp.merchants.values()];
   const cats=state.categories.filter(c=>Budget.type(c)==='expense'&&!c.archived),opt=m=>`<option value="" ${m.cat?'':'selected'}>Choose…</option>${cats.map(c=>`<option value="${c.id}" ${m.cat===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}<option value="personal" ${m.cat==='personal'?'selected':''}>Personal · don’t import</option><option value="transfer" ${m.cat==='transfer'?'selected':''}>Card payment or transfer · don’t import</option>`;
@@ -4530,13 +4583,13 @@ const Biz=(()=>{
    `<td><select data-exp="cat" data-k="${esc(m.key)}" aria-label="Category for ${esc(m.name)}">${opt(m)}</select></td>`+
    `<td>${expBiz(m)?`<input type="number" class="exp-num" data-exp="p" data-k="${esc(m.key)}" min="0" max="100" step="1" value="${m.p}" aria-label="Business %">`:''}</td><td>${expBiz(m)?`<select data-exp="v" data-k="${esc(m.key)}" aria-label="IVA on the invoice">${Budget.VAT_RATES.map(r=>`<option value="${r}" ${r===m.v?'selected':''}>${r?pctBp(r):'0% / none'}</option>`).join('')}</select>`:''}</td></tr>`;
   const home=ms.some(m=>(P.homeShare||{})[m.cat]!==undefined)&&!(state.settings.es?.homePct>0);
-  const rk=Object.keys(exp.rates).sort(),todo=ms.filter(m=>!m.cat).length,count=ok.reduce((a,F)=>a+F.rows.filter(x=>!x.dup&&expBiz(exp.merchants.get(x.key)||{})).length,0);
+  const todo=ms.filter(m=>!m.cat).length,count=ok.reduce((a,F)=>a+F.rows.filter(x=>!x.dup&&expBiz(exp.merchants.get(x.key)||{})).length,0);
   modal('Import card & bank statements','Payments out, grouped by merchant. Set each merchant once; next month the app remembers it and only asks about new ones.',
    `<label class="stmt-drop"><input type="file" id="exp-files" accept=".csv,.txt,.tsv,.xls,.xlsx,text/csv" multiple>${ico('down')}<span><b>Choose card or bank CSV files</b><small>Your credit card statement for subscriptions and AI tools, and your bank account for rent, electricity, water and internet. Several at once is fine.</small></span></label>`+
    exp.files.map((F,i)=>F.error?`<div class="stmt-card is-error"><div class="stmt-head"><div><b>${esc(F.file)}</b><small class="warn">${esc(F.error)}</small></div><button type="button" class="ibtn" data-action="biz-exp-remove" data-i="${i}" aria-label="Remove">${ico('trash')}</button></div></div>`:
-    `<div class="exp-file"><div><b>${esc(F.file)}</b><small>${F.rows.length} payment${F.rows.length===1?'':'s'} out${F.dups?` · ${F.dups} already imported`:''}${F.back?` · ${F.back} money in or card payments left out`:''}</small></div>`+
+    `<div class="exp-file"><div><b>${esc(F.file)}</b><small>${F.rows.length} payment${F.rows.length===1?'':'s'} out${F.dups?` · ${F.dups} already imported`:''}${F.twins?` · ${F.twins} possible duplicate${F.twins===1?'':'s'} of records you have (same merchant, date and amount), left out`:''}${F.back?` · ${F.back} money in or card payments left out`:''}</small></div>`+
     `<label>Currency<select data-exp="cur" data-i="${i}">${curOptions(F.cur)}</select></label><label>Paid from<select data-exp="acct" data-i="${i}">${accOptions(F.acct)}</select></label><label class="exp-flip"><input type="checkbox" data-exp="flip" data-i="${i}" ${F.flip?'checked':''}><span>Purchases show as positive amounts</span></label><button type="button" class="ibtn" data-action="biz-exp-remove" data-i="${i}" aria-label="Remove">${ico('trash')}</button></div>`).join('')+
-   (rk.length?`<div class="exp-rates"><b>Rates to euros</b>${rk.map(k=>{const [c,m]=k.split('|');return `<label>${shortMonth(m)} ${m.slice(0,4)} · EUR per 1 ${c}<input type="number" data-exp="rate" data-r="${k}" min="0.000001" step="0.000001" value="${exp.rates[k]}"></label>`;}).join('')}</div>`:'')+
+   (ok.some(F=>F.cur!=='EUR')?`<p class="small muted">${exp.busy?'Fetching the ECB reference rates…':'Amounts in other currencies use the ECB reference rate of each payment’s day; offline, they update by themselves later.'}</p>`:'')+
    (home?`<div class="notice"><span><b>What share of your home is used for work?</b> Home rent starts at that share and utilities at 30% of it, as declared on your 036/037.</span><label class="exp-home"><input type="number" data-exp="home" min="0" max="100" step="1" value="${state.settings.es?.homePct||''}" placeholder="e.g. 15"> %</label></div>`:'')+
    (ms.length?`<div class="table-wrap stmt-table exp-table"><table><thead><tr><th>Merchant</th><th class="num">Total</th><th>Category</th><th>Business %</th><th>IVA on invoice</th></tr></thead><tbody>${rows.map(tr).join('')}</tbody></table></div>`:ok.length?'<p class="small muted">No new payments out in these files.</p>':'')+
    (todo?`<p class="small warn">${todo} merchant${todo===1?'':'s'} still to set: ${todo===1?'its':'their'} payments are left out until you choose.</p>`:'')+
@@ -4544,21 +4597,19 @@ const Biz=(()=>{
   const b=$('#modal-body');if(b&&top)b.scrollTop=top;}
  function expImport(){const files=exp.files.filter(F=>!F.error),t0=today();
   files.forEach(F=>F.rows.forEach(x=>{if(x.dup)return;const m=exp.merchants.get(x.key);if(!m||!expBiz(m))return;if(!writable(x.month))throw Error(`${monthName(x.month)} is closed. Reopen it first.`);
-   if(F.cur!=='EUR'&&!(+exp.rates[F.cur+'|'+x.month]>0))throw Error(`Enter the rate for ${F.cur} in ${monthName(x.month)}.`);}));
+   if(F.cur!=='EUR'&&!(fxDay(F.cur,x.date)||fxLatest(F.cur)))throw Error(`No ${F.cur} rate is known yet. Connect to the internet for a moment so the app can fetch the ECB rates, then press Create again.`);}));
   let made=0;
   commit(()=>{files.forEach(F=>F.rows.forEach(x=>{if(x.dup)return;const m=exp.merchants.get(x.key);if(!m||!expBiz(m)||!state.categories.some(c=>c.id===m.cat))return;
-    const rate=F.cur==='EUR'?1:Math.round(+exp.rates[F.cur+'|'+x.month]*1e6)/1e6,v=+m.v||0,pct=Math.max(0,Math.min(100,Math.round(+m.p||0)));
+    const ecb=F.cur==='EUR'?1:fxDay(F.cur,x.date),rate=F.cur==='EUR'?1:Math.round((ecb||fxLatest(F.cur))*1e6)/1e6,v=+m.v||0,pct=Math.max(0,Math.min(100,Math.round(+m.p||0)));
     state.transactions.push({id:Budget.uid(),date:x.date,category:m.cat,amount:Budget.eur(x.out,rate),note:x.desc.slice(0,500),
-     rec:{kind:'expense',act:(P.categoryActivity||{})[m.cat]||Budget.ACTS[0],vendor:m.name,cur:F.cur,rate,amount:x.out,vatShown:v?Math.round(x.out*v/(10000+v)):0,...(v?{ivaDed:true}:{}),pct,acct:F.acct||'',evidence:[],status:'',reviewed:'',notes:'',src:{k:'bank',m:x.month,f:F.file.slice(0,200),h:x.h}}});made++;
-    if(F.cur!=='EUR'){state.fxMonthly??={};(state.fxMonthly[F.cur]??={})[x.month]=rate;state.fxRates??={};state.fxRates[F.cur]=rate;}}));
+     rec:{kind:'expense',act:(P.categoryActivity||{})[m.cat]||Budget.ACTS[0],vendor:m.name,cur:F.cur,rate,amount:x.out,vatShown:v?Math.round(x.out*v/(10000+v)):0,...(v?{ivaDed:true}:{}),pct,acct:F.acct||'',evidence:[],status:'',reviewed:'',notes:'',src:{k:'bank',m:x.month,f:F.file.slice(0,200),h:x.h},...(F.cur==='EUR'?{}:{fx:ecb?'ecb':'pending'})}});made++;}));
    state.expenseRules??={};exp.merchants.forEach(m=>{if(!m.cat)return;state.expenseRules[m.key]=expBiz(m)?{c:m.cat,p:Math.max(0,Math.min(100,Math.round(+m.p||0))),v:+m.v||0,n:m.name}:{skip:m.cat,n:m.name};});},`${files.length} statement${files.length===1?'':'s'} imported`);
-  closeModal();exp=null;toast(`${made} expense record${made===1?'':'s'} created. Link each invoice on Evidence as you collect them.`);go('expenses',true);}
+  closeModal();exp=null;toast(`${made} expense record${made===1?'':'s'} created. Link each invoice on Evidence as you collect them.`);go('expenses',true);fxRefresh(true);}
  document.addEventListener('change',e=>{if(!exp)return;const el=e.target;
   if(el.id==='exp-files'){const files=[...el.files];el.value='';expRead(files);return;}
   const k=el.dataset?.exp;if(!k)return;const m=el.dataset.k!==undefined?exp.merchants.get(el.dataset.k):null,F=el.dataset.i!==undefined?exp.files[+el.dataset.i]:null;
   if(k==='cat'&&m){m.cat=el.value;if(expBiz(m)){m.p=expShare(m.cat);m.v=expVat(m.cat,[...m.curs][0]||'EUR');}}
   else if(k==='p'&&m)m.p=el.value;else if(k==='v'&&m)m.v=+el.value;else if(k==='name'&&m)m.name=el.value.trim().slice(0,40)||m.name;
-  else if(k==='rate')exp.rates[el.dataset.r]=el.value;
   else if(k==='home'){const v=Math.max(0,Math.min(100,Math.round(+el.value||0)));commit(()=>{state.settings.es={...state.settings.es,homePct:v};},`Home share set to ${v}%`);exp.merchants.forEach(x=>{if((P.homeShare||{})[x.cat]!==undefined)x.p=expShare(x.cat);});}
   else if(F&&k==='cur'){F.cur=el.value;expMerchants();}else if(F&&k==='acct')F.acct=el.value;else if(F&&k==='flip'){F.flip=el.checked;expRows(F);expMerchants();}
   expRender();});
@@ -4572,7 +4623,9 @@ const Biz=(()=>{
  document.addEventListener('input',e=>{const f=e.target.closest?.('#rec-form');if(!f)return;if(e.target.name==='payout')e.target.dataset.auto=e.target.value?'0':'1';recPreview();});
  document.addEventListener('change',e=>{const f=e.target.closest?.('#rec-form');if(!f)return;
   if(e.target.name==='act'&&!f.dataset.id){const v=f.querySelector('#rec-vat'),c=category((P.incomeCategory||{})[e.target.value]);if(v&&c)v.value=String(c.vat||0);}
-  if(e.target.name==='cur'){const r=f.querySelector('[name=rate]'),c=e.target.value;if(c==='EUR'){r.value=1;r.readOnly=true;}else{r.readOnly=false;const last=state.fxRates?.[c];if(last)r.value=last;else if(+r.value===1)r.value='';}}
+  if(e.target.name==='rate')e.target.dataset.typed='1';
+  if(e.target.name==='cur'||e.target.name==='date'){const r=f.querySelector('[name=rate]'),c=f.querySelector('[name=cur]').value,d=f.querySelector('[name=date]').value;if(c==='EUR'){r.value=1;r.readOnly=true;}else if(!r.dataset.typed){r.readOnly=false;
+    const fill=()=>{const v=fxDay(c,d)||fxLatest(c);if(v&&!r.dataset.typed){r.value=v;r.dataset.ecb=fxDay(c,d)?String(v):'';recPreview();}};fill();fxEnsure(c,[d.slice(0,7)]).then(fill);}}
   // a known payer fills in its usual activity, currency and account
   if(e.target.name==='payer'){const c=findChannel(e.target.value);if(c){if(c.act)f.querySelector('[name=act]').value=c.act;if(c.acct)f.querySelector('[name=acct]').value=c.acct;if(c.cur&&c.cur!==f.querySelector('[name=cur]').value){f.querySelector('[name=cur]').value=c.cur;f.querySelector('[name=cur]').dispatchEvent(new Event('change',{bubbles:true}));}}}
   recPreview();});
@@ -4595,6 +4648,7 @@ const Biz=(()=>{
   const t={...(old||{}),id:id||Budget.uid(),date,category:catId,amount,note:String(d.get('note')||'').trim(),rec};delete t.vat;delete t.ret;delete t.fx;if(!inc)delete t.channel;
   closeModal();let dupMsg='';
   if(old?.rec?.src&&old.rec.kind===kind)rec.src=old.rec.src;
+  if(cur!=='EUR'){const e=f.querySelector('[name=rate]')?.dataset.ecb;if(e&&+e===rate)rec.fx='ecb';else if(old?.rec?.fx==='ecb'&&old.rec.rate===rate)rec.fx='ecb';}
   const tg=tagForSave(d.get('tag'),inc?payerName:'');
   commit(()=>{if(inc){t.channel=ensureChannel(payerName);const ch=channels().find(x=>x.id===t.channel);if(ch){ch.act=act;ch.cur=cur;if(acct)ch.acct=acct;}}
    if(tg)t.tag=ensureTag(tg);else delete t.tag;
@@ -4602,7 +4656,7 @@ const Biz=(()=>{
    if(id)state.transactions=state.transactions.map(x=>x.id===id?t:x);else state.transactions.push(t);selected=date.slice(0,7);
    const me=Budget.recOf(state,t),twin=recAll().find(r=>r.id!==t.id&&r.kind===me.kind&&r.date===me.date&&r.cur===me.cur&&(inc?r.payer===me.payer&&r.gross===me.gross:r.vendor.toLowerCase()===me.vendor.toLowerCase()&&r.amount===me.amount));if(twin)dupMsg=' · looks like a duplicate of another record';},
    (id?'Record saved':'Record added')+(ev.length?'':' · no evidence yet'));if(dupMsg)setTimeout(()=>toast('Saved'+dupMsg+'. Check the list for “Possible duplicate”.'),50);}
- document.addEventListener('submit',e=>{if(e.target.id!=='rec-form')return;e.preventDefault();try{saveRecord(e.target);}catch(err){toast(err.message);}});
+ document.addEventListener('submit',e=>{if(e.target.id!=='rec-form')return;e.preventDefault();try{saveRecord(e.target);}catch(err){actionError(err);}});
 
  // ---------- Evidence ----------
  function evidenceView(){const list=recFiltered(''),need=list.filter(r=>r.status!=='complete'),items=list.flatMap(r=>r.evidence.map(e=>({...e,r})));
@@ -4926,6 +4980,9 @@ const Biz=(()=>{
   case 'biz-rep-range':repR={from:b.dataset.from,to:b.dataset.to};render();break;
   case 'biz-rep-print':printReport();break;
   case 'biz-stmt-open':stmtOpen();break;
+  case 'biz-recf-dup':recF.dup=!recF.dup;render();break;
+  case 'biz-notdup':commit(()=>{const t=state.transactions.find(x=>x.id===id);if(t?.rec)t.rec.notDup=true;},'Marked as not a duplicate');break;
+  case 'biz-fx-update':commit(()=>state.transactions.forEach(t=>{if(t.rec?.src&&t.rec.cur!=='EUR'&&t.rec.fx!=='ecb')t.rec.fx='pending';}),'Fetching ECB rates…');fxRefresh();break;
   case 'biz-exp-open':expOpen();break;
   case 'biz-exp-remove':if(exp){exp.files.splice(+b.dataset.i,1);expMerchants();expRender();}break;
   case 'biz-exp-import':if(exp)expImport();break;
@@ -4953,7 +5010,7 @@ const Biz=(()=>{
   case 'biz-confirm-unpay':{closeModal();commit(()=>{const v=state.invoices.find(x=>x.id===id);if(!v?.paid)return;const tx=v.paid.tx;if(tx)state.transactions=state.transactions.filter(t=>t.id!==tx);delete v.paid;},'Invoice marked unpaid');break;}
   case 'biz-delete-invoice':confirmation('Delete this invoice?','It is removed from your receivables. You can undo this change.','biz-confirm-delete-invoice','Delete invoice',`data-id="${id}"`);break;
   case 'biz-confirm-delete-invoice':closeModal();commit(()=>state.invoices=state.invoices.filter(v=>v.id!==id||v.paid),'Invoice deleted');break;
- }}catch(err){toast(err.message);}});
+ }}catch(err){actionError(err);}});
  document.addEventListener('change',e=>{const id=e.target.dataset?.taxline;if(!id)return;const c=category(id);if(!c)return;
   const v=e.target.value;if(v&&!Budget.TAX_LINES[v])return;commit(()=>{if(v)c.taxLine=v;else delete c.taxLine;},`${c.name} → ${lineLabel(v||Budget.taxLineFor({...c,taxLine:undefined}))}`);});
  document.addEventListener('submit',e=>{const form=e.target;if(!form.id?.startsWith('biz-'))return;e.preventDefault();const f=new FormData(form),id=form.dataset.id;try{switch(form.id){
