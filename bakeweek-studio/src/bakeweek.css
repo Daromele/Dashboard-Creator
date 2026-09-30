@@ -1,0 +1,137 @@
+/* ================================================================================
+   Bakeweek Studio: the bakery-specific pieces, built from the house tokens only.
+   ================================================================================ */
+.brand-mark svg{width:24px;height:24px;stroke-width:2.2}
+dialog.wide{width:min(1000px,calc(100% - 32px))}
+.pill.flag{background:var(--flag-soft);color:var(--flag)}
+.pill.accent{background:var(--accent-soft);color:var(--accent)}
+.kpi[data-action]{cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.kpi[data-action]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpi .go{margin-left:auto;color:var(--ink-3);font-size:13px}
+
+/* week control in the top bar: ‹ Oct 5 – 11, 2026 [calendar] › Today */
+.week-label{font:650 16px/1 var(--num);letter-spacing:-.02em;white-space:nowrap;padding:0 var(--s2)}
+.week-today{margin-left:var(--s2)}
+
+/* day strip: seven day cards with a hands-on time bar */
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--s2)}
+.day{display:flex;flex-direction:column;gap:4px;text-align:left;padding:var(--s3);border:1px solid var(--rule);border-radius:var(--r-sm);background:var(--card);min-width:0;transition:border-color .13s,background .13s,transform .13s}
+.day:hover{border-color:var(--accent-line);transform:translateY(-1px)}
+.day[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-soft)}
+.day small{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.day b{font:700 22px/1.1 var(--num)}
+.day em{font-style:normal;font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+.day strong{font-size:12px;color:var(--ok);font-weight:650;white-space:nowrap}
+.day.over strong{color:var(--over)}
+.timebar{height:6px;border-radius:6px;background:var(--sunk);overflow:hidden;margin:4px 0 2px}
+.timebar i{display:block;height:100%;background:var(--ok);border-radius:6px}
+.day.over .timebar i{background:var(--over);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.28) 0 2px,transparent 2px 5px)}
+
+/* production runs (batches): recipe color on the left edge */
+.runs{display:grid;gap:var(--s3)}
+.runs.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.run{border:1px solid var(--rule);border-left:4px solid var(--rc,var(--accent));border-radius:var(--r-sm);padding:var(--s4);background:var(--card);min-width:0}
+.run-top{display:grid;grid-template-columns:auto 1fr auto;gap:var(--s3);align-items:center}
+.run-top h3{font-size:15px}.run-top p{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.avatar{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font:800 13px var(--num);background:color-mix(in srgb,var(--rc,var(--accent)) 22%,var(--card));color:color-mix(in srgb,var(--rc,var(--accent)) 70%,var(--ink))}
+.run-meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink-3);margin:var(--s3) 0 0}
+.run-meta span{display:inline-flex;align-items:center;gap:5px}.run-meta svg{width:13px;height:13px}
+.run .rows{margin-top:var(--s3);background:var(--sunk);border-radius:var(--r-xs);padding:0 var(--s3)}
+.run .rows .row{padding:7px 0;font-size:12.5px}
+.method{white-space:pre-wrap;font-size:12.5px;color:var(--ink-2);margin-top:var(--s3);line-height:1.6}
+.alloc{font-size:12px;color:var(--ink-2);margin-top:var(--s3)}
+.run .actions,.order .actions{margin-top:var(--s3);justify-content:flex-end}
+.section-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--ink-3);margin:var(--s5) 0 var(--s2)}
+
+/* orders to pack: one card per customer */
+.orders-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:var(--s3)}
+.order{border:1px solid var(--rule);border-radius:var(--r-md);padding:var(--s4);background:var(--card);display:flex;flex-direction:column;min-width:0}
+.order-head{display:flex;justify-content:space-between;gap:var(--s2);align-items:flex-start;margin-bottom:var(--s2)}
+.order-head h3{font-size:16px;margin-top:2px}
+.order .row{padding:7px 0}
+.order .row.total{border-top:1px solid var(--rule-2);border-bottom:0;margin-top:auto}
+.order .row.total strong{font:700 18px var(--num)}
+.order .note{font-size:12px;color:var(--ink-3);margin:var(--s2) 0 0}
+.order-line{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);padding:var(--s2) var(--s3);border:1px solid var(--rule);border-radius:var(--r-sm);margin-bottom:var(--s2)}
+.order-line strong{display:block;font-size:13.5px}.order-line small{color:var(--ink-3);font-size:12px}
+
+/* recipe cards */
+.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--s3)}
+.recipe{border-top:4px solid var(--rc,var(--accent));display:flex;flex-direction:column;margin:0}
+.recipe-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s3)}
+.recipe h2{font-size:18px}.recipe>p{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3) var(--s4);margin:var(--s4) 0;padding:var(--s3) 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.facts small{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.facts b{font:700 16px var(--num)}
+.keeps{font-size:12px;color:var(--ink-2)}.keeps .meter{height:6px;margin:6px 0 0}
+.meter{height:6px;background:var(--sunk);border-radius:6px;overflow:hidden}.meter i{display:block;height:100%;background:var(--ok);border-radius:6px}.meter i.over{background:var(--over)}
+.recipe .actions{margin-top:auto;padding-top:var(--s4)}
+.recipe.archived{opacity:.7}
+
+/* forms: repeating rows (recipe ingredients, order products) */
+.line-row{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr)) 36px;gap:var(--s2);align-items:end;margin-bottom:var(--s2)}
+.line-row.ing{grid-template-columns:minmax(0,2fr) minmax(0,1fr) 36px}
+.line-row label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:600;color:var(--ink-2)}
+.line-row input,.line-row select{width:100%}
+.line-row .icon-action{margin-bottom:4px}
+.form-section{margin:var(--s5) 0;padding-top:var(--s4);border-top:1px solid var(--rule)}
+.form-section h3{margin-bottom:var(--s3)}
+.fields input,.fields select,.fields textarea{width:100%}
+.fields textarea{min-height:76px;resize:vertical}
+.fields input[type=color]{padding:3px;height:38px}
+.capacity{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--s2)}
+.capacity label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--ink-2)}
+.capacity input{width:100%;text-align:center}
+
+/* try an order: inputs left, the answer right */
+.sim{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:var(--s6);align-items:start}
+.sim-out{background:var(--sunk);border-radius:var(--r-md);padding:var(--s4);position:sticky;top:0}
+.verdict{border-radius:var(--r-sm);padding:var(--s4);margin-bottom:var(--s3);border:1px solid;--t:var(--ok);background:color-mix(in srgb,var(--t) 9%,var(--card));border-color:color-mix(in srgb,var(--t) 28%,var(--rule))}
+.verdict.bad{--t:var(--over)}.verdict.warn{--t:var(--flag)}
+.verdict h3{font-size:17px;color:var(--t);margin:2px 0 4px}.verdict p{font-size:12.5px;color:var(--ink-2)}
+.sim-tiles{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-bottom:var(--s3)}
+.sim-tiles .kpi{padding:var(--s3);animation:none}.sim-tiles .kpi b{font-size:20px}
+.receipt{background:var(--card);border-radius:var(--r-sm);padding:0 var(--s3);margin-bottom:var(--s3)}
+.receipt .row{padding:8px 0;font-size:12.5px}
+.receipt .row.total strong{font:700 20px var(--num)}
+.sim-ideas{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+.btn.full{width:100%}
+
+/* year at a glance */
+.cat-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0}
+
+/* kitchen paperwork: printed from #print-area only */
+#print-area{display:none}
+.sheet .print-head{display:flex;justify-content:space-between;gap:20pt;border-bottom:2px solid #111;padding-bottom:12pt;margin-bottom:14pt}
+.sheet h1{font:700 24pt/1.1 var(--num);letter-spacing:-.02em;margin:2pt 0 4pt}
+.sheet h2{font:700 15pt var(--num);margin:4pt 0}
+.sheet h3{font:700 11pt var(--num);margin:12pt 0 6pt}
+.sheet .eyebrow{color:#555;font-size:7.5pt;margin:0}
+.sheet .mini{font-size:8.5pt;color:#444;margin:5pt 0}
+.sheet table{width:100%;border-collapse:collapse;font-size:9pt;margin:6pt 0}
+.sheet th{background:#f1f0ec!important;color:#333;font-size:7.5pt;border-top:1px solid #999}
+.sheet th,.sheet td{padding:6pt;border-bottom:1px solid #c8c8c8;text-align:left}
+.sheet .r{text-align:right}
+.sheet .box{display:inline-block;width:10pt;height:10pt;border:1px solid #666;vertical-align:-1pt;margin-right:6pt;border-radius:2pt}
+.sheet .blk{border:1px solid #aaa;border-radius:4pt;padding:11pt;margin-bottom:11pt;break-inside:avoid}
+.sheet .blk-head{display:flex;justify-content:space-between;gap:14pt}
+.sheet .line{display:flex;justify-content:space-between;padding:5pt 0;border-bottom:1px solid #ddd;font-size:9.5pt}
+.sheet .line.total{border-top:1.5px solid #111;border-bottom:0;font-weight:700}.sheet .line.total b{font:700 14pt var(--num)}
+.sheet .foot{border-top:1px solid #bbb;margin-top:14pt;padding-top:6pt;font-size:7.5pt;color:#555}
+.sheet .method{white-space:pre-wrap;font-size:9.5pt;color:#222}
+.sheet .cols{display:grid;grid-template-columns:1fr 1fr;gap:16pt}
+
+@media(max-width:1150px){.days{grid-template-columns:repeat(4,minmax(0,1fr))}.runs.two{grid-template-columns:1fr}.sim{grid-template-columns:1fr}.sim-out{position:static}}
+@media(max-width:620px){.days{grid-template-columns:repeat(2,minmax(0,1fr))}.line-row,.line-row.ing{grid-template-columns:1fr 1fr}.line-row label:first-child{grid-column:1/-1}.capacity{grid-template-columns:repeat(4,minmax(0,1fr))}.sim-tiles,.sim-ideas{grid-template-columns:1fr}.week-today{display:none}}
+@media print{
+ body.printing>*:not(#print-area){display:none!important}
+ body.printing #print-area{display:block!important}
+ @page{margin:12mm}
+ .sheet{break-after:page;color:#111;font:10pt/1.45 var(--ui)}
+ .sheet:last-child{break-after:auto}
+ .sheet thead{display:table-header-group}.sheet tr{break-inside:avoid}
+ .days{grid-template-columns:repeat(7,minmax(0,1fr))}
+}
+.pill svg{width:12px;height:12px;stroke-width:2.4}
+.grid2.wide-left{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}
+@media(max-width:900px){.grid2.wide-left{grid-template-columns:1fr}}
