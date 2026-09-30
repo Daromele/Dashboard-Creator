@@ -56,7 +56,7 @@ txn_4,stripe_fee,,-2.00,0.00,-2.00,usd,2026-09-06 14:03,2026-09-06 00:00,Billing
 2026-09-21,"YouTube Partner Earnings (Aug 1 - 31, 2026)",1840.55
 2026-09-21,"Tax withholding - US (YouTube)",-92.03
 2026-09-25,"Payment - EFT",-1748.52`);
-  eq('youtube: earnings, withheld tax, payment', [r.p.id,totals(r.conv)], ['youtube',{'YouTube · sales':184055,'YouTube · tax withheld':-9203,'YouTube · payouts to your bank':-174852}]);
+  eq('youtube: earnings and withheld tax; the payment to the bank is kept for the summary only', [r.p.id,totals(r.conv)], ['youtube',{'YouTube · sales':184055,'YouTube · tax withheld':-9203}]);
   r=read(`Month,Gross Earnings,Patreon Platform Fee,Payment Processing Fee,Net Earnings,Currency
 Aug 2026,1512.00,-120.96,-45.36,1345.68,USD`,'patreon-earnings.csv');
   eq('patreon (gross and fee columns): name from the file, monthly date', [r.p.name,r.p.key,totals(r.conv),r.conv.rows[0].cells[0]], ['Patreon','patreon',{'Patreon · sales':151200,'Patreon · fees':-16632},'1 Aug 2026']);
@@ -148,4 +148,16 @@ Total,20.001
 2026-02-01,5.690
 2026-02-02,0`,'Youtube.csv');
   eq('youtube studio: daily estimates summed per month, fractions of a cent rounded once, the total row skipped', [t.p.id,t.S.map(x=>[x.month,x.gross,x.currency])], ['youtube',[['2026-01',1431,'USD'],['2026-02',569,'USD']]]);
+  // AdSense account activity: a month's earnings on a date range, the payment of the month before, balances
+  t=sum(`"Date","Description","Amount (USD)"
+"Aug 1, 2026","Starting balance","224.68"
+"Aug 21, 2026","Automatic payment: Checking  • • • • 000. 000000000000000","−224.68"
+"Aug 1 – 31, 2026","Earnings - YouTube","137.53"
+"Sep 1, 2026","Ending balance","137.53"`,'account_activities_202608.csv');
+  eq('adsense: the month’s earnings on its last day, the earlier month’s payment kept apart, balances ignored', [t.p.id,t.S.map(x=>[x.month,x.gross,x.payout,x.payouts,x.currency])], ['youtube',[['2026-08',13753,13753,22468,'USD']]]);
+  t=sum(`"Date","Description","Amount (USD)"
+"Sep 1, 2026","Starting balance","137.53"
+"Sep 21, 2026","Automatic payment: Checking  • • • • 000. 000000000000000","−137.53"
+"Oct 1, 2026","Ending balance","0.00"`,'account_activities_202609.csv');
+  ok('adsense: a month with only a payment is recognised, with no earnings to import yet', t.p?.id==='youtube'&&t.S.every(x=>!x.sales));
 };

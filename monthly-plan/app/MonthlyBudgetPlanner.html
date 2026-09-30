@@ -2307,13 +2307,18 @@ const Platforms = (()=>{
 
  // ---- YouTube: AdSense for YouTube › Payments › Transactions (CSV) ----
  const youtube={id:'youtube',name:'YouTube',bank:/google|youtube|adsense/i,
+  // AdSense › Payments › account activity: a month's earnings ("Aug 1 – 31, 2026"), tax withheld and the payment to your bank,
+  // between a starting and an ending balance. A month's earnings appear once finalized, early the next month.
   detect:(h,rows)=>{const d=find(h,'description','details',/descript/),a=find(h,'amount',/amount/);if(d<0||a<0||find(h,'gross','fee')>=0)return false;
-   const notes=rows.slice(0,300).map(r=>cell(r,d));return notes.some(x=>/youtube|adsense/i.test(x))&&notes.some(x=>/earnings|revenue/i.test(x));},
+   const notes=rows.slice(0,300).map(r=>cell(r,d));return notes.some(x=>/youtube|adsense/i.test(x))&&notes.some(x=>/earnings|revenue/i.test(x))||h.length<=4&&notes.some(x=>/^starting balance$/i.test(x))&&notes.some(x=>/^ending balance$/i.test(x))&&notes.some(x=>/^(automatic )?payment\b/i.test(x));},
   convert(h,rows){const c={date:find(h,'date',/date/),desc:find(h,'description','details',/descript/),amount:find(h,'amount',/amount/),cur:find(h,'currency')};
    const num=reader(rows,[c.amount]),out=[];
-   rows.forEach(r=>{const d=cell(r,c.desc),a=num(cell(r,c.amount));if(!a)return;
+   const cur=upper(cell({cells:h},c.amount).match?.(/\(([a-z]{3})\)/i)?.[1]||'');
+   rows.forEach(r=>{const d=cell(r,c.desc),a=num(cell(r,c.amount));if(!a||/^(starting|ending|opening|closing) balance$/i.test(d))return;
     const role=/withh|tax/i.test(d)?'taxWithheld':a<0&&/payment|eft|wire|transfer|cheque|check|deposit/i.test(d)?'payout':/earning|revenue|youtube|adsense|adjust/i.test(d)?'sale':'other';
-    out.push({date:cell(r,c.date),note:d,amount:a,role,currency:upper(cell(r,c.cur)),line:r.line});});
+    // "Aug 1 – 31, 2026" or "Jul 28 – Aug 3, 2026": the period's last day
+    let date=cell(r,c.date);const m=date.match(/^([A-Za-z]{3,9})\.? (\d{1,2})\s*[–—-]\s*(?:([A-Za-z]{3,9})\.? )?(\d{1,2}),? (\d{4})$/);if(m)date=`${m[3]||m[1]} ${m[4]}, ${m[5]}`;
+    out.push({date,note:d,amount:a,role,currency:upper(cell(r,c.cur))||cur,line:r.line,...(role==='payout'?{memo:true}:{})});});
    return out;}};
 
  // ---- anything with a gross column and fee columns: Patreon, Gumroad, Ko-fi, Substack… ----
@@ -2346,7 +2351,7 @@ const Platforms = (()=>{
   detect:h=>h.length<=6&&find(h,'date',/^date$/,/^day$/)>=0&&find(h,/^estimated (partner )?revenue/,/^your estimated revenue/)>=0,
   convert(h,rows){const c={date:find(h,'date',/^date$/,/^day$/),rev:find(h,/^estimated (partner )?revenue/,/^your estimated revenue/)},cur=(String(h[c.rev]).match(/\(([a-z]{3})\)/i)||[])[1]?.toUpperCase()||'USD',by=new Map();
    rows.forEach(r=>{const d=cell(r,c.date);if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return;const v=parseFloat(String(cell(r,c.rev)).replace(/[^0-9.\-]/g,''));if(!Number.isFinite(v)||!v)return;const m=d.slice(0,7),x=by.get(m)||{sum:0,last:d,line:r.line};x.sum+=v;if(d>x.last)x.last=d;by.set(m,x);});
-   return [...by.entries()].map(([m,x])=>({date:x.last,currency:cur,line:x.line,note:'YouTube estimated revenue',amount:Math.round(x.sum*100),role:'sale'})).filter(x=>x.amount);}};
+   return [...by.entries()].map(([m,x])=>({date:x.last,currency:cur,line:x.line,note:'YouTube estimated revenue',amount:Math.round(x.sum*100),role:'sale',est:true})).filter(x=>x.amount);}};
 
  // ---- Patreon: earnings by month (Insights › Earnings › Download, or the earnings breakdown) ----
  // Both layouts: gross, Patreon's fee and the tax on it, payment processing, merch, refunds, and in the
@@ -2476,7 +2481,7 @@ const Platforms = (()=>{
    if(!months.has(m))months.set(m,{month:m,from:d,to:d,sales:0,buyerTax:0,refunds:0,fees:0,feeTax:0,ads:0,shipping:0,withheld:0,payouts:0,payoutCount:0,other:0,rows:0,titles:new Set()});
    const S=months.get(m),v=x.amount;S.rows++;if(d<S.from)S.from=d;if(d>S.to)S.to=d;if(x.currency)curs.set(x.currency,(curs.get(x.currency)||0)+1);
    switch(x.role){case 'sale':S.sales+=v;break;case 'buyerTax':S.buyerTax-=v;break;case 'refund':S.refunds-=v;break;case 'fees':S.fees-=v;break;case 'feeTax':S.fees-=v;S.feeTax-=v;break;
-    case 'ads':S.ads-=v;break;case 'shipping':S.shipping-=v;break;case 'taxWithheld':S.withheld-=v;break;case 'payout':S.payouts-=v;S.payoutCount++;break;case 'conversion':break;default:S.other+=v;}
+    case 'ads':S.ads-=v;break;case 'shipping':S.shipping-=v;break;case 'taxWithheld':S.withheld-=v;break;case 'payout':S.payouts-=v;S.payoutCount++;break;case 'conversion':break;default:S.other+=v;}if(x.est)S.est=true;
    const t=x.title?[0,x.title]:x.role==='fees'&&String(x.note).match(/^(?:listing|transaction|renew\w*)\s+fee:\s*([^·]+)/i);if(t&&t[1])S.titles.add(n(t[1]).slice(0,60));if(x.program)S.program=x.program;});
   const currency=[...curs.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
   return [...months.values()].sort((a,b)=>a.month.localeCompare(b.month)).map(S=>{const gross=S.sales-S.buyerTax,payout=gross-S.refunds-S.fees+S.other;// before any tax the platform withheld
@@ -4332,11 +4337,14 @@ const Biz=(()=>{
     const text=new TextDecoder(enc).decode(bytes).replace(/^﻿/,''),det=CSV.detect(text),parsed=CSV.parse(det.text,det.delimiter);
     let p=null,hi=0;for(;hi<Math.min(parsed.length-1,15);hi++){p=Platforms.detect(parsed[hi].cells,parsed.slice(hi+1),file.name);if(p)break;}
     if(!p){const bal=/starting balance|ending balance|opening balance|closing balance/i.test(text);throw Error(bal?'This is an account or card statement (balances and payments), not income from a platform. Nothing to import here; bank files go through Import.':'This file’s columns aren’t recognised as a platform statement. Bank files go through Import; for other sources, add the month by hand with Add income.');}
-    const sums=Platforms.summary(p,parsed[hi].cells,parsed.slice(hi+1));if(!sums.length)throw Error('No dated amounts found in this file.');
+    const sums=Platforms.summary(p,parsed[hi].cells,parsed.slice(hi+1)).filter(S=>S.sales||S.refunds||S.fees||S.other);
+    if(!sums.length)throw Error(p.id==='youtube'?'No earnings in this file yet: AdSense adds a month’s earnings once they are finalized, early the next month. This file only has the payment of an earlier month, which is already counted with that month.':'No dated amounts found in this file.');
     const cur=[...sums].reverse().find(x=>x.currency)?.currency,F={...base,platform:p.name,key:stmtKey(p.name),cur:cur&&Budget.CURRENCIES.includes(cur)?cur:'EUR',program:sums.find(x=>x.program)?.program||'',link:'',replace:true,
      fp:[...new Set(sums.flatMap(x=>x.titles))].map(fnv),words:fileWords(file.name,p.name)};
     F.months=sums.map(S=>({...S,on:true,rate:stmtRate(F.cur,S.month)}));stmt.files.push(F);fresh.push(F);
    }catch(e){stmt.files.push({...base,error:e.message});}}
+  // a platform's final figures win over its estimates for the same month (AdSense over YouTube Studio)
+  stmt.files.filter(F=>!F.error).forEach(F=>F.months.forEach(m=>{if(m.est&&stmt.files.some(o=>o!==F&&!o.error&&o.key===F.key&&o.months.some(n=>!n.est&&n.month===m.month))){m.on=false;m.final=true;}}));
   // guess payers once every file is in, so two shops on one platform are told apart the same way
   fresh.forEach(F=>{F.payer=stmtGuess(F);F.months.forEach(m=>{if(stmtTwin(F,m))m.on=false;});F.newName=F.payer==='__new'?(F.program?F.program.replace(/\s*\(.*\)\s*/,'').slice(0,30)+' affiliate':`${F.platform}${F.words.length?' — '+F.words.slice(0,2).map(w=>w.length<=4?w.toUpperCase():w[0].toUpperCase()+w.slice(1)).join(' '):''}`).slice(0,40):'';});
   stmtRender();await stmtRates();}
@@ -4350,7 +4358,7 @@ const Biz=(()=>{
   const clash=F.payer!=='__new'&&stmt.files.some(o=>o!==F&&!o.error&&o.payer===F.payer&&o.key===F.key&&o.months.some(m=>m.on&&stmtScope(m)&&shown.some(n=>n.on&&n.month===m.month)));
   const row=(m,k)=>{const done=F.payer!=='__new'&&stmtFind(F,m).length,E=v=>F.cur==='EUR'||!(+m.rate>0)?'':`<small>${fmt(Math.round(v*m.rate))}</small>`,adj=m.other&&Math.abs(m.other)>Math.max(100,Math.abs(m.gross)*0.01);
    const twin=!done&&stmtTwin(F,m);
-   return `<tr class="${m.on?'':'is-off'}"><td><label class="stmt-on"><input type="checkbox" data-stmt="on" ${x} data-m="${k}" ${m.on?'checked':''}><span>${monthName(m.month)}</span></label>${done?`<span class="pill small">${F.replace?'Replaces the one imported':'Imported · skipped'}</span>`:''}${twin?`<small class="warn stmt-adj">Possible duplicate: a record from this payer this month has the same amount. Left out; tick to import anyway.</small>`:''}${adj?`<small class="warn stmt-adj" title="The platform’s own totals disagree with its lines this month">${C(m.other)} adjustment to match ${esc(F.platform)}’s reported earnings: check its dashboard</small>`:''}</td>`+
+   return `<tr class="${m.on?'':'is-off'}"><td><label class="stmt-on"><input type="checkbox" data-stmt="on" ${x} data-m="${k}" ${m.on?'checked':''}><span>${monthName(m.month)}</span></label>${done?`<span class="pill small">${F.replace?'Replaces the one imported':'Imported · skipped'}</span>`:''}${m.est?`<small class="stmt-fx">${m.final?'Estimate: the final figure from the other file is used':'Estimate: YouTube’s final figure comes with the AdSense payment'}</small>`:''}${twin?`<small class="warn stmt-adj">Possible duplicate: a record from this payer this month has the same amount. Left out; tick to import anyway.</small>`:''}${adj?`<small class="warn stmt-adj" title="The platform’s own totals disagree with its lines this month">${C(m.other)} adjustment to match ${esc(F.platform)}’s reported earnings: check its dashboard</small>`:''}</td>`+
     `<td class="num">${C(m.gross)}${E(m.gross)}</td><td class="num">${m.refunds?'−'+C(m.refunds):'—'}</td><td class="num">${m.fees?'−'+C(m.fees):'—'}</td><td class="num"><b>${C(m.payout)}</b>${E(m.payout)}${m.withheld?`<small>after ${C(m.withheld)} tax withheld</small>`:''}</td>`+
     `<td class="num">${m.ads>0||m.shipping>0?C(m.ads+m.shipping):'—'}</td>${F.cur==='EUR'?'':`<td class="num">${m.rate?Number(m.rate).toFixed(4):'—'}<span class="stmt-fx">${m.rate?'ECB average':stmt.busy?'fetching…':'pending: set when online'}</span></td>`}</tr>`;};
   const tax=F.months.some(m=>m.buyerTax)?`<p class="small muted">Gross is after the tax buyers paid, which ${esc(F.platform)} collects and passes on.</p>`:'',wh=F.months.some(m=>m.withheld)?`<p class="small muted">Tax withheld by ${esc(F.platform)} (for example US tax on royalties) is kept in each record’s notes: ask your gestor about the double-taxation credit and keep the year’s tax form.</p>`:'';
