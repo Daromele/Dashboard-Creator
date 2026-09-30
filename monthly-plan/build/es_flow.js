@@ -153,4 +153,34 @@ ok('importing a statement again offers to replace it',await p.evaluate(()=>/Repl
 await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(250);
 ok('replaced, not doubled',await p.evaluate(()=>state.transactions.length===8));
 if(OUT)await p.screenshot({path:OUT+'/es-statements.png',fullPage:true});
+// 8. card & bank statements: payments out grouped by merchant, set once, remembered
+const CARD=`Date,Description,Amount (USD)
+"Sep 3, 2026","OPENAI *CHATGPT SUBSCR","20.00"
+"Sep 5, 2026","CANVA* 104998812","14.99"
+"Sep 12, 2026","WHOLEFDS MKT 10233","54.20"
+"Sep 21, 2026","Automatic payment: Checking","-89.19"`;
+const BANK=`Movimientos de cuenta
+Fecha;Concepto;Importe;Saldo
+01/09/2026;TRANSFERENCIA ALQUILER SEPTIEMBRE;-850,00;2.150,00
+05/09/2026;RECIBO IBERDROLA CLIENTES SAU;-62,40;2.087,60
+12/09/2026;COMPRA TARJETA MERCADONA 1234;-38,15;2.004,45
+22/09/2026;PAGO TARJETA CREDITO;-89,19;1.905,26
+25/09/2026;TRANSFERENCIA RECIBIDA ETSY;310,00;2.215,26`;
+await p.evaluate(()=>{state.transactions=[];state.expenseRules={};state.fxRates={USD:0.9};state.settings.es.homePct=0;save();go('expenses',true);});
+await p.click('#content [data-action="biz-exp-open"]');
+await p.setInputFiles('#exp-files',[{name:'card_sep.csv',mimeType:'text/csv',buffer:Buffer.from(CARD)},{name:'banco_sep.csv',mimeType:'text/csv',buffer:Buffer.from(BANK)}]);await p.waitForTimeout(400);
+const expRows=()=>p.evaluate(()=>Object.fromEntries([...document.querySelectorAll('.exp-table tbody tr')].map(r=>[r.querySelector('.exp-name').value,[r.querySelector('[data-exp="cat"]').value,r.querySelector('[data-exp="p"]')?.value??'',r.querySelector('[data-exp="v"]')?.value??'']])));
+let er=await expRows();
+ok('card (purchases positive, USD) and Spanish bank (;, decimal comma) read and grouped',Object.keys(er).length===7&&er['Openai Chatgpt Subscr']?.[0]==='software'&&er['Alquiler']?.[0]==='home-rent'&&er['Iberdrola']?.[0]==='home-utilities',JSON.stringify(er));
+ok('card payments and groceries start as skipped, unknown merchants ask',er['Credito']?.[0]==='transfer'&&er['Mercadona']?.[0]==='personal'&&er['Wholefds Mkt']?.[0]==='',JSON.stringify(er));
+await p.fill('[data-exp="home"]','20');await p.dispatchEvent('[data-exp="home"]','change');await p.waitForTimeout(150);
+er=await expRows();ok('the home share sets rent to it and utilities to 30% of it',er['Alquiler'][1]==='20'&&er['Iberdrola'][1]==='6'&&er['Iberdrola'][2]==='2100');
+await p.selectOption('tr.to-do [data-exp="cat"]','personal');await p.waitForTimeout(150);
+await p.click('[data-action="biz-exp-import"]');await p.waitForTimeout(300);
+st=await p.evaluate(()=>state.transactions.map(t=>({v:t.rec.vendor,c:t.category,cur:t.rec.cur,a:t.rec.amount,e:t.amount,p:t.rec.pct,d:Budget.recOf(state,t).deductibleEUR,src:t.rec.src})));
+ok('one expense record per payment, in its currency, with its share',st.length===4&&st.some(x=>x.v==='Alquiler'&&x.a===85000&&x.p===20&&x.d===17000)&&st.some(x=>x.v==='Canva'&&x.cur==='USD'&&x.e===1349)&&st.some(x=>x.v==='Iberdrola'&&x.d===309),JSON.stringify(st));
+await p.click('#content [data-action="biz-exp-open"]');
+await p.setInputFiles('#exp-files',[{name:'card_sep.csv',mimeType:'text/csv',buffer:Buffer.from(CARD)},{name:'banco_sep.csv',mimeType:'text/csv',buffer:Buffer.from(BANK)}]);await p.waitForTimeout(400);
+ok('the same statements again: payments recognised, merchants remembered, nothing to ask',await p.evaluate(()=>!document.querySelector('[data-action="biz-exp-import"]')&&!document.querySelector('tr.to-do')&&/already imported/.test(document.querySelector('.exp-file').innerText)));
+await p.evaluate(()=>closeModal());
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();

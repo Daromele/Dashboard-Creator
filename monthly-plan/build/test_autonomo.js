@@ -53,7 +53,7 @@ module.exports=({eq,ok})=>{
   // backups: bad rates are dropped, settings get defaults
   const bad=JSON.parse(JSON.stringify(s));bad.transactions[0].vat=1800;bad.transactions[0].ret=1234;bad.categories[0].vat=5;bad.settings.es={lowIncome:30,planaUntil:'nope',estimates:'yes'};
   const V=B.validate(bad);
-  eq('bad rates dropped, never fatal', ['vat' in V.transactions[0],'ret' in V.transactions[0],'vat' in V.categories[0],V.settings.es], [false,false,false,{exempt130:false,lowIncome:0,plana:false,planaUntil:'',estimates:false,cadence:'quarterly',docsDay:10}]);
+  eq('bad rates dropped, never fatal', ['vat' in V.transactions[0],'ret' in V.transactions[0],'vat' in V.categories[0],V.settings.es], [false,false,false,{exempt130:false,lowIncome:0,plana:false,planaUntil:'',estimates:false,homePct:0,cadence:'quarterly',docsDay:10}]);
   // the checklist: documents by the gestor's day, forms on Hacienda's dates, the year's summaries
   const cs=B.validate(JSON.parse(JSON.stringify(s)));cs.checklist={'2026-Q1:303':'2026-04-15','junk':'2026-01-01','2026-Q1:bank':'nope'};
   const CV=B.validate(cs);eq('checklist ticks kept, junk dropped', CV.checklist, {'2026-Q1:303':'2026-04-15'});

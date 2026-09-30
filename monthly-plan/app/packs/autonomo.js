@@ -28,7 +28,7 @@ const NICHE = {
   // the four activities every record belongs to
   activities: [['digital', 'Digital Studio'], ['ai', 'AI Training / Contract Work'], ['prof', 'Other Professional Activity'], ['other', 'Other']],
   evidenceTypes: [['statement', 'Platform statement / CSV'], ['screenshot', 'Screenshot'], ['payment', 'Payment confirmation'], ['taxform', '1099 / tax form'], ['invoice', 'Invoice'], ['bank', 'Bank / payment-processor transaction'], ['drive', 'Google Drive file'], ['other', 'Other']],
-  accounts: [['business-bank', 'Business bank'], ['personal-bank', 'Personal bank'], ['paypal', 'PayPal'], ['payoneer', 'Payoneer'], ['stripe', 'Stripe'], ['other', 'Other']],
+  accounts: [['business-bank', 'Business bank'], ['personal-bank', 'Personal bank'], ['card', 'Credit card'], ['paypal', 'PayPal'], ['payoneer', 'Payoneer'], ['stripe', 'Stripe'], ['other', 'Other']],
   // payers and platforms a new planner starts with: [id, name, activity, usual currency]. Rename or add your own shops.
   seedPayers: [['py-etsy', 'Etsy', 'digital', 'USD'], ['py-youtube', 'YouTube / Google AdSense', 'digital', 'USD'], ['py-patreon', 'Patreon', 'digital', 'USD'], ['py-fourthwall', 'Fourthwall', 'digital', 'USD'], ['py-cmarket', 'Creative Market', 'digital', 'USD'], ['py-cfabrica', 'Creative Fabrica', 'digital', 'USD'], ['py-website', 'Website sales', 'digital', 'EUR'], ['py-payhip', 'Payhip', 'digital', 'USD'], ['py-gumroad', 'Gumroad', 'digital', 'USD'], ['py-affiliate', 'Affiliate income', 'digital', 'USD'], ['py-sponsor', 'Sponsorships', 'digital', 'USD'], ['py-ai', 'AI training client', 'ai', 'USD']],
   // income category for each activity; platform fees on an income record count against this cost category
@@ -40,7 +40,7 @@ const NICHE = {
   // the usual tag for a payer, by name (a name that starts with one of these counts too, e.g. "Etsy — My Shop")
   channelTags: { etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', fourthwall: 'Digital products', 'creative market': 'Digital products', 'creative fabrica': 'Digital products', 'website sales': 'Digital products', patreon: 'Memberships', 'buy me a coffee': 'Memberships', 'ko-fi': 'Memberships', youtube: 'Ad revenue', 'affiliate income': 'Affiliates', sponsorships: 'Sponsorships', 'ai training client': 'AI training', clients: 'Services' },
   // taxRate is unused by the Spanish tax screens but kept so a backup validates like the other editions
-  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, hiddenNav: [], es: { exempt130: false, lowIncome: 0, plana: false, planaUntil: '', cadence: 'quarterly', docsDay: 10, estimates: true } },
+  settings: { currency: 'EUR', dateFormat: 'dmy', taxRate: 2000, hiddenNav: [], es: { exempt130: false, lowIncome: 0, plana: false, planaUntil: '', cadence: 'quarterly', docsDay: 10, estimates: true, homePct: 0 } },
   tourTopics: 'records, evidence, the gestor report and backups',
 
   // type: income | expense | saving (money moved aside) · cogs: purchases for what you sell
@@ -51,6 +51,7 @@ const NICHE = {
     { id: 'selling', label: 'Selling & marketing', type: 'expense', taxLine: 'G8' },
     { id: 'tools', label: 'Software, hosting & design', type: 'expense', subscription: true, taxLine: 'G8' },
     { id: 'office', label: 'Office & equipment', type: 'expense', taxLine: 'G12' },
+    { id: 'home', label: 'Home office', type: 'expense', fixed: true, taxLine: 'G9' },
     { id: 'services', label: 'Professional & bank fees', type: 'expense', taxLine: 'G7' },
     { id: 'travel', label: 'Travel & learning', type: 'expense', taxLine: 'G8' },
     { id: 'social', label: 'Cuota de autónomos', type: 'expense', fixed: true, cuota: true, taxLine: 'G4', icon: 'shield' },
@@ -65,8 +66,9 @@ const NICHE = {
   categories: [
     ['inc-digital', 'Digital Studio income', 'revenue', 'I1', 0], ['inc-ai', 'AI training & contract income', 'revenue', 'I1', 0], ['inc-prof', 'Other professional income', 'revenue', 'I1', 2100], ['inc-other', 'Other income', 'other-income', 'I2', 0], ['interest', 'Bank interest', 'other-income', 'N', 0],
     ['platform-fees', 'Platform fees', 'selling', 'G8', 0], ['advertising', 'Advertising', 'selling', 'G8', 2100],
-    ['software', 'Software / subscriptions', 'tools', 'G8', 2100], ['hosting', 'Hosting / domains', 'tools', 'G8', 2100], ['design-assets', 'Design assets', 'tools', 'G8', 2100],
+    ['software', 'Software, subscriptions & AI tools', 'tools', 'G8', 2100], ['hosting', 'Hosting / domains', 'tools', 'G8', 2100], ['design-assets', 'Design assets', 'tools', 'G8', 2100],
     ['office-equipment', 'Office / equipment', 'office', 'G12', 2100],
+    ['home-rent', 'Home office rent (work share)', 'home', 'G5', 0], ['home-utilities', 'Home utilities & internet (work share)', 'home', 'G9', 2100],
     ['professional', 'Professional fees', 'services', 'G7', 2100], ['bank-fees', 'Bank / payment fees', 'services', 'G8', 0],
     ['travel', 'Travel / business', 'travel', 'G8', 1000], ['education', 'Education / research', 'travel', 'G8', 2100],
     ['cuota', 'Cuota de autónomos (Seguridad Social)', 'social', 'G4', 0],
@@ -122,6 +124,26 @@ const NICHE = {
   optionalNav: ['filings', 'taxlines', 'activity', 'pl', 'annual', 'invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review', 'guide'],
   // the estimate screens only appear when switched on in Settings
   estimateNav: ['tax', 'taxlines'],
+  addCategories: ['home-rent', 'home-utilities'],
+  // how the business share of a home-office cost starts: the share of the home used for work, and for
+  // utilities 30% of that (the usual rule when the home is declared on the 036/037)
+  homeShare: { 'home-rent': 1, 'home-utilities': 0.3 },
+  // words in a card or bank line → where the cost usually goes ('' = ask; personal/transfer = skip)
+  expenseHints: [
+    [/\b(alquiler|rent|arrendamiento|renta vivienda)\b/, 'home-rent'],
+    [/\b(iberdrola|endesa|naturgy|holaluz|repsol|totalenergies|octopus|electric|electricidad|luz|agua|aigues|canal de isabel|emasesa|aqualia|gas natural|butano)\b/, 'home-utilities'],
+    [/\b(movistar|vodafone|orange|digi|jazztel|masmovil|pepephone|yoigo|lowi|simyo|o2|fibra|internet|telefonica|finetwork)\b/, 'home-utilities'],
+    [/\b(openai|chatgpt|anthropic|claude|midjourney|canva|adobe|notion|figma|github|dropbox|zoom|capcut|elevenlabs|runway|perplexity|grammarly|microsoft|google ?(one|workspace|gsuite)|icloud|apple\.com|chatbase|jasper|descript|kit|convertkit|mailerlite|flodesk|tailwind|later|buffer|zapier|make\.com|airtable|clickup|trello|slack)\b/, 'software'],
+    [/\b(etsy ads|facebk|facebook|meta ads|pinterest|google ads|tiktok ads)\b/, 'advertising'],
+    [/\b(godaddy|namecheap|siteground|hostinger|squarespace|wix|shopify|cloudflare|vercel|netlify|bluehost|ionos|dinahosting)\b/, 'hosting'],
+    [/\b(creative market|envato|freepik|shutterstock|adobe stock|creative fabrica|design cuts)\b/, 'design-assets'],
+    [/\b(udemy|skillshare|domestika|coursera|masterclass|teachable)\b/, 'education'],
+    [/\b(gestor|gestoria|asesor|asesoria|abogado|notar)/, 'professional'],
+    [/\b(tgss|seguridad social|cuota autonom|reta)\b/, 'cuota'],
+    [/\b(comision|commission|mantenimiento cuenta|bank fee|foreign transaction fee)\b/, 'bank-fees'],
+    [/\b(pago tarjeta|liquidacion tarjeta|recibo tarjeta|autopay|automatic payment|payment thank you|payment received|traspaso|transferencia a|bizum|starting balance|ending balance)\b/, 'transfer'],
+    [/\b(mercadona|carrefour|lidl|aldi|eroski|alcampo|consum|hipercor|el corte ingles|zara|primark|farmacia|restaurante?|bar|cafeteria|burger|mcdonald|glovo|just eat|uber eats|netflix|spotify|hbo|disney|prime video)\b/, 'personal'],
+  ],
   navGroups: [['Records', ['dashboard', 'income', 'expenses', 'evidence', 'payers', 'invoices']], ['For your gestor', ['report', 'filings', 'taxlines', 'tax']], ['Your business', ['activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']]],
   navGroupRest: 'Settings & help',
 
@@ -174,6 +196,7 @@ const NICHE = {
     details: [
       ['Income records', 'One record per payout or statement: the date, the activity it belongs to, the payer or platform, and the amounts as the platform shows them (gross, refunds, fees and the payout that reached you), in their own currency. Add the euro rate and the euro figures follow. The report counts gross income less refunds, with platform fees as a cost.'],
       ['Importing statements, one record per payer and month', 'On Income, choose <b>Import statements</b> and pick your CSV exports, as many as you like at once: Etsy monthly statements, Payhip orders, the Fourthwall transactions report (it has the fees; the orders export doesn’t), Patreon’s earnings breakdown by month, Canva royalty payments, Creative Market sales, Creative Fabrica payouts, affiliate commissions, PayPal, Stripe, Shopify and YouTube. Each file is summed into one income record per month: sales less the tax buyers paid (the platform collects and passes it on), refunds, fees and the payout, in the file’s currency with a rate to euros for each month (remembered for next time). Ads and shipping become separate expenses; tax a platform withheld, such as US tax on Canva royalties, goes in the notes for your gestor. Choose 2026, 2025 or all months at the top. The first time, check which payer each file belongs to (two shops on one platform are told apart by the file name, e.g. “payhip jps.csv”); after that the app recognises them by their listings. Importing the same payer and month again replaces the record. PDFs can’t be read: download the CSV and link the PDF as evidence.'],
+      ['Expenses from your card and bank', 'On Expenses, choose <b>Import card & bank</b> and pick your credit card statement (subscriptions, AI tools) and your bank account statement (rent, electricity, water, internet) as CSV, several at once. Payments out are grouped by merchant: set each one once to a category with its business share and the IVA on its invoice, or to Personal, or to Card payment or transfer (so a card bill paid from the bank is not counted twice). The app remembers every merchant, so next month it only asks about new ones, and it leaves out payments already imported. Each payment becomes its own expense record, Missing until you link its invoice on Evidence. Common Spanish utilities, telecoms and software are recognised the first time.'],
       ['Expense records', 'One record per receipt or invoice: vendor, category, amount in its currency, euro rate and the share used for the business (100% unless it is shared with personal use). The deductible figure is indicative; your gestor decides what counts.'],
       ['Which euro rate?', 'Use the rate for the day the money arrived or left: the one your bank or PayPal applied when you converted, or the ECB reference rate for that day. Autónomo Plan remembers the last rate for each currency and suggests it for the next record.'],
       ['Evidence links', 'Keep the files in Google Drive, Dropbox or OneDrive and paste a share link on the record, with its type (invoice, statement, payment confirmation…). A record with at least one link is Complete, one without is Missing; you can mark one Needs review, and tick Reviewed once you have checked it. Share the folder with your gestor, or set links to “anyone with the link”, so they open from the PDF.'],
@@ -190,7 +213,7 @@ const NICHE = {
       ['Modelo 130 (IRPF instalment), each quarter', 'Twenty per cent of your net profit from 1 January, less the withholding on your invoices and the instalments already due. Autónomo Plan takes off the general 5% allowance for costs that are hard to evidence (gastos de difícil justificación), up to €2,000 a year. If at least 70% of last year’s income had withholding, you do not file it: tick that in Settings. If last year’s net profit was €12,000 or less, choose the small quarterly deduction in Settings.'],
       ['Your cuota de autónomos', 'Since 2023 the cuota follows your real net income in 15 brackets. Seguridad Social takes your net profit, adds back the cuota you paid, and takes off 7% for general costs. The IVA & IRPF quarters screen works out that monthly figure from your entries, the bracket it falls in and its minimum cuota (31.5% of the minimum base, 2026 tables), and compares it with what you pay. Once a year, Seguridad Social compares your declared income with your brackets and asks for the difference or refunds it. The tarifa plana (€80 a month for the first 12 months) is not regularised: add its end date in Settings.'],
       ['Tax pot and paying Hacienda', 'Log each move into your tax pot as a Tax pot transfer. When Hacienda takes a 303 or 130 payment straight from your business account, log it as IVA paid or IRPF paid. If it comes out of the pot account, do not log it again: the move into the pot already counted. The quarters screen compares what should be set aside with what you have.'],
-      ['Working from home', 'If part of your home is declared as your workplace (on the 036/037), you can usually deduct 30% of the share of the home used for work from water, electricity, gas, phone and internet. Log only that deductible share in Home office utilities, with the bill’s IVA. Rent or mortgage costs on the home follow different rules: ask your gestor.'],
+      ['Working from home', 'If part of your home is declared as your workplace on the 036/037, set that share in Settings → Spain (for example 15%). Home rent then starts at that share and utilities and internet at 30% of it, the usual rule for autónomos working from home; you can change either per merchant. Residential rent carries no IVA. Ask your gestor before deducting rent: it needs the home to be declared as affected to the activity.'],
       ['Meals, travel and cars', 'Meals while working away from your usual place are deductible up to daily limits when paid electronically: log them in Meals while working away. Travel and hotels for the business are deductible. Cars are rarely deductible for IRPF unless the activity needs one (for example transport or sales reps); the IVA on a car is usually deductible at 50% at most. Ask your gestor.'],
       ['Invoices and Verifactu', 'Record here the invoices you issue, with their base, IVA and withholding, to follow who owes you. Autónomo Plan is not invoicing software: from 1 July 2027, invoices from autónomos must be produced by software that meets the Verifactu rules. Number invoices in an unbroken series and keep copies.'],
       ['Selling on Etsy, Amazon and other platforms', 'Platform sales start at 0% IVA because who charges the IVA depends on what you sell and to whom: for many digital sales to EU consumers the platform collects it, and B2B or cross-border rules differ. Set the right rate with your gestor, and ask whether you need the ROI (intra-EU operator) registration, Modelo 349 or the OSS. Import the platform’s statement so each sale is split from its fees.'],
