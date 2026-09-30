@@ -322,4 +322,14 @@ await p.fill('#biz-es-form [name=homePct]','14');await p.click('#biz-es-form but
 ok('a new home share reaches rent (14%) and utilities (30% of it), not a share set by hand',JSON.stringify(await p.evaluate(()=>['hr1','hu1','hr0'].map(id=>state.transactions.find(t=>t.id===id).rec.pct)))==='[14,4,50]');
 await p.evaluate(()=>go('dashboard',true));await p.waitForTimeout(150);
 ok('the dashboard shows the business share of the rent, with what was paid',await p.evaluate(()=>{const c=[...document.querySelectorAll('.card')].find(x=>x.querySelector('h2')?.textContent==='Expenses');return !!c&&/business share/.test(c.innerText)&&/€147\.50/.test(c.innerText)&&!/€925\.00/.test(c.innerText);}));
+// 20. a bill paid in advance can be dated to the month it covers, and its monthly bill then adds nothing that month
+await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());go('activity',true);transactionForm('');});await p.waitForTimeout(150);
+const ahead=await p.evaluate(()=>Budget.shift(Budget.today().slice(0,7),1)+'-01');
+await p.evaluate(d=>{const f=$('#transaction-form');f.querySelector('[name=date]').value=d;f.querySelector('[name=amount]').value='875';f.querySelector('[name=note]').value='Rent paid early';const c=f.querySelector('[name=category]');c.value=[...c.options].find(o=>o.value==='home-rent')?'home-rent':c.options[1].value;},ahead);
+await p.evaluate(()=>$('#transaction-form').requestSubmit());await p.waitForTimeout(200);
+ok('an entry can be dated next month',await p.evaluate(d=>state.transactions.some(t=>t.date===d&&t.note==='Rent paid early'),ahead));
+const billRun=await p.evaluate(()=>{const m=Budget.today().slice(0,7);state.transactions=state.transactions.filter(t=>t.category!=='home-rent');
+ state.transactions.push({id:'early',date:m+'-01',category:'home-rent',amount:87500,note:'Rent',rec:{kind:'expense',act:'digital',vendor:'Landlord',cur:'EUR',rate:1,amount:87500,vatShown:0,pct:14,acct:'',evidence:[],status:'',reviewed:'',notes:''}});
+ state.bills=[{id:'bRent',name:'Rent',cat:'home-rent',amount:87500,day:1,from:m,v:0,varies:false,pct:null,acct:''}];const made=Biz.billsRun(true);return [made,state.transactions.filter(t=>t.category==='home-rent'&&t.date.slice(0,7)===m).length];});
+ok('a monthly bill skips a month already paid',JSON.stringify(billRun)==='[0,1]',JSON.stringify(billRun));
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();
