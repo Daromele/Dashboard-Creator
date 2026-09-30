@@ -1399,6 +1399,11 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .check-item{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--rule);cursor:pointer}
 .check-item input{width:18px;height:18px;flex:none;accent-color:var(--accent)}.check-text{flex:1;min-width:0}.check-text b{display:block;font-weight:600}.check-text small{color:var(--ink-3)}
 .check-due{flex:none;font-size:12px;color:var(--ink-2);white-space:nowrap}.check-item.is-done .check-text b{text-decoration:line-through;color:var(--ink-3)}.check-item.is-late .check-due{color:var(--over);font-weight:700}
+.stmt-drop{display:flex;gap:14px;align-items:center;border:1.5px dashed var(--rule-2);border-radius:var(--r-md);padding:16px 18px;margin:6px 0 14px;cursor:pointer;background:var(--sunk);position:relative}.stmt-drop:hover{border-color:var(--accent)}.stmt-drop svg{width:26px;height:26px;color:var(--accent);flex:none}.stmt-drop small{display:block;color:var(--ink-2);margin-top:2px}.stmt-drop input{position:absolute;opacity:0;width:1px;height:1px}
+.stmt-card{border:1px solid var(--rule);border-radius:var(--r-md);padding:14px 16px;margin-bottom:12px;background:var(--card)}.stmt-card.is-error{border-color:var(--flag);background:var(--flag-soft)}
+.stmt-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}.stmt-head small{display:block;color:var(--ink-2);margin-top:2px}
+.stmt-figs{border-top:1px solid var(--rule);margin-top:10px;padding-top:8px}.stmt-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:3px 0}.stmt-row b{text-align:right;white-space:nowrap}.stmt-row b small{display:block;font-weight:500;color:var(--ink-3);font-size:11px}
+.stmt-row.stmt-key{font-weight:650;border-top:1px dashed var(--rule);padding-top:6px;margin-top:3px}.stmt-card .checkline{margin-top:10px}
 .sa-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:8px 0 12px}
 .sa-panel{background:var(--sunk);border:1px solid var(--rule);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .sa-now{background:var(--accent-soft);border-color:var(--accent-line)}
@@ -2044,8 +2049,10 @@ const Budget = ((P) => {
       if(ty==='income'){if(r.vat!==undefined&&!VAT_RATES.includes(r.vat))delete r.vat;if(r.ret!==undefined&&!RET_RATES.includes(r.ret))delete r.ret;}else{delete r.vat;delete r.ret;}
       if(r.ivaDed!==undefined&&(ty!=='expense'||typeof r.ivaDed!=='boolean'))delete r.ivaDed;
       if(!ACCOUNTS.includes(r.acct))r.acct='';if(!EV_STATUS.includes(r.status))r.status='';if(!validDate(r.reviewed))r.reviewed='';if(!str(r.notes,1000))r.notes='';if(ty==='expense'&&!str(r.vendor,100))r.vendor='';
-      r.evidence=cleanEv(r.evidence);});
-     (s.channels||[]).forEach(c=>{if(c.act!==undefined&&!ACTS.includes(c.act))delete c.act;if(c.cur!==undefined&&!CURRENCIES.includes(c.cur))delete c.cur;if(c.acct!==undefined&&!ACCOUNTS.includes(c.acct))delete c.acct;
+      r.evidence=cleanEv(r.evidence);
+      if(r.src!==undefined){const o=r.src;if(!object(o)||typeof o.k!=='string'||!/^[a-z0-9]{1,40}$/.test(o.k)||!/^\d{4}-\d{2}$/.test(o.m))delete r.src;
+       else r.src={k:o.k,m:o.m,f:typeof o.f==='string'?o.f.slice(0,200):'',...(typeof o.p==='string'&&o.p.length<=60?{p:o.p}:{}),...(['ads','shipping'].includes(o.x)?{x:o.x}:{})};}});
+     (s.channels||[]).forEach(c=>{if(c.fp!==undefined){c.fp=Array.isArray(c.fp)?c.fp.filter(x=>typeof x==='string'&&/^[0-9a-z]{1,8}$/.test(x)).slice(-400):[];if(!c.fp.length)delete c.fp;}if(c.act!==undefined&&!ACTS.includes(c.act))delete c.act;if(c.cur!==undefined&&!CURRENCIES.includes(c.cur))delete c.cur;if(c.acct!==undefined&&!ACCOUNTS.includes(c.acct))delete c.acct;
       if(c.evidence!==undefined){c.evidence=cleanEv(c.evidence).filter(e=>e.year);if(!c.evidence.length)delete c.evidence;}});
      if(!str(s.settings.reportNote??'',4000))s.settings.reportNote='';}
     // IVA and withholding rates: an unknown rate is dropped, never fatal
@@ -2309,7 +2316,7 @@ const Platforms = (()=>{
  const n=CSV.norm;
  // what each kind of row is; the app decides which category each one starts in
  const ROLES={sale:'sales',refund:'refunds',fees:'fees',ads:'ads & promotion',shipping:'shipping labels',feeTax:'tax on fees',
-  payout:'payouts to your bank',conversion:'currency conversions',purchase:'payments you made',taxWithheld:'tax withheld',other:'other entries'};
+  payout:'payouts to your bank',buyerTax:'tax paid by buyers (passed on)',conversion:'currency conversions',purchase:'payments you made',taxWithheld:'tax withheld',other:'other entries'};
  const kindLabel=(name,role)=>`${name} · ${ROLES[role]||ROLES.other}`;
  const find=(headers,...tests)=>{const h=headers.map(n);for(const t of tests){const i=h.findIndex(x=>typeof t==='string'?x===t:t.test(x));if(i>=0)return i;}return -1;};
  const has=(headers,...names)=>names.every(x=>find(headers,x)>=0);
@@ -2332,8 +2339,10 @@ const Platforms = (()=>{
    const num=reader(rows,[c.amount,c.fees,c.net]),out=[];
    rows.forEach(r=>{const type=n(cell(r,c.type)),title=cell(r,c.title),note=[title,cell(r,c.info)].filter(Boolean).join(' · ');
     const role=type==='sale'?'sale':type==='refund'?'refund':type==='fee'?(/ship|label|postage/i.test(title)?'shipping':/\bads?\b|advert|promot/i.test(title)?'ads':'fees')
-     :type==='marketing'?'ads':type==='shipping'?'shipping':type==='tax'||type==='vat'?'feeTax':type==='deposit'||/payment|reserve/.test(type)?'payout':'other';
+     :type==='marketing'?'ads':type==='shipping'?'shipping':(type==='tax'||type==='vat')&&/paid by (the )?buyer/i.test(title)?'buyerTax':type==='tax'||type==='vat'?'feeTax':type==='deposit'||/payment|reserve/.test(type)?'payout':'other';
     const a=num(cell(r,c.amount)),f=num(cell(r,c.fees)),base={date:cell(r,c.date),currency:upper(cell(r,c.cur)),line:r.line};
+    // "$37.35 sent to your bank account": the deposit's amount lives only in its title
+    if(role==='payout'&&!a&&!f&&num(cell(r,c.net))===null){const m=title.match(/([\d.,]+)\s+sent to your bank/i),v=m?num(m[1]):null;if(v){out.push({...base,note,amount:-Math.abs(v),role,memo:true});return;}}
     if(a||f){if(a)out.push({...base,note,amount:a,role});if(f)out.push({...base,note:role==='sale'||role==='refund'?note+' · fees':note,amount:f,role:role==='sale'||role==='refund'?'fees':role});}
     else{const net=num(cell(r,c.net));if(net)out.push({...base,note,amount:net,role});}});
    return out;}};
@@ -2431,7 +2440,7 @@ const Platforms = (()=>{
  // The statement as plain rows: [date, description, amount, kind, currency] plus the role behind each kind.
  function convert(p,headers,rows){
   const a=ADAPTERS.find(x=>x.id===p.id&&x.detect(headers,rows))||ADAPTERS.find(x=>x.id===p.id);if(!a)throw Error('Unknown platform');
-  const list=a.convert.call({...a,name:p.name},headers,rows).filter(x=>x.amount);
+  const list=a.convert.call({...a,name:p.name},headers,rows).filter(x=>x.amount&&!x.memo);
   if(list.length>10000)throw Error('Once fees are split out this statement has more than 10,000 entries. Export a shorter date range.');
   const kinds={};list.forEach(x=>{kinds[n(kindLabel(p.name,x.role))]=x.role;});
   return {headers:['Date','Description','Amount','Kind','Currency'],
@@ -2440,7 +2449,23 @@ const Platforms = (()=>{
  // bank descriptions that are money moving between the bank and a platform you import directly
  function bankPattern(key,name){const a=ADAPTERS.find(x=>x.id===key&&x.bank);if(a)return a.bank;
   const word=String(name||'').split(' ')[0].replace(/[^A-Za-z0-9]/g,'');return word.length>2?new RegExp('\\b'+word,'i'):null;}
- return {detect,convert,bankPattern,ROLES,kindLabel,nameFrom};
+ // A statement as one summary per month: sales less the tax buyers paid (passed on by the platform),
+ // refunds, the platform's fees (with any tax on them), ads, shipping labels and what reached the bank.
+ // The listing titles in fee lines identify which shop a statement belongs to.
+ function summary(p,headers,rows){
+  const a=ADAPTERS.find(x=>x.id===p.id&&x.detect(headers,rows))||ADAPTERS.find(x=>x.id===p.id);if(!a)throw Error('Unknown platform');
+  const list=a.convert.call({...a,name:p.name},headers,rows).filter(x=>x.amount),order=CSV.detectOrder(list.map(x=>day(x.date))),months=new Map(),curs=new Map();
+  list.forEach(x=>{let d;try{d=CSV.date(day(x.date),order||'auto');}catch{return;}const m=d.slice(0,7);
+   if(!months.has(m))months.set(m,{month:m,from:d,to:d,sales:0,buyerTax:0,refunds:0,fees:0,feeTax:0,ads:0,shipping:0,withheld:0,payouts:0,payoutCount:0,other:0,rows:0,titles:new Set()});
+   const S=months.get(m),v=x.amount;S.rows++;if(d<S.from)S.from=d;if(d>S.to)S.to=d;if(x.currency)curs.set(x.currency,(curs.get(x.currency)||0)+1);
+   switch(x.role){case 'sale':S.sales+=v;break;case 'buyerTax':S.buyerTax-=v;break;case 'refund':S.refunds-=v;break;case 'fees':S.fees-=v;break;case 'feeTax':S.fees-=v;S.feeTax-=v;break;
+    case 'ads':S.ads-=v;break;case 'shipping':S.shipping-=v;break;case 'taxWithheld':S.withheld-=v;break;case 'payout':S.payouts-=v;S.payoutCount++;break;case 'conversion':break;default:S.other+=v;}
+   const t=x.role==='fees'&&String(x.note).match(/^(?:listing|transaction|renew\w*)\s+fee:\s*([^·]+)/i);if(t)S.titles.add(n(t[1]).slice(0,60));});
+  const currency=[...curs.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+  return [...months.values()].sort((a,b)=>a.month.localeCompare(b.month)).map(S=>{const gross=S.sales-S.buyerTax,payout=gross-S.refunds-S.fees+S.other;
+   return {...S,titles:[...S.titles],currency,platform:p.name,gross,payout,net:payout-S.ads-S.shipping-S.withheld};});
+ }
+ return {detect,convert,summary,bankPattern,ROLES,kindLabel,nameFrom};
 })();
 if(typeof module!=='undefined')module.exports=Platforms;
 
@@ -3699,7 +3724,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button[dat
  if(b.dataset.action==='welcome-next'){const slides=welcomeSlides();if(welcomeAt<slides.length-1){welcomeAt++;renderWelcome();}else closeWelcome();}
  if(b.dataset.action==='welcome-folder'){await chooseBackupFolder();renderWelcome();toast('Backup folder connected and today’s backup saved.');}
  if(b.dataset.action==='welcome-log'){closeWelcome();P.features.records?Biz.recAdd('income'):transactionForm();}
- if(b.dataset.action==='welcome-import'){closeWelcome();go('import');}
+ if(b.dataset.action==='welcome-import'){closeWelcome();P.features.records?Biz.stmtOpen():go('import');}
  if(b.dataset.action==='quick-log')quickLog();
  if(b.dataset.action==='month-tab'){selected=b.dataset.month;render();}
  if(b.dataset.action==='wealth-range'&&['6','12','all'].includes(b.dataset.range)){wealthRange=b.dataset.range;render();}
@@ -3787,7 +3812,9 @@ function startCSV(text,name){try{const detected=CSV.detect(text);const parsed=CS
 const payoutCategory=()=>{const id=P.defaults.payout;return id&&state.categories.some(c=>c.id===id&&!c.archived)?id:'';};
 function platformPayouts(){return Object.entries(state.platformSources||{}).map(([key,v])=>({name:v.name,re:Platforms.bankPattern(key,v.name)})).filter(x=>x.re);}
 // Which category a kind of platform entry starts in: the app's defaults, per platform where they differ.
-function platformCategory(p,value){const role=p.kinds?.[value];if(!role)return '';const D=P.platformDefaults||{},id=D.platforms?.[p.key]?.[role]??D[role]??'';
+function platformCategory(p,value){const role=p.kinds?.[value];if(!role)return '';const D=P.platformDefaults||{},pick=r=>D.platforms?.[p.key]?.[r]??D[r];
+ // tax buyers paid is passed on by the platform: it comes off the sales, in the sales category
+ const id=(role==='buyerTax'?pick('buyerTax')??pick('sale'):pick(role))??'';
  if(id==='__skip')return '__skip';if(id==='payout')return payoutCategory()||'__skip';return id&&state.categories.some(c=>c.id===id&&!c.archived)?id:'';}
 // Statement category names rarely match a planner's own. Suggest a match, never decide silently:
 // every suggestion appears pre-selected in a dropdown the reader confirms.
@@ -4186,7 +4213,7 @@ const Biz=(()=>{
   const kpis=inc?`${kpi('Gross income',sum('grossEUR'),rangeLabel(),'down')}${kpi('Refunds',sum('refundsEUR'),'In euros','history')}${kpi('Platform fees',sum('feesEUR'),'In euros','coins')}${kpi('Net payouts',sum('payoutEUR'),`${list.length} record${list.length===1?'':'s'}`,'wallet')}`
    :`${kpi('Expenses',sum('amountEUR'),rangeLabel(),'up')}${kpi('Indicative deductible',sum('deductibleEUR'),'After business-use %','shield')}${kpi('VAT shown on receipts',list.reduce((a,r)=>a+r.vatShownEUR,0),'As recorded; for your gestor','tags')}${kpi('Records',list.length*100,'','log').replace(/<b[^>]*>[^<]*<\/b>/,`<b>${list.length}</b>`)}`;
   const miss=list.filter(r=>r.status==='missing').length;
-  return pagehead(rangeLabel(),inc?'Income':'Expenses',inc?'One record per payment or monthly platform summary. Amounts in the original currency, with the rate to euros.':'One record per receipt or invoice. Deductible amounts are indicative: review them with your gestor.',button(`Export CSV`,inc?'biz-rec-csv-income':'biz-rec-csv-expense','quiet')+button(inc?'Add income':'Add expense',inc?'biz-rec-add-income':'biz-rec-add-expense','primary'))+
+  return pagehead(rangeLabel(),inc?'Income':'Expenses',inc?'One record per payment or monthly platform summary. Amounts in the original currency, with the rate to euros.':'One record per receipt or invoice. Deductible amounts are indicative: review them with your gestor.',button(`Export CSV`,inc?'biz-rec-csv-income':'biz-rec-csv-expense','quiet')+(inc?button('Import statements','biz-stmt-open','quiet'):'')+button(inc?'Add income':'Add expense',inc?'biz-rec-add-income':'biz-rec-add-expense','primary'))+
    recFilters(kind)+`<div class="kpis">${kpis}</div>`+(miss?`<div class="notice warning no-print"><span><b>${miss} record${miss===1?' is':'s are'} missing evidence</b> in this view. Add a Drive link or file name to each.</span>${button('Show them','biz-recf-missing','small')}</div>`:'')+
    `<section class="card table-card"><div class="table-wrap"><table class="rec-table"><thead><tr>${head.map((h,i)=>`<th class="${inc?(i>=3&&i<=5?'num':''):(i>=4&&i<=6?'num':'')}">${h}</th>`).join('')}</tr></thead><tbody>${list.map(row).join('')}</tbody>`+
    (list.length?`<tfoot><tr class="tx-total">${inc?`<td colspan="3"><b>Total · ${list.length} records</b></td><td class="num"><b>${fmt(sum('grossEUR'))}</b></td><td class="num">−${fmt(sum('refundsEUR')+sum('feesEUR'))}</td><td class="num"><b>${fmt(sum('payoutEUR'))}</b></td><td colspan="2"></td>`:`<td colspan="4"><b>Total · ${list.length} records</b></td><td class="num"><b>${fmt(sum('amountEUR'))}</b></td><td></td><td class="num"><b>${fmt(sum('deductibleEUR'))}</b></td><td colspan="2"></td>`}</tr></tfoot>`:'')+
@@ -4215,6 +4242,80 @@ const Biz=(()=>{
     `<label>Amount<input name="amount" type="number" min="0" step="0.01" required value="${r?val(r.amount):''}" placeholder="0.00"></label><label>VAT / tax shown<input name="vatShown" type="number" min="0" step="0.01" value="${r&&r.vatShown?val(r.vatShown):''}" placeholder="0.00"><small>As printed on the receipt, if any</small></label>${dedIva}<label>Business use %<input name="pct" type="number" min="0" max="100" step="1" value="${r?r.pct:100}"></label><p class="full small rec-eur" id="rec-eur"></p>`+common;
   modal(`${id?'Edit':dup?'Duplicate':'Add'} ${inc?'income':'expense'}`,inc?'Enter the amounts in the currency you were paid in. Euros are worked out from the rate.':'Enter the amount in the currency you paid in. The deductible amount is indicative, for your gestor to review.',`<form id="rec-form" data-kind="${kind}" data-id="${id}"><div class="fields">${body}</div>${formFoot(id?'Save changes':'Save record',id?`<button type="button" class="btn danger" data-action="delete-transaction" data-id="${id}">Delete</button>`:'')}</form>`);
   recPreview();}
+ // ---------- Monthly statements → one record per shop and month ----------
+ // Each platform statement (CSV) becomes one income record for its shop and month: sales less the
+ // tax buyers paid (passed on by the platform), refunds, fees and the payout, in the statement's
+ // currency with a rate to euros; ads and shipping labels become expense records beside it. The
+ // listing titles in a statement's fee lines are remembered (as short hashes) on its payer, so the
+ // next statement from the same shop is matched to it.
+ let stmt=null;
+ const fnv=x=>{let h=0x811c9dc5;for(const ch of x){h^=ch.charCodeAt(0);h=Math.imul(h,0x01000193)>>>0;}return h.toString(36);};
+ const stmtKey=name=>String(name||'').toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,40)||'platform';
+ const stmtFind=it=>state.transactions.filter(t=>t.rec?.src&&t.rec.src.k===it.key&&t.rec.src.m===it.month&&(t.channel===it.payer||t.rec.src.p===it.payer));
+ function stmtOpen(){stmt={items:[]};stmtRender();}
+ // the payer a statement most likely belongs to: the one whose remembered listings it shares, else one named after the platform
+ function stmtGuess(it,taken){const list=channels(),score=c=>(c.fp||[]).filter(h=>it.fp.includes(h)).length,best=list.map(c=>[c,score(c)]).sort((a,b)=>b[1]-a[1])[0];
+  if(best&&best[1]>=Math.min(3,Math.max(1,it.fp.length)))return best[0].id;
+  const named=list.filter(c=>stmtKey(c.name).startsWith(it.key));return (named.find(c=>!taken.has(c.id+it.month))||named[0])?.id||'__new';}
+ async function stmtRead(files){const taken=new Set(stmt.items.map(x=>x.payer+x.month));
+  for(const file of files){const base={file:file.name};
+   if(/\.pdf$/i.test(file.name)||file.type==='application/pdf'){stmt.items.push({...base,error:'PDF statements can’t be read here. Download the CSV version instead (Etsy: Shop Manager › Finances › Monthly statements › Download CSV). You can still paste a link to the PDF as the record’s evidence.'});continue;}
+   try{if(file.size>10e6)throw Error('Files must be smaller than 10 MB.');const bytes=new Uint8Array(await file.arrayBuffer()),enc=bytes[0]===255&&bytes[1]===254?'utf-16le':bytes[0]===254&&bytes[1]===255?'utf-16be':'utf-8';
+    const text=new TextDecoder(enc).decode(bytes).replace(/^\uFEFF/,''),det=CSV.detect(text),parsed=CSV.parse(det.text,det.delimiter);
+    let p=null,hi=0;for(;hi<Math.min(parsed.length-1,15);hi++){p=Platforms.detect(parsed[hi].cells,parsed.slice(hi+1),file.name);if(p)break;}
+    if(!p)throw Error('This does not look like a platform statement. Use Import for bank files.');
+    const sums=Platforms.summary(p,parsed[hi].cells,parsed.slice(hi+1));if(!sums.length)throw Error('No dated entries found in this statement.');
+    sums.forEach(S=>{const it={...base,...S,key:stmtKey(p.name),fp:S.titles.map(fnv),cur:S.currency&&S.currency!=='EUR'&&Budget.CURRENCIES.includes(S.currency)?S.currency:'EUR',link:'',replace:true};
+     it.rate=it.cur==='EUR'?1:(state.fxRates?.[it.cur]||'');it.payer=stmtGuess(it,taken);it.newName=it.payer==='__new'?`${p.name} — ${it.file.replace(/\.[^.]+$/,'').slice(0,20)}`:'';taken.add(it.payer+it.month);stmt.items.push(it);});
+   }catch(e){stmt.items.push({...base,error:e.message});}}
+  stmtRender();}
+ function stmtCard(it,i){const x=`data-i="${i}"`,rm=`<button type="button" class="ibtn" data-action="biz-stmt-remove" ${x} aria-label="Remove">${ico('trash')}</button>`;
+  if(it.error)return `<div class="stmt-card is-error"><div class="stmt-head"><div><b>${esc(it.file)}</b><small class="warn">${esc(it.error)}</small></div>${rm}</div></div>`;
+  const C=v=>fmtIn(v,it.cur),E=v=>it.cur==='EUR'||!(+it.rate>0)?'':`<small>${fmt(Math.round(v*it.rate))}</small>`,row=(l,v,sign='',cls='')=>v||cls?`<div class="stmt-row ${cls}"><span>${l}</span><b class="number">${sign}${C(v)}${E(v)}</b></div>`:'';
+  const dup=it.payer!=='__new'&&stmtFind(it).length,twice=stmt.items.filter(o=>!o.error&&o.payer===it.payer&&o.month===it.month&&o.payer!=='__new').length>1;
+  const opts=channels().map(c=>`<option value="${c.id}" ${c.id===it.payer?'selected':''}>${esc(c.name)}</option>`).join('');
+  return `<div class="stmt-card"><div class="stmt-head"><div><b>${esc(it.platform)} · ${monthName(it.month)}</b><small>${esc(it.file)} · ${it.rows} lines · ${dateName(it.from)} – ${dateName(it.to)}</small></div>${rm}</div>`+
+   `<div class="fields"><label>Shop / payer<select data-stmt="payer" ${x}>${opts}<option value="__new" ${it.payer==='__new'?'selected':''}>New payer…</option></select></label>`+
+   (it.payer==='__new'?`<label>New payer’s name<input data-stmt="newName" ${x} maxlength="40" value="${esc(it.newName)}"></label>`:'')+
+   (it.cur==='EUR'?'':`<label>EUR per 1 ${it.cur}<input type="number" data-stmt="rate" ${x} min="0.000001" step="0.000001" value="${it.rate}" placeholder="e.g. 0.9"><small>The rate for this month, from your bank or the ECB</small></label>`)+
+   `<label class="full">Link to the statement <span class="dim">(optional)</span><input type="url" data-stmt="link" ${x} value="${esc(it.link)}" placeholder="https://drive.google.com/…"><small>The file name is kept as evidence either way</small></label></div>`+
+   `<div class="stmt-figs">${row('Sales',it.sales)}${row(`Tax buyers paid, passed on by ${esc(it.platform)}`,it.buyerTax,'−')}${row('Gross income',it.gross,'','stmt-key')}${row('Refunds',it.refunds,'−')}${row(`Platform fees${it.feeTax?` (incl. ${C(it.feeTax)} tax on fees)`:''}`,it.fees,'−')}${it.other?row('Other adjustments',it.other):''}${row('Net payout, before ads',it.payout,'','stmt-key')}`+
+   (it.ads>0?row('Ads &amp; promotion · a separate Advertising expense',it.ads,'−'):'')+(it.shipping>0?row('Shipping labels · a separate expense',it.shipping,'−'):'')+
+   (it.payoutCount?`<div class="stmt-row dim"><span>Sent to your bank this month (${it.payoutCount})</span><b class="number">${C(it.payouts)}</b></div>`:'')+`</div>`+
+   (twice?`<p class="small warn">Two statements for the same payer and month: choose the right shop for each.</p>`:dup?`<label class="checkline"><input type="checkbox" data-stmt="replace" ${x} ${it.replace?'checked':''}><span>A record from this statement already exists for this payer and month. <b>Replace it</b> (untick to skip this one).</span></label>`:'')+`</div>`;}
+ function stmtRender(){const box=$('#modal')?.open?$('#modal-body'):null,top=box?box.scrollTop:0,ok=stmt.items.filter(x=>!x.error);
+  modal('Import monthly statements','One income record per shop and month, with sales, buyer taxes, refunds and fees worked out. Ads become a separate expense.',
+   `<label class="stmt-drop"><input type="file" id="stmt-files" accept=".csv,.txt,.tsv,.pdf,text/csv" multiple>${ico('down')}<span><b>Choose statement files</b><small>CSV statements from Etsy, PayPal, Stripe, Shopify, Patreon and similar. One per shop and month; pick several at once.</small></span></label>`+
+   stmt.items.map(stmtCard).join('')+
+   `<div class="formfoot">${button('Cancel','dismiss')}${ok.length?button(`Create ${ok.length} record${ok.length===1?'':'s'}`,'biz-stmt-import','primary'):''}</div>`);
+  const b=$('#modal-body');if(b&&top)b.scrollTop=top;}
+ function stmtImport(){const t0=today(),items=stmt.items.filter(x=>!x.error);
+  items.forEach(it=>{if(it.payer==='__new'){checkChannel(it.newName);if(!String(it.newName).trim())throw Error('Name the new payer.');}
+   if(!(+it.rate>0&&+it.rate<1e6))throw Error(`Enter the rate for ${it.cur} (${monthName(it.month)}).`);if(!writable(it.month))throw Error(`${monthName(it.month)} is closed. Reopen it first.`);
+   if(it.link&&!/^https?:\/\//i.test(it.link))throw Error('Links must start with http:// or https://');});
+  const keys=items.filter(it=>it.payer!=='__new').map(it=>it.payer+it.month);if(new Set(keys).size!==keys.length)throw Error('Two statements are set to the same payer and month. Choose the right shop for each.');
+  let made=0,skipped=0;
+  commit(()=>{items.forEach(it=>{
+   const payer=it.payer==='__new'?ensureChannel(it.newName):it.payer,ch=channels().find(c=>c.id===payer);if(!ch)return;it.payer=payer;
+   const old=stmtFind(it);if(old.length&&!it.replace){skipped++;return;}
+   const gone=new Set(old.map(t=>t.id));state.transactions=state.transactions.filter(t=>!gone.has(t.id));
+   const act=ch.act||'digital',rate=it.cur==='EUR'?1:Math.round(+it.rate*1e6)/1e6,date=Budget.endOf(it.month)<=t0?Budget.endOf(it.month):it.to,acct=ch.acct||'';
+   if(it.cur!=='EUR'){state.fxRates??={};state.fxRates[it.cur]=rate;}
+   ch.cur=it.cur;ch.act=act;ch.fp=[...new Set([...(ch.fp||[]),...it.fp])].slice(-400);if(!ch.fp.length)delete ch.fp;
+   const ev=()=>[{id:Budget.uid(),type:'statement',url:it.link||'',name:it.file.slice(0,200)}],src=x=>({k:it.key,m:it.month,f:it.file.slice(0,200),p:payer,...(x?{x}:{})}),mon=monthName(it.month);
+   const cf=v=>fmtIn(v,it.cur),notes=[`From ${it.file}: sales ${cf(it.sales)}`+(it.buyerTax?`, less ${cf(it.buyerTax)} tax buyers paid (passed on by ${it.platform})`:'')+'.',it.feeTax?`Fees include ${cf(it.feeTax)} tax on ${it.platform}’s fees.`:'',it.ads>0?`${it.platform} ads (${cf(it.ads)}) are a separate expense.`:'',it.withheld?`Tax withheld by the platform: ${cf(it.withheld)}.`:'',it.payoutCount?`${it.payoutCount} deposit${it.payoutCount===1?'':'s'} to your bank: ${cf(it.payouts)}.`:''].filter(Boolean).join(' ').slice(0,1000);
+   state.transactions.push({id:Budget.uid(),date,category:(P.incomeCategory||{})[act]||P.defaults.category,channel:payer,amount:Budget.eur(Math.max(0,it.payout),rate),note:`${mon} ${it.platform} statement`,
+    rec:{kind:'income',act,cur:it.cur,rate,gross:Math.max(0,it.gross),refunds:Math.max(0,it.refunds),fees:Math.max(0,it.fees),payout:Math.max(0,it.payout),acct,evidence:ev(),status:'',reviewed:'',notes,src:src()}});made++;
+   const cost=(amount,x,catId,vendor,what)=>{if(!(amount>0))return;const cat=state.categories.some(c=>c.id===catId&&!c.archived)?catId:state.categories.find(c=>Budget.type(c)==='expense'&&!c.archived)?.id;if(!cat)return;
+    state.transactions.push({id:Budget.uid(),date,category:cat,amount:Budget.eur(amount,rate),note:`${mon} ${what}`,rec:{kind:'expense',act,vendor,cur:it.cur,rate,amount,vatShown:0,pct:100,acct,evidence:ev(),status:'',reviewed:'',notes:`From ${it.file}, paid out of the ${it.platform} balance.`,src:src(x)}});made++;};
+   cost(it.ads,'ads',(P.platformDefaults||{}).ads,`${it.platform} Ads`,`${it.platform} ads & promotion`);
+   cost(it.shipping,'shipping',(P.platformDefaults||{}).shipping,`${it.platform} shipping labels`,`${it.platform} shipping labels`);});
+   const last=items.map(x=>x.month).sort().at(-1);if(last)selected=last;},`${items.length} statement${items.length===1?'':'s'} imported`);
+  closeModal();stmt=null;toast(`${made} record${made===1?'':'s'} created${skipped?`, ${skipped} statement${skipped===1?'':'s'} skipped`:''}. Add a link to each statement on Evidence when you can.`);go('income',true);}
+ document.addEventListener('change',e=>{if(!stmt)return;const el=e.target;
+  if(el.id==='stmt-files'){const files=[...el.files];el.value='';stmtRead(files);return;}
+  const k=el.dataset?.stmt,it=stmt.items[+el.dataset.i];if(!k||!it)return;
+  it[k]=k==='replace'?el.checked:el.value;if(k==='payer'&&el.value==='__new'&&!it.newName)it.newName=`${it.platform} — `;stmtRender();});
  function recPreview(){const f=$('#rec-form');if(!f)return;const g=n=>Budget.cents(f.querySelector(`[name=${n}]`)?.value||'0')||0,rate=+f.querySelector('[name=rate]').value||0,cur=f.querySelector('[name=cur]').value,E=x=>fmt(Math.round(x*rate)),out=$('#rec-eur');
   if(f.dataset.kind==='income'){const p=f.querySelector('[name=payout]'),rec={gross:g('gross'),refunds:g('refunds'),fees:g('fees'),vat:+(f.querySelector('[name=vat]')?.value||0),ret:+(f.querySelector('[name=ret]')?.value||0),rate,cur},x=Budget.recTax(rec);
    if(p.dataset.auto==='1')p.value=g('gross')?val(Budget.recPayout(rec)):'';
@@ -4247,6 +4348,7 @@ const Biz=(()=>{
    rec={kind,act,vendor:String(d.get('vendor')||'').trim(),cur,rate,amount:amt,vatShown:c('vatShown'),ivaDed:d.get('ivaDed')==='on',pct,acct,evidence:ev,status,reviewed,notes};amount=Budget.eur(amt,rate);}
   const t={...(old||{}),id:id||Budget.uid(),date,category:catId,amount,note:String(d.get('note')||'').trim(),rec};delete t.vat;delete t.ret;delete t.fx;if(!inc)delete t.channel;
   closeModal();let dupMsg='';
+  if(old?.rec?.src&&old.rec.kind===kind)rec.src=old.rec.src;
   const tg=tagForSave(d.get('tag'),inc?payerName:'');
   commit(()=>{if(inc){t.channel=ensureChannel(payerName);const ch=channels().find(x=>x.id===t.channel);if(ch){ch.act=act;ch.cur=cur;if(acct)ch.acct=acct;}}
    if(tg)t.tag=ensureTag(tg);else delete t.tag;
@@ -4309,7 +4411,7 @@ const Biz=(()=>{
   const inc=l=>l.filter(r=>r.kind==='income'),exp=l=>l.filter(r=>r.kind==='expense'),miss=all.filter(r=>r.status==='missing'),review=all.filter(r=>r.status==='review');
   const result=s(inc(Y),'grossEUR')-s(inc(Y),'refundsEUR')-s(inc(Y),'feesEUR')-s(exp(Y),'deductibleEUR');
   const acts=(P.activities||[]).filter(([id])=>id!=='other'||inc(Y).some(r=>r.act==='other')).map(([id,n])=>[n,s(inc(Y).filter(r=>r.act===id),'grossEUR')]),actMax=Math.max(1,...acts.map(a=>a[1]));
-  return pagehead(monthName(m),state.settings.name?`${esc(state.settings.name)} · your records`:'Your records at a glance','',button('Print summary','print','quiet')+button('Add expense','biz-rec-add-expense','quiet')+button('Add income','biz-rec-add-income','primary'))+
+  return pagehead(monthName(m),state.settings.name?`${esc(state.settings.name)} · your records`:'Your records at a glance','',button('Print summary','print','quiet')+button('Import statements','biz-stmt-open','quiet')+button('Add expense','biz-rec-add-expense','quiet')+button('Add income','biz-rec-add-income','primary'))+
    (miss.length||review.length?`<div class="notice warning"><span><b>${miss.length} record${miss.length===1?' is':'s are'} missing supporting evidence.</b>${review.length?` ${review.length} marked Needs review.`:''} Add a Drive link or file name so your gestor package is complete.</span>${button('Open Evidence','go-evidence','small')}</div>`:'')+
    `<div class="kpis kpis-lead">${kpi(`Income · ${shortMonth(m)}`,s(inc(M),'grossEUR'),'Gross, in euros','down')}${kpi(`Expenses · ${shortMonth(m)}`,s(exp(M),'amountEUR'),'In euros','up')}${kpi(`Gross income · ${y}`,s(inc(Y),'grossEUR'),'Year to date','insights')}${kpi(`Expenses · ${y}`,s(exp(Y),'amountEUR'),`Indicative deductible ${fmt(s(exp(Y),'deductibleEUR'))}`,'coins')}${kpi('Indicative result',result,'Year to date · review with your gestor','wallet',result<0?'warn':'')}</div>`+takeHomeHero()+
    dashboard()+(VAT&&state.settings.es?.estimates?setAsideCard(y,false,t0):'')+
@@ -4577,6 +4679,9 @@ const Biz=(()=>{
   case 'biz-rec-csv-expense':recCSV('expense');break;
   case 'biz-rep-range':repR={from:b.dataset.from,to:b.dataset.to};render();break;
   case 'biz-rep-print':printReport();break;
+  case 'biz-stmt-open':stmtOpen();break;
+  case 'biz-stmt-remove':if(stmt){stmt.items.splice(+b.dataset.i,1);stmtRender();}break;
+  case 'biz-stmt-import':if(stmt)stmtImport();break;
   case 'biz-th-period':thPeriod=['month','quarter','year'].includes(b.dataset.p)?b.dataset.p:'month';render();break;
   case 'biz-plana-toggle':{const on=!state.settings.es?.plana;commit(()=>{state.settings.es={...state.settings.es,plana:on};if(on&&state.settings.es.planaUntil&&state.settings.es.planaUntil<today())state.settings.es.planaUntil='';},on?'Tarifa plana on: €80 a month':'Tarifa plana off');break;}
   case 'biz-sc-detail':detailCSV();break;
@@ -4830,7 +4935,7 @@ const Biz=(()=>{
  if(F.mileage)views.mileage=mileageView;
  if(F.invoices)views.invoices=invoicesView;
  return {views,dashboard,mixGrid,mixCard,settingsCard,taxLineField,annualCharts,cashflowAnnual,range,columns,statementRows,
-  channels,channelName,channelIdByName:name=>findChannel(name)?.id||'',checkChannel,ensureChannel,channelField,channelChip,channelSelect,channelList,channelFilter,channelMatch,channelFiltered,clearChannelFilter,channelsCard,offerChannelSimilar,recAdd:k=>recForm(k),
+  channels,channelName,channelIdByName:name=>findChannel(name)?.id||'',checkChannel,ensureChannel,channelField,channelChip,channelSelect,channelList,channelFilter,channelMatch,channelFiltered,clearChannelFilter,channelsCard,offerChannelSimilar,recAdd:k=>recForm(k),stmtOpen,
   tags,tagName,tagOf,tagColor,setTag,ruleTag,ensureTag,checkTag,tagField,tagForSave,tagChip,tagFilter,tagsCard,setTxFilter};
 })();
 render();

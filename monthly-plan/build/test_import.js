@@ -20,6 +20,16 @@ module.exports=({eq,ok})=>{
   eq('etsy: recognised', [r.p.id,r.p.name], ['etsy','Etsy']);
   eq('etsy: sale at full price, each cut on its own, deposit left out', totals(r.conv), {'Etsy · ads & promotion':-117,'Etsy · tax on fees':-2,'Etsy · fees':-11,'Etsy · shipping labels':-410,'Etsy · sales':1608,'Etsy · refunds':-1000});
   eq('etsy: converted rows add up to the statement’s net', Object.values(totals(r.conv)).reduce((a,v)=>a+v,0), -117-2-31-410+1608-980);
+  // tax buyers paid is passed on by Etsy: its own kind, not a fee
+  const BT=ETSY.replace('"Sep 24, 2026",Sale,','"Sep 24, 2026",Tax,"Sales tax paid by buyer","Order #1",USD,--,-$1.35,-$1.35,--\n"Sep 21, 2026",VAT,"VAT paid by buyer","Order #3",USD,--,-$0.90,-$0.90,--\n"Sep 24, 2026",Sale,');
+  r=read(BT);eq('etsy: buyers’ sales tax and VAT are their own kind', [r.conv.kinds['etsy · tax paid by buyers (passed on)'],totals(r.conv)['Etsy · tax paid by buyers (passed on)'],totals(r.conv)['Etsy · tax on fees']], ['buyerTax',-225,-2]);
+  // the monthly summary behind "one record per shop and month"
+  let rows=CSV.parse(BT,','),S=Platforms.summary(r.p,rows[0].cells,rows.slice(1));
+  eq('summary: one month', S.map(x=>x.month), ['2026-09']);
+  eq('summary: sales, buyer tax, gross, refunds, fees, ads, shipping', [S[0].sales,S[0].buyerTax,S[0].gross,S[0].refunds,S[0].fees,S[0].feeTax,S[0].ads,S[0].shipping], [1608,225,1383,1000,31+2-20,2,117,410]);
+  eq('summary: the deposit counts from its title, outside the net', [S[0].payouts,S[0].payoutCount,S[0].net], [3735,1,1608-225-1000-(31+2-20)-117-410]);
+  eq('summary: listing titles from the fee lines', S[0].titles, ['pattern']);
+  r=read(ETSY);
   eq('etsy: kinds carry their role', [r.conv.kinds['etsy · sales'],r.conv.kinds['etsy · shipping labels'],r.conv.kinds['etsy · tax on fees']], ['sale','shipping','feeTax']);
 
   r=read(`"Date","Time","TimeZone","Name","Type","Status","Currency","Gross","Fee","Net","Transaction ID"

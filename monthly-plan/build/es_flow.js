@@ -118,4 +118,39 @@ ok('dashboard → checklist shows a back link',await p.evaluate(()=>screen==='fi
 await p.click('.back-link');await p.waitForTimeout(100);
 ok('back returns to the dashboard',await p.evaluate(()=>screen==='dashboard'&&!document.querySelector('.back-link')));
 await p.click('.navlink[data-go="settings"]');ok('the sidebar starts afresh (no back link)',await p.evaluate(()=>!document.querySelector('.back-link')));
+// 7. monthly statements: two shops' Etsy statements become one record each; next month they are matched by their listings
+const etsy=(mon,titles,sales)=>`Date,Type,Title,Info,Currency,Amount,"Fees & Taxes",Net,"Tax Details"
+"${mon} 25, 2026",Marketing,"Etsy Ads","Bill for click-throughs",USD,--,-$4.00,-$4.00,--
+"${mon} 24, 2026",Tax,"Tax: Transaction","Order #1001",USD,--,-$0.05,-$0.05,--
+${titles.map(t=>`"${mon} 24, 2026",Fee,"Transaction fee: ${t}","Order #1001",USD,--,-$0.50,-$0.50,--
+"${mon} 20, 2026",Fee,"Listing fee: ${t}","Listing #9",USD,--,-$0.20,-$0.20,--`).join('\n')}
+"${mon} 24, 2026",Tax,"Sales tax paid by buyer","Order #1001",USD,--,-$1.00,-$1.00,--
+"${mon} 24, 2026",Fee,"Processing fee","Order #1001",USD,--,-$0.80,-$0.80,--
+"${mon} 24, 2026",Sale,"Payment for Order #1001",,USD,$${sales},--,$${sales},--
+"${mon} 23, 2026",Deposit,"$30.00 sent to your bank account",,USD,--,--,--,--
+"${mon} 10, 2026",Refund,"Refund to buyer for Order #999",,USD,-$5.00,--,-$5.00,--
+`;
+const SA=['Budget Planner Sheet','Debt Tracker','Savings Goal Tracker'],SB=['Wedding Seating Chart','RSVP Tracker','Vendor Budget'];
+await p.evaluate(()=>{closeModal?.();if(demo)document.querySelector('[data-action="exit-demo"]')?.click();});await p.waitForTimeout(300);
+await p.evaluate(()=>{state.transactions=[];state.fxRates={USD:0.9};save();go('income',true);});
+await p.click('#content [data-action="biz-stmt-open"]');
+await p.setInputFiles('#stmt-files',[{name:'etsy_statement_2026_8.csv',mimeType:'text/csv',buffer:Buffer.from(etsy('August',SA,'100.00'))},{name:'shop2.csv',mimeType:'text/csv',buffer:Buffer.from(etsy('August',SB,'60.00'))},{name:'statement.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.4')}]);await p.waitForTimeout(300);
+ok('statements read, a PDF explained',await p.evaluate(()=>document.querySelectorAll('.stmt-card').length===3&&/Download the CSV/.test(document.querySelector('.stmt-card.is-error').innerText)));
+ok('the same payer twice is flagged',await p.evaluate(()=>/same payer and month/.test(document.querySelector('#modal-body').innerText)));
+await (await p.$$('[data-stmt="payer"]'))[1].selectOption('__new');await p.waitForTimeout(100);await p.fill('[data-stmt="newName"]','Etsy — Wedding Shop');await p.dispatchEvent('[data-stmt="newName"]','change');await p.waitForTimeout(100);
+await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(250);
+let st=await p.evaluate(()=>state.transactions.map(t=>({note:t.note,amount:t.amount,payer:Biz.channels().find(c=>c.id===t.channel)?.name,rec:t.rec})));
+const inc=st.find(t=>t.payer==='Etsy');
+ok('one income record per shop: gross less buyer tax, refunds, fees, payout in USD',inc&&inc.rec.gross===9900&&inc.rec.refunds===500&&inc.rec.fees===295&&inc.rec.payout===9105&&inc.amount===8195&&inc.rec.cur==='USD'&&inc.rec.evidence[0].name==='etsy_statement_2026_8.csv',JSON.stringify(inc));
+ok('ads as a separate expense, two per shop in all',st.length===4&&st.filter(t=>t.rec.kind==='expense'&&t.rec.amount===400&&/Etsy Ads/.test(t.rec.vendor)).length===2);
+await p.click('#content [data-action="biz-stmt-open"]');
+await p.setInputFiles('#stmt-files',[{name:'sept_b.csv',mimeType:'text/csv',buffer:Buffer.from(etsy('September',SB,'70.00'))},{name:'sept_a.csv',mimeType:'text/csv',buffer:Buffer.from(etsy('September',SA,'90.00'))}]);await p.waitForTimeout(250);
+ok('next month, each statement finds its shop by its listings',JSON.stringify(await p.evaluate(()=>[...document.querySelectorAll('[data-stmt="payer"]')].map(x=>x.selectedOptions[0].text)))===JSON.stringify(['Etsy — Wedding Shop','Etsy']));
+await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(250);
+await p.click('#content [data-action="biz-stmt-open"]');
+await p.setInputFiles('#stmt-files',[{name:'etsy_statement_2026_8.csv',mimeType:'text/csv',buffer:Buffer.from(etsy('August',SA,'100.00'))}]);await p.waitForTimeout(250);
+ok('importing a statement again offers to replace it',await p.evaluate(()=>/already exists/.test(document.querySelector('.stmt-card').innerText)));
+await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(250);
+ok('replaced, not doubled',await p.evaluate(()=>state.transactions.length===8));
+if(OUT)await p.screenshot({path:OUT+'/es-statements.png',fullPage:true});
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();
