@@ -325,6 +325,8 @@ ok('the dashboard shows the business share of the rent, with what was paid',awai
 ok('the monthly expenses card shows the same business share as the chart, with what was paid',await p.evaluate(()=>{const m=selected,rs=state.transactions.filter(t=>t.date.slice(0,7)===m).map(t=>Budget.recOf(state,t)).filter(r=>r&&r.kind==='expense');
  const biz=rs.reduce((a,r)=>a+r.deductibleEUR,0),paid=rs.reduce((a,r)=>a+r.amountEUR,0),card=[...document.querySelectorAll('.kpi')].find(k=>/^Business expenses · [A-Z][a-z]+$/.test(k.querySelector('.label').innerText.trim()));
  return !!card&&biz!==paid&&+card.querySelector('b').dataset.count===biz&&card.querySelector('small').innerText===`Of ${fmt(paid)} paid`;}));
+ok('the dashboard shows the average monthly take-home for the year so far',await p.evaluate(()=>{const m=selected,y=m.slice(0,4),th=Budget.takeHome(state,`${y}-01-01`,Budget.endOf(m)).takeHome,n=+(m<Budget.today().slice(0,7)?m:Budget.today().slice(0,7)).slice(5,7);
+ const card=[...document.querySelectorAll('.kpi')].find(k=>k.querySelector('.label').innerText.trim()==='Average take-home');return !!card&&+card.querySelector('b').dataset.count===Math.round(th/n)&&!/Indicative result/.test(document.querySelector('.kpis').innerText);}));
 // 20. a bill paid in advance can be dated to the month it covers, and its monthly bill then adds nothing that month
 await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());go('activity',true);transactionForm('');});await p.waitForTimeout(150);
 const ahead=await p.evaluate(()=>Budget.shift(Budget.today().slice(0,7),1)+'-01');
