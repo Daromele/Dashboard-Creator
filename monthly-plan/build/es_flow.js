@@ -322,6 +322,9 @@ await p.fill('#biz-es-form [name=homePct]','14');await p.click('#biz-es-form but
 ok('a new home share reaches rent (14%) and utilities (30% of it), not a share set by hand',JSON.stringify(await p.evaluate(()=>['hr1','hu1','hr0'].map(id=>state.transactions.find(t=>t.id===id).rec.pct)))==='[14,4,50]');
 await p.evaluate(()=>go('dashboard',true));await p.waitForTimeout(150);
 ok('the dashboard shows the business share of the rent, with what was paid',await p.evaluate(()=>{const c=[...document.querySelectorAll('.card')].find(x=>x.querySelector('h2')?.textContent==='Expenses');return !!c&&/business share/.test(c.innerText)&&/€147\.50/.test(c.innerText)&&!/€925\.00/.test(c.innerText);}));
+ok('the monthly expenses card shows the same business share as the chart, with what was paid',await p.evaluate(()=>{const m=selected,rs=state.transactions.filter(t=>t.date.slice(0,7)===m).map(t=>Budget.recOf(state,t)).filter(r=>r&&r.kind==='expense');
+ const biz=rs.reduce((a,r)=>a+r.deductibleEUR,0),paid=rs.reduce((a,r)=>a+r.amountEUR,0),card=[...document.querySelectorAll('.kpi')].find(k=>/^Business expenses · [A-Z][a-z]+$/.test(k.querySelector('.label').innerText.trim()));
+ return !!card&&biz!==paid&&+card.querySelector('b').dataset.count===biz&&card.querySelector('small').innerText===`Of ${fmt(paid)} paid`;}));
 // 20. a bill paid in advance can be dated to the month it covers, and its monthly bill then adds nothing that month
 await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());go('activity',true);transactionForm('');});await p.waitForTimeout(150);
 const ahead=await p.evaluate(()=>Budget.shift(Budget.today().slice(0,7),1)+'-01');
