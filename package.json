@@ -1,0 +1,24 @@
+{
+  "name": "recipe-library-studio",
+  "version": "1.0.0",
+  "description": "Paste a recipe link. Build your personal recipe library. A local-first, offline-capable PWA with a tiny Netlify Functions importer.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:single": "node scripts/build-single.mjs",
+    "dev": "node scripts/dev-server.mjs",
+    "netlify": "netlify dev",
+    "test": "node --test test/*.test.mjs",
+    "test:e2e": "node test/e2e/run.mjs",
+    "test:all": "npm test && npm run test:e2e"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright-core": "^1.56.1"
+  }
+}

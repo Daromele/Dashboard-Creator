@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Recipe Library Studio">
+  <rect width="512" height="512" rx="112" fill="#161616"/>
+  <rect x="124" y="92" width="264" height="328" rx="32" fill="#ffffff"/>
+  <rect x="164" y="146" width="132" height="26" rx="13" fill="#161616"/>
+  <circle cx="180" cy="232" r="12" fill="#161616"/><rect x="208" y="222" width="150" height="20" rx="10" fill="#161616" opacity="0.85"/>
+  <circle cx="180" cy="290" r="12" fill="#161616"/><rect x="208" y="280" width="118" height="20" rx="10" fill="#161616" opacity="0.85"/>
+  <circle cx="180" cy="348" r="12" fill="#161616"/><rect x="208" y="338" width="138" height="20" rx="10" fill="#161616" opacity="0.85"/>
+  <path d="M322 92h44v96l-22-17-22 17z" fill="#161616"/>
+</svg>

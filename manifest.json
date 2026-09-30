@@ -1,0 +1,32 @@
+{
+  "id": "/",
+  "name": "Recipe Library Studio",
+  "short_name": "Recipes",
+  "description": "Paste a recipe link. Build your personal recipe library. Private, offline-ready, stored on your device.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["food", "lifestyle", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Import a recipe", "short_name": "Import", "url": "/#/import", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Shopping list", "short_name": "Shopping", "url": "/#/shopping", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Meal plan", "short_name": "Meal Plan", "url": "/#/plan", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": { "title": "title", "text": "text", "url": "url" }
+  }
+}

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Graph Soup</title>
+<script type="application/ld+json" class="yoast-schema-graph">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"WebSite","@id":"https://soup.example.test/#website","url":"https://soup.example.test/","name":"Soup Example"},
+ {"@type":"ImageObject","@id":"https://soup.example.test/graph-soup/#primaryimage","url":"https://soup.example.test/wp-content/soup.jpg","width":1200,"height":800},
+ {"@type":"Person","@id":"https://soup.example.test/#/schema/person/1","name":"Graph Author"},
+ {"@type":"WebPage","@id":"https://soup.example.test/graph-soup/","url":"https://soup.example.test/graph-soup/","name":"Graph Soup","primaryImageOfPage":{"@id":"https://soup.example.test/graph-soup/#primaryimage"}},
+ {"@type":"Recipe","@id":"https://soup.example.test/graph-soup/#recipe","name":"Graph Soup",
+  "author":{"@id":"https://soup.example.test/#/schema/person/1"},
+  "image":{"@id":"https://soup.example.test/graph-soup/#primaryimage"},
+  "recipeYield":"6","prepTime":"PT15M","cookTime":"PT1H","totalTime":"PT1H15M",
+  "recipeIngredient":["2 tbsp butter","1 large onion, diced","4 cups vegetable broth","1 (15 oz) can white beans, drained"],
+  "recipeInstructions":[{"@id":"https://soup.example.test/graph-soup/#instructions"}]},
+ {"@type":"HowToSection","@id":"https://soup.example.test/graph-soup/#instructions","name":"Method","itemListElement":[
+   {"@type":"HowToStep","text":"Melt the butter and cook the onion until soft."},
+   {"@type":"HowToStep","text":"Add broth and beans; simmer for 20 minutes."}]}
+]}
+</script></head><body></body></html>
