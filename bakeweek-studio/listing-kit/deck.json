@@ -4,22 +4,186 @@
  "images_dir": "shots",
  "output": "../Bakeweek_Studio_Etsy_Mockups.html",
  "storage_prefix": "bw-kit-img:",
- "brand": {"ink":"#172B36","bold":"#172B36","pop":"#F1D36E","paper":"#F5F4EE","calm":"#286850"},
+ "brand": {
+  "ink": "#151E26",
+  "bold": "#1C3C52",
+  "pop": "#F0A93C",
+  "paper": "#F6F8FA",
+  "calm": "#2C5470"
+ },
  "slides": [
-  {"kind":"hero","dark":true,"label":"Hero","eyebrow":"Home bakery planner","headline":"Orders in.<br>A baking plan out.","pills":["No subscription","Works offline","Mac &amp; PC"],"image":"tab-week.jpg","alt":"Bakeweek Studio this week view"},
-  {"dark":false,"label":"Week plan","eyebrow":"Your week","headline":"Every day, with room to breathe.","sub":"Hands-on time per day against the hours you actually have.","image":"tab-plan.jpg","foot":"Fictional sample bakery shown"},
-  {"dark":true,"label":"Try an order","eyebrow":"Try an order","headline":"Should you say yes?","sub":"See the extra work, shopping and a minimum quote before you promise it.","image":"tab-simulator.jpg","foot":"Nothing is saved until you accept"},
-  {"dark":false,"label":"Shopping","eyebrow":"Shopping list","headline":"One list, already combined.","sub":"Pantry subtracted, rounded up to whole packs, with the cost.","image":"tab-shopping.jpg","foot":"Save it as a list for the store"},
-  {"dark":true,"label":"Batch sheets","eyebrow":"Batch sheets","headline":"Every recipe, scaled.","sub":"Same recipe, same day: one production run for all your orders.","image":"tab-batches.jpg","foot":"Print them for the kitchen"},
-  {"dark":false,"label":"Pack and collect","eyebrow":"Pack &amp; collect","headline":"Every customer, accounted for.","sub":"What goes in each box and the balance still due.","image":"tab-packing.jpg","foot":"Printable packing tickets"},
-  {"dark":true,"label":"Orders","eyebrow":"Order book","headline":"Take the order once.","sub":"Bake, finish and pickup dates, payments and status in one place.","image":"tab-orders.jpg","foot":"Import orders from a spreadsheet"},
-  {"dark":false,"label":"Recipes","eyebrow":"Recipes","headline":"Know what each piece costs.","sub":"Yields, hands-on time and cost per piece from your pantry prices.","image":"tab-recipes.jpg","foot":"Fictional example recipes shown"},
-  {"dark":true,"label":"Pantry","eyebrow":"Pantry","headline":"Buy what you actually need.","sub":"Pack sizes, prices, stock and suppliers, kept up to date.","image":"tab-pantry.jpg","foot":"Grams, milliliters or each"},
-  {"dark":false,"label":"Backup and settings","eyebrow":"Private &amp; yours","headline":"Your bakery, your rules.","sub":"Set your hourly value and margin once. Back up to a file anytime.","image":"tab-settings.jpg","foot":"Everything stays on your computer"}
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Home bakery planner",
+   "headline": "Orders in.<br>A baking plan out.",
+   "pills": [
+    "No subscription",
+    "Works offline",
+    "Mac &amp; PC"
+   ],
+   "image": "tab-week.jpg",
+   "alt": "Bakeweek Studio this week view"
+  },
+  {
+   "dark": false,
+   "label": "Week plan",
+   "eyebrow": "Your week",
+   "headline": "Every day, with room to breathe.",
+   "sub": "Hands-on time per day against the hours you actually have.",
+   "image": "tab-plan.jpg",
+   "foot": "Fictional sample bakery shown"
+  },
+  {
+   "dark": true,
+   "label": "Try an order",
+   "eyebrow": "Try an order",
+   "headline": "Should you say yes?",
+   "sub": "See the extra work, shopping and a minimum quote before you promise it.",
+   "image": "tab-simulator.jpg",
+   "foot": "Nothing is saved until you accept"
+  },
+  {
+   "dark": false,
+   "label": "Shopping",
+   "eyebrow": "Shopping list",
+   "headline": "One list, already combined.",
+   "sub": "Pantry subtracted, rounded up to whole packs, with the cost.",
+   "image": "tab-shopping.jpg",
+   "foot": "Download it or print it for the store"
+  },
+  {
+   "dark": true,
+   "label": "Batch sheets",
+   "eyebrow": "Batch sheets",
+   "headline": "Every recipe, scaled.",
+   "sub": "Same recipe, same day: one production run for all your orders.",
+   "image": "tab-batches.jpg",
+   "foot": "Print them for the kitchen"
+  },
+  {
+   "dark": false,
+   "label": "Pack and collect",
+   "eyebrow": "Pack &amp; collect",
+   "headline": "Every customer, accounted for.",
+   "sub": "What goes in each box and the balance still due.",
+   "image": "tab-packing.jpg",
+   "foot": "Printable packing tickets and quotes"
+  },
+  {
+   "dark": true,
+   "label": "Orders",
+   "eyebrow": "Order book",
+   "headline": "Take the order once.",
+   "sub": "Pickups, payments and status, filtered and sorted your way.",
+   "image": "tab-orders.jpg",
+   "foot": "Import orders from a spreadsheet"
+  },
+  {
+   "dark": false,
+   "label": "Year at a glance",
+   "eyebrow": "Year at a glance",
+   "headline": "Your year, month by month.",
+   "sub": "Sales by product, your best sellers and every month side by side.",
+   "image": "tab-year.jpg",
+   "foot": "Fictional sample bakery shown"
+  },
+  {
+   "dark": true,
+   "label": "Recipes",
+   "eyebrow": "Recipes",
+   "headline": "Know what each piece costs.",
+   "sub": "Cost per piece from your pantry prices, and what each one keeps.",
+   "image": "tab-recipes.jpg",
+   "foot": "Fictional example recipes shown"
+  },
+  {
+   "dark": false,
+   "label": "Pantry",
+   "eyebrow": "Pantry",
+   "headline": "Buy what you actually need.",
+   "sub": "Pack sizes, prices, stock and suppliers, kept up to date.",
+   "image": "tab-pantry.jpg",
+   "foot": "Grams, milliliters or each"
+  },
+  {
+   "dark": true,
+   "label": "Backup and settings",
+   "eyebrow": "Private &amp; yours",
+   "headline": "Your bakery, your rules.",
+   "sub": "Your hours, margin and prices. Backups to a folder you choose.",
+   "image": "tab-settings.jpg",
+   "foot": "Everything stays on your computer"
+  },
+  {
+   "kind": "themes",
+   "dark": false,
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks. One calm week.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Kiln",
+     "image": "theme-kiln.jpg",
+     "swatch": "#3A2419"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Ledger",
+     "image": "theme-ledger.jpg",
+     "swatch": "#182635"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
  ],
  "listing": {
   "title": "Home Bakery Planner, Bakery Order Tracker, Baking Schedule, Recipe Cost Calculator, Cake Business Shopping List, Offline HTML App",
-  "tags": ["bakery planner","home bakery","bakery order form","baking schedule","recipe costing","cake business","cottage bakery","order tracker","baker gift","bakery business","batch planner","pricing calculator","small business app"],
+  "tags": [
+   "bakery planner",
+   "home bakery",
+   "bakery order form",
+   "baking schedule",
+   "recipe costing",
+   "cake business",
+   "cottage bakery",
+   "order tracker",
+   "baker gift",
+   "bakery business",
+   "batch planner",
+   "pricing calculator",
+   "small business app"
+  ],
   "description_file": "description.txt"
  }
 }
