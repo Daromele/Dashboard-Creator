@@ -135,7 +135,7 @@ const NICHE = {
     [/\bintuit\b|\bquickbooks\b|\bqbooks\b/, 'QuickBooks'], [/\bloom\b/, 'Loom'], [/\btubebuddy/, 'TubeBuddy'], [/\batlassian\b/, 'Atlassian'],
     [/interest charge/, 'Card interest'], [/foreign transaction fee/, 'Foreign transaction fees'], [/annual (membership )?fee/, 'Card annual fee'],
     [/\biberdrola\b/, 'Iberdrola'], [/\bendesa\b/, 'Endesa'], [/\bnaturgy\b/, 'Naturgy'], [/energia xxi/, 'Energía XXI'], [/\bsimyo\b/, 'Simyo'], [/\bmovistar\b/, 'Movistar'], [/\bvodafone\b/, 'Vodafone'],
-    [/\bsanitas\b/, 'Sanitas'], [/\badeslas\b/, 'Adeslas'],
+    [/\bsanitas\b/, 'Sanitas'], [/\badeslas\b/, 'Adeslas'], [/\bemasesa\b/, 'EMASESA'], [/\baljarafesa\b/, 'Aljarafesa'], [/canal de isabel/, 'Canal de Isabel II'], [/\bn26\b/, 'N26'],
   ],
   // how the business share of a home-office cost starts: the share of the home used for work, and for
   // utilities 30% of that (the usual rule when the home is declared on the 036/037)
@@ -143,7 +143,8 @@ const NICHE = {
   // words in a card or bank line → where the cost usually goes ('' = ask; personal/transfer = skip)
   expenseHints: [
     [/\b(alquiler|rent|arrendamiento|renta vivienda)\b/, 'home-rent'],
-    [/\b(iberdrola|endesa|naturgy|holaluz|repsol|totalenergies|octopus|electric|electricidad|luz|agua|aigues|canal de isabel|emasesa|aqualia|gas natural|butano)\b/, 'home-utilities'],
+    [/\b(agua|aguas|aigues|canal de isabel|emasesa|aljarafesa|aqualia|emasagra|emaya|emalsa|hidralia|water)\b/, 'home-utilities', 1000],
+    [/\b(iberdrola|endesa|naturgy|holaluz|repsol|totalenergies|octopus|electric|electricidad|luz|gas natural|butano)\b/, 'home-utilities'],
     [/\b(movistar|vodafone|orange|digi|jazztel|masmovil|pepephone|yoigo|lowi|simyo|o2|fibra|internet|telefonica|finetwork)\b/, 'home-utilities'],
     [/\b(etsy ads|facebk|facebook|meta ads|pinterest|google ads|tiktok ads)\b/, 'advertising'],
     [/\b(etsy|payhip|gumroad|creative market|fourthwall)\b/, 'platform-fees'],
@@ -158,7 +159,7 @@ const NICHE = {
     [/\b(sanitas|adeslas|asisa|dkv|mapfre salud|cigna|axa salud)\b/, 'health-insurance'],
     [/\b(hotel|hostal|bypillow|booking\.com|airbnb|renfe|ryanair|vueling|iberia|alsa|blablacar)\b/, 'travel'],
     [/\b(tgss|seguridad social|cuota autonom|reta)\b/, 'cuota'],
-    [/\b(comision|commission|mantenimiento cuenta|bank fee|foreign transaction fee|interest charge|annual membership fee|annual fee)\b/, 'bank-fees'],
+    [/\b(comision|commission|mantenimiento cuenta|bank fee|foreign transaction fee|interest charge|annual membership fee|annual fee|n26 bank|fee due to)\b/, 'bank-fees'],
     [/\b(us treas|irs|twc ui|franchise tax|state tax)\b/, 'personal'],
     [/\b(pago tarjeta|liquidacion tarjeta|recibo tarjeta|autopay|automatic payment|payment thank you|payment received|traspaso|transferencia a|bizum|starting balance|ending balance)\b/, 'transfer'],
     [/\b(forus|gimnasio|gym|basic ?fit|holmes place|mcfit|dreamfit|mercadona|carrefour|lidl|aldi|eroski|alcampo|consum|hipercor|el corte ingles|zara|primark|farmacia|restaurante?|bar|cafeteria|burger|mcdonald|glovo|just eat|uber eats|netflix|spotify|hbo|disney|prime video)\b/, 'personal'],

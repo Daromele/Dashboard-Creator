@@ -250,11 +250,15 @@ const N26=`"Booking Date","Value Date","Partner Name","Partner Iban",Type,"Payme
 2026-09-03,2026-09-03,"SANITAS S A DE SEGUROS",ES0000000000000000000002,"Direct Debit","POLIZA RECIBO ENFERMEDAD","Main Account",-75.08,,,
 2026-09-03,2026-09-03,"FORUS SEVILLA",ES0000000000000000000003,"Direct Debit","CUOTA ABONO","Main Account",-73.38,,,
 2026-09-12,2026-09-12,"OPENAI *CHATGPT SUBSCR",,"Presentment",,"Main Account",-18.20,-20.00,USD,0.91
+2026-09-05,2026-09-05,"E.M.A.S.E.S.A.",ES0000000000000000000004,"Direct Debit","EMASEPE0000000001","Main Account",-58.40,,,
+2026-08-05,2026-08-05,"E.M.A.S.E.S.A",ES0000000000000000000004,"Direct Debit","EMASEPE0000000002","Main Account",-43.74,,,
+2026-08-07,2026-08-07,"N26 Bank",,Fee,"Fee due to SEPA Direct Debit of 39.00 from E.M.A.S.E.S.A.","Main Account",-9.00,,,
 2026-09-10,2026-09-10,"Example Person",BE00000000000000,Income,,"Main Account",898.44,,,`;
 await p.evaluate(()=>{state.transactions=[];state.bills=[];state.expenseRules={};state.expenseFiles={};save();go('expenses',true);});
-await p.click('#content [data-action="biz-exp-open"]');await p.setInputFiles('#exp-files',[{name:'N26-Personal-00000000-0000-0000-0000-000000000000.csv',mimeType:'text/csv',buffer:Buffer.from(N26)}]);await p.waitForTimeout(500);
+await p.click('#content [data-action="biz-exp-open"]');await p.setInputFiles('#exp-files',[{name:'N26-00000000-0000-0000-0000-000000000000.csv',mimeType:'text/csv',buffer:Buffer.from(N26)}]);await p.waitForTimeout(500);
 er=await expRows();
-ok('N26: euros, the personal account, money in left out',await p.evaluate(()=>{const f=document.querySelector('.exp-file');return f.querySelector('[data-exp="cur"]').value==='EUR'&&f.querySelector('[data-exp="acct"]').value==='personal-bank'&&/5 payments out/.test(f.innerText);}));
+ok('N26: euros, the personal account, money in left out',await p.evaluate(()=>{const f=document.querySelector('.exp-file');return f.querySelector('[data-exp="cur"]').value==='EUR'&&f.querySelector('[data-exp="acct"]').value==='personal-bank'&&/8 payments out/.test(f.innerText);}));
 ok('N26: the landlord by name is recognised as rent from the reference; Simyo, Sanitas, the gym and OpenAI',er['Maria Example']?.[0]==='home-rent'&&er['Simyo']?.[0]==='home-utilities'&&er['Sanitas']?.[0]==='health-insurance'&&er['Forus Sevilla']?.[0]==='personal'&&er['OpenAI (ChatGPT)']?.[0]==='software',JSON.stringify(er));
+ok('N26: a dotted name is one merchant (water at 10% IVA), and the bank’s own fee is a bank fee although its reference names the water company',er['EMASESA']?.[0]==='home-utilities'&&er['EMASESA']?.[2]==='1000'&&er['N26']?.[0]==='bank-fees'&&!Object.keys(er).some(k=>/^E\.M/.test(k)),JSON.stringify(er));
 await p.evaluate(()=>closeModal());
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();

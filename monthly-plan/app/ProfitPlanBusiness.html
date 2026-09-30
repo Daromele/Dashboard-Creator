@@ -4553,17 +4553,20 @@ const Biz=(()=>{
  // statement only asks about merchants it has not seen. Each payment becomes its own expense record,
  // so an invoice can be linked to it later; payments already imported are recognised and left out.
  let exp=null;
- const plain=x=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+ const undot=x=>String(x||'').replace(/\b(?:[A-Za-z]\.){2,}[A-Za-z]?\.?/g,m=>m.replace(/\./g,''));
+ const plain=x=>undot(x).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
  // what a line says about who was paid: without payment words, months, company suffixes and references
  const MONTH_WORDS='enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|january|february|march|april|may|june|july|august|september|october|november|december|ene|feb|mar|abr|jun|jul|ago|sep|sept|set|oct|nov|dic|dec|jan|aug';
  const merchantName=d=>{const t=plain(d),known=(P.merchantNames||[]).find(([re])=>re.test(t));if(known)return known[1];
   // reference codes ("PB6RBJ", "vB6CDJ", "NF61Y7TV4") and domain parts drop out: a word with a digit, without a vowel, or of one or two letters
-  const words=String(d||'').replace(new RegExp(`\\b(compra|compras|pago|pagos|tarj(eta)?|card|purchase|pos|en|at|in|recibo|adeudo|domiciliaci[oó]n|transferencia|contactless|visa|mastercard|debit|payment to|clientes|s\\.?a\\.?u?|s\\.?l\\.?u?|inc|ltd|llc|pty|gmbh|bv|www|com|net|org|io|co|es|${MONTH_WORDS})\\b`,'gi'),' ')
+  const words=undot(d).replace(new RegExp(`\\b(compra|compras|pago|pagos|tarj(eta)?|card|purchase|pos|en|at|in|recibo|adeudo|domiciliaci[oó]n|transferencia|contactless|visa|mastercard|debit|payment to|clientes|s\\.?a\\.?u?|s\\.?l\\.?u?|inc|ltd|llc|pty|gmbh|bv|www|com|net|org|io|co|es|${MONTH_WORDS})\\b`,'gi'),' ')
    .split(/[\s*#/\\|:_.,-]+/).filter(w=>w&&!/\d/.test(w)&&/[aeiouy]/i.test(w)&&w.length>2).slice(0,3).join(' ');
   return (words||String(d||'').slice(0,30)).toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase()).slice(0,40);};
  const expKey=d=>Budget.matchKey(merchantName(d))||plain(d).slice(0,40);
  const expRule=k=>{const R=state.expenseRules||{};if(R[k])return R[k];const hit=Object.keys(R).filter(r=>Budget.sameMerchant(k,r)).sort((a,b)=>b.length-a.length)[0];return hit?R[hit]:null;};
- const expHint=(d,memo='')=>{const t=plain(d+' '+memo);return (P.expenseHints||[]).find(([re])=>re.test(t))?.[1]||'';};
+ // the payee decides first; the reference only when the payee says nothing (a landlord's name, "rent" in the reference)
+ const expHintRow=(d,memo='')=>{const H=P.expenseHints||[],a=plain(d);return H.find(([re])=>re.test(a))||(memo?H.find(([re])=>re.test(plain(d+' '+memo))):null)||null;};
+ const expHint=(d,memo='')=>expHintRow(d,memo)?.[1]||'';
  const expShare=cat=>{const f=(P.homeShare||{})[cat];return f===undefined?100:Math.round((state.settings.es?.homePct||0)*f);};
  const expVat=(cat,cur)=>cur!=='EUR'?0:(category(cat)?.vat||0);
  function expOpen(){exp={files:[],merchants:new Map()};expRender();}
@@ -4586,7 +4589,8 @@ const Biz=(()=>{
      const c=cell(r,g.currency).toUpperCase(),ref=refCol>=0?cell(r,refCol):'';return {date:d,desc:(cell(r,g.note)||ref).slice(0,200),memo:ref.slice(0,200),v,cur:Budget.CURRENCIES.includes(c)?c:''};}).filter(x=>x&&x.v&&x.desc&&!/\b(starting|opening|ending|closing) balance\b|\bsaldo (inicial|final|anterior)\b/i.test(x.desc));
     // card statements list purchases as positive amounts; bank statements as negative
     const fk=expFileKey(file.name),mem=state.expenseFiles?.[fk],usCard=/chase|amex|american express|capital ?one|discover|citi|wells fargo|bank of america|bofa|us bank/i.test(file.name)||(H.some(h=>/^post(ed|ing)? date$/i.test(String(h).trim()))&&H.some(h=>/^card$/i.test(String(h).trim())));
-    const acctGuess=/freelanc|business|negocio|autonom|empresa/i.test(file.name)?'business-bank':/personal|particular/i.test(file.name)?'personal-bank':'';
+    const acCol=H.findIndex(h=>/^account( name)?$/i.test(String(h).trim())),acName=acCol>=0?String(body[0]?.cells[acCol]||''):'',acText=file.name+' '+acName;
+    const acctGuess=/freelanc|business|negocio|autonom|empresa/i.test(acText)?'business-bank':/personal|particular|main account|cuenta principal|\bn26\b/i.test(acText)?'personal-bank':'';
     F.key=fk;F.flip=mem?mem.flip:g.amount>=0&&list.filter(x=>x.v>0).length>list.length*0.7;F.cur=mem?.cur||[...new Set(list.map(x=>x.cur).filter(Boolean))][0]||headCur||(usCard?'USD':'EUR');F.acct=mem?.acct??(usCard?'card':acctGuess);F.all=list;F.seen=seen;expRows(F);
    }catch(e){F.error=e.message;}}
   expMerchants();expRender();await expRates();}
@@ -4606,7 +4610,7 @@ const Biz=(()=>{
  function expMerchants(){const old=exp.merchants,M=new Map();
   exp.files.filter(F=>!F.error).forEach(F=>F.rows.filter(x=>!x.dup).forEach(x=>{let m=M.get(x.key);
    if(!m){const prev=old.get(x.key),r=expRule(x.key),h=expHint(x.desc,x.memo),cat=prev?prev.cat:r?(r.skip||r.c):h;
-    m=prev?{...prev,n:0,total:0,curs:new Set()}:{key:x.key,name:r?.n||merchantName(x.desc),sample:x.memo&&x.memo!==x.desc?`${x.desc} · ${x.memo}`:x.desc,cat,p:r&&!r.skip?r.p:expShare(cat),v:r&&!r.skip?r.v:expVat(cat,F.cur),known:!!r,n:0,total:0,curs:new Set()};M.set(x.key,m);}
+    m=prev?{...prev,n:0,total:0,curs:new Set()}:{key:x.key,name:r?.n||merchantName(x.desc),sample:x.memo&&x.memo!==x.desc?`${x.desc} · ${x.memo}`:x.desc,cat,p:r&&!r.skip?r.p:expShare(cat),v:r&&!r.skip?r.v:(expHintRow(x.desc,x.memo)?.[2]??expVat(cat,F.cur)),known:!!r,n:0,total:0,curs:new Set()};M.set(x.key,m);}
    m.n++;m.total+=x.out;m.curs.add(F.cur);}));
   exp.merchants=M;
 }
