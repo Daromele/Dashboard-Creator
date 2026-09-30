@@ -17,6 +17,9 @@ digital download (JPS Digital Pages). Everything needed to rebuild the listing i
   `build/shots/` holds the captured JPEGs and the base64 font CSS.
 - `../.claude/skills/html-app-mockup-deck/` — the mockup-deck build, generalized into a
   reusable skill (config-driven; `assets/example-deck.json` is this product's deck).
+- `../.claude/skills/sellable-html-app/` — the house style and build rules every app follows
+  (Shop Insights is the reference): design system, architecture, import and privacy rules, tests,
+  packaging, the user's feedback as rules, and a starter app with QA scripts for new products.
 
 ## One core, three editions
 
