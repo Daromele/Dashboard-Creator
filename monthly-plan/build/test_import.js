@@ -137,4 +137,7 @@ Aug 2026,1512.00,-120.96,-45.36,1345.68,USD`,'patreon-earnings.csv');
 4,d,2026-09-01T21:19:45.979979+0000,Requested payout,,,,-73.37,0,73.37,USD,,,0,0,0,0,0,0,0,0,,`,'Fourthwall-Shop-transactions-report.csv');
   eq('fourthwall transactions: income less the buyer tax it passes on, product & payment fees, refunds, the payout apart', [t.p.id,...pick(t.S[0],'gross','buyerTax','fees','refunds','payout','payouts')], ['fourthwall',2377,67,210,500,1667,7337]);
   eq('fourthwall transactions: the payout ties to Fourthwall’s own profit', t.S[0].payout, 1003+1164-500);
+  t=sum(`Month - successful transactions,Currency,Membership gross earnings - Web and Android,Membership gross earnings - iOS app,One time purchase gross earnings - Web and Android,One time purchase gross earnings - iOS app,Total gross earnings,Patreon platform fees,Taxes on fees,Payment processing fees,Currency exchange fee,iOS app fee,Merch costs (items + shipping),Total payment processing fees,Refunds,Patreon adjustments,Recovered payments,Total net earnings
+2026-07,USD,70.00,0.00,30.00,0.00,100.00,-8.00,-1.00,-9.00,-1.00,0.00,0.00,-10.00,-20.00,15.00,5.00,81.00`,'patreon_earnings_breakdown_by_month.csv');
+  eq('patreon breakdown: recovered payments and Patreon adjustments are income, fees and the tax on them, no gap left', [t.p.id,...pick(t.S[0],'sales','gross','refunds','fees','feeTax','payout','other')], ['patreon',12000,12000,2000,1900,100,8100,0]);
 };

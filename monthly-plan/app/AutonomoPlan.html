@@ -178,7 +178,7 @@ const NICHE = {
     meanings: [['Base', 'The amount before IVA'], ['IVA repercutido', 'IVA you charged and owe'], ['IVA soportado', 'IVA you paid and can deduct'], ['Retención', 'IRPF a client kept back for you']],
     details: [
       ['Income records', 'One record per payout or statement: the date, the activity it belongs to, the payer or platform, and the amounts as the platform shows them (gross, refunds, fees and the payout that reached you), in their own currency. Add the euro rate and the euro figures follow. The report counts gross income less refunds, with platform fees as a cost.'],
-      ['Importing statements, one record per payer and month', 'On Income, choose <b>Import statements</b> and pick your CSV exports, as many as you like at once: Etsy monthly statements, Payhip orders, the Fourthwall transactions report (it has the fees; the orders export doesn’t), Patreon earnings, Canva royalty payments, Creative Market sales, Creative Fabrica payouts, affiliate commissions, PayPal, Stripe, Shopify and YouTube. Each file is summed into one income record per month: sales less the tax buyers paid (the platform collects and passes it on), refunds, fees and the payout, in the file’s currency with a rate to euros for each month (remembered for next time). Ads and shipping become separate expenses; tax a platform withheld, such as US tax on Canva royalties, goes in the notes for your gestor. Choose 2026, 2025 or all months at the top. The first time, check which payer each file belongs to (two shops on one platform are told apart by the file name, e.g. “payhip jps.csv”); after that the app recognises them by their listings. Importing the same payer and month again replaces the record. PDFs can’t be read: download the CSV and link the PDF as evidence.'],
+      ['Importing statements, one record per payer and month', 'On Income, choose <b>Import statements</b> and pick your CSV exports, as many as you like at once: Etsy monthly statements, Payhip orders, the Fourthwall transactions report (it has the fees; the orders export doesn’t), Patreon’s earnings breakdown by month, Canva royalty payments, Creative Market sales, Creative Fabrica payouts, affiliate commissions, PayPal, Stripe, Shopify and YouTube. Each file is summed into one income record per month: sales less the tax buyers paid (the platform collects and passes it on), refunds, fees and the payout, in the file’s currency with a rate to euros for each month (remembered for next time). Ads and shipping become separate expenses; tax a platform withheld, such as US tax on Canva royalties, goes in the notes for your gestor. Choose 2026, 2025 or all months at the top. The first time, check which payer each file belongs to (two shops on one platform are told apart by the file name, e.g. “payhip jps.csv”); after that the app recognises them by their listings. Importing the same payer and month again replaces the record. PDFs can’t be read: download the CSV and link the PDF as evidence.'],
       ['Expense records', 'One record per receipt or invoice: vendor, category, amount in its currency, euro rate and the share used for the business (100% unless it is shared with personal use). The deductible figure is indicative; your gestor decides what counts.'],
       ['Which euro rate?', 'Use the rate for the day the money arrived or left: the one your bank or PayPal applied when you converted, or the ECB reference rate for that day. Autónomo Plan remembers the last rate for each currency and suggests it for the next record.'],
       ['Evidence links', 'Keep the files in Google Drive, Dropbox or OneDrive and paste a share link on the record, with its type (invoice, statement, payment confirmation…). A record with at least one link is Complete, one without is Missing; you can mark one Needs review, and tick Reviewed once you have checked it. Share the folder with your gestor, or set links to “anyone with the link”, so they open from the PDF.'],
@@ -2436,19 +2436,24 @@ const Platforms = (()=>{
  const curIn=(raw,fallback='')=>{const x=String(raw||'');return /US\$|USD/i.test(x)?'USD':/€|EUR/i.test(x)?'EUR':/£|GBP/i.test(x)?'GBP':/CA\$|CAD/i.test(x)?'CAD':/A\$|AUD/i.test(x)?'AUD':fallback;};
  const cols=(h,...names)=>names.map(x=>find(h,x));
 
- // ---- Patreon: Insights › Earnings › Download (one row per month) ----
- // The fee lines and "Your total earnings" do not always agree (refunds and fees settle across
- // months), so the earnings Patreon reports are kept and the difference shows as an adjustment.
+ // ---- Patreon: earnings by month (Insights › Earnings › Download, or the earnings breakdown) ----
+ // Both layouts: gross, Patreon's fee and the tax on it, payment processing, merch, refunds, and in the
+ // breakdown also Patreon's adjustments and recovered payments (earlier failed charges that went
+ // through), which count as income. The earnings Patreon reports are kept; any difference that is
+ // still left shows as an adjustment and is flagged in the review.
  const patreon={id:'patreon',name:'Patreon',bank:/patreon/i,
-  detect:h=>has(h,'total gross revenue','your total earnings'),
-  convert(h,rows){const c={month:find(h,'month',/month|date/),cur:find(h,'currency'),gross:find(h,'total gross revenue'),platform:find(h,'total platform fee'),payment:find(h,'total payment fee'),
-    parts:cols(h,'processing fee','currency conversion fee','ios app store fee'),refunds:find(h,'refunds'),merch:find(h,'merch items and shipping'),earned:find(h,'your total earnings')};
-   const num=reader(rows,[c.gross,c.platform,c.payment,c.refunds,c.merch,c.earned,...c.parts]),out=[];
-   rows.forEach(r=>{const base={date:day(cell(r,c.month)),currency:upper(cell(r,c.cur))||'USD',line:r.line},v=i=>Math.abs(num(cell(r,i))||0);
-    const gross=v(c.gross),platform=v(c.platform),parts=c.parts.reduce((a,i)=>a+v(i),0),payment=Math.max(v(c.payment),parts),refunds=v(c.refunds),merch=v(c.merch),earned=num(cell(r,c.earned));
+  detect:h=>find(h,'total gross revenue','total gross earnings')>=0&&find(h,'your total earnings','total net earnings')>=0,
+  convert(h,rows){const c={month:find(h,'month','month - successful transactions',/^month/,/date/),cur:find(h,'currency'),gross:find(h,'total gross revenue','total gross earnings'),
+    total:find(h,'total platform fee'),fee:find(h,'patreon platform fees','patreon fee'),feeTax:find(h,'taxes on fees'),payment:find(h,'total payment fee','total payment processing fees'),
+    parts:cols(h,'processing fee','payment processing fees','currency conversion fee','currency exchange fee','ios app store fee','ios app fee'),refunds:find(h,'refunds'),merch:find(h,'merch items and shipping','merch costs (items + shipping)'),
+    adjust:find(h,'patreon adjustments'),recovered:find(h,'recovered payments'),earned:find(h,'your total earnings','total net earnings')};
+   const num=reader(rows,[c.gross,c.total,c.fee,c.feeTax,c.payment,c.refunds,c.merch,c.adjust,c.recovered,c.earned,...c.parts]),out=[];
+   rows.forEach(r=>{const base={date:day(cell(r,c.month)),currency:upper(cell(r,c.cur))||'USD',line:r.line},v=i=>Math.abs(num(cell(r,i))||0),sv=i=>num(cell(r,i))||0;
+    const gross=v(c.gross),feeTax=v(c.feeTax),platform=c.total>=0?v(c.total):v(c.fee)+feeTax,parts=c.parts.reduce((a,i)=>a+v(i),0),payment=Math.max(v(c.payment),parts),refunds=v(c.refunds),merch=v(c.merch),adjust=sv(c.adjust),recovered=v(c.recovered),earned=num(cell(r,c.earned));
     if(!gross&&!earned)return;const add=(amount,role,note)=>{if(amount)out.push({...base,note:'Patreon · '+note,amount,role});};
-    add(gross,'sale','memberships & shop');add(-refunds,'refund','refunds');add(-platform,'fees','platform fee (incl. tax on fees)');add(-payment,'fees','payment processing');add(-merch,'shipping','merch items & shipping');
-    if(earned!==null)add(earned-(gross-refunds-platform-payment-merch),'other','adjustment to Patreon’s reported earnings');});
+    add(gross,'sale','memberships & one-time purchases');add(recovered,'sale','recovered payments');add(adjust,adjust>0?'sale':'refund','Patreon adjustments');add(-refunds,'refund','refunds');
+    add(-(platform-feeTax),'fees','platform fee');add(-feeTax,'feeTax','tax on Patreon’s fee');add(-payment,'fees','payment processing');add(-merch,'shipping','merch items & shipping');
+    if(earned!==null){const left=earned-(gross+recovered+adjust-refunds-platform-payment-merch);if(Math.abs(left)>0)add(left,'other','adjustment to match Patreon’s reported earnings');}});
    return out;}};
 
  // ---- Payhip: Sales › Export (one row per order) ----
