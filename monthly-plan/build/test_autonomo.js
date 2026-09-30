@@ -53,7 +53,7 @@ module.exports=({eq,ok})=>{
   // backups: bad rates are dropped, settings get defaults
   const bad=JSON.parse(JSON.stringify(s));bad.transactions[0].vat=1800;bad.transactions[0].ret=1234;bad.categories[0].vat=5;bad.settings.es={lowIncome:30,planaUntil:'nope',estimates:'yes'};
   const V=B.validate(bad);
-  eq('bad rates dropped, never fatal', ['vat' in V.transactions[0],'ret' in V.transactions[0],'vat' in V.categories[0],V.settings.es], [false,false,false,{exempt130:false,lowIncome:0,plana:false,planaUntil:'',estimates:false,homePct:0,cadence:'quarterly',docsDay:10}]);
+  eq('bad rates dropped, never fatal', ['vat' in V.transactions[0],'ret' in V.transactions[0],'vat' in V.categories[0],V.settings.es], [false,false,false,{exempt130:false,lowIncome:0,plana:false,planaUntil:'',estimates:false,homePct:0,healthPersons:1,cadence:'quarterly',docsDay:10}]);
   // the checklist: documents by the gestor's day, forms on Hacienda's dates, the year's summaries
   const cs=B.validate(JSON.parse(JSON.stringify(s)));cs.checklist={'2026-Q1:303':'2026-04-15','junk':'2026-01-01','2026-Q1:bank':'nope'};
   const CV=B.validate(cs);eq('checklist ticks kept, junk dropped', CV.checklist, {'2026-Q1:303':'2026-04-15'});
@@ -119,4 +119,11 @@ module.exports=({eq,ok})=>{
   const badR=JSON.parse(JSON.stringify(R));badR.transactions[0].rec.evidence.push({id:'x',type:'nope',url:'javascript:alert(1)'});badR.transactions[1].rec.pct=250;
   const BV=B.validate(badR);
   ok('unsafe links dropped, shares clamped', BV.transactions[0].rec.evidence.every(e=>!/^javascript/i.test(e.url||''))&&BV.transactions[1].rec.pct<=100);
+  // health insurance: deductible up to €500 a year per person covered; the rest of the year counts nothing
+  { const H=B.blank();const h=m=>({id:'h'+m,date:`2026-${m}-03`,category:'health-insurance',amount:7508,note:'Sanitas',rec:{kind:'expense',act:'digital',vendor:'Sanitas',cur:'EUR',rate:1,amount:7508,vatShown:0,pct:100,evidence:[]}});
+    H.transactions=['01','02','03','04','05','06','07','08','09','10','11','12'].map(h);H.transactions.push({...h('01'),id:'next',date:'2027-01-03'});
+    eq('health insurance stops at €500 a year', H.transactions.slice(5,8).map(t=>B.recOf(H,t).deductibleEUR), [7508,4952,0]);
+    eq('the limit reaches the IVA & IRPF estimates and the report', [B.esTax(H,'2026','2026-12-31').quarters.map(q=>q.expenses),B.gestorReport(H,'2026-01-01','2026-12-31').totals.deductible], [[22524,22524,4952,0],50000]);
+    eq('a new year starts again', B.recOf(H,H.transactions.at(-1)).deductibleEUR, 7508);
+    H.settings.es.healthPersons=2;eq('two people covered: €1,000', B.gestorReport(H,'2026-01-01','2026-12-31').totals.deductible, 90096); }
 };

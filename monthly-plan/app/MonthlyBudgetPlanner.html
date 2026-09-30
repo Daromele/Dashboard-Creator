@@ -1596,7 +1596,12 @@ const Budget = ((P) => {
   const ivaDed=r=>r.ivaDed??(r.cur==='EUR');
   function recTax(r){if(r.kind==='income'){const base=eur(r.gross,r.rate)-eur(r.refunds,r.rate);return {base,iva:Math.round(base*(r.vat||0)/10000),ret:Math.round(base*(r.ret||0)/10000),fees:eur(r.fees,r.rate)};}
     const a=eur(r.amount,r.rate),v=ivaDed(r)?Math.min(a,eur(r.vatShown,r.rate)):0,pct=r.pct??100;return {base:Math.round((a-v)*pct/100),iva:Math.round(v*pct/100),ret:0,fees:0};}
-  const netOf=t=>{const r=P.features.records&&t.rec;if(r)return recTax(r).base;return P.features.vat?vatSplit(t).base:t.amount;};
+  // A deduction with a yearly limit (health insurance: €500 a year per person covered): each record counts
+  // only what is left of the limit after the earlier records of that year
+  function capped(s,t,base){const cap=(P.yearCaps||{})[t.category];if(!cap||!s||!(base>0))return base;const y=t.date.slice(0,4),lim=cap*Math.max(1,s.settings?.es?.healthPersons||1);let used=0;
+    for(const o of s.transactions){if(o===t||o.category!==t.category||o.date.slice(0,4)!==y||o.rec?.kind!=='expense')continue;if(o.date<t.date||(o.date===t.date&&o.id<t.id))used+=Math.max(0,recTax(o.rec).base);}
+    return Math.max(0,Math.min(base,lim-used));}
+  const netOf=(t,s)=>{const r=P.features.records&&t.rec;if(r)return r.kind==='expense'?capped(s,t,recTax(r).base):recTax(r).base;return P.features.vat?vatSplit(t).base:t.amount;};
   // the cash an entry moved, in euros: the payout for income, the amount for an expense
   const recCash=r=>r.kind==='income'?eur(r.payout,r.rate):eur(r.amount,r.rate);
   // what should reach you for an income record: gross − refunds + IVA − withholding − fees (original currency)
@@ -1614,7 +1619,7 @@ const Budget = ((P) => {
       return {...base,gross:o.gross,refunds:o.refunds,fees:o.fees,payout:o.payout,grossEUR:eur(o.gross,rate),refundsEUR:eur(o.refunds,rate),feesEUR:eur(o.fees,rate),payoutEUR:t.rec?eur(o.payout,rate):t.amount,vat:r.vat||0,ret:r.ret||0,ivaEUR:x.iva,retEUR:x.ret};}
     const amt=t.rec?r.amount:(fx?fx.amount:t.amount),pct=t.rec?(r.pct??100):100,amountEUR=t.rec?eur(amt,rate):t.amount;
     const x=t.rec?recTax(r):sp?{base:sp.base,iva:sp.vat}:{base:amountEUR,iva:0};
-    return {...base,vendor:r.vendor||ch?.name||'',amount:amt,amountEUR,vatShown:r.vatShown||(sp?sp.vat:0),vatShownEUR:eur(r.vatShown||0,rate)||(sp?sp.vat:0),ivaDed:t.rec?ivaDed(r):!!sp,ivaEUR:x.iva,pct,deductibleEUR:x.base};}
+    return {...base,vendor:r.vendor||ch?.name||'',amount:amt,amountEUR,vatShown:r.vatShown||(sp?sp.vat:0),vatShownEUR:eur(r.vatShown||0,rate)||(sp?sp.vat:0),ivaDed:t.rec?ivaDed(r):!!sp,ivaEUR:x.iva,pct,deductibleEUR:t.rec?capped(s,t,x.base):x.base,capped:t.rec?x.base-capped(s,t,x.base):0};}
   // Everything the gestor needs for a period: totals, by activity, Digital Studio by platform,
   // the income and expense rows, and an index of the evidence behind them.
   function gestorReport(s,from,to){
@@ -1632,7 +1637,7 @@ const Budget = ((P) => {
   }
   const inChannel=(t,ch)=>ch===undefined||(ch===''?!t.channel:t.channel===ch);
   function categorySums(s,from,to,ch){const sums=new Map();
-    for(const m of monthsBetween(from,to))for(const t of transactions(s,m))if(t.date>=from&&t.date<=to&&inChannel(t,ch)){sums.set(t.category,(sums.get(t.category)||0)+netOf(t));if(P.features.records&&t.rec?.kind==='income'&&t.rec.fees&&P.feesCategory)sums.set(P.feesCategory,(sums.get(P.feesCategory)||0)+eur(t.rec.fees,t.rec.rate));}
+    for(const m of monthsBetween(from,to))for(const t of transactions(s,m))if(t.date>=from&&t.date<=to&&inChannel(t,ch)){sums.set(t.category,(sums.get(t.category)||0)+netOf(t,s));if(P.features.records&&t.rec?.kind==='income'&&t.rec.fees&&P.feesCategory)sums.set(P.feesCategory,(sums.get(P.feesCategory)||0)+eur(t.rec.fees,t.rec.rate));}
     return sums;}
   function pl(s,from,to,ch){
     const sums=categorySums(s,from,to,ch),lines=f=>s.categories.filter(c=>sums.get(c.id)&&f(c,group(c))).map(c=>({id:c.id,name:c.name,group:c.group,taxLine:taxLineFor(c),amount:sums.get(c.id)}));
@@ -1682,7 +1687,7 @@ const Budget = ((P) => {
   // Refunds count against their group. Rows are {id,name,amount}, largest first; id '' is none.
   function breakdown(s,from,to,type,by){const sums=new Map(),names=new Map((by==='tag'?s.tags||[]:s.channels||[]).map(x=>[x.id,x.name]));
     for(const m of monthsBetween(from,to))for(const t of transactions(s,m)){if(t.date<from||t.date>to)continue;const c=s.categories.find(c=>c.id===t.category);if(!c||group(c).type!==type)continue;
-      let k=by==='tag'?tagOf(s,t):t.channel||'';if(!names.has(k))k='';sums.set(k,(sums.get(k)||0)+netOf(t));}
+      let k=by==='tag'?tagOf(s,t):t.channel||'';if(!names.has(k))k='';sums.set(k,(sums.get(k)||0)+netOf(t,s));}
     return [...sums.entries()].map(([id,amount])=>({id,name:names.get(id)||'',amount})).sort((a,b)=>b.amount-a.amount);}
   const tagFor=(s,note)=>{const k=matchKey(note);if(!k)return '';
     const hit=Object.entries(s.tagRules||{}).filter(([r])=>r===k||k.startsWith(r+' ')).sort((a,b)=>b[0].length-a[0].length).find(([,id])=>(s.tags||[]).some(g=>g.id===id));
@@ -1717,8 +1722,8 @@ const Budget = ((P) => {
   // you owe on rent or professionals you pay (Modelos 115/111), then the cuota bracket and a rough
   // income-tax estimate. Estimates from recorded entries only; the forms themselves are the gestor's.
   // one entry into a quarter's (or a month's) IVA, IRPF and cuota totals
-  function esAdd(q,t,c,m,active){if(!c)return;const g=group(c),R=P.features.records&&t.rec;
-    const sp=R?(x=>({base:x.base,vat:x.iva,ret:x.ret,fees:x.fees}))(recTax(t.rec)):{...vatSplit(t),fees:0},rate=R?(t.rec.vat||0):(t.vat||0);
+  function esAdd(q,t,c,m,active,s){if(!c)return;const g=group(c),R=P.features.records&&t.rec;
+    const sp=R?(x=>({base:t.rec.kind==='expense'?capped(s,t,x.base):x.base,vat:x.iva,ret:x.ret,fees:x.fees}))(recTax(t.rec)):{...vatSplit(t),fees:0},rate=R?(t.rec.vat||0):(t.vat||0);
     if(g.type==='income'){q.ivaOut+=sp.vat;if(active(c)){q.income+=sp.base;q.retIn+=sp.ret;q.expenses+=sp.fees;q.byRate[rate]=(q.byRate[rate]||0)+sp.base;}}
     else if(g.type==='expense'){q.ivaIn+=sp.vat;q.retOut+=sp.ret;if(sp.ret){if(taxLineFor(c)==='G5')q.ret115+=sp.ret;else q.ret111+=sp.ret;}if(taxLineFor(c)==='G2'&&t.amount>0)q.payroll=true;if(active(c))q.expenses+=sp.base;if(g.cuota){q.cuota+=t.amount;q.cuotaMonths.add(m);}}}
   // What to put aside each month: that month's IVA (charged less deductible) and IRPF on its profit at
@@ -1729,7 +1734,7 @@ const Budget = ((P) => {
     const proj=T.months&&T.net>0?Math.round(T.net*12/T.months):0,ptax=Math.max(0,proj-Math.min(Math.round(proj*0.05),200000)),pRate=proj?(irpfScale(ptax)-irpfScale(Math.min(ptax,PERSONAL_MIN*100)))/proj:0;
     const R=Math.max(T.settings.exempt130?0:0.2,pRate),last=y<asOf.slice(0,4)?`${y}-12`:asOf.slice(0,7);
     const months=monthsBetween(`${y}-01-01`,`${y}-12-31`).filter(m=>m<=last).map(m=>{const q={income:0,expenses:0,ivaOut:0,ivaIn:0,retIn:0,retOut:0,ret111:0,ret115:0,payroll:false,cuota:0,cuotaMonths:new Set(),byRate:{}};
-      for(const t of transactions(s,m))if(t.date<=asOf)esAdd(q,t,cat.get(t.category),m,active);
+      for(const t of transactions(s,m))if(t.date<=asOf)esAdd(q,t,cat.get(t.category),m,active,s);
       const net=q.income-q.expenses,iva=q.ivaOut-q.ivaIn,irpf=Math.round(net*R)-q.retIn+q.retOut;return {month:m,income:q.income,expenses:q.expenses,net,iva,irpf,total:iva+irpf};});
     const sum=months.reduce((a,x)=>a+x.total,0),cur=months.at(-1);
     return {rate:R,projected:proj,months,total:Math.max(0,sum),average:months.length?Math.max(0,Math.round(sum/months.length)):0,current:cur?Math.max(0,cur.total):0};}
@@ -1758,7 +1763,7 @@ const Budget = ((P) => {
     const quarters=[1,2,3,4].map(n=>{
       const from=`${y}-${pad(3*n-2)}-01`,to=endOf(`${y}-${pad(3*n)}`),q={n,label:'Q'+n,from,to,started:from<=asOf,due:workday(n<4?`${y}-${pad(3*n+1)}-20`:`${+y+1}-01-30`),
         income:0,expenses:0,ivaOut:0,ivaIn:0,retIn:0,retOut:0,ret111:0,ret115:0,payroll:false,cuota:0,cuotaMonths:new Set(),byRate:{}};
-      for(const m of monthsBetween(from,to))for(const t of transactions(s,m))esAdd(q,t,cat.get(t.category),m,active);
+      for(const m of monthsBetween(from,to))for(const t of transactions(s,m))esAdd(q,t,cat.get(t.category),m,active,s);
       // Modelo 303: a negative result is carried to the next quarter; in the fourth you choose refund or carry
       const due303=q.ivaOut-q.ivaIn-carry;q.carryIn=carry;
       if(due303<0){q.pay303=0;q.credit303=-due303;carry=n<4?-due303:0;}else{q.pay303=due303;q.credit303=0;carry=0;}
@@ -1969,7 +1974,7 @@ const Budget = ((P) => {
      s.transactions.forEach(t=>{if(t.vat!==undefined&&(!okV(t.vat)||!t.vat))delete t.vat;if(t.ret!==undefined&&(!okR(t.ret)||!t.ret))delete t.ret;});
      s.categories.forEach(c=>{if(c.vat!==undefined&&!okV(c.vat))delete c.vat;});
      (s.invoices||[]).forEach(v=>{if(v.vat!==undefined&&(!okV(v.vat)||!v.vat))delete v.vat;if(v.ret!==undefined&&(!okR(v.ret)||!v.ret))delete v.ret;});
-     const e=object(s.settings.es)?s.settings.es:{};s.settings.es={exempt130:e.exempt130===true,lowIncome:[0,25,50,75,100].includes(e.lowIncome)?e.lowIncome:0,plana:e.plana===true||(e.plana===undefined&&validDate(e.planaUntil)),planaUntil:validDate(e.planaUntil)?e.planaUntil:'',estimates:e.estimates===true,homePct:Number.isInteger(e.homePct)&&e.homePct>=0&&e.homePct<=100?e.homePct:0,cadence:e.cadence==='monthly'?'monthly':'quarterly',docsDay:Number.isInteger(e.docsDay)&&e.docsDay>=1&&e.docsDay<=15?e.docsDay:10};
+     const e=object(s.settings.es)?s.settings.es:{};s.settings.es={exempt130:e.exempt130===true,lowIncome:[0,25,50,75,100].includes(e.lowIncome)?e.lowIncome:0,plana:e.plana===true||(e.plana===undefined&&validDate(e.planaUntil)),planaUntil:validDate(e.planaUntil)?e.planaUntil:'',estimates:e.estimates===true,homePct:Number.isInteger(e.homePct)&&e.homePct>=0&&e.homePct<=100?e.homePct:0,healthPersons:Number.isInteger(e.healthPersons)&&e.healthPersons>=1&&e.healthPersons<=10?e.healthPersons:1,cadence:e.cadence==='monthly'?'monthly':'quarterly',docsDay:Number.isInteger(e.docsDay)&&e.docsDay>=1&&e.docsDay<=15?e.docsDay:10};
      // ticked checklist items: key → the date ticked. Anything else is dropped.
      if(!object(s.checklist))s.checklist={};Object.entries(s.checklist).forEach(([k,v])=>{if(!/^\d{4}-(Q[1-4]|M(0[1-9]|1[0-2])|Y):[a-z0-9-]{1,20}$/.test(k)||!validDate(v))delete s.checklist[k];});}
     s.categories.forEach(c=>{if(c.taxLine!==undefined&&!(TAX_LINES&&typeof c.taxLine==='string'&&Object.hasOwn(TAX_LINES,c.taxLine)))delete c.taxLine;});
@@ -4227,6 +4232,7 @@ const Biz=(()=>{
    `<label class="checkline full"><input type="checkbox" name="estimates" ${E.estimates?'checked':''}><span><b>Show IVA &amp; IRPF estimates</b><br><small>Adds screens that estimate Modelo 303 and 130, your cuota bracket and the Renta, IVA fields on records and what to set aside each month. Indicative: compare them with your gestor’s figures.</small></span></label>`+
    `<label class="checkline full"><input type="checkbox" name="plana" ${E.plana?'checked':''}><span><b>Startup reduced cuota (tarifa plana)</b><br><small>€80 a month in your first 12 months, sometimes 12 more. Used for months without a cuota record.</small></span></label>`+
    `<label class="full">Share of your home used for work (%)<input type="number" name="homePct" min="0" max="100" step="1" value="${E.homePct||0}"><small>As declared on your 036/037 (for example 15 for one room of a 100 m² flat). Home rent starts at this share, utilities and internet at 30% of it.</small></label>`+
+   `<label class="full">People covered by your health insurance<input type="number" name="healthPersons" min="1" max="10" step="1" value="${E.healthPersons||1}"><small>You, your spouse and children under 25 living with you. Each can be deducted up to €500 a year; payments past that stop counting until January.</small></label>`+
    `<label class="full">Tarifa plana ends on<input type="date" name="planaUntil" value="${esc(E.planaUntil||'')}" min="2000-01-01" max="9998-12-31"><small>Optional. After this date the reduced cuota switches off by itself.</small></label>`+
    `<label class="checkline full"><input type="checkbox" name="exempt130" ${E.exempt130?'checked':''}><span>I do not file Modelo 130: at least 70% of last year’s income had IRPF withholding.</span></label>`+
    `<label class="full">Low-income deduction on the 130<select name="lowIncome">${[[0,'None · last year’s net profit was over €12,000'],[100,'€100 a quarter · up to €9,000'],[75,'€75 · up to €10,000'],[50,'€50 · up to €11,000'],[25,'€25 · up to €12,000']].map(([v,l])=>`<option value="${v}" ${(E.lowIncome||0)===v?'selected':''}>${l}</option>`).join('')}</select><small>Based on last year’s net profit from the activity.</small></label>`+
@@ -4312,7 +4318,7 @@ const Biz=(()=>{
  function recList(kind){const list=recFiltered(kind),dup=dupIds(recAll()),inc=kind==='income',sum=k=>list.reduce((a,r)=>a+(r[k]||0),0);
   const head=inc?['Date','Payer / platform','Description','Gross','Refunds · fees','Net payout EUR','Evidence','']:['Date','Vendor','Category','Description','Amount','Business %','Indicative deductible EUR','Evidence',''];
   const row=r=>{const cur=r.cur!=='EUR';return inc?`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.payerName||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.description)}${dup.has(r.id)?`<small class="dup-tag">Possible duplicate · same business, date and amount <button class="link" data-action="biz-notdup" data-id="${r.id}">Not a duplicate</button></small>`:''}${r.fx==='pending'?'<small class="dup-tag fx-tag">Rate pending: updates to the ECB rate when online</small>':''}${r.est?'<small class="dup-tag fx-tag">Estimate: confirm the amount</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.gross,r.cur))}${cur?`<small class="dim">${fmt(r.grossEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.refunds||r.fees?`${r.refunds?`<small class="dim">refunds</small>−${esc(fmtIn(r.refunds,r.cur))}`:''}${r.fees?`<small class="dim">fees</small>−${esc(fmtIn(r.fees,r.cur))}`:''}`:'<span class="dim">—</span>'}</td><td class="num"><b>${fmt(r.payoutEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`
-   :`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.vendor||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.categoryName)}</td><td>${esc(r.description)}${dup.has(r.id)?`<small class="dup-tag">Possible duplicate · same business, date and amount <button class="link" data-action="biz-notdup" data-id="${r.id}">Not a duplicate</button></small>`:''}${r.fx==='pending'?'<small class="dup-tag fx-tag">Rate pending: updates to the ECB rate when online</small>':''}${r.est?'<small class="dup-tag fx-tag">Estimate: confirm the amount</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.amount,r.cur))}${cur?`<small class="dim">${fmt(r.amountEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.pct}%</td><td class="num"><b>${fmt(r.deductibleEUR)}</b></td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`;};
+   :`<tr class="${r.reviewed?'is-reviewed':''}"><td class="nw">${dateName(r.date)}</td><td><b>${esc(r.vendor||'—')}</b><small class="dim">${esc(ACT_NAME[r.act]||'')}</small></td><td>${esc(r.categoryName)}</td><td>${esc(r.description)}${dup.has(r.id)?`<small class="dup-tag">Possible duplicate · same business, date and amount <button class="link" data-action="biz-notdup" data-id="${r.id}">Not a duplicate</button></small>`:''}${r.fx==='pending'?'<small class="dup-tag fx-tag">Rate pending: updates to the ECB rate when online</small>':''}${r.est?'<small class="dup-tag fx-tag">Estimate: confirm the amount</small>':''}${r.notes?`<small class="dim">${esc(r.notes)}</small>`:''}</td><td class="num">${esc(fmtIn(r.amount,r.cur))}${cur?`<small class="dim">${fmt(r.amountEUR)} · ${r.rate}</small>`:''}</td><td class="num">${r.pct}%</td><td class="num"><b>${fmt(r.deductibleEUR)}</b>${r.capped?`<small class="dim">${fmt(r.capped)} over the yearly limit</small>`:''}</td><td>${stChip(r)}${r.evidence.length?`<small class="dim">${r.evidence.length} item${r.evidence.length===1?'':'s'}</small>`:''}${r.reviewed?'<small class="dim">✓ reviewed</small>':''}</td><td class="nw no-print">${recActions(r)}</td></tr>`;};
   const kpis=inc?`${kpi('Gross income',sum('grossEUR'),rangeLabel(),'down')}${kpi('Refunds',sum('refundsEUR'),'In euros','history')}${kpi('Platform fees',sum('feesEUR'),'In euros','coins')}${kpi('Net payouts',sum('payoutEUR'),`${list.length} record${list.length===1?'':'s'}`,'wallet')}`
    :`${kpi('Expenses',sum('amountEUR'),rangeLabel(),'up')}${kpi('Indicative deductible',sum('deductibleEUR'),'After business-use %','shield')}${kpi('VAT shown on receipts',list.reduce((a,r)=>a+r.vatShownEUR,0),'As recorded; for your gestor','tags')}${kpi('Records',list.length*100,'','log').replace(/<b[^>]*>[^<]*<\/b>/,`<b>${list.length}</b>`)}`;
   const ests=recAll().filter(r=>r.est&&r.kind===kind).length,miss=list.filter(r=>r.status==='missing').length,twins=list.filter(r=>dup.has(r.id)).length,old=list.filter(r=>r.src&&r.cur!=='EUR'&&r.fx!=='ecb').length;
@@ -5082,7 +5088,7 @@ const Biz=(()=>{
   case 'biz-es-form':{const plana=f.get('planaUntil')||'',low=+f.get('lowIncome');if(plana&&!Budget.validDate(plana))throw Error('Use a valid date.');
    const day=Math.round(+f.get('docsDay'));if(!(day>=1&&day<=15))throw Error('Choose a day from 1 to 15.');
    const before=state.settings.es?.homePct||0;let moved=0;
-   commit(()=>{state.settings.es={exempt130:f.get('exempt130')==='on',lowIncome:[0,25,50,75,100].includes(low)?low:0,plana:f.get('plana')==='on',planaUntil:plana,estimates:f.get('estimates')==='on',homePct:Math.max(0,Math.min(100,Math.round(+f.get('homePct')||0))),cadence:f.get('cadence')==='monthly'?'monthly':'quarterly',docsDay:day};moved=applyHomeShare(before);},'Tax settings saved');if(moved)toast(`Tax settings saved. ${moved} home rent and utility record${moved===1?'':'s'} now use the new share.`);break;}
+   commit(()=>{state.settings.es={exempt130:f.get('exempt130')==='on',lowIncome:[0,25,50,75,100].includes(low)?low:0,plana:f.get('plana')==='on',planaUntil:plana,estimates:f.get('estimates')==='on',homePct:Math.max(0,Math.min(100,Math.round(+f.get('homePct')||0))),healthPersons:Math.max(1,Math.min(10,Math.round(+f.get('healthPersons')||1))),cadence:f.get('cadence')==='monthly'?'monthly':'quarterly',docsDay:day};moved=applyHomeShare(before);},'Tax settings saved');if(moved)toast(`Tax settings saved. ${moved} home rent and utility record${moved===1?'':'s'} now use the new share.`);break;}
   case 'biz-settings-form':{const next={};
    if(F.tax){const r=Math.round(Number(f.get('taxRate'))*100);if(!Number.isFinite(r)||r<0||r>9000)throw Error('Use a set-aside rate from 0 to 90%.');next.taxRate=r;}
    if(F.mileage){const r=Math.round(Number(f.get('mileageRate'))*1000);if(!Number.isFinite(r)||r<0||r>10000)throw Error('Use a mileage rate from 0 to 10 per unit of distance.');next.mileageRate=r;next.distanceUnit=f.get('distanceUnit')==='km'?'km':'mi';}
