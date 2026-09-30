@@ -11,21 +11,24 @@ Every app the user sells must look and behave like one family. The reference pro
 
 This skill holds what it took to get there: the design system, the architecture, the data rules,
 the tests, the packaging, and the user's own feedback that shaped each rule. Read the reference files
-before writing code. They are the spec.
+before writing code. They are the spec. **The user should never have to repeat a detail that's written
+here**: favicons, the collapsible sidebar, nav subsections, KPI icons, the Settings & backup page and
+the rest are part of every app by default, without being asked.
 
 | File | Read it when |
 |---|---|
+| `references/feature-catalog.md` | **Always, first.** Every small feature with how it's built and where the code is: favicon and head, collapsible sidebar, nav groups and hubs, top bar, banners, pulse strip, hero, KPI tints/icons/sparklines, tables, dialogs, Settings & backup page, folder backup, welcome tour and backup nudge, shortcuts and focus, motion, logos, insights, print, storage keys. Its checklist is the definition of done |
 | `references/design-system.md` | Always, before any UI: tokens, themes, type, layout, every component, charts, icons, motion, print |
 | `references/architecture.md` | Always: single file, state, commit/undo, storage (localStorage vs IndexedDB), backups, sample mode, welcome, settings, periods, core + niche packs |
 | `references/data-import.md` | The app reads files (CSV/JSON exports): detection, money/dates, dedupe, privacy, import log, estimates, verifying to the cent |
 | `references/testing.md` | Before calling anything done: test layers, Playwright rules, the checks that caught real bugs |
 | `references/packaging.md` | Selling it: free trial, hosted demo, demo data, listing photos, video, listing packet, buyer files |
 | `references/lessons.md` | The user's feedback, rule by rule. Read it once per app; it prevents repeat corrections |
-| `assets/starter.html` | A new app that is **not** a books/finance app: a working shell in the house style |
+| `assets/starter.html` | A new app that is **not** a books/finance app: a working shell with every catalog feature already built (A–L, O, P) |
 | `assets/fonts.css` | DM Sans + Manrope as base64 woff2 (83 KB). The app never loads fonts from the web |
-| `scripts/new_app.js` | Makes a new app from the starter: name, storage key, default theme, fonts inlined |
+| `scripts/new_app.js` | Makes a new app from the starter: name, mark, storage key, default theme, theme-color, favicon, fonts inlined |
 | `scripts/check_app.js` | Generic browser QA for any house-style app (errors, every screen, phone width, themes, print, motion) |
-| `scripts/starter_flow.js` | Flow check for starter-made apps: welcome, add, reload keeps data, delete + undo, backup, start fresh, restore |
+| `scripts/starter_flow.js` | Flow check for starter-made apps: welcome, backup nudge, add with inline errors, reload keeps data, collapsible rail remembered, hub tabs, sidebar switches, delete + undo, backup, start fresh, restore, sample mode, favicon |
 
 ## Pick the base
 
@@ -34,9 +37,12 @@ before writing code. They are the spec.
    transactions, P&L, tax, goals, import, backups, themes, print and every test harness. See
    `references/architecture.md` → "Core + niche packs".
 2. **Anything else** (bakery planner, habit tracker, event planner, calculator) → start from
-   `assets/starter.html` with `node scripts/new_app.js`. It already has the house tokens, themes,
-   sidebar, hero, KPI tiles, chart kit, sortable tables, toast + undo, storage, backups, sample
-   mode, welcome, settings and print CSS.
+   `assets/starter.html` with `node scripts/new_app.js`. It already has the house tokens and themes,
+   favicon, collapsible sidebar with groups and hubs, month control, entity picker, banners, pulse
+   strip, hero, KPI tiles with icons, chart kit, sortable paged tables, dialogs with confirm, toast +
+   undo, IndexedDB storage, download/restore/folder backups, backup banner and weekly nudge, sample
+   mode, welcome tour, the full Settings & backup page, keyboard shortcuts, focus keeping and print
+   CSS. Replace `CONFIG`, `Logic` and `VIEWS`; keep the rest.
 3. **Someone else's app** (e.g. Bakeweek Studio, made in Codex) → keep its logic and data model,
    and move its UI onto the starter's shell and components. Keep its product name and features.
    Never keep a second visual language beside the house one.
@@ -82,8 +88,9 @@ before writing code. They are the spec.
 4. **Build each screen from the component kit**: page head (eyebrow, h1, subtitle, actions) → hero
    (main screens) → KPI row (4 per row) → cards in 2 or 3 columns with equal heights → tables. One
    idea per card. No duplicate cards across screens: if two screens show the same number, keep one.
-5. **Wire the trust features**: welcome slides (with the backup slide), guide screen, sample mode,
-   backup reminder banner, folder backup, restore, Start fresh, storage warning.
+5. **Go through `references/feature-catalog.md` section by section** and make sure each item is in
+   (the starter has most of them already; a core pack inherits them). Then wire the product's own
+   extras: the welcome slides' copy, the guide's steps and FAQ, the pulse insights, the sample data.
 6. **Test** (`references/testing.md`): unit, build check, browser smoke of every screen and flow,
    print audit, `scripts/check_app.js`. Look at screenshots yourself; checks don't catch ugly.
 7. **Do a top-to-bottom polish pass** touching every tab: spacing, dead space, alignment of icons
@@ -95,8 +102,10 @@ before writing code. They are the spec.
 
 ## Definition of done
 
+- Every line of the checklist at the top of `references/feature-catalog.md` is in the app.
 - Built file regenerated (`node build/build_app.js`, or the starter build), no console errors.
-- All tests pass, including print audit and `scripts/check_app.js` at 1440 px and 390 px.
+- All tests pass, including print audit, `scripts/check_app.js` at 1440 px and 390 px, and
+  `scripts/starter_flow.js` for starter-made apps.
 - Screenshots of every changed screen looked at, light and one dark theme.
 - Sample mode shows every screen filled; an empty app shows helpful empty states, not zeros.
 - Numbers reconciled against a real file, when the app mirrors a platform.

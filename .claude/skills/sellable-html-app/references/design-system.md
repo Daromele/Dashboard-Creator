@@ -56,9 +56,9 @@ cue (sign, label, arrow, hatch) for color-blind buyers.
 
 ### The 8 themes
 
-Pick the default to suit the product, then offer the rest in Settings (a palette picker with a live
-mini preview per theme). Shop Insights ships `kiln, ledger, sage, linen, fjord, slate, night, midnight`;
-Monthly Plan ships `lavender, sage, linen, fjord, blush, slate, night, midnight`.
+Pick the default to suit the product, then offer the rest in Settings (palette cards: three bars in
+the theme's bold, accent and pop on its paper, see `feature-catalog.md` §I). Shop Insights ships
+`kiln, ledger, sage, linen, fjord, slate, night, midnight`; Monthly Plan ships `lavender, sage, linen, fjord, blush, slate, night, midnight`.
 
 | Theme | paper | accent | bold | pop | Mood |
 |---|---|---|---|---|---|

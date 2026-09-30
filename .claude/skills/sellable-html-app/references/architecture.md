@@ -1,5 +1,8 @@
 # Architecture: how a house-style app is put together
 
+The small UI features (sidebar collapse, nav groups, banners, dialogs, settings page, backups,
+tour, shortcuts, storage keys) are itemized with code pointers in `feature-catalog.md`.
+
 ## 1. One file, built from sources
 
 The buyer gets **one `.html` file**. Developers never hand-edit it; they edit sources and rebuild.
@@ -100,14 +103,13 @@ second edition appears, split it into `src/` + a build script the same way as th
   each file" as a table (file · where to download · what it fills in), then FAQs. Keep it current
   with every new screen (the Shop Insights guide fell behind: Insights, YoY, New listings, logos).
 
-## 6. Settings (same order in every app)
+## 6. Settings & backup (same page in every app)
 
-1. Look: theme picker (cards with a live mini preview), currency and symbol.
-2. Simplify your sidebar: a toggle grid for every hideable screen; defaults come from
-   `settings.hiddenNav` (Shop Insights hides Insights, Year over year, Fees & ads, Transactions).
-3. The product's own settings (fee rates with country presets, goals, hourly rate, margins...).
-4. Keeping your data safe: download, restore, folder backup, status.
-5. Start fresh. 6. About: version, publisher, license line, disclaimers.
+Two equal cards side by side: **Your preferences** (name, currency, symbol, palette chips) and
+**Keep your progress safe** (folder backup, manual backup, CSV, start fresh). Below them, the
+product's own cards, then **Simplify your sidebar** (switches; Shop Insights hides Insights, Year
+over year, Fees & ads and Transactions by default), then entities and **Getting started** (sample
+mode, replay the tour, publisher line). Exact layout, copy and internals: `feature-catalog.md` §I.
 
 ## 7. Periods and entities
 

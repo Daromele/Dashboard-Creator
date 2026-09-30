@@ -1,19 +1,23 @@
 <!doctype html>
-<html lang="en" data-theme="kiln">
+<!-- {{NAME}} by JPS Digital Pages. Copyright (c) {{YEAR}} JPS Digital Pages. All rights reserved.
+     Personal or own-business use by the purchaser. Do not share or resell. -->
+<html lang="en" data-theme="{{THEME}}">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#3A2419">
-<title>{{NAME}} · JPS Digital Pages</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="{{THEME_COLOR}}">
 <meta name="description" content="{{NAME}} by JPS Digital Pages. Works offline. Your data stays on your computer.">
+<title>{{NAME}} · JPS Digital Pages</title>
+<link rel="icon" href="{{FAVICON}}">
 <!--
   House-style starter (sellable-html-app skill). One file, offline, no libraries.
-  Replace the CONFIG block, the Logic module and the screens; keep the shell, tokens and components.
-  Built with scripts/new_app.js, which fills {{NAME}}, the storage key, the default theme and the fonts.
+  Replace CONFIG, Logic and VIEWS; keep the shell, tokens and components.
+  Made with scripts/new_app.js, which fills the name, mark, storage key, theme, favicon and fonts.
+  references/feature-catalog.md explains every piece.
 -->
 <style>
 /*@@FONTS@@*/
-/* tokens and the 10 themes, copied from monthly-plan/app/src/core.html. [data-theme] on any element themes that subtree (used by the theme picker previews). */
+/* tokens and the 10 themes, copied from monthly-plan/app/src/core.html. [data-theme] on any element themes that subtree. */
 :root{
   /* neutrals carry a slight lavender bias so they read as chosen, not inherited */
   --paper:#FAF9FC; --card:#FFFFFF; --sunk:#F5F2F9;
@@ -188,42 +192,74 @@ h1,h2,h3{font-family:var(--num);letter-spacing:-.02em;line-height:1.18;text-wrap
 h1{font-size:clamp(26px,3vw,32px);font-weight:700}
 h2{font-size:17px;font-weight:700}
 h3{font-size:14px;font-weight:700}
+small,.small{font-size:12px}
 svg{width:18px;height:18px;stroke-width:1.6;flex-shrink:0}
 .i{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
 button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--r-xs)}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 [hidden]{display:none!important}
 .sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-9999px;top:8px;z-index:200;background:var(--pop);color:var(--pop-ink);padding:8px 12px;border-radius:8px;font-weight:600}.skip:focus{left:10px}
 
-/* ---------- frame ---------- */
-.app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100vh}
-.rail{background:var(--bold-2);color:var(--on-bold);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:var(--s6) var(--s3) var(--s5);overflow-y:auto;z-index:40}
-.brand{display:flex;gap:var(--s3);align-items:center;padding:var(--s1) var(--s2) var(--s7)}
-.brand-mark{height:34px;width:34px;display:grid;place-items:center;border-radius:var(--r-sm);background:var(--pop);color:var(--pop-ink);font:800 17px var(--num)}
-.brand b{display:block;font:700 16px var(--num);letter-spacing:-.02em}
+/* ---------- frame: rail + main ---------- */
+.app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100vh;transition:grid-template-columns .2s ease}
+.main{min-width:0}
+.rail{background:var(--bold-2);color:var(--on-bold);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:var(--s6) var(--s3) var(--s5);overflow-y:auto;z-index:40;transition:padding .2s ease}
+.brand{display:flex;gap:var(--s3);align-items:center;padding:var(--s1) 48px var(--s7) var(--s2);position:relative}
+.brand-mark{height:34px;width:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:var(--r-sm);background:var(--pop);color:var(--pop-ink);font:800 17px var(--num)}
+.brand-txt{min-width:0}
+.brand b{display:block;font:700 16px var(--num);letter-spacing:-.02em;line-height:1.2}
 .brand small{font-size:9px;letter-spacing:.16em;color:var(--on-bold-dim)}
 .navgroup{font-size:10px;text-transform:uppercase;letter-spacing:.14em;padding:var(--s5) var(--s3) var(--s2);color:var(--on-bold-dim);font-weight:600}
-.navlink{width:100%;display:flex;align-items:center;gap:var(--s3);min-height:40px;padding:var(--s2) var(--s3);color:var(--on-bold-dim);border-radius:var(--r-sm);text-align:left;font-size:14px;position:relative;transition:background .13s,color .13s}
+.navlink{width:100%;display:flex;align-items:center;gap:var(--s3);min-height:40px;padding:var(--s2) var(--s3);color:var(--on-bold-dim);border-radius:var(--r-sm);text-align:left;font-size:14px;position:relative;transition:background .13s,color .13s,padding .2s}
 .navlink:hover{background:#ffffff0f;color:var(--on-bold)}
 .navlink[aria-current=page]{background:#ffffff16;color:var(--on-bold);font-weight:600}
 .navlink[aria-current=page]:before{content:'';position:absolute;left:calc(var(--s3)*-1);top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--pop);border-radius:0 3px 3px 0}
-.rail-foot{margin-top:auto;padding:var(--s6) var(--s2) 0;color:var(--on-bold-dim);font-size:11px;display:grid;gap:var(--s3)}
-.rail-foot p{font-size:12px;line-height:1.5}.rail-foot p b{display:block;color:var(--on-bold);font-size:13px}
-.status{font-size:11px;color:var(--ink-3);display:inline-flex;align-items:center;gap:var(--s1)}
+.navlink svg{opacity:.85}
+.rail-foot{margin-top:auto;padding:var(--s6) var(--s2) 0;color:var(--on-bold-dim);font-size:11px;display:grid;gap:var(--s2)}
+.rail-foot a{color:var(--on-bold-dim);text-decoration:none}.rail-foot a:hover{color:var(--on-bold)}
+.rail-note{border:1px solid #ffffff1f;border-radius:var(--r-md);padding:var(--s3);font-size:12px;line-height:1.5}
+.rail-note b{display:block;color:var(--pop);margin-bottom:var(--s1)}
+.rail-demo{width:100%;background:#ffffff14;border-color:#ffffff26;color:var(--on-bold);justify-content:center}
+.rail-demo:hover{background:#ffffff24;color:var(--on-bold);border-color:#ffffff40}
+/* collapsible rail: an icon-only 72px rail, remembered per browser */
+.rail-toggle{position:absolute;right:4px;top:2px;width:34px;height:34px;display:inline-grid;place-items:center;border-radius:var(--r-xs);color:var(--on-bold);background:#ffffff0d;border:1px solid #ffffff26}
+.rail-toggle:hover{background:#ffffff1d}
+.app.rail-min{grid-template-columns:72px minmax(0,1fr)}
+.app.rail-min .rail{padding-left:10px;padding-right:10px;overflow-x:hidden}
+.app.rail-min .brand{flex-direction:column;align-items:center;gap:10px;padding:0 0 20px}
+.app.rail-min .brand-txt,.app.rail-min .navgroup,.app.rail-min .rail-foot,.app.rail-min .navlink span{display:none}
+.app.rail-min .rail-toggle{position:static;width:38px;height:38px}
+.app.rail-min .rail-toggle svg{transform:scaleX(-1)}
+.app.rail-min .navlink{justify-content:center;padding:10px;gap:0}
+.app.rail-min .navlink[aria-current=page]:before{left:-10px}
+.app.rail-min .navlink svg{width:21px;height:21px}
+.mobile-close,.mobile-menu,.scrim{display:none!important}   /* !important: .ibtn below sets display */
+.status{font-size:11px;color:var(--ink-3);display:inline-flex;align-items:center;gap:var(--s1);white-space:nowrap}
 .status:before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.status.warn:before{background:var(--over)}
 .rail .status{color:var(--on-bold-dim)}
+
+/* ---------- top bar ---------- */
 .topbar{position:sticky;top:0;z-index:20;background:var(--paper)}
 .topbar-in{display:flex;justify-content:space-between;align-items:center;gap:var(--s4);max-width:1400px;padding:var(--s3) var(--s7);margin:auto}
 .top-left,.actions{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
 .top-left{flex-wrap:nowrap;min-width:0}
-.period-label{font:650 17px/1 var(--num);letter-spacing:-.02em;white-space:nowrap;padding:0 var(--s1)}
+.month-control{display:flex;align-items:center;gap:2px;border:1px solid var(--rule-2);border-radius:var(--r-sm);padding:3px;background:var(--card);transition:border-color .13s,box-shadow .13s}
+.month-control:hover,.month-control:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.period-label{font:650 16px/1 var(--num);letter-spacing:-.02em;white-space:nowrap;padding:0 var(--s2)}
+/* a native month input shrunk to a calendar glyph painted in the theme accent */
+.month-picker{width:28px;height:28px;min-height:28px;padding:0;border:0;color:transparent;background:var(--accent);cursor:pointer;position:relative;opacity:.8;
+ -webkit-mask:var(--cal-icon) center/17px 17px no-repeat;mask:var(--cal-icon) center/17px 17px no-repeat}
+.month-picker:hover{opacity:1}
+.month-picker::-webkit-calendar-picker-indicator{opacity:0;position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
 .ibtn{width:32px;height:32px;display:inline-grid;place-items:center;border-radius:var(--r-xs);color:var(--ink-2);transition:background .13s,color .13s}
 .ibtn:hover{background:var(--accent-soft);color:var(--accent)}
-.menu-btn{display:none}
 .picker{display:flex;flex-direction:column;margin-left:var(--s3)}
 .picker small{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em}
-.picker select{height:34px;border-radius:var(--r-sm);max-width:200px;font-weight:600}
+.picker select{height:34px;min-height:34px;border-radius:var(--r-sm);max-width:200px;font-weight:600;padding:0 var(--s3)}
 .banner{display:flex;justify-content:space-between;gap:var(--s3);align-items:center;padding:var(--s2) var(--s7);font-size:12.5px}
+.banner .actions{flex-wrap:nowrap}.banner .link,.banner .btn{white-space:nowrap}
 .banner.demo{background:var(--sunk);color:var(--ink-2);border-top:1px solid var(--rule)}
 .banner.backup{background:var(--flag-soft);color:var(--ink)}.banner.backup b{color:var(--flag)}
 .banner.storage{background:color-mix(in srgb,var(--over) 10%,var(--card));color:var(--ink)}.banner.storage b{color:var(--over)}
@@ -233,17 +269,20 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .btn:hover{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow-sm)}
 .btn.primary:hover{filter:brightness(1.12);color:var(--accent-ink)}
-.btn.pop{background:var(--pop);border-color:var(--pop);color:var(--pop-ink)}
-.btn.ghost{background:transparent;border-color:#ffffff40;color:var(--on-bold)}
-.btn.danger{color:var(--over)}
+.btn.pop{background:var(--pop);border-color:var(--pop);color:var(--pop-ink)}.btn.pop:hover{filter:brightness(1.06);color:var(--pop-ink)}
+.btn.ghost{background:transparent;border-color:#ffffff40;color:var(--on-bold)}.btn.ghost:hover{background:#ffffff14;color:var(--on-bold)}
 .btn.quiet{background:transparent;color:var(--ink-2)}
+.btn.danger{color:var(--over)}.btn.danger:hover{background:color-mix(in srgb,var(--over) 8%,var(--card));border-color:var(--over);color:var(--over)}
 .btn.small{min-height:30px;padding:var(--s1) var(--s2);font-size:12px}
 .link{color:var(--accent);font-size:13px;font-weight:600;border-bottom:1px solid var(--accent-line);cursor:pointer}
+.icon-action{width:30px;height:30px;display:inline-grid;place-items:center;border-radius:var(--r-xs);color:var(--ink-3)}
+.icon-action:hover{background:var(--accent-soft);color:var(--accent)}.icon-action.danger:hover{color:var(--over)}
+.icon-action svg{width:17px;height:17px}
 
 /* ---------- page ---------- */
 .page{max-width:1400px;padding:var(--s6) var(--s7) var(--s8);margin:auto}
 .pagehead{display:flex;justify-content:space-between;gap:var(--s5);align-items:center;margin-bottom:var(--s6);flex-wrap:wrap}
-.pagehead>div:first-child{min-width:0;flex:1 1 320px}
+.pagehead-text{min-width:0;flex:1 1 320px}
 .eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--ink-3);margin-bottom:var(--s2)}
 .subtitle{color:var(--ink-2);font-size:14px;margin-top:var(--s2);max-width:62ch}
 .number{font-family:var(--num);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
@@ -252,18 +291,25 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .segment button{font-size:12px;border-radius:var(--r-xs);padding:var(--s1) var(--s3);color:var(--ink-2);min-height:28px;font-weight:600}
 .segment button:hover{color:var(--accent)}
 .segment button[aria-pressed=true]{background:var(--card);color:var(--accent);box-shadow:var(--shadow-sm)}
-.custom-range{display:inline-flex;gap:var(--s2);align-items:end;margin-left:var(--s2)}
+.hub-tabs{margin:0 0 var(--s5)}.hub-tabs button{font-size:13px;min-height:32px;padding:var(--s1) var(--s4)}
+.custom-range{display:inline-flex;gap:var(--s2);align-items:end}
 .custom-range label{display:flex;flex-direction:column;font-size:11px;color:var(--ink-3)}
 .custom-range input{height:30px;min-height:30px}
+.print-title{display:none}
+.footer{display:flex;justify-content:space-between;gap:var(--s4);font-size:10.5px;color:var(--ink-3);margin-top:var(--s7);border-top:1px solid var(--rule);padding-top:var(--s4)}
 
-/* ---------- pulse + hero ---------- */
-.pulse{display:flex;align-items:center;gap:var(--s3);background:var(--accent-soft);border-radius:var(--r-md);padding:var(--s3) var(--s4);margin-bottom:var(--s4);font-size:14px}
-.pulse>i{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none}
-.pulse p{flex:1;min-width:0}
-.pulse-nav{display:flex;align-items:center;gap:var(--s2)}
-.pulse-nav button.arrow{width:28px;height:28px;border-radius:50%;border:1px solid var(--rule-2);background:var(--card);font-weight:700}
-.pulse-dots{display:flex;gap:4px}.pulse-dots span{width:6px;height:6px;border-radius:6px;background:var(--rule-2)}.pulse-dots span.on{width:18px;background:var(--accent)}
-.hero{background:var(--bold);color:var(--on-bold);border-radius:var(--r-lg);padding:var(--s7) var(--s7);display:grid;grid-template-columns:1.3fr 1fr;gap:var(--s7);margin-bottom:var(--s4);position:relative;overflow:hidden}
+/* ---------- pulse strip: one insight at a time, above the hero ---------- */
+.pulse{display:flex;align-items:center;gap:var(--s4);background:var(--accent-soft);border-radius:var(--r-md);padding:var(--s3) var(--s4);margin-bottom:var(--s4)}
+.pulse-live{flex:none;width:10px;height:10px;border-radius:50%;background:var(--accent);animation:ring 2s ease-out infinite}
+.pulse-track{position:relative;flex:1;min-height:24px;font-size:14px}
+.pulse-track p{position:absolute;inset:0;display:flex;align-items:center;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;pointer-events:none}
+.pulse-track p.on{opacity:1;transform:none;pointer-events:auto}
+.pulse-nav{display:flex;align-items:center;gap:6px;flex:none}
+.pulse-arrow{width:28px;height:28px;border-radius:50%;border:1px solid var(--rule-2);background:var(--card);font:600 16px/1 var(--ui);display:grid;place-items:center}
+.pulse-dot{width:6px;height:6px;border-radius:6px;background:var(--rule-2);padding:0;transition:width .2s}.pulse-dot[aria-pressed=true]{width:18px;background:var(--accent)}
+
+/* ---------- hero ---------- */
+.hero{background:var(--bold);color:var(--on-bold);border-radius:var(--r-lg);padding:var(--s7);display:grid;grid-template-columns:1.3fr 1fr;gap:var(--s7);margin-bottom:var(--s4);position:relative;overflow:hidden}
 .hero:before{content:'';position:absolute;inset:auto -80px -140px auto;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--pop) 35%,transparent),transparent 70%);opacity:.6;pointer-events:none}
 .hero .eyebrow{color:var(--on-bold-dim)}
 .hero-num{font:700 clamp(56px,8vw,104px)/1 var(--num);letter-spacing:-.04em;margin:14px 0 18px;font-variant-numeric:tabular-nums}
@@ -274,7 +320,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .hero-fact strong{font:650 18px var(--num);white-space:nowrap;color:var(--on-bold);font-variant-numeric:tabular-nums}
 .hero-meter{height:6px;border-radius:6px;background:#ffffff1f;overflow:hidden}.hero-meter i{display:block;background:var(--ok);height:100%}
 
-/* ---------- KPI tiles: tinted by meaning, solid ---------- */
+/* ---------- KPI tiles: tinted by meaning (solid), icon squares, direction colors ---------- */
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s3);margin-bottom:var(--s4)}
 .kpi{background:var(--card);border-radius:var(--r-md);padding:var(--s4) var(--s5);box-shadow:var(--shadow-sm);border:1px solid transparent;animation:rise .45s ease both;animation-delay:calc(var(--i,0)*50ms);transition:transform .2s,box-shadow .2s}
 .kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
@@ -286,26 +332,31 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .kpi.tone-net{--tc:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card));border-color:color-mix(in srgb,var(--accent) 24%,var(--rule));box-shadow:none}
 .kpi.tone-neutral{background:var(--sunk);box-shadow:none}
 .kpi-ico{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;flex:none;background:color-mix(in srgb,var(--tc,var(--ink-3)) 16%,var(--card));color:var(--tc,var(--ink-2))}
-.kpi-ico svg{width:14px;height:14px;stroke-width:2}
-.delta.up{color:var(--ok);font-weight:700}.delta.down{color:var(--over);font-weight:700}
+.kpi-ico svg{display:block;width:14px;height:14px;stroke-width:2}
+.delta{font-weight:700}.delta.up{color:var(--ok)}.delta.down{color:var(--over)}
 
 /* ---------- surfaces ---------- */
 .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:var(--s4);margin-bottom:var(--s4)}
-.equal{grid-template-columns:1fr 1fr}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4);margin-bottom:var(--s4)}
+.grid2.equal{grid-template-columns:1fr 1fr}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4);margin-bottom:var(--s4)}
 .card{background:var(--card);border-radius:var(--r-md);padding:var(--s5);min-width:0;margin-bottom:var(--s4);box-shadow:var(--shadow-sm)}
 .grid2>.card,.grid3>.card{margin-bottom:0}
 .cardhead{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s4);margin-bottom:var(--s4)}
 .cardhead h2{display:flex;align-items:center;gap:10px}
 .cardhead p{font-size:12px;color:var(--ink-3);margin-top:var(--s1)}
 .h-ico{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--accent-soft);color:var(--accent);flex:none}.h-ico svg{width:15px;height:15px;stroke-width:2}
+.card-ico{height:34px;width:34px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);border-radius:var(--r-sm);margin-bottom:var(--s4)}
+.sub-head{font-size:13px;margin:var(--s6) 0 var(--s2);padding-top:var(--s4);border-top:1px solid var(--rule)}
+.sub-head.first{border-top:0;padding-top:0;margin-top:var(--s4)}
 .table-card{padding:0;overflow:hidden}.table-card .cardhead{padding:var(--s5) var(--s5) var(--s3);margin:0}
 .pill{display:inline-flex;border-radius:99px;padding:3px var(--s2);font-size:11px;color:var(--ink-2);background:var(--sunk);align-items:center;gap:var(--s1);white-space:nowrap;font-weight:600}
 .pill.good{background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok)}
 .pill.warn{background:color-mix(in srgb,var(--over) 12%,transparent);color:var(--over)}
 .row{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s3) 0;border-bottom:1px solid var(--rule);font-size:13px}
-.row:last-child{border-bottom:0}.row small{display:block;color:var(--ink-3)}
+.row:last-child,.row.flat,.row:has(+.sub-head){border-bottom:0}.row strong{font-weight:600}.row small{display:block;color:var(--ink-3);margin-top:2px}
 .notice{background:var(--accent-soft);padding:var(--s3) var(--s4);border-radius:var(--r-sm);margin-bottom:var(--s4);font-size:13px;display:flex;justify-content:space-between;gap:var(--s4);align-items:center;color:var(--ink-2)}
 .notice.warning{background:var(--flag-soft);color:var(--flag)}
+.notice.refused{background:color-mix(in srgb,var(--over) 10%,var(--card));color:var(--ink)}.notice.refused b:first-child{color:var(--over)}
 .empty{padding:var(--s7) var(--s5);text-align:center;color:var(--ink-3);font-size:13px}
 .empty svg{height:28px;width:28px;color:var(--accent);margin-bottom:var(--s3);opacity:.7}
 .empty h3{color:var(--ink);margin-bottom:var(--s2)}.empty p{max-width:42ch;margin:0 auto var(--s4)}
@@ -329,28 +380,55 @@ tr.total td{font-weight:700;border-top:1px solid var(--rule-2)}
 .filters{display:flex;gap:var(--s2);flex-wrap:wrap}
 .pct{display:inline-block;width:56px;height:6px;border-radius:3px;background:var(--sunk);margin-right:8px;vertical-align:middle;overflow:hidden}.pct i{display:block;height:100%;background:var(--ok)}
 
-/* ---------- forms, dialog, toast ---------- */
-input,select,textarea{background:var(--card);border:1px solid var(--rule-2);border-radius:var(--r-xs);min-height:38px;padding:var(--s2) var(--s3);max-width:100%}
+/* ---------- forms, dialogs, toast ---------- */
+input,select,textarea{background:var(--card);border:1px solid var(--rule-2);border-radius:var(--r-xs);min-height:38px;padding:var(--s2) var(--s3);max-width:100%;transition:border-color .13s,box-shadow .13s}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3) var(--s4)}
 .fields label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--ink-2)}
+.fields label small{font-weight:400;color:var(--ink-3);font-size:11px}
 .fields .full{grid-column:1/-1}
+.formfoot{display:flex;justify-content:flex-end;gap:var(--s2);margin-top:var(--s6);flex-wrap:wrap}
+.error{color:var(--over);background:color-mix(in srgb,var(--over) 9%,var(--card));padding:var(--s2) var(--s3);border-radius:var(--r-xs);margin:var(--s2) 0;font-size:13px}
 dialog{border:0;border-radius:var(--r-lg);padding:var(--s7);width:min(560px,calc(100% - 32px));background:var(--card);color:var(--ink);box-shadow:var(--shadow-lg)}
 dialog::backdrop{background:#160c2470}
-dialog h2{font-size:22px;margin-bottom:var(--s2)}dialog .lead{color:var(--ink-2);font-size:14px;margin-bottom:var(--s5)}
-dialog .actions{justify-content:flex-end;margin-top:var(--s6)}
+.dialog-head{display:flex;justify-content:space-between;gap:var(--s4);align-items:center;margin-bottom:var(--s2)}
+.dialog-head h2{font-size:22px}
+dialog .subtitle{margin:0 0 var(--s5)}
 .toast{position:fixed;bottom:var(--s5);left:50%;transform:translateX(-50%);z-index:99;border-radius:var(--r-sm);padding:var(--s3) var(--s4);background:var(--bold-2);color:var(--on-bold);font-size:13px;display:flex;gap:var(--s4);align-items:center;box-shadow:var(--shadow-lg);max-width:calc(100% - 30px)}
-.toast button{color:var(--pop);text-decoration:underline;font-weight:600}
-.welcome-step{font:700 11px var(--num);letter-spacing:.14em;color:var(--accent)}
-.welcome-ico{display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--accent-soft);color:var(--accent);margin-bottom:var(--s4)}.welcome-ico svg{width:26px;height:26px}
-.welcome-dots{display:flex;gap:5px;margin-right:auto}.welcome-dots span{width:7px;height:7px;border-radius:7px;background:var(--rule-2)}.welcome-dots span.on{width:20px;background:var(--accent)}
-.themes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s3)}  /* 8 themes: 4×2, never an orphan */
-.theme-card{border:1px solid var(--rule);border-radius:var(--r-sm);padding:var(--s2);background:var(--card);text-align:left;display:grid;gap:6px;transition:transform .15s}
-.theme-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.toast button{color:var(--pop);text-decoration:underline;font-weight:600;white-space:nowrap}
+/* welcome tour: art header, step label, dots, one idea per slide */
+.welcome{padding:0;width:min(600px,calc(100% - 28px));max-height:min(760px,92vh);overflow:auto}
+.welcome-close{position:absolute;right:16px;top:16px;z-index:2;background:#ffffffc7}
+.welcome-art{height:190px;display:grid;place-items:center;color:var(--accent);background:linear-gradient(145deg,var(--accent-soft),color-mix(in srgb,var(--pop) 34%,var(--card)))}
+.welcome-art[data-n="1"]{background:linear-gradient(145deg,var(--accent-soft),color-mix(in srgb,var(--accent) 18%,var(--card)))}
+.welcome-art[data-n="2"]{background:linear-gradient(145deg,var(--accent-soft),color-mix(in srgb,var(--ok) 22%,var(--card)))}
+.welcome-art svg{width:80px;height:80px;stroke-width:1.25}
+.welcome-body{padding:28px 34px 12px;text-align:center}
+.welcome-step{display:block;color:var(--accent);font-size:10px;font-weight:750;letter-spacing:.16em;margin-bottom:10px}
+.welcome-body h2{font-size:26px;margin-bottom:10px}
+.welcome-body p{color:var(--ink-2);max-width:460px;margin:0 auto 8px}
+.welcome-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 34px 28px}
+.welcome-dots{display:flex;gap:8px}.welcome-dots i{width:8px;height:8px;border-radius:50%;background:var(--rule-2)}.welcome-dots i.on{background:var(--accent)}
+/* settings: palette chips and sidebar switches */
+.theme-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s2)}
+.theme-card{border:1px solid var(--rule);border-radius:var(--r-sm);padding:var(--s2);background:var(--card);display:grid;gap:6px;text-align:left}
+.theme-card:hover{border-color:var(--rule-2);box-shadow:var(--shadow-sm)}
 .theme-card[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
-.theme-card i{display:grid;grid-template-columns:1fr 2fr;height:46px;border-radius:6px;overflow:hidden}.theme-card i span{display:block}
+.theme-chip{display:flex;align-items:flex-end;gap:4px;height:42px;padding:6px;border-radius:6px}
+.theme-chip i{display:block;flex:1;border-radius:3px}.theme-chip i:nth-child(1){height:100%}.theme-chip i:nth-child(2){height:72%}.theme-chip i:nth-child(3){height:44%}
 .theme-card b{font-size:12px;font-weight:600}
-.toggles{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--s2)}
-.toggles label{display:flex;gap:var(--s2);align-items:center;padding:var(--s2) var(--s3);border-radius:var(--r-sm);background:var(--sunk);font-size:13px}
+.toggle-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.nav-toggle{position:relative;cursor:pointer}
+.nav-toggle input{position:absolute;opacity:0;pointer-events:none}
+.nav-toggle span{min-height:52px;display:flex;align-items:center;gap:var(--s2);border:1px solid var(--rule);border-radius:var(--r-sm);padding:var(--s2) var(--s3);color:var(--ink-2);font-size:12.5px;transition:border-color .13s,background .13s}
+.nav-toggle svg{width:17px;height:17px}.nav-toggle b{font-weight:650}
+.nav-toggle input:checked+span{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.nav-toggle input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.nav-toggle span i{margin-left:auto;width:34px;height:20px;border-radius:20px;background:var(--rule-2);padding:3px;flex:0 0 auto;transition:background .16s}
+.nav-toggle span i:after{content:'';display:block;width:14px;height:14px;border-radius:50%;background:var(--card);box-shadow:0 1px 3px #0003;transition:transform .16s}
+.nav-toggle input:checked+span i{background:var(--accent)}.nav-toggle input:checked+span i:after{transform:translateX(14px)}
+.tip{position:fixed;z-index:120;pointer-events:none;background:var(--bold-2);color:var(--on-bold);border-radius:var(--r-sm);padding:var(--s2) var(--s3);font-size:12px;box-shadow:var(--shadow-lg);max-width:280px}
+.tip-title{font:700 11px var(--num);letter-spacing:.04em;text-transform:uppercase;color:var(--on-bold-dim);margin-bottom:var(--s1)}
+.tip-row{display:flex;align-items:center;gap:var(--s2);white-space:nowrap;line-height:1.7}.tip-row b{font:700 13px var(--num);margin-left:auto;padding-left:var(--s3)}
 
 /* ---------- chart kit ---------- */
 .kit-pie{display:grid;justify-items:center;gap:18px}.kit-pie svg{width:100%;height:auto;max-width:200px;overflow:visible}
@@ -382,83 +460,121 @@ dialog .actions{justify-content:flex-end;margin-top:var(--s6)}
 @keyframes kit-grow{from{transform:scaleY(0)}}
 @keyframes kit-draw{from{stroke-dashoffset:100}}
 @keyframes kit-fill{from{stroke-dasharray:0 100}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}}
+@keyframes ring{0%{box-shadow:0 0 0 0 color-mix(in oklab,var(--accent) 55%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
 
 /* ---------- responsive ---------- */
-@media(max-width:1150px){.app{grid-template-columns:220px minmax(0,1fr)}.page{padding:28px 24px}.topbar-in{padding:13px 24px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:900px){.app{display:block}.rail{position:fixed;left:0;top:0;width:260px;transform:translateX(-100%);transition:transform .18s}.menu-open .rail{transform:none;box-shadow:var(--shadow-lg)}.menu-btn{display:inline-grid}.scrim{position:fixed;inset:0;background:#160c2470;z-index:35}.hero{grid-template-columns:1fr}.hero-side{border-left:0;border-top:1px solid #ffffff1f;padding:var(--s4) 0 0}.grid2,.grid3,.equal{grid-template-columns:1fr}}
-@media(max-width:620px){.page{padding:22px 16px 30px}.topbar-in{padding:10px 12px;align-items:flex-start}.top-left{flex-wrap:wrap}.picker{flex-direction:row;align-items:center;gap:var(--s2);width:100%;margin:var(--s2) 0 0}.picker select{flex:1;max-width:none!important}#save-status{display:none}.topbar .actions{flex-wrap:nowrap}.banner button{white-space:nowrap}.cardhead{flex-wrap:wrap}.cardhead .actions,.filters,.filters input{width:100%}.themes{grid-template-columns:1fr 1fr}.banner{padding:var(--s2) var(--s4)}.kpis{grid-template-columns:1fr 1fr}.kpi{padding:var(--s3)}.steps,.fields{grid-template-columns:1fr}.picker select{max-width:130px}.period-label{font-size:15px}.topbar .btn span{display:none}.custom-range{margin:var(--s2) 0 0}}
-@media(prefers-reduced-motion:reduce){*,*:before{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-@media print{body{background:#fff;font-size:11px;color:#222}.rail,.topbar,.banner,.toast,.scrim,dialog,.pagehead .actions,.pulse,.btn,.ibtn,.segment,.pager{display:none!important}.app{display:block}.page{padding:0;max-width:none}.card,.table-card{box-shadow:none;border:1px solid #ddd;break-inside:auto}.kpi,svg,.row,h2,.hero{break-inside:avoid}.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}thead{display:table-header-group}*{animation:none!important}.print-period{display:block!important;text-align:right;font:700 16px var(--num)}}
-.print-period{display:none}
+@media(min-width:1550px){.page{padding-top:43px}.hero{padding:37px}.kpi{padding:24px}}
+@media(max-width:1150px){.app{grid-template-columns:220px minmax(0,1fr)}.page{padding:28px 24px}.topbar-in{padding:13px 24px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.toggle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){
+ .app,.app.rail-min{display:block}
+ .rail{position:fixed;left:0;top:0;width:270px;transform:translateX(-100%);transition:transform .18s}
+ .menu-open .rail{transform:none;box-shadow:var(--shadow-lg)}
+ .menu-open .scrim{display:block!important;position:fixed;inset:0;background:#160c2470;z-index:35}
+ .mobile-menu,.mobile-close{display:inline-grid!important}.mobile-close{position:absolute;right:8px;top:8px;color:var(--on-bold)}
+ .rail-toggle{display:none}
+ .app.rail-min .brand-txt,.app.rail-min .navgroup,.app.rail-min .navlink span{display:block}.app.rail-min .rail-foot{display:grid}
+ .app.rail-min .brand{flex-direction:row;padding:0 48px 28px 8px}.app.rail-min .navlink{justify-content:flex-start;padding:10px 13px;gap:12px}.app.rail-min .rail{padding:30px 17px 20px}
+ .hero{grid-template-columns:1fr}.hero-side{border-left:0;border-top:1px solid #ffffff1f;padding:var(--s4) 0 0}
+ .grid2,.grid2.equal,.grid3{grid-template-columns:1fr}}
+@media(max-width:620px){
+ .page{padding:22px 16px 30px}.topbar-in{padding:10px 12px;align-items:flex-start}.top-left{flex-wrap:wrap}
+ .picker{flex-direction:row;align-items:center;gap:var(--s2);width:100%;margin:var(--s2) 0 0}.picker select{flex:1;max-width:none}
+ #save-status{display:none}.topbar .actions{flex-wrap:nowrap}.topbar .btn span{display:none}.period-label{font-size:14px}
+ .banner{padding:var(--s2) var(--s4)}.banner .btn{white-space:nowrap}
+ .kpis{grid-template-columns:1fr 1fr}.kpi{padding:var(--s3)}.steps,.fields,.toggle-grid{grid-template-columns:1fr}.theme-grid{grid-template-columns:1fr 1fr}
+ .cardhead{flex-wrap:wrap}.cardhead .actions,.filters,.filters input{width:100%}.pulse{flex-wrap:wrap}.pulse-track{min-height:44px;flex-basis:calc(100% - 30px)}
+ .welcome{width:100%;max-width:none;margin:auto 0 0;border-radius:20px 20px 0 0}.welcome-art{height:150px}.footer{flex-direction:column;gap:6px}.formfoot .btn{flex:1}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{
+ body{background:#fff;font-size:11px;color:#222}
+ .rail,.topbar,.banner,.toast,.scrim,dialog,.pagehead .actions,.hub-tabs,.pulse,.btn,.ibtn,.icon-action,.segment,.pager,.no-print,.skip{display:none!important}
+ .app{display:block}.page{padding:0;max-width:none}
+ .print-title{display:flex;justify-content:space-between;font-size:11px;margin-bottom:18px;color:#555}.print-title b{font:700 15px var(--num);color:#111}
+ .card,.table-card{box-shadow:none;border:1px solid #ddd;break-inside:auto}
+ .kpi,svg,.row,h2,.hero,.cardhead{break-inside:avoid}
+ .hero,.kpi,th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ thead{display:table-header-group}*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="app" id="app">
  <aside class="rail" id="rail" aria-label="Main navigation">
-  <div class="brand"><span class="brand-mark" id="brand-mark">A</span><div><b id="brand-name">{{NAME}}</b><small>JPS DIGITAL PAGES</small></div></div>
+  <button class="ibtn mobile-close" data-action="menu" aria-label="Close menu">×</button>
+  <div class="brand"><span class="brand-mark" id="brand-mark">{{MARK}}</span><div class="brand-txt"><b>{{NAME}}</b><small>JPS DIGITAL PAGES</small></div>
+   <button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" class="i"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
   <nav id="nav"></nav>
-  <div class="rail-foot"><p id="rail-note"></p><span class="status" id="rail-status">Saved on this device</span></div>
+  <div class="rail-foot"><div class="rail-note" id="rail-note"></div><button class="btn small rail-demo" data-action="sample" id="rail-demo">Explore sample data</button><a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages ↗</a><span id="rail-version"></span><span class="status" id="rail-status">Saved on this device</span></div>
  </aside>
- <div>
+ <button class="scrim" data-action="menu" aria-label="Close navigation"></button>
+ <div class="main">
   <header class="topbar"><div class="topbar-in">
    <div class="top-left">
-    <button class="ibtn menu-btn" data-action="menu" aria-label="Open menu"></button>
-    <button class="ibtn" data-action="prev" aria-label="Previous month"></button>
-    <span class="period-label" id="period-label"></span>
-    <button class="ibtn" data-action="next" aria-label="Next month"></button>
+    <button class="ibtn mobile-menu" data-action="menu" aria-label="Open navigation"></button>
+    <div class="month-control"><button class="ibtn" data-action="prev" aria-label="Previous month"></button><span class="period-label" id="period-label"></span><input class="month-picker" id="month-picker" type="month" aria-label="Pick a month"><button class="ibtn" data-action="next" aria-label="Next month"></button></div>
     <label class="picker" id="picker"></label>
    </div>
    <div class="actions">
     <span class="status" id="save-status">Saved on this device</span>
-    <button class="btn quiet" data-action="guide"></button>
+    <button class="btn quiet" data-action="go" data-go="guide"></button>
     <button class="btn" data-action="backup"></button>
    </div>
   </div>
-  <div class="banner demo" id="demo-banner" hidden><span><b>Sample mode.</b> Made-up data to explore. Nothing here is saved, and your own data is untouched.</span><button class="link" data-action="sample">Leave sample</button></div>
+  <div class="banner demo" id="demo-banner" hidden><span><b>Sample mode.</b> Made-up data to explore. Nothing here is saved, and your own data is untouched.</span><button class="link" data-action="sample">Return to my data</button></div>
   <div class="banner backup" id="backup-banner" hidden></div>
   <div class="banner storage" id="storage-banner" role="alert" hidden></div>
   </header>
   <main class="page" id="content" tabindex="-1"></main>
  </div>
 </div>
-<div class="scrim" id="scrim" hidden data-action="menu"></div>
-<dialog id="dlg"></dialog>
-<div class="toast" id="toast" role="status" hidden></div>
+<dialog id="dlg" aria-labelledby="dlg-title"></dialog>
+<dialog id="welcome" class="welcome" aria-labelledby="welcome-title"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="tip" id="tip" hidden></div>
 <input type="file" id="restore-file" accept=".json,application/json" hidden>
+<noscript><p style="padding:20px">Turn on JavaScript to use {{NAME}}. Your data stays in this browser.</p></noscript>
 <script>
 'use strict';
 /* ================================================================================
-   CONFIG · the product. Everything product-specific that isn't logic lives here.
+   CONFIG · the product (like a niche pack). Everything product-specific that isn't logic.
    ================================================================================ */
 const CONFIG={
  name:'{{NAME}}', mark:'{{MARK}}', version:'1.0', publisher:'JPS Digital Pages',
- storageKey:'{{KEY}}',            // unique per product; backups are tagged with it
+ tagline:'Offline planner', email:'hello@jpsdigitalpages.com',
+ storageKey:'{{KEY}}',            // unique per product; names every storage key and backup file
  idb:true,                         // IndexedDB for anything that can grow past a few MB
  defaultTheme:'{{THEME}}',
  themes:['kiln','ledger','sage','linen','fjord','slate','night','midnight'],
  railNote:'<b>Know where you stand.</b>Everything stays on your computer.',
  entity:{one:'Project',many:'Projects',all:'All projects'},
- // [screen, label, icon, group]; hidden by default = off until switched on in Settings
- nav:[['dashboard','Dashboard','today','Overview'],['records','Records','log','Overview'],['reports','Reports','outlook','Overview'],['guide','How to use','help','Help'],['settings','Settings','palette','Help']],
- alwaysOn:['dashboard','settings'], hiddenNav:['reports'],
+ // [id, label, icon, hub tabs?]. A hub shows once in the sidebar; its screens are tabs on the page.
+ nav:[['dashboard','Dashboard','today'],['records','Records','log'],
+  ['reports','Reports','outlook',[['reports','Shares'],['year','Year at a glance']]],
+  ['settings','Settings & backup','palette'],['guide','How to use','help']],
+ navGroups:[['Overview',['dashboard','records']],['Reports',['reports']]], navGroupRest:'Help & settings',
+ optionalNav:['records','reports','guide'],   // can be switched off in Settings; the rest can't
+ hiddenNav:[],                                  // switched off in a new file (e.g. advanced screens)
  welcome:[
   {icon:'today',step:'WELCOME',title:'Everything in one calm place',text:'Add what happens, and every screen fills in by itself.'},
   {icon:'shield',step:'PRIVATE',title:'Your data stays on this computer',text:'Nothing is uploaded. There is no account and no subscription.'},
-  {icon:'down',step:'BACK UP',title:'Download a backup now and then',text:'Browsers can clear saved data. A backup file brings everything back in one click.'},
-  {icon:'check',step:'START',title:'Try the sample first',text:'Explore made-up data safely, then leave the sample and add your own.'}],
+  'backup',
+  {icon:'check',step:'START',title:'Try the sample first',text:'Explore made-up data safely, then return to your own and add the first record.'}],
  categories:[['sales','Sales','in'],['services','Services','in'],['supplies','Supplies','out'],['marketing','Marketing','out'],['tools','Tools & software','out'],['other','Other costs','out']],
+ currencies:['USD','EUR','GBP','CAD','AUD','NZD','INR','NGN','ZAR','JPY','CHF','SEK','SGD','MXN','BRL'],
 };
 
-/* ---------- icons: 24px stroke set ---------- */
-const P=d=>`<svg viewBox="0 0 24 24" class="i" aria-hidden="true">${d}</svg>`;
-const ICON={today:P('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'),outlook:P('<path d="M3 16.5 9 10l4 4 8-8.5"/><path d="M15 5.5h6v6"/>'),
- log:P('<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'),help:P('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.2-2.4 3.6"/><path d="M12 17.2h.01"/>'),
- palette:P('<circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2Z" fill="currentColor" stroke="none"/>'),shield:P('<path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6Z"/>'),
- down:P('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'),up:P('<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>'),check:P('<path d="m5 12.5 4.5 4.5L19 7"/>'),coins:P('<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>'),
- wallet:P('<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M16 14.5h2"/>'),insights:P('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),history:P('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>'),
- tags:P('<path d="M3 12V4h8l10 10-8 8Z"/><path d="M7.5 7.5h.01"/>'),plus:P('<path d="M12 5v14M5 12h14"/>'),left:P('<path d="m15 18-6-6 6-6"/>'),right:P('<path d="m9 18 6-6-6-6"/>'),menu:P('<path d="M4 7h16M4 12h16M4 17h16"/>'),
- edit:P('<path d="M4 20h4L19 9l-4-4L4 16Z"/>'),trash:P('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'),print:P('<path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><rect x="7" y="14" width="10" height="7"/>')};
+/* ---------- icons: 24px stroke set (same names as the core's ICON) ---------- */
+const S=d=>`<svg viewBox="0 0 24 24" class="i" aria-hidden="true">${d}</svg>`;
+const ICON={today:S('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'),outlook:S('<path d="M3 16.5 9 10l4 4 8-8.5"/><path d="M15 5.5h6v6"/>'),
+ log:S('<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'),help:S('<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.2-2.4 3.6"/><path d="M12 17.2h.01"/>'),
+ palette:S('<circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2Z" fill="currentColor" stroke="none"/>'),shield:S('<path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6Z"/>'),
+ down:S('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'),up:S('<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>'),check:S('<path d="m5 12.5 4.5 4.5L19 7"/>'),coins:S('<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>'),
+ wallet:S('<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M16 14.5h2"/>'),insights:S('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),history:S('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>'),
+ tags:S('<path d="M3 12V4h8l10 10-8 8Z"/><path d="M7.5 7.5h.01"/>'),plus:S('<path d="M12 5v14M5 12h14"/>'),left:S('<path d="m15 18-6-6 6-6"/>'),right:S('<path d="m9 18 6-6-6-6"/>'),menu:S('<path d="M4 7h16M4 12h16M4 17h16"/>'),
+ edit:S('<path d="M4 20h4L19 9l-4-4L4 16Z"/>'),trash:S('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'),print:S('<path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><rect x="7" y="14" width="10" height="7"/>'),
+ cross:S('<path d="M6 6l12 12M18 6 6 18"/>'),calendar:S('<rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 3v3M16 3v3"/>'),table:S('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>'),
+ compass:S('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/>'),globe:S('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>')};
 const ico=n=>ICON[n]||ICON.today;
 
 /* ---------- helpers ---------- */
@@ -467,57 +583,86 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const clone=o=>JSON.parse(JSON.stringify(o));
 const pad=n=>String(n).padStart(2,'0');
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
-const addMonths=(ym,n)=>{let [y,m]=ym.split('-').map(Number);m+=n;y+=Math.floor((m-1)/12);m=((m-1)%12+12)%12+1;return `${y}-${pad(m)}`;};
+const addMonths=(ym,n)=>{const d=new Date(+ym.slice(0,4),+ym.slice(5)-1+n,1,12);return `${d.getFullYear()}-${pad(d.getMonth()+1)}`;};
 const monthName=(ym,o={month:'long',year:'numeric'})=>new Date(ym+'-15T12:00:00').toLocaleDateString('en-US',o);
 const shortMonth=ym=>monthName(ym,{month:'short'});
-const endOf=ym=>{const [y,m]=ym.split('-').map(Number);return `${ym}-${pad(new Date(y,m,0).getDate())}`;};
-// money is integer cents everywhere; formatting happens only here
-const fmt=c=>{const v=new Intl.NumberFormat('en-US',{style:'currency',currency:state.settings.currency||'USD'}).format(Math.abs(c)/100);return (c<0?'−':'')+v;};
-const compact=c=>'$'+(Math.abs(c)>=100000?(c/100000).toFixed(1).replace(/\.0$/,'')+'k':Math.round(c/100));
+const endOf=ym=>`${ym}-${pad(new Date(+ym.slice(0,4),+ym.slice(5),0).getDate())}`;
+// money is integer cents everywhere; formatting happens only here. A zero is never "-$0.00".
+const money=c=>{const sym=(state.settings.symbol||'').trim(),a=Math.abs(c)/100,s=sym?sym+a.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):new Intl.NumberFormat('en-US',{style:'currency',currency:state.settings.currency||'USD'}).format(a);return (c<0?'−':'')+s;};
+const fmt=money;
+const compact=c=>{const sym=(state.settings.symbol||'').trim()||(new Intl.NumberFormat('en-US',{style:'currency',currency:state.settings.currency||'USD'}).formatToParts(0).find(p=>p.type==='currency')?.value)||'$';const v=Math.abs(c)/100;return (c<0?'−':'')+sym+(v>=1000?(v/1000).toFixed(v>=10000?0:1).replace(/\.0$/,'')+'k':Math.round(v));};
 const pc=(v,d=0)=>Number.isFinite(v)?(v*100).toFixed(d)+'%':'—';
 const num=n=>Number(n||0).toLocaleString('en-US');
-const uid=()=>Math.random().toString(36).slice(2,10);
+const uid=()=>globalThis.crypto?.randomUUID?.().slice(0,8)||Math.random().toString(36).slice(2,10);
+const button=(label,action,cls='',extra='')=>`<button class="btn ${cls}" data-action="${action}" ${extra}>${label}</button>`;
 
 /* ================================================================================
    Logic · pure, no DOM. Replace with the product's own rules; keep it testable.
    ================================================================================ */
 const Logic={
- blank:()=>({version:1,settings:{theme:CONFIG.defaultTheme,currency:'USD',entity:'',hiddenNav:[...CONFIG.hiddenNav],lastBackup:0},entities:[],records:[]}),
- validate(s){if(!s||typeof s!=='object'||!Array.isArray(s.records)||!Array.isArray(s.entities))throw Error('This is not a '+CONFIG.name+' file.');
-  const b=Logic.blank();s.settings={...b.settings,...s.settings};s.records=s.records.filter(r=>r&&/^\d{4}-\d{2}-\d{2}$/.test(r.date)&&Number.isInteger(r.amount));return s;},
+ blank:()=>({version:1,app:CONFIG.storageKey,settings:{name:'',theme:CONFIG.defaultTheme,currency:'USD',symbol:'',entity:'',hiddenNav:[...CONFIG.hiddenNav]},entities:[],records:[]}),
+ validate(s){if(!s||typeof s!=='object'||!Array.isArray(s.records)||!Array.isArray(s.entities))throw Error(`This is not a ${CONFIG.name} file.`);
+  const b=Logic.blank();s.settings={...b.settings,...s.settings};if(!CONFIG.themes.includes(s.settings.theme))s.settings.theme=CONFIG.defaultTheme;
+  s.records=s.records.filter(r=>r&&/^\d{4}-\d{2}-\d{2}$/.test(r.date)&&Number.isInteger(r.amount)&&r.amount>=0);return s;},
  kind:cat=>(CONFIG.categories.find(c=>c[0]===cat)||[])[2]||'out',
- inRange:(s,from,to)=>s.records.filter(r=>r.date>=from&&r.date<=to&&(!s.settings.entity||r.entity===s.settings.entity)),
+ inRange:(s,from,to,entity=s.settings.entity)=>s.records.filter(r=>r.date>=from&&r.date<=to&&(!entity||r.entity===entity)),
  totals(rows){let inn=0,out=0;for(const r of rows)(Logic.kind(r.category)==='in'?inn+=r.amount:out+=r.amount);return {in:inn,out,net:inn-out,count:rows.length};},
  byCategory(rows){const m=new Map();rows.forEach(r=>m.set(r.category,(m.get(r.category)||0)+r.amount));return m;},
 };
+const catName=id=>CONFIG.categories.find(c=>c[0]===id)?.[1]||id;
 
-/* ---------- state, storage (IndexedDB with localStorage fallback), commit + undo ---------- */
-const KEY=CONFIG.storageKey+'-v1';
-let state=Logic.blank(),real=null,demo=false,undoState=null,storageProblem='',screen='dashboard',selected=today().slice(0,7),period='month',custom={from:'',to:''},pulseAt=0;
+/* ---------- state + storage keys (every key starts with the product's storage key) ---------- */
+const KEY=CONFIG.storageKey+'-v1',RAIL_KEY=CONFIG.storageKey+'-rail-collapsed',WELCOME_KEY=CONFIG.storageKey+'-welcome-v1',
+ NUDGE_KEY=CONFIG.storageKey+'-backup-nudge',MANUAL_BACKUP_KEY=CONFIG.storageKey+'-manual-backup';
+const ls={get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch{}}};
+let state=Logic.blank(),real=null,demo=false,undoState=null,storageProblem='',screen='dashboard',selected=today().slice(0,7),period='month',custom={from:'',to:''},
+ railMin=ls.get(RAIL_KEY)==='1',hubLast={},returnFocus=null,askFn=null;
+
+/* ---------- storage: IndexedDB (room for big data) with a localStorage fallback ---------- */
 let IDB=CONFIG.idb&&!!globalThis.indexedDB,writing=null,again=false;
-const openDB=()=>new Promise((res,rej)=>{const q=indexedDB.open(CONFIG.storageKey+'-data',1);q.onupgradeneeded=()=>q.result.createObjectStore('kv');q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});
-async function idb(mode,value){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction('kv',mode==='get'?'readonly':'readwrite'),st=tx.objectStore('kv'),q=mode==='get'?st.get(KEY):st.put(value,KEY);if(mode==='get')q.onsuccess=()=>res(q.result);else tx.oncomplete=()=>res();tx.onerror=tx.onabort=()=>rej(tx.error||q.error);});}
-async function load(){
- let raw=null;
- if(IDB){try{raw=await idb('get');if(!raw&&localStorage.getItem(KEY))raw=localStorage.getItem(KEY);}catch{IDB=false;}}
- if(!IDB){try{raw=localStorage.getItem(KEY);}catch{storageProblem='Browser storage is unavailable. Changes stay in this session only.';}}
- if(raw){try{state=Logic.validate(JSON.parse(raw));if(IDB)save();}catch{storageProblem='Your saved data could not be read. It has not been overwritten. Restore a backup to continue.';}}
-}
-function save(){if(demo)return;const text=JSON.stringify(state);
+const openDB=(name,store)=>new Promise((res,rej)=>{const q=indexedDB.open(name,1);q.onupgradeneeded=()=>q.result.createObjectStore(store);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});
+async function kv(dbName,store,key,mode='get',value){const db=await openDB(dbName,store);return new Promise((res,rej)=>{const tx=db.transaction(store,mode==='get'?'readonly':'readwrite'),st=tx.objectStore(store),
+ q=mode==='get'?st.get(key):mode==='del'?st.delete(key):st.put(value,key);if(mode==='get')q.onsuccess=()=>res(q.result);else tx.oncomplete=()=>res();tx.onerror=tx.onabort=()=>rej(tx.error||q.error);});}
+const dataStore=(mode,v)=>kv(CONFIG.storageKey+'-data','kv',KEY,mode,v);
+async function load(){let raw=null;
+ if(IDB){try{raw=await dataStore('get');if(!raw)raw=ls.get(KEY);}catch{IDB=false;}}   // first open moves an old localStorage copy across
+ if(!IDB){try{raw=localStorage.getItem(KEY);}catch{storageProblem='Browser storage is unavailable. Changes stay in this session only. Download a backup before closing.';}}
+ if(raw){try{state=Logic.validate(JSON.parse(raw));if(IDB)save();}catch{storageProblem='Your saved data could not be read. It has not been overwritten. Restore a backup to continue.';}}}
+function save(){if(demo)return;
  if(storageProblem)return renderStatus();
- if(IDB){if(writing){again=true;return;}writing=idb('put',text).then(()=>{try{localStorage.removeItem(KEY);}catch{}}).catch(()=>{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';}).finally(()=>{writing=null;renderStatus();if(again){again=false;save();}});}
- else{try{localStorage.setItem(KEY,text);}catch{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';}renderStatus();}}
-function commit(fn,message='Saved'){undoState=clone(state);fn();save();render();toast(message,true);}
+ const text=JSON.stringify(state);
+ if(IDB){if(writing){again=true;return;}   // one write in flight, one queued: an older save never lands after a newer one
+  writing=dataStore('put',text).then(()=>{try{localStorage.removeItem(KEY);}catch{}}).catch(()=>{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';}).finally(()=>{writing=null;renderStatus();if(again){again=false;save();}});}
+ else{try{localStorage.setItem(KEY,text);}catch{storageProblem='Browser storage is unavailable or full. Changes are only in this session. Download a backup before closing.';}renderStatus();}
+ queueFolderBackup();}
+// every change goes through commit: snapshot for undo, change, save, redraw, toast with Undo
+function commit(fn,message='Saved'){undoState=clone(state);fn();save();render();toast(storageProblem&&!demo?message+' in this session only. Download a backup.':message,true);}
 function toast(message,undo=false){clearTimeout(toast.t);const el=$('#toast');el.innerHTML=`<span>${esc(message)}</span>${undo?'<button data-action="undo">Undo</button>':''}`;el.hidden=false;toast.t=setTimeout(()=>el.hidden=true,6500);}
 
-/* ---------- backups ---------- */
+/* ---------- backups: download, restore, and a daily file in a folder the user picks (Chrome/Edge) ---------- */
 function download(name,text,type='application/json'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
-function backup(){download(`${CONFIG.storageKey}-${demo?'sample-':''}${today()}.json`,JSON.stringify({app:CONFIG.storageKey,version:CONFIG.version,saved:new Date().toISOString(),data:state},null,2));if(!demo){state.settings.lastBackup=Date.now();save();renderStatus();}toast('Backup downloaded. Keep it somewhere safe.');}
+const backupJSON=()=>JSON.stringify({app:CONFIG.storageKey,version:CONFIG.version,saved:new Date().toISOString(),data:state},null,2);
+function backup(){download(`${CONFIG.storageKey}-${demo?'sample-':''}${today()}.json`,backupJSON());if(!demo){ls.set(MANUAL_BACKUP_KEY,String(Date.now()));renderStatus();}toast('Backup downloaded. Keep it somewhere safe.');}
 async function restore(file){try{const j=JSON.parse(await file.text());if(j.app!==CONFIG.storageKey)throw Error(`This backup is from another app. Choose a ${CONFIG.name} backup.`);const next=Logic.validate(j.data);
-  if(demo)toggleSample();commit(()=>{state=next;},'Backup restored');storageProblem='';}catch(e){toast(e.message||'That file could not be read.');}}
+ if(demo)toggleSample(true);storageProblem='';commit(()=>{state=next;},'Backup restored');}catch(e){toast(e instanceof SyntaxError?'That file is not a backup.':e.message||'That file could not be read.');}}
+const folderSupported=()=>!!globalThis.showDirectoryPicker;
+let folder=null,folderStatus='Not connected',folderTimer=null,folderChain=Promise.resolve(),bannerHidden=false;
+const handleStore=(mode,v)=>kv(CONFIG.storageKey+'-backup','handles','folder',mode,v);
+function setFolderStatus(t){folderStatus=t;const el=$('#folder-status');if(el)el.textContent=t;renderStatus();}
+async function chooseFolder(){if(!folderSupported())return toast('Folder backup needs Chrome or Edge on a computer. Use Download backup here.');
+ try{folder=await showDirectoryPicker({mode:'readwrite',id:CONFIG.storageKey+'-backups'});await handleStore('put',folder);await writeFolder(true);toast('Backups will be saved to that folder after every change.');render();}catch(e){if(e.name!=='AbortError')toast('That folder could not be used.');}}
+async function reconnectFolder(){if(!folder)return chooseFolder();try{const p=await folder.requestPermission({mode:'readwrite'});if(p==='granted'){await writeFolder(true);render();}}catch{setFolderStatus('Reconnect needed');}}
+function queueFolderBackup(){if(!folder||demo)return;clearTimeout(folderTimer);folderTimer=setTimeout(()=>writeFolder().catch(()=>setFolderStatus('Backup needs attention')),1200);}
+function writeFolder(){const f=folder;folderChain=folderChain.catch(()=>{}).then(async()=>{if(!f||f!==folder||demo)return;
+ if(await f.queryPermission({mode:'readwrite'})!=='granted')return setFolderStatus('Reconnect needed');
+ const h=await f.getFileHandle(`${CONFIG.storageKey}-backup-${today()}.json`,{create:true}),w=await h.createWritable();await w.write(backupJSON());await w.close();setFolderStatus('Connected');});return folderChain;}
+async function initFolder(){if(!folderSupported()){folderStatus='Not available here';return;}try{folder=await handleStore('get')||null;if(folder){const p=await folder.queryPermission({mode:'readwrite'});setFolderStatus(p==='granted'?'Connected':'Reconnect needed');}}catch{folderStatus='Not available here';}}
+const hasData=()=>state.records.length>0;
+// protected = a healthy folder backup, or a downloaded backup in the last 7 days
+const protectedNow=()=>(folder&&folderStatus==='Connected')||Date.now()-(+ls.get(MANUAL_BACKUP_KEY)||0)<7*864e5;
 
 /* ---------- sample mode: separate, never saved ---------- */
-function sampleData(){const s=Logic.blank();s.settings.theme=state.settings.theme;
+function sampleData(){const s=Logic.blank();s.settings.theme=state.settings.theme;s.settings.currency=state.settings.currency;
  const ents=[['e1','Fern & Fable'],['e2','Copper Kiln']];s.entities=ents.map(([id,name])=>({id,name}));
  const start=addMonths(today().slice(0,7),-13);let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
  for(let m=0;m<14;m++){const ym=addMonths(start,m),season=1+0.35*Math.sin((m+2)/12*Math.PI*2);
@@ -525,13 +670,14 @@ function sampleData(){const s=Logic.blank();s.settings.theme=state.settings.them
    for(let k=0;k<6;k++)s.records.push({id:uid(),entity:id,date:`${ym}-${pad(2+k*4)}`,category:k%3?'sales':'services',amount:Math.round((42000+rnd()*26000)*season*w),note:k%3?'Online orders':'Custom commission'});
    [['supplies',120000],['marketing',45000],['tools',18000],['other',12000]].forEach(([c,base],k)=>s.records.push({id:uid(),entity:id,date:`${ym}-${pad(5+k*6)}`,category:c,amount:Math.round(base*(0.7+rnd()*0.6)*w),note:c==='tools'?'Monthly apps':'Receipts'}));}}
  return s;}
-function toggleSample(){if(!demo){real=state;state=sampleData();demo=true;toast('Sample mode: made-up data, nothing saved');}else{state=real;real=null;demo=false;toast('Back to your own data');}undoState=null;applyTheme();render();}
+function toggleSample(quiet=false){if(!demo){real=state;state=sampleData();demo=true;if(!quiet)toast('Sample mode: made-up data, nothing is saved');}else{state=real;real=null;demo=false;if(!quiet)toast('Back to your own data');}undoState=null;render();}
 
 /* ================================================================================
    Chart kit · SVG strings, no library. Donut above its legend, flat bars, value labels.
    ================================================================================ */
 const CAT=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)'];
 const tipOf=(t,rows)=>esc(JSON.stringify({t,r:rows}));
+// top five slices, then one grey "Other"; hues in fixed order, never cycled
 const fold=rows=>{const r=rows.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),top=r.slice(0,5).map((x,i)=>[x[0],x[1],x[2]||CAT[i]]);const rest=r.slice(5).reduce((n,x)=>n+x[1],0);if(rest)top.push([`Other (${r.length-5} more)`,rest,CAT[5]]);return top;};
 function pie(parts,{label='',donut=true,center='',sub='',f=fmt}={}){
  parts=parts.filter(p=>p[1]>0);const total=parts.reduce((n,p)=>n+p[1],0);if(!total)return '';
@@ -540,19 +686,21 @@ function pie(parts,{label='',donut=true,center='',sub='',f=fmt}={}){
   if(sw>=Math.PI*2-1e-6)d=`M${c} ${c-R}A${R} ${R} 0 1 1 ${c-0.01} ${c-R}Z`+(donut?`M${c} ${c-r0}A${r0} ${r0} 0 1 0 ${c+0.01} ${c-r0}Z`:'');
   else{const lg=sw>Math.PI?1:0,[x1,y1]=pt(a1,R),[x2,y2]=pt(a2,R);if(donut){const [x3,y3]=pt(a2,r0),[x4,y4]=pt(a1,r0);d=`M${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${r0} ${r0} 0 ${lg} 0 ${x4} ${y4}Z`;}else d=`M${c} ${c}L${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}Z`;}
   return `<path class="kit-seg" d="${d}" fill="${color}" fill-rule="evenodd" style="--i:${i}" tabindex="0" aria-label="${esc(name)}: ${pc(n/total)}" data-tip="${tipOf(name,[{name:label,value:f(n),color},{name:'Share',value:pc(n/total)}])}"/>`;}).join('');
+ // straight dividers between slices, drawn over them
  let cuts='';if(parts.length>1){let b=-Math.PI/2;for(const p of parts){const [x1,y1]=pt(b,r0),[x2,y2]=pt(b,R+1);cuts+=`<line class="kit-cut" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;b+=p[1]/total*Math.PI*2;}}
  const key=parts.map(([name,n,color])=>`<div class="kit-key-row"><i class="dot" style="background:${color}"></i><span>${esc(name)}</span><b class="number">${pc(n/total,n/total<0.1?1:0)}</b><em class="number">${f(n)}</em></div>`).join('');
  return `<div class="kit-pie"><svg viewBox="0 0 180 180" role="img" aria-label="${esc(label)}">${segs}${cuts}${donut&&center?`<text x="90" y="92" class="kit-mid">${esc(center)}</text><text x="90" y="110" class="kit-mid-sub">${esc(sub)}</text>`:''}</svg><div class="kit-key">${key}</div></div>`;}
 function gauge(v,title,note){const p=Math.max(0,Math.min(1,Number.isFinite(v)?v:0));return `<div class="kit-gauge"><svg viewBox="0 0 180 104" role="img" aria-label="${esc(title)} ${pc(v)}"><path d="M20 92A70 70 0 0 1 160 92" class="kit-gauge-track" pathLength="100"/><path d="M20 92A70 70 0 0 1 160 92" class="kit-gauge-val" pathLength="100" style="stroke-dasharray:${(p*100).toFixed(1)} 100"/><text x="90" y="86" class="kit-gauge-num">${pc(v)}</text></svg><b>${esc(title)}</b><small>${esc(note)}</small></div>`;}
 function spark(vals){const pts=vals.map((n,i)=>Number.isFinite(n)?[i,n]:null).filter(Boolean);if(pts.length<2)return '';const ys=pts.map(p=>p[1]),mn=Math.min(...ys),sp=(Math.max(...ys)-mn)||1,W=120,H=30,X=i=>2+i*(W-6)/Math.max(1,vals.length-1),Y=n=>H-4-(n-mn)/sp*(H-8),l=pts.at(-1);
  return `<svg class="kit-spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts.map(([i,n])=>X(i).toFixed(1)+','+Y(n).toFixed(1)).join(' ')}"/><circle cx="${X(l[0]).toFixed(1)}" cy="${Y(l[1]).toFixed(1)}" r="3"/></svg>`;}
-// columns, stacked when several series; square corners, no gaps, the total printed on top
-function bars(series,labels,{title='',overlay=null,H=260}={}){
+// columns, stacked when several series; square corners, no gaps, the total printed on top, optional line on the same scale
+// W: drawing width. 700 suits a half-width card; pass ~1100 for a full-width card so the chart isn't blown up
+function bars(series,labels,{title='',overlay=null,H=260,W=700}={}){
  const tot=labels.map((_,i)=>series.reduce((n,s)=>n+Math.max(0,s.values[i]||0),0)),max=Math.max(1,...tot,...(overlay?overlay.values.filter(Number.isFinite):[]));if(!tot.some(Boolean))return '';
- const W=700,pl=52,pr=12,pt=22,pb=28,band=(W-pl-pr)/labels.length,bw=Math.min(38,band*.62),Y=v=>pt+(1-v/max)*(H-pt-pb),ticks=[0,1,2,3,4].map(i=>max*i/4);
+ const pl=52,pr=12,pt=22,pb=28,band=(W-pl-pr)/labels.length,bw=Math.min(38,band*.62),Y=v=>pt+(1-v/max)*(H-pt-pb),ticks=[0,1,2,3,4].map(i=>max*i/4);
  const cols=labels.map((l,i)=>{let base=H-pb;const x=pl+band*i+(band-bw)/2;
   const segs=series.map(s=>{const v=Math.max(0,s.values[i]||0);if(!v)return '';const h=(H-pt-pb)*v/max,y=base-h;base=y;return `<rect class="kit-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" style="fill:${s.color};--i:${i}"/>`;}).join('');
-  const tip=tipOf(l,[...series.filter(s=>s.values[i]).map(s=>({name:s.name,value:fmt(s.values[i]),color:s.color})),...(series.length>1?[{name:'Total',value:fmt(tot[i])}]:[])]);
+  const tip=tipOf(l,[...series.filter(s=>s.values[i]).map(s=>({name:s.name,value:fmt(s.values[i]),color:s.color})),...(series.length>1?[{name:'Total',value:fmt(tot[i])}]:[]),...(overlay&&Number.isFinite(overlay.values[i])?[{name:overlay.name,value:fmt(overlay.values[i]),color:overlay.color}]:[])]);
   return `<g class="kit-col" tabindex="0" data-tip="${tip}"><rect x="${(pl+band*i).toFixed(1)}" y="${pt}" width="${band.toFixed(1)}" height="${H-pt-pb}" fill="transparent"/>${segs}${tot[i]?`<text x="${(x+bw/2).toFixed(1)}" y="${(Y(tot[i])-6).toFixed(1)}" class="kit-axis" text-anchor="middle">${compact(tot[i])}</text>`:''}</g><text x="${(x+bw/2).toFixed(1)}" y="${H-8}" class="kit-axis" text-anchor="middle">${esc(l)}</text>`;}).join('');
  const ov=overlay?(()=>{const p=overlay.values.map((v,i)=>Number.isFinite(v)?[pl+band*i+band/2,Y(Math.max(0,v))]:null).filter(Boolean);return `<polyline class="kit-path" pathLength="100" points="${p.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ')}" style="stroke:${overlay.color}"/>`+p.map(q=>`<circle class="kit-dot" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4" style="fill:${overlay.color}"/>`).join('');})():'';
  const keys=[...series,...(overlay?[overlay]:[])];
@@ -567,131 +715,203 @@ function range(){const y=selected.slice(0,4),m=+selected.slice(5);
  return {from:selected+'-01',to:endOf(selected),label:monthName(selected)};}
 const periodControl=()=>`<div class="segment" role="group" aria-label="Period">${[['month','Month'],['quarter','Quarter'],['year','Year'],['all','All time'],['custom','Custom']].map(([k,l])=>`<button data-action="period" data-k="${k}" aria-pressed="${period===k}">${l}</button>`).join('')}</div>${period==='custom'?`<span class="custom-range"><label>From<input type="date" id="c-from" value="${custom.from}"></label><label>To<input type="date" id="c-to" value="${custom.to}"></label></span>`:''}`;
 
-/* ---------- screens ---------- */
-const head=(eyebrow,title,sub,actions='')=>`<div class="pagehead"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1>${sub?`<p class="subtitle">${sub}</p>`:''}</div><div class="actions">${actions}</div></div><div class="print-period">${esc(range().label)}</div>`;
-const tile=(label,value,note,sp='',icon='',i=0)=>`<div class="kpi" style="--i:${i}" data-icon="${icon}"><div class="label">${label}</div><b class="number">${value}</b>${sp}<small>${note}</small></div>`;
+/* ---------- building blocks ---------- */
+const pagehead=(eyebrow,title,sub,actions='')=>`<div class="pagehead"><div class="pagehead-text"><div class="eyebrow">${eyebrow}</div><h1>${title}</h1>${sub?`<p class="subtitle">${sub}</p>`:''}</div>${actions?`<div class="actions">${actions}</div>`:''}</div>`;
+// a KPI tile; afterRender tints it from the label, adds the icon square and colors the change
+const tile=(label,value,note,sp='',icon='',i=0,count=null)=>`<div class="kpi" style="--i:${i}" data-icon="${icon}"><div class="label">${label}</div><b class="number"${count!==null?` data-count="${count}"`:''}>${value}</b>${sp}<small>${note}</small></div>`;
 const cardhead=(title,note='',icon='',actions='')=>`<div class="cardhead"><div><h2>${icon?`<span class="h-ico">${ico(icon)}</span>`:''}${title}</h2>${note?`<p>${note}</p>`:''}</div>${actions?`<div class="actions">${actions}</div>`:''}</div>`;
-const empty=(title,text,btn='')=>`<div class="empty">${ico('today')}<h3>${title}</h3><p>${text}</p>${btn}</div>`;
-const button=(label,action,cls='',data='')=>`<button class="btn ${cls}" data-action="${action}" ${data}>${label}</button>`;
-function months(n=12){return Array.from({length:n},(_,i)=>addMonths(selected,i-n+1));}
-function monthTotals(list){return list.map(m=>Logic.totals(Logic.inRange(state,m+'-01',endOf(m))));}
+const empty=(title,text,btn='')=>`<div class="empty">${ico('compass')}<h3>${title}</h3><p>${text}</p>${btn}</div>`;
+const months=(n=12)=>Array.from({length:n},(_,i)=>addMonths(selected,i-n+1));
+const monthTotals=list=>list.map(m=>Logic.totals(Logic.inRange(state,m+'-01',endOf(m))));
+const entityName=id=>state.entities.find(e=>e.id===id)?.name||'Shared';
+const pager=(st,total,per)=>{const pages=Math.max(1,Math.ceil(total/per));return pages<2?'':`<div class="pager no-print"><span>${num(st.page*per+1)}–${num(Math.min(total,(st.page+1)*per))} of ${num(total)} · page ${st.page+1} of ${pages}</span><span class="actions">${button('Previous','page','small',`data-d="-1" ${st.page?'':'disabled'}`)}${button('Next','page','small',`data-d="1" ${st.page<pages-1?'':'disabled'}`)}</span></div>`;};
 
+// the pulse: a few things worth knowing, one at a time, above the hero
+function pulse(tips){if(!tips.length)return '';return `<section class="pulse no-print" id="pulse" data-at="0"><span class="pulse-live" aria-hidden="true"></span><div class="pulse-track" aria-live="polite">${tips.map((t,i)=>`<p class="${i?'':'on'}">${t}</p>`).join('')}</div><div class="pulse-nav"><button class="pulse-arrow" data-action="pulse" data-d="-1" aria-label="Previous insight">‹</button>${tips.map((_,i)=>`<button class="pulse-dot" data-action="pulse-to" data-i="${i}" aria-label="Insight ${i+1} of ${tips.length}" aria-pressed="${!i}"></button>`).join('')}<button class="pulse-arrow" data-action="pulse" data-d="1" aria-label="Next insight">›</button></div></section>`;}
+function showPulse(i){const box=$('#pulse');if(!box)return;const ps=[...box.querySelectorAll('.pulse-track p')],ds=[...box.querySelectorAll('.pulse-dot')],n=((i%ps.length)+ps.length)%ps.length;ps.forEach((p,k)=>p.classList.toggle('on',k===n));ds.forEach((d,k)=>d.setAttribute('aria-pressed',String(k===n)));box.dataset.at=n;}
+setInterval(()=>{const box=$('#pulse');if(!box||box.matches(':hover,:focus-within')||document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches)return;showPulse(+box.dataset.at+1);},6000);
+
+/* ================================================================================
+   Screens
+   ================================================================================ */
+const rec={q:'',page:0};
 const VIEWS={
  dashboard(){
   const r=range(),rows=Logic.inRange(state,r.from,r.to),t=Logic.totals(rows),ms=months(),mt=monthTotals(ms);
-  if(!state.records.length)return head(r.label.toUpperCase(),'Welcome to '+esc(CONFIG.name),'Start with the sample to see every screen filled in, or add your first record.')+
-   `<div class="card">${empty('Nothing here yet','Add your first record, or explore made-up data first.',button('Try the sample','sample','primary')+' '+button('Add a record','add'))}</div><div class="steps">${[['01','Add a record','Anything that comes in or goes out.'],['02','See the summary','Every screen fills in by itself.'],['03','Back up','One file keeps everything safe.']].map(([n,h,p])=>`<div class="step"><span>${n}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>`;
-  const prev=Logic.totals(Logic.inRange(state,addMonths(selected,-1)+'-01',endOf(addMonths(selected,-1)))),d=(a,b)=>b?`${a>=b?'+':'−'}${Math.abs((a-b)/b*100).toFixed(0)}% vs last month`:'First month';
-  const cats=[...Logic.byCategory(rows.filter(x=>Logic.kind(x.category)==='out'))].map(([c,v])=>[CONFIG.categories.find(x=>x[0]===c)?.[1]||c,v]);
-  const tips=[`<b>Best month this year:</b> ${esc(monthName(ms[mt.reduce((b,x,i)=>x.net>mt[b].net?i:b,0)]))}`,`<b>Kept:</b> ${pc(t.in?t.net/t.in:NaN)} of every dollar in ${esc(r.label)}`,`<b>Records:</b> ${num(t.count)} in ${esc(r.label)}`];
-  const ents=state.entities.length>1&&!state.settings.entity?state.entities.map((e,i)=>({name:e.name,color:CAT[i%5],values:ms.map(m=>Logic.totals(Logic.inRange({...state,settings:{...state.settings,entity:e.id}},m+'-01',endOf(m))).in)})):[{name:'Money in',color:'var(--ok)',values:mt.map(x=>x.in)}];
-  return head(r.label.toUpperCase(),state.settings.entity?esc(entityName(state.settings.entity))+' at a glance':'Everything at a glance','',periodControl()+button(ico('print')+'<span>Print</span>','print'))+
-   `<div class="pulse"><i></i><p>${tips[pulseAt%tips.length]}</p><div class="pulse-nav"><button class="arrow" data-action="pulse" data-d="-1" aria-label="Previous">‹</button><span class="pulse-dots">${tips.map((_,i)=>`<span class="${i===pulseAt%tips.length?'on':''}"></span>`).join('')}</span><button class="arrow" data-action="pulse" data-d="1" aria-label="Next">›</button></div></div>`+
-   `<section class="hero"><div><div class="eyebrow">Net · ${esc(r.label)}</div><div class="hero-num" data-count="${t.net}">${fmt(t.net)}</div><p>What you kept from <b>${fmt(t.in)}</b> coming in, after <b>${fmt(t.out)}</b> of costs: <b>${pc(t.in?t.net/t.in:NaN)}</b> of every dollar.</p><div class="actions">${button('Add a record','add','pop')}${button('See records','go','ghost','data-to="records"')}</div></div>
+  if(!state.records.length)return pagehead(r.label,'Welcome to '+esc(CONFIG.name),'Start with the sample to see every screen filled in, or add your first record.')+
+   `<section class="card">${empty('Nothing here yet','Add your first record, or explore made-up data first.',button('Explore sample data','sample','primary')+' '+button('Add a record','add'))}</section><div class="steps">${[['01 / ADD','Add a record','Anything that comes in or goes out.'],['02 / REVIEW','See the summary','Every screen fills in by itself.'],['03 / PROTECT','Back up','One file keeps everything safe.']].map(([n,h,p])=>`<div class="step"><span>${n}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>`;
+  const pm=addMonths(selected,-1),prev=Logic.totals(Logic.inRange(state,pm+'-01',endOf(pm))),d=(a,b)=>b?`${a>=b?'+':'−'}${Math.abs((a-b)/b*100).toFixed(0)}% vs last month (${compact(b)})`:'First month with records';
+  const cats=[...Logic.byCategory(rows.filter(x=>Logic.kind(x.category)==='out'))].map(([c,v])=>[catName(c),v]);
+  const best=mt.reduce((b,x,i)=>x.net>mt[b].net?i:b,0);
+  const tips=[`<span><b>Best month in the last year:</b> ${esc(monthName(ms[best]))} · ${fmt(mt[best].net)} kept</span>`,`<span><b>You kept ${pc(t.in?t.net/t.in:NaN)}</b> of every dollar in ${esc(r.label)}</span>`,`<span><b>${num(t.count)} records</b> in ${esc(r.label)}</span>`];
+  const ents=state.entities.length>1&&!state.settings.entity?state.entities.slice(0,5).map((e,i)=>({name:e.name,color:CAT[i],values:ms.map(m=>Logic.totals(Logic.inRange(state,m+'-01',endOf(m),e.id)).in)})):[{name:'Money in',color:'var(--ok)',values:mt.map(x=>x.in)}];
+  return pagehead(r.label,state.settings.entity?esc(entityName(state.settings.entity))+' at a glance':'Everything at a glance','',periodControl()+button(ico('print')+'<span>Print</span>','print'))+pulse(tips)+
+   `<section class="hero"><div><div class="eyebrow">Net · ${esc(r.label)}</div><div class="hero-num" data-count="${t.net}">${fmt(t.net)}</div><p>What you kept from <b>${fmt(t.in)}</b> coming in, after <b>${fmt(t.out)}</b> of costs: <b>${pc(t.in?t.net/t.in:NaN)}</b> of every dollar.</p><div class="actions">${button('Add a record','add','pop')}${button('See records','go','ghost','data-go="records"')}</div></div>
    <div class="hero-side"><div class="hero-fact">Money in<strong>${fmt(t.in)}</strong></div><div class="hero-fact">Costs<strong>−${fmt(t.out)}</strong></div><div class="hero-meter"><i style="width:${Math.max(0,Math.min(100,t.in?t.net/t.in*100:0)).toFixed(1)}%"></i></div><div class="hero-fact">Share kept<strong>${pc(t.in?t.net/t.in:NaN)}</strong></div><div class="hero-fact">Records<strong>${num(t.count)}</strong></div></div></section>`+
-   `<div class="kpis">${tile('Money in',fmt(t.in),d(t.in,prev.in),spark(mt.map(x=>x.in)),'up',0)}${tile('Costs',fmt(t.out),d(t.out,prev.out),spark(mt.map(x=>x.out)),'coins',1)}${tile('Net profit',fmt(t.net),d(t.net,prev.net),spark(mt.map(x=>x.net)),'insights',2)}${tile('Average monthly cash flow',fmt(Math.round(mt.reduce((n,x)=>n+x.net,0)/12)),'Last 12 months',spark(mt.map(x=>x.net)),'history',3)}</div>`+
+   `<div class="kpis">${tile('Money in',fmt(t.in),d(t.in,prev.in),spark(mt.map(x=>x.in)),'up',0,t.in)}${tile('Costs',fmt(t.out),d(t.out,prev.out),spark(mt.map(x=>x.out)),'coins',1,t.out)}${tile('Net profit',fmt(t.net),d(t.net,prev.net),spark(mt.map(x=>x.net)),'insights',2,t.net)}${tile('Average monthly cash flow',fmt(Math.round(mt.reduce((n,x)=>n+x.net,0)/12)),'Last 12 months',spark(mt.map(x=>x.net)),'history',3)}</div>`+
    `<div class="grid2"><section class="card">${cardhead('Month by month','Money in, with net as a line','insights')}${bars(ents,ms.map(shortMonth),{title:'Money in by month',overlay:{name:'Net',color:'var(--accent)',values:mt.map(x=>x.net)}})}</section>
    <section class="card">${cardhead('Where costs went',esc(r.label),'coins')}${pie(fold(cats),{label:'Costs',center:compact(t.out),sub:'COSTS'})||empty('No costs yet','Costs you add show here by category.')}</section></div>`;},
  records(){
-  const r=range(),q=(records.q||'').toLowerCase(),rows=Logic.inRange(state,r.from,r.to).filter(x=>!q||`${x.note} ${x.category}`.toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date));
-  const per=15,pages=Math.max(1,Math.ceil(rows.length/per));records.page=Math.min(records.page||0,pages-1);const view=rows.slice(records.page*per,records.page*per+per);
-  return head(r.label.toUpperCase(),'Records','Everything that came in or went out. Click a heading to sort.',periodControl()+button(ico('plus')+'<span>Add a record</span>','add','primary'))+
-   `<section class="card table-card">${cardhead('Every record',`${num(rows.length)} in ${esc(r.label)}`,'log',`<div class="filters"><input id="search" type="search" placeholder="Search notes or categories" value="${esc(records.q||'')}" aria-label="Search records"></div>`)}
-   ${rows.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Note</th><th>Category</th>${state.entities.length>1?`<th>${CONFIG.entity.one}</th>`:''}<th class="num">Amount</th><th></th></tr></thead><tbody>${view.map(x=>`<tr><td data-v="${x.date}" style="white-space:nowrap">${esc(monthName(x.date.slice(0,7),{month:'short'}))} ${+x.date.slice(8)}</td><td><span class="clamp">${esc(x.note)}</span></td><td>${esc(CONFIG.categories.find(c=>c[0]===x.category)?.[1]||x.category)}</td>${state.entities.length>1?`<td>${esc(entityName(x.entity))}</td>`:''}<td class="num ${Logic.kind(x.category)==='in'?'good':''}" data-v="${Logic.kind(x.category)==='in'?x.amount:-x.amount}">${Logic.kind(x.category)==='in'?'':'−'}${fmt(x.amount)}</td><td class="num"><button class="ibtn" data-action="edit" data-id="${x.id}" aria-label="Edit">${ico('edit')}</button><button class="ibtn" data-action="delete" data-id="${x.id}" aria-label="Delete">${ico('trash')}</button></td></tr>`).join('')}</tbody></table></div>
-   <div class="pager"><span>${num(records.page*per+1)}–${num(Math.min(rows.length,records.page*per+per))} of ${num(rows.length)}</span><span class="actions">${button('Previous','page','small','data-d="-1" '+(records.page?'':'disabled'))}${button('Next','page','small','data-d="1" '+(records.page<pages-1?'':'disabled'))}</span></div>`:empty('No records in this period','Pick another period, or add one.',button('Add a record','add','primary'))}</section>`;},
- reports(){const r=range(),rows=Logic.inRange(state,r.from,r.to),t=Logic.totals(rows),ins=[...Logic.byCategory(rows.filter(x=>Logic.kind(x.category)==='in'))].map(([c,v])=>[CONFIG.categories.find(x=>x[0]===c)?.[1]||c,v]);
-  return head(r.label.toUpperCase(),'Reports','Shares, margins and the year in one view.',periodControl())+
-   `<div class="grid3"><section class="card">${cardhead('Kept of every dollar','','insights')}${gauge(t.in?t.net/t.in:NaN,'Net margin',esc(r.label))}</section><section class="card">${cardhead('Where money came from','','up')}${pie(fold(ins),{label:'Money in',donut:false})||empty('Nothing yet','Money in shows here.')}</section><section class="card">${cardhead('Costs against money in','','coins')}${gauge(t.in?t.out/t.in:NaN,'Cost share','Lower is better')}</section></div>`;},
- guide(){return head('HELP','How to use '+esc(CONFIG.name),'Three moves. Everything else fills in by itself.')+
-   `<div class="steps">${[['01','Add','Add a record for anything that comes in or goes out.','Add a record','add'],['02','Review','Open the dashboard and reports for any period.','Dashboard','go'],['03','Back up','Download a backup after big changes.','Download backup','backup']].map(([n,h,p,b,a])=>`<div class="step"><span>${n}</span><h3>${h}</h3><p>${p}</p>${button(b,a,'small',a==='go'?'data-to="dashboard"':'')}</div>`).join('')}</div>`;},
- settings(){const T=state.settings.theme;
-  return head('SETTINGS','Settings','Your look, your sidebar and your data.')+
-   `<section class="card">${cardhead('Look','Eight themes, light and dark.','palette')}<div class="themes">${CONFIG.themes.map(n=>`<button class="theme-card" data-action="theme" data-k="${n}" aria-pressed="${T===n}"><i data-theme="${n}"><span style="background:var(--bold)"></span><span style="background:var(--paper);border-left:6px solid var(--accent)"></span></i><b>${n[0].toUpperCase()+n.slice(1)}</b></button>`).join('')}</div></section>
-   <section class="card">${cardhead('Simplify your sidebar','Switch screens you don’t use off. You can switch them back on any time.','log')}<div class="toggles">${CONFIG.nav.filter(n=>!CONFIG.alwaysOn.includes(n[0])).map(([id,l])=>`<label><input type="checkbox" data-action="navtoggle" data-k="${id}" ${state.settings.hiddenNav.includes(id)?'':'checked'}> ${l}</label>`).join('')}</div></section>
-   <section class="card">${cardhead(`${CONFIG.entity.many}`,`Add one per ${CONFIG.entity.one.toLowerCase()}; every screen can show one or all.`,'tags',button('Add','entity','small'))}${state.entities.map(e=>`<div class="row"><span>${esc(e.name)}</span><span class="actions">${button('Rename','entity','small',`data-id="${e.id}"`)}</span></div>`).join('')||'<p class="dim">None yet.</p>'}</section>
-   <section class="card">${cardhead('Keeping your data safe','Saved in this browser on this computer. Nothing is uploaded.','shield')}<div class="actions">${button('Download backup','backup','primary')}${button('Restore a backup','restore')}${button('Start fresh','fresh','danger')}</div></section>
-   <p class="dim" style="font-size:12px">${esc(CONFIG.name)} ${CONFIG.version} · ${esc(CONFIG.publisher)} · For personal or own-business use by the purchaser.</p>`;},
+  const r=range(),q=rec.q.toLowerCase(),rows=Logic.inRange(state,r.from,r.to).filter(x=>!q||`${x.note} ${catName(x.category)}`.toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date));
+  const per=15,pages=Math.max(1,Math.ceil(rows.length/per));rec.page=Math.max(0,Math.min(rec.page,pages-1));const view=rows.slice(rec.page*per,rec.page*per+per),many=state.entities.length>1;
+  return pagehead(r.label,'Records','Everything that came in or went out. Click a heading to sort.',periodControl()+button(ico('down')+'<span>CSV</span>','csv')+button(ico('plus')+'<span>Add a record</span>','add','primary'))+
+   `<section class="card table-card">${cardhead('Every record',`${num(rows.length)} in ${esc(r.label)}`,'log',`<div class="filters"><input id="search" type="search" placeholder="Search notes or categories" value="${esc(rec.q)}" aria-label="Search records"></div>`)}
+   ${rows.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Note</th><th>Category</th>${many?`<th>${CONFIG.entity.one}</th>`:''}<th class="num">Amount</th><th></th></tr></thead><tbody>${view.map(x=>{const inn=Logic.kind(x.category)==='in';return `<tr><td data-v="${x.date}" style="white-space:nowrap">${shortMonth(x.date.slice(0,7))} ${+x.date.slice(8)}</td><td><span class="clamp">${esc(x.note)}</span></td><td>${esc(catName(x.category))}</td>${many?`<td>${esc(entityName(x.entity))}</td>`:''}<td class="num ${inn?'good':''}" data-v="${inn?x.amount:-x.amount}">${inn?'':'−'}${fmt(x.amount)}</td><td class="num"><button class="icon-action" data-action="edit" data-id="${x.id}" aria-label="Edit record" title="Edit">${ico('edit')}</button><button class="icon-action danger" data-action="delete" data-id="${x.id}" aria-label="Delete record" title="Delete">${ico('trash')}</button></td></tr>`;}).join('')}</tbody></table></div>${pager(rec,rows.length,per)}`:empty('No records in this period','Pick another period, or add one.',button('Add a record','add','primary'))}</section>`;},
+ reports(){const r=range(),rows=Logic.inRange(state,r.from,r.to),t=Logic.totals(rows),ins=[...Logic.byCategory(rows.filter(x=>Logic.kind(x.category)==='in'))].map(([c,v])=>[catName(c),v]);
+  return pagehead(r.label,'Shares','Where money came from, and how much of it you kept.',periodControl())+
+   `<div class="grid3"><section class="card">${cardhead('Kept of every dollar','','insights')}${gauge(t.in?t.net/t.in:NaN,'Net margin',r.label)}</section><section class="card">${cardhead('Where money came from','','up')}${pie(fold(ins),{label:'Money in',donut:false})||empty('Nothing yet','Money in shows here.')}</section><section class="card">${cardhead('Costs against money in','','coins')}${gauge(t.in?t.out/t.in:NaN,'Cost share','Lower is better')}</section></div>`;},
+ year(){const y=selected.slice(0,4),ms=Array.from({length:12},(_,i)=>`${y}-${pad(i+1)}`),mt=monthTotals(ms),T=Logic.totals(Logic.inRange(state,y+'-01-01',y+'-12-31'));
+  return pagehead(y,'Year at a glance','Every month of '+y+' side by side.')+
+   `<div class="kpis">${tile('Money in',fmt(T.in),`${y} so far`,'','up')}${tile('Costs',fmt(T.out),`${y} so far`,'','coins')}${tile('Net profit',fmt(T.net),pc(T.in?T.net/T.in:NaN)+' kept','','insights')}${tile('Average monthly cash flow',fmt(Math.round(T.net/Math.max(1,mt.filter(x=>x.count).length))),'Months with records','','history')}</div>`+
+   `<section class="card">${cardhead('Month by month','','calendar')}${bars([{name:'Money in',color:'var(--ok)',values:mt.map(x=>x.in)}],ms.map(shortMonth),{title:'Money in by month',W:1100,H:280,overlay:{name:'Net',color:'var(--accent)',values:mt.map(x=>x.count?x.net:NaN)}})||empty('No records in '+y,'Pick another year with the arrows at the top.')}</section>`+
+   `<section class="card table-card">${cardhead('The year in numbers','','table')}<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Money in</th><th class="num">Costs</th><th class="num">Net</th><th class="num">Kept</th></tr></thead><tbody>${ms.map((m,i)=>`<tr><td data-v="${m}">${monthName(m,{month:'long'})}</td><td class="num">${mt[i].count?fmt(mt[i].in):'—'}</td><td class="num">${mt[i].count?fmt(mt[i].out):'—'}</td><td class="num ${mt[i].net<0?'warn':''}">${mt[i].count?fmt(mt[i].net):'—'}</td><td class="num">${mt[i].in?`<span class="pct"><i style="width:${Math.max(0,Math.min(100,mt[i].net/mt[i].in*100)).toFixed(0)}%"></i></span>${pc(mt[i].net/mt[i].in)}`:'—'}</td></tr>`).join('')}<tr class="total"><td>${y}</td><td class="num">${fmt(T.in)}</td><td class="num">${fmt(T.out)}</td><td class="num">${fmt(T.net)}</td><td class="num">${pc(T.in?T.net/T.in:NaN)}</td></tr></tbody></table></div></section>`;},
+ guide(){return pagehead('Help','How to use '+esc(CONFIG.name),'Three moves. Everything else fills in by itself.')+
+   `<div class="steps" style="margin-bottom:16px">${[['01 / ADD','Add','Add a record for anything that comes in or goes out. Press N anywhere.','Add a record','add',''],['02 / REVIEW','Review','Open the dashboard and reports for any month, quarter, year or custom dates.','Dashboard','go','data-go="dashboard"'],['03 / PROTECT','Back up','Choose a backup folder once, or download a backup after big changes.','Settings & backup','go','data-go="settings"']].map(([n,h,p,b,a,x])=>`<div class="step"><span>${n}</span><h3>${h}</h3><p>${p}</p>${button(b,a,'small',x)}</div>`).join('')}</div>
+   <section class="card table-card">${cardhead('Good to know','','help')}<div class="table-wrap"><table data-nosort><thead><tr><th>Question</th><th>Answer</th></tr></thead><tbody>
+   <tr><td>Where is my data?</td><td>In this browser on this computer. The HTML file itself holds no entries. Clearing browser data can erase them, so keep backups.</td></tr>
+   <tr><td>New computer or browser?</td><td>Download a backup here, open the file there, and choose Restore backup in Settings.</td></tr>
+   <tr><td>A new version of the app?</td><td>Open the new file in the same browser. Your data is still there. If not, restore your latest backup.</td></tr></tbody></table></div></section>`;},
+ settings(){const T=state.settings.theme,hidden=new Set(state.settings.hiddenNav);
+  const chips={kiln:['#FBF8F5','#A4471F','#3A2419','#F2B441'],ledger:['#F6F7F5','#1F7A5C','#182635','#E3A73B'],sage:['#FAFAF8','#2F5D50','#1F4A3E','#F2B441'],linen:['#F7F4ED','#6B5B45','#45392A','#E8A24A'],fjord:['#F6F8FA','#2C5470','#1C3C52','#F0A93C'],slate:['#F8F9FA','#3F4A55','#2E3841','#EFA93F'],lavender:['#FAF9FC','#5C3F8F','#2E2040','#F0B98F'],blush:['#FBF6F8','#7C3560','#63304A','#E9A85C'],night:['#141218','#C3A9E8','#221C2C','#F0B98F'],midnight:['#0C1720','#9DB8F5','#0B303D','#F5C382']};
+  const optional=CONFIG.nav.filter(([id])=>CONFIG.optionalNav.includes(id));
+  return pagehead('Make it yours','Settings & backup','')+
+   `<div class="grid2 equal"><section class="card"><h2>Your preferences</h2><form id="settings-form" style="margin-top:20px"><div class="fields"><label class="full">Your name or business<input name="name" maxlength="100" value="${esc(state.settings.name)}" placeholder="Shown on printouts"></label>
+    <label>Currency<select name="currency">${CONFIG.currencies.map(c=>`<option ${state.settings.currency===c?'selected':''}>${c}</option>`).join('')}</select><small>Changes the label only; amounts are not converted.</small></label>
+    <label>Symbol shown (optional)<input name="symbol" maxlength="6" value="${esc(state.settings.symbol)}" placeholder="e.g. ₮ or Br"><small>For a currency that isn’t listed.</small></label></div><div class="formfoot"><button class="btn primary">Save preferences</button></div></form>
+    <h3 class="sub-head">Choose your palette</h3><div class="theme-grid">${CONFIG.themes.map(n=>{const [paper,accent,bold,pop]=chips[n]||chips.kiln;return `<button class="theme-card" data-action="theme" data-k="${n}" aria-pressed="${T===n}" aria-label="${n} palette"><span class="theme-chip" style="background:${paper}"><i style="background:${bold}"></i><i style="background:${accent}"></i><i style="background:${pop}"></i></span><b>${n[0].toUpperCase()+n.slice(1)}</b></button>`;}).join('')}</div></section>
+   <section class="card"><div class="card-ico">${ico('shield')}</div><h2>Keep your progress safe</h2><p class="subtitle">Changes save in this browser on this computer. The HTML file itself does not contain your entries, and clearing browser data can erase them.</p>
+    <h3 class="sub-head first">Automatic backups</h3><div class="row flat"><div><strong>Folder backup</strong><small>Keeps today’s dated backup file current after every change. Choose a cloud-synced folder for an off-computer copy.</small></div><span class="pill" id="folder-status">${esc(folderStatus)}</span></div>
+    <div class="actions" style="margin:12px 0">${folderSupported()?button(folder?(folderStatus==='Connected'?'Change folder':'Reconnect folder'):'Choose backup folder',folder&&folderStatus!=='Connected'?'reconnect-folder':'choose-folder','small',demo?'disabled':''):'<span class="small dim">Available in Chrome and Edge on a computer.</span>'}</div>
+    <h3 class="sub-head">Manual backup</h3><div class="row flat"><div><strong>Download a full backup</strong><small>Every record, ${CONFIG.entity.one.toLowerCase()} and setting, in one file.</small></div></div><div class="actions" style="margin:12px 0">${button('Download backup','backup','primary')}${button('Restore backup','restore')}</div>
+    <h3 class="sub-head">Move your data</h3><div class="row"><div><strong>Records as CSV</strong><small>The records of the period on screen, for a spreadsheet or your accountant.</small></div>${button('Export','csv','small')}</div>
+    <h3 class="sub-head">Start fresh</h3><div class="row"><div><strong>Clear everything in one step</strong><small>${demo?'Return to your own data first. Sample mode is never saved.':'You can undo it straight after.'}</small></div>${button('Start fresh','fresh','small danger',demo?'disabled':'')}</div></section></div>
+   <section class="card"><div class="cardhead"><div><h2>Simplify your sidebar</h2><p>Switch extra views on or off. Changes appear immediately.</p></div><span class="pill">${optional.filter(([id])=>!hidden.has(id)).length} of ${optional.length} shown</span></div><div class="toggle-grid">${optional.map(([id,name,icon])=>`<label class="nav-toggle"><input type="checkbox" data-nav-toggle="${id}" ${hidden.has(id)?'':'checked'}><span>${ico(icon)}<b>${name}</b><i aria-hidden="true"></i></span></label>`).join('')}</div></section>
+   <section class="card"><div class="cardhead"><div><h2>${CONFIG.entity.many}</h2><p>Add one per ${CONFIG.entity.one.toLowerCase()}. Every screen can show one or all of them.</p></div>${button('Add','entity','small')}</div>${state.entities.map(e=>`<div class="row"><span>${esc(e.name)}</span><span class="actions">${button('Rename','entity','small',`data-id="${e.id}"`)}</span></div>`).join('')||'<p class="dim small">None yet.</p>'}</section>
+   <section class="card"><div class="cardhead"><div><h2>Getting started</h2><p>A short tour, and made-up data to explore.</p></div>${button(demo?'Return to my data':'Open sample mode','sample')}</div><div class="row"><div><strong>Show the welcome tour again</strong><small>${CONFIG.welcome.length} short slides, including backups.</small></div>${button('Show tour','tour','small')}</div>
+    <p class="small muted" style="margin-top:12px">${esc(CONFIG.name)} ${CONFIG.version} by <a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages</a> · <a href="mailto:${CONFIG.email}">${CONFIG.email}</a> · Personal or own-business use by the purchaser.</p></section>`;},
 };
-const records={q:'',page:0};
-const entityName=id=>state.entities.find(e=>e.id===id)?.name||'Shared';
 
 /* ---------- render ---------- */
-function applyTheme(){document.documentElement.dataset.theme=state.settings.theme||CONFIG.defaultTheme;}
-function renderNav(){let g='';$('#nav').innerHTML=CONFIG.nav.filter(n=>!state.settings.hiddenNav.includes(n[0])).map(([id,l,i,grp])=>{const h=grp!==g?`<div class="navgroup">${grp}</div>`:'';g=grp;return h+`<button class="navlink" data-action="go" data-to="${id}" ${id===screen?'aria-current="page"':''}>${ico(i)}<span>${l}</span></button>`;}).join('');}
-function renderStatus(){const s=storageProblem?'Backup needed':demo?'Sample mode':'Saved on this device';$('#save-status').textContent=s;$('#rail-status').textContent=s;
- $('#storage-banner').hidden=!storageProblem||demo;$('#storage-banner').innerHTML=storageProblem?`<span><b>Not saved.</b> ${esc(storageProblem)}</span>${button('Download backup','backup','small')}`:'';
- const old=!demo&&state.records.length>0&&Date.now()-(state.settings.lastBackup||0)>14*864e5;$('#backup-banner').hidden=!old||!!storageProblem;$('#backup-banner').innerHTML=old?`<span><b>No recent backup.</b> Browsers can clear saved data. A backup file keeps it safe.</span>${button('Download backup','backup','small')}`:'';
- $('#demo-banner').hidden=!demo;}
-function renderPicker(){const e=state.entities;$('#picker').hidden=e.length<1;$('#picker').innerHTML=`<small>${CONFIG.entity.one}</small><select id="entity-picker" aria-label="${CONFIG.entity.one} to show"><option value="">${e.length>1?CONFIG.entity.all:e.length?'':'None'}</option>${e.map(x=>`<option value="${x.id}" ${x.id===state.settings.entity?'selected':''}>${esc(x.name)}</option>`).join('')}<option value="__add">＋ Add…</option></select>`;}
-function render(){if(state.settings.hiddenNav.includes(screen))screen='dashboard';applyTheme();renderNav();renderPicker();renderStatus();
- $('#period-label').textContent=monthName(selected);$('#content').innerHTML=(VIEWS[screen]||VIEWS.dashboard)();afterRender();}
+const hubOf=id=>CONFIG.nav.find(n=>n[3]&&n[3].some(([c])=>c===id));
+const navGroup=id=>(CONFIG.navGroups.find(([,ids])=>ids.includes(id))||[CONFIG.navGroupRest])[0];
+function applyRail(){$('#app').classList.toggle('rail-min',railMin);const t=$('.rail-toggle');t.setAttribute('aria-expanded',String(!railMin));t.setAttribute('aria-label',railMin?'Expand navigation':'Collapse navigation');}
+function renderNav(){const hidden=new Set(state.settings.hiddenNav),hub=hubOf(screen);let last='';if(hub)hubLast[hub[0]]=screen;
+ $('#nav').innerHTML=CONFIG.nav.filter(([id])=>!hidden.has(id)).map(([id,label,icon,kids])=>{const g=navGroup(id),h=g!==last?`<div class="navgroup">${g}</div>`:'';last=g;
+  const current=kids?hub&&hub[0]===id:screen===id;return h+`<button class="navlink" data-action="go" data-go="${kids?hubLast[id]||id:id}" title="${label}" ${current?'aria-current="page"':''}>${ico(icon)}<span>${label}</span></button>`;}).join('');}
+function renderStatus(){const s=storageProblem?'Backup needed':demo?'Sample mode':'Saved on this device';['#save-status','#rail-status'].forEach(k=>{const el=$(k);el.textContent=s;el.classList.toggle('warn',!!storageProblem);});
+ $('#storage-banner').hidden=!storageProblem||demo;$('#storage-banner').innerHTML=storageProblem?`<span><b>Not saved.</b> ${esc(storageProblem)}</span><div class="actions">${button('Download backup','backup','small primary')}</div>`:'';
+ const show=!demo&&!storageProblem&&!bannerHidden&&hasData()&&!protectedNow(),reconnect=folder&&folderStatus!=='Connected';
+ $('#backup-banner').hidden=!show;$('#backup-banner').innerHTML=show?`<span>${reconnect?'<b>Your backup folder needs reconnecting.</b> Changes since then are only in this browser.':'<b>Your data is not backed up.</b> It lives only in this browser until you save a copy.'}</span><div class="actions">${folderSupported()?button(reconnect?'Reconnect folder':'Choose backup folder',reconnect?'reconnect-folder':'choose-folder','small primary'):button('Download backup','backup','small primary')}${button('Not now','banner-hide','small quiet')}</div>`:'';
+ $('#demo-banner').hidden=!demo;$('#rail-demo').textContent=demo?'Return to my data':'Explore sample data';}
+function renderPicker(){const e=state.entities;$('#picker').hidden=!e.length;if(!e.length)return;
+ $('#picker').innerHTML=`<small>${CONFIG.entity.one}</small><select id="entity-picker" aria-label="${CONFIG.entity.one} to show">${e.length>1?`<option value="">${CONFIG.entity.all}</option>`:''}${e.map(x=>`<option value="${x.id}" ${x.id===state.settings.entity?'selected':''}>${esc(x.name)}</option>`).join('')}<option value="__add">＋ Add…</option></select>`;}
+// keep focus (and the caret in a search box) across re-renders
+function captureFocus(){const el=document.activeElement;if(!el||el===document.body||!$('#content').contains(el))return null;
+ const key=el.id?'#'+CSS.escape(el.id):Object.keys(el.dataset||{}).length?el.tagName.toLowerCase()+Object.entries(el.dataset).map(([k,v])=>`[data-${k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())}="${CSS.escape(v)}"]`).join(''):'';
+ if(!key)return null;let sel=null;try{if(el.selectionStart!=null)sel=[el.selectionStart,el.selectionEnd];}catch{}return {key,sel};}
+function restoreFocus(f){if(!f)return;let el=null;try{el=document.querySelector(f.key);}catch{}if(!el)return;el.focus({preventScroll:true});try{if(f.sel)el.setSelectionRange(...f.sel);}catch{}}
+function render(){const f=captureFocus();
+ if(state.settings.hiddenNav.includes(hubOf(screen)?.[0]||screen))screen='dashboard';
+ document.documentElement.dataset.theme=state.settings.theme;applyRail();renderNav();renderPicker();renderStatus();
+ $('#period-label').textContent=monthName(selected);$('#month-picker').value=selected;
+ const hub=hubOf(screen),r=range();
+ $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.name||CONFIG.name)}</b>${state.settings.entity?' · '+esc(entityName(state.settings.entity)):''}</span><b>${esc(r.label)}</b></div>`+
+  (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${hub[3].map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
+  (VIEWS[screen]||VIEWS.dashboard)()+`<footer class="footer"><span>${esc(CONFIG.name)} · JPS Digital Pages</span><span>${demo?'Sample data':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
+ afterRender();restoreFocus(f);}
 function afterRender(){
- // KPI tone from the label: money in and good things green, costs red, net in the accent
- document.querySelectorAll('#content .kpi').forEach(k=>{const l=k.querySelector('.label').textContent,tone=/net|profit|cash flow|kept/i.test(l)?'net':/cost|fee|expense|spent/i.test(l)?'neg':/in|sales|revenue|income|orders/i.test(l)?'pos':'neutral';k.classList.add('tone-'+tone);
+ // KPI tone from the label: money in and good things green, costs red, net/profit in the accent
+ document.querySelectorAll('#content .kpi').forEach(k=>{const l=k.querySelector('.label').textContent,tone=/net|profit|cash flow|kept/i.test(l)?'net':/cost|fee|expense|spent|refund/i.test(l)?'neg':/money in|sales|revenue|income|orders|paid out/i.test(l)?'pos':'neutral';k.classList.add('tone-'+tone);
   if(k.dataset.icon)k.querySelector('.label').insertAdjacentHTML('afterbegin',`<span class="kpi-ico">${ico(k.dataset.icon)}</span>`);
-  const sm=k.querySelector('small'),m=sm.textContent.match(/^([+−])(\d+)%/),sp=k.querySelector('.kit-spark');const good=up=>tone==='neg'?!up:up;
+  // "+12% vs last month": green when the change is good for the user (for a cost, going down is good)
+  const sm=k.querySelector('small'),m=sm.textContent.match(/^([+−])(\d+)%/),sp=k.querySelector('.kit-spark'),good=up=>tone==='neg'?!up:up;
   if(m){const up=m[1]==='+';sm.innerHTML=`<span class="delta ${good(up)?'up':'down'}">${m[1]}${m[2]}%</span>`+esc(sm.textContent.slice(m[0].length));if(sp)sp.style.setProperty('--spark',good(up)?'var(--ok)':'var(--over)');}});
  sortTables();countUp();}
-// every table sorts by its headings; totals rows stay at the bottom; the choice survives re-renders
+// every table sorts by its headings (click, Enter or Space); totals rows stay at the bottom; the choice survives re-renders
 const sorts=new Map();
-const cellVal=td=>{if(!td)return null;if(td.dataset.v!==undefined){const v=td.dataset.v;return /^-?\d+(\.\d+)?$/.test(v)?+v:v;}const t=td.textContent.trim();if(!t||t==='—')return null;const n=t.replace(/[−–]/g,'-').replace(/[$,%\s]/g,'');return /^-?\d+(\.\d+)?$/.test(n)?+n:t.toLowerCase();};
-function sortTables(){document.querySelectorAll('#content table').forEach(tb=>{if(tb.dataset.nosort!==undefined||!tb.tHead||!tb.tBodies[0])return;const key=screen+'|'+[...tb.tHead.rows[0].cells].map(c=>c.textContent).join(',');
+const cellVal=td=>{if(!td)return null;if(td.dataset.v!==undefined){const v=td.dataset.v;return /^-?\d+(\.\d+)?$/.test(v)?+v:v;}const t=td.textContent.trim();if(!t||t==='—')return null;const n=t.replace(/[−–]/g,'-').replace(/[^\d.-]/g,'');return /^[−–\-$€£(]?\s*[\d$]/.test(t)&&/^-?\d+(\.\d+)?$/.test(n)?+n:t.toLowerCase();};
+function sortTables(){document.querySelectorAll('#content table').forEach(tb=>{if(tb.hasAttribute('data-nosort')||!tb.tHead||!tb.tBodies[0]||tb.tBodies[0].rows.length<3)return;
+ const key=screen+'|'+[...tb.tHead.rows[0].cells].map(c=>c.textContent).join(',');
  const apply=()=>{const st=sorts.get(key);if(!st)return;const body=tb.tBodies[0],all=[...body.rows],pin=all.filter(r=>r.classList.contains('total')),rest=all.filter(r=>!pin.includes(r));
   rest.sort((a,b)=>{const x=cellVal(a.cells[st.i]),y=cellVal(b.cells[st.i]);if(x===null)return 1;if(y===null)return -1;return (x<y?-1:x>y?1:0)*st.dir;});[...rest,...pin].forEach(r=>body.appendChild(r));
   [...tb.tHead.rows[0].cells].forEach((th,j)=>{th.dataset.sort=j===st.i?(st.dir<0?'desc':'asc'):'';th.setAttribute('aria-sort',j===st.i?(st.dir<0?'descending':'ascending'):'none');});};
  [...tb.tHead.rows[0].cells].forEach((th,i)=>{if(!th.textContent.trim())return;th.classList.add('th-sort');th.tabIndex=0;th.setAttribute('role','button');
   const go=()=>{const cur=sorts.get(key),first=cellVal(tb.tBodies[0].rows[0]?.cells[i]);sorts.set(key,{i,dir:cur&&cur.i===i?-cur.dir:(typeof first==='string'?1:-1)});apply();};th.onclick=go;th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};});apply();});}
-function countUp(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;document.querySelectorAll('[data-count]').forEach(el=>{const to=+el.dataset.count,t0=performance.now();const step=t=>{const p=Math.min(1,(t-t0)/700),e=1-Math.pow(1-p,3);el.textContent=fmt(Math.round(to*e));if(p<1)requestAnimationFrame(step);};requestAnimationFrame(step);});}
+// numbers count up to their final text once per render; off under reduced motion
+function countUp(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;cancelAnimationFrame(countUp.t);const els=[...document.querySelectorAll('[data-count]')].map(el=>({el,to:+el.dataset.count,final:el.textContent})).filter(x=>Number.isFinite(x.to)&&x.to);if(!els.length)return;
+ const t0=performance.now(),step=t=>{const p=Math.min(1,(t-t0)/620),e=1-Math.pow(1-p,3);for(const x of els)if(x.el.isConnected)x.el.textContent=p<1?fmt(Math.round(x.to*e)):x.final;if(p<1)countUp.t=requestAnimationFrame(step);};countUp.t=requestAnimationFrame(step);}
 
-/* ---------- dialogs ---------- */
-function modal(title,lead,body){const d=$('#dlg');modal.back=document.activeElement;d.innerHTML=`<h2>${title}</h2>${lead?`<p class="lead">${lead}</p>`:''}${body}`;d.showModal();}
-$('#dlg').addEventListener('close',()=>modal.back?.focus?.());
-function recordForm(id){const x=state.records.find(r=>r.id===id)||{date:today(),category:'sales',amount:0,note:'',entity:state.settings.entity};
- modal(id?'Edit record':'Add a record','Amounts are positive; the category decides whether it’s money in or a cost.',`<form id="record-form" data-id="${id||''}"><div class="fields"><label>Date<input type="date" name="date" value="${x.date}" required></label><label>Amount<input name="amount" inputmode="decimal" value="${x.amount?(x.amount/100).toFixed(2):''}" required></label>
- <label>Category<select name="category">${CONFIG.categories.map(([v,l,k])=>`<option value="${v}" ${v===x.category?'selected':''}>${l} (${k==='in'?'money in':'cost'})</option>`).join('')}</select></label>${state.entities.length?`<label>${CONFIG.entity.one}<select name="entity"><option value="">Shared</option>${state.entities.map(e=>`<option value="${e.id}" ${e.id===x.entity?'selected':''}>${esc(e.name)}</option>`).join('')}</select></label>`:''}
- <label class="full">Note<input name="note" value="${esc(x.note)}" maxlength="120"></label></div><div class="actions"><button type="button" class="btn" data-action="close">Cancel</button><button class="btn primary">${id?'Save':'Add'}</button></div></form>`);}
-function entityForm(id){const e=state.entities.find(x=>x.id===id);modal(e?'Rename':'Add a '+CONFIG.entity.one.toLowerCase(),'',`<form id="entity-form" data-id="${id||''}"><div class="fields"><label class="full">Name<input name="name" value="${esc(e?.name||'')}" required maxlength="60"></label></div><div class="actions"><button type="button" class="btn" data-action="close">Cancel</button><button class="btn primary">Save</button></div></form>`);}
-let welcomeAt=0;
-function welcome(){const s=CONFIG.welcome[welcomeAt],last=welcomeAt===CONFIG.welcome.length-1;
- modal('',``,`<div class="welcome-ico">${ico(s.icon)}</div><div class="welcome-step">${s.step}</div><h2 style="margin:6px 0 8px">${s.title}</h2><p class="lead">${s.text}</p><div class="actions"><span class="welcome-dots">${CONFIG.welcome.map((_,i)=>`<span class="${i===welcomeAt?'on':''}"></span>`).join('')}</span>${welcomeAt?button('Back','welcome','', 'data-d="-1"'):''}${last?button('Try the sample','welcome-done','','data-sample="1"')+button('Start','welcome-done','primary'):button('Next','welcome','primary','data-d="1"')}</div>`);}
+/* ---------- dialogs: form modal, confirm with a real button, welcome tour ---------- */
+function modal(title,sub,body){returnFocus=document.activeElement;$('#dlg').innerHTML=`<div class="dialog-head"><h2 id="dlg-title">${title}</h2><button class="ibtn" data-action="dismiss" aria-label="Close dialog">${ico('cross')}</button></div>${sub?`<p class="subtitle">${sub}</p>`:''}<div id="form-error" class="error" role="alert" hidden></div>${body}`;if(!$('#dlg').open)$('#dlg').showModal();}
+function closeModal(){if($('#dlg').open)$('#dlg').close();returnFocus?.focus?.();}
+function formError(msg){const e=$('#form-error');e.hidden=false;e.textContent=msg;}
+const formFoot=(label='Save')=>`<div class="formfoot"><button type="button" class="btn" data-action="dismiss">Cancel</button><button class="btn primary" type="submit">${label}</button></div>`;
+function ask(title,text,okLabel,fn,danger=true){askFn=fn;modal(title,text,`<div class="formfoot"><button type="button" class="btn" data-action="dismiss">Cancel</button><button type="button" class="btn ${danger?'danger':'primary'}" data-action="ask-ok">${okLabel}</button></div>`);}
+function recordForm(id){const x=state.records.find(r=>r.id===id)||{date:selected===today().slice(0,7)?today():selected+'-01',category:'sales',amount:0,note:'',entity:state.settings.entity};
+ modal(id?'Edit record':'Add a record','Amounts are positive; the category says whether it’s money in or a cost.',`<form id="record-form" data-id="${id||''}"><div class="fields"><label>Date<input type="date" name="date" value="${x.date}" required></label><label>Amount<input name="amount" inputmode="decimal" value="${x.amount?(x.amount/100).toFixed(2):''}" placeholder="0.00" required></label>
+ <label>Category<select name="category">${['in','out'].map(k=>`<optgroup label="${k==='in'?'Money in':'Costs'}">${CONFIG.categories.filter(c=>c[2]===k).map(([v,l])=>`<option value="${v}" ${v===x.category?'selected':''}>${l}</option>`).join('')}</optgroup>`).join('')}</select></label>${state.entities.length?`<label>${CONFIG.entity.one}<select name="entity"><option value="">Shared</option>${state.entities.map(e=>`<option value="${e.id}" ${e.id===x.entity?'selected':''}>${esc(e.name)}</option>`).join('')}</select></label>`:''}
+ <label class="full">Note<input name="note" value="${esc(x.note)}" maxlength="120"></label></div>${formFoot(id?'Save':'Add')}</form>`);}
+function entityForm(id){const e=state.entities.find(x=>x.id===id);modal(e?'Rename':'Add a '+CONFIG.entity.one.toLowerCase(),'Every screen, printout and new record can follow the one picked at the top.',`<form id="entity-form" data-id="${id||''}"><div class="fields"><label class="full">Name<input name="name" value="${esc(e?.name||'')}" required maxlength="60"></label></div>${formFoot()}</form>`);}
+const BACKUP_SLIDE={icon:'shield',step:'BACK UP',title:'Protect your progress automatically',text:'In Chrome or Edge, choose a cloud-synced folder once and a backup is saved after every change. In other browsers, download a backup from Settings now and then.'};
+let tourAt=0,tourReminder=false;
+const slides=()=>tourReminder?[BACKUP_SLIDE]:CONFIG.welcome.map(s=>s==='backup'?BACKUP_SLIDE:s);
+function openTour(reminder=false){tourReminder=reminder;tourAt=0;renderTour();if(!$('#welcome').open)$('#welcome').showModal();$('#welcome [autofocus]')?.focus();}
+function renderTour(){const all=slides(),s=all[tourAt],last=tourAt===all.length-1;
+ $('#welcome').innerHTML=`<div style="position:relative"><button class="ibtn welcome-close" data-action="tour-close" aria-label="Close welcome">${ico('cross')}</button><div class="welcome-art" data-n="${tourAt%3}">${ico(s.icon)}</div><div class="welcome-body"><span class="welcome-step">${s.step}</span><h2 id="welcome-title">${s.title}</h2><p>${s.text}</p>${s===BACKUP_SLIDE&&folderSupported()&&!demo?`<div style="margin-top:14px">${button(folder?'Folder connected':'Choose backup folder','choose-folder','small',folder?'disabled':'')}</div>`:''}</div>
+ <div class="welcome-foot"><span class="welcome-dots">${all.map((_,i)=>`<i class="${i===tourAt?'on':''}"></i>`).join('')}</span><span class="actions">${tourAt?button('Back','tour-step','','data-d="-1"'):''}${last?(tourReminder?button('Download backup','backup','')+button('Done','tour-close','primary','autofocus'):button('Explore sample data','tour-sample','')+button('Get started','tour-close','primary','autofocus')):button('Next','tour-step','primary','data-d="1" autofocus')}</span></div></div>`;}
+function closeTour(){ls.set(tourReminder?NUDGE_KEY:WELCOME_KEY,tourReminder?String(Date.now()):'1');if($('#welcome').open)$('#welcome').close();}
+// first open: the tour. Afterwards a weekly backup nudge, while the banner carries the reminder in between.
+function startupPrompt(){setTimeout(()=>{if(ls.get(WELCOME_KEY)!=='1')return openTour(false);if(demo||protectedNow()||!hasData())return;if(Date.now()-(+ls.get(NUDGE_KEY)||0)<7*864e5)return;openTour(true);},450);}
+function exportCSV(){const r=range(),q=v=>/[",\r\n]/.test(v)?`"${String(v).replace(/"/g,'""')}"`:String(v),rows=[['Date','Note','Category','Kind',CONFIG.entity.one,'Amount'],...Logic.inRange(state,r.from,r.to).sort((a,b)=>a.date.localeCompare(b.date)).map(x=>[x.date,x.note,catName(x.category),Logic.kind(x.category)==='in'?'Money in':'Cost',entityName(x.entity),(x.amount/100).toFixed(2)])];
+ download(`${CONFIG.storageKey}-${r.from}-to-${r.to>'9000'?today():r.to}.csv`,'﻿'+rows.map(x=>x.map(q).join(',')).join('\r\n'),'text/csv');toast(`${num(rows.length-1)} records exported`);}
 
-/* ---------- events: one delegated handler ---------- */
-document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled)return;const a=b.dataset.action;
- if(b.tagName==='INPUT')return;
- ({go:()=>{screen=b.dataset.to;document.body.classList.remove('menu-open');$('#app').classList.remove('menu-open');$('#scrim').hidden=true;records.page=0;render();scrollTo(0,0);$('#content').focus({preventScroll:true});},
-  menu:()=>{const o=$('#app').classList.toggle('menu-open');$('#scrim').hidden=!o;},
-  prev:()=>{selected=addMonths(selected,-1);render();},next:()=>{selected=addMonths(selected,1);render();},
-  period:()=>{period=b.dataset.k;if(period==='custom'&&!custom.from){custom={from:selected+'-01',to:endOf(selected)};}records.page=0;render();},
-  pulse:()=>{pulseAt=(pulseAt+ +b.dataset.d+99)%99;render();},
-  page:()=>{records.page+=+b.dataset.d;render();},
-  add:()=>recordForm(),edit:()=>recordForm(b.dataset.id),entity:()=>entityForm(b.dataset.id),
-  delete:()=>{const x=state.records.find(r=>r.id===b.dataset.id);if(x&&confirm(`Delete this record (${fmt(x.amount)})?`))commit(()=>state.records=state.records.filter(r=>r.id!==x.id),'Record deleted');},
-  close:()=>$('#dlg').close(),undo:()=>{if(!undoState)return;state=undoState;undoState=null;save();render();toast('Undone');},
-  sample:toggleSample,backup,restore:()=>$('#restore-file').click(),print:()=>print(),guide:()=>{screen='guide';render();},
-  theme:()=>commit(()=>state.settings.theme=b.dataset.k,'Theme changed'),
-  fresh:()=>{if(confirm('Erase everything and start fresh? Download a backup first if you may need it. You can undo right after.'))commit(()=>{state=Logic.blank();},'Started fresh');},
-  welcome:()=>{welcomeAt+=+b.dataset.d;welcome();},
-  'welcome-done':()=>{$('#dlg').close();try{localStorage.setItem(KEY+'-welcome','1');}catch{}if(b.dataset.sample&&!demo)toggleSample();},
- })[a]?.();});
+/* ---------- events: one delegated handler per event type ---------- */
+function go(id){screen=id;document.body.classList.remove('menu-open');rec.page=0;render();scrollTo({top:0});$('#content').focus({preventScroll:true});}
+const ACTIONS={
+ go:b=>go(b.dataset.go),menu:()=>document.body.classList.toggle('menu-open'),
+ 'rail-toggle':()=>{railMin=!railMin;ls.set(RAIL_KEY,railMin?'1':'0');applyRail();},
+ prev:()=>{selected=addMonths(selected,-1);render();},next:()=>{selected=addMonths(selected,1);render();},
+ period:b=>{period=b.dataset.k;if(period==='custom'&&!custom.from)custom={from:selected+'-01',to:endOf(selected)};rec.page=0;render();},
+ pulse:b=>showPulse(+$('#pulse').dataset.at+ +b.dataset.d),'pulse-to':b=>showPulse(+b.dataset.i),
+ page:b=>{rec.page+=+b.dataset.d;render();},
+ add:()=>recordForm(),edit:b=>recordForm(b.dataset.id),entity:b=>entityForm(b.dataset.id),
+ delete:b=>{const x=state.records.find(r=>r.id===b.dataset.id);if(x)ask('Delete this record?',`${esc(x.note||catName(x.category))} · ${fmt(x.amount)}. You can undo it straight after.`,'Delete',()=>commit(()=>state.records=state.records.filter(r=>r.id!==x.id),'Record deleted'));},
+ 'ask-ok':()=>{const f=askFn;askFn=null;closeModal();f?.();},dismiss:closeModal,
+ undo:()=>{if(!undoState)return;state=undoState;undoState=null;save();render();toast('Undone');},
+ sample:()=>toggleSample(),backup,restore:()=>$('#restore-file').click(),print:()=>print(),csv:exportCSV,
+ 'choose-folder':chooseFolder,'reconnect-folder':reconnectFolder,'banner-hide':()=>{bannerHidden=true;renderStatus();},
+ theme:b=>commit(()=>state.settings.theme=b.dataset.k,'Palette changed'),
+ fresh:()=>ask('Start fresh?','This clears every record, '+CONFIG.entity.many.toLowerCase()+' and setting. Download a backup first if you may need it. You can undo straight after.','Start fresh',()=>commit(()=>{state=Logic.blank();},'Started fresh')),
+ tour:()=>openTour(false),'tour-step':b=>{tourAt+=+b.dataset.d;renderTour();$('#welcome [autofocus]')?.focus();},'tour-close':closeTour,'tour-sample':()=>{closeTour();if(!demo)toggleSample();},
+};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled||b.tagName==='INPUT')return;ACTIONS[b.dataset.action]?.(b);});
 document.addEventListener('change',e=>{const t=e.target;
  if(t.id==='entity-picker'){if(t.value==='__add'){t.value=state.settings.entity;return entityForm();}commit(()=>state.settings.entity=t.value,t.value?'Showing '+entityName(t.value):'Showing '+CONFIG.entity.all.toLowerCase());}
- if(t.dataset.action==='navtoggle'){const k=t.dataset.k;commit(()=>{const h=state.settings.hiddenNav.filter(x=>x!==k);if(!t.checked)h.push(k);state.settings.hiddenNav=h;},t.checked?'Shown in the sidebar':'Hidden from the sidebar');}
+ if(t.dataset.navToggle){const k=t.dataset.navToggle;commit(()=>{const h=state.settings.hiddenNav.filter(x=>x!==k);if(!t.checked)h.push(k);state.settings.hiddenNav=h;},t.checked?'Shown in the sidebar':'Hidden from the sidebar');}
+ if(t.id==='month-picker'&&/^\d{4}-\d{2}$/.test(t.value)){selected=t.value;render();}
  if(t.id==='c-from'||t.id==='c-to'){custom[t.id==='c-from'?'from':'to']=t.value;if(custom.from&&custom.to&&custom.from<=custom.to)render();}
- if(t.id==='restore-file'&&t.files[0]){restore(t.files[0]);t.value='';}});
-document.addEventListener('input',e=>{if(e.target.id==='search'){records.q=e.target.value;records.page=0;clearTimeout(records.t);records.t=setTimeout(()=>{render();const s=$('#search');s.focus();s.setSelectionRange(s.value.length,s.value.length);},250);}});
+ if(t.id==='restore-file'&&t.files[0]){const f=t.files[0];t.value='';ask('Restore this backup?','It replaces what’s in this browser now. You can undo straight after.','Restore',()=>restore(f),false);}});
+document.addEventListener('input',e=>{if(e.target.id==='search'){rec.q=e.target.value;rec.page=0;clearTimeout(rec.t);rec.t=setTimeout(render,250);}});
 document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f));
- if(f.id==='record-form'){const cents=Math.round(parseFloat(String(d.amount).replace(/[^\d.]/g,''))*100);if(!Number.isFinite(cents)||cents<=0)return toast('Enter an amount above zero.');const id=f.dataset.id;
-  commit(()=>{const rec={id:id||uid(),date:d.date,category:d.category,amount:cents,note:d.note.trim(),entity:d.entity??state.settings.entity};if(id)state.records=state.records.map(r=>r.id===id?rec:r);else state.records.push(rec);},id?'Record saved':'Record added');$('#dlg').close();}
- if(f.id==='entity-form'){const id=f.dataset.id;commit(()=>{if(id)state.entities.find(x=>x.id===id).name=d.name.trim();else state.entities.push({id:'e'+uid(),name:d.name.trim()});},'Saved');$('#dlg').close();}});
-// chart tooltips: hover or focus any [data-tip]
-document.addEventListener('pointerover',e=>{const el=e.target.closest('[data-tip]'),tip=$('#tip');if(!el){tip.hidden=true;return;}try{const {t,r}=JSON.parse(el.dataset.tip);tip.innerHTML=`<div class="eyebrow" style="color:var(--on-bold-dim);margin:0">${esc(t)}</div>`+r.map(x=>`<div>${x.color?`<i class="dot" style="background:${x.color};margin-right:6px"></i>`:''}${esc(x.name)} <b>${esc(x.value)}</b></div>`).join('');tip.hidden=false;}catch{}});
-document.addEventListener('pointermove',e=>{const tip=$('#tip');if(!tip.hidden){tip.style.left=Math.min(innerWidth-tip.offsetWidth-8,e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px';}});
+ if(f.id==='record-form'){const s=String(d.amount).trim().replace(/[$,\s]/g,'');if(!/^\d{1,8}(\.\d{1,2})?$/.test(s)||+s<=0)return formError('Enter an amount above zero, with up to two decimals.');const id=f.dataset.id;
+  closeModal();commit(()=>{const r={id:id||uid(),date:d.date,category:d.category,amount:Math.round(+s*100),note:d.note.trim(),entity:d.entity??state.settings.entity};if(id)state.records=state.records.map(x=>x.id===id?r:x);else state.records.push(r);},id?'Record saved':'Record added');}
+ if(f.id==='entity-form'){const id=f.dataset.id,name=d.name.trim();if(!name)return formError('Give it a name.');closeModal();commit(()=>{if(id)state.entities.find(x=>x.id===id).name=name;else{state.entities.push({id:'e'+uid(),name});if(state.entities.length===1)state.settings.entity='';}},'Saved');}
+ if(f.id==='settings-form')commit(()=>Object.assign(state.settings,{name:d.name.trim(),currency:d.currency,symbol:d.symbol.trim()}),'Preferences saved');});
+// keyboard: Esc closes the mobile menu, N adds a record (never while typing or in a dialog)
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.body.classList.remove('menu-open');
+ if(e.key.toLowerCase()==='n'&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)&&!document.querySelector('dialog[open]')){e.preventDefault();recordForm();}});
+// chart tooltips: hover or focus anything with data-tip
+function showTip(el,x,y){const tip=$('#tip');try{const {t,r}=JSON.parse(el.dataset.tip);tip.innerHTML=`<div class="tip-title">${esc(t)}</div>`+r.map(v=>`<div class="tip-row">${v.color?`<i class="dot" style="background:${v.color}"></i>`:''}<span>${esc(v.name)}</span><b>${esc(v.value)}</b></div>`).join('');tip.hidden=false;
+ tip.style.left=Math.max(8,Math.min(innerWidth-tip.offsetWidth-8,x+14))+'px';tip.style.top=Math.max(8,Math.min(innerHeight-tip.offsetHeight-8,y+14))+'px';}catch{tip.hidden=true;}}
+document.addEventListener('pointermove',e=>{const el=e.target.closest?.('[data-tip]');if(el)showTip(el,e.clientX,e.clientY);else $('#tip').hidden=true;});
+document.addEventListener('focusin',e=>{const el=e.target.closest?.('[data-tip]');if(el){const r=el.getBoundingClientRect();showTip(el,r.right,r.top);}else $('#tip').hidden=true;});
+window.addEventListener('scroll',()=>{$('#tip').hidden=true;},{passive:true});
 
 /* ---------- start ---------- */
 document.querySelectorAll('[data-action="prev"]').forEach(b=>b.innerHTML=ico('left'));document.querySelectorAll('[data-action="next"]').forEach(b=>b.innerHTML=ico('right'));
-$('[data-action="menu"]').innerHTML=ico('menu');$('.topbar [data-action="guide"]').innerHTML=ico('help')+'<span>Guide</span>';$('.topbar [data-action="backup"]').innerHTML=ico('down')+'<span>Back up</span>';
-$('#brand-mark').textContent=CONFIG.mark;$('#rail-note').innerHTML=CONFIG.railNote;
-load().then(()=>{render();let seen=false;try{seen=!!localStorage.getItem(KEY+'-welcome');}catch{}if(!seen&&!state.records.length)welcome();});
+$('.mobile-menu').innerHTML=ico('menu');$('.topbar [data-go="guide"]').innerHTML=ico('help')+'<span>Guide</span>';$('.topbar [data-action="backup"]').innerHTML=ico('down')+'<span>Back up</span>';
+$('#rail-note').innerHTML=CONFIG.railNote;$('#rail-version').textContent=`${CONFIG.tagline} · v${CONFIG.version}`;
+Promise.all([load(),initFolder()]).then(()=>{render();startupPrompt();});
 </script>
 </body>
 </html>
