@@ -1,0 +1,1142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172b36">
+  <meta name="description" content="Turn your home bakery orders into a batch plan, shopping list and clear view of your available time. Bakeweek Studio by JPS Digital Pages.">
+  <title>Bakeweek Studio · JPS Digital Pages</title>
+  <style>/* Bakeweek Studio — product visual system. */
+:root {
+  --ink: #172b36;
+  --navy: #172b36;
+  --navy-deep: #10212a;
+  --muted: #62716f;
+  --paper: #f5f4ee;
+  --white: #fffefa;
+  --line: #e0e3dc;
+  --yellow: #f1d36e;
+  --yellow-soft: #faf1d1;
+  --green: #286850;
+  --green-soft: #e5efe7;
+  --coral: #a44435;
+  --coral-soft: #fae9e1;
+  --blue-soft: #e6edef;
+  --radius: 14px;
+  --shadow: 0 3px 16px #172b3605;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea { touch-action: manipulation; }
+button { color: var(--ink); cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .5; }
+a { color: inherit; text-underline-offset: 3px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 3px solid #537f9b; outline-offset: 3px; }
+h1, h2, h3, h4, p { margin: 0; }
+h1, h2, h3, h4 { line-height: 1.18; }
+h1 { font-size: clamp(28px, 2.5vw, 38px); letter-spacing: -1.35px; font-weight: 720; }
+h2 { font-size: 23px; letter-spacing: -.7px; font-weight: 680; }
+h3 { font-size: 15px; letter-spacing: -.25px; font-weight: 680; }
+small { font-size: 11px; }
+svg { display: inline-block; flex-shrink: 0; }
+button svg, a svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+[hidden] { display: none !important; }
+.skip-link { position: fixed; left: 16px; top: -70px; z-index: 100; background: var(--yellow); padding: 12px 18px; border-radius: 8px; }
+.skip-link:focus { top: 16px; }
+.app-shell { min-height: 100vh; }
+.sidebar { position: fixed; inset: 0 auto 0 0; width: 222px; display: flex; flex-direction: column; padding: 34px 20px 22px; background: var(--navy); color: #f9f7eb; z-index: 3; }
+.brand { display: flex; align-items: center; gap: 11px; padding: 0 4px; }
+.brand-mark { display: grid; place-items: center; width: 39px; height: 45px; color: var(--yellow); flex-shrink: 0; }
+.brand-mark svg { width: 39px; height: 39px; }
+.brand-name { display: block; font-size: 25px; letter-spacing: -1.25px; font-weight: 750; line-height: 1; }
+.brand-studio { display: block; margin-top: 8px; color: #bbc7c7; letter-spacing: 3.2px; font-size: 8px; font-weight: 600; }
+.sidebar-section { margin: 48px 13px 13px; font-size: 8px; letter-spacing: 1.65px; font-weight: 650; color: #aebdc0; }
+#navigation { display: grid; gap: 5px; }
+.nav-item { display: flex; gap: 12px; align-items: center; width: 100%; min-height: 45px; border: 0; border-radius: 8px; background: transparent; padding: 12px 13px; color: #c7d1d1; text-decoration: none; font-size: 12px; font-weight: 550; text-align: left; transition: background .15s ease, color .15s ease; }
+.nav-item svg { width: 18px; height: 18px; stroke-width: 1.6; }
+.nav-item:hover { color: #fff; background: #ffffff0c; }
+.nav-item.active { color: var(--navy-deep); background: var(--yellow); font-weight: 720; box-shadow: 0 3px 8px #0000000a; }
+.nav-item .nav-count { margin-left: auto; padding: 1px 6px; border-radius: 5px; font-size: 10px; background: #ffffff14; }
+.sidebar-note { padding: 35px 14px 23px; margin-top: auto; }
+.sidebar-note-symbol { display: block; color: var(--yellow); font-size: 25px; line-height: 1; margin-bottom: 15px; }
+.sidebar-note p { color: #d6ddda; font-size: 16px; line-height: 1.6; font-weight: 450; letter-spacing: -.2px; }
+.sidebar-rule { display: block; height: 1px; width: 31px; margin: 24px 0 14px; background: #617275; }
+.sidebar-maker { display: block; color: #a5b5b9; font-size: 8px; letter-spacing: 1.45px; font-weight: 600; }
+.sidebar-bottom { margin: 16px 6px 0; border-top: 1px solid #ffffff16; padding-top: 19px; }
+.local-status { display: flex; align-items: center; gap: 8px; color: #c1cfca; font-size: 10px; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: #a6c29e; display: inline-block; }
+.sidebar-backup { border: 0; background: none; color: #c1cfca; font-size: 10px; padding: 9px 0 0; text-decoration: underline; text-underline-offset: 3px; }
+.sidebar-backup span { margin-left: 13px; text-decoration: none; }
+.workspace { margin-left: 222px; min-width: 0; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 34px; min-height: 81px; border-bottom: 1px solid var(--line); background: var(--white); }
+.business-block { min-width: 0; }
+.business-label { display: block; font-size: 12px; font-weight: 690; color: var(--ink); overflow-wrap: anywhere; }
+.save-status { display: block; color: var(--muted); font-size: 10px; margin-top: 3px; }
+.topbar-actions { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 39px; padding: 9px 14px; border: 1px solid #d9ded7; border-radius: 8px; background: var(--white); color: var(--ink); font-size: 12px; line-height: 1.35; font-weight: 650; text-decoration: none; transition: background .15s ease, border-color .15s ease, transform .15s ease; }
+.btn:hover { background: #eeeee7; border-color: #c7cec5; }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--navy); border-color: var(--navy); color: #fffefa; }
+.btn.primary:hover { background: #284452; border-color: #284452; }
+.btn.yellow { background: var(--yellow); border-color: var(--yellow); color: var(--navy-deep); }
+.btn.yellow:hover { background: #e7c45c; border-color: #e7c45c; }
+.btn.subtle { background: transparent; border-color: transparent; color: var(--ink); }
+.btn.subtle:hover { background: #eeeee7; }
+.btn.danger { border-color: #e4bbb1; color: #983a2e; background: #fff9f5; }
+.btn.danger:hover { background: var(--coral-soft); }
+.btn.icon { padding: 8px; width: 38px; min-width: 38px; font-size: 18px; }
+.btn.small { min-height: 31px; padding: 6px 10px; font-size: 11px; }
+.btn.full { width: 100%; }
+.topbar .btn { font-size: 11px; min-height: 35px; padding: 8px 11px; }
+.topbar .btn svg { width: 15px; height: 15px; }
+.demo-banner { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 10px 34px; background: #eee6ca; color: #625a37; font-size: 10px; border-bottom: 1px solid #e7ddba; }
+.demo-banner strong { color: #4b4428; font-weight: 650; }
+.demo-banner button { border: 0; background: transparent; color: #4b4428; padding: 3px 0; font-size: 10px; text-decoration: underline; text-underline-offset: 3px; flex-shrink: 0; }
+.storage-banner { padding: 13px 34px; background: var(--coral-soft); color: #873b2d; border-bottom: 1px solid #e7c6b8; font-size: 12px; }
+main { max-width: 1630px; margin: 0 auto; padding: 32px 34px 26px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.page-head > div { min-width: 0; }
+.page-head p { color: var(--muted); font-size: 12px; margin-top: 9px; max-width: 610px; }
+.eyebrow { color: #63766d; font-size: 9px; font-weight: 700; letter-spacing: 1.9px; text-transform: uppercase; margin-bottom: 9px; }
+.head-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 0; }
+.head-actions .date-label { font-size: 12px; font-weight: 650; padding: 0 3px; }
+.week-banner { display: flex; align-items: center; justify-content: space-between; gap: 25px; padding: 24px 27px; margin-bottom: 20px; background: var(--navy); color: #fffefa; border-radius: var(--radius); position: relative; overflow: hidden; }
+.week-banner-copy { min-width: 0; }
+.week-banner .eyebrow { color: #c6cfb4; font-size: 8px; letter-spacing: 1.8px; margin-bottom: 7px; }
+.week-banner h1, .week-banner h2 { color: #fffefa; font-size: clamp(23px, 2.1vw, 30px); font-weight: 640; letter-spacing: -.9px; }
+.week-banner p { color: #ccd6d4; font-size: 12px; margin-top: 8px; }
+.week-banner-actions { display: flex; gap: 9px; align-items: center; flex-shrink: 0; }
+.week-banner .btn.subtle { color: #f6f5eb; border-color: #ffffff38; }
+.week-banner .btn.subtle:hover { background: #ffffff12; }
+.week-banner .pill { margin-bottom: 8px; }
+.output-tray { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; border: 1px solid var(--line); background: var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 22px; }
+.output-link { display: flex; align-items: center; gap: 13px; min-width: 0; border: 0; border-radius: 0; padding: 17px 20px; text-align: left; text-decoration: none; background: var(--white); color: var(--ink); position: relative; }
+.output-link:hover { background: #f6f7ec; }
+.output-link svg { width: 22px; height: 22px; color: #687970; }
+.output-number { font-size: 25px; font-weight: 730; letter-spacing: -.8px; line-height: 1.1; }
+.output-label { color: var(--muted); font-size: 11px; display: block; }
+.output-link > span:last-child { min-width: 0; }
+.output-link .output-arrow { margin-left: auto; font-size: 18px; color: #738274; }
+.panel { min-width: 0; padding: 23px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); box-shadow: var(--shadow); }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
+.panel-head > div { min-width: 0; }
+.panel-head h2 { font-size: 19px; letter-spacing: -.6px; }
+.panel-head p { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.panel-head .mini { font-size: 10px; }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
+.metric { min-width: 0; padding: 18px 20px; border: 1px solid var(--line); border-radius: 11px; background: var(--white); }
+.metric .label { color: var(--muted); font-size: 11px; font-weight: 500; }
+.metric .value { display: block; color: var(--ink); font-size: 29px; line-height: 1.2; letter-spacing: -.9px; font-weight: 720; margin: 9px 0 6px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.metric .foot { color: var(--muted); font-size: 10px; line-height: 1.4; }
+.metric.accent { background: var(--yellow-soft); border-color: #e8db9f; }
+.metric.green { background: var(--green-soft); border-color: #d4e1d4; }
+.metric.coral { background: var(--coral-soft); border-color: #edcfc1; }
+.week-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin: 18px 0 24px; }
+.day-card { display: block; position: relative; min-width: 0; min-height: 146px; padding: 15px 13px 13px; border: 1px solid #dfe3da; border-radius: 10px; text-align: left; color: var(--ink); background: var(--white); transition: border-color .15s ease, box-shadow .15s ease; }
+button.day-card:hover { border-color: #9daaa0; box-shadow: 0 3px 12px #172b3607; }
+.day-card.selected { border-color: var(--navy); box-shadow: inset 0 0 0 1px var(--navy); background: #f2f3e5; }
+.day-card.over { background: #fcf0e9; border-color: #e4bba9; }
+.day-card.over.selected { border-color: #a95f45; box-shadow: inset 0 0 0 1px #a95f45; }
+.day-label { display: flex; align-items: center; justify-content: space-between; gap: 4px; color: #61716b; font-size: 10px; font-weight: 650; }
+.day-card.over .day-label { color: #984f3d; }
+.day-date { display: block; margin-top: 7px; font-size: 25px; line-height: 1.1; letter-spacing: -.65px; font-weight: 660; font-variant-numeric: tabular-nums; }
+.day-date small { font-size: 11px; color: var(--muted); letter-spacing: 0; font-weight: 450; margin-left: 3px; }
+.timebar { overflow: hidden; height: 5px; border-radius: 3px; background: #e6e8df; margin: 15px 0 8px; }
+.timefill { display: block; height: 100%; min-width: 0; max-width: 100%; background: #637c69; border-radius: 3px; }
+.over .timefill { background: #c37555; }
+.day-card.selected:not(.over) .timefill { background: #3c6650; }
+.day-stats { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 3px 5px; font-size: 9px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.day-stats strong { font-size: 10px; color: var(--ink); font-weight: 650; }
+.day-card.over .day-stats strong { color: #944632; }
+.day-card .stage-chip { margin-top: 9px; }
+.stage-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px; border-radius: 4px; font-size: 8px; line-height: 1.25; font-weight: 620; background: #edf0e9; color: #5e6c5d; }
+.stage-chip.bake { background: #f2e8d8; color: #805c2d; }
+.stage-chip.finish { background: #e6edef; color: #4b6976; }
+.stage-chip.done { background: var(--green-soft); color: var(--green); }
+.plan-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; align-items: start; gap: 20px; }
+.plan-main, .plan-aside { min-width: 0; }
+.plan-aside { display: grid; gap: 16px; }
+.plan-aside .panel { padding: 20px; }
+.plan-aside .panel-head { margin-bottom: 16px; }
+.plan-aside h2 { font-size: 17px; }
+.plan-aside .notice { margin: 0; }
+.plan-aside .btn.full { margin-top: 15px; }
+.run-card { position: relative; min-width: 0; padding: 19px 20px; border: 1px solid var(--line); border-left: 3px solid #9cb298; border-radius: 10px; background: var(--white); margin-bottom: 12px; box-shadow: var(--shadow); }
+.run-card:last-child { margin-bottom: 0; }
+.run-card.completed { opacity: .8; border-left-color: #76947e; background: #f6f8f0; }
+.run-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.run-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.run-title > div { min-width: 0; }
+.run-title h3 { font-size: 15px; font-weight: 690; line-height: 1.3; overflow-wrap: anywhere; }
+.run-title .mini { margin-top: 4px; }
+.recipe-avatar { width: 41px; height: 43px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; color: #473c2c; background: #eee0c7; font-size: 12px; font-weight: 750; letter-spacing: -.2px; border: 1px solid #00000008; }
+.run-actions { display: flex; align-items: center; justify-content: flex-end; gap: 7px; flex-wrap: wrap; flex-shrink: 0; }
+.run-actions .btn { padding: 7px 10px; min-height: 33px; font-size: 10px; }
+.run-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 7px 16px; padding-top: 14px; margin-top: 14px; border-top: 1px solid #eceee6; color: var(--muted); font-size: 10px; }
+.run-meta strong { font-weight: 660; color: var(--ink); }
+.run-meta .pill { margin-left: auto; }
+.run-detail { margin-top: 13px; padding: 12px 14px; border-radius: 7px; background: #f5f5ed; color: #5b6b61; font-size: 11px; }
+.mini { font-size: 11px; line-height: 1.55; }
+.muted { color: var(--muted); }
+.positive { color: var(--green) !important; }
+.negative { color: var(--coral) !important; }
+.pill { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; padding: 4px 8px; border-radius: 5px; background: #edf0e9; color: #566557; font-size: 9px; line-height: 1.25; font-weight: 660; white-space: nowrap; }
+.pill.green { background: #e5efe7; color: #286047; }
+.pill.coral { background: #f5e3d9; color: #974733; }
+.pill.yellow { background: #f7edc9; color: #755d17; }
+.pill.gray { background: #edf0ea; color: #5a695e; }
+.pill.blue { background: var(--blue-soft); color: #486472; }
+.notice { padding: 13px 16px; margin: 16px 0; border: 1px solid #e4dfc8; border-radius: 8px; background: #f9f5e7; color: #655d3d; font-size: 11px; line-height: 1.65; }
+.notice strong { font-weight: 700; }
+.notice p + p { margin-top: 7px; }
+.notice.warning { background: var(--coral-soft); border-color: #eacbbb; color: #884b35; }
+.notice.success { background: var(--green-soft); border-color: #cbdccb; color: #315e40; }
+.notice .btn { margin-top: 10px; }
+.table-wrap { width: 100%; min-width: 0; overflow: auto; border-radius: 9px; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+th { padding: 12px 13px; background: #f2f3eb; border-bottom: 1px solid #e1e5da; font-size: 9px; letter-spacing: .6px; text-transform: uppercase; font-weight: 680; color: #61705f; white-space: nowrap; }
+td { padding: 14px 13px; border-bottom: 1px solid #e7eadf; vertical-align: middle; font-size: 11px; }
+tr:last-child td { border-bottom: 0; }
+td strong { display: inline-block; font-size: 11px; font-weight: 670; }
+td .mini, .table-sub { display: block; font-size: 10px; color: var(--muted); margin-top: 3px; }
+td .btn { padding: 6px 9px; font-size: 10px; min-height: 30px; }
+.table-action { padding: 3px; border: 0; background: transparent; color: #3e6254; font-size: 11px; text-decoration: underline; text-underline-offset: 3px; }
+.right { text-align: right; }
+.nowrap { white-space: nowrap; }
+.stack { display: grid; gap: 17px; }
+.gap { gap: 12px; }
+.text-link { border: 0; padding: 0; background: none; color: #3e6153; font-size: 11px; font-weight: 550; text-decoration: underline; text-underline-offset: 3px; }
+.search-input { width: 100%; max-width: 285px; min-width: 0; padding: 10px 12px; background: var(--white); color: var(--ink); border: 1px solid #d6ddd2; border-radius: 8px; font-size: 12px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.field { min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+.field label { display: block; font-size: 11px; line-height: 1.4; font-weight: 660; margin-bottom: 7px; }
+.field input, .field select, .field textarea { display: block; width: 100%; min-width: 0; min-height: 41px; border: 1px solid #d4dcd0; background: #fffefa; padding: 10px 11px; border-radius: 7px; color: var(--ink); font-size: 12px; line-height: 1.5; }
+.field input[type="color"] { padding: 5px; }
+.field input[type="checkbox"] { width: 17px; height: 17px; min-height: 0; padding: 0; accent-color: var(--green); }
+.field textarea { resize: vertical; min-height: 82px; }
+.field small { display: block; color: var(--muted); font-size: 10px; line-height: 1.5; margin-top: 5px; }
+.field input::placeholder, .field textarea::placeholder, .search-input::placeholder { color: #889080; }
+.field input:focus, .field select:focus, .field textarea:focus, .search-input:focus { border-color: #7e9681; }
+.form-footer { display: flex; align-items: center; justify-content: flex-end; gap: 9px; flex-wrap: wrap; padding-top: 22px; margin-top: 23px; border-top: 1px solid var(--line); }
+.form-error { background: #fbebe5; color: #913d2c; border: 1px solid #e7c1b3; border-radius: 7px; padding: 10px 12px; font-size: 12px; margin-top: 15px; }
+.form-error:empty { display: none; }
+.form-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--line); }
+.form-section h3 { margin-bottom: 14px; }
+.line-row, .order-line, .order-line-row { display: grid; grid-template-columns: minmax(130px, 2fr) minmax(55px, .65fr) minmax(70px, .8fr) minmax(70px, .8fr) 32px; gap: 8px; align-items: end; padding: 12px 0; border-bottom: 1px solid #e8ebdf; }
+.ingredient-row { display: grid; grid-template-columns: minmax(130px, 2fr) minmax(75px, 1fr) 32px; align-items: end; gap: 8px; padding: 9px 0; }
+.line-row .field label, .order-line .field label, .order-line-row .field label { font-size: 10px; }
+.line-row .field input, .line-row .field select, .order-line .field input, .order-line .field select, .order-line-row .field input, .order-line-row .field select { padding: 9px 8px; font-size: 11px; }
+.line-row .btn.icon, .order-line .btn.icon, .order-line-row .btn.icon, .ingredient-row .btn.icon { width: 32px; min-width: 32px; min-height: 38px; }
+.capacity-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.capacity-grid input { padding: 9px 8px; }
+.split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.split.equal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.split > * { min-width: 0; }
+.empty { border: 1px dashed #c8d1c0; border-radius: var(--radius); background: #f5f6ec; padding: 44px 28px; text-align: center; }
+.empty h2 { font-size: 25px; letter-spacing: -.7px; }
+.empty p { max-width: 460px; color: var(--muted); font-size: 12px; margin: 11px auto 20px; line-height: 1.75; }
+.empty-art { width: 63px; height: 63px; display: grid; place-items: center; margin: 0 auto 18px; border: 1px solid #dfd7ae; border-radius: 16px; background: #f3ebcb; font-size: 30px; color: #665b32; }
+.empty-actions { display: flex; align-items: center; justify-content: center; gap: 9px; flex-wrap: wrap; }
+.tabs { display: flex; align-items: center; gap: 6px; overflow-x: auto; border-bottom: 1px solid #dce1d5; margin: 23px 0 24px; scrollbar-width: thin; }
+.tab { position: relative; flex-shrink: 0; border: 0; border-radius: 0; background: transparent; padding: 12px 15px 14px; color: #647266; font-size: 11px; font-weight: 550; white-space: nowrap; }
+.tab:first-child { padding-left: 3px; }
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--ink); font-weight: 730; }
+.tab.active:after { content: ""; position: absolute; bottom: 0; left: 12px; right: 12px; height: 3px; border-radius: 3px 3px 0 0; background: var(--navy); }
+.tab:first-child.active:after { left: 0; }
+.shopping-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 17px 0; border-bottom: 1px solid #e7eadd; }
+.shopping-row:last-child { border: 0; }
+.shopping-row strong { font-size: 12px; }
+.shopping-row .mini { margin-top: 4px; }
+.shopping-row label { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.shopping-row input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--green); }
+.shopping-stats { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px 18px; margin-bottom: 18px; border-radius: 9px; background: #f1f2e7; color: #55634f; }
+.shopping-stats strong { color: var(--ink); font-size: 24px; letter-spacing: -.7px; }
+.recipe-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+.recipe-card { position: relative; min-width: 0; padding: 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+.recipe-card > .recipe-avatar { width: 50px; height: 52px; border-radius: 12px; margin-bottom: 19px; font-size: 15px; }
+.recipe-card h2 { font-size: 20px; line-height: 1.2; overflow-wrap: anywhere; margin: 10px 0 6px; }
+.recipe-card h3 { font-size: 18px; line-height: 1.25; margin: 11px 0 8px; overflow-wrap: anywhere; }
+.recipe-card .recipe-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }
+.recipe-card .summary-line { font-size: 10px; padding: 10px 0; }
+.recipe-card .card-actions { display: flex; align-items: center; gap: 8px; margin-top: 19px; padding-top: 17px; border-top: 1px solid #e8eadf; }
+.ingredient-line { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 9px 0; border-bottom: 1px solid #e7eadf; font-size: 11px; }
+.ingredient-line span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.ingredient-line span:last-child, .ingredient-line strong { white-space: nowrap; }
+.ingredient-line:last-child { border: 0; }
+.order-card { min-width: 0; background: var(--white); border: 1px solid var(--line); border-radius: 11px; padding: 20px; margin-bottom: 13px; }
+.order-card .panel-head { margin-bottom: 12px; }
+.order-card h3 { font-size: 16px; overflow-wrap: anywhere; }
+.order-card p { color: var(--muted); font-size: 11px; }
+.order-card .order-lines { margin: 15px 0; padding: 11px 13px; border-radius: 7px; background: #f4f5ed; }
+.order-card .order-lines > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 11px; padding: 5px 0; }
+.order-card .order-footer { border-top: 1px solid var(--line); padding-top: 13px; margin-top: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.summary-line { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid #e3e8db; font-size: 11px; color: var(--muted); }
+.summary-line > :first-child { min-width: 0; }
+.summary-line strong { font-weight: 670; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.summary-line.total, .total { color: var(--ink); font-weight: 680; }
+.summary-line.total { padding: 17px 0 3px; margin-top: 5px; border-top: 1px solid #cdd5c5; border-bottom: 0; font-size: 13px; }
+.summary-line.total strong { font-size: 22px; letter-spacing: -.6px; }
+.summary-line:last-child { border-bottom: 0; }
+.scenario-layout { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 27px; align-items: start; }
+.scenario-inputs { min-width: 0; }
+.scenario-results { min-width: 0; border: 1px solid #dce1d4; border-radius: 12px; padding: 23px; background: #f3f5ea; }
+.scenario-results h3 { font-size: 17px; margin-bottom: 13px; }
+.scenario-results .eyebrow { font-size: 8px; }
+.scenario-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.scenario-metric { min-width: 0; padding: 15px 16px; background: #fffefa; border: 1px solid #e0e5d7; border-radius: 9px; }
+.scenario-metric .label { display: block; font-size: 10px; color: var(--muted); }
+.scenario-metric .foot { display: block; font-size: 9px; color: var(--muted); margin-top: 5px; }
+.scenario-number, .scenario-metric .value { display: block; color: var(--ink); font-size: 27px; line-height: 1.25; letter-spacing: -.8px; font-weight: 720; margin-top: 7px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.decision-banner { padding: 16px 18px; border: 1px solid #c3d6c0; border-radius: 9px; background: #e4efdd; color: #29543a; font-size: 12px; line-height: 1.6; }
+.decision-banner h3, .decision-banner strong { font-size: 15px; font-weight: 730; }
+.decision-banner p { font-size: 11px; margin-top: 5px; }
+.decision-banner.good { background: #e4efdd; border-color: #c3d6c0; color: #29543a; }
+.decision-banner.bad { background: #fae8de; border-color: #e8c3b0; color: #92412b; }
+.decision-banner .btn { margin-top: 12px; }
+.receipt { padding: 22px; border: 1px solid #dce1d3; border-radius: 9px; background: #fffefa; }
+.receipt h2 { margin-bottom: 15px; }
+.receipt .summary-line { padding: 11px 0; }
+.receipt .receipt-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; padding-bottom: 20px; border-bottom: 2px solid var(--ink); }
+.stepper { display: flex; align-items: center; gap: 9px; margin: 20px 0; font-size: 11px; color: var(--muted); }
+.stepper > span, .stepper > button { border: 1px solid #d9e0d1; border-radius: 20px; padding: 6px 10px; background: #f5f6ec; }
+.stepper .active { color: var(--ink); background: var(--yellow-soft); border-color: #e0cf89; font-weight: 680; }
+.steps { display: grid; gap: 16px; }
+.guide-step { display: grid; grid-template-columns: 33px minmax(0, 1fr); gap: 13px; font-size: 12px; padding: 15px 0; border-bottom: 1px solid #e5e9dd; }
+.guide-step:last-child { border-bottom: 0; }
+.guide-step > b, .guide-step > .step-number { display: grid; place-items: center; width: 33px; height: 33px; border-radius: 9px; background: var(--yellow-soft); color: #6e5b25; font-size: 12px; }
+.guide-step strong, .guide-step h3 { display: block; margin: 1px 0 6px; font-size: 13px; }
+.guide-step p { color: var(--muted); line-height: 1.65; font-size: 12px; }
+.guide-step .btn { margin-top: 10px; }
+.workspace-footer { display: flex; justify-content: space-between; gap: 20px; max-width: 1630px; margin: 0 auto; padding: 15px 34px 23px; color: #748072; font-size: 9px; }
+.footer-dot { margin: 0 6px; }
+dialog { width: min(650px, calc(100vw - 36px)); max-width: none; max-height: calc(100dvh - 48px); padding: 0; border: 1px solid #dce1d4; border-radius: 17px; color: var(--ink); background: var(--white); box-shadow: 0 25px 120px #10212a42; overflow: auto; }
+dialog::backdrop { background: #0b1c26a8; backdrop-filter: blur(4px); }
+dialog.wide { width: min(1100px, 95vw); }
+.modal-inner { padding: 27px; }
+.modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+.modal-head > div { min-width: 0; }
+.modal-head h2 { font-size: 27px; letter-spacing: -.95px; }
+.modal-head p, .modal-inner > p { color: var(--muted); font-size: 12px; margin-top: 7px; }
+.modal-inner > p { margin-bottom: 21px; }
+.modal-close { display: inline-flex; align-items: center; justify-content: center; border: 1px solid #dce2d4; border-radius: 50%; background: #f4f5ec; width: 32px; height: 32px; padding: 0; color: #667061; font-size: 23px; line-height: 1; flex-shrink: 0; }
+.modal-close:hover { background: #e9eee0; color: var(--ink); }
+.toast { position: fixed; bottom: 23px; left: calc(50% + 111px); transform: translateX(-50%); max-width: min(570px, calc(100vw - 32px)); padding: 13px 19px; border-radius: 9px; background: var(--navy); color: #fffefa; box-shadow: 0 8px 28px #172b3630; font-size: 12px; z-index: 30; }
+#printArea { display: none; }
+
+
+/* App composition: working controls, recipe records and result hierarchy. */
+.week-controls { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 20px; }
+.week-switch { display:flex; align-items:center; gap:10px; min-width:0; }
+.week-switch strong { font-size:13px; font-weight:680; white-space:nowrap; }
+.week-switch .btn.icon { width:34px; min-width:34px; min-height:35px; padding:6px; }
+.week-controls > .btn { font-size:11px; }
+.output-label { min-width:0; flex:1; }
+.output-label strong { display:block; color:var(--ink); font-size:11px; line-height:1.35; font-weight:680; }
+.output-label small { display:block; color:var(--muted); font-size:10px; line-height:1.5; margin-top:4px; }
+.output-link > span:last-child { margin-left:auto; align-self:center; flex-shrink:0; color:#667b6e; }
+.day-status { display:block; margin-top:7px; color:#4f6555; font-size:10px; font-weight:620; line-height:1.35; }
+.day-card.over .day-status { color:var(--coral); }
+.section-label { margin:26px 0 13px; color:#6a7768; font-size:9px; letter-spacing:1.7px; font-weight:700; }
+.section-heading { margin-top:30px; }
+.run-title { display:block; flex:1; min-width:0; }
+.run-title h3 { font-size:14px; line-height:1.35; }
+.run-title p { color:var(--muted); font-size:11px; line-height:1.55; margin-top:5px; }
+.run-title p strong { color:var(--ink); font-weight:680; }
+.run-top > .pill { align-self:flex-start; margin-top:2px; flex-shrink:0; }
+.run-card { border-left-color:var(--recipe-color,#9cb298); }
+.run-actions { margin-left:0; padding-top:12px; }
+.run-actions .btn.subtle { padding-left:6px; padding-right:6px; }
+.order-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:12px; }
+.order-card-head > div { min-width:0; }
+.order-card-head .eyebrow { display:block; font-size:8px; letter-spacing:1.05px; }
+.order-card-head h3 { font-size:17px; margin:6px 0 0; }
+.order-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; align-items:start; }
+.order-grid .order-card { margin:0; }
+.order-grid .run-actions { justify-content:flex-start; gap:7px; }
+.order-card.compact { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:15px 16px; margin-bottom:9px; background:#f8f8f1; }
+.order-card.compact > div:first-child { min-width:0; }
+.order-card.compact > div:last-child { display:flex; align-items:center; gap:5px; flex-shrink:0; }
+.order-card.compact strong { font-size:12px; display:block; }
+.order-card.compact .mini { display:block; font-size:9px; margin:3px 0 6px; }
+.order-card.compact p { font-size:10px; line-height:1.6; }
+.batch-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:17px; align-items:start; }
+.batch-grid > .run-card { margin:0; }
+.batch-grid .run-top { align-items:flex-start; }
+.batch-grid .run-title h3 { font-size:15px; }
+.scaled-ingredients { margin-top:17px; padding:4px 15px; background:#f6f6ed; border:1px solid #e4e8da; border-radius:8px; }
+.scaled-ingredients .summary-line { font-size:11px; padding:9px 0; }
+.method-text { white-space:pre-wrap; color:#566651; font-size:11px; line-height:1.7; margin:15px 0 0; padding:0 2px; }
+.recipe-card-top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+.recipe-card-top .recipe-avatar { width:47px; height:49px; font-size:13px; }
+.recipe-card > p { font-size:11px; color:var(--muted); margin-top:9px; }
+.recipe-facts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 13px; padding-top:20px; margin-top:20px; border-top:1px solid var(--line); }
+.recipe-facts small { display:block; font-size:8px; line-height:1.5; font-weight:650; letter-spacing:.7px; color:var(--muted); }
+.recipe-facts strong { display:block; margin-top:5px; font-size:17px; line-height:1.3; font-weight:650; letter-spacing:-.3px; }
+.recipe-card .run-actions { justify-content:flex-start; padding-top:21px; }
+.nav-icon { width:17px; text-align:center; font-size:14px; font-weight:400; line-height:1; opacity:.85; }
+.nav-arrow { margin-left:auto; font-size:13px; }
+.guide-step > .step-number { grid-column:1; grid-row:1 / span 3; }
+.guide-step > h3, .guide-step > p, .guide-step > .btn { grid-column:2; }
+.guide-step > h3 { margin:1px 0 0; }
+.guide-step > p { margin-top:-6px; }
+.guide-step > .btn { justify-self:start; margin-top:0; }
+.empty + .steps { margin-top:24px; }
+.scenario-results { padding:19px; }
+.scenario-results .decision-banner { padding:14px 16px; }
+.scenario-results .decision-banner h3 { margin-bottom:0; font-size:15px; }
+.scenario-results .decision-banner p { font-size:10px; }
+.scenario-metrics { gap:10px; margin:15px 0; }
+.scenario-metrics .metric { padding:13px 14px; }
+.scenario-metrics .metric .label { font-size:10px; }
+.scenario-metrics .metric .value { font-size:26px; margin:7px 0 5px; }
+.scenario-metrics .metric .foot { font-size:9px; line-height:1.45; }
+.scenario-results .receipt { padding:15px 17px; }
+.scenario-results .receipt .summary-line { padding:7px 0; font-size:10px; }
+.scenario-results .receipt .summary-line.total { padding-top:12px; }
+.scenario-results .receipt .summary-line.total strong { font-size:20px; }
+.scenario-results .receipt > .mini { font-size:9px; line-height:1.55; margin-top:8px; }
+.scenario-results > .mini { margin-top:9px; font-size:9px; }
+.scenario-results .run-actions { padding-top:14px; }
+.scenario-inputs .form-section .run-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:0 0 12px; padding-top:3px; }
+.scenario-inputs .form-section .btn.subtle { border:1px solid #dce2d4; background:#f6f6ed; min-height:36px; font-size:10px; padding:8px; }
+.scenario-inputs .form-section .btn.subtle:hover { background:var(--yellow-soft); border-color:#d8ca97; }
+@media (max-width: 1000px) {
+  .batch-grid { grid-template-columns:1fr; }
+  .order-grid { gap:12px; }
+  .run-top { align-items:flex-start; }
+}
+@media (max-width: 540px) {
+  .week-controls { flex-wrap:wrap; gap:8px; margin-bottom:17px; }
+  .week-switch { gap:9px; width:100%; }
+  .week-switch strong { font-size:12px; }
+  .week-switch > .btn.subtle { margin-left:auto; }
+  .week-controls > .btn { padding:6px 0; min-height:28px; font-size:10px; }
+  .output-label strong { font-size:10px; }
+  .output-label small { font-size:9px; margin-top:5px; }
+  .output-link > span:last-child { position:absolute; top:15px; right:10px; font-size:14px; }
+  .output-link { padding:14px 10px; }
+  .output-number { padding-right:12px; margin-bottom:8px; }
+  .run-top { display:grid; grid-template-columns:37px minmax(0,1fr); gap:10px; align-items:start; }
+  .run-top .recipe-avatar { grid-column:1; grid-row:1 / span 2; }
+  .run-title { grid-column:2; }
+  .run-title h3 { font-size:14px; }
+  .run-title p { margin-top:7px; font-size:10px; line-height:1.6; }
+  .run-top > .pill { grid-column:2; justify-self:start; margin-top:0; }
+  .run-actions { margin-left:0; justify-content:flex-end; }
+  .run-meta { gap:6px 12px; }
+  .day-status { font-size:10px; margin-top:8px; }
+  .order-grid { grid-template-columns:1fr; }
+  .order-card.compact { display:block; }
+  .order-card.compact > div:last-child { justify-content:flex-start; margin-top:10px; }
+  .batch-grid .run-title h3 { font-size:14px; }
+  .recipe-card-top .recipe-avatar { width:46px; height:48px; }
+  .recipe-facts small { font-size:8px; }
+  .recipe-facts strong { font-size:18px; }
+  .scenario-results { padding:16px; }
+  .scenario-metrics .metric { padding:12px; }
+  .scenario-metrics .metric .value { font-size:24px; }
+  .scenario-results .receipt { padding:14px; }
+}
+
+@media (min-width: 1600px) {
+  main { padding-top: 39px; }
+  .plan-layout { grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; }
+  .week-strip { gap: 11px; }
+  .day-card { min-height: 155px; padding: 17px 16px; }
+  .day-date { font-size: 29px; }
+  .run-card { padding: 22px; }
+}
+@media (max-width: 1220px) {
+  .sidebar { width: 205px; padding: 31px 16px 22px; }
+  .workspace { margin-left: 205px; }
+  main { padding: 27px 25px 23px; }
+  .topbar { padding: 17px 25px; }
+  .demo-banner, .storage-banner { padding-left: 25px; padding-right: 25px; }
+  .workspace-footer { padding-left: 25px; padding-right: 25px; }
+  .page-head { gap: 16px; }
+  .page-head h1 { font-size: 31px; }
+  .head-actions { max-width: 48%; }
+  .week-banner { padding: 22px; }
+  .week-banner-actions { flex-direction: column; align-items: stretch; }
+  .week-banner h2 { font-size: 26px; }
+  .plan-layout { grid-template-columns: minmax(0, 1fr) 260px; gap: 15px; }
+  .run-top { flex-wrap: wrap; }
+  .run-actions { margin-left: 53px; justify-content: flex-start; }
+  .run-meta { gap: 6px 12px; }
+  .day-card { padding: 13px 10px; }
+  .day-stats { font-size: 8px; }
+  .day-stats strong { font-size: 9px; }
+  .output-link { padding: 16px; gap: 10px; }
+  .metric { padding: 17px 16px; }
+  .metric .value { font-size: 26px; }
+  .recipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .toast { left: calc(50% + 102px); }
+}
+@media (max-width: 1000px) {
+  .sidebar { width: 185px; padding: 28px 13px 20px; }
+  .workspace { margin-left: 185px; }
+  .brand { gap: 7px; padding: 0; }
+  .brand-name { font-size: 23px; }
+  .brand-mark { width: 32px; }
+  .brand-mark svg { width: 32px; height: 32px; }
+  .nav-item { font-size: 11px; gap: 9px; padding: 11px 12px; }
+  .sidebar-section { margin-left: 10px; font-size: 7px; letter-spacing: 1.1px; }
+  .sidebar-note { padding-left: 11px; }
+  .sidebar-note p { font-size: 15px; }
+  .topbar { padding: 15px 21px; }
+  main { padding: 25px 21px 23px; }
+  .topbar .btn { padding: 7px 8px; font-size: 10px; }
+  .topbar-actions { gap: 2px; }
+  .week-strip { grid-template-columns: repeat(7, minmax(104px, 1fr)); overflow-x: auto; padding: 2px 2px 9px; margin: 17px -2px 20px; scrollbar-width: thin; }
+  .day-card { min-height: 141px; }
+  .plan-layout { grid-template-columns: minmax(0, 1fr); }
+  .plan-aside { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .run-top { flex-wrap: nowrap; }
+  .run-actions { margin-left: 0; justify-content: flex-end; }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+  .page-head { align-items: flex-start; }
+  .page-head h1 { font-size: 29px; }
+  .head-actions { gap: 6px; }
+  .head-actions .btn { font-size: 10px; padding: 8px 10px; }
+  .split { grid-template-columns: 1fr; }
+  .split.equal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .scenario-layout { gap: 20px; }
+  .scenario-results { padding: 18px; }
+  .toast { left: calc(50% + 92px); }
+}
+@media (max-width: 760px) {
+  .sidebar { position: static; width: 100%; padding: 17px 18px 0; display: block; }
+  .brand { gap: 8px; }
+  .brand-name { font-size: 22px; display: flex; align-items: baseline; gap: 8px; }
+  .brand-studio { font-size: 7px; letter-spacing: 2px; margin-top: 0; }
+  .brand-mark { height: 29px; width: 28px; }
+  .brand-mark svg { width: 28px; height: 28px; }
+  .sidebar-section, .sidebar-note, .sidebar-bottom { display: none; }
+  #navigation { display: flex; gap: 5px; overflow-x: auto; margin: 16px -18px 0; padding: 0 18px 12px; scrollbar-width: thin; scrollbar-color: #728785 transparent; }
+  .nav-item { width: auto; white-space: nowrap; flex-shrink: 0; min-height: 36px; padding: 8px 11px; gap: 7px; font-size: 10px; border-radius: 6px; }
+  .nav-item svg { width: 14px; height: 14px; }
+  .workspace { margin: 0; }
+  .topbar { min-height: 72px; padding: 13px 20px; gap: 12px; }
+  .business-label { font-size: 11px; }
+  .save-status { font-size: 9px; }
+  .topbar .btn { font-size: 10px; }
+  main { padding: 25px 20px 20px; }
+  .page-head { gap: 18px; }
+  .page-head h1 { font-size: 30px; }
+  .page-head p { font-size: 11px; }
+  .head-actions { max-width: none; }
+  .week-banner { padding: 22px; }
+  .week-banner h1, .week-banner h2 { font-size: 27px; }
+  .week-banner p { font-size: 11px; }
+  .output-link { padding: 15px 13px; gap: 8px; }
+  .output-number { font-size: 23px; }
+  .output-label { font-size: 10px; }
+  .output-link svg { width: 18px; height: 18px; }
+  .demo-banner, .storage-banner { padding-left: 20px; padding-right: 20px; }
+  .workspace-footer { padding: 10px 20px 22px; }
+  .toast { left: 50%; }
+  .scenario-layout { grid-template-columns: 1fr; }
+  .scenario-results { padding: 20px; }
+  .scenario-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .scenario-metric { padding: 12px; }
+  .scenario-number, .scenario-metric .value { font-size: 24px; }
+  .capacity-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 540px) {
+  .topbar { align-items: flex-start; padding: 13px 16px; gap: 10px; }
+  .business-block { max-width: 47%; }
+  .topbar-actions { gap: 0; flex-wrap: wrap; justify-content: flex-end; }
+  .topbar .btn { font-size: 9px; padding: 7px; min-height: 29px; gap: 4px; }
+  .topbar .btn svg { width: 13px; height: 13px; }
+  .topbar .backup-button { border-color: transparent; }
+  .business-label { font-size: 10px; }
+  .save-status { font-size: 8px; line-height: 1.5; }
+  .demo-banner { padding: 10px 16px; font-size: 9px; gap: 10px; align-items: flex-start; }
+  .demo-banner strong { display: block; }
+  .demo-banner button { font-size: 9px; margin-top: 2px; }
+  .storage-banner { padding: 11px 16px; font-size: 11px; }
+  main { padding: 24px 16px 18px; }
+  .page-head { display: block; margin-bottom: 20px; }
+  .page-head h1 { font-size: 30px; letter-spacing: -1px; }
+  .page-head p { margin-top: 8px; }
+  .eyebrow { font-size: 8px; letter-spacing: 1.65px; }
+  .head-actions { justify-content: flex-start; margin-top: 17px; gap: 7px; }
+  .head-actions .btn { font-size: 11px; min-height: 37px; padding: 8px 11px; }
+  .week-banner { display: block; padding: 22px; margin-bottom: 17px; }
+  .week-banner h1, .week-banner h2 { font-size: 26px; letter-spacing: -.9px; }
+  .week-banner p { font-size: 11px; margin-top: 9px; line-height: 1.65; }
+  .week-banner-actions { display: flex; flex-direction: row; flex-wrap: wrap; margin-top: 18px; gap: 8px; }
+  .week-banner .btn { font-size: 11px; min-height: 37px; padding: 9px 12px; }
+  .output-tray { gap: 1px; margin-bottom: 18px; }
+  .output-link { display: block; padding: 14px 11px; }
+  .output-link > svg { display: none; }
+  .output-number { display: block; font-size: 25px; margin-bottom: 5px; }
+  .output-label { font-size: 9px; line-height: 1.5; }
+  .output-link .output-arrow { position: absolute; top: 15px; right: 10px; font-size: 14px; }
+  .panel { padding: 18px; border-radius: 11px; }
+  .panel-head { gap: 10px; align-items: flex-start; margin-bottom: 17px; }
+  .panel-head h2 { font-size: 18px; }
+  .panel-head .btn { font-size: 10px; padding: 7px 9px; min-height: 33px; }
+  .metrics { gap: 10px; margin-bottom: 18px; }
+  .metric { padding: 16px 14px; }
+  .metric .label { font-size: 10px; }
+  .metric .value { font-size: 25px; margin: 8px 0 6px; }
+  .metric .foot { font-size: 9px; }
+  .week-strip { grid-template-columns: repeat(7, 112px); gap: 7px; margin-top: 15px; margin-bottom: 17px; }
+  .day-card { padding: 13px 12px; }
+  .day-label { font-size: 10px; }
+  .day-stats { font-size: 9px; }
+  .day-stats strong { font-size: 10px; }
+  .tabs { gap: 0; margin: 19px 0 20px; }
+  .tab { padding: 12px 13px 13px; font-size: 10px; }
+  .run-card { padding: 17px 15px; }
+  .run-top { flex-wrap: wrap; gap: 14px; }
+  .run-title { gap: 10px; flex: 1 1 100%; }
+  .run-title h3 { font-size: 14px; }
+  .run-title .mini { font-size: 10px; }
+  .recipe-avatar { width: 37px; height: 40px; }
+  .run-actions { justify-content: flex-start; margin-left: 47px; gap: 6px; }
+  .run-actions .btn { font-size: 10px; }
+  .run-meta { padding-top: 12px; margin-top: 13px; gap: 7px 13px; font-size: 10px; }
+  .run-meta .pill { margin-left: 0; }
+  .plan-aside { grid-template-columns: 1fr; }
+  .plan-aside .panel { padding: 19px; }
+  .split.equal { grid-template-columns: 1fr; }
+  .recipe-grid { grid-template-columns: 1fr; gap: 13px; }
+  .recipe-card { padding: 22px; }
+  .recipe-card h2 { font-size: 23px; }
+  .shopping-stats { padding: 14px; gap: 12px; }
+  .shopping-stats strong { font-size: 22px; }
+  .shopping-row { gap: 12px; }
+  .search-input { max-width: none; }
+  .notice { padding: 12px 14px; font-size: 10px; }
+  .empty { padding: 31px 20px; }
+  .empty h2 { font-size: 25px; }
+  .empty p { font-size: 11px; }
+  .empty-actions { gap: 8px; }
+  .empty-actions .btn { font-size: 11px; }
+  .form-grid { gap: 14px 11px; }
+  .field label { font-size: 10px; }
+  .field input, .field select, .field textarea { padding: 10px; font-size: 12px; }
+  .field small { font-size: 9px; }
+  .line-row, .order-line, .order-line-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 31px; padding: 14px 0; gap: 9px; }
+  .line-row > .field:first-child, .order-line > .field:first-child, .order-line-row > .field:first-child { grid-column: 1 / -1; }
+  .line-row > .field:nth-child(4), .order-line > .field:nth-child(4), .order-line-row > .field:nth-child(4) { grid-column: 1 / 3; }
+  .ingredient-row { grid-template-columns: minmax(0, 1fr) 81px 31px; gap: 6px; }
+  .ingredient-row .field select { padding: 9px 6px; font-size: 11px; }
+  .form-footer { gap: 8px; padding-top: 18px; margin-top: 21px; }
+  .form-footer .btn { font-size: 11px; padding: 9px 12px; }
+  dialog, dialog.wide { width: calc(100vw - 22px); max-height: calc(100dvh - 24px); border-radius: 12px; }
+  .modal-inner { padding: 21px 18px; }
+  .modal-head { gap: 12px; margin-bottom: 20px; }
+  .modal-head h2 { font-size: 25px; letter-spacing: -.8px; }
+  .modal-head p { font-size: 11px; }
+  .modal-close { width: 29px; height: 29px; }
+  .scenario-results { padding: 17px; }
+  .scenario-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+  .scenario-metric { padding: 13px; }
+  .decision-banner { padding: 14px; }
+  .decision-banner h3, .decision-banner strong { font-size: 14px; }
+  .decision-banner p { font-size: 10px; }
+  .scenario-number, .scenario-metric .value { font-size: 26px; }
+  .summary-line { font-size: 10px; }
+  .stepper { gap: 5px; font-size: 9px; flex-wrap: wrap; }
+  .stepper > span, .stepper > button { padding: 5px 8px; }
+  .guide-step { gap: 11px; }
+  .guide-step p { font-size: 11px; }
+  .workspace-footer { padding: 12px 16px 20px; display: block; font-size: 8px; }
+  .workspace-footer > span:last-child { display: block; margin-top: 4px; }
+  .toast { bottom: 15px; padding: 12px 16px; font-size: 11px; }
+}
+
+/* These selectors follow the generic responsive component rules intentionally. */
+.run-title { display:block; }
+.run-actions { margin-left:0; }
+@media (max-width:540px) {
+  .run-top { display:grid; grid-template-columns:37px minmax(0,1fr); }
+  .run-title { display:block; }
+  .run-actions { margin-left:0; }
+  .scenario-results .run-actions { justify-content:stretch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+@media print {
+  @page { size: auto; margin: 12mm; }
+  html, body { background: #fff !important; color: #111 !important; font: 10pt/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  body.printing > *:not(#printArea) { display: none !important; }
+  body.printing #printArea { display: block !important; }
+  .no-print { display: none !important; }
+  .print-sheet { page-break-after: always; break-after: page; color: #111; }
+  .print-sheet:last-child { page-break-after: auto; break-after: auto; }
+  .print-sheet h1 { font-size: 25pt; line-height: 1.15; letter-spacing: -.7pt; margin: 0 0 8pt; }
+  .print-sheet h2 { font-size: 17pt; margin: 17pt 0 9pt; }
+  .print-sheet h3 { font-size: 12pt; margin: 13pt 0 7pt; }
+  .print-sheet p { margin: 6pt 0; }
+  .print-sheet .eyebrow { color: #555; font-size: 8pt; margin-bottom: 8pt; }
+  .print-sheet .muted, .print-sheet .mini, .print-sheet .foot { color: #444; font-size: 9pt; }
+  .print-sheet table { width: 100%; font-size: 9pt; border-collapse: collapse; }
+  .print-sheet th, .print-sheet td { padding: 8pt 7pt; font-size: 9pt; border-bottom: 1px solid #bbb; background: #fff; color: #111; }
+  .print-sheet th { border-top: 1px solid #999; background: #f3f3ef !important; font-size: 8pt; }
+  .print-sheet thead { display: table-header-group; }
+  .print-sheet tr { break-inside: avoid; }
+  .print-sheet .panel, .print-sheet .receipt, .print-sheet .order-card, .print-sheet .run-card { padding: 12pt; border: 1px solid #aaa; border-radius: 3pt; margin-bottom: 12pt; box-shadow: none; background: #fff; break-inside: avoid; }
+  .print-sheet .panel-head { margin-bottom: 9pt; }
+  .print-sheet .panel-head h2 { margin: 0; }
+  .print-sheet .pill { color: #111; background: #fff; border: 1px solid #999; padding: 2pt 5pt; font-size: 8pt; }
+  .print-sheet .summary-line { padding: 7pt 0; font-size: 9pt; color: #333; border-color: #ccc; }
+  .print-sheet .summary-line strong { color: #111; }
+  .print-sheet .summary-line.total { font-size: 11pt; border-color: #777; }
+  .print-sheet .summary-line.total strong { font-size: 16pt; }
+  .print-sheet .ingredient-line { padding: 6pt 0; font-size: 10pt; }
+  .print-sheet .notice { background: #fff; border: 1px solid #aaa; border-radius: 3pt; color: #333; padding: 9pt; font-size: 9pt; }
+  .print-sheet .split, .print-sheet .split.equal { grid-template-columns: 1fr 1fr; gap: 16pt; }
+  .print-sheet .print-heading, .print-sheet .print-header { display: flex; justify-content: space-between; gap: 20pt; border-bottom: 2px solid #111; padding-bottom: 14pt; margin-bottom: 17pt; }
+  .print-sheet .print-footer { border-top: 1px solid #bbb; margin-top: 18pt; padding-top: 8pt; font-size: 8pt; color: #555; }
+  .print-sheet .check-box { display: inline-block; width: 10pt; height: 10pt; border: 1px solid #777; vertical-align: middle; margin-right: 6pt; }
+  .print-sheet input[type="checkbox"] { appearance: none; width: 10pt; height: 10pt; border: 1px solid #777; }
+  .print-sheet .table-wrap { overflow: visible; }
+  .print-sheet .btn, .print-sheet button { display: none; }
+  .print-sheet .method { white-space: pre-wrap; line-height: 1.65; font-size: 10pt; }
+  body:not(.printing) .sidebar, body:not(.printing) .topbar, body:not(.printing) .demo-banner, body:not(.printing) .storage-banner, body:not(.printing) .workspace-footer, body:not(.printing) dialog, body:not(.printing) .toast, body:not(.printing) .head-actions { display: none !important; }
+  body:not(.printing) .workspace { margin: 0; }
+  body:not(.printing) main { padding: 0; }
+}
+
+@media print {
+  .print-sheet.print-shopping h1 { font-size:23pt; margin-bottom:6pt; }
+  .print-sheet.print-shopping h2 { font-size:13pt; margin:11pt 0 6pt; }
+  .print-sheet.print-shopping th, .print-sheet.print-shopping td { padding:4pt 5pt; font-size:8.5pt; line-height:1.35; }
+  .print-sheet.print-shopping th { font-size:7.5pt; }
+  .print-sheet.print-shopping p { margin:4pt 0; }
+  .print-sheet.print-shopping .mini, .print-sheet.print-shopping .print-footer { font-size:8pt; line-height:1.35; }
+  .print-sheet.print-shopping .print-heading, .print-sheet.print-shopping .print-header { padding-bottom:9pt; margin-bottom:11pt; }
+  .print-sheet.print-shopping .notice { padding:6pt 8pt; margin:7pt 0; font-size:8pt; }
+  .print-sheet.print-shopping .print-footer { margin-top:9pt; padding-top:6pt; }
+  .print-sheet.print-packing .order-card { padding:9pt 11pt; margin-bottom:9pt; border-radius:2pt; }
+  .print-sheet.print-packing .order-card-head { margin-bottom:5pt; }
+  .print-sheet.print-packing h3 { font-size:11pt; margin:5pt 0; }
+  .print-sheet.print-packing .summary-line { padding:4pt 0; font-size:8.5pt; }
+  .print-sheet.print-packing .summary-line.total { padding-top:7pt; margin-top:3pt; font-size:9pt; }
+  .print-sheet.print-packing .summary-line.total strong { font-size:13pt; }
+  .print-sheet.print-packing p, .print-sheet.print-packing .mini { margin:4pt 0; font-size:8pt; }
+}
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to your workspace</a>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand" aria-label="Bakeweek Studio by JPS Digital Pages">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M10 12h20v14a7 7 0 0 1-7 7h-6a7 7 0 0 1-7-7V12Z" stroke="currentColor" stroke-width="2"/><path d="M8 12h24M14 7V4m6 3V3m6 4V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m15 22 3 3 7-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="brand-name">bakeweek<span class="brand-studio">STUDIO</span></span>
+      </div>
+      <div class="sidebar-section">YOUR BAKERY, IN ORDER</div>
+      <nav id="navigation" aria-label="Main navigation"></nav>
+      <div class="sidebar-note">
+        <span class="sidebar-note-symbol" aria-hidden="true">↗</span>
+        <p>A little planning.<br>Room for more baking.</p>
+        <span class="sidebar-rule"></span>
+        <span class="sidebar-maker">BY JPS DIGITAL PAGES</span>
+      </div>
+      <div class="sidebar-bottom">
+        <span class="local-status"><span class="status-dot" aria-hidden="true"></span>Saved on your device</span>
+        <button class="sidebar-backup" data-action="backup">Download a backup <span aria-hidden="true">↗</span></button>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div class="business-block">
+          <span class="business-label" id="businessLabel">Your bakery</span>
+          <span class="save-status" id="saveStatus" role="status">Your workspace is ready</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn subtle" data-action="toggle-demo" id="demoButton">Try demo</button>
+          <button class="btn subtle" data-action="guide"><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.3"/><path d="M8 7.4A2.2 2.2 0 0 1 10.1 6c1.3 0 2.2.7 2.2 1.9 0 1.7-2.3 1.8-2.3 3.3M10 14v.1"/></svg>Quick guide</button>
+          <button class="btn backup-button" data-action="backup"><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M10 3v9m-3-3 3 3 3-3M4 12v4h12v-4"/></svg>Back up</button>
+        </div>
+      </header>
+      <div id="demoBanner" class="demo-banner" hidden><span><strong>A real workflow. Fictional orders.</strong> This demo is separate from your own bakery.</span><button data-action="toggle-demo">Leave demo <span aria-hidden="true">↗</span></button></div>
+      <div id="storageBanner" class="storage-banner" role="alert" hidden></div>
+      <main id="main" tabindex="-1"></main>
+      <footer class="workspace-footer"><span>Bakeweek Studio <span class="footer-dot">·</span> JPS Digital Pages</span><span>Your orders. A clearer week.</span></footer>
+    </div>
+  </div>
+  <dialog id="modal" aria-labelledby="modalTitle"><div id="modalContent"></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <input id="backupInput" type="file" accept=".json,application/json" hidden>
+  <input id="csvInput" type="file" accept=".csv,text/csv" hidden>
+  <div id="printArea"></div>
+  <script>(function (root, factory) {
+  'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root) root.BakeCore = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+  const SCHEMA = 'jps-bakeweek', EPS = 1e-8, MAX = 1e9;
+  const statuses = ['Confirmed', 'Ready', 'Collected', 'Cancelled'];
+  const payments = ['Card', 'Cash', 'Other'];
+  const units = {g:['mass',1],kg:['mass',1000],ml:['volume',1],l:['volume',1000],each:['count',1],dozen:['count',12]};
+  const quoteFields = ['revenue','ingredientCost','packagingCost','fees','activeMinutes','laborAllowance','surplus','margin','earningsPerHour','minPriceAtTarget'];
+  const fail = m => { throw new Error(m); };
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const round = n => Math.round((n + Number.EPSILON) * 1e8) / 1e8;
+  const sum = a => round(a.reduce((t,n) => t+n,0));
+  const maybeSum = a => a.some(n => n === null) ? null : sum(a);
+  const obj = (v,n) => { if (!v || typeof v !== 'object' || Array.isArray(v)) fail(n+' must be an object.'); return v; };
+  const list = (v,n,max=5000) => { if (!Array.isArray(v) || v.length>max) fail(n+' must be an array with at most '+max+' entries.'); return v; };
+  function str(v,n,max=500,empty=false) { if (typeof v!=='string') fail(n+' must be text.'); const t=v.trim(); if ((!empty&&!t)||t.length>max||/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(t)) fail(n+' is missing or too long.'); return t; }
+  function num(v,n,min=0,max=MAX,form=false,integer=false) { if (form && typeof v==='string' && v.trim()!=='') v=Number(v); if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max||(integer&&!Number.isInteger(v))) fail(n+' must be '+(integer?'a whole number':'a number')+' between '+min+' and '+max+'.'); return v; }
+  const choice=(v,values,n)=>values.includes(v)?v:fail(n+' must be '+values.join(', ')+'.');
+  const id=(v,n)=>str(v,n,100);
+  const uid=p=>p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);
+  function date(v,n='Date') { if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v)) fail(n+' must use YYYY-MM-DD.'); const d=new Date(v+'T12:00:00Z'); if(!Number.isFinite(d.getTime())||d.toISOString().slice(0,10)!==v||v<'1900-01-01'||v>'2199-12-31') fail(n+' must be a real date between 1900 and 2199.'); return v; }
+  function today() { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function addDays(v,n) { date(v); num(n,'Days',-100000,100000,false,true); const d=new Date(v+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return date(d.toISOString().slice(0,10)); }
+  function monday(v) { date(v); return addDays(v,-((new Date(v+'T12:00:00Z').getUTCDay()+6)%7)); }
+  function convertQty(q,from,to) { q=num(q,'Quantity',0,MAX,true); if(!units[from]||!units[to]||units[from][0]!==units[to][0]) fail('Choose compatible units; mass, volume and counts cannot be mixed.'); const result=q*units[from][1]/units[to][1]; return num(round(result),'Converted quantity'); }
+  function find(s,type,k) { const record=s[type].find(r=>r.id===k); if(!record) fail('Unknown '+type.slice(0,-1)+': '+k+'.'); return record; }
+  const revenue=o=>sum(o.lines.map(l=>l.qty*l.unitPrice));
+  const inRange=(d,start,end)=>d>=start&&d<=end;
+  const keyFor=(d,r)=>d+'|'+r;
+  function unique(rows,field,label,fold=false) { const seen=new Set(); for(const r of rows) { const k=fold?r[field].toLowerCase():r[field]; if(seen.has(k)) fail('Duplicate '+label+': '+r[field]+'.'); seen.add(k); } }
+  function settings(v,form=false) { obj(v,'Settings'); const capacity=list(v.capacity,'Daily capacity',7); if(capacity.length!==7) fail('Set capacity for all seven days.'); const out={business:str(v.business,'Business name',150),currency:str(v.currency,'Currency',3).toUpperCase(),hourlyRate:num(v.hourlyRate,'Hourly rate',0,10000,form),targetMargin:num(v.targetMargin,'Target margin',0,95,form),cardRate:num(v.cardRate,'Card fee rate',0,50,form),fixedFee:num(v.fixedFee,'Fixed card fee',0,1000,form),capacity:capacity.map(n=>num(n,'Daily capacity',0,1440,form))}; if(!/^[A-Z]{3}$/.test(out.currency)) fail('Currency must be a three-letter code.'); try { new Intl.NumberFormat('en',{style:'currency',currency:out.currency}); } catch(e) { fail('Invalid currency code.'); } if(out.targetMargin+out.cardRate>=100) fail('Target margin plus card percentage must be below 100%.'); return out; }
+  function ingredient(v,form=false) { obj(v,'Ingredient'); if(!form&&typeof v.archived!=='boolean')fail('Ingredient archived flag must be true or false.'); return {id:id(v.id,'Ingredient ID'),name:str(v.name,'Ingredient name',150),unit:choice(v.unit,['g','ml','each'],'Ingredient unit'),packSize:num(v.packSize,'Pack size',0.000001,MAX,form),packCost:v.packCost===null||form&&v.packCost===''?null:num(v.packCost,'Pack cost',0,MAX,form),stock:num(v.stock,'Pantry stock',0,MAX,form),supplier:str(v.supplier??'','Supplier',150,true),archived:v.archived===true}; }
+  function recipe(v,s,form=false) { obj(v,'Recipe'); if(!form&&typeof v.archived!=='boolean')fail('Recipe archived flag must be true or false.'); const items=list(v.ingredients,'Recipe ingredients',200).map((x,i)=>{ obj(x,'Recipe ingredient'); const ingredientId=id(x.ingredientId,'Ingredient ID'); find(s,'ingredients',ingredientId); return {ingredientId,qty:num(x.qty,'Ingredient amount '+(i+1),0.000001,MAX,form)}; }); if(!items.length) fail('A recipe needs at least one ingredient.'); unique(items,'ingredientId','recipe ingredient'); return {id:id(v.id,'Recipe ID'),name:str(v.name,'Recipe name',150),category:str(v.category??'','Category',80,true),color:typeof v.color==='string'&&/^#[0-9a-fA-F]{6}$/.test(v.color)?v.color:'#9A6B52',yield:num(v.yield,'Batch yield',1,100000,form,true),activeMinutes:num(v.activeMinutes,'Batch hands-on minutes',0,10080,form),ovenMinutes:num(v.ovenMinutes,'Oven minutes',0,10080,form),finishMinutes:num(v.finishMinutes,'Finish minutes per item',0,1440,form),unitPrice:num(v.unitPrice,'Selling price per item',0,1000000,form),packagingCost:num(v.packagingCost,'Packaging cost per item',0,1000000,form),ingredients:items,method:str(v.method??'','Method',12000,true),archived:v.archived===true}; }
+  function validateQuote(v) { obj(v,'Quote snapshot'); const q={}; for(const field of quoteFields) { const signed=['surplus','margin','earningsPerHour'].includes(field); q[field]=v[field]===null?null:num(v[field],'Snapshot '+field,signed?-MAX:0,MAX); } q.unknownCosts=list(v.unknownCosts,'Snapshot unknown costs',500).map(x=>str(x,'Unknown cost',150)); return q; }
+  function order(v,s,form=false) { obj(v,'Order'); const lines=list(v.lines,'Order lines',100).map(l=>{ obj(l,'Order line'); const recipeId=id(l.recipeId,'Recipe ID'),r=find(s,'recipes',recipeId); return {recipeId,qty:num(l.qty,'Order quantity',1,100000,form,true),unitPrice:num(l.unitPrice===undefined&&form?r.unitPrice:l.unitPrice,'Order unit price',0,1000000,form),finishMinutes:num(l.finishMinutes===undefined&&form?r.finishMinutes:l.finishMinutes,'Finish minutes',0,1440,form)}; }); if(!lines.length) fail('An order needs at least one product.'); unique(lines,'recipeId','product within order'); const o={id:id(v.id,'Order ID'),reference:str(v.reference,'Order reference',100),customer:str(v.customer,'Customer',150),contact:str(v.contact??'','Contact',250,true),dueDate:date(v.dueDate,'Pickup date'),bakeDate:date(v.bakeDate,'Bake date'),finishDate:date(v.finishDate,'Finish date'),status:choice(v.status??'Confirmed',statuses,'Order status'),paid:num(v.paid??0,'Paid total',0,MAX,form),payment:choice(v.payment??'Cash',payments,'Payment'),setupMinutes:num(v.setupMinutes??0,'Order setup minutes',0,10080,form),extraCost:num(v.extraCost??0,'Extra order cost',0,MAX,form),customerNote:str(v.customerNote??'','Customer note',4000,true),kitchenNote:str(v.kitchenNote??'','Kitchen note',4000,true),lines,snapshot:v.snapshot===null||v.snapshot===undefined?null:validateQuote(v.snapshot)}; if(o.bakeDate>o.finishDate||o.finishDate>o.dueDate) fail('Dates must follow bake → finish → pickup.'); if(revenue(o)>MAX) fail('Order total exceeds the supported limit.'); if(o.paid>revenue(o)+EPS) fail('Paid amount cannot exceed the order total.'); if(['Ready','Collected'].includes(o.status)&&!o.snapshot) fail('Ready and collected orders need a saved quote snapshot.'); if(o.snapshot&&Math.abs(o.snapshot.revenue-revenue(o))>EPS) fail('Quote snapshot does not match the order value.'); return o; }
+  function runRecord(v,s) { obj(v,'Completed run'); const r=find(s,'recipes',id(v.recipeId,'Run recipe')); const ingredients=list(v.ingredients,'Run ingredients',200).map(x=>{obj(x,'Run ingredient');const original=find(s,'ingredients',x.ingredientId);if(x.unit!==original.unit)fail('Completed ingredient unit does not match pantry units.');return {ingredientId:id(x.ingredientId,'Run ingredient ID'),name:str(x.name,'Run ingredient name',150),unit:choice(x.unit,['g','ml','each'],'Run unit'),qty:num(x.qty,'Used quantity',0.000001,MAX),unitCost:x.unitCost===null?null:num(x.unitCost,'Saved unit cost',0,MAX)};}); if(!ingredients.length)fail('Completed run has no ingredients.'); unique(ingredients,'ingredientId','completed run ingredient'); const allocations=list(v.allocations,'Run allocations',5000).map(a=>{obj(a,'Run allocation');const o=find(s,'orders',a.orderId); if(o.status==='Cancelled')fail('Cancelled orders cannot have completed production.'); if(a.recipeId!==r.id||!o.lines.some(l=>l.recipeId===r.id))fail('Run allocation does not match the order recipe.'); if(o.bakeDate!==v.date)fail('Completed run date does not match its order.'); return {orderId:o.id,recipeId:r.id,qty:num(a.qty,'Allocated quantity',1,100000,false,true)};}); if(!allocations.length)fail('Completed run needs order allocations.'); unique(allocations,'orderId','allocation'); const out={id:id(v.id,'Run ID'),key:str(v.key,'Run key',250),date:date(v.date,'Run date'),recipeId:r.id,recipeName:str(v.recipeName,'Run recipe name',150),batches:num(v.batches,'Batches',1,MAX,false,true),produced:num(v.produced,'Produced items',1,MAX,false,true),required:num(v.required,'Required items',1,MAX,false,true),extra:num(v.extra,'Extra items',0,MAX,false,true),activeMinutes:num(v.activeMinutes,'Run active minutes'),ovenMinutes:num(v.ovenMinutes,'Run oven minutes'),ingredientCost:v.ingredientCost===null?null:num(v.ingredientCost,'Run ingredient cost'),ingredients,allocations,createdAt:str(v.createdAt,'Run timestamp',40)}; if(out.key!==keyFor(out.date,out.recipeId)||out.produced!==out.required+out.extra||sum(allocations.map(a=>a.qty))!==out.required||out.produced<out.batches)fail('Completed run totals or key are inconsistent.'); if(!/^\d{4}-\d{2}-\d{2}T/.test(out.createdAt)||!Number.isFinite(Date.parse(out.createdAt)))fail('Invalid run timestamp.'); const c=maybeSum(ingredients.map(x=>x.unitCost===null?null:x.qty*x.unitCost)); if((c===null)!==(out.ingredientCost===null)||(c!==null&&Math.abs(c-out.ingredientCost)>0.0001))fail('Completed ingredient cost does not match its saved amounts.'); return out; }
+  function allocated(s,orderId,recipeId) { return sum(s.completedRuns.flatMap(r=>r.allocations).filter(a=>a.orderId===orderId&&a.recipeId===recipeId).map(a=>a.qty)); }
+  function hasAllocated(s,orderId) { return s.completedRuns.some(r=>r.allocations.some(a=>a.orderId===orderId)); }
+  function validateBackup(input) { if(typeof input==='string') { if(input.length>8*1024*1024)fail('Backup is larger than 8 MB.'); try{input=JSON.parse(input);}catch(e){fail('Backup is not valid JSON.');} } obj(input,'Backup'); if(input.schema!==SCHEMA||input.version!==1)fail('This is not a supported Bakeweek Studio backup.'); let encoded;try{encoded=JSON.stringify(input);}catch(e){fail('Backup cannot contain circular values.');}if(encoded.length>8*1024*1024)fail('Backup is larger than 8 MB.'); const s={schema:SCHEMA,version:1,settings:settings(input.settings),ingredients:list(input.ingredients,'Ingredients',500).map(v=>ingredient(v)),recipes:[],orders:[],completedRuns:[]}; unique(s.ingredients,'id','ingredient ID'); unique(s.ingredients,'name','ingredient name',true); s.recipes=list(input.recipes,'Recipes',500).map(v=>recipe(v,s)); unique(s.recipes,'id','recipe ID');unique(s.recipes,'name','recipe name',true);s.orders=list(input.orders,'Orders',5000).map(v=>order(v,s));unique(s.orders,'id','order ID');unique(s.orders,'reference','order reference',true);s.completedRuns=list(input.completedRuns,'Completed runs',5000).map(v=>runRecord(v,s));unique(s.completedRuns,'id','run ID');const counts=new Map();for(const r of s.completedRuns)for(const a of r.allocations){const k=a.orderId+'|'+a.recipeId;counts.set(k,(counts.get(k)||0)+a.qty);}for(const o of s.orders)for(const l of o.lines){const got=counts.get(o.id+'|'+l.recipeId)||0;if(got>l.qty)fail('Completed allocations exceed an order quantity.');if(['Ready','Collected'].includes(o.status)&&got!==l.qty)fail('Ready/collected order has unbaked items.');} return s; }
+  function transaction(s,fn) { const work=validateBackup(s),result=fn(work),valid=validateBackup(work); for(const k of Object.keys(s))delete s[k];Object.assign(s,valid); return clone(result); }
+  function createBlank() { return {schema:SCHEMA,version:1,settings:{business:'My bakery',currency:'USD',hourlyRate:20,targetMargin:30,cardRate:2.9,fixedFee:0.3,capacity:[240,240,240,240,240,180,0]},ingredients:[],recipes:[],orders:[],completedRuns:[]}; }
+  function addIngredient(s,d) { return transaction(s,w=>{const r=ingredient({...d,id:d.id||uid('ing')},true);w.ingredients.push(r);return r;}); }
+  function updateIngredient(s,k,d) { return transaction(s,w=>{const old=find(w,'ingredients',k); if(d.unit!==undefined&&d.unit!==old.unit&&(w.recipes.some(r=>r.ingredients.some(x=>x.ingredientId===k))||w.completedRuns.some(r=>r.ingredients.some(x=>x.ingredientId===k))))fail('Units are locked after an ingredient is used in a recipe.');const r=ingredient({...old,...d,id:k},true);w.ingredients[w.ingredients.indexOf(old)]=r;return r;}); }
+  function addRecipe(s,d) { return transaction(s,w=>{const r=recipe({...d,id:d.id||uid('recipe')},w,true);for(const x of r.ingredients)if(find(w,'ingredients',x.ingredientId).archived)fail('Choose active pantry ingredients.');w.recipes.push(r);return r;}); }
+  function updateRecipe(s,k,d) { return transaction(s,w=>{const old=find(w,'recipes',k),r=recipe({...old,...d,id:k},w,true);w.recipes[w.recipes.indexOf(old)]=r;return r;}); }
+  function addOrder(s,d) { return transaction(s,w=>{const o=order({...d,id:d.id||uid('order'),status:'Confirmed',snapshot:null},w,true);for(const l of o.lines)if(find(w,'recipes',l.recipeId).archived)fail('Choose an active recipe.');w.orders.push(o);return o;}); }
+  function updateOrder(s,k,d) { return transaction(s,w=>{const old=find(w,'orders',k);if(hasAllocated(w,k))fail('Undo this order’s completed batches before editing it.');if(d.status!==undefined&&d.status!==old.status)fail('Use the order status action to change status.');const o=order({...old,...d,id:k,status:old.status,snapshot:null},w,true);w.orders[w.orders.indexOf(old)]=o;return o;}); }
+  function deleteOrder(s,k) { return transaction(s,w=>{const o=find(w,'orders',k);if(hasAllocated(w,k))fail('Undo completed batches before deleting this order.');w.orders.splice(w.orders.indexOf(o),1);return o;}); }
+  function setOrderStatus(s,k,status) { return transaction(s,w=>{choice(status,statuses,'Order status');const o=find(w,'orders',k);if(status===o.status)return o;if(status==='Cancelled'&&hasAllocated(w,k))fail('Undo completed batches before cancelling this order.');if(status==='Ready'){if(o.status==='Cancelled')fail('Confirm a cancelled order before preparing it.');if(o.lines.some(l=>allocated(w,o.id,l.recipeId)!==l.qty))fail('Complete every batch before marking this order ready.');o.snapshot=o.snapshot||quoteOrder(w,o);}if(status==='Collected'){if(o.status!=='Ready')fail('Mark the finished order ready before collecting it.');}if(status==='Confirmed'){o.snapshot=null;}if(status==='Cancelled')o.snapshot=null;o.status=status;return o;}); }
+  function recordPayment(s,k,paidTotal) { return transaction(s,w=>{const o=find(w,'orders',k);o.paid=num(paidTotal,'Paid total',0,revenue(o),true);return o;}); }
+  function recipeCost(s,r) { const unknownCosts=[];const costs=r.ingredients.map(x=>{const i=find(s,'ingredients',x.ingredientId);if(i.packCost===null){unknownCosts.push(i.name);return null;}return x.qty*i.packCost/i.packSize;});return {cost:maybeSum(costs),unknownCosts}; }
+  function quoteOrder(s,o) { if(o.snapshot&&['Ready','Collected'].includes(o.status))return clone(o.snapshot);obj(o,'Order');const unknownCosts=[];const parts=o.lines.map(l=>{
+      const r=find(s,'recipes',l.recipeId);
+      const completed=o.id?s.completedRuns.flatMap(run=>run.allocations.filter(a=>a.orderId===o.id&&a.recipeId===l.recipeId).map(a=>({run,qty:a.qty}))):[];
+      const pending=l.qty-sum(completed.map(x=>x.qty)),ingredientParts=[],activeParts=[];
+      for(const {run,qty} of completed){
+        ingredientParts.push(run.ingredientCost===null?null:run.ingredientCost/run.produced*qty);
+        activeParts.push(run.activeMinutes/run.produced*qty);
+        if(run.ingredientCost===null)unknownCosts.push(...run.ingredients.filter(i=>i.unitCost===null).map(i=>i.name));
+      }
+      if(pending>0){const c=recipeCost(s,r);unknownCosts.push(...c.unknownCosts);ingredientParts.push(c.cost===null?null:c.cost/r.yield*pending);activeParts.push(r.activeMinutes/r.yield*pending);}
+      return {ingredients:maybeSum(ingredientParts),packaging:r.packagingCost*l.qty,minutes:sum(activeParts)+l.finishMinutes*l.qty};
+    });const rev=revenue(o),ingredientCost=maybeSum(parts.map(p=>p.ingredients)),packagingCost=sum(parts.map(p=>p.packaging).concat([o.extraCost||0])),activeMinutes=sum(parts.map(p=>p.minutes).concat([o.setupMinutes||0])),laborAllowance=round(activeMinutes/60*s.settings.hourlyRate),feeRate=o.payment==='Card'?s.settings.cardRate/100:0,fixed=o.payment==='Card'?s.settings.fixedFee:0,fees=round(rev*feeRate+fixed),surplus=ingredientCost===null?null:round(rev-ingredientCost-packagingCost-fees-laborAllowance),margin=surplus===null||rev===0?null:100*surplus/rev,earningsPerHour=ingredientCost===null||activeMinutes===0?null:(rev-ingredientCost-packagingCost-fees)/(activeMinutes/60),denominator=1-feeRate-s.settings.targetMargin/100;const minPriceAtTarget=ingredientCost===null||denominator<=0?null:round((ingredientCost+packagingCost+laborAllowance+fixed)/denominator);return {revenue:rev,ingredientCost,packagingCost,fees,activeMinutes,laborAllowance,surplus,margin,earningsPerHour,minPriceAtTarget,unknownCosts:[...new Set(unknownCosts)]}; }
+  function makeRun(s,dateValue,recipeId,allocations) { const r=find(s,'recipes',recipeId),required=sum(allocations.map(a=>a.qty)),batches=Math.ceil(required/r.yield),produced=batches*r.yield;const ingredients=r.ingredients.map(x=>{const i=find(s,'ingredients',x.ingredientId);return {ingredientId:i.id,name:i.name,unit:i.unit,qty:round(x.qty*batches),unitCost:i.packCost===null?null:i.packCost/i.packSize};});return {key:keyFor(dateValue,recipeId),date:dateValue,recipeId,recipeName:r.name,yield:r.yield,batches,required,produced,extra:produced-required,activeMinutes:round(batches*r.activeMinutes),ovenMinutes:round(batches*r.ovenMinutes),ingredientCost:maybeSum(ingredients.map(i=>i.unitCost===null?null:i.qty*i.unitCost)),ingredients,allocations}; }
+  function planWeek(s,startDate) { const start=monday(startDate),end=addDays(start,6),orders=s.orders.filter(o=>o.status!=='Cancelled'&&inRange(o.dueDate,start,end)),groups=new Map();for(const o of s.orders){if(o.status!=='Confirmed'||!inRange(o.bakeDate,start,end))continue;for(const l of o.lines){const pending=l.qty-allocated(s,o.id,l.recipeId);if(pending<=0)continue;const key=keyFor(o.bakeDate,l.recipeId);if(!groups.has(key))groups.set(key,{date:o.bakeDate,recipeId:l.recipeId,allocations:[]});groups.get(key).allocations.push({orderId:o.id,recipeId:l.recipeId,qty:pending});}}const runs=[...groups.values()].map(g=>makeRun(s,g.date,g.recipeId,g.allocations)).sort((a,b)=>a.date.localeCompare(b.date)||a.recipeName.localeCompare(b.recipeName));const completedRuns=s.completedRuns.filter(r=>inRange(r.date,start,end));const requirements=new Map();for(const r of runs)for(const i of r.ingredients)requirements.set(i.ingredientId,(requirements.get(i.ingredientId)||0)+i.qty);const shopping=[...requirements.entries()].map(([ingredientId,n])=>{const i=find(s,'ingredients',ingredientId),required=round(n),shortfall=round(Math.max(0,required-i.stock)),packs=shortfall<=EPS?0:Math.ceil((shortfall-EPS)/i.packSize),buyQty=round(packs*i.packSize),cost=packs===0?0:i.packCost===null?null:round(packs*i.packCost);return {ingredientId,name:i.name,unit:i.unit,required,stock:i.stock,shortfall,packSize:i.packSize,packs,buyQty,cost,supplier:i.supplier};}).sort((a,b)=>a.supplier.localeCompare(b.supplier)||a.name.localeCompare(b.name));const days=Array.from({length:7},(_,idx)=>{const d=addDays(start,idx),dayRuns=runs.concat(completedRuns).filter(r=>r.date===d),dayOrders=s.orders.filter(o=>o.status!=='Cancelled'&&o.finishDate===d),bakeMinutes=sum(dayRuns.map(r=>r.activeMinutes)),finishMinutes=sum(dayOrders.map(o=>sum(o.lines.map(l=>l.qty*l.finishMinutes))+o.setupMinutes)),activeMinutes=round(bakeMinutes+finishMinutes),capacity=s.settings.capacity[idx];return {date:d,capacity,activeMinutes,bakeMinutes,finishMinutes,overMinutes:round(Math.max(0,activeMinutes-capacity)),runs:dayRuns,orders:dayOrders};});const allRuns=runs.concat(completedRuns),unknownIds=new Set(allRuns.flatMap(r=>r.ingredients.filter(i=>i.unitCost===null).map(i=>i.ingredientId)));const totals={orders:orders.length,units:sum(orders.flatMap(o=>o.lines.map(l=>l.qty))),batches:sum(allRuns.map(r=>r.batches)),pendingBatches:sum(runs.map(r=>r.batches)),completedBatches:sum(completedRuns.map(r=>r.batches)),extra:sum(allRuns.map(r=>r.extra)),activeMinutes:sum(days.map(d=>d.activeMinutes)),ovenMinutes:sum(allRuns.map(r=>r.ovenMinutes)),ingredientCost:maybeSum(allRuns.map(r=>r.ingredientCost)),shoppingCost:maybeSum(shopping.map(i=>i.cost)),quotedRevenue:sum(orders.map(revenue)),balanceDue:sum(orders.map(o=>Math.max(0,revenue(o)-o.paid))),overMinutes:sum(days.map(d=>d.overMinutes)),unknownCosts:unknownIds.size};const alerts=[];if(unknownIds.size)alerts.push(unknownIds.size+' ingredient cost'+(unknownIds.size===1?' is':'s are')+' missing. Cost and profit estimates are incomplete.');if(days.some(d=>d.overMinutes>0))alerts.push('Hands-on work exceeds your entered capacity on '+days.filter(d=>d.overMinutes>0).length+' day(s).');if(shopping.some(i=>i.shortfall>0))alerts.push('Pantry shortages: receive supplies before marking batches made.');if(allRuns.some(r=>r.extra>0))alerts.push('Whole batches include '+totals.extra+' extra items. Extras are not automatically assigned to other orders.');return {start,end,orders:clone(orders),runs,completedRuns:clone(completedRuns),shopping,days:clone(days),totals,alerts}; }
+  function simulateOrder(s,draft,startDate) { const w=validateBackup(s),start=monday(startDate),end=addDays(start,6),before=planWeek(w,start),o=addOrder(w,draft);if(!inRange(o.bakeDate,start,end)||!inRange(o.finishDate,start,end))fail('Choose bake and finish dates inside the week being simulated.');const after=planWeek(w,start),quote=quoteOrder(w,o),activeMinutes=round(after.totals.activeMinutes-before.totals.activeMinutes),laborAllowance=round(activeMinutes/60*s.settings.hourlyRate),difference=(a,b)=>a===null||b===null?null:round(a-b),ingredientCost=difference(after.totals.ingredientCost,before.totals.ingredientCost),shoppingCost=difference(after.totals.shoppingCost,before.totals.shoppingCost),surplus=ingredientCost===null?null:round(quote.revenue-ingredientCost-quote.packagingCost-quote.fees-laborAllowance),delta={batches:after.totals.batches-before.totals.batches,units:sum(o.lines.map(l=>l.qty)),activeMinutes,ingredientCost,shoppingCost,packagingCost:quote.packagingCost,fees:quote.fees,revenue:quote.revenue,laborAllowance,surplus},conflicts=after.days.filter(d=>d.overMinutes>0);return {before,after,quote,delta,conflicts,fits:conflicts.length===0,priceHealthy:quote.minPriceAtTarget!==null&&quote.revenue+EPS>=quote.minPriceAtTarget}; }
+  function completeRun(s,key,startDate) { return transaction(s,w=>{const run=planWeek(w,startDate).runs.find(r=>r.key===key);if(!run)fail('This batch has already been made or is no longer pending.');for(const x of run.ingredients){const i=find(w,'ingredients',x.ingredientId);if(i.stock+EPS<x.qty)fail('Not enough '+i.name+' in the pantry. Receive supplies first.');}for(const x of run.ingredients){const i=find(w,'ingredients',x.ingredientId);i.stock=round(Math.max(0,i.stock-x.qty));}const record={...run,id:uid('run'),createdAt:new Date().toISOString()};delete record.yield;w.completedRuns.push(record);return record;}); }
+  function undoRun(s,k) { return transaction(s,w=>{const run=find(w,'completedRuns',k);for(const a of run.allocations){const o=find(w,'orders',a.orderId);if(['Ready','Collected'].includes(o.status))fail('Return affected orders to Confirmed before undoing this batch.');}for(const x of run.ingredients){const i=find(w,'ingredients',x.ingredientId);i.stock=round(i.stock+x.qty);if(i.stock>MAX)fail('Restoring this batch would exceed supported pantry limits.');}w.completedRuns.splice(w.completedRuns.indexOf(run),1);return run;}); }
+  function receiveIngredient(s,k,qty) { return transaction(s,w=>{const i=find(w,'ingredients',k);qty=num(qty,'Quantity received',0.000001,MAX,true);i.stock=round(i.stock+qty);if(i.stock>MAX)fail('Pantry stock exceeds the supported limit.');return i;}); }
+  function receiveShopping(s,startDate) { return transaction(s,w=>{const rows=planWeek(w,startDate).shopping.filter(i=>i.packs>0);for(const row of rows){const i=find(w,'ingredients',row.ingredientId);i.stock=round(i.stock+row.buyQty);if(i.stock>MAX)fail('Pantry stock exceeds the supported limit.');}return rows;}); }
+  function parseCSV(text) { if(typeof text!=='string'||text.length>4*1024*1024)fail('CSV must be text smaller than 4 MB.');text=text.replace(/^\uFEFF/,'');const rows=[];let row=[],field='',quoted=false,closed=false;for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'){if(text[i+1]==='"'){field+='"';i++;}else{quoted=false;closed=true;}}else field+=c;}else if(c==='"'){if(field!==''||closed)fail('Malformed CSV quotation.');quoted=true;}else if(c===','){row.push(field);field='';closed=false;}else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(field);if(row.some(v=>v.trim()!==''))rows.push(row);row=[];field='';closed=false;}else{if(closed)fail('Unexpected text after a quoted CSV field.');field+=c;}if(field.length>20000||rows.length>10000||row.length>50)fail('CSV exceeds the supported size or row limits.');}if(quoted)fail('CSV has an unclosed quoted field.');if(field!==''||row.length){row.push(field);if(row.some(v=>v.trim()!==''))rows.push(row);}return rows; }
+  const csvColumns=['Order','Customer','Product','Quantity','Unit price','Pickup date','Bake date','Finish date','Finish minutes','Paid','Payment','Notes'];
+  function importOrders(s,text) { const rows=parseCSV(text);if(!rows.length||rows[0].length!==csvColumns.length||rows[0].some((x,i)=>x.trim()!==csvColumns[i]))fail('CSV headers must match the downloadable template exactly.');return transaction(s,w=>{const groups=new Map(),existing=new Set(w.orders.map(o=>o.reference.toLowerCase())),skipped=new Set();for(let index=1;index<rows.length;index++){const row=rows[index];try{if(row.length!==csvColumns.length)fail('Expected '+csvColumns.length+' columns.');const [reference,customer,product,quantity,unitPrice,dueDate,bakeDate,finishDate,finishMinutes,paid,payment,notes]=row.map(x=>x.trim());str(reference,'Order reference',100);if(existing.has(reference.toLowerCase())){skipped.add(reference.toLowerCase());continue;}const r=w.recipes.find(r=>r.id===product||r.name.toLowerCase()===product.toLowerCase());if(!r||r.archived)fail('Unknown or archived product: '+product+'.');const data={reference,customer,dueDate,bakeDate,finishDate,paid:num(paid,'Paid total',0,MAX,true),payment,customerNote:notes,contact:'',setupMinutes:0,extraCost:0,kitchenNote:'',lines:[{recipeId:r.id,qty:num(quantity,'Quantity',1,100000,true,true),unitPrice:num(unitPrice,'Unit price',0,1000000,true),finishMinutes:finishMinutes===''?r.finishMinutes:num(finishMinutes,'Finish minutes',0,1440,true)}]};const k=reference.toLowerCase();if(!groups.has(k))groups.set(k,{data,row:index+1});else{const group=groups.get(k).data;for(const name of ['customer','dueDate','bakeDate','finishDate','paid','payment','customerNote'])if(group[name]!==data[name])fail('Repeated order rows must have matching customer, dates, paid amount, payment and notes.');const line=group.lines.find(l=>l.recipeId===r.id);if(line){if(line.unitPrice!==data.lines[0].unitPrice||line.finishMinutes!==data.lines[0].finishMinutes)fail('Repeated product lines must use the same price and finish time.');line.qty+=data.lines[0].qty;}else group.lines.push(data.lines[0]);}}catch(e){fail('CSV row '+(index+1)+': '+e.message);}}let imported=0;for(const {data,row} of groups.values()){try{const o=order({...data,id:uid('order'),status:'Confirmed',snapshot:null},w,true);w.orders.push(o);imported++;}catch(e){fail('CSV row '+row+': '+e.message);}}return {imported,skipped:skipped.size};}); }
+  function orderCSVTemplate(s) { const r=s.recipes.find(r=>!r.archived),d=addDays(monday(today()),4);const escape=v=>'"'+String(v).replace(/"/g,'""')+'"';const example=['ORDER-001','Example customer',r?r.name:'Your exact recipe name',12,r?r.unitPrice:3,d,addDays(d,-1),d,r?r.finishMinutes:2,0,'Cash','Replace this example with your orders'];return csvColumns.map(escape).join(',')+'\r\n'+example.map(escape).join(',')+'\r\n'; }
+  function createDemo(referenceDate=today()) { const s=createBlank(),start=monday(referenceDate);s.settings={business:'Sunday Crumb (fictional demo)',currency:'USD',hourlyRate:22,targetMargin:30,cardRate:2.9,fixedFee:0.3,capacity:[240,240,240,360,420,300,0]};const ingredients=[['flour','All-purpose flour','g',2500,4.2,1400,'Grocer'],['sugar','Granulated sugar','g',2000,3.6,900,'Grocer'],['brown','Brown sugar','g',1000,2.9,350,'Grocer'],['butter','Butter','g',500,5.8,600,'Grocer'],['eggs','Eggs','each',12,3.8,14,'Grocer'],['chocolate','Chocolate chips','g',1000,9.5,400,'Baking supplier'],['cocoa','Cocoa powder','g',250,4.2,180,'Baking supplier'],['vanilla','Vanilla extract','ml',100,5.5,60,'Baking supplier'],['milk','Milk','ml',1000,1.8,700,'Grocer'],['icing','Icing sugar','g',1000,2.8,500,'Grocer'],['baking','Baking powder','g',200,2.3,100,'Grocer']];for(const [id,name,unit,packSize,packCost,stock,supplier]of ingredients)s.ingredients.push({id,name,unit,packSize,packCost,stock,supplier,archived:false});const configs=[{id:'cookie',name:'Signature chocolate cookies',category:'Cookies',color:'#A46D4C',yield:12,activeMinutes:25,ovenMinutes:14,finishMinutes:2,unitPrice:3.8,packagingCost:0.2,ingredients:[['flour',200],['butter',120],['brown',130],['eggs',1],['chocolate',160],['vanilla',4],['baking',3]]},{id:'cupcake',name:'Vanilla celebration cupcakes',category:'Cupcakes',color:'#B77883',yield:12,activeMinutes:30,ovenMinutes:22,finishMinutes:3,unitPrice:4.5,packagingCost:0.25,ingredients:[['flour',180],['sugar',170],['butter',170],['eggs',2],['milk',100],['vanilla',6],['icing',220],['baking',6]]},{id:'brownie',name:'Fudge brownie squares',category:'Brownies',color:'#705149',yield:16,activeMinutes:22,ovenMinutes:28,finishMinutes:1,unitPrice:3.5,packagingCost:0.18,ingredients:[['flour',120],['sugar',230],['butter',170],['eggs',3],['cocoa',70],['chocolate',100],['vanilla',4]]},{id:'shortbread',name:'Vanilla shortbread hearts',category:'Cookies',color:'#C2A56F',yield:24,activeMinutes:24,ovenMinutes:18,finishMinutes:1.5,unitPrice:2.6,packagingCost:0.15,ingredients:[['flour',300],['butter',200],['sugar',100],['vanilla',4]]}];s.recipes=configs.map(r=>({...r,ingredients:r.ingredients.map(([ingredientId,qty])=>({ingredientId,qty})),method:'Fictional costing example. Replace with your own tested recipe, method and timings before baking.',archived:false}));const cases=[['BW-101','Maya',2,1,2,'cookie',24,45.6,'Card'],['BW-102','Oliver',3,2,3,'brownie',16,56,'Cash'],['BW-103','Nora',4,3,4,'cupcake',24,54,'Card'],['BW-104','Avery',4,3,4,'cookie',36,50,'Card'],['BW-105','Emma',4,3,4,'shortbread',24,0,'Other'],['BW-106','Theo',5,4,5,'cupcake',12,54,'Cash'],['BW-107','Isla',5,4,5,'cookie',24,45,'Card'],['BW-108','Leo',5,4,5,'brownie',32,56,'Other'],['BW-109','Zoe',4,3,4,'cookie',6,0,'Cash']];s.orders=cases.map(([reference,customer,due,bake,finish,recipeId,qty,paid,payment],idx)=>{const r=s.recipes.find(r=>r.id===recipeId);return {id:'demo-order-'+(idx+1),reference,customer,contact:'',dueDate:addDays(start,due),bakeDate:addDays(start,bake),finishDate:addDays(start,finish),status:'Confirmed',paid,payment,setupMinutes:10,extraCost:0,customerNote:idx===2?'Birthday pickup, pink ribbon.':'',kitchenNote:'Fictional demo order.',lines:[{recipeId,qty,unitPrice:r.unitPrice,finishMinutes:r.finishMinutes}],snapshot:null};});return validateBackup(s); }
+  return {createBlank,createDemo,validateBackup,monday,addDays,convertQty,addIngredient,updateIngredient,addRecipe,updateRecipe,addOrder,updateOrder,deleteOrder,setOrderStatus,recordPayment,planWeek,quoteOrder,simulateOrder,completeRun,undoRun,receiveShopping,receiveIngredient,parseCSV,importOrders,orderCSVTemplate};
+});
+</script>
+  <script>(()=>{
+'use strict';
+const C=globalThis.BakeCore,KEY='jps-bakeweek-v1', $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');};
+let real=C.createBlank(),demo=null,isDemo=false,page='week',tab='plan',week=C.monday(today()),selectedDay='',search='',lock=false,raw='',saveText='Saved in this browser',storageMessage='',toastTimer,simDraft=null,simResult=null,editingOrder='',recipeRows=[],orderRows=[],importText='',importPreview=null,restoreTarget=null;
+try{raw=localStorage.getItem(KEY)||'';if(raw)real=C.validateBackup(JSON.parse(raw));else localStorage.setItem(KEY,JSON.stringify(real));}catch(e){lock=!!raw;saveText='Session only';storageMessage='Saved data could not be opened. Changes stay in memory. Download a backup before closing; the existing saved data is protected.';}
+const state=()=>isDemo?demo:real;
+const ingredient=id=>state().ingredients.find(x=>x.id===id),recipe=id=>state().recipes.find(x=>x.id===id),order=id=>state().orders.find(x=>x.id===id);
+const cash=n=>n===null||n===undefined?'Cost needed':new Intl.NumberFormat('en-US',{style:'currency',currency:state().settings.currency}).format(n);
+const round=n=>Math.round((n+Number.EPSILON)*100)/100;
+const mins=n=>{n=Math.round(n||0);return n<60?`${n} min`:`${Math.floor(n/60)}h${n%60?' '+n%60+'m':''}`;};
+const date=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+const dayname=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'});
+const quantity=(n,u)=>`${Number(n||0).toLocaleString('en-US',{maximumFractionDigits:6})} ${u}`;
+const initial=s=>String(s||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+function btn(text,action,cls='',data=''){return `<button type="button" class="btn ${cls}" data-action="${action}" ${data}>${text}</button>`;}
+function submit(text,cls='primary'){return `<button type="submit" class="btn ${cls}">${text}</button>`;}
+function toast(msg){clearTimeout(toastTimer);$('#toast').textContent=msg;$('#toast').hidden=false;toastTimer=setTimeout(()=>$('#toast').hidden=true,4200);}
+function save(){if(isDemo){saveText='Demo changes stay separate';return;}if(lock){saveText='Changes in memory only';return;}try{localStorage.setItem(KEY,JSON.stringify(real));storageMessage='';saveText='Saved in this browser';}catch(e){storageMessage='Browser saving is unavailable or full. Download a backup to preserve this session.';saveText='Session only';}}
+function commit(fn,msg){try{const copy=structuredClone(state()),result=fn(copy),clean=C.validateBackup(copy);if(isDemo)demo=clean;else real=clean;save();render();if(msg)toast(msg+(lock&&!isDemo?' Download a backup to keep it.':''));return result;}catch(e){toast(e.message);return null;}}
+function getPlan(){return C.planWeek(state(),week);}
+function nextRef(){let n=state().orders.length+1;while(state().orders.some(o=>o.reference===`BW-${String(n).padStart(3,'0')}`))n++;return `BW-${String(n).padStart(3,'0')}`;}
+function avatar(r){return `<span class="recipe-avatar" style="--recipe-color:${esc(r?.color||'#f4dccb')}">${esc(initial(r?.name))}</span>`;}
+function field(name,label,value,type='text',attrs='',hint='',full=false){return `<div class="field ${full?'full':''}"><label for="${name}">${label}</label><input id="${name}" name="${name}" type="${type}" value="${esc(value)}" ${attrs}>${hint?`<small>${hint}</small>`:''}</div>`;}
+function moneyField(name,label,value,hint='',full=false){return field(name,label,value,'number','min="0" max="100000000" step="0.01"',hint,full);}
+function header(kicker,title,desc,actions=''){return `<div class="page-head"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1><p>${desc}</p></div><div class="head-actions">${actions}</div></div>`;}
+function metric(label,value,foot='',cls=''){return `<div class="metric ${cls}"><span class="label">${label}</span><strong class="value">${value}</strong><span class="foot">${foot}</span></div>`;}
+function pill(text,cls='gray'){return `<span class="pill ${cls}">${text}</span>`;}
+function showModal(title,body,wide=false){const m=$('#modal');m.classList.toggle('wide',wide);$('#modalContent').innerHTML=`<div class="modal-inner"><div class="modal-head"><div><div class="eyebrow">BAKEWEEK STUDIO</div><h2 id="modalTitle">${title}</h2></div><button class="modal-close" data-action="close" aria-label="Close dialog">×</button></div>${body}</div>`;if(!m.open)m.showModal();}
+function close(){if($('#modal').open)$('#modal').close();}
+function confirm(title,body,fn){showModal(title,`<p class="muted">${body}</p><div class="form-footer">${btn('Cancel','close')}${btn('Confirm','confirm','primary')}</div>`);$('#modalContent [data-action="confirm"]').onclick=()=>{close();fn();};}
+function formSave(form,fn,msg){if(!form.reportValidity())return;try{const copy=structuredClone(state()),result=fn(copy,Object.fromEntries(new FormData(form))),clean=C.validateBackup(copy);if(isDemo)demo=clean;else real=clean;save();close();render();toast(msg);return result;}catch(e){form.querySelector('.form-error').textContent=e.message;}}
+function emptySetup(){const a=state().ingredients.length,b=state().recipes.length,c=state().orders.length;return `<section class="panel empty"><div class="eyebrow">YOUR FIRST FIVE MINUTES</div><h2>See the work behind an order.</h2><p>Try the sample bakery to see orders become batches, shopping and a realistic workload. Then build your own library, one recipe at a time.</p><div class="empty-actions">${btn('Explore the sample bakery','toggle-demo','yellow')}${btn('Quick start guide','guide')}</div></section><div class="steps"><article class="guide-step"><span class="step-number">01</span><h3>Know your ingredients</h3><p>Add pack sizes, current prices and what is already in your pantry.</p>${btn(a?'Open pantry':'Add first ingredient',a?'nav':'ingredient-form','',a?'data-page="pantry"':'')}</article><article class="guide-step"><span class="step-number">02</span><h3>Save one repeatable recipe</h3><p>Enter yield, ingredients and hands-on minutes. Use your own tested formula.</p>${btn(b?'Open recipes':'Add first recipe',b?'nav':'recipe-form','',b?'data-page="recipes"':'')}</article><article class="guide-step"><span class="step-number">03</span><h3>Try an order before saying yes</h3><p>See the extra work and costs, then accept it when the plan works.</p>${btn('Try an order','simulator','primary')}</article></div>`;}
+function weekPage(){const p=getPlan(),over=p.days.filter(d=>d.overMinutes>0),title=over.length?`${dayname(over[0].date)} needs ${mins(over[0].overMinutes)} more than you have.`:'Your week, with room to breathe.';let out=header('THE BAKERY WORKBENCH','This week','One set of orders. A plan for what to buy, bake and pack.',btn('Print kitchen packet','print-packet')+btn('＋ Try an order','simulator','yellow'));
+out+=`<div class="week-controls"><div class="week-switch">${btn('‹','prev-week','icon','aria-label="Previous week"')}<strong>${date(week)} – ${date(C.addDays(week,6))}</strong>${btn('›','next-week','icon','aria-label="Next week"')}${btn('Today','this-week','subtle')}</div>${btn('Set available hours','capacity','subtle')}</div>`;
+if(!state().recipes.length&&!state().orders.length)return out+emptySetup();
+out+=`<section class="week-banner ${over.length?'has-warning':''}"><div class="week-banner-copy"><div class="eyebrow">${over.length?'LET’S PROTECT YOUR TIME':'YOUR WORK, ALREADY CONNECTED'}</div><h2>${title}</h2><p>${over.length?'Review the hands-on work or try a different production day before taking more orders.':'Check your pantry, batch the same recipes together and leave with the whole work packet.'}</p></div><div class="week-banner-actions">${over.length?btn('Review '+dayname(over[0].date),'select-day','primary',`data-date="${over[0].date}"`):btn('Can I fit another order?','simulator','primary')}</div></section>`;
+out+=`<div class="output-tray"><button class="output-link" data-action="week-tab" data-tab="batches"><span class="output-number">${p.totals.pendingBatches}</span><span class="output-label"><strong>Batches to make</strong><small>Grouped across customer orders</small></span><span>↗</span></button><button class="output-link" data-action="week-tab" data-tab="shopping"><span class="output-number">${p.shopping.filter(x=>x.shortfall>0).length}</span><span class="output-label"><strong>Ingredients to buy</strong><small>${cash(p.totals.shoppingCost)} in planned packs</small></span><span>↗</span></button><button class="output-link" data-action="week-tab" data-tab="packing"><span class="output-number">${p.orders.filter(x=>x.status!=='Collected').length}</span><span class="output-label"><strong>Orders to hand over</strong><small>${cash(p.totals.balanceDue)} balance due this week</small></span><span>↗</span></button></div>`;
+out+=`<div class="tabs" role="tablist" aria-label="Weekly views">${[['plan','Week plan'],['shopping','Shopping'],['batches','Batch sheets'],['packing','Pack & collect']].map(([t,l])=>`<button class="tab ${tab===t?'active':''}" role="tab" aria-selected="${tab===t}" data-action="week-tab" data-tab="${t}">${l}</button>`).join('')}</div>`;
+if(tab==='plan')out+=planView(p);if(tab==='shopping')out+=shoppingView(p);if(tab==='batches')out+=batchView(p);if(tab==='packing')out+=packingView(p);return out;}
+function planView(p){if(!selectedDay||!p.days.some(x=>x.date===selectedDay))selectedDay=(p.days.find(d=>d.overMinutes>0)||p.days.find(d=>d.activeMinutes>0)||p.days[0]).date;const d=p.days.find(x=>x.date===selectedDay);return `<div class="week-strip">${p.days.map(x=>`<button class="day-card ${x.date===selectedDay?'selected':''} ${x.overMinutes>0?'over':''}" data-action="select-day" data-date="${x.date}"><span class="day-label">${dayname(x.date)}</span><strong class="day-date">${new Date(x.date+'T12:00:00').getDate()}</strong><div class="timebar"><span class="timefill" style="width:${Math.min(100,x.capacity?x.activeMinutes/x.capacity*100:x.activeMinutes?100:0)}%"></span></div><span class="day-stats">${mins(x.activeMinutes)} / ${mins(x.capacity)}</span><span class="day-status">${x.overMinutes>0?mins(x.overMinutes)+' over':mins(Math.max(0,x.capacity-x.activeMinutes))+' free'}</span></button>`).join('')}</div><div class="plan-layout"><div class="plan-main"><section class="panel"><div class="panel-head"><div><div class="eyebrow">${date(d.date).toUpperCase()}</div><h2>${dayname(d.date)}’s kitchen plan</h2></div>${pill(mins(d.activeMinutes)+' hands-on',d.overMinutes?'coral':'green')}</div>${d.runs.length?d.runs.map(r=>runCard(r)).join(''):'<div class="notice">No new baking batches assigned to this day.</div>'}${d.orders.length?`<div class="section-label">FINISH & PACK</div>${d.orders.map(o=>`<article class="order-card compact"><div><strong>${esc(o.customer)}</strong><span class="mini muted">${esc(o.reference)} · pickup ${date(o.dueDate)}</span><p>${o.lines.map(l=>`${l.qty} ${esc(recipe(l.recipeId)?.name)}`).join(' · ')}</p></div><div>${pill(mins(o.setupMinutes+o.lines.reduce((n,l)=>n+l.qty*l.finishMinutes,0)),'yellow')}${btn('Open','order-form','subtle',`data-id="${esc(o.id)}"`)}</div></article>`).join('')}`:''}${!d.runs.length&&!d.orders.length?`<div class="empty"><h3>A little space in the week.</h3><p>Try a proposed order to see what fits here.</p>${btn('Try an order','simulator','primary')}</div>`:''}</section></div><aside class="plan-aside"><section class="panel"><div class="eyebrow">TIME YOU CAN PLAN AROUND</div><h3 style="margin:10px 0 18px">${mins(d.capacity)} available</h3><div class="summary-line"><span>Baking preparation</span><strong>${mins(d.bakeMinutes)}</strong></div><div class="summary-line"><span>Finishing & packing</span><strong>${mins(d.finishMinutes)}</strong></div><div class="summary-line total"><span>${d.overMinutes?'Over capacity':'Still available'}</span><strong>${mins(d.overMinutes||Math.max(0,d.capacity-d.activeMinutes))}</strong></div><p class="mini muted">Hands-on time uses your recipe and order estimates. Oven time is shown separately and is not scheduled as labor.</p>${btn('Adjust weekly availability','capacity','subtle')}</section><section class="panel"><div class="eyebrow">THIS WEEK’S ORDERS</div><div class="summary-line"><span>Quoted sales</span><strong>${cash(p.totals.quotedRevenue)}</strong></div><div class="summary-line"><span>Balances to collect</span><strong>${cash(p.totals.balanceDue)}</strong></div><div class="summary-line"><span>Planned hands-on work</span><strong>${mins(p.totals.activeMinutes)}</strong></div><div class="summary-line"><span>Unallocated batch extras</span><strong>${p.totals.extra}</strong></div><p class="mini muted">Sales and balances are for pickups this week. Work follows its assigned production dates.</p></section>${p.totals.unknownCosts?`<div class="notice warning"><strong>Complete your ingredient prices</strong><p>${p.totals.unknownCosts} cost entries need attention before the estimates are complete.</p>${btn('Open pantry','nav','subtle','data-page="pantry"')}</div>`:''}</aside></div>`;}
+function runCard(r,expanded=false){const rec=recipe(r.recipeId), made=!!r.id;return `<article class="run-card" style="--recipe-color:${esc(rec?.color||'#efd5c2')}"><div class="run-top">${avatar(rec)}<div class="run-title"><h3>${esc(r.recipeName)}</h3><p>${r.batches} batch${r.batches===1?'':'es'} × ${r.yield||(r.produced/r.batches)} = <strong>${r.produced} made</strong> · ${r.required} ordered · ${r.extra} extra</p></div>${pill(made?'Made':`${mins(r.activeMinutes)} active`,made?'green':'yellow')}</div><div class="run-meta"><span>${date(r.date)}</span><span>${mins(r.ovenMinutes)} oven reference</span><span>${cash(r.ingredientCost)} ingredients</span></div>${expanded?`<div class="scaled-ingredients">${r.ingredients.map(i=>`<div class="summary-line"><span>${esc(i.name)}</span><strong>${quantity(i.qty,i.unit)}</strong></div>`).join('')}</div>${rec?.method?`<p class="method-text">${esc(rec.method)}</p>`:''}<div class="notice mini">${r.allocations.map(a=>{const o=order(a.orderId);return `${esc(o?.customer||'Order')}: ${a.qty}`;}).join(' · ')}${r.extra?`<br>${r.extra} extra pieces are unallocated and will not be reused automatically for another order.`:''}</div>`:''}<div class="run-actions">${!expanded?btn('Open batch sheet','week-tab','subtle','data-tab="batches"'):''}${made?btn('Undo batch','undo-run','subtle',`data-id="${esc(r.id)}"`):btn('Mark batch made','complete-run','primary',`data-key="${esc(r.key)}"`)}</div></article>`;}
+function shoppingView(p){const rows=p.shopping.filter(x=>x.required>0),short=rows.filter(x=>x.shortfall>0);return `<div class="shopping-stats metrics">${metric('Your recipe requirements',cash(p.runs.some(r=>r.ingredientCost===null)?null:p.runs.reduce((n,r)=>n+r.ingredientCost,0)),'Ingredient value for pending batches')}${metric('Cash needed for packs',cash(p.totals.shoppingCost),'After current pantry stock')}${metric('Shopping items',short.length,'Only ingredients with a shortfall')}</div><section class="panel"><div class="panel-head"><div><h2>The list is already combined.</h2><p class="mini muted">Shared ingredients totalled, pantry subtracted, pack sizes rounded up.</p></div><div class="head-actions">${btn('Save shopping list','shopping-text')}${btn('Receive planned shopping','receive-shopping','primary')}</div></div>${rows.length?`<div class="table-wrap"><table><thead><tr><th>Ingredient</th><th class="right">Need</th><th class="right">In pantry</th><th class="right">Short</th><th>Buy</th><th class="right">Est. spend</th></tr></thead><tbody>${rows.map(i=>`<tr><td><strong>${esc(i.name)}</strong><small class="table-sub">${esc(i.supplier||'')}</small></td><td class="right nowrap">${quantity(i.required,i.unit)}</td><td class="right nowrap">${quantity(i.stock,i.unit)}</td><td class="right nowrap">${i.shortfall?quantity(i.shortfall,i.unit):pill('Covered','green')}</td><td>${i.packs?`<strong>${i.packs} pack${i.packs===1?'':'s'}</strong><small class="table-sub">${quantity(i.packSize,i.unit)} each · ${quantity(i.buyQty,i.unit)} total</small>`:'—'}</td><td class="right nowrap">${i.packs?cash(i.cost):cash(0)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty"><h3>No pending ingredient requirements.</h3><p>Your batches may already be made, or there are no orders assigned to this baking week.</p></div>'}<div class="notice">Receive planned shopping adds the listed pack quantities to your pantry. Marking a batch made then deducts its ingredients. Check quantities actually purchased before receiving. Current stock is not reserved for other weeks.</div></section>`;}
+function batchView(p){return `<div class="panel-head"><div><h2>Your scaled batch sheets</h2><p class="mini muted">Matching recipes on the same baking day become one production run.</p></div>${btn('Print batch sheets','print-batches')}</div><div class="batch-grid">${p.runs.map(r=>runCard(r,true)).join('')||'<div class="panel empty"><h3>No batches waiting.</h3><p>Accept an order or choose another week to plan more baking.</p></div>'}</div>${p.completedRuns.length?`<div class="panel-head section-heading"><h2>Already made this week</h2>${pill(`${p.completedRuns.length} production records`,'green')}</div><div class="batch-grid">${p.completedRuns.map(r=>runCard(r,true)).join('')}</div>`:''}`;}
+function packingView(p){return `<section class="panel"><div class="panel-head"><div><h2>Every customer, accounted for.</h2><p class="mini muted">Check each order, collect the balance and confirm the handover.</p></div>${btn('Print packing tickets','print-packing')}</div>${p.orders.length?`<div class="order-grid">${p.orders.map(o=>{const q=C.quoteOrder(state(),o);return `<article class="order-card"><div class="order-card-head"><div><span class="eyebrow">${esc(o.reference)} · ${date(o.dueDate)}</span><h3>${esc(o.customer)}</h3></div>${pill(o.status,o.status==='Collected'?'gray':o.status==='Ready'?'green':'yellow')}</div>${o.lines.map(l=>`<div class="summary-line"><span>${esc(recipe(l.recipeId)?.name)}</span><strong>× ${l.qty}</strong></div>`).join('')}<div class="summary-line total"><span>Balance due</span><strong>${cash(Math.max(0,q.revenue-o.paid))}</strong></div>${o.kitchenNote?`<p class="mini muted">Kitchen: ${esc(o.kitchenNote)}</p>`:''}<div class="run-actions">${btn('Payment','payment','subtle',`data-id="${esc(o.id)}"`)}${btn('Print quote','print-quote','subtle',`data-id="${esc(o.id)}"`)}${o.status==='Confirmed'?btn('Mark ready','order-status','primary',`data-id="${esc(o.id)}" data-status="Ready"`):o.status==='Ready'?btn('Mark collected','order-status','primary',`data-id="${esc(o.id)}" data-status="Collected"`):''}</div></article>`;}).join('')}</div>`:'<div class="empty"><h3>No pickups this week.</h3><p>Choose the week your customers are collecting their orders.</p></div>'}</section>`;}
+function ordersPage(){const rows=[...state().orders].filter(o=>`${o.reference} ${o.customer} ${o.status}`.toLowerCase().includes(search.toLowerCase())).sort((a,b)=>a.dueDate.localeCompare(b.dueDate));return header('TAKE THE ORDER ONCE','Orders','Prices stay with each order. The kitchen plan uses your assigned baking and finishing days.',btn('Import orders','import-orders')+btn('＋ Try an order','simulator','yellow'))+`<section class="panel"><div class="panel-head"><h2>Your order book</h2><input id="search" class="search-input" type="search" value="${esc(search)}" placeholder="Search customer, reference or status" aria-label="Search orders"></div>${rows.length?`<div class="table-wrap"><table><thead><tr><th>Order / customer</th><th>Products</th><th>Pickup</th><th>Status</th><th class="right">Quoted</th><th class="right">Balance</th><th></th></tr></thead><tbody>${rows.map(o=>{const q=C.quoteOrder(state(),o);return `<tr><td><strong>${esc(o.customer)}</strong><small class="table-sub">${esc(o.reference)}</small></td><td>${o.lines.map(l=>`${l.qty} × ${esc(recipe(l.recipeId)?.name)}`).join('<br>')}</td><td class="nowrap">${date(o.dueDate)}<small class="table-sub">Bake ${date(o.bakeDate)} · finish ${date(o.finishDate)}</small></td><td>${pill(o.status,o.status==='Cancelled'?'coral':o.status==='Ready'?'green':'gray')}</td><td class="right nowrap">${cash(q.revenue)}</td><td class="right nowrap">${cash(Math.max(0,q.revenue-o.paid))}</td><td>${btn('Open','order-form','subtle',`data-id="${esc(o.id)}"`)}</td></tr>`;}).join('')}</tbody></table></div>`:'<div class="empty"><h3>Your next booking starts with a better decision.</h3><p>Try its quantities, design time and price before accepting it.</p>'+btn('Try an order','simulator','primary')+'</div>'}</section>`;}
+function recipesPage(){const rows=state().recipes.filter(r=>`${r.name} ${r.category}`.toLowerCase().includes(search.toLowerCase()));return header('YOUR REPEATABLE WORK','Recipes','Save your own tested formulas, yields and time estimates. Each recipe powers the whole workflow.',btn('＋ Add recipe','recipe-form','yellow'))+`<div class="panel-head"><p class="mini muted">${state().recipes.length} saved recipes · ingredient costs use your latest pantry prices</p><input id="search" class="search-input" type="search" placeholder="Search recipes" aria-label="Search recipes" value="${esc(search)}"></div><div class="recipe-grid">${rows.map(r=>{const fake={reference:'preview',customer:'Preview',bakeDate:week,finishDate:week,dueDate:week,paid:0,payment:'Card',setupMinutes:0,extraCost:0,customerNote:'',kitchenNote:'',status:'Confirmed',lines:[{recipeId:r.id,qty:r.yield,unitPrice:r.unitPrice,finishMinutes:r.finishMinutes}]};const q=C.quoteOrder(state(),fake);return `<article class="recipe-card" style="--recipe-color:${esc(r.color)}"><div class="recipe-card-top">${avatar(r)}${pill(r.archived?'Archived':esc(r.category||'Batch product'),r.archived?'gray':'yellow')}</div><h2>${esc(r.name)}</h2><p>${r.yield} pieces per batch · ${r.ingredients.length} ingredients</p><div class="recipe-facts"><div><small>HANDS-ON / BATCH</small><strong>${mins(r.activeMinutes)}</strong></div><div><small>FINISH / ITEM</small><strong>${r.finishMinutes} min</strong></div><div><small>INGREDIENTS / ITEM</small><strong>${q.ingredientCost===null?'Price needed':cash(q.ingredientCost/r.yield)}</strong></div><div><small>DEFAULT PRICE</small><strong>${cash(r.unitPrice)}</strong></div></div><div class="run-actions">${btn('Edit recipe','recipe-form','primary',`data-id="${esc(r.id)}"`)}${btn(r.archived?'Activate':'Archive','archive-recipe','subtle',`data-id="${esc(r.id)}"`)}</div></article>`;}).join('')||`<div class="panel empty"><h3>Start with one familiar recipe.</h3><p>A batch yield, ingredient amounts and realistic making time are enough to begin.</p>${btn('Add first recipe','recipe-form','primary')}</div>`}</div>${isDemo?'<div class="notice">These are fictional costing examples for learning the app. Replace them with your own tested recipes, methods and current ingredient prices.</div>':''}`;}
+function pantryPage(){return header('BUY WHAT YOU ACTUALLY NEED','Pantry','Pack sizes turn recipe quantities into a practical shopping list. Keep stock and prices current.',btn('＋ Add ingredient','ingredient-form','yellow'))+`<section class="panel"><div class="panel-head"><h2>Ingredients & pack prices</h2><input id="search" class="search-input" type="search" placeholder="Search ingredients or supplier" value="${esc(search)}" aria-label="Search ingredients"></div><div class="table-wrap"><table><thead><tr><th>Ingredient</th><th>Pack size</th><th class="right">Pack cost</th><th class="right">In stock</th><th>Supplier</th><th></th></tr></thead><tbody>${state().ingredients.filter(i=>`${i.name} ${i.supplier}`.toLowerCase().includes(search.toLowerCase())).map(i=>`<tr><td><strong>${esc(i.name)}</strong>${i.archived?'<small class="table-sub">Archived</small>':''}</td><td>${quantity(i.packSize,i.unit)}</td><td class="right">${cash(i.packCost)}</td><td class="right"><strong>${quantity(i.stock,i.unit)}</strong></td><td>${esc(i.supplier||'—')}</td><td class="nowrap">${btn('Receive','receive-ingredient','subtle',`data-id="${esc(i.id)}"`)}${btn('Edit','ingredient-form','subtle',`data-id="${esc(i.id)}"`)}</td></tr>`).join('')||'<tr><td colspan="6"><div class="empty"><h3>Make your pantry work for the plan.</h3><p>Add ingredient pack sizes, prices and current amounts to calculate only what is missing.</p></div></td></tr>'}</tbody></table></div><div class="notice">Quantities use grams, milliliters or each. Larger units can be converted in the ingredient form. No cups-to-grams or mass-to-volume conversions are guessed.</div></section>`;}
+function settingsPage(){return header('YOUR BUSINESS. YOUR RULES.','Backup & settings','Set the assumptions once. Keep a full backup after important changes.')+`<div class="split equal"><section class="panel"><div class="panel-head"><h2>Business & pricing</h2></div><form id="settingsForm"><div class="form-grid">${field('business','Business name',state().settings.business,'text','maxlength="100"',null,true)}<div class="field"><label for="currency">Currency</label><select name="currency" id="currency">${['USD','EUR','GBP','CAD','AUD','NZD'].map(c=>`<option ${state().settings.currency===c?'selected':''}>${c}</option>`).join('')}</select><small>Changes labels only. No exchange conversion.</small></div>${moneyField('hourlyRate','Value of an hour of your work',state().settings.hourlyRate)}${field('targetMargin','Target profit margin (%)',state().settings.targetMargin,'number','min="0" max="95" step="0.1" required','Share of selling price after modeled costs and labor.')}${field('cardRate','Card percentage fee (%)',state().settings.cardRate,'number','min="0" max="50" step="0.01" required')}${moneyField('fixedFee','Fixed card fee per order',state().settings.fixedFee,'Counted once per order in estimates.')}</div><div class="form-error" role="alert"></div><div class="form-footer">${submit('Save settings')}</div></form></section><div class="stack"><section class="panel"><div class="panel-head"><h2>Keep a copy you control</h2>${pill('Essential','yellow')}</div><p class="muted mini">Your data stays in this browser on this device. The app file does not contain your saved entries. Download a full JSON backup regularly.</p><div class="run-actions">${btn('Download backup','backup','primary')}${btn('Restore backup','restore')}${lock&&raw?btn('Save recovery data','recovery'):''}</div><div class="notice">Restore replaces this workspace. Browser data can be cleared, and switching browsers or moving a local file can affect access. There is no automatic sync.</div></section><section class="panel"><div class="panel-head"><h2>Your working hours</h2></div><p class="mini muted">Set a repeatable weekly pattern. Availability is hands-on working time, not oven space or a promised completion time. CSV exports are for review; use JSON for a complete backup. CSV does not preserve order status, contact, setup/extra costs, private notes or stock.</p><div class="run-actions">${btn('Set available hours','capacity')}${btn('Export orders CSV','export-orders')}</div></section><section class="panel"><h3>Start fresh</h3><p class="mini muted">The sample bakery is separate from your real workspace.</p><div class="run-actions">${btn(isDemo?'Exit demo':'Try demo','toggle-demo')}${btn('Clear real workspace','reset','danger')}</div></section></div></div><div class="notice">Bakeweek Studio by JPS Digital Pages. Personal or internal business use by the purchaser. Do not share or resell the files. Support through <a href="https://www.etsy.com/shop/JPSDigitalPages" target="_blank" rel="noopener">JPSDigitalPages on Etsy</a>. Estimates use your inputs; this tool does not process payments, calculate taxes or produce regulatory food labels.</div>`;}
+function render(){const nav=[['week','This week','▦'],['orders','Orders','▤'],['recipes','Recipes','◉'],['pantry','Pantry','▧'],['settings','Backup & settings','⚙']];$('#navigation').innerHTML=nav.map(([p,l,i])=>`<button class="nav-item ${p===page?'active':''}" data-action="nav" data-page="${p}" ${p===page?'aria-current="page"':''}><span class="nav-icon" aria-hidden="true">${i}</span><span>${l}</span>${p==='week'?'<span class="nav-arrow">↗</span>':''}</button>`).join('');$('#businessLabel').textContent=state().settings.business||'YOUR BAKERY WORKSPACE';$('#saveStatus').textContent=isDemo?'Fictional demo · your own data is separate':saveText;$('.local-status').innerHTML='<span class="status-dot" aria-hidden="true"></span>'+(isDemo?'Demo · session only':(lock||storageMessage?'Back up this session':'Saved on your device'));$('#demoBanner').hidden=!isDemo;$('#demoButton').textContent=isDemo?'Exit demo':'Try demo';$('#storageBanner').hidden=!storageMessage||isDemo;$('#storageBanner').textContent=storageMessage;$('#main').innerHTML=({week:weekPage,orders:ordersPage,recipes:recipesPage,pantry:pantryPage,settings:settingsPage}[page])();}
+function selectField(name,label,options,value,full=false){return `<div class="field ${full?'full':''}"><label for="${name}">${label}</label><select id="${name}" name="${name}">${options.map(([v,l])=>`<option value="${esc(v)}" ${v===value?'selected':''}>${esc(l)}</option>`).join('')}</select></div>`;}
+function textarea(name,label,value,hint=''){return `<div class="field full"><label for="${name}">${label}</label><textarea id="${name}" name="${name}" rows="3">${esc(value)}</textarea>${hint?`<small>${hint}</small>`:''}</div>`;}
+function ingredientForm(id){const i=ingredient(id)||{name:'',unit:'g',packSize:1000,packCost:'',stock:0,supplier:''};showModal(id?'Edit ingredient':'Add pantry ingredient',`<form id="ingredientForm" data-id="${esc(id||'')}"><div class="form-grid">${field('name','Ingredient name',i.name,'text','required maxlength="150"',null,true)}${selectField('unit','Base unit',[['g','Grams (g)'],['ml','Milliliters (ml)'],['each','Each']],i.unit)}${field('packSize','Amount in one purchased pack',i.packSize,'number','min="0.000001" step="any" required','Use the selected base unit: e.g. 2.5 kg = 2500 g.')}${moneyField('packCost','Price per purchased pack',i.packCost,'Leave blank if unknown. Enter 0 only when genuinely free.')}${field('stock','Currently in your pantry',i.stock,'number','min="0" step="any" required','Use the same base unit.')}${field('supplier','Supplier / shopping stop',i.supplier,'text','maxlength="150"',null,true)}</div><div class="notice mini">Base units are locked after a recipe uses this ingredient. 1 kg = 1000 g; 1 L = 1000 ml; 1 dozen = 12 each.</div><div class="form-error" role="alert"></div><div class="form-footer">${btn('Cancel','close')}${submit('Save ingredient')}</div></form>`);}
+function recipeIngredientRows(){return recipeRows.map((l,n)=>`<div class="ingredient-row" data-index="${n}"><div class="field"><label>Ingredient ${n+1}</label><select data-ri="ingredientId" aria-label="Ingredient ${n+1}">${state().ingredients.filter(i=>!i.archived||i.id===l.ingredientId).map(i=>`<option value="${esc(i.id)}" ${i.id===l.ingredientId?'selected':''}>${esc(i.name)} (${i.unit})</option>`).join('')}</select></div><div class="field"><label>Amount per batch (${esc(ingredient(l.ingredientId)?.unit)})</label><input data-ri="qty" aria-label="Ingredient amount ${n+1}" type="number" min="0.000001" step="any" value="${l.qty}" required></div>${btn('×','remove-recipe-ingredient','subtle',`data-index="${n}" aria-label="Remove ingredient ${n+1}"`)}</div>`).join('');}
+function recipeForm(id){if(!state().ingredients.some(i=>!i.archived)){toast('Add at least one pantry ingredient first.');ingredientForm();return;}const r=recipe(id)||{name:'',category:'',color:'#A46D4C',yield:12,activeMinutes:25,ovenMinutes:20,finishMinutes:2,unitPrice:3,packagingCost:.2,method:'',ingredients:[{ingredientId:state().ingredients.find(i=>!i.archived).id,qty:100}]};recipeRows=structuredClone(r.ingredients);showModal(id?'Edit recipe':'Build a reusable recipe',`<form id="recipeForm" data-id="${esc(id||'')}"><div class="form-grid">${field('name','Recipe / product name',r.name,'text','required maxlength="150"',null,true)}${field('category','Category',r.category)}${field('color','Recipe color',r.color,'color')}${field('yield','Sellable pieces per batch',r.yield,'number','min="1" step="1" required')}${field('activeMinutes','Hands-on minutes per batch',r.activeMinutes,'number','min="0" step="any" required','Mixing, portioning and active preparation.')}${field('ovenMinutes','Oven minutes per batch',r.ovenMinutes,'number','min="0" step="any" required','Reference only. Not a timed oven schedule.')}${field('finishMinutes','Finishing minutes per piece',r.finishMinutes,'number','min="0" step="any" required','Decorating, finishing and packing.')}${moneyField('unitPrice','Default selling price per piece',r.unitPrice)}${moneyField('packagingCost','Packaging cost per piece',r.packagingCost)}</div><div class="form-section"><h3>Ingredients for one batch</h3><div id="recipeIngredientRows">${recipeIngredientRows()}</div>${btn('＋ Add ingredient','add-recipe-ingredient','subtle')}</div><div class="form-grid">${textarea('method','Your tested method & batch notes',r.method,'Scales quantities automatically. Follow your own recipe, storage and food-safety procedures.')}</div><div class="notice mini">Changes update estimates for unfinished orders. Saved order prices stay unchanged. Completed batch quantities and costs remain recorded.</div><div class="form-error" role="alert"></div><div class="form-footer">${btn('Cancel','close')}${submit('Save recipe')}</div></form>`,true);}
+function newOrder(){const r=state().recipes.find(r=>!r.archived);return {reference:nextRef(),customer:'',contact:'',dueDate:C.addDays(week,5),bakeDate:C.addDays(week,3),finishDate:C.addDays(week,4),status:'Confirmed',paid:0,payment:'Card',setupMinutes:15,extraCost:0,customerNote:'',kitchenNote:'',lines:r?[{recipeId:r.id,qty:48,unitPrice:r.unitPrice,finishMinutes:r.finishMinutes}]:[]};}
+function lineRows(lines,scope){return lines.map((l,n)=>`<div class="order-line-row" data-index="${n}"><div class="field"><label>Product</label><select data-line="recipeId" data-scope="${scope}" aria-label="Product ${n+1}">${state().recipes.filter(r=>!r.archived||r.id===l.recipeId).map(r=>`<option value="${esc(r.id)}" ${r.id===l.recipeId?'selected':''}>${esc(r.name)}</option>`).join('')}</select></div><div class="field"><label>Pieces</label><input data-line="qty" data-scope="${scope}" aria-label="Pieces ${n+1}" type="number" min="1" step="1" value="${l.qty}" required></div><div class="field"><label>Price / piece</label><input data-line="unitPrice" data-scope="${scope}" aria-label="Price per piece ${n+1}" type="number" min="0" step=".01" value="${l.unitPrice}" required></div><div class="field"><label>Finish min / piece</label><input data-line="finishMinutes" data-scope="${scope}" aria-label="Finish minutes per piece ${n+1}" type="number" min="0" step="any" value="${l.finishMinutes}" required></div>${btn('×','remove-line','subtle',`data-scope="${scope}" data-index="${n}" aria-label="Remove product ${n+1}"`)}</div>`).join('');}
+function orderFields(o){return `${field('reference','Order reference',o.reference,'text','required maxlength="100"')}${field('customer','Customer',o.customer,'text','required maxlength="150"')}${field('contact','Contact / pickup information',o.contact,'text','maxlength="250"',null,true)}${field('bakeDate','Bake date',o.bakeDate,'date','required')}${field('finishDate','Finish & pack date',o.finishDate,'date','required')}${field('dueDate','Pickup date',o.dueDate,'date','required')}${selectField('payment','Payment method',[['Card','Card'],['Cash','Cash'],['Other','Other']],o.payment)}${field('setupMinutes','Extra setup minutes for this order',o.setupMinutes,'number','min="0" step="any" required')}${moneyField('extraCost','Extra packaging / order cost',o.extraCost)}${moneyField('paid','Total already paid',o.paid)}${textarea('customerNote','Customer-facing note',o.customerNote)}${textarea('kitchenNote','Private kitchen note',o.kitchenNote,'Only appears in kitchen paperwork, never on the customer summary.')}`;}
+function orderForm(id){const o=order(id);if(!o){simulator();return;}orderRows=structuredClone(o.lines);const q=C.quoteOrder(state(),o),locked=state().completedRuns.some(r=>r.allocations.some(a=>a.orderId===o.id));showModal(`${esc(o.reference)} · ${esc(o.customer)}`,`<div class="metrics">${metric('Order total',cash(q.revenue))}${metric('Still to collect',cash(Math.max(0,q.revenue-o.paid)))}${metric('Estimated surplus',cash(q.surplus),'After modeled costs and labor')}</div><div class="run-actions">${pill(o.status,'yellow')}${btn('Print quote','print-quote','',`data-id="${esc(id)}"`)}${btn('Record payment','payment','',`data-id="${esc(id)}"`)}${o.status!=='Confirmed'?btn('Return to Confirmed','order-status','subtle',`data-id="${esc(id)}" data-status="Confirmed"`):''}</div>${locked?'<div class="notice">This order has completed batches. Undo its batches before editing quantities, dates or prices. Payments and collection status are still available.</div>':''}<form id="orderForm" data-id="${esc(id)}"><fieldset ${locked?'disabled':''} style="border:0;padding:0;margin:18px 0"><div id="orderLineRows">${lineRows(orderRows,'order')}</div>${btn('＋ Add product','add-line','subtle','data-scope="order"')}<div class="form-grid">${orderFields(o)}</div></fieldset><div class="form-error" role="alert"></div><div class="form-footer">${!locked?btn('Cancel order','cancel-order','danger',`data-id="${esc(id)}"`):''}${btn('Close','close')}${!locked?submit('Save changes'):''}</div></form>`,true);}
+function simulator(){if(!state().recipes.some(r=>!r.archived)){toast('Save a recipe first so the order can use your actual costs.');recipeForm();return;}simDraft=newOrder();simDraft.customer='New inquiry';if(isDemo)simDraft.lines[0].finishMinutes=6;showModal('Should you say yes to this order?',`<div class="notice mini">A safe place to experiment. Nothing is saved until you accept the order. Week of ${date(week)}.</div><div class="scenario-layout"><form id="simForm" class="scenario-inputs"><div class="form-grid">${field('sim-customer','Customer / inquiry',simDraft.customer,'text','data-sim="customer" required',null,true)}</div><div id="simLines">${lineRows(simDraft.lines,'sim')}</div>${btn('＋ Add product','add-line','subtle','data-scope="sim"')}<div class="form-grid">${field('sim-bakeDate','Bake date',simDraft.bakeDate,'date',`data-sim="bakeDate" min="${week}" max="${C.addDays(week,6)}" required`)}${field('sim-finishDate','Finish & pack',simDraft.finishDate,'date',`data-sim="finishDate" min="${week}" max="${C.addDays(week,6)}" required`)}${field('sim-dueDate','Pickup date',simDraft.dueDate,'date','data-sim="dueDate" required')}${selectField('sim-payment','Payment method',[['Card','Card'],['Cash','Cash'],['Other','Other']],simDraft.payment)}${field('sim-setupMinutes','Extra setup minutes',simDraft.setupMinutes,'number','data-sim="setupMinutes" min="0" step="any" required')}${field('sim-extraCost','Extra packaging / order cost',0,'number','data-sim="extraCost" min="0" step=".01" required')}</div><div class="form-section"><div class="eyebrow">EXPLORE A WORKABLE VERSION</div><div class="run-actions">${btn('Simpler finish · 2 min','sim-simple','subtle')}${btn('Use recipe times','sim-default','subtle')}${btn('Try available days','sim-days','subtle')}${btn('Use target quote','sim-price','subtle')}</div><p class="mini muted">Suggestions change this draft only. Choose dates and decoration time that suit your tested recipe and customer promise.</p></div><div class="form-error" role="alert"></div></form><aside id="simResults" class="scenario-results" aria-live="polite"></aside></div>`,true);$('#sim-payment').dataset.sim='payment';updateSimulation();}
+function updateSimFields(){for(const e of $$('[data-sim]'))e.value=simDraft[e.dataset.sim];$('#simLines').innerHTML=lineRows(simDraft.lines,'sim');updateSimulation();}
+function suggestedQuote(result){const q=result.quote,d=result.delta,rate=simDraft.payment==='Card'?state().settings.cardRate/100:0,fixed=simDraft.payment==='Card'?state().settings.fixedFee:0;if(q.minPriceAtTarget===null||d.ingredientCost===null)return null;return Math.max(q.minPriceAtTarget,(d.ingredientCost+d.packagingCost+d.laborAllowance+fixed)/(1-rate-state().settings.targetMargin/100));}
+function updateSimulation(){try{simResult=C.simulateOrder(state(),simDraft,week);const {quote:q,delta:d}=simResult;const target=suggestedQuote(simResult),priceOK=target!==null&&q.revenue+0.00001>=target,healthy=simResult.fits&&priceOK;$('#simResults').innerHTML=`<div class="decision-banner ${healthy?'good':'bad'}"><div class="eyebrow">BEFORE YOU PROMISE IT</div><h3>${!simResult.fits?'This version overloads your week.':!priceOK?'It fits. The price needs a look.':'A workable version of this order.'}</h3><p>${!simResult.fits?simResult.conflicts.map(x=>`${dayname(x.date)}: ${mins(x.overMinutes)} over your available time`).join(' · '):'Planned hands-on work fits your entered daily availability.'}</p></div><div class="scenario-metrics">${metric('Additional hands-on work',mins(d.activeMinutes),'Includes whole batches + finishing')}${metric('Extra batches to make',d.batches,`${d.units} ordered pieces`)}${metric('Extra shopping cash',cash(d.shoppingCost),'Change in whole-pack shopping')}${metric('Additional surplus',cash(d.surplus),'After ingredients, packaging, fees & your labor')}</div><div class="receipt"><div class="summary-line"><span>Customer quote</span><strong>${cash(q.revenue)}</strong></div><div class="summary-line"><span>Extra ingredient use</span><strong>${cash(d.ingredientCost)}</strong></div><div class="summary-line"><span>Packaging / extras</span><strong>${cash(d.packagingCost)}</strong></div><div class="summary-line"><span>Payment fees</span><strong>${cash(d.fees)}</strong></div><div class="summary-line"><span>Labor allowance (${cash(state().settings.hourlyRate)}/h)</span><strong>${cash(d.laborAllowance)}</strong></div><div class="summary-line total"><span>Suggested minimum quote</span><strong>${cash(target)}</strong></div><p class="mini muted">The suggested quote uses the higher of this order’s recipe cost share and the extra whole batches your week needs, including labor and your ${state().settings.targetMargin}% target margin. Extra surplus uses the change to this week’s plan. Taxes and unentered overhead are excluded.</p></div>${d.ingredientCost===null&&!q.unknownCosts.length?'<div class="notice warning">Other planned batches have missing ingredient costs. Complete pantry prices before relying on this week comparison.</div>':''}${q.unknownCosts.length?`<div class="notice warning">Missing costs: ${esc(q.unknownCosts.join(', '))}. Complete prices before relying on the estimate.</div>`:''}<div class="run-actions">${btn(healthy?'Accept & build the plan':'Accept this version anyway','accept-sim',healthy?'yellow full':'full')}</div><p class="mini muted">Accepting creates an order, batch requirements, shopping list and packing ticket. No payment is taken.</p>`;$('#simForm .form-error').textContent='';}catch(e){simResult=null;$('#simResults').innerHTML=`<div class="notice warning"><h3>Complete this draft</h3><p>${esc(e.message)}</p></div>`;}}
+function capacityForm(){showModal('Make room for the work',`<form id="capacityForm"><p class="muted">How many hands-on hours can you work each day? This weekly pattern applies to every week.</p><div class="capacity-grid">${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map((d,n)=>field('cap'+n,d,round(state().settings.capacity[n]/60),'number','min="0" max="24" step="any" required')).join('')}</div><div class="form-error" role="alert"></div><div class="form-footer">${btn('Cancel','close')}${submit('Save availability')}</div></form>`);}
+function paymentForm(id){const o=order(id);showModal('Record a payment',`<form id="paymentForm" data-id="${esc(id)}"><p>${esc(o.customer)} · ${esc(o.reference)} · order total ${cash(C.quoteOrder(state(),o).revenue)}</p>${moneyField('paid','Total paid to date',o.paid,'Enter the cumulative amount paid, including earlier deposits.')}<div class="form-error" role="alert"></div><div class="form-footer">${btn('Cancel','close')}${submit('Save payment')}</div></form>`);}
+function receiveForm(id){const i=ingredient(id);showModal('Receive pantry stock',`<form id="receiveForm" data-id="${esc(id)}"><p><strong>${esc(i.name)}</strong> · currently ${quantity(i.stock,i.unit)}</p>${field('qty','Amount received ('+i.unit+')',i.packSize,'number','min="0.000001" step="any" required','Adds to your current stock; it does not replace it.')}<div class="form-error" role="alert"></div><div class="form-footer">${btn('Cancel','close')}${submit('Add received stock')}</div></form>`);}
+function importForm(){importText='';importPreview=null;showModal('Bring your orders in once',`<p class="muted mini">Use the exact CSV template and recipe names already in your library. Repeat an order reference for multiple products. Existing references are skipped to prevent duplicates.</p><div class="run-actions">${btn('Download CSV template','csv-template')}${btn('Choose CSV file','csv-file')}</div>${textarea('csvText','Paste CSV', '', 'Maximum 4 MB. Paid must repeat consistently on each row of a multi-product order and is counted once.')}<div id="importResult"></div><div class="form-footer">${btn('Cancel','close')}${btn('Preview import','preview-import','primary')}</div>`,true);}
+function previewImport(){try{importText=$('#csvText').value;const copy=structuredClone(state()),old=new Set(copy.orders.map(o=>o.id)),result=C.importOrders(copy,importText);importPreview={text:importText,result};$('#importResult').innerHTML=`<div class="notice"><strong>${result.imported} orders ready · ${result.skipped} existing references skipped</strong><p class="mini">Nothing has been added yet. ${copy.orders.filter(o=>!old.has(o.id)).slice(0,10).map(o=>`${esc(o.reference)} — ${esc(o.customer)} (${o.lines.reduce((n,l)=>n+l.qty,0)} pieces)`).join('<br>')}</p>${result.imported?btn('Confirm import','confirm-import','yellow'):''}</div>`;}catch(e){importPreview=null;$('#importResult').innerHTML=`<div class="notice warning">${esc(e.message)}</div>`;}}
+function guide(){showModal('From inquiry to a calmer kitchen',`<div class="steps"><section class="guide-step"><span class="step-number">01</span><h3>Build your library</h3><p>Add pantry pack prices and stock. Save your tested recipes, yield, active preparation time and finishing minutes per piece.</p></section><section class="guide-step"><span class="step-number">02</span><h3>Try it before saying yes</h3><p>Use “Try an order”. Change quantity, finishing time, price or dates. See additional work, whole-batch costs and extra shopping cash before accepting.</p></section><section class="guide-step"><span class="step-number">03</span><h3>Buy, bake, pack</h3><p>Receive only what you actually bought. Mark a batch made to deduct its ingredients once. Finish the order, mark it Ready, then Collected.</p></section></div><div class="notice"><strong>Keep your work safe.</strong> Download a JSON backup after important changes. Data is saved in this browser, not inside the HTML file. Demo changes stay separate and reset when you reload.</div><div class="notice mini">Whole batches can make extras; extras are not reused automatically. Oven minutes are a reference, not an oven booking schedule. Estimates depend on your prices and timings and exclude taxes and unentered overhead. Follow your own tested methods, storage and food-safety procedures.</div><div class="form-footer">${btn('Got it','close','primary')}</div>`,true);}
+document.addEventListener('submit',e=>{const f=e.target;e.preventDefault();if(f.id==='ingredientForm')formSave(f,(s,d)=>{d.packCost=d.packCost===''?null:d.packCost;return f.dataset.id?C.updateIngredient(s,f.dataset.id,d):C.addIngredient(s,d);},'Ingredient saved.');
+if(f.id==='recipeForm')formSave(f,(s,d)=>{d.ingredients=recipeRows;return f.dataset.id?C.updateRecipe(s,f.dataset.id,d):C.addRecipe(s,d);},'Recipe saved.');
+if(f.id==='orderForm')formSave(f,(s,d)=>C.updateOrder(s,f.dataset.id,{...d,lines:orderRows}),'Order updated.');
+if(f.id==='settingsForm'){formSave(f,(s,d)=>{s.settings={...s.settings,...d,hourlyRate:+d.hourlyRate,targetMargin:+d.targetMargin,cardRate:+d.cardRate,fixedFee:+d.fixedFee};},'Settings saved.');}
+if(f.id==='capacityForm')formSave(f,(s,d)=>{s.settings.capacity=Array.from({length:7},(_,n)=>+d['cap'+n]*60);},'Availability updated.');
+if(f.id==='paymentForm')formSave(f,(s,d)=>C.recordPayment(s,f.dataset.id,d.paid),'Payment recorded.');
+if(f.id==='receiveForm')formSave(f,(s,d)=>C.receiveIngredient(s,f.dataset.id,d.qty),'Pantry stock added.');});
+document.addEventListener('input',e=>{const x=e.target;if(x.id==='search'){search=x.value;const position=x.selectionStart;render();$('#search').focus();if(position!==null)$('#search').setSelectionRange(position,position);return;}
+if(x.dataset.sim){simDraft[x.dataset.sim]=['setupMinutes','extraCost'].includes(x.dataset.sim)?+x.value:x.value;updateSimulation();}
+if(x.dataset.line&&x.tagName!=='SELECT'){const lines=x.dataset.scope==='sim'?simDraft.lines:orderRows,idx=+x.closest('[data-index]').dataset.index;lines[idx][x.dataset.line]=x.value===''?NaN:+x.value;if(x.dataset.scope==='sim')updateSimulation();}
+if(x.dataset.ri==='qty')recipeRows[+x.closest('[data-index]').dataset.index].qty=+x.value;
+if(x.id==='csvText'){importPreview=null;$('#importResult').innerHTML='';}});
+document.addEventListener('change',e=>{const x=e.target;if(x.dataset.line==='recipeId'){const lines=x.dataset.scope==='sim'?simDraft.lines:orderRows,idx=+x.closest('[data-index]').dataset.index,r=recipe(x.value);lines[idx]={...lines[idx],recipeId:r.id,unitPrice:r.unitPrice,finishMinutes:r.finishMinutes};$(x.dataset.scope==='sim'?'#simLines':'#orderLineRows').innerHTML=lineRows(lines,x.dataset.scope);if(x.dataset.scope==='sim')updateSimulation();}
+if(x.dataset.ri==='ingredientId'){recipeRows[+x.closest('[data-index]').dataset.index].ingredientId=x.value;$('#recipeIngredientRows').innerHTML=recipeIngredientRows();}});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled)return;const a=b.dataset.action;try{
+if(a==='close'){close();return;}if(a==='nav'){page=b.dataset.page;search='';render();$('#main').focus();}
+if(a==='week-tab'){page='week';tab=b.dataset.tab;render();}if(a==='select-day'){selectedDay=b.dataset.date;render();}if(['prev-week','next-week','this-week'].includes(a)){week=a==='this-week'?C.monday(today()):C.addDays(week,a==='prev-week'?-7:7);selectedDay='';render();}
+if(a==='toggle-demo'){close();isDemo=!isDemo;if(isDemo&&!demo)demo=C.createDemo(today());week=C.monday(today());selectedDay='';page='week';tab='plan';search='';render();toast(isDemo?'You are exploring fictional sample orders.':'Back in your own workspace.');}
+if(a==='ingredient-form')ingredientForm(b.dataset.id);if(a==='recipe-form')recipeForm(b.dataset.id);if(a==='order-form')orderForm(b.dataset.id);if(a==='simulator')simulator();if(a==='capacity')capacityForm();if(a==='payment')paymentForm(b.dataset.id);if(a==='receive-ingredient')receiveForm(b.dataset.id);if(a==='guide')guide();
+if(a==='add-recipe-ingredient'){const used=new Set(recipeRows.map(l=>l.ingredientId)),i=state().ingredients.find(i=>!i.archived&&!used.has(i.id));if(!i)throw Error('Every available ingredient is already in this recipe.');recipeRows.push({ingredientId:i.id,qty:100});$('#recipeIngredientRows').innerHTML=recipeIngredientRows();}
+if(a==='remove-recipe-ingredient'){if(recipeRows.length===1)throw Error('Keep at least one ingredient in the recipe.');recipeRows.splice(+b.dataset.index,1);$('#recipeIngredientRows').innerHTML=recipeIngredientRows();}
+if(a==='add-line'||a==='remove-line'){const scope=b.dataset.scope,lines=scope==='sim'?simDraft.lines:orderRows;if(a==='add-line'){const r=state().recipes.find(r=>!r.archived&&!lines.some(l=>l.recipeId===r.id));if(!r)throw Error('All active products are already in this order.');lines.push({recipeId:r.id,qty:12,unitPrice:r.unitPrice,finishMinutes:r.finishMinutes});}else{if(lines.length===1)throw Error('Keep at least one product in the order.');lines.splice(+b.dataset.index,1);}$(scope==='sim'?'#simLines':'#orderLineRows').innerHTML=lineRows(lines,scope);if(scope==='sim')updateSimulation();}
+if(a==='sim-simple'||a==='sim-default'){simDraft.lines.forEach(l=>l.finishMinutes=a==='sim-simple'?2:recipe(l.recipeId).finishMinutes);updateSimFields();}
+if(a==='sim-price'){if(!simResult||suggestedQuote(simResult)===null)throw Error('Complete ingredient prices for all planned batches and this draft first.');const q=simResult.quote,target=Math.max(q.revenue,suggestedQuote(simResult)),totalQty=simDraft.lines.reduce((n,l)=>n+l.qty,0);simDraft.lines.forEach(l=>l.unitPrice=Math.ceil((q.revenue?l.unitPrice*target/q.revenue:target/totalQty)*100)/100);updateSimFields();}
+if(a==='sim-days'){let best=null;const start=simDraft.bakeDate;for(let d=start;d<=C.addDays(week,6)&&d<=simDraft.dueDate;d=C.addDays(d,1))for(let f=d;f<=C.addDays(week,6)&&f<=simDraft.dueDate;f=C.addDays(f,1)){try{const candidate={...simDraft,bakeDate:d,finishDate:f},r=C.simulateOrder(state(),candidate,week),score=r.after.totals.overMinutes;if(!best||score<best.score)best={candidate,score};}catch(_){}}if(!best)throw Error('Use valid dates within this week to try alternatives.');simDraft=best.candidate;updateSimFields();toast(best.score?'This is the lowest-overload option from the selected bake date onward.':'A date combination fits your available hands-on time. Review it before accepting.');}
+if(a==='accept-sim'){if(!$('#simForm').reportValidity()||!simResult)throw Error('Complete a valid order draft first.');const result=commit(s=>C.addOrder(s,simDraft),'Order accepted. Your plan, shopping and packing are ready.');if(result){close();page='week';tab='plan';selectedDay=simDraft.finishDate;render();}}
+if(a==='archive-recipe'){const r=recipe(b.dataset.id);confirm(r.archived?'Restore recipe?':'Archive recipe?',r.archived?'Make this recipe available for new orders again?':'Existing orders keep this recipe. It will be hidden when adding new orders.',()=>commit(s=>C.updateRecipe(s,r.id,{archived:!r.archived}),'Recipe updated.'));}
+if(a==='complete-run'){const r=getPlan().runs.find(r=>r.key===b.dataset.key);confirm('Mark this batch made?',`Deduct the ingredients for ${r.batches} batch${r.batches===1?'':'es'} of ${esc(r.recipeName)} from your pantry and record ${r.required} allocated pieces. You can undo this action.`,()=>commit(s=>C.completeRun(s,b.dataset.key,week),'Batch recorded. Pantry stock updated once.'));}
+if(a==='undo-run')confirm('Undo this completed batch?','The exact ingredient amounts will return to your pantry and the work will become pending again. Affected orders must be Confirmed.',()=>commit(s=>C.undoRun(s,b.dataset.id),'Batch undone. Ingredients restored.'));
+if(a==='receive-shopping'){const p=getPlan(),count=p.shopping.filter(x=>x.packs>0).length;if(!count)throw Error('No planned shortages remain.');confirm('Receive planned shopping?',`Add the recommended full packs for ${count} ingredients to your pantry. Use this only after those quantities have actually arrived.`,()=>commit(s=>C.receiveShopping(s,week),'Planned shopping added to pantry.'));}
+if(a==='order-status'){close();commit(s=>C.setOrderStatus(s,b.dataset.id,b.dataset.status),'Order marked '+b.dataset.status+'.');}
+if(a==='cancel-order')confirm('Cancel this order?','It will leave production, shopping and packing plans. The order record stays in your list.',()=>commit(s=>C.setOrderStatus(s,b.dataset.id,'Cancelled'),'Order cancelled.'));
+if(a==='import-orders')importForm();if(a==='csv-template')downloadFile('Bakeweek_Order_Import_Template.csv',C.orderCSVTemplate(state()),'text/csv');if(a==='csv-file')$('#csvInput').click();if(a==='preview-import')previewImport();
+if(a==='confirm-import'){if(!importPreview||$('#csvText').value!==importPreview.text)throw Error('Preview the current CSV first.');const result=commit(s=>C.importOrders(s,importPreview.text),'Orders imported.');if(result){close();page='orders';render();}}
+if(a==='backup')downloadFile(`Bakeweek_${isDemo?'Demo_':''}Backup_${today()}.json`,JSON.stringify(state(),null,2),'application/json');if(a==='recovery')downloadFile('Bakeweek_Recovery_Data.txt',raw,'text/plain');
+if(a==='restore'){restoreTarget=isDemo?'demo':'real';$('#backupInput').click();}
+if(a==='reset')confirm('Clear your real workspace?','Download a backup first if you might need your entries. This replaces your real ingredients, recipes, orders and completed batches with a blank workspace.',()=>{real=C.createBlank();lock=false;isDemo=false;storageMessage='';save();close();render();toast('Real workspace cleared.');});
+if(a==='export-orders')exportOrders();if(a==='shopping-text')shoppingText();if(a.startsWith('print-'))printOutput(a.replace('print-',''),b.dataset.id);
+}catch(err){toast(err.message);}});
+$('#csvInput').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;if(f.size>4*1024*1024){toast('CSV must be smaller than 4 MB.');return;}try{const t=await f.text();if($('#csvText')){$('#csvText').value=t;importPreview=null;$('#importResult').innerHTML='';previewImport();}}catch(err){toast('Could not read that CSV file.');}});
+$('#backupInput').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;if(f.size>15*1024*1024){toast('Backup is too large (maximum 15 MB).');return;}try{const clean=C.validateBackup(JSON.parse(await f.text())),target=restoreTarget;confirm('Replace '+(target==='demo'?'demo':'your real')+' workspace?',`Restore ${clean.orders.length} orders, ${clean.recipes.length} recipes and ${clean.ingredients.length} ingredients from ${esc(clean.settings.business)}. This replaces the selected workspace; download its current backup first if needed.`,()=>{if(target==='demo'){demo=clean;isDemo=true;}else{real=clean;lock=false;storageMessage='';isDemo=false;}save();page='week';week=C.monday(today());render();toast('Backup restored.');});}catch(err){toast('Backup not restored: '+err.message);}});
+window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null){lock=true;raw=e.newValue||raw;storageMessage='This workspace changed in another tab. Your current view is protected from overwriting it. Download a backup, then reload to see the other version.';saveText='Changes in memory only';render();}});
+if(new URLSearchParams(location.search).get('demo')==='1'){demo=C.createDemo(today());isDemo=true;}
+render();
+/* Insert inside the app IIFE. Uses the app's state, helpers and current week. */
+function downloadFile(name, text, type = 'text/plain;charset=utf-8') {
+  const blob = new Blob([text], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = String(name).replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_');
+  a.hidden = true;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+function outputCSVCell(value) {
+  let text = String(value ?? '');
+  // Quote every field and neutralize spreadsheet formulas in user-entered text.
+  // Apostrophe protection is visible data; CSV is deliberately not a full backup.
+  if (typeof value !== 'number' && (/^\s*[=+\-@]/.test(text) || /^[\t\r\n]/.test(text))) text = "'" + text;
+  return '"' + text.replace(/"/g, '""') + '"';
+}
+
+function exportOrders() {
+  const columns = ['Order','Customer','Product','Quantity','Unit price','Pickup date','Bake date','Finish date','Finish minutes','Paid','Payment','Notes'];
+  const rows = [columns];
+  const records = state().orders.filter(o => o.status !== 'Cancelled')
+    .slice().sort((a,b) => a.dueDate.localeCompare(b.dueDate) || a.reference.localeCompare(b.reference));
+  for (const o of records) {
+    for (const line of o.lines) rows.push([
+      o.reference, o.customer, recipe(line.recipeId)?.name || line.recipeId,
+      line.qty, line.unitPrice, o.dueDate, o.bakeDate, o.finishDate,
+      line.finishMinutes, o.paid, o.payment, o.customerNote || ''
+    ]);
+  }
+  downloadFile(`Bakeweek_Orders_${today()}.csv`, '\uFEFF' + rows.map(row => row.map(outputCSVCell).join(',')).join('\r\n') + '\r\n', 'text/csv;charset=utf-8');
+  toast('Non-cancelled orders exported. CSV does not preserve status or the full workspace. Use a JSON backup to restore work.');
+}
+
+function outputHeading(title, subtitle, reference = '') {
+  return `<header class="print-header"><div><div class="eyebrow">${esc(state().settings.business || 'Your bakery')}</div><h1>${esc(title)}</h1><p>${esc(subtitle)}</p></div>${reference ? `<div style="text-align:right"><strong>${esc(reference)}</strong><p class="mini">Prepared ${esc(today())}</p></div>` : ''}</header>`;
+}
+
+function outputFooter(text = '') {
+  return `<footer class="print-footer">${esc(text || 'Bakeweek Studio | Prepared from your current workspace.')}${isDemo ? '<br>Fictional demo data. Formula examples are not tested recipes.' : ''}</footer>`;
+}
+
+function outputShopping(plan) {
+  const rows = plan.shopping.filter(i => i.required > 0);
+  return `<section class="print-sheet print-shopping">${outputHeading('Combined shopping list', `Production week: ${plan.start} to ${plan.end}`)}
+    <p class="mini">Pending batches only. Current pantry stock is subtracted and purchases round up to whole packs. Stock is not reserved for other weeks.</p>
+    ${rows.length ? `<table><thead><tr><th>Ingredient / supplier</th><th class="right">Need</th><th class="right">Pantry</th><th class="right">Short</th><th>Buy</th><th class="right">Est. spend</th></tr></thead><tbody>${rows.map(i => `<tr>
+      <td><span class="check-box"></span><strong>${esc(i.name)}</strong>${i.supplier ? `<br><span class="mini">${esc(i.supplier)}</span>` : ''}</td>
+      <td class="right">${esc(quantity(i.required,i.unit))}</td><td class="right">${esc(quantity(i.stock,i.unit))}</td><td class="right">${esc(quantity(i.shortfall,i.unit))}</td>
+      <td>${i.packs ? `<strong>${esc(i.packs)} pack${i.packs === 1 ? '' : 's'}</strong><br><span class="mini">${esc(quantity(i.packSize,i.unit))} each<br>${esc(quantity(i.buyQty,i.unit))} total</span>` : 'Covered'}</td>
+      <td class="right">${esc(cash(i.packs ? i.cost : 0))}</td></tr>`).join('')}</tbody></table>` : '<p>No pending ingredient requirements for this week.</p>'}
+    <div class="summary-line total"><span>Planned purchase cost</span><strong>${esc(cash(plan.totals.shoppingCost))}</strong></div>
+    <p class="mini">Receive planned shopping in the app only after receiving the listed packs. Record partial or different purchases in Pantry. Missing prices make the estimate incomplete.</p>${outputFooter()}
+  </section>`;
+}
+
+function outputBatchRun(run, completed) {
+  const r = recipe(run.recipeId);
+  const method = r?.method || '';
+  return `<article class="run-card"${method.length > 1400 ? ' style="break-inside:auto"' : ''}>
+    <div class="print-heading"><div><div class="eyebrow">${completed ? 'ALREADY MADE' : 'TO MAKE'} | ${esc(run.date)}</div><h2>${esc(run.recipeName)}</h2></div><div style="text-align:right"><strong>${esc(run.batches)} batch${run.batches === 1 ? '' : 'es'}</strong><p class="mini">${esc(run.produced)} items produced<br>${esc(run.required)} allocated / ${esc(run.extra)} extra</p></div></div>
+    <p class="mini">Hands-on preparation: ${esc(mins(run.activeMinutes))} | Oven reference: ${esc(mins(run.ovenMinutes))} | Ingredients: ${esc(cash(run.ingredientCost))}</p>
+    <table><thead><tr><th>Scaled ingredient</th><th class="right">Quantity for this run</th></tr></thead><tbody>${run.ingredients.map(i => `<tr><td><span class="check-box"></span>${esc(i.name)}</td><td class="right"><strong>${esc(quantity(i.qty,i.unit))}</strong></td></tr>`).join('')}</tbody></table>
+    ${method ? `<h3>Current recipe method</h3><div class="method" style="overflow-wrap:anywhere">${esc(method)}</div>` : ''}
+    <h3>Allocate to these orders</h3><table><thead><tr><th>Order / customer</th><th>Pickup</th><th class="right">Quantity</th></tr></thead><tbody>${run.allocations.map(a => {
+      const o = order(a.orderId);
+      return `<tr><td>${esc(o?.reference || a.orderId)} / ${esc(o?.customer || 'Order')}</td><td>${esc(o?.dueDate || '')}</td><td class="right">${esc(a.qty)}</td></tr>`;
+    }).join('')}</tbody></table>
+    ${run.allocations.map(a => order(a.orderId)).filter((o,i,list) => o && o.kitchenNote && list.findIndex(x => x?.id === o.id) === i).map(o => `<p class="mini" style="white-space:pre-wrap"><strong>${esc(o.reference)} kitchen note:</strong> ${esc(o.kitchenNote)}</p>`).join('')}
+    ${run.extra ? `<p class="mini">${esc(run.extra)} extra items are unallocated. They are not automatically reused for a later order.</p>` : ''}
+    <p class="mini">${completed ? 'Already recorded as made. Ingredients were consumed when this run was completed.' : 'After making this run, choose Mark batch made in the app to record it and consume the ingredients once.'}</p>
+  </article>`;
+}
+
+function outputBatches(plan) {
+  const runs = [...plan.runs.map(run => ({run,completed:false})), ...plan.completedRuns.map(run => ({run,completed:true}))]
+    .sort((a,b) => a.run.date.localeCompare(b.run.date) || a.run.recipeName.localeCompare(b.run.recipeName));
+  return `<section class="print-sheet">${outputHeading('Scaled batch sheets', `Production week: ${plan.start} to ${plan.end}`)}
+    <p class="mini">Recipe quantities below are for each whole production run. Finishing and packing work is listed separately by order.</p>
+    ${runs.length ? runs.map(({run,completed}) => outputBatchRun(run,completed)).join('') : '<p>No pending or completed batches in this production week.</p>'}
+    </section>`;
+}
+
+function outputPacking(plan) {
+  const orders = plan.orders.slice().sort((a,b) => a.dueDate.localeCompare(b.dueDate) || a.customer.localeCompare(b.customer));
+  return `<section class="print-sheet print-packing">${outputHeading('Pack & collect', `Pickups: ${plan.start} to ${plan.end}`)}
+    <p class="mini">Internal kitchen tickets. Check customer requirements, finish the work and update the order status in the app.</p>
+    ${orders.length ? orders.map(o => {
+      const total = o.lines.reduce((n,line) => n + line.qty * line.unitPrice,0);
+      return `<article class="order-card"><div class="print-heading"><div><div class="eyebrow">${esc(o.reference)} | ${esc(o.status)}</div><h2>${esc(o.customer)}</h2>${o.contact ? `<p class="mini">${esc(o.contact)}</p>` : ''}</div><div style="text-align:right"><strong>Pickup ${esc(o.dueDate)}</strong><p class="mini">Bake ${esc(o.bakeDate)}<br>Finish ${esc(o.finishDate)}</p></div></div>
+      <table><thead><tr><th>Pack each item</th><th class="right">Quantity</th></tr></thead><tbody>${o.lines.map(line => `<tr><td><span class="check-box"></span>${esc(recipe(line.recipeId)?.name || line.recipeId)}</td><td class="right"><strong>${esc(line.qty)}</strong></td></tr>`).join('')}</tbody></table>
+      ${o.customerNote ? `<p style="white-space:pre-wrap"><strong>Customer note:</strong> ${esc(o.customerNote)}</p>` : ''}
+      ${o.kitchenNote ? `<p style="white-space:pre-wrap"><strong>Kitchen note:</strong> ${esc(o.kitchenNote)}</p>` : ''}
+      <p class="mini">Estimated finishing/setup: ${esc(mins(o.setupMinutes + o.lines.reduce((n,line) => n + line.qty * line.finishMinutes,0)))}</p>
+      <div class="summary-line"><span>Quoted total / already paid</span><strong>${esc(cash(total))} / ${esc(cash(o.paid))}</strong></div>
+      <div class="summary-line total"><span>Balance due</span><strong>${esc(cash(Math.max(0,round(total - o.paid))))}</strong></div>
+      <p class="mini"><span class="check-box"></span>Finished & packed <span class="check-box"></span>Balance recorded <span class="check-box"></span>Collected</p></article>`;
+    }).join('') : '<p>No customer pickups in this week.</p>'}${outputFooter()}</section>`;
+}
+
+function outputQuote(id) {
+  const o = order(id);
+  if (!o) throw new Error('Open a saved order before printing its quote.');
+  const total = round(o.lines.reduce((n,line) => n + line.qty * line.unitPrice,0));
+  // Customer document deliberately uses only agreed prices, payment and customer notes.
+  // Do not call quoteOrder or serialize the order, which contain internal costing data.
+  return `<section class="print-sheet">${outputHeading('Order quote', `Prepared for ${o.customer}`, o.reference)}
+    <div class="split equal"><div><h3>Customer</h3><p>${esc(o.customer)}${o.contact ? `<br>${esc(o.contact)}` : ''}</p></div><div><h3>Pickup</h3><p>${esc(o.dueDate)}</p><p class="mini">Order status: ${esc(o.status)}</p></div></div>
+    <table><thead><tr><th>Item</th><th class="right">Quantity</th><th class="right">Unit price</th><th class="right">Amount</th></tr></thead><tbody>${o.lines.map(line => `<tr><td>${esc(recipe(line.recipeId)?.name || line.recipeId)}</td><td class="right">${esc(line.qty)}</td><td class="right">${esc(cash(line.unitPrice))}</td><td class="right">${esc(cash(line.qty * line.unitPrice))}</td></tr>`).join('')}</tbody></table>
+    <div style="max-width:340px;margin-left:auto"><div class="summary-line"><span>Subtotal</span><strong>${esc(cash(total))}</strong></div><div class="summary-line"><span>Already paid</span><strong>${esc(cash(o.paid))}</strong></div><div class="summary-line total"><span>Balance due</span><strong>${esc(cash(Math.max(0,round(total - o.paid))))}</strong></div></div>
+    <p class="mini">All amounts in ${esc(state().settings.currency)}. Tax is not calculated in this quote.</p>
+    ${o.customerNote ? `<h3>Order notes</h3><div class="method" style="overflow-wrap:anywhere">${esc(o.customerNote)}</div>` : ''}
+    ${outputFooter('Thank you for supporting ' + (state().settings.business || 'our bakery') + '.')}</section>`;
+}
+
+function printOutput(kind, id) {
+  try {
+    let html;
+    if (kind === 'quote') html = outputQuote(id);
+    else {
+      const plan = getPlan();
+      if (kind === 'packet') html = outputShopping(plan) + outputBatches(plan) + outputPacking(plan);
+      else if (kind === 'batches') html = outputBatches(plan);
+      else if (kind === 'packing') html = outputPacking(plan);
+      else throw new Error('Choose a kitchen packet, batch sheets, packing tickets or a quote.');
+    }
+    if (!printOutput.afterPrintBound) {
+      window.addEventListener('afterprint', () => document.body.classList.remove('printing'));
+      printOutput.afterPrintBound = true;
+    }
+    close();
+    $('#printArea').innerHTML = html;
+    document.body.classList.add('printing');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      try { window.print(); }
+      catch (error) { document.body.classList.remove('printing'); toast('Printing could not open. Try again in desktop Chrome or Edge.'); }
+    }));
+  } catch (error) { toast(error.message); }
+}
+
+function shoppingText() {
+  const plan = getPlan();
+  const short = plan.shopping.filter(i => i.packs > 0).sort((a,b) => (a.supplier || '').localeCompare(b.supplier || '') || a.name.localeCompare(b.name));
+  const lines = [state().settings.business || 'Your bakery', 'BAKEWEEK SHOPPING LIST', `Production week: ${plan.start} to ${plan.end}`, ''];
+  if (!short.length) lines.push('No ingredient purchases are currently needed for pending batches.');
+  for (const i of short) lines.push(
+    `[ ] ${i.name}`,
+    `    Buy ${i.packs} pack${i.packs === 1 ? '' : 's'} x ${quantity(i.packSize,i.unit)} = ${quantity(i.buyQty,i.unit)}`,
+    `    Need ${quantity(i.required,i.unit)} | Pantry ${quantity(i.stock,i.unit)} | Short ${quantity(i.shortfall,i.unit)}`,
+    `    Supplier: ${i.supplier || 'Not entered'} | Estimated spend: ${cash(i.cost)}`,
+    ''
+  );
+  lines.push(`Planned purchase cost: ${cash(plan.totals.shoppingCost)}`, '',
+    'Purchases round up to whole packs. Missing prices make the estimate incomplete.',
+    'This list uses current stock and pending batches. Stock is not reserved for other weeks.',
+    'Use Receive planned shopping only after actually receiving every listed pack.',
+    'Record partial or different purchases in Pantry.',
+    'Generated by Bakeweek Studio.');
+  if (isDemo) lines.push('Fictional demo data. Formula examples are not tested recipes.');
+  downloadFile(`Bakeweek_Shopping_${week}.txt`, lines.join('\r\n') + '\r\n');
+  toast('Shopping list downloaded. Receive purchases only when they arrive.');
+}
+
+})();
+</script>
+</body>
+</html>

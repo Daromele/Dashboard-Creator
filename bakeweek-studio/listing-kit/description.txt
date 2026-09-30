@@ -1,0 +1,30 @@
+Plan your home bakery week in minutes. Bakeweek Studio turns your customer orders into a day-by-day bake plan, one combined shopping list, scaled batch sheets and packing tickets, and tells you before you say yes whether a new order fits your week.
+
+Try the built-in sample bakery first: one click, and it's separate from your own data.
+
+Works on Mac and PC in any modern browser (Chrome, Edge, Safari, Firefox). Everything stays on your computer. No logins, no server, no subscription.
+
+HOW IT WORKS
+1. Add your recipes: yield, hands-on time and ingredients
+2. Enter your orders (or import them from a spreadsheet)
+3. Open This week: what to buy, bake and pack is already worked out
+
+WHAT YOU GET
+• This week: your hands-on time per day against the hours you have, with days that run over flagged
+• Try an order: see the extra work, extra shopping and a suggested minimum quote before you promise it
+• Shopping: shared ingredients totaled, pantry stock subtracted, rounded up to whole packs, with the cost
+• Batch sheets: the same recipe on the same day becomes one run, with every ingredient scaled
+• Pack & collect: every customer, their items and the balance still due
+• Orders: one order book with bake, finish and pickup dates, payments and status
+• Recipes: cost per piece from your latest pantry prices, and your default price
+• Pantry: pack sizes, pack prices, stock and suppliers
+• Printable kitchen packet, batch sheets, packing tickets and quotes
+• Backup and restore to a file, CSV order export
+
+GOOD TO KNOW
+• Digital download: you receive one HTML file. Nothing is shipped.
+• Best on a computer or tablet.
+• Download a backup now and then from Backup & settings.
+• Screenshots show a fictional sample bakery. Sample recipes are examples, not tested recipes.
+• Estimates use your own inputs. It does not calculate taxes or produce food labels.
+• For personal or internal business use by the purchaser.
