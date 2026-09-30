@@ -243,4 +243,18 @@ er=await expRows();
 ok('US card: dollars, card account, one Google Fi and one Anthropic, AliExpress cancelled by its return',await p.evaluate(()=>{const f=document.querySelector('.exp-file');return f.querySelector('[data-exp="cur"]').value==='USD'&&f.querySelector('[data-exp="acct"]').value==='card'&&/1 return set against/.test(f.innerText);})&&er['Google Fi']&&er['Anthropic (Claude)']&&!er['AliExpress']&&Object.keys(er).length===5,JSON.stringify(er));
 ok('card interest to bank fees, Etsy charges to platform fees, US taxes skipped',er['Card interest']?.[0]==='bank-fees'&&er['Etsy']?.[0]==='platform-fees'&&er['Treas Tax Pymt']?.[0]==='personal',JSON.stringify(er));
 await p.evaluate(()=>closeModal());
+// 13. an N26 export: the payee names the merchant, the reference helps recognise it, "Amount (EUR)" is euros even for a card payment in dollars
+const N26=`"Booking Date","Value Date","Partner Name","Partner Iban",Type,"Payment Reference","Account Name","Amount (EUR)","Original Amount","Original Currency","Exchange Rate"
+2026-09-28,2026-09-28,"Maria Example",ES0000000000000000000000,"Debit Transfer","Monthly Rent Payment for the flat","Main Account",-875.00,,,
+2026-09-11,2026-09-11,Simyo,ES0000000000000000000001,"Direct Debit",Simyo,"Main Account",-41.99,,,
+2026-09-03,2026-09-03,"SANITAS S A DE SEGUROS",ES0000000000000000000002,"Direct Debit","POLIZA RECIBO ENFERMEDAD","Main Account",-75.08,,,
+2026-09-03,2026-09-03,"FORUS SEVILLA",ES0000000000000000000003,"Direct Debit","CUOTA ABONO","Main Account",-73.38,,,
+2026-09-12,2026-09-12,"OPENAI *CHATGPT SUBSCR",,"Presentment",,"Main Account",-18.20,-20.00,USD,0.91
+2026-09-10,2026-09-10,"Example Person",BE00000000000000,Income,,"Main Account",898.44,,,`;
+await p.evaluate(()=>{state.transactions=[];state.bills=[];state.expenseRules={};state.expenseFiles={};save();go('expenses',true);});
+await p.click('#content [data-action="biz-exp-open"]');await p.setInputFiles('#exp-files',[{name:'N26-Personal-00000000-0000-0000-0000-000000000000.csv',mimeType:'text/csv',buffer:Buffer.from(N26)}]);await p.waitForTimeout(500);
+er=await expRows();
+ok('N26: euros, the personal account, money in left out',await p.evaluate(()=>{const f=document.querySelector('.exp-file');return f.querySelector('[data-exp="cur"]').value==='EUR'&&f.querySelector('[data-exp="acct"]').value==='personal-bank'&&/5 payments out/.test(f.innerText);}));
+ok('N26: the landlord by name is recognised as rent from the reference; Simyo, Sanitas, the gym and OpenAI',er['Maria Example']?.[0]==='home-rent'&&er['Simyo']?.[0]==='home-utilities'&&er['Sanitas']?.[0]==='health-insurance'&&er['Forus Sevilla']?.[0]==='personal'&&er['OpenAI (ChatGPT)']?.[0]==='software',JSON.stringify(er));
+await p.evaluate(()=>closeModal());
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();

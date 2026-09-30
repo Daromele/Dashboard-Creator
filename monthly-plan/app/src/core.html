@@ -1982,7 +1982,7 @@ const CSV = (()=>{
   };
   return {
    date:hits([/^(transaction |posting |posted |value |booking |completed |started |entry )?date$/,/^posted$/,/^date posted$/,/^fecha( (de )?operaci[oó]n)?$/,/^f\. ?operaci[oó]n$/],[/date/,/^fecha/]),
-   note:hits([/^(description|memo|narrative|details|detail|merchant|payee|note|reference|particulars|name|transaction|concepto|descripci[oó]n|movimiento|detalle|comercio|beneficiario)$/],[/descript|memo|narrat|detail|merchant|payee|referenc|particular|concepto|descripci|movimiento|detalle|comercio/]),
+   note:hits([/^(description|memo|narrative|details|detail|merchant|payee|partner name|counterparty|note|reference|particulars|name|transaction|concepto|descripci[oó]n|movimiento|detalle|comercio|beneficiario)$/],[/descript|memo|narrat|detail|merchant|payee|referenc|particular|concepto|descripci|movimiento|detalle|comercio/]),
    amount:hits([/^(amount|transaction amount|net amount|value|transaction value|importe|cantidad|importe \(eur\)|importe eur)$/],[/^amount|amount$|^amount \(|^importe/]),
    debit:hits([/^(debit|withdrawals?|money out|paid out|debit amount|withdrawal amount|out|cargo|cargos|gasto|gastos)$/],[/debit|withdraw|money out|paid out|^cargo/]),
    credit:hits([/^(credit|deposits?|money in|paid in|credit amount|deposit amount|in|abono|abonos|ingreso|ingresos)$/],[/credit|deposit|money in|paid in|^abono/]),
@@ -4266,7 +4266,7 @@ const Biz=(()=>{
   return (words||String(d||'').slice(0,30)).toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase()).slice(0,40);};
  const expKey=d=>Budget.matchKey(merchantName(d))||plain(d).slice(0,40);
  const expRule=k=>{const R=state.expenseRules||{};if(R[k])return R[k];const hit=Object.keys(R).filter(r=>Budget.sameMerchant(k,r)).sort((a,b)=>b.length-a.length)[0];return hit?R[hit]:null;};
- const expHint=d=>{const t=plain(d);return (P.expenseHints||[]).find(([re])=>re.test(t))?.[1]||'';};
+ const expHint=(d,memo='')=>{const t=plain(d+' '+memo);return (P.expenseHints||[]).find(([re])=>re.test(t))?.[1]||'';};
  const expShare=cat=>{const f=(P.homeShare||{})[cat];return f===undefined?100:Math.round((state.settings.es?.homePct||0)*f);};
  const expVat=(cat,cur)=>cur!=='EUR'?0:(category(cat)?.vat||0);
  function expOpen(){exp={files:[],merchants:new Map()};expRender();}
@@ -4279,14 +4279,18 @@ const Biz=(()=>{
     for(let i=0;i<Math.min(parsed.length-1,25);i++){const x=CSV.guess(parsed[i].cells);if(x.date>=0&&(x.amount>=0||x.debit>=0||x.credit>=0)&&x.note>=0){hi=i;g=x;break;}}
     if(hi<0)throw Error('The date, description and amount columns weren’t found. Use Import to map the columns by hand.');
     const H=parsed[hi].cells,body=parsed.slice(hi+1).filter(r=>r.cells.some(c=>String(c).trim())),cell=(r,i)=>i>=0?String(r.cells[i]??'').trim():'';
-    const hc=[H[g.amount],H[g.debit],H[g.credit]].join(' '),headCur=/\b(usd)\b|\$/i.test(hc)?'USD':/\b(gbp)\b|£/i.test(hc)?'GBP':'';
+    const hc=[H[g.amount],H[g.debit],H[g.credit]].join(' '),headCur=/\b(usd)\b|\$/i.test(hc)?'USD':/\b(gbp)\b|£/i.test(hc)?'GBP':/\b(eur)\b|€/i.test(hc)?'EUR':'';
+    if(headCur||/original|foreign/i.test(String(H[g.currency]||'')))g.currency=-1;
+    // a payment reference beside the payee (N26, many banks) helps recognise the payment, but the payee names the merchant
+    const refCol=H.findIndex((h,i)=>i!==g.note&&/^(payment reference|reference|referencia|concepto)$/i.test(String(h).trim()));
     const order=CSV.detectOrder(body.map(r=>cell(r,g.date))),dec=CSV.detectDecimal(body.flatMap(r=>[cell(r,g.amount),cell(r,g.debit),cell(r,g.credit)]).filter(Boolean))||'dot';
     const num=v=>{if(!v)return 0;try{return CSV.money(v,dec,true)||0;}catch{return 0;}};
     const list=body.map(r=>{let d;try{d=CSV.date(cell(r,g.date),order||'auto');}catch{return null;}const v=g.amount>=0?num(cell(r,g.amount)):num(cell(r,g.credit))-Math.abs(num(cell(r,g.debit)));
-     const c=cell(r,g.currency).toUpperCase();return {date:d,desc:cell(r,g.note).slice(0,200),v,cur:Budget.CURRENCIES.includes(c)?c:''};}).filter(x=>x&&x.v&&x.desc&&!/\b(starting|opening|ending|closing) balance\b|\bsaldo (inicial|final|anterior)\b/i.test(x.desc));
+     const c=cell(r,g.currency).toUpperCase(),ref=refCol>=0?cell(r,refCol):'';return {date:d,desc:(cell(r,g.note)||ref).slice(0,200),memo:ref.slice(0,200),v,cur:Budget.CURRENCIES.includes(c)?c:''};}).filter(x=>x&&x.v&&x.desc&&!/\b(starting|opening|ending|closing) balance\b|\bsaldo (inicial|final|anterior)\b/i.test(x.desc));
     // card statements list purchases as positive amounts; bank statements as negative
     const fk=expFileKey(file.name),mem=state.expenseFiles?.[fk],usCard=/chase|amex|american express|capital ?one|discover|citi|wells fargo|bank of america|bofa|us bank/i.test(file.name)||(H.some(h=>/^post(ed|ing)? date$/i.test(String(h).trim()))&&H.some(h=>/^card$/i.test(String(h).trim())));
-    F.key=fk;F.flip=mem?mem.flip:g.amount>=0&&list.filter(x=>x.v>0).length>list.length*0.7;F.cur=mem?.cur||[...new Set(list.map(x=>x.cur).filter(Boolean))][0]||headCur||(usCard?'USD':'EUR');F.acct=mem?.acct??(usCard?'card':'');F.all=list;F.seen=seen;expRows(F);
+    const acctGuess=/freelanc|business|negocio|autonom|empresa/i.test(file.name)?'business-bank':/personal|particular/i.test(file.name)?'personal-bank':'';
+    F.key=fk;F.flip=mem?mem.flip:g.amount>=0&&list.filter(x=>x.v>0).length>list.length*0.7;F.cur=mem?.cur||[...new Set(list.map(x=>x.cur).filter(Boolean))][0]||headCur||(usCard?'USD':'EUR');F.acct=mem?.acct??(usCard?'card':acctGuess);F.all=list;F.seen=seen;expRows(F);
    }catch(e){F.error=e.message;}}
   expMerchants();expRender();await expRates();}
  // statements from the same account share a file name but for dates and numbers ("Chase1234_Activity_2026…")
@@ -4304,8 +4308,8 @@ const Biz=(()=>{
   F.dups=F.rows.filter(x=>x.dup&&!x.twin).length;F.twins=F.rows.filter(x=>x.twin).length;F.back=F.all.length-F.rows.length;}
  function expMerchants(){const old=exp.merchants,M=new Map();
   exp.files.filter(F=>!F.error).forEach(F=>F.rows.filter(x=>!x.dup).forEach(x=>{let m=M.get(x.key);
-   if(!m){const prev=old.get(x.key),r=expRule(x.key),h=expHint(x.desc),cat=prev?prev.cat:r?(r.skip||r.c):h;
-    m=prev?{...prev,n:0,total:0,curs:new Set()}:{key:x.key,name:r?.n||merchantName(x.desc),sample:x.desc,cat,p:r&&!r.skip?r.p:expShare(cat),v:r&&!r.skip?r.v:expVat(cat,F.cur),known:!!r,n:0,total:0,curs:new Set()};M.set(x.key,m);}
+   if(!m){const prev=old.get(x.key),r=expRule(x.key),h=expHint(x.desc,x.memo),cat=prev?prev.cat:r?(r.skip||r.c):h;
+    m=prev?{...prev,n:0,total:0,curs:new Set()}:{key:x.key,name:r?.n||merchantName(x.desc),sample:x.memo&&x.memo!==x.desc?`${x.desc} · ${x.memo}`:x.desc,cat,p:r&&!r.skip?r.p:expShare(cat),v:r&&!r.skip?r.v:expVat(cat,F.cur),known:!!r,n:0,total:0,curs:new Set()};M.set(x.key,m);}
    m.n++;m.total+=x.out;m.curs.add(F.cur);}));
   exp.merchants=M;
 }
@@ -4337,7 +4341,7 @@ const Biz=(()=>{
   let made=0;
   commit(()=>{files.forEach(F=>F.rows.forEach(x=>{if(x.dup)return;const m=exp.merchants.get(x.key);if(!m||!expBiz(m)||!state.categories.some(c=>c.id===m.cat))return;
     const ecb=F.cur==='EUR'?1:fxDay(F.cur,x.date),rate=F.cur==='EUR'?1:Math.round((ecb||fxLatest(F.cur))*1e6)/1e6,v=+m.v||0,pct=Math.max(0,Math.min(100,Math.round(+m.p||0)));
-    state.transactions.push({id:Budget.uid(),date:x.date,category:m.cat,amount:Budget.eur(x.out,rate),note:x.desc.slice(0,500),
+    state.transactions.push({id:Budget.uid(),date:x.date,category:m.cat,amount:Budget.eur(x.out,rate),note:(x.memo&&x.memo!==x.desc?`${x.desc} · ${x.memo}`:x.desc).slice(0,500),
      rec:{kind:'expense',act:(P.categoryActivity||{})[m.cat]||Budget.ACTS[0],vendor:m.name,cur:F.cur,rate,amount:x.out,vatShown:v?Math.round(x.out*v/(10000+v)):0,...(v?{ivaDed:true}:{}),pct,acct:F.acct||'',evidence:[],status:'',reviewed:'',notes:'',src:{k:'bank',m:x.month,f:F.file.slice(0,200),h:x.h},...(F.cur==='EUR'?{}:{fx:ecb?'ecb':'pending'})}});made++;}));
    state.expenseFiles??={};files.forEach(F=>{state.expenseFiles[F.key]={cur:F.cur,acct:F.acct||'',flip:!!F.flip};});
    state.expenseRules??={};exp.merchants.forEach(m=>{if(!m.cat)return;state.expenseRules[m.key]=expBiz(m)?{c:m.cat,p:Math.max(0,Math.min(100,Math.round(+m.p||0))),v:+m.v||0,n:m.name}:{skip:m.cat,n:m.name};});},`${files.length} statement${files.length===1?'':'s'} imported`);
