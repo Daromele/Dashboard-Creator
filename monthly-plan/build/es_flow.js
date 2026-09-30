@@ -311,4 +311,15 @@ ok('and the file can be imported again',await p.evaluate(n=>state.transactions.f
 // 18. every view but the dashboard and settings can be hidden from the sidebar
 await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());go('settings',true);});await p.waitForTimeout(150);
 ok('Settings offers to hide Income, Expenses, Evidence, Payers, Gestor report and the estimates',await p.evaluate(()=>['income','expenses','evidence','payers','report','tax'].every(id=>document.querySelector(`[data-nav-toggle="${id}"]`))));
+// 19. home share: the dashboard shows the business part of the rent, and a new share reaches the records already there
+await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());state.settings.es.homePct=0;const m=Budget.today().slice(0,7);
+ state.transactions=state.transactions.filter(t=>!['home-rent','home-utilities'].includes(t.category));
+ state.transactions.push({id:'hr1',date:m+'-01',category:'home-rent',amount:87500,note:'Rent',rec:{kind:'expense',act:'digital',vendor:'Landlord',cur:'EUR',rate:1,amount:87500,vatShown:0,pct:0,acct:'',evidence:[],status:'',reviewed:'',notes:''}},
+  {id:'hu1',date:m+'-05',category:'home-utilities',amount:10000,note:'Electricity',rec:{kind:'expense',act:'digital',vendor:'Power',cur:'EUR',rate:1,amount:10000,vatShown:0,pct:0,acct:'',evidence:[],status:'',reviewed:'',notes:''}},
+  {id:'hr0',date:m+'-02',category:'home-rent',amount:5000,note:'Garage',rec:{kind:'expense',act:'digital',vendor:'X',cur:'EUR',rate:1,amount:5000,vatShown:0,pct:50,acct:'',evidence:[],status:'',reviewed:'',notes:''}});
+ selected=m;go('settings',true);});await p.waitForTimeout(150);
+await p.fill('#biz-es-form [name=homePct]','14');await p.click('#biz-es-form button.primary');await p.waitForTimeout(150);
+ok('a new home share reaches rent (14%) and utilities (30% of it), not a share set by hand',JSON.stringify(await p.evaluate(()=>['hr1','hu1','hr0'].map(id=>state.transactions.find(t=>t.id===id).rec.pct)))==='[14,4,50]');
+await p.evaluate(()=>go('dashboard',true));await p.waitForTimeout(150);
+ok('the dashboard shows the business share of the rent, with what was paid',await p.evaluate(()=>{const c=[...document.querySelectorAll('.card')].find(x=>x.querySelector('h2')?.textContent==='Expenses');return !!c&&/business share/.test(c.innerText)&&/€147\.50/.test(c.innerText)&&!/€925\.00/.test(c.innerText);}));
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();

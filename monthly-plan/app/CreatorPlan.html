@@ -1442,6 +1442,7 @@ body[data-screen="income"] .month-control,body[data-screen="income"] #month-tabs
 @media(max-width:620px){.ev-row{grid-template-columns:1fr auto}.ev-row input[name=evUrl],.ev-row input[name=evName]{grid-column:1/-1}}
 .rec-eur{color:var(--ink-2);margin:-4px 0 0}.rec-eur:empty{display:none}.ev-link a{word-break:break-all}
 .rep-date{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600}.rep-date input{width:auto}.rep-note{display:block;padding:14px 18px;margin-bottom:var(--s4)}.rep-note textarea{margin-top:8px;width:100%}
+.imp-acts{display:flex;gap:8px;justify-content:flex-end}
 .gestor-preview{background:var(--sunk);border-radius:var(--r-md);padding:24px;overflow-x:auto;min-width:0;max-width:100%}
 .gestor-doc{--gd-ink:#1b1b1f;--gd-dim:#5f6168;--gd-rule:#d9dade;background:#fff;color:var(--gd-ink);max-width:1100px;min-width:1070px;margin:0 auto;padding:36px 40px;box-shadow:0 2px 14px rgba(0,0,0,.08);font-size:12px;line-height:1.45}
 .gestor-doc h1{font-size:24px;margin:2px 0 4px;color:var(--gd-ink)}.gestor-doc h2{font-size:14px;margin:22px 0 8px;color:var(--gd-ink);letter-spacing:0}.gestor-doc a{color:#1a56b8}
@@ -3750,11 +3751,15 @@ function donutMarkup(parts,total,label){
 
 // Where this month's spending went: each slice opens the transactions behind it
 function spendingCard(t,title='Where the money went'){
- const spend=Budget.rows(state,selected).filter(c=>c.type==='expense'&&c.actual>0).sort((a,b)=>b.actual-a.actual),total=spend.reduce((n,c)=>n+c.actual,0),colors=SLICE_COLORS;
+ const REC=P.features.records,paid=new Map();
+ // records: the business share of each cost (what is deductible, before IVA), with what you paid in the key
+ const spend=REC?(()=>{const m=new Map();for(const t of Budget.transactions(state,selected)){const r=Budget.recOf(state,t);if(!r||r.kind!=='expense')continue;const c=category(t.category);const x=m.get(c.id)||{id:c.id,name:c.name,actual:0};x.actual+=r.deductibleEUR;m.set(c.id,x);paid.set(c.id,(paid.get(c.id)||0)+r.amountEUR);}return [...m.values()].filter(c=>c.actual>0).sort((a,b)=>b.actual-a.actual);})()
+  :Budget.rows(state,selected).filter(c=>c.type==='expense'&&c.actual>0).sort((a,b)=>b.actual-a.actual),total=spend.reduce((n,c)=>n+c.actual,0),colors=SLICE_COLORS;
  const range={from:selected+'-01',to:selected+'-'+String(Budget.days(selected)).padStart(2,'0')},share=n=>t.income.actual?`${percent(n,t.income.actual)}% of ${L.income.toLowerCase()}`:'';
- const N=namedSlices(spend.length),mix=spend.slice(0,N).map((c,i)=>[c.name,c.actual,colors[i],share(c.actual),{cats:[c.id],...range}]),other=spend.slice(N).reduce((n,c)=>n+c.actual,0);
+ const note=c=>REC&&paid.get(c.id)>c.actual?`${percent(c.actual,paid.get(c.id))}% of ${fmt(paid.get(c.id))} paid`:share(c.actual);
+ const N=namedSlices(spend.length),mix=spend.slice(0,N).map((c,i)=>[c.name,c.actual,colors[i],note(c),{cats:[c.id],...range}]),other=spend.slice(N).reduce((n,c)=>n+c.actual,0);
  if(other)mix.push(['Other',other,colors[8],share(other),{cats:spend.slice(N).map(c=>c.id),...range}]);
- return `<section class="card"><div class="cardhead"><div><h2>${esc(title)}</h2><p>${monthName(selected)} · click a slice to see its transactions</p></div></div>${mix.length?donutMarkup(mix,total,'spent'):empty('No spending yet this month','Log or import an expense to see where the money goes.','add','Add an entry')}</section>`;
+ return `<section class="card"><div class="cardhead"><div><h2>${esc(title)}</h2><p>${monthName(selected)} · ${REC?'business share (the part you can deduct)':'click a slice to see its transactions'}</p></div></div>${mix.length?donutMarkup(mix,total,REC?'business':'spent'):empty('No spending yet this month','Log or import an expense to see where the money goes.','add','Add an entry')}</section>`;
 }
 function cashflowTrend(){const year=selected.slice(0,4),months=Budget.annual(state,year),cutoff=Budget.today().slice(0,7),values=months.map(m=>m.month<=cutoff?m.net:null);return `<section class="card"><div class="cardhead"><div><h2>Cash flow over time</h2><p>Income − expenses − contributions · future months are blank</p></div><span class="pill">${year}</span></div>${areaChart([{name:'Net cash flow',values,color:'var(--accent)'}],months.map(m=>shortMonth(m.month)),'Monthly net cash flow')}</section>`;}
 
@@ -4593,6 +4598,10 @@ const Biz=(()=>{
  // the payee decides first; the reference only when the payee says nothing (a landlord's name, "rent" in the reference)
  const expHintRow=(d,memo='')=>{const H=P.expenseHints||[],a=plain(d);return H.find(([re])=>re.test(a))||(memo?H.find(([re])=>re.test(plain(d+' '+memo))):null)||null;};
  const expHint=(d,memo='')=>expHintRow(d,memo)?.[1]||'';
+ // a new home share carries to the home rent and utility records still at the old one (open months); others were set by hand
+ function applyHomeShare(before){const now=state.settings.es?.homePct||0,H=P.homeShare||{};if(before===now)return 0;let n=0;
+  for(const t of state.transactions){const f=H[t.category],r=t.rec;if(f===undefined||!r||r.kind!=='expense'||!writable(t.date.slice(0,7)))continue;const old=Math.round(before*f);if((r.pct??100)===old||(!before&&r.pct===100)){r.pct=Math.round(now*f);n++;}}
+  (state.bills||[]).forEach(b=>{const f=H[b.cat];if(f!==undefined&&b.pct!==null&&b.pct!==undefined&&b.pct===Math.round(before*f))b.pct=Math.round(now*f);});return n;}
  const expShare=cat=>{const f=(P.homeShare||{})[cat];return f===undefined?100:Math.round((state.settings.es?.homePct||0)*f);};
  const expVat=(cat,cur)=>cur!=='EUR'?0:(category(cat)?.vat||0);
  function expOpen(){exp={files:[],merchants:new Map()};expRender();}
@@ -4678,7 +4687,7 @@ const Biz=(()=>{
   const k=el.dataset?.exp;if(!k)return;const m=el.dataset.k!==undefined?exp.merchants.get(el.dataset.k):null,F=el.dataset.i!==undefined?exp.files[+el.dataset.i]:null;
   if(k==='cat'&&m){m.cat=el.value;if(expBiz(m)){m.p=expShare(m.cat);m.v=expVat(m.cat,[...m.curs][0]||'EUR');}}
   else if(k==='p'&&m)m.p=el.value;else if(k==='v'&&m)m.v=+el.value;else if(k==='name'&&m)m.name=el.value.trim().slice(0,40)||m.name;
-  else if(k==='home'){const v=Math.max(0,Math.min(100,Math.round(+el.value||0)));commit(()=>{state.settings.es={...state.settings.es,homePct:v};},`Home share set to ${v}%`);exp.merchants.forEach(x=>{if((P.homeShare||{})[x.cat]!==undefined)x.p=expShare(x.cat);});}
+  else if(k==='home'){const v=Math.max(0,Math.min(100,Math.round(+el.value||0)));{const before=state.settings.es?.homePct||0;let n=0;commit(()=>{state.settings.es={...state.settings.es,homePct:v};n=applyHomeShare(before);},`Home share set to ${v}%`+(n?`; ${n} home record${n===1?'':'s'} updated`:''));}exp.merchants.forEach(x=>{if((P.homeShare||{})[x.cat]!==undefined)x.p=expShare(x.cat);});}
   else if(F&&k==='cur'){F.cur=el.value;expMerchants();}else if(F&&k==='acct')F.acct=el.value;else if(F&&k==='flip'){F.flip=el.checked;expRows(F);expMerchants();}
   expRender();});
  // ---------- Monthly bills ----------
@@ -4770,7 +4779,7 @@ const Biz=(()=>{
   return [...m.values()].sort((a,b)=>b.to.localeCompare(a.to)||a.file.localeCompare(b.file));}
  const impOf=k=>importsList().find(g=>g.key===k);
  function importsCard(){const list=importsList();if(!list.length)return '';
-  return `<section class="card table-card no-print"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Imports</h2><p>Each file you imported. Add one link to all its records (a Drive folder or the statement), or delete the import to bring it in again.</p></div></div><div class="table-wrap"><table><thead><tr><th>File</th><th>Type</th><th>Dates</th><th class="num">Records</th><th class="num">Missing evidence</th><th></th></tr></thead><tbody>${list.map(g=>`<tr><td><b>${esc(g.file)}</b></td><td class="nw">${g.bank?'Card & bank':'Platform statement'}</td><td class="nw">${dateName(g.from)}${g.to!==g.from?` – ${dateName(g.to)}`:''}</td><td class="num">${g.ids.length}</td><td class="num">${g.missing?`<b class="warn">${g.missing}</b>`:'0'}</td><td class="nw">${button('Add evidence','biz-imp-ev','small',`data-key="${esc(g.key)}"`)}${button('Delete import','biz-imp-del','small quiet',`data-key="${esc(g.key)}"`)}</td></tr>`).join('')}</tbody></table></div></section>`;}
+  return `<section class="card table-card no-print"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Imports</h2><p>Each file you imported. Add one link to all its records (a Drive folder or the statement), or delete the import to bring it in again.</p></div></div><div class="table-wrap"><table><thead><tr><th>File</th><th>Type</th><th>Dates</th><th class="num">Records</th><th class="num">Missing evidence</th><th></th></tr></thead><tbody>${list.map(g=>`<tr><td><b>${esc(g.file)}</b></td><td class="nw">${g.bank?'Card & bank':'Platform statement'}</td><td class="nw">${dateName(g.from)}${g.to!==g.from?` – ${dateName(g.to)}`:''}</td><td class="num">${g.ids.length}</td><td class="num">${g.missing?`<b class="warn">${g.missing}</b>`:'0'}</td><td class="nw"><div class="imp-acts">${button('Add evidence','biz-imp-ev','small',`data-key="${esc(g.key)}"`)}${button('Delete import','biz-imp-del','small quiet',`data-key="${esc(g.key)}"`)}</div></td></tr>`).join('')}</tbody></table></div></section>`;}
  // one evidence item added to many records at once
  let bulkEvIds=[];
  function bulkEvOpen(ids,title){bulkEvIds=ids;const miss=ids.filter(id=>!(state.transactions.find(t=>t.id===id)?.rec?.evidence||[]).length).length;
@@ -5062,7 +5071,7 @@ const Biz=(()=>{
    :donutMarkup(mixParts(rows,from,to,type,by,of,total),total,label)+(!list.length?`<p class="small muted mix-hint">${by==='tag'?`Add tags like Digital products or Donations in Settings to split this.`:`Add your ${esc(CH())}s in Settings to split this.`} <button class="link" data-action="${by==='tag'?'manage-tags':'manage-streams'}">${by==='tag'?'Set up tags':'Add '+esc(CH())+'s'}</button></p>`:!tagged?`<p class="small muted mix-hint">Nothing here is ${by==='tag'?'tagged':'on a '+esc(CH())} yet. Tick entries in Transactions to ${by==='tag'?'tag':'assign'} them in bulk.</p>`:'');
   return `<section class="card mix-card"><div class="cardhead"><div><h2>${esc(title)}</h2><p>${sub}</p></div>${list.length?`<button class="link" data-action="${by==='tag'?'manage-tags':'manage-streams'}">Manage</button>`:''}</div>${body}</section>`;}
  function mixGrid(t){const m=selected,from=m+'-01',to=Budget.endOf(m),sub=`${monthName(m)} · click a slice to see its transactions`;
-  return `<div class="mix-grid">${F.channels?mixCard(`${L.income} by ${CH()}`,sub,'income','channel',from,to,L.income.toLowerCase())+mixCard(`${L.income} by tag`,sub,'income','tag',from,to,L.income.toLowerCase()):''}${spendingCard(t,'Expenses')}${F.channels?mixCard('Expenses by tag',sub,'expense','tag',from,to,'spent'):''}</div>`;}
+  return `<div class="mix-grid">${F.channels?mixCard(`${L.income} by ${CH()}`,sub,'income','channel',from,to,L.income.toLowerCase())+mixCard(`${L.income} by tag`,sub,'income','tag',from,to,L.income.toLowerCase()):''}${spendingCard(t,'Expenses')}${F.channels?mixCard('Expenses by tag',P.features.records?`${monthName(m)} · business share`:sub,'expense','tag',from,to,P.features.records?'business':'spent'):''}</div>`;}
  function settingsCard(){if(F.vat)return esSettingsCard();
   return `<section class="card"><div class="goal-icon">${ico('shield')}</div><h2>${F.mileage?'Tax &amp; mileage':'Tax'}</h2><p class="subtitle">Used by Quarterly tax${F.mileage?`, the ${esc(P.taxForm?.name||'tax')} summary and the mileage log`:` and the ${esc(P.taxForm?.name||'tax')} summary`}.</p>${taxNote()}<form id="biz-settings-form" style="margin-top:20px"><div class="fields">${F.tax?`<label>Tax set-aside rate (%)<input type="number" name="taxRate" min="0" max="90" step="0.5" required value="${(state.settings.taxRate||0)/100}"><small>A share of net profit to put aside for the tax you expect to owe. Your accountant can tell you the right figure for where you live and what you earn.</small></label>`:''}${F.mileage?`<label>Distance unit<select name="distanceUnit"><option value="mi" ${km()?'':'selected'}>Miles</option><option value="km" ${km()?'selected':''}>Kilometres</option></select><small>Used for the mileage log and its exports.</small></label><label>Mileage rate per ${unitWord()} (${esc(state.settings.symbol||state.settings.currency)})<input type="number" name="mileageRate" min="0" max="10" step="0.001" required value="${((state.settings.mileageRate||0)/1000).toFixed(3).replace(/0+$/,'').replace(/\.$/,'')}" placeholder="e.g. 0.70"><small>The flat rate your tax authority allows for business travel in the year you are recording, for example the IRS rate in the US or HMRC’s in the UK. Leave at 0 if you do not claim a flat rate.</small></label>`:''}</div><div class="formfoot"><button class="btn primary">Save tax settings</button></div></form></section>`;
  }
@@ -5185,7 +5194,8 @@ const Biz=(()=>{
   case 'biz-range':{const from=f.get('from'),to=f.get('to');if(!Budget.validDate(from)||!Budget.validDate(to))throw Error('Choose two valid dates.');if(to<from)throw Error('The end date is before the start date.');if(Budget.monthsBetween(from,to).length>120)throw Error('Choose a range of ten years or less.');period={kind:'custom',from,to};render();break;}
   case 'biz-es-form':{const plana=f.get('planaUntil')||'',low=+f.get('lowIncome');if(plana&&!Budget.validDate(plana))throw Error('Use a valid date.');
    const day=Math.round(+f.get('docsDay'));if(!(day>=1&&day<=15))throw Error('Choose a day from 1 to 15.');
-   commit(()=>{state.settings.es={exempt130:f.get('exempt130')==='on',lowIncome:[0,25,50,75,100].includes(low)?low:0,plana:f.get('plana')==='on',planaUntil:plana,estimates:f.get('estimates')==='on',homePct:Math.max(0,Math.min(100,Math.round(+f.get('homePct')||0))),cadence:f.get('cadence')==='monthly'?'monthly':'quarterly',docsDay:day};},'Tax settings saved');break;}
+   const before=state.settings.es?.homePct||0;let moved=0;
+   commit(()=>{state.settings.es={exempt130:f.get('exempt130')==='on',lowIncome:[0,25,50,75,100].includes(low)?low:0,plana:f.get('plana')==='on',planaUntil:plana,estimates:f.get('estimates')==='on',homePct:Math.max(0,Math.min(100,Math.round(+f.get('homePct')||0))),cadence:f.get('cadence')==='monthly'?'monthly':'quarterly',docsDay:day};moved=applyHomeShare(before);},'Tax settings saved');if(moved)toast(`Tax settings saved. ${moved} home rent and utility record${moved===1?'':'s'} now use the new share.`);break;}
   case 'biz-settings-form':{const next={};
    if(F.tax){const r=Math.round(Number(f.get('taxRate'))*100);if(!Number.isFinite(r)||r<0||r>9000)throw Error('Use a set-aside rate from 0 to 90%.');next.taxRate=r;}
    if(F.mileage){const r=Math.round(Number(f.get('mileageRate'))*1000);if(!Number.isFinite(r)||r<0||r>10000)throw Error('Use a mileage rate from 0 to 10 per unit of distance.');next.mileageRate=r;next.distanceUnit=f.get('distanceUnit')==='km'?'km':'mi';}
