@@ -289,4 +289,26 @@ ok('both Patreon files go to the same payer, not a new one',await p.evaluate(()=
 ok('the shared month is left out of the less detailed file, with a note',await p.evaluate(()=>{const c=document.querySelectorAll('.stmt-card');return /Also in patreon_earnings_breakdown/.test(c[0].innerText)&&!/Also in/.test(c[1].innerText);}));
 await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(300);
 ok('each month is imported once',JSON.stringify(await p.evaluate(()=>state.transactions.filter(t=>t.rec?.src&&/patreon|creator-analytics/.test(t.rec.src.f||'')).map(t=>t.date.slice(0,7)+':'+t.rec.gross).sort()))===JSON.stringify(['2026-08:10000','2026-09:5500']));
+// 17. imports: one link for all a file's records, and deleting an import to bring it in again
+await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());go('expenses',true);});await p.waitForTimeout(100);
+await p.click('#content [data-action="biz-exp-open"]');await p.setInputFiles('#exp-files',[{name:'card_sep.csv',mimeType:'text/csv',buffer:Buffer.from(CARD)},{name:'banco_sep.csv',mimeType:'text/csv',buffer:Buffer.from(BANK)}]);await p.waitForTimeout(400);
+await p.click('[data-action="biz-exp-import"]');await p.waitForTimeout(300);
+await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());go('evidence',true);});await p.waitForTimeout(150);
+const impRow=()=>p.evaluate(()=>{const r=[...document.querySelectorAll('#content tr')].find(tr=>/card_sep\.csv/.test(tr.innerText));return r?r.innerText.replace(/\s+/g,' '):'';});
+ok('the Evidence screen lists each imported file',/card_sep\.csv Card & bank/.test(await impRow()),await impRow());
+const cardIds=await p.evaluate(()=>state.transactions.filter(t=>t.rec?.src?.f==='card_sep.csv').map(t=>t.id));
+await p.evaluate(()=>[...document.querySelectorAll('[data-action="biz-imp-ev"]')].find(x=>/card_sep/.test(x.dataset.key)).click());await p.waitForTimeout(100);
+await p.click('#bulk-ev-form button[type=submit]');await p.waitForTimeout(100);
+ok('a link or file name is required',await p.evaluate(()=>$('#modal').open&&/Add a link/.test($('#form-error').innerText)));
+await p.fill('#bulk-ev-form [name=url]','https://drive.google.com/drive/folders/test');await p.fill('#bulk-ev-form [name=name]','Card receipts September');await p.click('#bulk-ev-form button[type=submit]');await p.waitForTimeout(150);
+ok('every record from the file gets the link',await p.evaluate(ids=>ids.every(id=>state.transactions.find(t=>t.id===id).rec.evidence.some(e=>e.url==='https://drive.google.com/drive/folders/test'))&&Budget.gestorReport(state,'2026-01-01','2026-12-31').missing.every(r=>!ids.includes(r.id)),cardIds));
+await p.evaluate(()=>[...document.querySelectorAll('[data-action="biz-imp-del"]')].find(x=>/card_sep/.test(x.dataset.key)).click());await p.waitForTimeout(100);
+await p.click('[data-action="biz-imp-del-ok"]');await p.waitForTimeout(150);
+ok('deleting the import removes its records only',await p.evaluate(ids=>ids.every(id=>!state.transactions.some(t=>t.id===id))&&state.transactions.some(t=>t.rec?.src?.f==='banco_sep.csv'),cardIds)&&!(await impRow()));
+await p.evaluate(()=>go('expenses',true));await p.click('#content [data-action="biz-exp-open"]');await p.setInputFiles('#exp-files',[{name:'card_sep.csv',mimeType:'text/csv',buffer:Buffer.from(CARD)}]);await p.waitForTimeout(400);
+await p.click('[data-action="biz-exp-import"]');await p.waitForTimeout(300);
+ok('and the file can be imported again',await p.evaluate(n=>state.transactions.filter(t=>t.rec?.src?.f==='card_sep.csv').length===n,cardIds.length));
+// 18. every view but the dashboard and settings can be hidden from the sidebar
+await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());go('settings',true);});await p.waitForTimeout(150);
+ok('Settings offers to hide Income, Expenses, Evidence, Payers, Gestor report and the estimates',await p.evaluate(()=>['income','expenses','evidence','payers','report','tax'].every(id=>document.querySelector(`[data-nav-toggle="${id}"]`))));
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();
