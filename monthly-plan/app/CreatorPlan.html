@@ -1403,6 +1403,9 @@ tr.is-dup td:first-child{box-shadow:inset 2px 0 0 var(--over)}
 .stmt-card{border:1px solid var(--rule);border-radius:var(--r-md);padding:14px 16px;margin-bottom:12px;background:var(--card)}.stmt-card.is-error{border-color:var(--flag);background:var(--flag-soft)}
 .stmt-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}.stmt-head small{display:block;color:var(--ink-2);margin-top:2px}
 .stmt-figs{border-top:1px solid var(--rule);margin-top:10px;padding-top:8px}.stmt-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:3px 0}.stmt-row b{text-align:right;white-space:nowrap}.stmt-row b small{display:block;font-weight:500;color:var(--ink-3);font-size:11px}
+#modal:has(.stmt-drop){width:min(1040px,96vw);max-width:96vw}.stmt-on input{width:16px;height:16px;min-height:0;flex:none;margin:0}
+.stmt-scope{margin:0 0 12px}.stmt-table{margin-top:10px;max-height:340px;overflow:auto}.stmt-table td,.stmt-table th{padding:6px 8px;font-size:12.5px;vertical-align:top}.stmt-table td small{display:block;color:var(--ink-3);font-size:11px;font-weight:500}
+.stmt-table tr.is-off td{opacity:.45}.stmt-on{display:flex;gap:6px;align-items:center;white-space:nowrap;font-weight:600}.stmt-rate{width:96px;padding:5px 7px;font-size:12.5px}.stmt-adj{display:block;max-width:260px;white-space:normal}
 .stmt-row.stmt-key{font-weight:650;border-top:1px dashed var(--rule);padding-top:6px;margin-top:3px}.stmt-card .checkline{margin-top:10px}
 .sa-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:8px 0 12px}
 .sa-panel{background:var(--sunk);border:1px solid var(--rule);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -2036,6 +2039,7 @@ const Budget = ((P) => {
     // money in another currency keeps its original amount; rates and platforms you import are remembered.
     // A bad value is dropped, never fatal, so an older or hand-edited backup always restores.
     s.transactions.forEach(t=>{if(t.fx!==undefined&&!(object(t.fx)&&CURRENCIES.includes(t.fx.currency)&&amount(t.fx.amount)&&t.fx.amount&&Math.sign(t.fx.amount)===Math.sign(t.amount)))delete t.fx;});
+    if(s.fxMonthly!==undefined){if(!object(s.fxMonthly))s.fxMonthly={};Object.keys(s.fxMonthly).forEach(k=>{const v=s.fxMonthly[k];if(!CURRENCIES.includes(k)||!object(v)){delete s.fxMonthly[k];return;}Object.keys(v).forEach(m=>{if(!/^\d{4}-\d{2}$/.test(m)||typeof v[m]!=='number'||!(v[m]>0&&v[m]<1e6))delete v[m];});});}
     if(s.fxRates!==undefined){if(!object(s.fxRates))s.fxRates={};Object.entries(s.fxRates).forEach(([k,v])=>{if(!CURRENCIES.includes(k)||typeof v!=='number'||!(v>0&&v<1e6))delete s.fxRates[k];});}
     if(s.platformSources!==undefined){if(!object(s.platformSources))s.platformSources={};Object.entries(s.platformSources).forEach(([k,v])=>{if(!/^[a-z0-9]{1,30}$/.test(k)||!object(v)||!str(v.name,30)||!v.name.trim()||!validDate(v.last))delete s.platformSources[k];});}
     // records: every field checked; a bad value falls back or is dropped, never fatal
@@ -2430,7 +2434,89 @@ const Platforms = (()=>{
     withheld.forEach(i=>{const v=num(cell(r,i));if(v)out.push({...base,note:`${note} · tax withheld`,amount:-Math.abs(v),role:'taxWithheld'});});});
    return out;}};
 
- const ADAPTERS=[etsy,shopify,shopifyPayouts,paypal,stripe,youtube,generic];
+ // a currency written into the amount itself ("US$586.37", "€12"), else the platform's usual one
+ const curIn=(raw,fallback='')=>{const x=String(raw||'');return /US\$|USD/i.test(x)?'USD':/€|EUR/i.test(x)?'EUR':/£|GBP/i.test(x)?'GBP':/CA\$|CAD/i.test(x)?'CAD':/A\$|AUD/i.test(x)?'AUD':fallback;};
+ const cols=(h,...names)=>names.map(x=>find(h,x));
+
+ // ---- Patreon: Insights › Earnings › Download (one row per month) ----
+ // The fee lines and "Your total earnings" do not always agree (refunds and fees settle across
+ // months), so the earnings Patreon reports are kept and the difference shows as an adjustment.
+ const patreon={id:'patreon',name:'Patreon',bank:/patreon/i,
+  detect:h=>has(h,'total gross revenue','your total earnings'),
+  convert(h,rows){const c={month:find(h,'month',/month|date/),cur:find(h,'currency'),gross:find(h,'total gross revenue'),platform:find(h,'total platform fee'),payment:find(h,'total payment fee'),
+    parts:cols(h,'processing fee','currency conversion fee','ios app store fee'),refunds:find(h,'refunds'),merch:find(h,'merch items and shipping'),earned:find(h,'your total earnings')};
+   const num=reader(rows,[c.gross,c.platform,c.payment,c.refunds,c.merch,c.earned,...c.parts]),out=[];
+   rows.forEach(r=>{const base={date:day(cell(r,c.month)),currency:upper(cell(r,c.cur))||'USD',line:r.line},v=i=>Math.abs(num(cell(r,i))||0);
+    const gross=v(c.gross),platform=v(c.platform),parts=c.parts.reduce((a,i)=>a+v(i),0),payment=Math.max(v(c.payment),parts),refunds=v(c.refunds),merch=v(c.merch),earned=num(cell(r,c.earned));
+    if(!gross&&!earned)return;const add=(amount,role,note)=>{if(amount)out.push({...base,note:'Patreon · '+note,amount,role});};
+    add(gross,'sale','memberships & shop');add(-refunds,'refund','refunds');add(-platform,'fees','platform fee (incl. tax on fees)');add(-payment,'fees','payment processing');add(-merch,'shipping','merch items & shipping');
+    if(earned!==null)add(earned-(gross-refunds-platform-payment-merch),'other','adjustment to Patreon’s reported earnings');});
+   return out;}};
+
+ // ---- Payhip: Sales › Export (one row per order) ----
+ // Gross includes the sales tax Payhip collected for you, which it passes on; custom VAT is yours to declare.
+ const payhip={id:'payhip',name:'Payhip',bank:/payhip/i,
+  detect:h=>has(h,'amount gross','amount net','payhip fee'),
+  convert(h,rows){const c={date:find(h,'date'),cur:find(h,'currency'),gross:find(h,'amount gross'),status:find(h,'status'),items:find(h,'items in cart'),pp:find(h,'paypal/stripe fee'),fee:find(h,'payhip fee'),
+    taxOn:find(h,'payhip collected sales tax on your behalf'),tax:find(h,'payhip collected sales tax amount'),vat:find(h,'custom vat amount')};
+   const num=reader(rows,[c.gross,c.pp,c.fee,c.tax,c.vat]),out=[];
+   rows.forEach(r=>{const gross=num(cell(r,c.gross))||0;if(!gross)return;const st=n(cell(r,c.status)),refund=/refund|revers|charge ?back/.test(st);if(/fail|pending|cancel|declin/.test(st))return;
+    const base={date:cell(r,c.date),currency:upper(cell(r,c.cur))||'USD',line:r.line},items=cell(r,c.items),note=items||'Payhip order',s=refund?-1:1;
+    out.push({...base,note,amount:s*Math.abs(gross),role:refund?'refund':'sale'});
+    const tax=cell(r,c.taxOn)==='1'?Math.abs(num(cell(r,c.tax))||0):0;if(tax)out.push({...base,note:note+' · sales tax collected by Payhip',amount:-s*tax,role:'buyerTax'});
+    const vat=Math.abs(num(cell(r,c.vat))||0);if(vat)out.push({...base,note:note+' · custom VAT you charged',amount:-s*vat,role:'buyerTax'});
+    const fee=Math.abs(num(cell(r,c.pp))||0)+Math.abs(num(cell(r,c.fee))||0);if(fee&&!refund)out.push({...base,note:note+' · Payhip & payment fees',amount:-fee,role:'fees',title:items});});
+   return out;}};
+
+ // ---- Canva Creators: royalty payments (Trolley) ----
+ const canva={id:'canva',name:'Canva',bank:/canva|trolley/i,
+  detect:h=>has(h,'gross amount','tax withheld','payment'),
+  convert(h,rows){const c={date:find(h,'date'),gross:find(h,'gross amount'),tax:find(h,'tax withheld'),paid:find(h,'payment'),method:find(h,'method')};
+   const num=reader(rows,[c.gross,c.tax,c.paid]),out=[];
+   rows.forEach(r=>{const g=num(cell(r,c.gross)),t=num(cell(r,c.tax));if(!g)return;const base={date:cell(r,c.date),currency:curIn(cell(r,c.gross),'USD'),line:r.line};
+    out.push({...base,note:'Canva Creators royalties',amount:Math.abs(g),role:'sale'});if(t)out.push({...base,note:'Canva Creators · US tax withheld',amount:-Math.abs(t),role:'taxWithheld'});});
+   return out;}};
+
+ // ---- Creative Fabrica: royalty payouts; a payout counts on the day it was paid, pending ones wait ----
+ const creativeFabrica={id:'creativefabrica',name:'Creative Fabrica',bank:/creative ?fabrica/i,
+  detect:h=>has(h,'payout method','transaction fee','date requested','status'),
+  convert(h,rows){const c={amount:find(h,'amount'),fee:find(h,'transaction fee'),req:find(h,'date requested'),status:find(h,'status')};
+   const num=reader(rows,[c.amount,c.fee]),out=[];
+   rows.forEach(r=>{const st=cell(r,c.status),paid=st.match(/paid on\s+(\d{4}-\d{2}-\d{2})/i);if(!paid)return;const a=num(cell(r,c.amount)),f=num(cell(r,c.fee));if(!a)return;
+    const base={date:paid[1],currency:curIn(cell(r,c.amount),'USD'),line:r.line};out.push({...base,note:'Creative Fabrica royalty payout',amount:Math.abs(a)+Math.abs(f||0),role:'sale'});
+    if(f)out.push({...base,note:'Creative Fabrica · payout fee',amount:-Math.abs(f),role:'fees'});});
+   return out;}};
+
+ // ---- Creative Market: Earnings › Sales export; the price is the sale, Creative Market keeps the rest ----
+ const creativeMarket={id:'creativemarket',name:'Creative Market',bank:/creative ?market/i,
+  detect:h=>has(h,'price','earnings','license','product'),
+  convert(h,rows){const c={date:find(h,'date'),status:find(h,'status'),product:find(h,'product'),price:find(h,'price'),earn:find(h,'earnings')};
+   const num=reader(rows,[c.price,c.earn]),out=[];
+   rows.forEach(r=>{const price=num(cell(r,c.price)),earn=num(cell(r,c.earn));if(!price)return;const st=n(cell(r,c.status));if(/cancel|declin|fail/.test(st))return;
+    const refund=/refund/.test(st),s=refund?-1:1,base={date:cell(r,c.date),currency:curIn(cell(r,c.price),'USD'),line:r.line},product=cell(r,c.product)||'Creative Market sale';
+    out.push({...base,note:product,amount:s*Math.abs(price),role:refund?'refund':'sale',title:product});
+    const cut=Math.abs(price)-Math.abs(earn||0);if(cut)out.push({...base,note:product+' · Creative Market’s share',amount:-s*cut,role:'fees'});});
+   return out;}};
+
+ // ---- Fourthwall: orders export; merchandise and donations less discounts, fees come with the payout ----
+ const fourthwall={id:'fourthwall',name:'Fourthwall',bank:/fourthwall/i,
+  detect:h=>has(h,'merchandise','donation','friendly_id'),
+  convert(h,rows){const c={date:find(h,'date'),status:find(h,'status'),merch:find(h,'merchandise'),don:find(h,'donation'),ship:find(h,'shipping'),disc:find(h,'discount'),refunded:find(h,'refunded')};
+   const num=reader(rows,[c.merch,c.don,c.ship,c.disc,c.refunded]),out=[];
+   rows.forEach(r=>{if(/cancel|fail|declin/i.test(cell(r,c.status)))return;const v=i=>Math.abs(num(cell(r,i))||0),base={date:cell(r,c.date),currency:'USD',line:r.line};
+    const sale=v(c.merch)+v(c.don)+v(c.ship)-v(c.disc),ref=v(c.refunded);if(sale)out.push({...base,note:'Fourthwall order',amount:sale,role:'sale'});if(ref)out.push({...base,note:'Fourthwall refund',amount:-ref,role:'refund'});});
+   return out;}};
+
+ // ---- Affiliate commissions (PartnerStack-style export: Kit, and other programs) ----
+ const commissions={id:'commissions',name:'Affiliate commissions',bank:null,
+  detect:h=>has(h,'issued commission amount','commission status'),
+  convert(h,rows){const c={amount:find(h,'issued commission amount'),cur:find(h,'issued commission currency'),date:find(h,'created'),status:find(h,'commission status'),program:find(h,'program')};
+   const num=reader(rows,[c.amount]),out=[];
+   rows.forEach(r=>{if(/reject|declin|void|cancel|reversed/i.test(cell(r,c.status)))return;const a=num(cell(r,c.amount));if(!a)return;const program=cell(r,c.program)||'Affiliate';
+    out.push({date:cell(r,c.date),currency:upper(cell(r,c.cur))||'USD',line:r.line,note:`${program} · commission`,amount:a,role:'sale',title:program,program});});
+   return out;}};
+
+ const ADAPTERS=[etsy,shopify,shopifyPayouts,paypal,stripe,youtube,patreon,payhip,canva,creativeFabrica,creativeMarket,fourthwall,commissions,generic];
  // Which platform wrote this file, if any. The name is what the review and streams show.
  function detect(headers,rows,fileName=''){
   const a=ADAPTERS.find(x=>{try{return x.detect(headers,rows||[]);}catch{return false;}});if(!a)return null;
@@ -2460,10 +2546,10 @@ const Platforms = (()=>{
    const S=months.get(m),v=x.amount;S.rows++;if(d<S.from)S.from=d;if(d>S.to)S.to=d;if(x.currency)curs.set(x.currency,(curs.get(x.currency)||0)+1);
    switch(x.role){case 'sale':S.sales+=v;break;case 'buyerTax':S.buyerTax-=v;break;case 'refund':S.refunds-=v;break;case 'fees':S.fees-=v;break;case 'feeTax':S.fees-=v;S.feeTax-=v;break;
     case 'ads':S.ads-=v;break;case 'shipping':S.shipping-=v;break;case 'taxWithheld':S.withheld-=v;break;case 'payout':S.payouts-=v;S.payoutCount++;break;case 'conversion':break;default:S.other+=v;}
-   const t=x.role==='fees'&&String(x.note).match(/^(?:listing|transaction|renew\w*)\s+fee:\s*([^·]+)/i);if(t)S.titles.add(n(t[1]).slice(0,60));});
+   const t=x.title?[0,x.title]:x.role==='fees'&&String(x.note).match(/^(?:listing|transaction|renew\w*)\s+fee:\s*([^·]+)/i);if(t&&t[1])S.titles.add(n(t[1]).slice(0,60));if(x.program)S.program=x.program;});
   const currency=[...curs.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
-  return [...months.values()].sort((a,b)=>a.month.localeCompare(b.month)).map(S=>{const gross=S.sales-S.buyerTax,payout=gross-S.refunds-S.fees+S.other;
-   return {...S,titles:[...S.titles],currency,platform:p.name,gross,payout,net:payout-S.ads-S.shipping-S.withheld};});
+  return [...months.values()].sort((a,b)=>a.month.localeCompare(b.month)).map(S=>{const gross=S.sales-S.buyerTax,payout=gross-S.refunds-S.fees+S.other;// before any tax the platform withheld
+   const cash=payout-S.withheld;return {...S,titles:[...S.titles],currency,platform:p.name,gross,payout:cash,net:cash-S.ads-S.shipping};});
  }
  return {detect,convert,summary,bankPattern,ROLES,kindLabel,nameFrom};
 })();
@@ -4242,80 +4328,101 @@ const Biz=(()=>{
     `<label>Amount<input name="amount" type="number" min="0" step="0.01" required value="${r?val(r.amount):''}" placeholder="0.00"></label><label>VAT / tax shown<input name="vatShown" type="number" min="0" step="0.01" value="${r&&r.vatShown?val(r.vatShown):''}" placeholder="0.00"><small>As printed on the receipt, if any</small></label>${dedIva}<label>Business use %<input name="pct" type="number" min="0" max="100" step="1" value="${r?r.pct:100}"></label><p class="full small rec-eur" id="rec-eur"></p>`+common;
   modal(`${id?'Edit':dup?'Duplicate':'Add'} ${inc?'income':'expense'}`,inc?'Enter the amounts in the currency you were paid in. Euros are worked out from the rate.':'Enter the amount in the currency you paid in. The deductible amount is indicative, for your gestor to review.',`<form id="rec-form" data-kind="${kind}" data-id="${id}"><div class="fields">${body}</div>${formFoot(id?'Save changes':'Save record',id?`<button type="button" class="btn danger" data-action="delete-transaction" data-id="${id}">Delete</button>`:'')}</form>`);
   recPreview();}
- // ---------- Monthly statements → one record per shop and month ----------
- // Each platform statement (CSV) becomes one income record for its shop and month: sales less the
- // tax buyers paid (passed on by the platform), refunds, fees and the payout, in the statement's
- // currency with a rate to euros; ads and shipping labels become expense records beside it. The
- // listing titles in a statement's fee lines are remembered (as short hashes) on its payer, so the
- // next statement from the same shop is matched to it.
+ // ---------- Statements → one record per payer and month ----------
+ // Each platform file (CSV) becomes one income record per payer and month: sales less the tax
+ // buyers paid (passed on by the platform), refunds, fees and the payout, in the file's currency
+ // with a rate to euros per month; ads and shipping become expense records beside it. A payer is
+ // recognised by the titles in its file (kept as short hashes), then by words in the file name.
  let stmt=null;
  const fnv=x=>{let h=0x811c9dc5;for(const ch of x){h^=ch.charCodeAt(0);h=Math.imul(h,0x01000193)>>>0;}return h.toString(36);};
  const stmtKey=name=>String(name||'').toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,40)||'platform';
- const stmtFind=it=>state.transactions.filter(t=>t.rec?.src&&t.rec.src.k===it.key&&t.rec.src.m===it.month&&(t.channel===it.payer||t.rec.src.p===it.payer));
- function stmtOpen(){stmt={items:[]};stmtRender();}
- // the payer a statement most likely belongs to: the one whose remembered listings it shares, else one named after the platform
- function stmtGuess(it,taken){const list=channels(),score=c=>(c.fp||[]).filter(h=>it.fp.includes(h)).length,best=list.map(c=>[c,score(c)]).sort((a,b)=>b[1]-a[1])[0];
-  if(best&&best[1]>=Math.min(3,Math.max(1,it.fp.length)))return best[0].id;
-  const named=list.filter(c=>stmtKey(c.name).startsWith(it.key));return (named.find(c=>!taken.has(c.id+it.month))||named[0])?.id||'__new';}
- async function stmtRead(files){const taken=new Set(stmt.items.map(x=>x.payer+x.month));
+ const STMT_WORDS=new Set('csv txt export exports orders order sales sale report statement statements royalty royalties payment payments payout payouts earnings analytics creator creators filtered account activities activity transactions the and for from with'.split(' '));
+ const fileWords=(file,platform)=>{const skip=new Set(String(platform).toLowerCase().split(/[^a-z0-9]+/));return [...new Set(String(file).replace(/\.[^.]+$/,'').toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>=3&&!/^\d+$/.test(w)&&!STMT_WORDS.has(w)&&!skip.has(w)))];};
+ const nameWords=n=>String(n).toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>=3);
+ const stmtFind=(F,m)=>state.transactions.filter(t=>t.rec?.src&&t.rec.src.k===F.key&&t.rec.src.m===m.month&&(t.channel===F.payer||t.rec.src.p===F.payer));
+ const stmtScope=m=>{const y=today().slice(0,4);return stmt.scope==='all'||(stmt.scope==='last'?m.month.slice(0,4)===String(y-1):m.month.slice(0,4)===y);};
+ const stmtRate=(cur,month)=>cur==='EUR'?1:(state.fxMonthly?.[cur]?.[month]||state.fxRates?.[cur]||'');
+ function stmtOpen(){stmt={files:[],scope:'year'};stmtRender();}
+ // the payer a file most likely belongs to: shared titles, then a payer named with words from the file name, then the platform's own
+ function stmtGuess(F){const list=channels(),score=c=>(c.fp||[]).filter(h=>F.fp.includes(h)).length,best=list.map(c=>[c,score(c)]).sort((a,b)=>b[1]-a[1])[0];
+  if(best&&best[1]>=Math.min(3,Math.max(1,F.fp.length)))return best[0].id;
+  const words=F.words,byWord=words.length?list.find(c=>stmtKey(c.name).includes(F.key)&&nameWords(c.name).some(w=>words.includes(w))):null;if(byWord)return byWord.id;
+  if(F.program){const p=list.find(c=>stmtKey(c.name).startsWith(stmtKey(F.program).slice(0,6)));if(p)return p.id;}
+  const same=stmt.files.filter(x=>!x.error&&x!==F&&x.key===F.key);if(same.length&&words.length)return '__new';
+  return list.find(c=>stmtKey(c.name)===F.key||stmtKey(c.name).startsWith(F.key))?.id||'__new';}
+ async function stmtRead(files){const fresh=[];
   for(const file of files){const base={file:file.name};
-   if(/\.pdf$/i.test(file.name)||file.type==='application/pdf'){stmt.items.push({...base,error:'PDF statements can’t be read here. Download the CSV version instead (Etsy: Shop Manager › Finances › Monthly statements › Download CSV). You can still paste a link to the PDF as the record’s evidence.'});continue;}
+   if(/\.pdf$/i.test(file.name)||file.type==='application/pdf'){stmt.files.push({...base,error:'PDF statements can’t be read here. Download the CSV version instead (Etsy: Shop Manager › Finances › Monthly statements › Download CSV; Payhip: Sales › Export). You can still paste a link to the PDF as the record’s evidence.'});continue;}
    try{if(file.size>10e6)throw Error('Files must be smaller than 10 MB.');const bytes=new Uint8Array(await file.arrayBuffer()),enc=bytes[0]===255&&bytes[1]===254?'utf-16le':bytes[0]===254&&bytes[1]===255?'utf-16be':'utf-8';
-    const text=new TextDecoder(enc).decode(bytes).replace(/^\uFEFF/,''),det=CSV.detect(text),parsed=CSV.parse(det.text,det.delimiter);
+    const text=new TextDecoder(enc).decode(bytes).replace(/^﻿/,''),det=CSV.detect(text),parsed=CSV.parse(det.text,det.delimiter);
     let p=null,hi=0;for(;hi<Math.min(parsed.length-1,15);hi++){p=Platforms.detect(parsed[hi].cells,parsed.slice(hi+1),file.name);if(p)break;}
-    if(!p)throw Error('This does not look like a platform statement. Use Import for bank files.');
-    const sums=Platforms.summary(p,parsed[hi].cells,parsed.slice(hi+1));if(!sums.length)throw Error('No dated entries found in this statement.');
-    sums.forEach(S=>{const it={...base,...S,key:stmtKey(p.name),fp:S.titles.map(fnv),cur:S.currency&&S.currency!=='EUR'&&Budget.CURRENCIES.includes(S.currency)?S.currency:'EUR',link:'',replace:true};
-     it.rate=it.cur==='EUR'?1:(state.fxRates?.[it.cur]||'');it.payer=stmtGuess(it,taken);it.newName=it.payer==='__new'?`${p.name} — ${it.file.replace(/\.[^.]+$/,'').slice(0,20)}`:'';taken.add(it.payer+it.month);stmt.items.push(it);});
-   }catch(e){stmt.items.push({...base,error:e.message});}}
+    if(!p){const bal=/starting balance|ending balance|opening balance|closing balance/i.test(text);throw Error(bal?'This is an account or card statement (balances and payments), not income from a platform. Nothing to import here; bank files go through Import.':'This file’s columns aren’t recognised as a platform statement. Bank files go through Import; for other sources, add the month by hand with Add income.');}
+    const sums=Platforms.summary(p,parsed[hi].cells,parsed.slice(hi+1));if(!sums.length)throw Error('No dated amounts found in this file.');
+    const cur=[...sums].reverse().find(x=>x.currency)?.currency,F={...base,platform:p.name,key:stmtKey(p.name),cur:cur&&Budget.CURRENCIES.includes(cur)?cur:'EUR',program:sums.find(x=>x.program)?.program||'',link:'',replace:true,
+     fp:[...new Set(sums.flatMap(x=>x.titles))].map(fnv),words:fileWords(file.name,p.name)};
+    F.months=sums.map(S=>({...S,on:true,rate:stmtRate(F.cur,S.month)}));stmt.files.push(F);fresh.push(F);
+   }catch(e){stmt.files.push({...base,error:e.message});}}
+  // guess payers once every file is in, so two shops on one platform are told apart the same way
+  fresh.forEach(F=>{F.payer=stmtGuess(F);F.newName=F.payer==='__new'?(F.program?F.program.replace(/\s*\(.*\)\s*/,'').slice(0,30)+' affiliate':`${F.platform}${F.words.length?' — '+F.words.slice(0,2).map(w=>w.length<=4?w.toUpperCase():w[0].toUpperCase()+w.slice(1)).join(' '):''}`).slice(0,40):'';});
   stmtRender();}
- function stmtCard(it,i){const x=`data-i="${i}"`,rm=`<button type="button" class="ibtn" data-action="biz-stmt-remove" ${x} aria-label="Remove">${ico('trash')}</button>`;
-  if(it.error)return `<div class="stmt-card is-error"><div class="stmt-head"><div><b>${esc(it.file)}</b><small class="warn">${esc(it.error)}</small></div>${rm}</div></div>`;
-  const C=v=>fmtIn(v,it.cur),E=v=>it.cur==='EUR'||!(+it.rate>0)?'':`<small>${fmt(Math.round(v*it.rate))}</small>`,row=(l,v,sign='',cls='')=>v||cls?`<div class="stmt-row ${cls}"><span>${l}</span><b class="number">${sign}${C(v)}${E(v)}</b></div>`:'';
-  const dup=it.payer!=='__new'&&stmtFind(it).length,twice=stmt.items.filter(o=>!o.error&&o.payer===it.payer&&o.month===it.month&&o.payer!=='__new').length>1;
-  const opts=channels().map(c=>`<option value="${c.id}" ${c.id===it.payer?'selected':''}>${esc(c.name)}</option>`).join('');
-  return `<div class="stmt-card"><div class="stmt-head"><div><b>${esc(it.platform)} · ${monthName(it.month)}</b><small>${esc(it.file)} · ${it.rows} lines · ${dateName(it.from)} – ${dateName(it.to)}</small></div>${rm}</div>`+
-   `<div class="fields"><label>Shop / payer<select data-stmt="payer" ${x}>${opts}<option value="__new" ${it.payer==='__new'?'selected':''}>New payer…</option></select></label>`+
-   (it.payer==='__new'?`<label>New payer’s name<input data-stmt="newName" ${x} maxlength="40" value="${esc(it.newName)}"></label>`:'')+
-   (it.cur==='EUR'?'':`<label>EUR per 1 ${it.cur}<input type="number" data-stmt="rate" ${x} min="0.000001" step="0.000001" value="${it.rate}" placeholder="e.g. 0.9"><small>The rate for this month, from your bank or the ECB</small></label>`)+
-   `<label class="full">Link to the statement <span class="dim">(optional)</span><input type="url" data-stmt="link" ${x} value="${esc(it.link)}" placeholder="https://drive.google.com/…"><small>The file name is kept as evidence either way</small></label></div>`+
-   `<div class="stmt-figs">${row('Sales',it.sales)}${row(`Tax buyers paid, passed on by ${esc(it.platform)}`,it.buyerTax,'−')}${row('Gross income',it.gross,'','stmt-key')}${row('Refunds',it.refunds,'−')}${row(`Platform fees${it.feeTax?` (incl. ${C(it.feeTax)} tax on fees)`:''}`,it.fees,'−')}${it.other?row('Other adjustments',it.other):''}${row('Net payout, before ads',it.payout,'','stmt-key')}`+
-   (it.ads>0?row('Ads &amp; promotion · a separate Advertising expense',it.ads,'−'):'')+(it.shipping>0?row('Shipping labels · a separate expense',it.shipping,'−'):'')+
-   (it.payoutCount?`<div class="stmt-row dim"><span>Sent to your bank this month (${it.payoutCount})</span><b class="number">${C(it.payouts)}</b></div>`:'')+`</div>`+
-   (twice?`<p class="small warn">Two statements for the same payer and month: choose the right shop for each.</p>`:dup?`<label class="checkline"><input type="checkbox" data-stmt="replace" ${x} ${it.replace?'checked':''}><span>A record from this statement already exists for this payer and month. <b>Replace it</b> (untick to skip this one).</span></label>`:'')+`</div>`;}
- function stmtRender(){const box=$('#modal')?.open?$('#modal-body'):null,top=box?box.scrollTop:0,ok=stmt.items.filter(x=>!x.error);
-  modal('Import monthly statements','One income record per shop and month, with sales, buyer taxes, refunds and fees worked out. Ads become a separate expense.',
-   `<label class="stmt-drop"><input type="file" id="stmt-files" accept=".csv,.txt,.tsv,.pdf,text/csv" multiple>${ico('down')}<span><b>Choose statement files</b><small>CSV statements from Etsy, PayPal, Stripe, Shopify, Patreon and similar. One per shop and month; pick several at once.</small></span></label>`+
-   stmt.items.map(stmtCard).join('')+
-   `<div class="formfoot">${button('Cancel','dismiss')}${ok.length?button(`Create ${ok.length} record${ok.length===1?'':'s'}`,'biz-stmt-import','primary'):''}</div>`);
+ function stmtCard(F,i){const x=`data-i="${i}"`,rm=`<button type="button" class="ibtn" data-action="biz-stmt-remove" ${x} aria-label="Remove">${ico('trash')}</button>`;
+  if(F.error)return `<div class="stmt-card is-error"><div class="stmt-head"><div><b>${esc(F.file)}</b><small class="warn">${esc(F.error)}</small></div>${rm}</div></div>`;
+  const C=v=>fmtIn(v,F.cur),shown=F.months.filter(stmtScope),hidden=F.months.length-shown.length,opts=channels().map(c=>`<option value="${c.id}" ${c.id===F.payer?'selected':''}>${esc(c.name)}</option>`).join('');
+  const clash=F.payer!=='__new'&&stmt.files.some(o=>o!==F&&!o.error&&o.payer===F.payer&&o.key===F.key&&o.months.some(m=>m.on&&stmtScope(m)&&shown.some(n=>n.on&&n.month===m.month)));
+  const row=(m,k)=>{const done=F.payer!=='__new'&&stmtFind(F,m).length,E=v=>F.cur==='EUR'||!(+m.rate>0)?'':`<small>${fmt(Math.round(v*m.rate))}</small>`,adj=m.other&&Math.abs(m.other)>Math.max(100,Math.abs(m.gross)*0.01);
+   return `<tr class="${m.on?'':'is-off'}"><td><label class="stmt-on"><input type="checkbox" data-stmt="on" ${x} data-m="${k}" ${m.on?'checked':''}><span>${monthName(m.month)}</span></label>${done?`<span class="pill small">${F.replace?'Replaces the one imported':'Imported · skipped'}</span>`:''}${adj?`<small class="warn stmt-adj" title="The platform’s own totals disagree with its lines this month">${C(m.other)} adjustment to match ${esc(F.platform)}’s reported earnings: check its dashboard</small>`:''}</td>`+
+    `<td class="num">${C(m.gross)}${E(m.gross)}</td><td class="num">${m.refunds?'−'+C(m.refunds):'—'}</td><td class="num">${m.fees?'−'+C(m.fees):'—'}</td><td class="num"><b>${C(m.payout)}</b>${E(m.payout)}${m.withheld?`<small>after ${C(m.withheld)} tax withheld</small>`:''}</td>`+
+    `<td class="num">${m.ads>0||m.shipping>0?C(m.ads+m.shipping):'—'}</td>${F.cur==='EUR'?'':`<td><input type="number" class="stmt-rate" data-stmt="rate" ${x} data-m="${k}" min="0.000001" step="0.000001" value="${m.rate}" placeholder="rate" aria-label="EUR per 1 ${F.cur}, ${monthName(m.month)}"></td>`}</tr>`;};
+  const tax=F.months.some(m=>m.buyerTax)?`<p class="small muted">Gross is after the tax buyers paid, which ${esc(F.platform)} collects and passes on.</p>`:'',wh=F.months.some(m=>m.withheld)?`<p class="small muted">Tax withheld by ${esc(F.platform)} (for example US tax on royalties) is kept in each record’s notes: ask your gestor about the double-taxation credit and keep the year’s tax form.</p>`:'';
+  return `<div class="stmt-card"><div class="stmt-head"><div><b>${esc(F.platform)}${F.program&&F.program!==F.platform?` · ${esc(F.program)}`:''}</b><small>${esc(F.file)} · ${F.months.length} month${F.months.length===1?'':'s'} · ${F.cur}</small></div>${rm}</div>`+
+   `<div class="fields"><label>Payer<select data-stmt="payer" ${x}>${opts}<option value="__new" ${F.payer==='__new'?'selected':''}>New payer…</option></select></label>`+
+   (F.payer==='__new'?`<label>New payer’s name<input data-stmt="newName" ${x} maxlength="40" value="${esc(F.newName)}"></label>`:'<span></span>')+
+   `<label class="full">Link to the file <span class="dim">(optional)</span><input type="url" data-stmt="link" ${x} value="${esc(F.link)}" placeholder="https://drive.google.com/…"><small>The file name is kept as evidence either way</small></label></div>`+
+   (shown.length?`<div class="table-wrap stmt-table"><table><thead><tr><th>Month</th><th class="num">Gross</th><th class="num">Refunds</th><th class="num">Fees</th><th class="num">Payout</th><th class="num">Ads &amp; shipping</th>${F.cur==='EUR'?'':`<th>EUR per 1 ${F.cur}</th>`}</tr></thead><tbody>${F.months.map((m,k)=>stmtScope(m)?row(m,k):'').join('')}</tbody></table></div>`:`<p class="small muted">No months in this period.</p>`)+
+   (hidden?`<p class="small muted">${hidden} month${hidden===1?'':'s'} outside the period above are left out.</p>`:'')+tax+wh+
+   (clash?`<p class="small warn">Another file uses this payer for the same months: choose the right payer for each.</p>`:'')+
+   (F.payer!=='__new'&&shown.some(m=>stmtFind(F,m).length)?`<label class="checkline"><input type="checkbox" data-stmt="replace" ${x} ${F.replace?'checked':''}><span><b>Replace months already imported</b> from this payer (untick to skip them)</span></label>`:'')+`</div>`;}
+ const stmtPick=()=>stmt.files.filter(F=>!F.error).flatMap(F=>F.months.filter(m=>m.on&&stmtScope(m)).map(m=>[F,m]));
+ function stmtRender(){const box=$('#modal')?.open?$('#modal-body'):null,top=box?box.scrollTop:0,n=stmtPick().length,y=+today().slice(0,4);
+  modal('Import statements','One income record per payer and month, with sales, buyer taxes, refunds and fees worked out. Ads and shipping become separate expenses.',
+   `<label class="stmt-drop"><input type="file" id="stmt-files" accept=".csv,.txt,.tsv,.pdf,text/csv" multiple>${ico('down')}<span><b>Choose files</b><small>CSV exports from Etsy, Payhip, Patreon, Canva, Creative Market, Creative Fabrica, Fourthwall, PayPal, Stripe, Shopify, YouTube and affiliate programs. Pick several at once.</small></span></label>`+
+   (stmt.files.length?`<div class="segment stmt-scope" aria-label="Months to import">${[['year',`${y}`],['last',`${y-1}`],['all','All months']].map(([v,l])=>`<button type="button" data-action="biz-stmt-scope" data-scope="${v}" aria-pressed="${stmt.scope===v}">${l}</button>`).join('')}</div>`:'')+
+   stmt.files.map(stmtCard).join('')+
+   `<div class="formfoot">${button('Cancel','dismiss')}${n?button(`Create ${n} income record${n===1?'':'s'}`,'biz-stmt-import','primary'):''}</div>`);
   const b=$('#modal-body');if(b&&top)b.scrollTop=top;}
- function stmtImport(){const t0=today(),items=stmt.items.filter(x=>!x.error);
-  items.forEach(it=>{if(it.payer==='__new'){checkChannel(it.newName);if(!String(it.newName).trim())throw Error('Name the new payer.');}
-   if(!(+it.rate>0&&+it.rate<1e6))throw Error(`Enter the rate for ${it.cur} (${monthName(it.month)}).`);if(!writable(it.month))throw Error(`${monthName(it.month)} is closed. Reopen it first.`);
-   if(it.link&&!/^https?:\/\//i.test(it.link))throw Error('Links must start with http:// or https://');});
-  const keys=items.filter(it=>it.payer!=='__new').map(it=>it.payer+it.month);if(new Set(keys).size!==keys.length)throw Error('Two statements are set to the same payer and month. Choose the right shop for each.');
+ function stmtImport(){const t0=today(),pick=stmtPick();
+  stmt.files.filter(F=>!F.error&&F.payer==='__new'&&F.months.some(m=>m.on&&stmtScope(m))).forEach(F=>{if(!String(F.newName).trim())throw Error('Name the new payer.');checkChannel(F.newName);});
+  pick.forEach(([F,m])=>{if(!(+m.rate>0&&+m.rate<1e6))throw Error(`Enter the rate for ${F.cur} in ${monthName(m.month)} (${F.platform}).`);if(!writable(m.month))throw Error(`${monthName(m.month)} is closed. Reopen it first.`);});
+  stmt.files.forEach(F=>{if(F.link&&!/^https?:\/\//i.test(F.link))throw Error('Links must start with http:// or https://');});
+  const keys=pick.filter(([F])=>F.payer!=='__new').map(([F,m])=>F.payer+F.key+m.month);if(new Set(keys).size!==keys.length)throw Error('Two files use the same payer for the same month. Choose the right payer for each.');
   let made=0,skipped=0;
-  commit(()=>{items.forEach(it=>{
-   const payer=it.payer==='__new'?ensureChannel(it.newName):it.payer,ch=channels().find(c=>c.id===payer);if(!ch)return;it.payer=payer;
-   const old=stmtFind(it);if(old.length&&!it.replace){skipped++;return;}
-   const gone=new Set(old.map(t=>t.id));state.transactions=state.transactions.filter(t=>!gone.has(t.id));
-   const act=ch.act||'digital',rate=it.cur==='EUR'?1:Math.round(+it.rate*1e6)/1e6,date=Budget.endOf(it.month)<=t0?Budget.endOf(it.month):it.to,acct=ch.acct||'';
-   if(it.cur!=='EUR'){state.fxRates??={};state.fxRates[it.cur]=rate;}
-   ch.cur=it.cur;ch.act=act;ch.fp=[...new Set([...(ch.fp||[]),...it.fp])].slice(-400);if(!ch.fp.length)delete ch.fp;
-   const ev=()=>[{id:Budget.uid(),type:'statement',url:it.link||'',name:it.file.slice(0,200)}],src=x=>({k:it.key,m:it.month,f:it.file.slice(0,200),p:payer,...(x?{x}:{})}),mon=monthName(it.month);
-   const cf=v=>fmtIn(v,it.cur),notes=[`From ${it.file}: sales ${cf(it.sales)}`+(it.buyerTax?`, less ${cf(it.buyerTax)} tax buyers paid (passed on by ${it.platform})`:'')+'.',it.feeTax?`Fees include ${cf(it.feeTax)} tax on ${it.platform}’s fees.`:'',it.ads>0?`${it.platform} ads (${cf(it.ads)}) are a separate expense.`:'',it.withheld?`Tax withheld by the platform: ${cf(it.withheld)}.`:'',it.payoutCount?`${it.payoutCount} deposit${it.payoutCount===1?'':'s'} to your bank: ${cf(it.payouts)}.`:''].filter(Boolean).join(' ').slice(0,1000);
-   state.transactions.push({id:Budget.uid(),date,category:(P.incomeCategory||{})[act]||P.defaults.category,channel:payer,amount:Budget.eur(Math.max(0,it.payout),rate),note:`${mon} ${it.platform} statement`,
-    rec:{kind:'income',act,cur:it.cur,rate,gross:Math.max(0,it.gross),refunds:Math.max(0,it.refunds),fees:Math.max(0,it.fees),payout:Math.max(0,it.payout),acct,evidence:ev(),status:'',reviewed:'',notes,src:src()}});made++;
-   const cost=(amount,x,catId,vendor,what)=>{if(!(amount>0))return;const cat=state.categories.some(c=>c.id===catId&&!c.archived)?catId:state.categories.find(c=>Budget.type(c)==='expense'&&!c.archived)?.id;if(!cat)return;
-    state.transactions.push({id:Budget.uid(),date,category:cat,amount:Budget.eur(amount,rate),note:`${mon} ${what}`,rec:{kind:'expense',act,vendor,cur:it.cur,rate,amount,vatShown:0,pct:100,acct,evidence:ev(),status:'',reviewed:'',notes:`From ${it.file}, paid out of the ${it.platform} balance.`,src:src(x)}});made++;};
-   cost(it.ads,'ads',(P.platformDefaults||{}).ads,`${it.platform} Ads`,`${it.platform} ads & promotion`);
-   cost(it.shipping,'shipping',(P.platformDefaults||{}).shipping,`${it.platform} shipping labels`,`${it.platform} shipping labels`);});
-   const last=items.map(x=>x.month).sort().at(-1);if(last)selected=last;},`${items.length} statement${items.length===1?'':'s'} imported`);
-  closeModal();stmt=null;toast(`${made} record${made===1?'':'s'} created${skipped?`, ${skipped} statement${skipped===1?'':'s'} skipped`:''}. Add a link to each statement on Evidence when you can.`);go('income',true);}
+  commit(()=>{const newIds=new Map();
+   pick.forEach(([F,m])=>{let payer=F.payer;if(payer==='__new'){if(!newIds.has(F))newIds.set(F,ensureChannel(F.newName));payer=newIds.get(F);}
+    const ch=channels().find(c=>c.id===payer);if(!ch)return;const G={...F,payer};
+    const old=stmtFind(G,m);if(old.length&&!F.replace){skipped++;return;}
+    const gone=new Set(old.map(t=>t.id));state.transactions=state.transactions.filter(t=>!gone.has(t.id));
+    const act=ch.act||'digital',rate=F.cur==='EUR'?1:Math.round(+m.rate*1e6)/1e6,date=Budget.endOf(m.month)<=t0?Budget.endOf(m.month):m.to,acct=ch.acct||'';
+    if(F.cur!=='EUR'){state.fxRates??={};state.fxRates[F.cur]=rate;state.fxMonthly??={};(state.fxMonthly[F.cur]??={})[m.month]=rate;}
+    ch.cur=F.cur;ch.act=act;ch.fp=[...new Set([...(ch.fp||[]),...F.fp])].slice(-400);if(!ch.fp.length)delete ch.fp;
+    const ev=()=>[{id:Budget.uid(),type:'statement',url:F.link||'',name:F.file.slice(0,200)}],src=x=>({k:F.key,m:m.month,f:F.file.slice(0,200),p:payer,...(x?{x}:{})}),mon=monthName(m.month),who=F.program||F.platform;
+    const cf=v=>fmtIn(v,F.cur),notes=[`From ${F.file}: sales ${cf(m.sales)}`+(m.buyerTax?`, less ${cf(m.buyerTax)} tax buyers paid (passed on by ${F.platform})`:'')+'.',m.feeTax?`Fees include ${cf(m.feeTax)} tax on ${F.platform}’s fees.`:'',m.other?`Includes a ${cf(m.other)} adjustment to match ${F.platform}’s reported earnings.`:'',m.withheld?`${cf(m.withheld)} tax withheld by ${F.platform} before paying: ask your gestor about the double-taxation credit.`:'',m.ads>0?`${F.platform} ads (${cf(m.ads)}) are a separate expense.`:'',m.payoutCount?`${m.payoutCount} deposit${m.payoutCount===1?'':'s'} to your bank: ${cf(m.payouts)}.`:''].filter(Boolean).join(' ').slice(0,1000);
+    state.transactions.push({id:Budget.uid(),date,category:(P.incomeCategory||{})[act]||P.defaults.category,channel:payer,amount:Budget.eur(Math.max(0,m.payout),rate),note:`${mon} ${who}`,
+     rec:{kind:'income',act,cur:F.cur,rate,gross:Math.max(0,m.gross),refunds:Math.max(0,m.refunds),fees:Math.max(0,m.fees),payout:Math.max(0,m.payout),acct,evidence:ev(),status:'',reviewed:'',notes,src:src()}});made++;
+    const cost=(amount,x,catId,vendor,what)=>{if(!(amount>0))return;const cat=state.categories.some(c=>c.id===catId&&!c.archived)?catId:state.categories.find(c=>Budget.type(c)==='expense'&&!c.archived)?.id;if(!cat)return;
+     state.transactions.push({id:Budget.uid(),date,category:cat,amount:Budget.eur(amount,rate),note:`${mon} ${what}`,rec:{kind:'expense',act,vendor,cur:F.cur,rate,amount,vatShown:0,pct:100,acct,evidence:ev(),status:'',reviewed:'',notes:`From ${F.file}, paid out of the ${F.platform} balance.`,src:src(x)}});made++;};
+    cost(m.ads,'ads',(P.platformDefaults||{}).ads,`${F.platform} Ads`,`${F.platform} ads & promotion`);
+    cost(m.shipping,'shipping',(P.platformDefaults||{}).shipping,`${F.platform} shipping`,`${F.platform} shipping & merch`);});
+   const last=pick.map(([,m])=>m.month).sort().at(-1);if(last)selected=last;},`${pick.length} month${pick.length===1?'':'s'} imported`);
+  closeModal();stmt=null;toast(`${made} record${made===1?'':'s'} created${skipped?`, ${skipped} month${skipped===1?'':'s'} skipped`:''}. Add a link to each file on Evidence when you can.`);go('income',true);}
  document.addEventListener('change',e=>{if(!stmt)return;const el=e.target;
   if(el.id==='stmt-files'){const files=[...el.files];el.value='';stmtRead(files);return;}
-  const k=el.dataset?.stmt,it=stmt.items[+el.dataset.i];if(!k||!it)return;
-  it[k]=k==='replace'?el.checked:el.value;if(k==='payer'&&el.value==='__new'&&!it.newName)it.newName=`${it.platform} — `;stmtRender();});
+  const k=el.dataset?.stmt,F=stmt.files[+el.dataset.i];if(!k||!F)return;
+  if(k==='on'){F.months[+el.dataset.m].on=el.checked;}
+  else if(k==='rate'){const m=F.months[+el.dataset.m],v=el.value;m.rate=v;
+   // the same month and currency in the other files follows, unless set there already
+   stmt.files.forEach(o=>{if(o!==F&&!o.error&&o.cur===F.cur)o.months.forEach(n=>{if(n.month===m.month&&!n.rateSet)n.rate=v;});});m.rateSet=true;}
+  else{F[k]=k==='replace'?el.checked:el.value;if(k==='payer'&&el.value==='__new'&&!F.newName)F.newName=`${F.platform} — `;}
+  stmtRender();});
  function recPreview(){const f=$('#rec-form');if(!f)return;const g=n=>Budget.cents(f.querySelector(`[name=${n}]`)?.value||'0')||0,rate=+f.querySelector('[name=rate]').value||0,cur=f.querySelector('[name=cur]').value,E=x=>fmt(Math.round(x*rate)),out=$('#rec-eur');
   if(f.dataset.kind==='income'){const p=f.querySelector('[name=payout]'),rec={gross:g('gross'),refunds:g('refunds'),fees:g('fees'),vat:+(f.querySelector('[name=vat]')?.value||0),ret:+(f.querySelector('[name=ret]')?.value||0),rate,cur},x=Budget.recTax(rec);
    if(p.dataset.auto==='1')p.value=g('gross')?val(Budget.recPayout(rec)):'';
@@ -4680,7 +4787,8 @@ const Biz=(()=>{
   case 'biz-rep-range':repR={from:b.dataset.from,to:b.dataset.to};render();break;
   case 'biz-rep-print':printReport();break;
   case 'biz-stmt-open':stmtOpen();break;
-  case 'biz-stmt-remove':if(stmt){stmt.items.splice(+b.dataset.i,1);stmtRender();}break;
+  case 'biz-stmt-remove':if(stmt){stmt.files.splice(+b.dataset.i,1);stmtRender();}break;
+  case 'biz-stmt-scope':if(stmt){stmt.scope=['year','last','all'].includes(b.dataset.scope)?b.dataset.scope:'year';stmtRender();}break;
   case 'biz-stmt-import':if(stmt)stmtImport();break;
   case 'biz-th-period':thPeriod=['month','quarter','year'].includes(b.dataset.p)?b.dataset.p:'month';render();break;
   case 'biz-plana-toggle':{const on=!state.settings.es?.plana;commit(()=>{state.settings.es={...state.settings.es,plana:on};if(on&&state.settings.es.planaUntil&&state.settings.es.planaUntil<today())state.settings.es.planaUntil='';},on?'Tarifa plana on: €80 a month':'Tarifa plana off');break;}

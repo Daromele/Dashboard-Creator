@@ -96,4 +96,38 @@ Aug 2026,1512.00,-120.96,-45.36,1345.68,USD`,'patreon-earnings.csv');
   const R=B.receivables(V,'2026-09-15');
   eq('receivables convert at the remembered rate', [R.total,R.open.map(i=>i.home),R.unrated.length], [136000+50000,[136000,50000],0]);
   delete V.fxRates.USD;eq('no rate: listed but not totalled', [B.receivables(V,'2026-09-15').total,B.receivables(V,'2026-09-15').unrated.length], [50000,1]);
+  // ---- more sources, each summed per month as "Import statements" does (synthetic rows in each platform's layout) ----
+  const sum=(text,file='')=>{const rows=CSV.parse(text,CSV.detect(text).delimiter);let hi=0,p=null;for(;hi<5&&!p;hi++)p=Platforms.detect(rows[hi].cells,rows.slice(hi+1),file);hi--;return {p,S:p&&Platforms.summary(p,rows[hi].cells,rows.slice(hi+1))};};
+  const pick=(x,...k)=>k.map(n=>x[n]);
+  let t=sum(`Month,Currency,Membership charges - web,Membership charges - iOS app,Shop charges - web,Shop charges - iOS app,Total gross revenue,Patreon fee,Taxes on fees,Total platform fee,Processing fee,Currency conversion fee,iOS App Store fee,Total payment fee,Merch items and shipping,Refunds,Net earnings - membership - web,Net earnings - membership - iOS app,Net earnings - shop - web,Net earnings - shop - iOS app,Your total earnings
+2026-08,USD,80.00,0.00,20.00,0.00,100.00,-8.00,-1.00,-9.00,-6.00,-1.00,0.00,-7.00,0.00,-10.00,60.00,0.00,14.00,0.00,74.00
+2026-09,USD,50.00,0.00,0.00,0.00,50.00,-4.00,-0.50,-4.50,-3.00,-0.50,0.00,-3.50,0.00,0.00,42.00,0.00,0.00,0.00,45.00`,'creator-analytics-earnings.csv');
+  eq('patreon: gross, refunds, fees (platform + payment, not double), payout = reported earnings', [t.p.id,...pick(t.S[0],'gross','refunds','fees','payout','other')], ['patreon',10000,1000,1600,7400,0]);
+  eq('patreon: a month whose lines disagree keeps the reported earnings and shows the difference', pick(t.S[1],'payout','other'), [4500,300]);
+  t=sum(`"Order ID",Email,"First Name","Last Name",Currency,"Amount Gross","Amount Net",Status,"Num of Items In Cart","Items In Cart","Payment Type","PayPal/Stripe Fee","Payhip Fee","Payhip Collected Sales Tax On Your Behalf","Payhip Collected Sales Tax Amount","Custom VAT Amount",Date
+"1",a@example.com,A,B,USD,16.45,13.14,COMPLETED,1,"Budget Sheet",paypal,1.06,0.75,1,1.50,0.00,"2026-09-12 10:00:00"
+"2",c@example.com,C,D,USD,0.00,0.00,COMPLETED,1,"Freebie",free,,0.00,0,0.00,0.00,"2026-09-13 10:00:00"
+"3",e@example.com,E,F,USD,24.99,22.72,COMPLETED,1,"Debt Tracker",stripe,1.02,1.25,0,0.00,0.00,"2026-09-14 10:00:00"`,'payhip shop.csv');
+  eq('payhip: sales tax Payhip collected comes off gross; payment and Payhip fees; free orders skipped', [t.p.id,...pick(t.S[0],'sales','buyerTax','gross','fees','payout')], ['payhip',4144,150,3994,408,3586]);
+  eq('payhip: item titles recognise the shop', t.S[0].titles, ['budget sheet','debt tracker']);
+  t=sum(`Date,Method,Transaction ID,Gross amount,Tax withheld,Payment
+"August 14, 2026",Trolley,X1,US$586.37,US$29.32,US$557.05`,'Canva Royalty Payments.csv');
+  eq('canva: gross, US tax withheld, payout after it', [t.p.id,...pick(t.S[0],'currency','gross','withheld','payout')], ['canva','USD',58637,2932,55705]);
+  t=sum(`Transaction ID,Payout Method,Payout Account,Amount,Transaction Fee,Date requested,Status
+2,paypal,x@example.com,$10.14,$0.00,2026-09-30 08:15:53,Payment will be sent in 7 days
+1,paypal,x@example.com,$10.92,$0.00,2026-09-07 15:20:18,Paid on 2026-09-14 10:00:59`,'Creative Fabrica Royalty Payments.csv');
+  eq('creative fabrica: paid payouts on their paid date, pending ones wait', [t.p.id,t.S.length,...pick(t.S[0],'month','gross','payout')], ['creativefabrica',1,'2026-09',1092,1092]);
+  t=sum(`Date,Status,Product,Customer,Price,Earnings,Taxes,License
+2026-09-11,,"Wheel Template","Someone",12.00,6.00,0.00,Personal
+2026-09-03,Refunded,"Planner","Someone Else",24.00,12.00,0.00,Commercial`,'Creative Market Sales.csv');
+  eq('creative market: price is the sale, its share is the fee, a refund reverses both', [t.p.id,...pick(t.S[0],'gross','refunds','fees','payout')], ['creativemarket',1200,2400,600-1200,-600]);
+  t=sum(`"type","id","date","status","customer_email","marketing_opt_in","merchandise","donation","username","message","friendly_id","customer_phone","shipping","taxes","discount","refunded"
+"Order","1","2026-09-20T02:35:09.6Z","Delivered","a@example.com","false","10.99","","","","A1","","","0.00","1.65",""
+"Order","2","2026-09-21T02:35:09.6Z","Delivered","b@example.com","false","8.00","2.00","","","A2","","","0.50","","3.00"
+"Order","3","2026-09-22T02:35:09.6Z","Canceled","c@example.com","false","20.00","","","","A3","","","0.00","",""`,'Shop-orders_export.csv');
+  eq('fourthwall: merchandise and donations less discounts, refunds apart, cancelled skipped', [t.p.id,...pick(t.S[0],'gross','refunds','payout')], ['fourthwall',1934,300,1634]);
+  t=sum(`Issued Commission Amount,Issued Commission Currency,Created,Commission status,Estimated available date,Program
+39.04,USD,2025-11-18 19:12:53,Withdrawn,2026-01-14 14:06:21,Kit (formerly ConvertKit)
+10.00,USD,2025-11-20 19:12:53,Rejected,2026-01-14 14:06:21,Kit (formerly ConvertKit)`,'PartnerCommissionsExport.csv');
+  eq('affiliate commissions: on their created date, rejected ones left out, the program named', [t.p.id,...pick(t.S[0],'month','gross','program')], ['commissions','2025-11',3904,'Kit (formerly ConvertKit)']);
 };

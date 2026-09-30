@@ -136,8 +136,8 @@ await p.evaluate(()=>{state.transactions=[];state.fxRates={USD:0.9};save();go('i
 await p.click('#content [data-action="biz-stmt-open"]');
 await p.setInputFiles('#stmt-files',[{name:'etsy_statement_2026_8.csv',mimeType:'text/csv',buffer:Buffer.from(etsy('August',SA,'100.00'))},{name:'shop2.csv',mimeType:'text/csv',buffer:Buffer.from(etsy('August',SB,'60.00'))},{name:'statement.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.4')}]);await p.waitForTimeout(300);
 ok('statements read, a PDF explained',await p.evaluate(()=>document.querySelectorAll('.stmt-card').length===3&&/Download the CSV/.test(document.querySelector('.stmt-card.is-error').innerText)));
-ok('the same payer twice is flagged',await p.evaluate(()=>/same payer and month/.test(document.querySelector('#modal-body').innerText)));
-await (await p.$$('[data-stmt="payer"]'))[1].selectOption('__new');await p.waitForTimeout(100);await p.fill('[data-stmt="newName"]','Etsy — Wedding Shop');await p.dispatchEvent('[data-stmt="newName"]','change');await p.waitForTimeout(100);
+ok('a second shop on the same platform starts as a new payer named from its file',await p.evaluate(()=>{const s=[...document.querySelectorAll('[data-stmt="payer"]')];return s[0].selectedOptions[0].text==='Etsy'&&s[1].value==='__new'&&document.querySelector('[data-stmt="newName"]').value==='Etsy — Shop2';}));
+await p.fill('[data-stmt="newName"]','Etsy — Wedding Shop');await p.dispatchEvent('[data-stmt="newName"]','change');await p.waitForTimeout(100);
 await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(250);
 let st=await p.evaluate(()=>state.transactions.map(t=>({note:t.note,amount:t.amount,payer:Biz.channels().find(c=>c.id===t.channel)?.name,rec:t.rec})));
 const inc=st.find(t=>t.payer==='Etsy');
@@ -149,7 +149,7 @@ ok('next month, each statement finds its shop by its listings',JSON.stringify(aw
 await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(250);
 await p.click('#content [data-action="biz-stmt-open"]');
 await p.setInputFiles('#stmt-files',[{name:'etsy_statement_2026_8.csv',mimeType:'text/csv',buffer:Buffer.from(etsy('August',SA,'100.00'))}]);await p.waitForTimeout(250);
-ok('importing a statement again offers to replace it',await p.evaluate(()=>/already exists/.test(document.querySelector('.stmt-card').innerText)));
+ok('importing a statement again offers to replace it',await p.evaluate(()=>/Replace months already imported/.test(document.querySelector('.stmt-card').innerText)&&/Replaces the one imported/.test(document.querySelector('.stmt-card').innerText)));
 await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(250);
 ok('replaced, not doubled',await p.evaluate(()=>state.transactions.length===8));
 if(OUT)await p.screenshot({path:OUT+'/es-statements.png',fullPage:true});
