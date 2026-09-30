@@ -277,4 +277,16 @@ await p.click('[data-action="biz-cattag-apply"]');await p.waitForTimeout(100);
 ok('existing entries in the category carry it',await p.evaluate(()=>state.transactions.every(t=>Biz.tagName(Biz.tagOf(t))==='Studio tools')));
 await p.evaluate(()=>state.transactions.push({id:'tc',date:'2026-09-03',category:'software',amount:900,note:'Figma',rec:{kind:'expense',act:'digital',vendor:'Figma',cur:'EUR',rate:1,amount:900,vatShown:0,pct:100,acct:'',evidence:[],status:'',reviewed:'',notes:''}}));
 ok('and a new one follows',await p.evaluate(()=>Biz.tagName(Biz.tagOf(state.transactions.find(t=>t.id==='tc')))==='Studio tools'));
+// 16. two reports of one Patreon account: one payer, each month once, from the more detailed file
+const PO=`Month,Currency,Total gross revenue,Patreon fee,Taxes on fees,Total platform fee,Total payment fee,Refunds,Your total earnings
+2026-08,USD,100.00,-8.00,-1.00,-9.00,-7.00,0.00,84.00
+2026-09,USD,50.00,-4.00,-0.50,-4.50,-3.50,0.00,42.00`;
+const PB=`Month - successful transactions,Currency,Total gross earnings,Patreon platform fees,Taxes on fees,Total payment processing fees,Refunds,Patreon adjustments,Recovered payments,Total net earnings
+2026-09,USD,55.00,-4.00,-0.50,-3.50,-5.00,0.00,0.00,42.00`;
+await p.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());go('income',true);});await p.waitForTimeout(100);
+await p.click('#content [data-action="biz-stmt-open"]');await p.setInputFiles('#stmt-files',[{name:'creator-analytics-earnings.csv',mimeType:'text/csv',buffer:Buffer.from(PO)},{name:'patreon_earnings_breakdown_by_month.csv',mimeType:'text/csv',buffer:Buffer.from(PB)}]);await p.waitForTimeout(700);
+ok('both Patreon files go to the same payer, not a new one',await p.evaluate(()=>{const s=[...document.querySelectorAll('[data-stmt="payer"]')].map(x=>x.value);return s.length===2&&s[0]===s[1]&&s[0]!=='__new';}));
+ok('the shared month is left out of the less detailed file, with a note',await p.evaluate(()=>{const c=document.querySelectorAll('.stmt-card');return /Also in patreon_earnings_breakdown/.test(c[0].innerText)&&!/Also in/.test(c[1].innerText);}));
+await p.click('[data-action="biz-stmt-import"]');await p.waitForTimeout(300);
+ok('each month is imported once',JSON.stringify(await p.evaluate(()=>state.transactions.filter(t=>t.rec?.src&&/patreon|creator-analytics/.test(t.rec.src.f||'')).map(t=>t.date.slice(0,7)+':'+t.rec.gross).sort()))===JSON.stringify(['2026-08:10000','2026-09:5500']));
 ok('no page errors',!errs.length,errs.join('|'));await b.close();})();

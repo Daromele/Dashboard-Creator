@@ -4356,13 +4356,17 @@ const Biz=(()=>{
  const stmtRate=(cur,month)=>cur==='EUR'?1:(fxMonth(cur,month)||'');
  // an income record from another source (added by hand, another file) for the same payer and month with the same gross or payout
  const stmtTwin=(F,m)=>F.payer!=='__new'&&state.transactions.some(t=>t.rec?.kind==='income'&&t.channel===F.payer&&t.date.slice(0,7)===m.month&&!(t.rec.src?.k===F.key)&&(t.rec.gross===m.gross||t.rec.payout===m.payout));
+ const stmtOtherShop=(a,b)=>a.fp.length>0&&b.fp.length>0&&!a.fp.some(h=>b.fp.includes(h));
+ // how much a file breaks a month down (fees, refunds, taxes); a figure forced to match the platform's total counts against it
+ const stmtDetail=F=>F.months.reduce((n,m)=>n+['fees','refunds','feeTax','buyerTax','withheld','shipping','ads'].filter(k=>m[k]).length-(m.other&&Math.abs(m.other)>Math.max(100,Math.abs(m.gross)*0.01)?1:0),0)/Math.max(1,F.months.length);
  function stmtOpen(){stmt={files:[],scope:'year'};stmtRender();}
  // the payer a file most likely belongs to: shared titles, then a payer named with words from the file name, then the platform's own
  function stmtGuess(F){const list=channels(),score=c=>(c.fp||[]).filter(h=>F.fp.includes(h)).length,best=list.map(c=>[c,score(c)]).sort((a,b)=>b[1]-a[1])[0];
   if(best&&best[1]>=Math.min(3,Math.max(1,F.fp.length)))return best[0].id;
   const words=F.words,byWord=words.length?list.find(c=>stmtKey(c.name).includes(F.key)&&nameWords(c.name).some(w=>words.includes(w))):null;if(byWord)return byWord.id;
   if(F.program){const p=list.find(c=>stmtKey(c.name).startsWith(stmtKey(F.program).slice(0,6)));if(p)return p.id;}
-  const same=stmt.files.filter(x=>!x.error&&x!==F&&x.key===F.key);if(same.length&&words.length)return '__new';
+  // another file from the same platform is a second shop only when its titles differ; two reports of one account share a payer
+  const same=stmt.files.filter(x=>!x.error&&x!==F&&x.key===F.key&&stmtOtherShop(x,F));if(same.length&&words.length)return '__new';
   return list.find(c=>stmtKey(c.name)===F.key||stmtKey(c.name).startsWith(F.key))?.id||'__new';}
  async function stmtRead(files){const fresh=[];
   for(const file of files){const base={file:file.name};
@@ -4381,6 +4385,14 @@ const Biz=(()=>{
   stmt.files.filter(F=>!F.error).forEach(F=>F.months.forEach(m=>{if(m.est&&stmt.files.some(o=>o!==F&&!o.error&&o.key===F.key&&o.months.some(n=>!n.est&&n.month===m.month))){m.on=false;m.final=true;}}));
   // guess payers once every file is in, so two shops on one platform are told apart the same way
   fresh.forEach(F=>{F.payer=stmtGuess(F);F.months.forEach(m=>{if(stmtTwin(F,m))m.on=false;});F.newName=F.payer==='__new'?(F.program?F.program.replace(/\s*\(.*\)\s*/,'').slice(0,30)+' affiliate':`${F.platform}${F.words.length?' — '+F.words.slice(0,2).map(w=>w.length<=4?w.toUpperCase():w[0].toUpperCase()+w.slice(1)).join(' '):''}`).slice(0,40):'';});
+  // two reports of the same account (Patreon's old and new layouts, Fourthwall's orders and transactions): one payer, and
+  // each month once, from the file that breaks it down more (on a tie, the one added later)
+  const ok=stmt.files.filter(F=>!F.error);
+  ok.forEach((F,i)=>ok.slice(0,i).forEach(G=>{if(G.key!==F.key||stmtOtherShop(F,G))return;
+   if(F.payer==='__new'&&G.payer==='__new'&&fresh.includes(F))F.newName=G.newName;
+   if(F.payer!==G.payer||F.payer==='__new'&&F.newName!==G.newName)return;
+   const [keep,drop]=stmtDetail(G)>stmtDetail(F)?[G,F]:[F,G];
+   drop.months.forEach(m=>{if(!m.final&&keep.months.some(n=>n.month===m.month&&!n.final)){m.on=false;m.dupOf=keep.file;}});}));
   stmtRender();await stmtRates();}
  // the month's ECB average for each file's currency, fetched in the background while you review
  async function stmtRates(){const curs=new Map();stmt.files.filter(F=>!F.error&&F.cur!=='EUR').forEach(F=>curs.set(F.cur,[...(curs.get(F.cur)||[]),...F.months.map(m=>m.month)]));if(!curs.size)return;
@@ -4392,7 +4404,7 @@ const Biz=(()=>{
   const clash=F.payer!=='__new'&&stmt.files.some(o=>o!==F&&!o.error&&o.payer===F.payer&&o.key===F.key&&o.months.some(m=>m.on&&stmtScope(m)&&shown.some(n=>n.on&&n.month===m.month)));
   const row=(m,k)=>{const done=F.payer!=='__new'&&stmtFind(F,m).length,E=v=>F.cur==='EUR'||!(+m.rate>0)?'':`<small>${fmt(Math.round(v*m.rate))}</small>`,adj=m.other&&Math.abs(m.other)>Math.max(100,Math.abs(m.gross)*0.01);
    const twin=!done&&stmtTwin(F,m);
-   return `<tr class="${m.on?'':'is-off'}"><td><label class="stmt-on"><input type="checkbox" data-stmt="on" ${x} data-m="${k}" ${m.on?'checked':''}><span>${monthName(m.month)}</span></label>${done?`<span class="pill small">${F.replace?'Replaces the one imported':'Imported · skipped'}</span>`:''}${m.est?`<small class="stmt-fx">${m.final?'Estimate: the final figure from the other file is used':'Estimate: YouTube’s final figure comes with the AdSense payment'}</small>`:''}${twin?`<small class="warn stmt-adj">Possible duplicate: a record from this payer this month has the same amount. Left out; tick to import anyway.</small>`:''}${adj?`<small class="warn stmt-adj" title="The platform’s own totals disagree with its lines this month">${C(m.other)} adjustment to match ${esc(F.platform)}’s reported earnings: check its dashboard</small>`:''}</td>`+
+   return `<tr class="${m.on?'':'is-off'}"><td><label class="stmt-on"><input type="checkbox" data-stmt="on" ${x} data-m="${k}" ${m.on?'checked':''}><span>${monthName(m.month)}</span></label>${done?`<span class="pill small">${F.replace?'Replaces the one imported':'Imported · skipped'}</span>`:''}${m.est?`<small class="stmt-fx">${m.final?'Estimate: the final figure from the other file is used':'Estimate: YouTube’s final figure comes with the AdSense payment'}</small>`:''}${m.dupOf?`<small class="stmt-fx">Also in ${esc(m.dupOf)}, which is used for this month. Tick to use this file instead (and untick it there).</small>`:''}${twin?`<small class="warn stmt-adj">Possible duplicate: a record from this payer this month has the same amount. Left out; tick to import anyway.</small>`:''}${adj?`<small class="warn stmt-adj" title="The platform’s own totals disagree with its lines this month">${C(m.other)} adjustment to match ${esc(F.platform)}’s reported earnings: check its dashboard</small>`:''}</td>`+
     `<td class="num">${C(m.gross)}${E(m.gross)}</td><td class="num">${m.refunds?'−'+C(m.refunds):'—'}</td><td class="num">${m.fees?'−'+C(m.fees):'—'}</td><td class="num"><b>${C(m.payout)}</b>${E(m.payout)}${m.withheld?`<small>after ${C(m.withheld)} tax withheld</small>`:''}</td>`+
     `<td class="num">${m.ads>0||m.shipping>0?C(m.ads+m.shipping):'—'}</td>${F.cur==='EUR'?'':`<td class="num">${m.rate?Number(m.rate).toFixed(4):'—'}<span class="stmt-fx">${m.rate?'ECB average':stmt.busy?'fetching…':'pending: set when online'}</span></td>`}</tr>`;};
   const tax=F.months.some(m=>m.buyerTax)?`<p class="small muted">Gross is after the tax buyers paid, which ${esc(F.platform)} collects and passes on.</p>`:'',wh=F.months.some(m=>m.withheld)?`<p class="small muted">Tax withheld by ${esc(F.platform)} (for example US tax on royalties) is kept in each record’s notes: ask your gestor about the double-taxation credit and keep the year’s tax form.</p>`:'';
