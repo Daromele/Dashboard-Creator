@@ -154,6 +154,14 @@ try {
   ok((await page.evaluate(async () => (await fetch('manifest.webmanifest')).status)) === 200 && (await page.evaluate(async () => (await fetch('sw.js')).status)) === 200, 'manifest and service worker are served');
   ok((await page.$$('.shop-row.done')).length === 1, 'check off an item');
 
+  // where recipes come from: each website marked by how it imports, filterable
+  await page.evaluate(() => { const add = (t, u, pasted='') => state.recipes.push(Logic.recipe({ title: t, sourceUrl: u, sourceName: hostOf(u), ingredients: ['x'], pasted })); add('Allrecipes One', 'https://www.allrecipes.com/recipe/1/', 'pasted text'); add('Unknown One', 'https://someblog.example/r/1', 'pasted text'); add('HF One', 'https://www.hellofresh.com/recipes/x'); srcFilter = 'all'; go('dashboard'); });
+  const srcTxt = await page.textContent('.src-rank');
+  ok(srcTxt.includes('Paste only') && srcTxt.includes('Imports by link') && srcTxt.includes('Not checked yet'), 'sources show how each website imports: ' + srcTxt.replace(/\s+/g, ' '));
+  await page.click('[data-action="src-filter"][data-v="paste"]');
+  ok((await page.$$('.src-rank .rank-row')).length === 1 && (await page.textContent('.src-rank')).includes('allrecipes.com'), 'sources filter to paste-only websites');
+  await shot('n-sources');
+  await page.evaluate(() => { state.recipes = state.recipes.filter(r => !['Allrecipes One', 'Unknown One', 'HF One'].includes(r.title)); srcFilter = 'all'; save(); render(); });
   // restore a backup: merge adds what's missing, keeps the newest edit, never duplicates
   const pre = await page.evaluate(() => ({ n: state.recipes.length, shop: state.shopping.length }));
   const bk = await page.evaluate(async () => { const j = JSON.parse(await backupJSON());

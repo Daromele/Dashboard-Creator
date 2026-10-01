@@ -720,6 +720,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
 
 .rank{display:grid;gap:var(--s2)}
 .rank-row{display:grid;grid-template-columns:24px 1fr auto;gap:var(--s3);align-items:center;font-size:13px}
+.src-seg{margin-bottom:var(--s4)}.src-name{display:flex;align-items:center;gap:8px;min-width:0}.src-name .clamp{min-width:0}.src-name .pill svg{width:11px;height:11px}
 .rank-row i{font:700 11px var(--num);color:var(--ink-3);font-style:normal}
 .rank-bar{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden;margin-top:4px}.rank-bar b{display:block;height:100%;background:var(--accent)}
 .mini-list .row button{text-align:left;font-weight:600}.mini-list .row button:hover{color:var(--accent)}
@@ -1466,6 +1467,19 @@ function errorBox(msg,url,blocked=false){return `<div class="notice refused" rol
 function paintImport(){document.querySelectorAll('.import-status').forEach(el=>el.innerHTML=importMsg);document.querySelectorAll('[data-import-go]').forEach(b=>{b.disabled=importing;});}
 const linkbar=(light=false)=>`<form class="linkbar ${light?'light':''}" data-form="link" role="search" aria-label="Import a recipe from a link"><label class="sr-only" for="link-${light?'b':'a'}">Recipe link</label><input id="link-${light?'b':'a'}" name="url" type="url" inputmode="url" autocomplete="off" placeholder="Paste a recipe link: https://…" value="${esc(lastLink)}" required><button class="btn ${light?'primary':'pop'}" data-import-go ${importing?'disabled':''}>${ico('link')}Import recipe</button></form><div class="import-status" aria-live="polite">${importMsg}</div>`;
 
+// how a website's recipes come in: 'link' (imports by link), 'paste' (blocks it: paste the page), 'unknown' (not tried yet)
+function siteStatus(host,recipes=[]){if(!host)return 'own';const u='https://'+host;
+ if(hardSite(u)||state.siteBlocks?.[host])return 'paste';
+ if(SITES.good.some(([,l])=>l.some(x=>siteMatch(host,[x[1]])))||state.mySites?.[host]||recipes.some(r=>r.sourceUrl&&!r.pasted))return 'link';
+ return 'unknown';}
+const SRC_LABEL={link:['Imports by link','good',ico('check')],paste:['Paste only','warn',ico('paste')],unknown:['Not checked yet','',''],own:['Your own','','']};
+let srcFilter='all';
+function srcCard(bySite){const counts={link:0,paste:0,unknown:0};bySite.forEach(x=>{if(counts[x[2]]!=null)counts[x[2]]++;});
+ const rows=bySite.filter(x=>srcFilter==='all'||x[2]===srcFilter),max=Math.max(1,...rows.map(x=>x[1]));
+ const seg=[['all','All'],['link','Imports by link'],['paste','Paste only'],['unknown','Not checked']].filter(([k])=>k==='all'||counts[k]).map(([k,l])=>`<button type="button" data-action="src-filter" data-v="${k}" aria-pressed="${srcFilter===k}">${l}${k!=='all'?` <span class="dim">${counts[k]}</span>`:''}</button>`).join('');
+ return `<section class="card">${cardhead('Where your recipes come from','Whether each website imports by link or needs the page pasted.','globe')}<div class="segment src-seg" role="group" aria-label="Filter websites">${seg}</div>
+ <div class="rank src-rank">${rows.slice(0,8).map(([s,n,st,h],i)=>{const [l,c,ic]=SRC_LABEL[st];return `<div class="rank-row"><i>${pad(i+1)}</i><div><span class="src-name"><span class="clamp">${esc(s)}</span>${st==='own'?'':`<span class="pill ${c}" title="${st==='paste'?'This website blocks automatic import: open the recipe, copy the page and use Paste the page text.':st==='unknown'?'Not tried by link yet. Check it under Add a recipe.':'Paste a link from this website and the whole recipe comes in.'}">${ic}${l}</span>`}</span><div class="rank-bar"><b style="width:${(n/max*100).toFixed(0)}%"></b></div></div><b class="number">${n}</b></div>`;}).join('')||`<p class="small dim">No websites in this group.</p>`}</div>
+ ${rows.length>8?`<p class="small dim" style="margin-top:10px">${plural(rows.length-8,'more website')}</p>`:''}${counts.unknown&&srcFilter==='unknown'?`<div class="actions" style="margin-top:12px">${button(ico('check')+'Check a website','sites-go','small')}</div>`:''}</section>`;}
 function sitesRow(){const worked=workedHosts();
  const chip=([n,h,url])=>{const ok=[...worked.keys()].some(w=>siteMatch(w,[h]));return `<a class="site ${ok?'ok':''}" href="${url}" target="_blank" rel="noopener noreferrer" title="${ok?'You’ve imported from this site':'Tested with Recipe Library Studio'}">${ok?ico('check'):''}${esc(n)}</a>`;};
  const mine=Object.entries(state.mySites||{}).sort((a,b)=>a[1].name.localeCompare(b[1].name));
@@ -1506,7 +1520,7 @@ const VIEWS={
    cooked=rs.filter(r=>r.made.length),toTry=rs.filter(r=>!r.made.length),favs=rs.filter(r=>r.favorite),sites=new Set(rs.map(r=>r.sourceName).filter(Boolean)),
    w=Logic.weekStart(today()),planned=state.plans.filter(p=>p.date>=w&&p.date<=addDays(w,6)),left=state.shopping.filter(i=>!i.checked).length,prevMade=Logic.madeBetween(state,addMonths(m,-1)+'-01',endOf(addMonths(m,-1))).length;
   const top=[...rs].sort((a,b)=>b.made.length-a.made.length)[0],next=toTry.sort((a,b)=>b.createdAt.localeCompare(a.createdAt))[0],
-   bySite=[...rs.reduce((mp,r)=>mp.set(r.sourceName||'My own recipes',(mp.get(r.sourceName||'My own recipes')||0)+1),new Map())].sort((a,b)=>b[1]-a[1]);
+   bySite=[...rs.reduce((mp,r)=>{const h=hostOf(r.sourceUrl),k=h||'own';const e=mp.get(k)||{name:h?(r.sourceName&&!/^[\w.-]+\.[a-z]{2,}$/i.test(r.sourceName)?r.sourceName:h):'My own recipes',host:h,rs:[]};e.rs.push(r);return mp.set(k,e);},new Map()).values()].map(e=>[e.name,e.rs.length,siteStatus(e.host,e.rs),e.host]).sort((a,b)=>b[1]-a[1]);
   const tips=[top?.made.length?`<span><b>Most-made recipe:</b>&nbsp;${esc(top.title)} · ${plural(top.made.length,'time')}</span>`:'',
    next?`<span><b>${plural(toTry.length,'recipe')} still to try.</b>&nbsp;Next up: ${esc(next.title)}</span>`:'',
    bySite[0]?`<span><b>Your top source:</b>&nbsp;${esc(bySite[0][0])} · ${plural(bySite[0][1],'recipe')}</span>`:'',
@@ -1525,7 +1539,7 @@ const VIEWS={
    <section class="card">${cardhead('What’s in your library','By category · click one to open it','grid')}${pie(fold(cats,11),{label:'Recipes',center:num(rs.length),sub:'RECIPES',act:n=>n==='Uncategorized'?'none':'c:'+n})}${cats.some(([c])=>c==='Uncategorized')?`<p class="small dim" style="margin-top:10px;text-align:center">Click a category to see its recipes.</p>`:''}</section></div>`+
    `<div class="grid3"><section class="card mini-list">${cardhead('Recently added','','link',button('See all','go','small','data-go="library"'))}${[...rs].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5).map(r=>`<div class="row"><button data-action="open" data-id="${r.id}">${esc(r.title)}</button><small>${esc(r.sourceName||'')}</small></div>`).join('')}</section>
    <section class="card mini-list">${cardhead('Cook again soon','Favorites and top-rated, longest since last made','heart')}${again.map(r=>`<div class="row"><button data-action="open" data-id="${r.id}">${esc(r.title)}</button><small>${r.made.length?'Last made '+esc(new Date(r.made.at(-1)+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})):'Not made yet'}</small></div>`).join('')||empty('No favorites yet','Tap the heart on a recipe you love.','','heart')}</section>
-   <section class="card">${cardhead('Where your recipes come from','','globe')}<div class="rank">${bySite.slice(0,5).map(([s,n],i)=>`<div class="rank-row"><i>${pad(i+1)}</i><div><span>${esc(s)}</span><div class="rank-bar"><b style="width:${(n/bySite[0][1]*100).toFixed(0)}%"></b></div></div><b class="number">${n}</b></div>`).join('')}</div></section></div>`;},
+   ${srcCard(bySite)}</div>`;},
 
  library(){
   let rows=libRows();
@@ -1952,6 +1966,8 @@ const ACTIONS={
  open:b=>openRecipe(b.dataset.id),edit:b=>editRecipe(b.dataset.id),add:linkDialog,
  'import-again':b=>importLink(b.dataset.url,{again:true}),
  'sites':()=>{const el=$('#sites');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},
+ 'src-filter':b=>{srcFilter=b.dataset.v;render();},
+ 'sites-go':()=>{go('import');setTimeout(()=>{$('#sites')?.scrollIntoView({block:'start'});$('#site-url')?.focus();},50);},
  'restore-go':b=>applyRestore(b.dataset.mode),
  'site-del':b=>commit(()=>{delete state.mySites[b.dataset.h];},'Site removed'),
  'sites-clear':()=>commit(()=>{state.siteBlocks={};},'Cleared the blocked sites list'),
