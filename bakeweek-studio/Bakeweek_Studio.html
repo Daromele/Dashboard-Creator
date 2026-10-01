@@ -630,6 +630,19 @@ dialog.wide{width:min(1000px,calc(100% - 32px))}
 .pill svg{width:12px;height:12px;stroke-width:2.4}
 .grid2.wide-left{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}
 @media(max-width:900px){.grid2.wide-left{grid-template-columns:1fr}}
+/* recipe pictures, tools and table thumbnails */
+.recipe-tools{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;margin-bottom:var(--s3)}
+.recipe-tools input{flex:1 1 240px}.recipe-tools select{flex:0 1 190px}
+.recipe-img{position:relative;aspect-ratio:16/9;margin:calc(var(--s5)*-1) calc(var(--s5)*-1) var(--s4);border-radius:var(--r-md) var(--r-md) 0 0;overflow:hidden;display:grid;place-items:center;background:color-mix(in srgb,var(--rc,var(--accent)) 24%,var(--card))}
+.recipe-img img{width:100%;height:100%;object-fit:cover;display:block}
+.recipe-img>span:not(.pill){font:800 34px var(--num);color:color-mix(in srgb,var(--rc,var(--accent)) 70%,var(--ink))}
+.recipe-img .pill{position:absolute;right:10px;top:10px;background:var(--card)}
+.recipe{border-top:0;padding-top:var(--s5)}
+.pic-row .recipe-img{margin:0 0 var(--s2);border-radius:var(--r-sm);max-width:260px}
+.pic-row .recipe-img>span{font:600 13px var(--ui)}
+.recipe-thumb{display:grid;place-items:center;width:44px;height:33px;border-radius:6px;overflow:hidden;background:color-mix(in srgb,var(--rc) 24%,var(--card));font:800 11px var(--num)}
+.recipe-thumb img{width:100%;height:100%;object-fit:cover}
+tr.dim td{opacity:.65}
 
 </style>
 </head>
@@ -831,7 +844,11 @@ const KEY=CONFIG.storageKey+'-v1',RAIL_KEY=CONFIG.storageKey+'-rail-collapsed',W
  NUDGE_KEY=CONFIG.storageKey+'-backup-nudge',MANUAL_BACKUP_KEY=CONFIG.storageKey+'-manual-backup';
 const ls={get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch{}}};
 // prefs travel with backups but live outside BakeCore's data: theme and the views switched off
-const readPrefs=u=>({theme:CONFIG.themes.includes(u?.theme)?u.theme:CONFIG.defaultTheme,hiddenNav:Array.isArray(u?.hiddenNav)?u.hiddenNav.filter(id=>CONFIG.optionalNav.includes(id)):[...CONFIG.hiddenNav]});
+// recipe pictures, the category list (in the baker's order) and the recipes view live here too
+const readPrefs=u=>({theme:CONFIG.themes.includes(u?.theme)?u.theme:CONFIG.defaultTheme,hiddenNav:Array.isArray(u?.hiddenNav)?u.hiddenNav.filter(id=>CONFIG.optionalNav.includes(id)):[...CONFIG.hiddenNav],
+ categories:Array.isArray(u?.categories)?[...new Set(u.categories.filter(c=>typeof c==='string').map(c=>c.trim().slice(0,80)).filter(Boolean))]:[],
+ images:Object.fromEntries(Object.entries(u?.images&&typeof u.images==='object'?u.images:{}).filter(([k,v])=>typeof v==='string'&&/^data:image\/(jpeg|png|webp);base64,/.test(v)&&v.length<400000)),
+ recipeView:u?.recipeView==='table'?'table':'grid'});
 let state=C.createBlank(),prefs=readPrefs(null),real=null,sampleState=null,demo=false,undoState=null,storageProblem='',storageReloadable=false,recoveryRaw='',
  screen='week',week=C.monday(today()),selectedDay='',railMin=ls.get(RAIL_KEY)==='1',hubLast={},returnFocus=null,askFn=null;
 const find=(type,id)=>state[type].find(x=>x.id===id);
@@ -860,7 +877,7 @@ function save(){if(storageProblem)return renderStatus();
 // every change goes through BakeCore on a copy, is validated whole, then saved with Undo
 function apply(fn){const s=clone(state),p=clone(prefs),result=fn(s,p),clean=C.validateBackup(s);undoState={state,prefs};state=clean;prefs=readPrefs(p);save();return result;}
 function commit(fn,message){try{const r=apply(fn);render();if(message)toast(storageProblem&&!demo?message+' This tab isn’t saving: download a backup.':message,true);return {ok:true,r};}catch(e){toast(e.message);return {ok:false};}}
-function formSave(form,fn,message){if(!form.reportValidity())return;try{apply(s=>fn(s,Object.fromEntries(new FormData(form))));closeModal();render();toast(message,true);}catch(e){formError(e.message);}}
+function formSave(form,fn,message){if(!form.reportValidity())return;try{apply((s,p)=>fn(s,Object.fromEntries(new FormData(form)),p));closeModal();render();toast(message,true);}catch(e){formError(e.message);}}
 function toast(message,undo=false){clearTimeout(toast.t);const el=$('#toast');el.innerHTML=`<span>${esc(message)}</span>${undo?'<button data-action="undo">Undo</button>':''}`;el.hidden=false;toast.t=setTimeout(()=>el.hidden=true,6500);}
 
 /* ---------- backups: download, restore, and a daily file in a folder the user picks (Chrome/Edge) ---------- */
@@ -1009,7 +1026,7 @@ window.addEventListener('scroll',()=>{$('#tip').hidden=true;},{passive:true});
 /* ================================================================================
    Bakeweek Studio · UI, part 2: screens, dialogs, kitchen paperwork, events.
    ================================================================================ */
-const UI={orders:{q:'',page:0,status:'open'},recipes:{q:''},pantry:{q:'',page:0}};
+const UI={orders:{q:'',page:0,status:'open'},recipes:{q:'',cat:'all',status:'active',sort:'category'},pantry:{q:'',page:0}};
 let recipeRows=[],orderRows=[],simDraft=null,simResult=null,importPreview=null;
 const rev=o=>o.lines.reduce((n,l)=>n+l.qty*l.unitPrice,0);
 const balance=o=>Math.max(0,rev(o)-o.paid);
@@ -1035,6 +1052,15 @@ function sampleBakery(){const s=C.createDemo(today()),start=C.monday(today());le
  let runs=0;for(const wk of weeks)for(const run of C.planWeek(s,wk).runs){const rec={...run,id:'sample-run-'+(++runs),createdAt:run.date+'T18:00:00.000Z'};delete rec.yield;s.completedRuns.push(rec);}
  for(const o of hist){o.status='Collected';o.snapshot=C.quoteOrder(s,o);o.paid=o.snapshot.revenue;}
  return C.validateBackup(s);}
+
+/* ---------- recipe categories (ordered list in prefs, plus any in use) and pictures ---------- */
+const catList=()=>{const l=[...prefs.categories];for(const r of state.recipes)if(r.category&&!l.includes(r.category))l.push(r.category);return l;};
+let recipeImg;   // undefined = unchanged, null = remove, string = new picture for the recipe being edited
+function readPicture(file){return new Promise((res,rej)=>{if(!file||!/^image\//.test(file.type))return rej(Error('Choose an image file.'));const url=URL.createObjectURL(file),img=new Image();
+ img.onload=()=>{const W=640,H=480,c=document.createElement('canvas');c.width=W;c.height=H;const k=Math.max(W/img.width,H/img.height),w=img.width*k,h=img.height*k;c.getContext('2d').drawImage(img,(W-w)/2,(H-h)/2,w,h);URL.revokeObjectURL(url);
+  let d=c.toDataURL('image/jpeg',.8);if(d.length>300000)d=c.toDataURL('image/jpeg',.6);d.length>390000?rej(Error('That picture is too large.')):res(d);};
+ img.onerror=()=>{URL.revokeObjectURL(url);rej(Error('That picture couldn’t be read.'));};img.src=url;});}
+const imgBox=(src,color)=>`<div class="recipe-img" style="--rc:${esc(color)}">${src?`<img src="${src}" alt="">`:'<span>No picture yet</span>'}</div>`;
 
 /* ---------- small form helpers ---------- */
 const fld=(name,label,value,{type='text',attrs='',hint='',full=false}={})=>`<label class="${full?'full':''}">${label}<input name="${name}" type="${type}" value="${esc(value??'')}" ${attrs}>${hint?`<small>${hint}</small>`:''}</label>`;
@@ -1139,15 +1165,27 @@ const VIEWS={
   <div class="grid2"><section class="card table-card">${cardhead('Month by month','','table')}<div class="table-wrap"><table><thead><tr><th>Month</th><th class="num">Orders</th><th class="num">Pieces</th><th class="num">Sales</th><th class="num">Average order</th></tr></thead><tbody>${ms.map((m,i)=>{const s=mStats[i];return `<tr><td data-v="${m}">${monthName(m,{month:'long'})}</td><td class="num">${s.orders?num(s.orders):'—'}</td><td class="num">${s.pieces?num(s.pieces):'—'}</td><td class="num">${s.orders?money(s.sales):'—'}</td><td class="num">${s.orders?money(s.sales/s.orders):'—'}</td></tr>`;}).join('')}<tr class="total"><td>${y}</td><td class="num">${num(T.orders)}</td><td class="num">${num(T.pieces)}</td><td class="num">${money(T.sales)}</td><td class="num">${money(T.sales/T.orders)}</td></tr></tbody></table></div></section>
   <section class="card">${cardhead('Best sellers',`Share of ${y}’s quoted sales`,'tags')}${pie(fold([...prodTot]),{label:'Quoted sales',center:compact(T.sales),sub:'SALES'})}</section></div>`;},
 
- recipes(){const q=UI.recipes.q.toLowerCase(),rows=state.recipes.filter(r=>!q||`${r.name} ${r.category}`.toLowerCase().includes(q)).sort((a,b)=>a.archived-b.archived||a.name.localeCompare(b.name));
-  return pagehead('Your library','Recipes','Your own tested formulas, yields and times. Each recipe powers the plan, the shopping list and every quote.',button(ico('plus')+'<span>Add recipe</span>','recipe-form','primary'))+
-  `<div class="cardhead" style="margin-bottom:12px"><p class="small muted" style="margin:0">${plural(state.recipes.length,'saved recipe')} · costs use your latest pantry prices</p><div class="filters"><input id="search" type="search" placeholder="Search recipes or categories" value="${esc(UI.recipes.q)}" aria-label="Search recipes"></div></div>
-  ${rows.length?`<div class="recipe-grid">${rows.map(r=>{const c=recipeCostPerPiece(r),keeps=c===null||!r.unitPrice?null:(r.unitPrice-c)/r.unitPrice;
-   return `<article class="card recipe ${r.archived?'archived':''}" style="--rc:${esc(r.color)}"><div class="recipe-top"><span class="avatar">${esc(initial(r.name))}</span>${pill(r.archived?'Archived':esc(r.category||'Batch product'),r.archived?'':'accent')}</div><h2>${esc(r.name)}</h2><p>${num(r.yield)} pieces per batch · ${plural(r.ingredients.length,'ingredient')}</p>
+ recipes(){const st=UI.recipes,q=st.q.toLowerCase(),cats=catList(),ci=c=>{const k=cats.indexOf(c);return k<0?999:k;};
+  const keepsOf=r=>{const c=recipeCostPerPiece(r);return c===null||!r.unitPrice?null:(r.unitPrice-c)/r.unitPrice;};
+  const rows=state.recipes.filter(r=>(st.status==='all'||(st.status==='archived')===r.archived)&&(st.cat==='all'||(r.category||'')===st.cat)&&(!q||`${r.name} ${r.category} ${r.method}`.toLowerCase().includes(q)));
+  const by={name:(a,b)=>a.name.localeCompare(b.name),category:(a,b)=>ci(a.category)-ci(b.category)||a.name.localeCompare(b.name),cost:(a,b)=>(recipeCostPerPiece(a)??1e9)-(recipeCostPerPiece(b)??1e9),price:(a,b)=>b.unitPrice-a.unitPrice,keeps:(a,b)=>(keepsOf(b)??-1e9)-(keepsOf(a)??-1e9),time:(a,b)=>a.activeMinutes-b.activeMinutes}[st.sort]||((a,b)=>0);rows.sort(by);
+  const media=r=>prefs.images[r.id]?`<img src="${prefs.images[r.id]}" alt="">`:`<span>${esc(initial(r.name))}</span>`;
+  const card=r=>{const c=recipeCostPerPiece(r),keeps=keepsOf(r);
+   return `<article class="card recipe ${r.archived?'archived':''}" style="--rc:${esc(r.color)}"><div class="recipe-img">${media(r)}${pill(r.archived?'Archived':esc(r.category||'Uncategorized'),r.archived?'':'accent')}</div><h2>${esc(r.name)}</h2><p>${num(r.yield)} pieces per batch · ${plural(r.ingredients.length,'ingredient')}</p>
     <div class="facts"><div><small>Hands-on / batch</small><b>${mins(r.activeMinutes)}</b></div><div><small>Finish / piece</small><b>${num(r.finishMinutes)} min</b></div><div><small>Cost / piece</small><b>${c===null?'Price needed':money(c)}</b></div><div><small>Price / piece</small><b>${money(r.unitPrice)}</b></div></div>
     <div class="keeps">${keeps===null?'Add every ingredient price to see what each piece keeps.':`Each piece keeps <b>${pc(keeps)}</b> of its price before your time`}<div class="meter"><i class="${keeps!==null&&keeps<0?'over':''}" style="width:${keeps===null?0:Math.max(3,Math.min(100,keeps*100)).toFixed(0)}%"></i></div></div>
-    <div class="actions">${button('Edit recipe','recipe-form','small primary',`data-id="${esc(r.id)}"`)}${button(r.archived?'Activate':'Archive','archive-recipe','small quiet',`data-id="${esc(r.id)}"`)}</div></article>`;}).join('')}</div>`
-  :`<section class="card">${empty(state.recipes.length?'No recipes match':'Start with one familiar recipe',state.recipes.length?'Try another search.':'A batch yield, ingredient amounts and realistic making time are enough to begin.',state.recipes.length?'':button('Add your first recipe','recipe-form','primary'),'tags')}</section>`}
+    <div class="actions">${button('Edit recipe','recipe-form','small primary',`data-id="${esc(r.id)}"`)}${button(r.archived?'Activate':'Archive','archive-recipe','small quiet',`data-id="${esc(r.id)}"`)}</div></article>`;};
+  const grid=()=>st.sort!=='category'?`<div class="recipe-grid">${rows.map(card).join('')}</div>`:[...new Set(rows.map(r=>r.category||''))].map(c=>{const rs=rows.filter(r=>(r.category||'')===c);return `<div class="section-label">${esc(c||'Uncategorized')} · ${rs.length}</div><div class="recipe-grid">${rs.map(card).join('')}</div>`;}).join('');
+  const table=()=>`<section class="card table-card"><div class="table-wrap"><table><thead><tr><th></th><th>Recipe</th><th>Category</th><th class="num">Yield</th><th class="num">Hands-on</th><th class="num">Cost / piece</th><th class="num">Price</th><th class="num">Keeps</th><th></th></tr></thead><tbody>${rows.map(r=>{const c=recipeCostPerPiece(r),k=keepsOf(r);
+   return `<tr${r.archived?' class="dim"':''}><td><span class="recipe-thumb" style="--rc:${esc(r.color)}">${media(r)}</span></td><td><strong>${esc(r.name)}</strong>${r.archived?'<small class="dim" style="display:block">Archived</small>':''}</td><td data-v="${String(ci(r.category)).padStart(3,'0')}">${esc(r.category||'Uncategorized')}</td><td class="num">${num(r.yield)}</td><td class="num" data-v="${r.activeMinutes}">${mins(r.activeMinutes)}</td><td class="num" data-v="${c??-1}">${c===null?pill('Price needed','warn'):money(c)}</td><td class="num" data-v="${r.unitPrice}">${money(r.unitPrice)}</td><td class="num" data-v="${k??-9}">${k===null?'—':`<span class="pct"><i style="width:${Math.max(0,Math.min(100,k*100)).toFixed(0)}%"></i></span>${pc(k)}`}</td><td class="num" style="white-space:nowrap"><button class="icon-action" data-action="recipe-form" data-id="${esc(r.id)}" aria-label="Edit ${esc(r.name)}" title="Edit">${ico('edit')}</button></td></tr>`;}).join('')}</tbody></table></div></section>`;
+  const seg=(act,cur,opts)=>`<div class="segment" role="group">${opts.map(([k,l])=>`<button data-action="${act}" data-k="${k}" aria-pressed="${cur===k}">${l}</button>`).join('')}</div>`;
+  return pagehead('Your library','Recipes','Your own tested formulas, yields and times. Each recipe powers the plan, the shopping list and every quote.',button(ico('palette')+'<span>Categories</span>','go','quiet','data-go="settings" data-anchor="categories"')+button(ico('plus')+'<span>Add recipe</span>','recipe-form','primary'))+
+  `<div class="recipe-tools"><input id="search" type="search" placeholder="Search recipes, categories or methods" value="${esc(st.q)}" aria-label="Search recipes">
+   <select id="recipe-cat" aria-label="Category"><option value="all">All categories</option>${cats.map(c=>`<option ${st.cat===c?'selected':''}>${esc(c)}</option>`).join('')}${state.recipes.some(r=>!r.category)?`<option value="" ${st.cat===''?'selected':''}>Uncategorized</option>`:''}</select>
+   <select id="recipe-sort" aria-label="Sort by">${[['category','By category'],['name','Name A–Z'],['keeps','Keeps most'],['price','Highest price'],['cost','Lowest cost'],['time','Quickest to make']].map(([k,l])=>`<option value="${k}" ${st.sort===k?'selected':''}>${l}</option>`).join('')}</select>
+   ${seg('recipe-status',st.status,[['active','Active'],['archived','Archived'],['all','All']])}${seg('recipe-view',prefs.recipeView,[['grid','Grid'],['table','Table']])}</div>
+  <p class="small muted" style="margin:0 0 12px">${plural(rows.length,'recipe')} shown of ${state.recipes.length} · costs use your latest pantry prices</p>
+  ${rows.length?(prefs.recipeView==='table'?table():grid()):`<section class="card">${empty(state.recipes.length?'No recipes match':'Start with one familiar recipe',state.recipes.length?'Try another search, category or status.':'A batch yield, ingredient amounts and realistic making time are enough to begin.',state.recipes.length?'':button('Add your first recipe','recipe-form','primary'),'tags')}</section>`}
   ${demo?'<div class="notice" style="margin-top:16px"><span>These are made-up costing examples for learning the app, not tested recipes. Use your own recipes, methods and current prices.</span></div>':''}`;},
 
  pantry(){const st=UI.pantry,q=st.q.toLowerCase(),rows=state.ingredients.filter(i=>!q||`${i.name} ${i.supplier}`.toLowerCase().includes(q)).sort((a,b)=>a.archived-b.archived||a.name.localeCompare(b.name));
@@ -1178,6 +1216,9 @@ const VIEWS={
     <h3 class="sub-head">Start fresh</h3><div class="row"><div><strong>Clear your bakery in one step</strong><small>${demo?'Return to your own bakery first. Sample mode is never saved.':'Removes ingredients, recipes, orders and batch records. You can undo it straight after.'}</small></div>${button('Start fresh','fresh','small danger',demo?'disabled':'')}</div></section></div>
   <section class="card"><div class="cardhead"><div><h2>Your working hours</h2><p>Hands-on hours you can work each day. The pattern repeats every week; oven time isn’t counted.</p></div><span class="pill">${hrs(s.capacity.reduce((n,x)=>n+x,0))} a week</span></div>
    <form id="capacity-form"><div class="capacity">${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map((d,n)=>`<label>${d}<input name="cap${n}" type="number" min="0" max="24" step="0.25" value="${+(s.capacity[n]/60).toFixed(2)}" required></label>`).join('')}</div><div class="formfoot"><button class="btn primary">Save hours</button></div></form></section>
+  <section class="card" id="categories"><div class="cardhead"><div><h2>Recipe categories</h2><p>The order here is the order on the Recipes screen. Renaming or deleting updates every recipe in it.</p></div><span class="pill">${plural(catList().length,'category','categories')}</span></div>
+   ${catList().map((c,i,l)=>{const n=state.recipes.filter(r=>r.category===c).length;return `<div class="row"><div><strong>${esc(c)}</strong><small>${plural(n,'recipe')}</small></div><div class="actions"><button class="icon-action" data-action="cat-move" data-i="${i}" data-d="-1" aria-label="Move ${esc(c)} up" ${i?'':'disabled'}>${ico('up')}</button><button class="icon-action" data-action="cat-move" data-i="${i}" data-d="1" aria-label="Move ${esc(c)} down" ${i<l.length-1?'':'disabled'}>${ico('down')}</button><button class="icon-action" data-action="cat-rename" data-i="${i}" aria-label="Rename ${esc(c)}" title="Rename">${ico('edit')}</button><button class="icon-action danger" data-action="cat-delete" data-i="${i}" aria-label="Delete ${esc(c)}" title="Delete">${ico('trash')}</button></div></div>`;}).join('')||'<p class="dim small">No categories yet.</p>'}
+   <form id="cat-add-form" class="actions" style="margin-top:12px;flex-wrap:nowrap"><input name="name" placeholder="New category, e.g. Breads" maxlength="80" required style="flex:1"><button class="btn primary">Add category</button></form></section>
   <section class="card"><div class="cardhead"><div><h2>Simplify your sidebar</h2><p>Switch extra views on or off. Changes appear immediately.</p></div><span class="pill">${optional.filter(([id])=>!hidden.has(id)).length} of ${optional.length} shown</span></div><div class="toggle-grid">${optional.map(([id,name,icon])=>`<label class="nav-toggle"><input type="checkbox" data-nav-toggle="${id}" ${hidden.has(id)?'':'checked'}><span>${ico(icon)}<b>${name}</b><i aria-hidden="true"></i></span></label>`).join('')}</div></section>
   <section class="card"><div class="cardhead"><div><h2>Getting started</h2><p>A short tour, and a made-up bakery to explore.</p></div>${button(demo?'Return to my bakery':'Open the sample bakery','sample')}</div><div class="row"><div><strong>Show the welcome tour again</strong><small>${CONFIG.welcome.length} short slides, including backups.</small></div>${button('Show tour','tour','small')}</div>
    <p class="small muted" style="margin-top:12px">Bakeweek Studio ${CONFIG.version} by JPS Digital Pages · support through <a href="${CONFIG.support}" target="_blank" rel="noopener">JPSDigitalPages on Etsy</a> · personal or internal business use by the purchaser. Estimates use your own inputs; it doesn’t take payments, calculate taxes or make food labels.</p></section>`;},
@@ -1206,13 +1247,13 @@ function ingredientForm(id){const i=ingredient(id)||{name:'',unit:'g',packSize:1
  ${fld('supplier','Supplier or shopping stop',i.supplier,{attrs:'maxlength="150"',full:true})}</div><div class="notice" style="margin:14px 0 0"><span>The base unit locks once a recipe uses this ingredient.</span></div>${formFoot(id?'Save ingredient':'Add ingredient')}</form>`);}
 const ingRows=()=>recipeRows.map((l,n)=>`<div class="line-row ing" data-index="${n}"><label>Ingredient ${n+1}<select data-ri="ingredientId">${state.ingredients.filter(i=>!i.archived||i.id===l.ingredientId).map(i=>`<option value="${esc(i.id)}" ${i.id===l.ingredientId?'selected':''}>${esc(i.name)} (${i.unit})</option>`).join('')}</select></label><label>Per batch (${esc(ingredient(l.ingredientId)?.unit||'')})<input data-ri="qty" type="number" min="0.000001" step="any" value="${l.qty}" required></label><button type="button" class="icon-action danger" data-action="remove-recipe-ingredient" data-index="${n}" aria-label="Remove ingredient ${n+1}">${ico('trash')}</button></div>`).join('');
 function recipeForm(id){if(!state.ingredients.some(i=>!i.archived)){toast('Add at least one pantry ingredient first.');return ingredientForm();}
- const r=recipe(id)||{name:'',category:'',color:'#A46D4C',yield:12,activeMinutes:25,ovenMinutes:20,finishMinutes:2,unitPrice:3,packagingCost:.2,method:'',ingredients:[{ingredientId:state.ingredients.find(i=>!i.archived).id,qty:100}]};recipeRows=clone(r.ingredients);
+ const r=recipe(id)||{name:'',category:'',color:'#A46D4C',yield:12,activeMinutes:25,ovenMinutes:20,finishMinutes:2,unitPrice:3,packagingCost:.2,method:'',ingredients:[{ingredientId:state.ingredients.find(i=>!i.archived).id,qty:100}]};recipeRows=clone(r.ingredients);recipeImg=undefined;
  modal(id?'Edit recipe':'Build a reusable recipe','Changes update estimates for unfinished orders. Saved order prices and completed batches stay as they are.',`<form id="recipe-form" data-id="${esc(id||'')}"><div class="fields">${fld('name','Recipe or product name',r.name,{attrs:'required maxlength="150"',full:true})}
- ${fld('category','Category',r.category,{attrs:'maxlength="80" placeholder="Cookies, cakes…"'})}${fld('color','Recipe color',r.color,{type:'color'})}
+ ${sel('category','Category',[['','Uncategorized'],...catList().map(c=>[c,c])],r.category||'',{attrs:''})}${fld('color','Recipe color',r.color,{type:'color'})}
  ${fld('yield','Sellable pieces per batch',r.yield,{type:'number',attrs:'min="1" step="1" required'})}${fld('activeMinutes','Hands-on minutes per batch',r.activeMinutes,{type:'number',attrs:'min="0" step="any" required',hint:'Mixing, portioning and active prep.'})}
  ${fld('ovenMinutes','Oven minutes per batch',r.ovenMinutes,{type:'number',attrs:'min="0" step="any" required',hint:'A reference, not an oven schedule.'})}${fld('finishMinutes','Finishing minutes per piece',r.finishMinutes,{type:'number',attrs:'min="0" step="any" required',hint:'Decorating, finishing and packing.'})}
  ${moneyFld('unitPrice','Default price per piece',r.unitPrice)}${moneyFld('packagingCost','Packaging cost per piece',r.packagingCost)}</div>
- <div class="form-section"><h3>Ingredients for one batch</h3><div id="recipe-rows">${ingRows()}</div>${button(ico('plus')+'Add ingredient','add-recipe-ingredient','small quiet')}</div>
+ <div class="form-section"><h3>Picture</h3><div class="pic-row"><div id="recipe-pic">${imgBox(id?prefs.images[id]:'',r.color)}</div><div class="actions"><label class="btn small">${ico('upload')}Choose a picture<input type="file" id="recipe-pic-file" accept="image/*" hidden></label>${button('Remove','recipe-pic-remove','small quiet')}</div><p class="small dim">Shown on recipe cards and in the table. Resized to 640×480 and kept on this computer. New categories: Settings → Recipe categories.</p></div></div><div class="form-section"><h3>Ingredients for one batch</h3><div id="recipe-rows">${ingRows()}</div>${button(ico('plus')+'Add ingredient','add-recipe-ingredient','small quiet')}</div>
  <div class="fields">${area('method','Your tested method and batch notes',r.method,'Batch sheets scale the amounts for you. Follow your own recipe, storage and food-safety procedures.')}</div>${formFoot(id?'Save recipe':'Add recipe')}</form>`,true);}
 function newOrder(){const r=state.recipes.find(r=>!r.archived),refs=new Set(state.orders.map(o=>o.reference.toLowerCase())),ref=()=>{let n=state.orders.length+1;while(refs.has(`bw-${String(n).padStart(3,'0')}`))n++;return `BW-${String(n).padStart(3,'0')}`;};
  return {reference:ref(),customer:'',contact:'',dueDate:C.addDays(week,5),bakeDate:C.addDays(week,3),finishDate:C.addDays(week,4),status:'Confirmed',paid:0,payment:'Card',setupMinutes:15,extraCost:0,customerNote:'',kitchenNote:'',lines:r?[{recipeId:r.id,qty:48,unitPrice:r.unitPrice,finishMinutes:r.finishMinutes}]:[]};}
@@ -1307,7 +1348,7 @@ function exportOrders(){const rows=[['Order','Customer','Product','Quantity','Un
 function go(id){screen=id;document.body.classList.remove('menu-open');render();scrollTo({top:0});$('#content').focus({preventScroll:true});}
 const setWeek=w=>{week=C.monday(w);selectedDay='';render();};
 const ACTIONS={
- go:b=>go(b.dataset.go),menu:()=>document.body.classList.toggle('menu-open'),
+ go:b=>{go(b.dataset.go);if(b.dataset.anchor)setTimeout(()=>document.getElementById(b.dataset.anchor)?.scrollIntoView({block:'start'}),50);},menu:()=>document.body.classList.toggle('menu-open'),
  'rail-toggle':()=>{railMin=!railMin;ls.set(RAIL_KEY,railMin?'1':'0');applyRail();},
  'prev-week':()=>setWeek(C.addDays(week,-7)),'next-week':()=>setWeek(C.addDays(week,7)),'this-week':()=>setWeek(today()),
  'year-shift':b=>setWeek(C.addDays(week,364*+b.dataset.d)),
@@ -1334,6 +1375,11 @@ const ACTIONS={
  'sim-days':()=>{let best=null;for(let d=simDraft.bakeDate;d<=C.addDays(week,6)&&d<=simDraft.dueDate;d=C.addDays(d,1))for(let f=d;f<=C.addDays(week,6)&&f<=simDraft.dueDate;f=C.addDays(f,1)){try{const c={...simDraft,bakeDate:d,finishDate:f},r=C.simulateOrder(state,c,week),score=r.after.totals.overMinutes;if(!best||score<best.score)best={c,score};}catch{}}
   if(!best)return toast('Use valid dates in this week to try alternatives.');simDraft=best.c;updateSimFields();toast(best.score?'That’s the least overloaded option from the bake date on.':'These dates fit your hours. Review them before accepting.');},
  'accept-sim':()=>{if(!$('#sim-form').reportValidity()||!simResult)return;const r=commit(s=>C.addOrder(s,simDraft),'Order accepted. The plan, shopping and packing are ready.');if(r.ok){closeModal();selectedDay=simDraft.finishDate;go('week');}},
+ 'recipe-status':b=>{UI.recipes.status=b.dataset.k;render();},'recipe-view':b=>commit((s,p)=>{p.recipeView=b.dataset.k;}),
+ 'recipe-pic-remove':()=>{recipeImg=null;$('#recipe-pic').innerHTML=imgBox('',$('#recipe-form [name=color]').value);},
+ 'cat-move':b=>{const i=+b.dataset.i,j=i+ +b.dataset.d;commit((s,p)=>{const l=catList();[l[i],l[j]]=[l[j],l[i]];p.categories=l;},'Category moved');},
+ 'cat-rename':b=>{const old=catList()[+b.dataset.i];modal('Rename category',`${esc(old)} · every recipe in it moves to the new name.`,`<form id="cat-form" data-old="${esc(old)}"><div class="fields">${fld('name','New name',old,{attrs:'required maxlength="80"',full:true})}</div>${formFoot('Rename')}</form>`);},
+ 'cat-delete':b=>{const c=catList()[+b.dataset.i],n=state.recipes.filter(r=>r.category===c).length;ask(`Delete “${esc(c)}”?`,n?`Its ${plural(n,'recipe')} become Uncategorized; nothing else changes. You can undo straight after.`:'It has no recipes. You can undo straight after.','Delete category',()=>commit((s,p)=>{for(const r of s.recipes.filter(r=>r.category===c))C.updateRecipe(s,r.id,{category:''});p.categories=catList().filter(x=>x!==c);},'Category deleted'));},
  'archive-recipe':b=>{const r=recipe(b.dataset.id);ask(r.archived?'Activate this recipe?':'Archive this recipe?',r.archived?'It becomes available for new orders again.':'Existing orders keep it; it’s hidden when you add new orders.',r.archived?'Activate':'Archive',()=>commit(s=>C.updateRecipe(s,r.id,{archived:!r.archived}),r.archived?'Recipe activated':'Recipe archived'),!r.archived);},
  'complete-run':b=>{const r=plan().runs.find(x=>x.key===b.dataset.key);if(!r)return;ask('Mark this batch made?',`This takes the ingredients for ${plural(r.batches,'batch','batches')} of ${esc(r.recipeName)} from your pantry and records ${num(r.required)} pieces for orders. You can undo it.`,'Mark made',()=>commit(s=>C.completeRun(s,b.dataset.key,week),'Batch recorded. Pantry stock updated.'),false);},
  'undo-run':b=>ask('Undo this batch?','Its exact ingredient amounts go back to the pantry and the work becomes pending again. Affected orders must be Confirmed.','Undo batch',()=>commit(s=>C.undoRun(s,b.dataset.id),'Batch undone. Ingredients restored.')),
@@ -1358,6 +1404,8 @@ document.addEventListener('input',e=>{const x=e.target;
  if(x.dataset.ri==='qty')recipeRows[+x.closest('[data-index]').dataset.index].qty=+x.value;
  if(x.name==='csvText'){importPreview=null;$('#import-result').innerHTML='';}});
 document.addEventListener('change',e=>{const x=e.target;
+ if(x.id==='recipe-cat'){UI.recipes.cat=x.value;render();}if(x.id==='recipe-sort'){UI.recipes.sort=x.value;render();}
+ if(x.id==='recipe-pic-file'&&x.files[0]){readPicture(x.files[0]).then(d=>{recipeImg=d;$('#recipe-pic').innerHTML=imgBox(d,'');}).catch(err=>formError(err.message));x.value='';}
  if(x.dataset.sim==='payment'){simDraft.payment=x.value;updateSimulation();}
  if(x.dataset.line==='recipeId'){const lines=x.dataset.scope==='sim'?simDraft.lines:orderRows,i=+x.closest('[data-index]').dataset.index,r=recipe(x.value);lines[i]={...lines[i],recipeId:r.id,unitPrice:r.unitPrice,finishMinutes:r.finishMinutes};$(x.dataset.scope==='sim'?'#sim-rows':'#order-rows').innerHTML=lineRows(lines,x.dataset.scope);if(x.dataset.scope==='sim')updateSimulation();}
  if(x.dataset.ri==='ingredientId'){recipeRows[+x.closest('[data-index]').dataset.index].ingredientId=x.value;$('#recipe-rows').innerHTML=ingRows();}
@@ -1367,12 +1415,14 @@ document.addEventListener('change',e=>{const x=e.target;
  if(x.id==='csv-file'&&x.files[0]){const f=x.files[0];x.value='';if(f.size>4*1024*1024)return toast('The CSV must be under 4 MB.');f.text().then(t=>{const a=$('[name=csvText]');if(a){a.value=t;previewImport();}}).catch(()=>toast('That CSV couldn’t be read.'));}});
 document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,id=f.dataset.id;
  if(f.id==='ingredient-form')formSave(f,(s,d)=>{d.packCost=d.packCost===''?null:d.packCost;return id?C.updateIngredient(s,id,d):C.addIngredient(s,d);},id?'Ingredient saved':'Ingredient added');
- if(f.id==='recipe-form')formSave(f,(s,d)=>{d.ingredients=recipeRows;return id?C.updateRecipe(s,id,d):C.addRecipe(s,d);},id?'Recipe saved':'Recipe added');
+ if(f.id==='recipe-form')formSave(f,(s,d,p)=>{d.ingredients=recipeRows;const r=id?C.updateRecipe(s,id,d):C.addRecipe(s,d);if(recipeImg===null)delete p.images[r.id];else if(recipeImg)p.images[r.id]=recipeImg;return r;},id?'Recipe saved':'Recipe added');
  if(f.id==='order-form')formSave(f,(s,d)=>C.updateOrder(s,id,{...d,lines:orderRows}),'Order saved');
  if(f.id==='payment-form')formSave(f,(s,d)=>C.recordPayment(s,id,d.paid),'Payment recorded');
  if(f.id==='receive-form')formSave(f,(s,d)=>C.receiveIngredient(s,id,d.qty),'Stock added to the pantry');
  if(f.id==='settings-form'){if(!f.reportValidity())return;const d=Object.fromEntries(new FormData(f));commit(s=>{s.settings={...s.settings,business:d.business,currency:d.currency,hourlyRate:+d.hourlyRate,targetMargin:+d.targetMargin,cardRate:+d.cardRate,fixedFee:+d.fixedFee};},'Settings saved');}
  if(f.id==='capacity-form'){if(!f.reportValidity())return;const d=Object.fromEntries(new FormData(f));commit(s=>{s.settings.capacity=Array.from({length:7},(_,n)=>Math.round(+d['cap'+n]*60));},'Working hours saved');}
+ if(f.id==='cat-add-form'){const name=new FormData(f).get('name').trim();if(!name)return;if(catList().some(c=>c.toLowerCase()===name.toLowerCase()))return toast('That category already exists.');commit((s,p)=>{p.categories=[...catList(),name];},'Category added');}
+ if(f.id==='cat-form'){const old=f.dataset.old,name=new FormData(f).get('name').trim();if(name!==old&&catList().some(c=>c.toLowerCase()===name.toLowerCase()))return formError('That category already exists.');formSave(f,(s,d,p)=>{for(const r of s.recipes.filter(r=>r.category===old))C.updateRecipe(s,r.id,{category:name});p.categories=catList().map(c=>c===old?name:c);},'Category renamed');}
  if(f.id==='sim-form')ACTIONS['accept-sim']();});
 
 /* ---------- start ---------- */

@@ -73,7 +73,11 @@ const KEY=CONFIG.storageKey+'-v1',RAIL_KEY=CONFIG.storageKey+'-rail-collapsed',W
  NUDGE_KEY=CONFIG.storageKey+'-backup-nudge',MANUAL_BACKUP_KEY=CONFIG.storageKey+'-manual-backup';
 const ls={get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch{}}};
 // prefs travel with backups but live outside BakeCore's data: theme and the views switched off
-const readPrefs=u=>({theme:CONFIG.themes.includes(u?.theme)?u.theme:CONFIG.defaultTheme,hiddenNav:Array.isArray(u?.hiddenNav)?u.hiddenNav.filter(id=>CONFIG.optionalNav.includes(id)):[...CONFIG.hiddenNav]});
+// recipe pictures, the category list (in the baker's order) and the recipes view live here too
+const readPrefs=u=>({theme:CONFIG.themes.includes(u?.theme)?u.theme:CONFIG.defaultTheme,hiddenNav:Array.isArray(u?.hiddenNav)?u.hiddenNav.filter(id=>CONFIG.optionalNav.includes(id)):[...CONFIG.hiddenNav],
+ categories:Array.isArray(u?.categories)?[...new Set(u.categories.filter(c=>typeof c==='string').map(c=>c.trim().slice(0,80)).filter(Boolean))]:[],
+ images:Object.fromEntries(Object.entries(u?.images&&typeof u.images==='object'?u.images:{}).filter(([k,v])=>typeof v==='string'&&/^data:image\/(jpeg|png|webp);base64,/.test(v)&&v.length<400000)),
+ recipeView:u?.recipeView==='table'?'table':'grid'});
 let state=C.createBlank(),prefs=readPrefs(null),real=null,sampleState=null,demo=false,undoState=null,storageProblem='',storageReloadable=false,recoveryRaw='',
  screen='week',week=C.monday(today()),selectedDay='',railMin=ls.get(RAIL_KEY)==='1',hubLast={},returnFocus=null,askFn=null;
 const find=(type,id)=>state[type].find(x=>x.id===id);
@@ -102,7 +106,7 @@ function save(){if(storageProblem)return renderStatus();
 // every change goes through BakeCore on a copy, is validated whole, then saved with Undo
 function apply(fn){const s=clone(state),p=clone(prefs),result=fn(s,p),clean=C.validateBackup(s);undoState={state,prefs};state=clean;prefs=readPrefs(p);save();return result;}
 function commit(fn,message){try{const r=apply(fn);render();if(message)toast(storageProblem&&!demo?message+' This tab isn’t saving: download a backup.':message,true);return {ok:true,r};}catch(e){toast(e.message);return {ok:false};}}
-function formSave(form,fn,message){if(!form.reportValidity())return;try{apply(s=>fn(s,Object.fromEntries(new FormData(form))));closeModal();render();toast(message,true);}catch(e){formError(e.message);}}
+function formSave(form,fn,message){if(!form.reportValidity())return;try{apply((s,p)=>fn(s,Object.fromEntries(new FormData(form)),p));closeModal();render();toast(message,true);}catch(e){formError(e.message);}}
 function toast(message,undo=false){clearTimeout(toast.t);const el=$('#toast');el.innerHTML=`<span>${esc(message)}</span>${undo?'<button data-action="undo">Undo</button>':''}`;el.hidden=false;toast.t=setTimeout(()=>el.hidden=true,6500);}
 
 /* ---------- backups: download, restore, and a daily file in a folder the user picks (Chrome/Edge) ---------- */
