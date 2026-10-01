@@ -441,7 +441,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .kit-mid{font:800 20px var(--num);fill:var(--ink);text-anchor:middle}.kit-mid-sub{font:600 9px var(--ui);letter-spacing:.08em;fill:var(--ink-3);text-anchor:middle}
 .kit-key{display:grid;gap:2px;width:100%}
 .kit-key-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:6px 8px;border-radius:8px;font-size:13.5px}
-.kit-key-row:hover{background:var(--sunk)}.kit-key-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kit-key-row em{font-style:normal;color:var(--ink-2);font-size:12.5px}
+.kit-key-row:hover{background:var(--sunk)}.kit-key-row.linked{cursor:pointer}.kit-key-row.linked:hover span{color:var(--accent);text-decoration:underline;text-underline-offset:3px}.kit-key-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kit-key-row em{font-style:normal;color:var(--ink-2);font-size:12.5px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--accent)}
 .kit-gauge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}.kit-gauge svg{width:100%;height:auto;max-width:200px}
 .kit-gauge-track,.kit-gauge-val{fill:none;stroke-width:14;stroke-linecap:round}.kit-gauge-track{stroke:var(--sunk)}.kit-gauge-val{stroke:var(--accent);animation:kit-fill 1.1s cubic-bezier(.2,.8,.2,1) both}
@@ -549,6 +549,21 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .toolbar .search input{width:100%;padding-left:36px}
 .toolbar select{max-width:200px}
 .toolbar select{font-size:13.5px}
+.chip-edit{display:grid;grid-template-columns:104px 1fr;gap:var(--s2);align-items:start;padding:7px 0;border-bottom:1px solid var(--rule)}.chip-edit:last-of-type{border-bottom:0}
+.chip-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding-top:6px}
+.chip-edit .chips{align-items:center}.chip-edit .chip{padding:0 2px 0 10px;gap:2px;min-height:28px}
+.chip-go{font-weight:600;color:inherit;padding:4px 0}.chip-go:hover{text-decoration:underline;text-underline-offset:3px}
+.chip-x{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;color:inherit;opacity:.6}.chip-x:hover{opacity:1;background:#0000000f}.chip-x svg{width:12px;height:12px;stroke-width:2.2}
+.chip-add{min-height:30px;height:30px;padding:2px 10px;font-size:12.5px;border-style:dashed;width:130px;border-radius:99px}
+.link-btn{font-weight:600;color:var(--ink);text-align:left}.link-btn:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.row-actions{display:inline-flex;gap:var(--s2)}
+.bulkbar{position:sticky;top:64px;z-index:16;display:flex;justify-content:space-between;align-items:center;gap:var(--s3);flex-wrap:wrap;background:var(--bold);color:var(--on-bold);border-radius:var(--r-md);padding:var(--s3) var(--s4);margin-bottom:var(--s4);box-shadow:var(--shadow-md)}
+.bulkbar .btn{background:#ffffff14;border-color:#ffffff33;color:var(--on-bold)}.bulkbar .btn:hover{background:#ffffff26;color:var(--on-bold)}.bulkbar .btn.quiet{border-color:transparent}
+.filter-pill{display:inline-flex;align-items:center;gap:var(--s3);background:var(--accent-soft);color:var(--ink-2);border-radius:99px;padding:6px 8px 6px 14px;font-size:13px;margin-bottom:var(--s4)}
+.rcard.selecting{cursor:pointer}.rcard.picked{box-shadow:0 0 0 3px var(--accent)}
+.pick{position:absolute;top:10px;left:10px;z-index:2;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--card) 90%,transparent);border:2px solid var(--rule-2);color:transparent}
+.rcard.picked .pick{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.pick svg{width:15px;height:15px;stroke-width:2.4}
+.titlecell input{min-height:0;width:18px;height:18px;accent-color:var(--accent);flex:none}
 .count-note{margin-left:auto;font-size:12px;color:var(--ink-3)}
 .thumb{width:44px;height:34px;border-radius:6px;overflow:hidden;flex:none}
 .thumb .pic{aspect-ratio:auto;height:100%}.thumb .pic svg,.thumb .pic small{display:none}
@@ -775,7 +790,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .pd-planfoot div div{height:19pt;border-bottom:.5pt solid var(--p-rule)}
 
 /* recipe book */
-.pd-cover{page:cover;position:relative;overflow:hidden;width:var(--pw);height:var(--ph);break-after:page;color:var(--p-ink)}
+.pd-cover{position:relative;overflow:hidden;width:100vw;height:100vh;break-after:page;color:var(--p-ink)}
 .cv-classic{background:#F6F0E6;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.3in 1.1in}
 .cv-classic:before,.cv-classic:after{content:'';position:absolute;border:1.1pt solid var(--p-deep)}
 .cv-classic:before{inset:.42in}.cv-classic:after{inset:.52in;border-width:.5pt}
@@ -815,7 +830,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .pd-toc div span{flex:1;min-width:0;border-bottom:.75pt dotted #cfc6bd;padding-bottom:1pt}
 .pd-toc div em{font-style:normal;font-size:8pt;color:var(--p-faint);white-space:nowrap}
 .pd-made{margin-top:20pt;font-size:7.5pt;color:var(--p-faint);text-align:center}
-.pd-divider{height:calc(var(--ph) - 1.75in);display:flex;flex-direction:column;justify-content:center;break-inside:avoid;page-break-inside:avoid}
+.pd-divider{height:calc(100vh - 1.75in);display:flex;flex-direction:column;justify-content:center;break-inside:avoid;page-break-inside:avoid}
 .pd-divider .num{font:600 96pt/1 "Playfair Display",Georgia,serif;color:var(--p-soft2)}
 .pd-divider h1{font-size:44pt;margin:6pt 0 10pt}
 .pd-divider .bar{width:56pt;height:3pt;background:var(--p-accent);margin:6pt 0 14pt}
@@ -893,7 +908,7 @@ const CONFIG={
  themes:['kiln','ledger','sage','linen','fjord','slate','night','midnight'],
  railNote:'<b>Save any recipe from a link.</b>Your library stays on this device.',
  // [id, label, icon, hub tabs?]. Recipe, edit and cook pages live under the library hub.
- nav:[['dashboard','Kitchen','today'],['library','Recipes','book',[['library','All recipes'],['collections','Collections']]],['import','Add a recipe','link'],
+ nav:[['dashboard','Kitchen','today'],['library','Recipes','book',[['library','All recipes'],['collections','Collections'],['tags','Categories & tags']]],['import','Add a recipe','link'],
   ['plan','Meal plan','calendar'],['shopping','Shopping list','cart'],
   ['settings','Settings & backup','palette'],['guide','How to use','help']],
  navGroups:[['Your kitchen',['dashboard','library','import']],['Plan & shop',['plan','shopping']]], navGroupRest:'Help & settings',
@@ -1103,7 +1118,10 @@ const Logic={
  // ---------- weeks, stats ----------
  weekStart(day){const d=new Date(day+'T12:00:00');d.setDate(d.getDate()-((d.getDay()+6)%7));return ymd(d);},
  madeBetween:(s,from,to)=>s.recipes.flatMap(r=>r.made.filter(d=>d>=from&&d<=to).map(d=>({r,d}))),
- categoryOf:r=>r.categories[0]||r.cuisine[0]||'Uncategorized',
+ categoryOf:r=>r.categories[0]||'Uncategorized',
+ // the library's category/cuisine/tag filter: '' everything, 'none' no category, 'c:Dinner', 'u:Italian', 't:make ahead'
+ matchesFacet(r,f){if(!f)return true;if(f==='none')return !r.categories.length;const k=f[0],v=f.slice(2);return (k==='c'?r.categories:k==='u'?r.cuisine:r.tags).includes(v);},
+ facetLabel:f=>f==='none'?'No category':f?f.slice(2):'',
 };
 const recipeById=id=>state.recipes.find(r=>r.id===id);
 
@@ -1115,7 +1133,7 @@ let state=Logic.blank(),real=null,demo=false,undoState=null,storageProblem='',sc
  railMin=ls.get(RAIL_KEY)==='1',hubLast={},returnFocus=null,askFn=null;
 // what's open: the recipe page, the editor's draft, cook mode, the plan's week, the library's filters
 let openId='',draft=null,draftPhoto=null,dirty=false,cookAt=0,week=Logic.weekStart(today()),importing=false,importMsg='',lastLink='';
-const lib={q:'',filter:'all',cat:'',col:'',sort:'recent',page:0,view:ls.get(VIEW_KEY)==='table'?'table':'grid'};
+const lib={q:'',filter:'all',cat:'',col:'',sort:'recent',page:0,view:ls.get(VIEW_KEY)==='table'?'table':'grid',selecting:false,sel:new Set()};
 const view={servings:null,units:null};
 
 /* ---------- storage: IndexedDB (room for big data) with a localStorage fallback ---------- */
@@ -1181,14 +1199,14 @@ const SAMPLE=[
  ['Weeknight chicken curry','Dinner','Indian',35,'4','Mild, creamy and quick. Serve with rice and a squeeze of lime.',['1 1/2 pounds chicken thighs, cubed','1 onion, chopped','3 garlic cloves, minced','1 tablespoon grated ginger','2 tablespoons curry powder','1 can coconut milk','1 cup chicken stock','1 lime'],['Brown the onion in a little oil for 6 minutes.','Add garlic, ginger and curry powder and stir for 1 minute.','Add chicken, coconut milk and stock. Simmer for 20 minutes.','Finish with lime juice and serve with rice.'],'spiceroute.example',5,true,[5,12,26,40,66,88]],
  ['Brown butter banana bread','Baking','American',75,'10 slices','Toasty brown butter and very ripe bananas make the loaf you will bake again and again.',['3 ripe bananas','1/2 cup butter','3/4 cup brown sugar','2 eggs','1 3/4 cups flour','1 teaspoon baking soda','1/2 teaspoon salt'],['Heat the oven to 350°F and line a loaf pan.','Brown the butter in a pan for 5 minutes, then let it cool.','Mash bananas; whisk in butter, sugar and eggs.','Fold in flour, soda and salt. Bake for 55 minutes.'],'fernkitchen.example',5,true,[20,47,110]],
  ['Crispy smashed potatoes','Side','American',50,'4','Boiled, smashed and roasted until the edges crackle.',['2 pounds small potatoes','3 tablespoons olive oil','1 teaspoon salt','2 tablespoons chopped chives'],['Boil the potatoes for 20 minutes, until tender.','Smash each one flat on an oiled tray.','Drizzle with oil and salt, then roast at 450°F for 25 minutes.','Top with chives.'],'copperpot.example',4,false,[8,39]],
- ['Green goddess soup','Lunch','Vegetarian',30,'4','A big pot of greens that tastes like spring.',['1 onion, chopped','2 zucchini, chopped','4 cups vegetable stock','2 cups spinach','1 handful basil','1/2 cup cream'],['Soften the onion in a pot for 5 minutes.','Add zucchini and stock and simmer for 15 minutes.','Stir in spinach and basil, then blend until smooth.','Swirl in the cream.'],'',0,false,[]],
- ['Salmon with honey soy glaze','Dinner','Japanese',25,'2','Sticky, glossy and on the table in under half an hour.',['2 salmon fillets','2 tablespoons soy sauce','1 tablespoon honey','1 teaspoon grated ginger','1 scallion, sliced'],['Heat the oven to 400°F.','Whisk soy sauce, honey and ginger.','Brush over the salmon and bake for 12 minutes.','Scatter scallion over the top.'],'spiceroute.example',0,false,[]],
+ ['Green goddess soup','','Vegetarian',30,'4','A big pot of greens that tastes like spring.',['1 onion, chopped','2 zucchini, chopped','4 cups vegetable stock','2 cups spinach','1 handful basil','1/2 cup cream'],['Soften the onion in a pot for 5 minutes.','Add zucchini and stock and simmer for 15 minutes.','Stir in spinach and basil, then blend until smooth.','Swirl in the cream.'],'',0,false,[]],
+ ['Salmon with honey soy glaze','','Japanese',25,'2','Sticky, glossy and on the table in under half an hour.',['2 salmon fillets','2 tablespoons soy sauce','1 tablespoon honey','1 teaspoon grated ginger','1 scallion, sliced'],['Heat the oven to 400°F.','Whisk soy sauce, honey and ginger.','Brush over the salmon and bake for 12 minutes.','Scatter scallion over the top.'],'spiceroute.example',0,false,[]],
  ['Blueberry yogurt pancakes','Breakfast','American',25,'4','Thick, fluffy and studded with berries.',['2 cups flour','2 teaspoons baking powder','2 tablespoons sugar','1 1/2 cups yogurt','2 eggs','1 cup blueberries'],['Whisk the dry ingredients in a bowl.','Whisk yogurt and eggs, then stir into the dry mix.','Fold in blueberries.','Cook 1/4 cup portions for 3 minutes per side.'],'copperpot.example',0,false,[]],
  ['Black bean tacos','Dinner','Mexican',20,'4','Smoky beans, quick pickled onion and plenty of lime.',['2 cans black beans','1 teaspoon cumin','1 teaspoon smoked paprika','8 tortillas','1 red onion, sliced','1 avocado','1 lime'],['Warm the beans with cumin and paprika for 8 minutes.','Toss the onion with lime juice and a pinch of salt.','Fill warm tortillas with beans, onion and avocado.'],'spiceroute.example',4,false,[10,24,52]],
  ['Olive oil chocolate cake','Baking','Italian',60,'8','A dark, tender cake that keeps for days.',['1 1/2 cups flour','1/2 cup cocoa','1 cup sugar','3/4 cup olive oil','1 cup warm water','1 teaspoon baking soda'],['Heat the oven to 350°F and oil a round pan.','Whisk the dry ingredients.','Whisk in oil and warm water until smooth.','Bake for 35 minutes.'],'fernkitchen.example',0,false,[]]];
 function sampleData(){const s=Logic.blank();s.settings.theme=state.settings.theme;s.settings.units=state.settings.units;
  s.collections=[{id:'c1',name:'Weeknight dinners'},{id:'c2',name:'Sunday baking'},{id:'c3',name:'Family favorites'}];
- s.recipes=SAMPLE.map(([title,cat,cuisine,total,servings,description,ingredients,steps,site,rating,fav,ago],i)=>Logic.recipe({id:'s'+i,title,description,categories:[cat],cuisine:[cuisine],total,prep:Math.round(total/3),cook:total-Math.round(total/3),servings,
+ s.recipes=SAMPLE.map(([title,cat,cuisine,total,servings,description,ingredients,steps,site,rating,fav,ago],i)=>Logic.recipe({id:'s'+i,title,description,categories:cat?[cat]:[],cuisine:[cuisine],total,prep:Math.round(total/3),cook:total-Math.round(total/3),servings,
   ingredients,sections:[{name:'',steps}],sourceUrl:site?`https://${site}/recipes/${title.toLowerCase().replace(/[^a-z]+/g,'-')}`:'',sourceName:site||'From my own kitchen',rating,favorite:fav,sample:true,
   made:[...ago,...(i%4===1?[0]:[])].map(n=>addDays(today(),-n)).filter((d,k,a)=>a.indexOf(d)===k).sort(),collections:[cat==='Dinner'&&total<=35?'c1':'',cat==='Baking'?'c2':'',fav?'c3':''].filter(Boolean),
   createdAt:new Date(Date.now()-Math.max(0,130-i*12)*864e5).toISOString(),tags:i%3?[]:['make ahead']}));
@@ -1206,15 +1224,16 @@ const CAT=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--ca
 const tipOf=(t,rows)=>esc(JSON.stringify({t,r:rows}));
 const fold=rows=>{const r=rows.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),top=r.slice(0,5).map((x,i)=>[x[0],x[1],x[2]||CAT[i]]);const rest=r.slice(5).reduce((n,x)=>n+x[1],0);if(rest)top.push([`Other (${r.length-5} more)`,rest,CAT[5]]);return top;};
 const count=n=>num(n);
-function pie(parts,{label='',donut=true,center='',sub='',f=count}={}){
+function pie(parts,{label='',donut=true,center='',sub='',f=count,act=null}={}){
+ const go=name=>{const a=act&&!/^Other \(/.test(name)?act(name):'';return a?` data-action="lib-cat" data-v="${esc(a)}" role="link" title="Show these recipes"`:'';};
  parts=parts.filter(p=>p[1]>0);const total=parts.reduce((n,p)=>n+p[1],0);if(!total)return '';
  const R=80,r0=donut?52:0,c=90,pt=(a,r)=>[(c+r*Math.cos(a)).toFixed(2),(c+r*Math.sin(a)).toFixed(2)];let a=-Math.PI/2;
  const segs=parts.map(([name,n,color],i)=>{const sw=n/total*Math.PI*2,a1=a,a2=a+sw;a=a2;let d;
   if(sw>=Math.PI*2-1e-6)d=`M${c} ${c-R}A${R} ${R} 0 1 1 ${c-0.01} ${c-R}Z`+(donut?`M${c} ${c-r0}A${r0} ${r0} 0 1 0 ${c+0.01} ${c-r0}Z`:'');
   else{const lg=sw>Math.PI?1:0,[x1,y1]=pt(a1,R),[x2,y2]=pt(a2,R);if(donut){const [x3,y3]=pt(a2,r0),[x4,y4]=pt(a1,r0);d=`M${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${r0} ${r0} 0 ${lg} 0 ${x4} ${y4}Z`;}else d=`M${c} ${c}L${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}Z`;}
-  return `<path class="kit-seg" d="${d}" fill="${color}" fill-rule="evenodd" style="--i:${i}" tabindex="0" aria-label="${esc(name)}: ${pc(n/total)}" data-tip="${tipOf(name,[{name:label,value:f(n),color},{name:'Share',value:pc(n/total)}])}"/>`;}).join('');
+  return `<path class="kit-seg" d="${d}" fill="${color}" fill-rule="evenodd" style="--i:${i}"${go(name)} tabindex="0" aria-label="${esc(name)}: ${pc(n/total)}" data-tip="${tipOf(name,[{name:label,value:f(n),color},{name:'Share',value:pc(n/total)}])}"/>`;}).join('');
  let cuts='';if(parts.length>1){let b=-Math.PI/2;for(const p of parts){const [x1,y1]=pt(b,r0),[x2,y2]=pt(b,R+1);cuts+=`<line class="kit-cut" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;b+=p[1]/total*Math.PI*2;}}
- const key=parts.map(([name,n,color])=>`<div class="kit-key-row"><i class="dot" style="background:${color}"></i><span>${esc(name)}</span><b class="number">${pc(n/total,n/total<0.1?1:0)}</b><em class="number">${f(n)}</em></div>`).join('');
+ const key=parts.map(([name,n,color])=>`<div class="kit-key-row${act&&go(name)?' linked':''}"${go(name)}><i class="dot" style="background:${color}"></i><span>${esc(name)}</span><b class="number">${pc(n/total,n/total<0.1?1:0)}</b><em class="number">${f(n)}</em></div>`).join('');
  return `<div class="kit-pie"><svg viewBox="0 0 180 180" role="img" aria-label="${esc(label)}">${segs}${cuts}${donut&&center?`<text x="90" y="92" class="kit-mid">${esc(center)}</text><text x="90" y="110" class="kit-mid-sub">${esc(sub)}</text>`:''}</svg><div class="kit-key">${key}</div></div>`;}
 function gauge(v,title,note){const p=Math.max(0,Math.min(1,Number.isFinite(v)?v:0));return `<div class="kit-gauge"><svg viewBox="0 0 180 104" role="img" aria-label="${esc(title)} ${pc(v)}"><path d="M20 92A70 70 0 0 1 160 92" class="kit-gauge-track" pathLength="100"/><path d="M20 92A70 70 0 0 1 160 92" class="kit-gauge-val" pathLength="100" style="stroke-dasharray:${(p*100).toFixed(1)} 100"/><text x="90" y="86" class="kit-gauge-num">${pc(v)}</text></svg><b>${esc(title)}</b><small>${esc(note)}</small></div>`;}
 function spark(vals){const pts=vals.map((n,i)=>Number.isFinite(n)?[i,n]:null).filter(Boolean);if(pts.length<2)return '';const ys=pts.map(p=>p[1]),mn=Math.min(...ys),sp=(Math.max(...ys)-mn)||1,W=120,H=30,X=i=>2+i*(W-6)/Math.max(1,vals.length-1),Y=n=>H-4-(n-mn)/sp*(H-8),l=pts.at(-1);
@@ -1240,8 +1259,9 @@ const catColor=name=>{const cats=[...new Set(state.recipes.map(Logic.categoryOf)
 function pic(r,label=true){const img=r.hasPhoto?`<img data-photo="${esc(r.id)}" alt="" hidden>`:r.image?`<img src="${esc(r.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-remote>`:'';
  return `<div class="pic" style="--c:${catColor(Logic.categoryOf(r))}">${ico('chef')}${label?`<small>${esc(Logic.categoryOf(r))}</small>`:''}${img}</div>`;}
 const stars=n=>n?`<span class="stars" aria-label="${n} of 5 stars">${'★'.repeat(n)}<span class="off">${'★'.repeat(5-n)}</span></span>`:'';
-function card(r,i=0){return `<article class="rcard" style="--i:${i%12}">${r.sample?'<span class="chip sample-tag">Sample</span>':''}<button class="fav" data-action="favorite" data-id="${r.id}" aria-pressed="${r.favorite}" aria-label="${r.favorite?'Remove from':'Add to'} favorites: ${esc(r.title)}" title="Favorite">${ico('heart')}</button>
- <button class="rcard-open" data-action="open" data-id="${r.id}" aria-label="Open ${esc(r.title)}">${pic(r)}<div class="rcard-body"><div class="eyebrow">${esc(r.sourceName||'My recipe')}</div><h3>${esc(r.title)}</h3>
+function card(r,i=0){const sel=lib.selecting&&screen==='library',on=sel&&lib.sel.has(r.id);
+ return `<article class="rcard${sel?' selecting':''}${on?' picked':''}" style="--i:${i%12}">${sel?`<span class="pick" aria-hidden="true">${ico('check')}</span>`:r.sample?'<span class="chip sample-tag">Sample</span>':''}<button class="fav" data-action="favorite" data-id="${r.id}" aria-pressed="${r.favorite}" aria-label="${r.favorite?'Remove from':'Add to'} favorites: ${esc(r.title)}" title="Favorite">${ico('heart')}</button>
+ <button class="rcard-open" data-action="${sel?'sel':'open'}" data-id="${r.id}" aria-label="${sel?(on?'Unselect ':'Select '):'Open '}${esc(r.title)}" ${sel?`aria-pressed="${on}"`:''}>${pic(r)}<div class="rcard-body"><div class="eyebrow">${esc(r.sourceName||'My recipe')}</div><h3>${esc(r.title)}</h3>
  <div class="rmeta">${r.total?`<span>${ico('clock')}${mins(r.total)}</span>`:''}${r.made.length?`<span>${ico('check')}Made ${r.made.length}×</span>`:'<span class="chip accent">To try</span>'}${stars(r.rating)}</div></div></button></article>`;}
 
 /* ---------- link import: the browser asks our Netlify function to read the page ---------- */
@@ -1269,6 +1289,16 @@ const linkbar=(light=false)=>`<form class="linkbar ${light?'light':''}" data-for
 /* ================================================================================
    Screens
    ================================================================================ */
+// the recipes the library shows for the current search and filters
+function libRows(){const q=lib.q.toLowerCase().trim();return state.recipes.filter(r=>{
+ if(lib.filter==='favorites'&&!r.favorite)return false;if(lib.filter==='try'&&r.made.length)return false;if(lib.filter==='made'&&!r.made.length)return false;
+ if(!Logic.matchesFacet(r,lib.cat))return false;if(lib.col&&!r.collections.includes(lib.col))return false;
+ return !q||[r.title,r.description,r.sourceName,r.author,...r.categories,...r.cuisine,...r.tags,...r.ingredients].join(' ').toLowerCase().includes(q);});}
+// category, cuisine and tag chips on a recipe: × removes one, typing in the box adds (Enter or comma)
+const FACETS=[['categories','Category','c'],['cuisine','Cuisine','u'],['tags','Tags','t']];
+const datalists=()=>FACETS.map(([k])=>`<datalist id="dl-${k}">${[...new Set(state.recipes.flatMap(r=>r[k]))].sort().map(v=>`<option value="${esc(v)}">`).join('')}</datalist>`).join('');
+function chipEditor(r){return FACETS.map(([k,label,pre])=>`<div class="chip-edit"><span class="chip-label">${label}</span><div class="chips">${r[k].map(v=>`<span class="chip ${k==='tags'?'':'accent'}"><button class="chip-go" data-action="lib-cat" data-v="${esc(pre+':'+v)}" title="Show all recipes with this">${k==='tags'?'#':''}${esc(v)}</button><button class="chip-x" data-action="chip-x" data-id="${r.id}" data-k="${k}" data-v="${esc(v)}" aria-label="Remove ${esc(v)}" title="Remove">${ico('cross')}</button></span>`).join('')}
+ <input class="chip-add" data-chip="${k}" data-id="${r.id}" list="dl-${k}" maxlength="40" placeholder="${r[k].length?'+ Add':k==='categories'?'+ Add a category':'+ Add'}" aria-label="Add ${label.toLowerCase()}"></div></div>`).join('')+datalists();}
 const VIEWS={
  dashboard(){
   const rs=state.recipes;
@@ -1296,33 +1326,35 @@ const VIEWS={
    <div class="hero-side"><div class="hero-fact">Favorites<strong>${num(favs.length)}</strong></div><div class="hero-fact">Still to try<strong>${num(toTry.length)}</strong></div><div class="hero-meter"><i style="width:${(rs.length?cooked.length/rs.length*100:0).toFixed(1)}%"></i></div><div class="hero-fact">Cooked at least once<strong>${pc(rs.length?cooked.length/rs.length:NaN)}</strong></div><div class="hero-fact">Planned this week<strong>${plural(planned.length,'meal')}</strong></div></div></section>`+
    `<div class="kpis">${tile('Meals cooked',num(made.length),d(made.length,prevMade),spark(perMonth),'chef',0,'pos')}${tile('Recipes added',num(added.at(-1)),`${num(added.reduce((a,b)=>a+b,0))} in the last 12 months`,spark(added),'link',1,'net')}${tile('Favorites',num(favs.length),pc(rs.length?favs.length/rs.length:NaN)+' of your library','','heart',2)}${tile('Still to try',num(toTry.length),next?'Next: '+esc(next.title.length>34?next.title.slice(0,32)+'…':next.title):'You’ve tried everything','','compass',3)}</div>`+
    `<div class="grid2"><section class="card">${cardhead('Meals cooked by month','Each “Made it” you log, over the last 12 months','insights')}${bars([{name:'Meals cooked',color:'var(--accent)',values:perMonth}],months.map(shortMonth),{title:'Meals cooked by month',H:330})||empty('Nothing cooked yet','Press “Made it” on a recipe after you cook it, and your cooking shows up here.','','chef')}</section>
-   <section class="card">${cardhead('What’s in your library','By category','grid')}${pie(fold(cats),{label:'Recipes',center:num(rs.length),sub:'RECIPES'})}</section></div>`+
+   <section class="card">${cardhead('What’s in your library','By category · click one to open it','grid')}${pie(fold(cats),{label:'Recipes',center:num(rs.length),sub:'RECIPES',act:n=>n==='Uncategorized'?'none':'c:'+n})}${cats.some(([c])=>c==='Uncategorized')?`<p class="small dim" style="margin-top:10px;text-align:center">Click a category to see its recipes.</p>`:''}</section></div>`+
    `<div class="grid3"><section class="card mini-list">${cardhead('Recently added','','link',button('See all','go','small','data-go="library"'))}${[...rs].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5).map(r=>`<div class="row"><button data-action="open" data-id="${r.id}">${esc(r.title)}</button><small>${esc(r.sourceName||'')}</small></div>`).join('')}</section>
    <section class="card mini-list">${cardhead('Cook again soon','Favorites and top-rated, longest since last made','heart')}${again.map(r=>`<div class="row"><button data-action="open" data-id="${r.id}">${esc(r.title)}</button><small>${r.made.length?'Last made '+esc(new Date(r.made.at(-1)+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})):'Not made yet'}</small></div>`).join('')||empty('No favorites yet','Tap the heart on a recipe you love.','','heart')}</section>
    <section class="card">${cardhead('Where your recipes come from','','globe')}<div class="rank">${bySite.slice(0,5).map(([s,n],i)=>`<div class="rank-row"><i>${pad(i+1)}</i><div><span>${esc(s)}</span><div class="rank-bar"><b style="width:${(n/bySite[0][1]*100).toFixed(0)}%"></b></div></div><b class="number">${n}</b></div>`).join('')}</div></section></div>`;},
 
  library(){
-  const q=lib.q.toLowerCase().trim();let rows=state.recipes.filter(r=>{
-   if(lib.filter==='favorites'&&!r.favorite)return false;if(lib.filter==='try'&&r.made.length)return false;if(lib.filter==='made'&&!r.made.length)return false;
-   if(lib.cat&&![...r.categories,...r.cuisine,...r.tags].includes(lib.cat))return false;if(lib.col&&!r.collections.includes(lib.col))return false;
-   return !q||[r.title,r.description,r.sourceName,r.author,...r.categories,...r.cuisine,...r.tags,...r.ingredients].join(' ').toLowerCase().includes(q);});
+  let rows=libRows();
   const by={recent:(a,b)=>b.createdAt.localeCompare(a.createdAt),alpha:(a,b)=>a.title.localeCompare(b.title),rated:(a,b)=>b.rating-a.rating||a.title.localeCompare(b.title),
    made:(a,b)=>(b.made.at(-1)||'').localeCompare(a.made.at(-1)||''),often:(a,b)=>b.made.length-a.made.length,time:(a,b)=>(a.total??1e9)-(b.total??1e9)};
   rows.sort(by[lib.sort]||by.recent);
   const per=lib.view==='table'?15:24,pages=Math.max(1,Math.ceil(rows.length/per));lib.page=Math.max(0,Math.min(lib.page,pages-1));const show=rows.slice(lib.page*per,lib.page*per+per);
-  const tags=[...new Set(state.recipes.flatMap(r=>[...r.categories,...r.cuisine]))].sort(),col=state.collections.find(c=>c.id===lib.col);
+  const col=state.collections.find(c=>c.id===lib.col),uniq=k=>[...new Set(state.recipes.flatMap(r=>r[k]))].sort((a,b)=>a.localeCompare(b)),noCat=state.recipes.filter(r=>!r.categories.length).length;
+  const opt=(v,l)=>`<option value="${esc(v)}" ${lib.cat===v?'selected':''}>${esc(l)}</option>`;
+  lib.sel.forEach(id=>{if(!recipeById(id))lib.sel.delete(id);});const nSel=lib.sel.size;
   const counts={all:state.recipes.length,favorites:state.recipes.filter(r=>r.favorite).length,try:state.recipes.filter(r=>!r.made.length).length,made:state.recipes.filter(r=>r.made.length).length};
   return pagehead(col?'Collection':'Your library',col?esc(col.name):'All recipes',col?'':'Everything you’ve saved, ready to cook.',button(ico('book')+'<span>Recipe book</span>','book','',col?`data-pick="col:${col.id}"`:'')+button(ico('link')+'<span>Import from a link</span>','go','primary','data-go="import"'))+
    `<div class="toolbar"><div class="segment" role="group" aria-label="Show">${[['all','All'],['favorites','Favorites'],['try','To try'],['made','Made before']].map(([k,l])=>`<button data-action="lib-filter" data-k="${k}" aria-pressed="${lib.filter===k}">${l} <span class="dim">${counts[k]}</span></button>`).join('')}</div>
-   <span class="count-note">${plural(rows.length,'recipe')}</span><div class="segment" role="group" aria-label="View"><button data-action="lib-view" data-k="grid" aria-pressed="${lib.view==='grid'}" aria-label="Cards" title="Cards">${ico('grid')}</button><button data-action="lib-view" data-k="table" aria-pressed="${lib.view==='table'}" aria-label="Table" title="Table">${ico('table')}</button></div></div><div class="toolbar">
+   <span class="count-note">${plural(rows.length,'recipe')}</span>${button(ico('check')+(lib.selecting?'Done selecting':'Select'),'sel-mode','small'+(lib.selecting?' primary':''),'aria-pressed="'+lib.selecting+'"')}<div class="segment" role="group" aria-label="View"><button data-action="lib-view" data-k="grid" aria-pressed="${lib.view==='grid'}" aria-label="Cards" title="Cards">${ico('grid')}</button><button data-action="lib-view" data-k="table" aria-pressed="${lib.view==='table'}" aria-label="Table" title="Table">${ico('table')}</button></div></div><div class="toolbar">
    <div class="search">${ico('search')}<input id="lib-search" type="search" placeholder="Search titles, ingredients, tags…" value="${esc(lib.q)}" aria-label="Search recipes"></div>
-   <select id="lib-cat" aria-label="Category or cuisine"><option value="">All categories</option>${tags.map(t=>`<option ${lib.cat===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
+   <select id="lib-cat" aria-label="Category, cuisine or tag"><option value="">All categories & tags</option>${noCat?opt('none',`No category (${noCat})`):''}${[['categories','Categories','c'],['cuisine','Cuisines','u'],['tags','Tags','t']].map(([k,l,pre])=>{const v=uniq(k);return v.length?`<optgroup label="${l}">${v.map(x=>opt(pre+':'+x,pre==='t'?'#'+x:x)).join('')}</optgroup>`:'';}).join('')}</select>
    ${state.collections.length?`<select id="lib-col" aria-label="Collection"><option value="">All collections</option>${state.collections.map(c=>`<option value="${c.id}" ${lib.col===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>`:''}
    <select id="lib-sort" aria-label="Sort">${[['recent','Newest first'],['alpha','A to Z'],['rated','Highest rated'],['often','Made most often'],['made','Recently made'],['time','Quickest first']].map(([k,l])=>`<option value="${k}" ${lib.sort===k?'selected':''}>${l}</option>`).join('')}</select>
    </div>`+
+   (lib.cat==='none'&&rows.length&&!lib.selecting?`<div class="notice warning"><span><b>${plural(rows.length,'recipe')} without a category.</b> Select them and give each group its category, or open one and add it there.</span><span class="actions">${button(ico('check')+'Select all of them','sel-all','small primary')}</span></div>`:'')+
+   (lib.selecting?`<div class="bulkbar" role="region" aria-label="Selected recipes"><b>${nSel?plural(nSel,'recipe')+' selected':'Tap recipes to select them'}</b><span class="actions">${button('Select all '+num(rows.length),'sel-all','small')}${nSel?button('Clear','sel-clear','small quiet'):''}${button(ico('tags')+'Set category','bulk-cat','small',nSel?'':'disabled')}${button('#&nbsp;Tags','bulk-tags','small',nSel?'':'disabled')}${state.collections.length?button(ico('folder')+'Add to collection','bulk-col','small',nSel?'':'disabled'):''}</span></div>`:'')+
+   (lib.cat&&!lib.selecting?`<div class="filter-pill"><span>Showing <b>${esc(Logic.facetLabel(lib.cat))}</b></span><button class="link" data-action="lib-cat" data-v="">Show all</button></div>`:'')+
    (!rows.length?`<section class="card">${state.recipes.length?empty('No recipes match','Try another search or filter.',button('Show everything','lib-reset','primary'),'search'):empty('Your library is empty','Paste a recipe link to save your first recipe.',button(ico('link')+'Import from a link','go','primary','data-go="import"')+' '+button('Explore sample recipes','sample'),'book')}</section>`:
    lib.view==='grid'?`<div class="rgrid">${show.map(card).join('')}</div>${pages>1?`<section class="card table-card" style="margin-top:16px">${pager(lib,rows.length,per)}</section>`:''}`:
-   `<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Recipe</th><th>Category</th><th class="num">Time</th><th class="num">Rating</th><th class="num">Made</th><th>Added</th><th>Source</th></tr></thead><tbody>${show.map(r=>`<tr><td><div class="titlecell"><span class="thumb">${pic(r,false)}</span><button data-action="open" data-id="${r.id}"><span class="clamp">${esc(r.title)}</span></button></div></td><td>${esc(Logic.categoryOf(r))}</td><td class="num" data-v="${r.total??''}">${r.total?mins(r.total):'—'}</td><td class="num" data-v="${r.rating}">${r.rating?'★ '+r.rating:'—'}</td><td class="num" data-v="${r.made.length}">${r.made.length||'—'}</td><td data-v="${r.createdAt}" style="white-space:nowrap">${new Date(r.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td><td><span class="clamp">${esc(r.sourceName||'—')}</span></td></tr>`).join('')}</tbody></table></div>${pager(lib,rows.length,per)}</section>`);},
+   `<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Recipe</th><th>Category</th><th class="num">Time</th><th class="num">Rating</th><th class="num">Made</th><th>Added</th><th>Source</th></tr></thead><tbody>${show.map(r=>`<tr><td><div class="titlecell">${lib.selecting?`<input type="checkbox" data-sel="${r.id}" ${lib.sel.has(r.id)?'checked':''} aria-label="Select ${esc(r.title)}">`:''}<span class="thumb">${pic(r,false)}</span><button data-action="${lib.selecting?'sel':'open'}" data-id="${r.id}"><span class="clamp">${esc(r.title)}</span></button></div></td><td>${esc(Logic.categoryOf(r))}</td><td class="num" data-v="${r.total??''}">${r.total?mins(r.total):'—'}</td><td class="num" data-v="${r.rating}">${r.rating?'★ '+r.rating:'—'}</td><td class="num" data-v="${r.made.length}">${r.made.length||'—'}</td><td data-v="${r.createdAt}" style="white-space:nowrap">${new Date(r.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td><td><span class="clamp">${esc(r.sourceName||'—')}</span></td></tr>`).join('')}</tbody></table></div>${pager(lib,rows.length,per)}</section>`);},
 
  collections(){return pagehead('Your library','Collections','Group recipes your way, then turn any collection into a printable recipe book.',button(ico('book')+'<span>Recipe book</span>','book')+button(ico('plus')+'<span>New collection</span>','collection','primary'))+
   (state.collections.length?`<div class="cgrid">${state.collections.map(c=>{const rs=state.recipes.filter(r=>r.collections.includes(c.id));return `<article class="ccard"><div class="mosaic">${[0,1,2,3].map(i=>rs[i]?pic(rs[i],false):'<div class="pic"></div>').join('')}</div><div class="ccard-body"><h2>${esc(c.name)}</h2><span class="small dim">${plural(rs.length,'recipe')}</span><div class="actions">${button('Open','open-collection','small primary',`data-id="${c.id}"`)}${button(ico('book')+'Book','book','small',`data-pick="col:${c.id}" ${rs.length?'':'disabled'}`)}${button('Rename','collection','small',`data-id="${c.id}"`)}<button class="icon-action danger" data-action="delete-collection" data-id="${c.id}" aria-label="Delete ${esc(c.name)}" title="Delete">${ico('trash')}</button></div></div></article>`;}).join('')}</div>`:
@@ -1354,8 +1386,8 @@ const VIEWS={
   <div class="grid-even match-row" data-floor="280" style="--n:${2+!!r.sourceNotes+!!r.nutrition}">${r.sourceNotes?`<section class="card pair">${cardhead('Notes from the source','','book')}<div class="pair-body"><p class="pre">${esc(r.sourceNotes)}</p></div></section>`:''}
    <section class="card pair">${cardhead('My notes','Your tweaks for next time','edit',button('Edit','edit','small',`data-id="${r.id}"`))}<div class="pair-body"><p class="pre">${esc(r.notes)||'<span class="dim">A little less salt? An extra squeeze of lemon? Add notes in Edit.</span>'}</p></div></section>
    ${r.nutrition?`<section class="card pair">${cardhead('Nutrition',esc(r.nutritionBasis||'As published by the source'),'insights')}<div class="pair-body"><dl class="nutri">${Object.entries(r.nutrition).slice(0,12).map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl></div></section>`:''}
-   <section class="card pair">${cardhead('In your library','','folder')}<div class="pair-body"><div class="chips" style="margin-bottom:12px">${r.collections.map(id=>state.collections.find(c=>c.id===id)).filter(Boolean).map(c=>`<span class="chip accent">${ico('folder')}${esc(c.name)}</span>`).join('')||'<span class="small dim">Not in a collection yet.</span>'}</div>${r.tags.length?`<div class="chips">${r.tags.map(t=>`<span class="chip">#${esc(t)}</span>`).join('')}</div>`:''}
-   <div class="actions" style="margin-top:14px">${button(ico('copy')+'Make my version','duplicate','small',`data-id="${r.id}"`)}${button(ico('down')+'Export','export-recipe','small',`data-id="${r.id}"`)}</div></div></section></div>`;},
+   <section class="card pair">${cardhead('In your library','','folder',`<button class="icon-action" data-action="duplicate" data-id="${r.id}" aria-label="Make my version" title="Make my version">${ico('copy')}</button><button class="icon-action" data-action="export-recipe" data-id="${r.id}" aria-label="Export this recipe" title="Export this recipe">${ico('down')}</button>`)}<div class="pair-body">${chipEditor(r)}<div class="chip-edit"><span class="chip-label">Collections</span><div class="chips">${r.collections.map(id=>state.collections.find(c=>c.id===id)).filter(Boolean).map(c=>`<span class="chip">${ico('folder')}${esc(c.name)}</span>`).join('')||'<span class="small dim">None yet · add in Edit</span>'}</div></div>
+</div></section></div>`;},
 
  edit(){if(!draft)return pagehead('Recipes','Nothing to edit','Open a recipe first.',button('Back to recipes','go','primary','data-go="library"'));
   const d=draft,isNew=!recipeById(d.id),photo=draftPhoto||(d.hasPhoto?PHOTOS.get(d.id):'');
@@ -1408,6 +1440,12 @@ const VIEWS={
    <div class="actions no-print" style="margin-top:16px">${button('Clear checked items','shop-clear-checked','',items.some(i=>i.checked)?'':'disabled')}${button('Clear the whole list','shop-clear','danger')}</div>`:
    `<section class="card">${empty('Your list is empty','Add the ingredients of a recipe, or everything in this week’s meal plan, sorted by aisle.',button(ico('book')+'Add from a recipe','shop-pick','primary'),'cart')}</section>`);},
 
+ tags(){const noCat=state.recipes.filter(r=>!r.categories.length).length;
+  const card=([k,label,pre])=>{const m=new Map();state.recipes.forEach(r=>r[k].forEach(v=>m.set(v,(m.get(v)||0)+1)));const list=[...m].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+   return `<section class="card pair table-card">${cardhead({categories:'Categories',cuisine:'Cuisines',tags:'Tags'}[k],{categories:plural(list.length,'category','categories'),cuisine:plural(list.length,'cuisine'),tags:plural(list.length,'tag')}[k],k==='tags'?'tags':k==='cuisine'?'globe':'grid')}<div class="pair-body">${list.length?`<div class="table-wrap"><table><thead><tr><th>Name</th><th class="num">Recipes</th><th></th></tr></thead><tbody>${list.map(([v,n])=>`<tr><td><button class="link-btn" data-action="lib-cat" data-v="${esc(pre+':'+v)}">${k==='tags'?'#':''}${esc(v)}</button></td><td class="num" data-v="${n}">${n}</td><td class="num"><span class="row-actions"><button class="icon-action" data-action="facet-rename" data-k="${k}" data-v="${esc(v)}" aria-label="Rename ${esc(v)}" title="Rename or merge">${ico('edit')}</button><button class="icon-action danger" data-action="facet-del" data-k="${k}" data-v="${esc(v)}" aria-label="Delete ${esc(v)}" title="Delete from every recipe">${ico('trash')}</button></span></td></tr>`).join('')}</tbody></table></div>`:empty('None yet',k==='tags'?'Add tags on a recipe page, or to many recipes at once with Select in All recipes.':'Add them on a recipe page or in Edit.','',k==='tags'?'tags':'grid')}</div></section>`;};
+  return pagehead('Your library','Categories & tags','Rename, merge or delete them across every recipe. Renaming one to a name that already exists merges the two.')+
+   (noCat?`<div class="notice warning"><span><b>${plural(noCat,'recipe')} without a category.</b> Give them one so they show up in the right place.</span><span class="actions">${button('Show them','lib-cat','small primary','data-v="none"')}</span></div>`:'')+
+   `<div class="grid-even match-row" data-floor="360" style="--n:3">${FACETS.map(card).join('')}</div>`;},
  guide(){return pagehead('Help','How to use '+esc(CONFIG.name),'Four moves. Everything else fills in by itself.')+
   `<div class="steps steps4" style="margin-bottom:16px">${[['01 / IMPORT','Paste a link','Copy a recipe page’s link and paste it in Add a recipe. Press N anywhere to start.','Add a recipe','go','data-go="import"'],['02 / COOK','Cook','Scale servings, switch to metric and use Start cooking for one big step at a time.','My recipes','go','data-go="library"'],['03 / PLAN','Plan & shop','Add recipes to days of the week, then send the week to your shopping list.','Meal plan','go','data-go="plan"'],['04 / PROTECT','Back up','Choose a backup folder once, or download a backup now and then.','Settings & backup','go','data-go="settings"']].map(([n,h,p,b,a,x])=>`<div class="step"><span>${n}</span><h3>${h}</h3><p>${p}</p>${button(b,a,'small',x)}</div>`).join('')}</div>
   <section class="card table-card">${cardhead('Good to know','','help')}<div class="table-wrap"><table data-nosort><thead><tr><th>Question</th><th>Answer</th></tr></thead><tbody>
@@ -1418,7 +1456,9 @@ const VIEWS={
   <tr><td>Can I use it on my phone?</td><td>Yes. Open the same web address on your phone. Each device keeps its own library, so move recipes with a backup: download it on one device and restore it on the other.</td></tr>
   <tr><td>Photos?</td><td>Imported recipes show the website’s photo (it needs internet). Photos you upload are shrunk and kept on this device, inside your backups too.</td></tr>
   <tr><td>Install it on my phone or computer?</td><td>Choose <b>Install the app</b> in the sidebar or Settings. On iPhone and iPad: in Safari, tap Share, then <b>Add to Home Screen</b>. It opens like any app and works offline, except importing links.</td></tr>
-  <tr><td>Print or save a PDF?</td><td>Use <b>Print / PDF</b> on a recipe, the shopping list or the meal plan, then pick <b>Save as PDF</b> as the printer. For a cookbook, choose <b>Recipe book</b> in Recipes or Collections: pick the recipes, a cover and the paper size. Turn off Headers and footers in the print window for the cleanest pages.</td></tr>
+  <tr><td>Print or save a PDF?</td><td>Use <b>Print / PDF</b> on a recipe, the shopping list or the meal plan, then pick <b>Save as PDF</b> as the printer. For a cookbook, choose <b>Recipe book</b> in Recipes or Collections: pick the recipes and a cover. Choose the paper size (Letter, A4 and more) in the print window. Turn off Headers and footers in the print window for the cleanest pages.</td></tr>
+  <tr><td>Recipes without a category?</td><td>On the Kitchen page, click <b>Uncategorized</b> in the library chart (or pick <b>No category</b> in the Recipes filter). Choose <b>Select all of them</b>, then <b>Set category</b>. Or open a recipe and type a category in its <b>In your library</b> card.</td></tr>
+  <tr><td>Tags and categories?</td><td>Add or remove them on any recipe page (type and press Enter; × removes one). To change many at once, use <b>Select</b> in All recipes. To rename, merge or delete one everywhere, open <b>Recipes → Categories &amp; tags</b>.</td></tr>
   <tr><td>Send my list to another app?</td><td><b>Copy list</b> on the shopping list copies what’s left to buy, one item per line. Paste it into Reminders, AnyList, Google Keep or a note.</td></tr>
   <tr><td>Keyboard shortcuts</td><td><b>N</b> adds a recipe from a link. <b>/</b> searches your recipes. In cook mode, <b>←</b> and <b>→</b> move between steps.</td></tr>
   <tr><td>I used the first, offline edition</td><td>Export a full backup there, then choose <b>Restore backup</b> in Settings here. Recipes, collections, meal plans and the shopping list come across.</td></tr></tbody></table></div></section>`;},
@@ -1517,6 +1557,16 @@ function planForm(date,recipeId=''){const rs=[...state.recipes].sort((a,b)=>a.ti
  <label>Day<input type="date" name="date" value="${date||today()}" required></label><label>Meal<select name="slot">${CONFIG.slots.map(s=>`<option ${s==='Dinner'?'selected':''}>${s}</option>`).join('')}</select></label></div>${formFoot('Add to plan')}</form>`);}
 function shopPickForm(){const rs=[...state.recipes].filter(r=>r.ingredients.length).sort((a,b)=>a.title.localeCompare(b.title));if(!rs.length)return toast('Save a recipe with ingredients first.');
  modal('Add a recipe’s ingredients','Amounts of the same thing are added together.',`<form id="shop-form"><div class="fields"><label class="full">Recipe<select name="recipe" autofocus>${rs.map(r=>`<option value="${r.id}">${esc(r.title)}</option>`).join('')}</select></label></div>${formFoot('Add to list')}</form>`);}
+const pickedRecipes=()=>[...lib.sel].map(recipeById).filter(Boolean);
+const listOf=k=>[...new Set(state.recipes.flatMap(r=>r[k]))].sort((a,b)=>a.localeCompare(b));
+function bulkCategoryForm(){const n=lib.sel.size;if(!n)return;modal('Set a category',`For ${plural(n,'selected recipe')}. Pick one you use, or type a new one.`,`<form id="bulk-cat-form"><div class="fields"><label class="full">Category<input name="v" list="dl-bulk-cat" maxlength="40" required autofocus placeholder="Dinner"><datalist id="dl-bulk-cat">${listOf('categories').map(v=>`<option value="${esc(v)}">`).join('')}</datalist></label>
+ <label class="full">How<select name="mode"><option value="replace">Make it their category (replaces the one they have)</option><option value="add">Add it alongside their current categories</option></select></label></div>${formFoot('Set category')}</form>`);}
+function bulkTagsForm(){const rs=pickedRecipes();if(!rs.length)return;const has=[...new Set(rs.flatMap(r=>r.tags))].sort();
+ modal('Tags',`For ${plural(rs.length,'selected recipe')}.`,`<form id="bulk-tags-form"><div class="fields"><label class="full">Add tags<input name="add" list="dl-bulk-tag" maxlength="200" placeholder="make ahead, freezer friendly" autofocus><small>Separate with commas.</small><datalist id="dl-bulk-tag">${listOf('tags').map(v=>`<option value="${esc(v)}">`).join('')}</datalist></label>
+ ${has.length?`<div class="full"><span class="small" style="font-weight:600;color:var(--ink-2)">Remove tags</span><div class="book-opts" style="margin-top:6px">${has.map(t=>`<label class="check"><input type="checkbox" name="remove" value="${esc(t)}">#${esc(t)}</label>`).join('')}</div></div>`:''}</div>${formFoot('Save tags')}</form>`);}
+function bulkCollectionForm(){const n=lib.sel.size;if(!n||!state.collections.length)return;modal('Add to a collection',`${plural(n,'selected recipe')}.`,`<form id="bulk-col-form"><div class="fields"><label class="full">Collection<select name="v" autofocus>${state.collections.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label></div>${formFoot('Add')}</form>`);}
+function facetForm(k,v){const n=state.recipes.filter(r=>r[k].includes(v)).length,what={categories:'category',cuisine:'cuisine',tags:'tag'}[k];
+ modal(`Rename this ${what}`,`“${esc(v)}” is on ${plural(n,'recipe')}. Use the name of another ${what} to merge them.`,`<form id="facet-form" data-k="${k}" data-v="${esc(v)}"><div class="fields"><label class="full">New name<input name="to" value="${esc(v)}" maxlength="40" required autofocus list="dl-facet"><datalist id="dl-facet">${listOf(k).filter(x=>x!==v).map(x=>`<option value="${esc(x)}">`).join('')}</datalist></label></div>${formFoot('Rename')}</form>`);}
 const BACKUP_SLIDE={icon:'shield',step:'BACK UP',title:'Keep your recipes safe',text:'Your library lives in this browser. In Chrome or Edge, choose a cloud-synced folder once and a backup is saved after every change. Elsewhere, download a backup from Settings now and then.'};
 let tourAt=0,tourReminder=false;
 const slides=()=>tourReminder?[BACKUP_SLIDE]:CONFIG.welcome.map(s=>s==='backup'?BACKUP_SLIDE:s);
@@ -1545,8 +1595,6 @@ function photoFromLink(raw){let u=String(raw||'').trim().replace(/^<|>$/g,'');co
 /* ================================================================================
    Print documents · real page layouts for paper and "Save as PDF", not a picture of the screen
    ================================================================================ */
-const PAPER={letter:['8.5in','11in'],a4:['210mm','297mm']};
-const paperOf=()=>state.settings.paper||(/^en-(US|CA)|^es-MX|^fr-CA/.test(navigator.language||'')?'letter':'a4');
 // print colors follow the chosen palette; the two dark palettes print in Kiln so paper stays light
 function printPalette(){const t=['night','midnight'].includes(state.settings.theme)?'kiln':state.settings.theme,el=document.createElement('div');el.dataset.theme=t;el.hidden=true;document.body.appendChild(el);
  const cs=getComputedStyle(el),v=n=>cs.getPropertyValue(n).trim();const p={accent:v('--accent'),deep:v('--bold'),pop:v('--pop'),soft:v('--accent-soft'),line:v('--accent-line')};el.remove();return p;}
@@ -1581,22 +1629,24 @@ function bookDoc(rs,o){const year=new Date().getFullYear(),groups=new Map();
  const cats=[...groups.keys()].sort((a,b)=>rank(a)-rank(b)||a.localeCompare(b));let n=0;const numbered=cats.map(c=>[c,groups.get(c).map(r=>[++n,r])]);
  const lead=o.subtitle?`<p class="pd-lead">${esc(o.subtitle)}</p>`:'',who=o.name?esc(o.name):'',photos=rs.filter(hasImg);
  let cover;
- if(o.cover==='photo'&&photos.length){const hero=photos.find(r=>r.favorite)||photos[0];cover=`<section class="pd-cover cv-photo"><figure>${imgTag(hero)}</figure><div class="cv-over"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')}</div><h1>${esc(o.title)}</h1>${lead}<div class="cv-line"></div>${who?`<div class="cv-who">From the kitchen of ${who}</div>`:''}</div></section>`;}
- else if(o.cover==='modern'||o.cover==='photo'){const pics=photos.slice(0,4);cover=`<section class="pd-cover cv-modern"><div class="cv-art ${pics.length>=2?'n'+pics.length:'none'}">${pics.length>=2?pics.map(r=>`<figure>${imgTag(r)}</figure>`).join(''):`<div class="cv-mono">${esc((o.title.trim()[0]||'R').toUpperCase())}</div>`}</div>
+ if(o.cover==='photo'&&photos.length){const hero=photos.find(r=>r.favorite)||photos[0];cover=`<section class="pd pd-cover cv-photo"><figure>${imgTag(hero)}</figure><div class="cv-over"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')}</div><h1>${esc(o.title)}</h1>${lead}<div class="cv-line"></div>${who?`<div class="cv-who">From the kitchen of ${who}</div>`:''}</div></section>`;}
+ else if(o.cover==='modern'||o.cover==='photo'){const pics=photos.slice(0,4);cover=`<section class="pd pd-cover cv-modern"><div class="cv-art ${pics.length>=2?'n'+pics.length:'none'}">${pics.length>=2?pics.map(r=>`<figure>${imgTag(r)}</figure>`).join(''):`<div class="cv-mono">${esc((o.title.trim()[0]||'R').toUpperCase())}</div>`}</div>
   <div class="cv-text"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')} · ${year}</div><h1>${esc(o.title)}</h1>${lead}${who?`<div class="cv-name">From the kitchen of<b>${who}</b></div>`:''}</div></section>`;}
- else cover=`<section class="pd-cover cv-classic"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')}</div><h1>${esc(o.title)}</h1>${ORNAMENT}${lead}${who?`<div class="cv-by"><span>From the kitchen of</span><b>${who}</b><span style="margin-top:6px">${year}</span></div>`:''}</section>`;
+ else cover=`<section class="pd pd-cover cv-classic"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')}</div><h1>${esc(o.title)}</h1>${ORNAMENT}${lead}${who?`<div class="cv-by"><span>From the kitchen of</span><b>${who}</b><span style="margin-top:6px">${year}</span></div>`:''}</section>`;
  const toc=`<section class="pd-contents"><div class="pd-kicker">Inside</div><h1>Contents</h1><p class="pd-lead">${plural(rs.length,'recipe')}${cats.length>1&&o.order!=='alpha'?` in ${plural(cats.length,'chapter')}`:''}</p>
   <div class="pd-toc">${numbered.map(([c,list])=>`<section><h2>${esc(c)}</h2>${list.map(([i,r])=>`<div><i>${pad(i)}</i><span>${esc(r.title)}</span><em>${r.total?mins(r.total):''}</em></div>`).join('')}</section>`).join('')}</div>
   <p class="pd-made">Printed ${esc(new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'}))} with ${CONFIG.name}</p></section>`;
  const body=numbered.map(([c,list],ci)=>(o.dividers&&cats.length>1&&o.order!=='alpha'?`<section class="pd-divider pd-break"><div class="num">${pad(ci+1)}</div><h1>${esc(c)}</h1><div class="bar"></div><p class="pd-lead">${plural(list.length,'recipe')}</p></section>`:'')+
   list.map(([i,r])=>`<div class="pd-break">${recipeDoc(r,{photo:o.photos,notes:o.notes,nutrition:o.nutrition,num:'No. '+pad(i),book:true})}</div>`).join('')).join('');
- return `<div class="pd-book">${cover}${toc}${body}</div>`;}
-async function printDoc(html,title){
- closeModal();const [w,h]=PAPER[paperOf()]||PAPER.letter,p=printPalette(),root=$('#print-root');
- root.style.cssText=`--pw:${w};--ph:${h};--p-accent:${p.accent};--p-deep:${p.deep};--p-pop:${p.pop};--p-soft:${p.soft};--p-soft2:${p.line}`;
- root.innerHTML=`<div class="pd">${html}</div>`;
+ // the cover goes outside the document wrapper: Chrome only gives it its own edge-to-edge page there
+ return {lead:cover,html:`<div class="pd-book">${toc}${body}</div>`};}
+async function printDoc(doc,title){const {lead='',html=''}=typeof doc==='string'?{html:doc}:doc,cover=!!lead;
+ closeModal();const p=printPalette(),root=$('#print-root');
+ root.style.cssText=`--p-accent:${p.accent};--p-deep:${p.deep};--p-pop:${p.pop};--p-soft:${p.soft};--p-soft2:${p.line}`;
+ root.innerHTML=`${lead}<div class="pd">${html}</div>`;
  let st=$('#page-style');if(!st){st=document.createElement('style');st.id='page-style';document.head.appendChild(st);}
- st.textContent=`@page{size:${w} ${h};margin:.7in .75in .8in;@bottom-center{content:counter(page);font:8pt "DM Sans",sans-serif;color:#9a918a}}@page cover{size:${w} ${h};margin:0;@bottom-center{content:none}}@page land{size:${h} ${w};margin:.5in .6in .55in;@bottom-center{content:none}}`;
+ // no fixed paper size: the print window offers Letter, A4 and the rest; the cover and chapter pages size themselves to it
+ st.textContent=`@page{margin:.7in .75in .8in;@bottom-center{content:counter(page);font:8pt "DM Sans",sans-serif;color:#9a918a}}${cover?'@page :first{margin:0;@bottom-center{content:none}}':''}@page land{size:landscape;margin:.5in .6in .55in;@bottom-center{content:none}}`;
  toast('Preparing your pages…');
  // your own photos come from this device; website photos must finish loading before the print window opens
  await Promise.all([...root.querySelectorAll('img[data-photo]')].map(async img=>{const d=await getPhoto(img.dataset.photo);if(d)img.src=d;else img.hidden=true;}));
@@ -1617,12 +1667,11 @@ function bookForm(pick=''){if(!state.recipes.length)return toast('Save a few rec
   <label class="full">Recipes<select name="pick">${[['all',`All recipes (${state.recipes.length})`],['fav',`Favorites (${state.recipes.filter(r=>r.favorite).length})`],...state.collections.map(c=>['col:'+c.id,`Collection: ${c.name} (${state.recipes.filter(r=>r.collections.includes(c.id)).length})`]),...cats.map(c=>['cat:'+c,`Category: ${c} (${state.recipes.filter(r=>Logic.categoryOf(r)===c).length})`])].map(([v,l])=>`<option value="${esc(v)}" ${v===(pick||'all')?'selected':''}>${esc(l)}</option>`).join('')}</select></label>
   <label>Title<input name="title" maxlength="60" value="${esc(col?col.name:'Our Family Recipes')}" required></label>
   <label>Subtitle<input name="subtitle" maxlength="80" value="Recipes worth keeping"></label>
-  <label>From the kitchen of<input name="name" maxlength="60" value="${esc(state.settings.name)}" placeholder="The Rivera family"></label>
-  <label>Paper<select name="paper"><option value="letter" ${paperOf()==='letter'?'selected':''}>US Letter</option><option value="a4" ${paperOf()==='a4'?'selected':''}>A4</option></select></label>
+  <label class="full">From the kitchen of<input name="name" maxlength="60" value="${esc(state.settings.name)}" placeholder="The Rivera family"></label>
   <div class="full"><span class="small" style="font-weight:600;color:var(--ink-2)">Cover</span><div class="cover-pick" role="radiogroup" aria-label="Cover style" style="margin-top:6px">${[['classic','Classic'],['modern','Modern'],['photo','Photo']].map(([k,l],i)=>`<label><input type="radio" name="cover" value="${k}" ${i?'':'checked'}><span class="mini m-${k}"><i></i><u></u></span><b>${l}</b></label>`).join('')}</div></div>
   <label>Order<select name="order"><option value="course">By category, with chapter pages</option><option value="alpha">A to Z</option></select></label>
   <div><span class="small" style="font-weight:600;color:var(--ink-2)">Include</span><div class="book-opts" style="margin-top:6px"><label class="check"><input type="checkbox" name="photos" checked>Photos</label><label class="check"><input type="checkbox" name="notes" checked>My notes</label><label class="check"><input type="checkbox" name="nutrition">Nutrition</label></div></div></div>
-  <p class="print-tip">${ico('print')}<span>In the print window, choose <b>Save as PDF</b> as the printer. For the cleanest pages, turn <b>Headers and footers</b> off and <b>Background graphics</b> on.</span></p>${formFoot('Create the book')}</form>`);
+  <p class="print-tip">${ico('print')}<span>In the print window, pick the <b>paper size</b> (Letter, A4 and more) and choose <b>Save as PDF</b> or your printer. For the cleanest pages, turn <b>Headers and footers</b> off and <b>Background graphics</b> on.</span></p>${formFoot('Create the book')}</form>`);
  $('#dlg').classList.add('book-dlg');$('#dlg').addEventListener('close',()=>$('#dlg').classList.remove('book-dlg'),{once:true});}
 async function copyText(text,msg){let ok=false;try{await navigator.clipboard.writeText(text);ok=true;}catch{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.select();try{ok=document.execCommand('copy');}catch{}ta.remove();}
  toast(ok?msg:'Copying was blocked by the browser. Select the items and copy them instead.');}
@@ -1698,6 +1747,14 @@ const ACTIONS={
  'photo-url':()=>photoFromLink($('#photo-url')?.value),
  'remove-photo':()=>{draft.image='';draftPhoto=null;draft.hasPhoto=false;dirty=true;keepForm();render();},
  'cancel-edit':()=>{const id=draft&&recipeById(draft.id)?draft.id:'';dirty=false;draft=null;if(id)openRecipe(id);else go('library');},
+ 'lib-cat':b=>{lib.cat=b.dataset.v||'';lib.filter='all';lib.col='';lib.page=0;if(screen!=='library')go('library');else render();},
+ 'sel-mode':()=>{lib.selecting=!lib.selecting;if(!lib.selecting)lib.sel.clear();render();},
+ sel:b=>{const id=b.dataset.id;lib.sel.has(id)?lib.sel.delete(id):lib.sel.add(id);render();},
+ 'sel-all':()=>{lib.selecting=true;libRows().forEach(r=>lib.sel.add(r.id));render();},'sel-clear':()=>{lib.sel.clear();render();},
+ 'bulk-cat':bulkCategoryForm,'bulk-tags':bulkTagsForm,'bulk-col':bulkCollectionForm,
+ 'chip-x':b=>{const r=recipeById(b.dataset.id),k=b.dataset.k,v=b.dataset.v;if(r)commit(()=>{r[k]=r[k].filter(x=>x!==v);r.updatedAt=new Date().toISOString();},`Removed “${v}”`);},
+ 'facet-rename':b=>facetForm(b.dataset.k,b.dataset.v),
+ 'facet-del':b=>{const k=b.dataset.k,v=b.dataset.v,n=state.recipes.filter(r=>r[k].includes(v)).length;ask(`Delete “${esc(v)}”?`,`It comes off ${plural(n,'recipe')}. The recipes stay. You can undo it straight after.`,'Delete',()=>commit(()=>{state.recipes.forEach(r=>{r[k]=r[k].filter(x=>x!==v);});if(lib.cat.slice(2)===v)lib.cat='';},`“${v}” deleted from ${plural(n,'recipe')}`));},
  'lib-filter':b=>{lib.filter=b.dataset.k;lib.page=0;render();},'lib-view':b=>{lib.view=b.dataset.k;ls.set(VIEW_KEY,lib.view);lib.page=0;render();},
  'lib-reset':()=>{Object.assign(lib,{q:'',filter:'all',cat:'',col:'',page:0});render();},
  'ask-ok':()=>{const f=askFn;askFn=null;closeModal();f?.();},dismiss:closeModal,
@@ -1708,6 +1765,10 @@ const ACTIONS={
  fresh:()=>ask('Start fresh?','This clears every recipe, collection, plan and list. Download a backup first if you may need it. You can undo straight after.','Start fresh',()=>commit(()=>{const t=state.settings.theme;state=Logic.blank();state.settings.theme=t;},'Started fresh')),
  tour:()=>openTour(false),'tour-step':b=>{tourAt+=+b.dataset.d;renderTour();$('#welcome [autofocus]')?.focus();},'tour-close':closeTour,'tour-sample':()=>{closeTour();if(!demo)toggleSample();},
 };
+function addChip(input){const r=recipeById(input.dataset.id),k=input.dataset.chip,vals=input.value.split(',').map(tidy).filter(Boolean).map(v=>v.slice(0,40));if(!r||!vals.length)return;
+ commit(()=>{r[k]=[...new Set([...r[k],...vals])];r.updatedAt=new Date().toISOString();},`Added ${vals.map(v=>'“'+v+'”').join(', ')}`);setTimeout(()=>$(`.chip-add[data-chip="${k}"]`)?.focus(),0);}
+// a value picked from the suggestion list is added straight away
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset?.chip&&t.value.trim())addChip(t);});
 // the editor keeps what you've typed when it re-renders for a photo change
 function keepForm(){const f=$('#recipe-form');if(!f||!draft)return;const d=Object.fromEntries(new FormData(f)),list=v=>String(v||'').split(',').map(s=>s.trim()).filter(Boolean),n=v=>v===''||v==null?null:Math.max(0,Math.min(99999,Math.round(+v)||0));
  Object.assign(draft,{title:String(d.title||'').trim(),description:String(d.description||'').trim(),servings:String(d.servings||'').trim(),categories:list(d.categories),cuisine:list(d.cuisine),tags:list(d.tags),prep:n(d.prep),cook:n(d.cook),total:n(d.total),
@@ -1717,6 +1778,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');
 document.addEventListener('change',async e=>{const t=e.target;
  if(t.dataset.navToggle){const k=t.dataset.navToggle;commit(()=>{const h=state.settings.hiddenNav.filter(x=>x!==k);if(!t.checked)h.push(k);state.settings.hiddenNav=h;},t.checked?'Shown in the sidebar':'Hidden from the sidebar');}
  if(t.id==='month-picker'&&/^\d{4}-\d{2}$/.test(t.value)){selected=t.value;render();}
+ if(t.dataset.sel){t.checked?lib.sel.add(t.dataset.sel):lib.sel.delete(t.dataset.sel);render();}
  if(t.dataset.item){const it=state.shopping.find(i=>i.id===t.dataset.item);if(it)commit(()=>{it.checked=t.checked;},'',{quiet:true});}
  if(t.id==='lib-cat'){lib.cat=t.value;lib.page=0;render();}if(t.id==='lib-col'){lib.col=t.value;lib.page=0;render();}if(t.id==='lib-sort'){lib.sort=t.value;lib.page=0;render();}
  if(t.id==='photo-file'&&t.files[0]){const f=t.files[0];t.value='';try{const url=await shrink(f);keepForm();draftPhoto=url;dirty=true;render();}catch(err){toast(err.message);}}
@@ -1736,12 +1798,18 @@ document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d=Obj
   commit(()=>state.plans.push({id:uid(),date:d.date,slot:d.slot,recipeId:d.recipe,servings:''}),`${r?.title||'Meal'} planned for ${dayName(d.date,{weekday:'long'})}`);}
  if(f.id==='shop-form'){closeModal();const r=recipeById(d.recipe);commit(()=>{state.shopping=Logic.addToList(state.shopping,r.ingredients.filter(l=>!/:$/.test(l)),{from:r.title});},`${plural(r.ingredients.length,'ingredient')} added`);}
  if(f.dataset.form==='item'){const text=tidy(d.text);if(!text)return;commit(()=>{state.shopping=Logic.addToList(state.shopping,[text]);},'Item added',{quiet:true});$('#item-text')?.focus();}
+ if(f.id==='bulk-cat-form'){const v=tidy(d.v).slice(0,40);if(!v)return formError('Type a category.');const rs=pickedRecipes();closeModal();
+  commit(()=>{rs.forEach(r=>{r.categories=d.mode==='add'?[...new Set([...r.categories,v])]:[v,...r.categories.filter(x=>x!==v).slice(1)];r.updatedAt=new Date().toISOString();});lib.sel.clear();},`${plural(rs.length,'recipe')} now in ${v}`);}
+ if(f.id==='bulk-tags-form'){const add=String(d.add||'').split(',').map(tidy).filter(Boolean).map(t=>t.slice(0,40)),rem=new FormData(f).getAll('remove');if(!add.length&&!rem.length)return formError('Add a tag or choose one to remove.');const rs=pickedRecipes();closeModal();
+  commit(()=>{rs.forEach(r=>{r.tags=[...new Set([...r.tags.filter(t=>!rem.includes(t)),...add])];r.updatedAt=new Date().toISOString();});lib.sel.clear();},`Tags updated on ${plural(rs.length,'recipe')}`);}
+ if(f.id==='bulk-col-form'){const rs=selected(),c=state.collections.find(x=>x.id===d.v);closeModal();commit(()=>{rs.forEach(r=>{if(!r.collections.includes(d.v))r.collections.push(d.v);});lib.sel.clear();},`${plural(rs.length,'recipe')} added to ${c?.name||'the collection'}`);}
+ if(f.id==='facet-form'){const k=f.dataset.k,v=f.dataset.v,to=tidy(d.to).slice(0,40);if(!to)return formError('Type a name.');closeModal();if(to===v)return;const merge=listOf(k).includes(to);
+  commit(()=>{state.recipes.forEach(r=>{if(r[k].includes(v))r[k]=[...new Set(r[k].map(x=>x===v?to:x))];});if(lib.cat.slice(2)===v)lib.cat=lib.cat.slice(0,2)+to;},merge?`Merged “${v}” into “${to}”`:`Renamed to “${to}”`);}
  if(f.id==='book-form'){const pick=d.pick||'all',rs=state.recipes.filter(r=>pick==='all'||(pick==='fav'&&r.favorite)||(pick.startsWith('col:')&&r.collections.includes(pick.slice(4)))||(pick.startsWith('cat:')&&Logic.categoryOf(r)===pick.slice(4)));
   if(!rs.length)return formError('No recipes in that choice yet. Pick another one.');const title=String(d.title||'').trim()||'Our Family Recipes';
-  if(!demo&&state.settings.paper!==d.paper){state.settings.paper=d.paper;save();}else state.settings.paper=d.paper;
   printDoc(bookDoc(rs,{title,subtitle:String(d.subtitle||'').trim(),name:String(d.name||'').trim(),cover:d.cover||'classic',order:d.order,dividers:true,photos:!!d.photos,notes:!!d.notes,nutrition:!!d.nutrition}),fileTitle(title));}
  if(f.id==='settings-form')commit(()=>Object.assign(state.settings,{name:String(d.name||'').trim(),units:d.units}),'Preferences saved');});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='photo-url'){e.preventDefault();return photoFromLink(e.target.value);}if(e.key==='Escape')document.body.classList.remove('menu-open');
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===',')&&e.target.dataset?.chip){e.preventDefault();return addChip(e.target);}if(e.key==='Enter'&&e.target.id==='photo-url'){e.preventDefault();return photoFromLink(e.target.value);}if(e.key==='Escape')document.body.classList.remove('menu-open');
  const typing=/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable,dlg=document.querySelector('dialog[open]');if(typing||dlg||e.metaKey||e.ctrlKey||e.altKey)return;
  if(e.key.toLowerCase()==='n'){e.preventDefault();linkDialog();}
  if(e.key==='/'){e.preventDefault();if(screen!=='library')go('library');$('#lib-search')?.focus();}

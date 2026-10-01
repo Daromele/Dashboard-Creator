@@ -137,6 +137,26 @@ try {
   ok(/step 2/i.test(await page.textContent('.cook .eyebrow')), 'cook mode arrow keys');
   await page.click('.cook [data-action="timer"]').catch(() => {});
   await shot('13-cook');
+  // uncategorized: from the chart into the library, select them all, give them a category
+  await page.evaluate(() => { lib.view = 'grid'; go('dashboard'); });
+  await page.click('.kit-key-row.linked:has-text("Uncategorized")');
+  ok(await page.evaluate(() => screen === 'library' && lib.cat === 'none') && (await page.$$('.rcard')).length === 2, 'chart slice opens the 2 uncategorized recipes');
+  await page.click('[data-action="sel-all"]');
+  ok((await page.$$('.rcard.picked')).length === 2, 'select all of them');
+  await page.click('[data-action="bulk-cat"]'); await page.fill('#bulk-cat-form [name=v]', 'Dinner'); await page.click('#bulk-cat-form button[type=submit]');
+  ok(await page.evaluate(() => state.recipes.filter(r => !r.categories.length).length === 0 && state.recipes.find(r => r.id === 's7').categories[0] === 'Dinner'), 'bulk category set');
+  await page.click('[data-action="sel-mode"]');
+  // tags on a recipe page: add with Enter, remove with ×
+  await page.evaluate(() => openRecipe('s3')); await page.fill('.chip-add[data-chip="tags"]', 'weeknight, sheet pan'); await page.press('.chip-add[data-chip="tags"]', 'Enter');
+  ok(await page.evaluate(() => ['weeknight', 'sheet pan'].every(t => recipeById('s3').tags.includes(t))), 'tags added on the recipe page');
+  await page.click('[data-action="chip-x"][data-k="tags"][data-v="weeknight"]');
+  ok(await page.evaluate(() => !recipeById('s3').tags.includes('weeknight') && recipeById('s3').tags.includes('sheet pan')), 'tag removed with ×');
+  // categories & tags tab: rename merges, delete removes everywhere
+  await page.evaluate(() => go('tags'));
+  await page.click('[data-action="facet-rename"][data-k="categories"][data-v="Side"]'); await page.fill('#facet-form [name=to]', 'Dinner'); await page.click('#facet-form button[type=submit]');
+  ok(await page.evaluate(() => !state.recipes.some(r => r.categories.includes('Side'))), 'renaming a category onto another merges them');
+  await page.click('[data-action="facet-del"][data-k="tags"][data-v="make ahead"]'); await page.click('[data-action="ask-ok"]');
+  ok(await page.evaluate(() => !state.recipes.some(r => r.tags.includes('make ahead'))), 'tag deleted from every recipe');
   await page.evaluate(() => go('plan'));
   ok((await page.$$('.meal')).length >= 6, 'sample week is planned');
   await page.click('[data-action="sample"].rail-demo');

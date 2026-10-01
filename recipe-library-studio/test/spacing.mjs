@@ -10,11 +10,11 @@ await new Promise(r => srv.stdout.once('data', r));
 const browser = await pw.chromium.launch(); let problems = 0;
 const audit = () => {
   // controls that are meant to sit together as one unit are skipped: segmented controls, steppers, star ratings, pulse dots, a field with its own button
-  const skip = el => el.closest('.segment,.stepper,.rate,.pulse-nav,.welcome-dots,.linkbar,.month-control,.savebar,.pager .actions .btn+.btn,.theme-grid,.photo-choices,.toggle-grid,.kit-col,table');
+  const skip = el => el.closest('.segment,.stepper,.rate,.pulse-nav,.welcome-dots,.linkbar,.month-control,.savebar,.pager .actions .btn+.btn,.theme-grid,.chip,.photo-choices,.toggle-grid,.kit-col,table');
   // with a dialog open, only the dialog is in reach
   const scope = document.querySelector('#dlg[open]') ? '#dlg button,#dlg .btn,#dlg input:not([type=checkbox]):not([type=radio]),#dlg select' : null;
   const els = [...document.querySelectorAll(scope || '#content button,#content .btn,#content input:not([type=checkbox]):not([type=radio]):not([type=hidden]),#content select,.topbar button,.topbar input,.rail-foot .btn,#dlg button,#dlg input:not([type=checkbox]):not([type=radio]),#dlg select')]
-    .filter(el => { const r = el.getBoundingClientRect(), cs = getComputedStyle(el); return r.width > 2 && r.height > 2 && cs.visibility !== 'hidden' && !skip(el) && !el.closest('[hidden]'); });
+    .filter(el => { const r = el.getBoundingClientRect(), cs = getComputedStyle(el); return r.width > 2 && r.height > 2 && cs.visibility !== 'hidden' && !skip(el) && !el.closest('[hidden]')&&(()=>{const sc=el.closest('.pair.scrolls .pair-body');if(!sc)return true;const a=sc.getBoundingClientRect(),b=el.getBoundingClientRect();return b.bottom<=a.bottom&&b.top>=a.top;})(); });
   const out = [];
   for (let i = 0; i < els.length; i++) for (let j = i + 1; j < els.length; j++) {
     const a = els[i], b = els[j]; if (a.contains(b) || b.contains(a)) continue;
@@ -34,10 +34,10 @@ for (const width of [1440, 390]) for (const mode of ['empty', 'sample']) {
   const page = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
   await page.goto(`http://localhost:${PORT}/`); await page.waitForTimeout(500);
   await page.evaluate(m => { document.querySelector('#welcome')?.close(); if (m === 'sample') toggleSample(true); }, mode);
-  const screens = ['dashboard', 'library', 'collections', 'import', 'plan', 'shopping', 'guide', 'settings'];
-  if (mode === 'sample') screens.push('recipe', 'edit', 'cook', 'book');
+  const screens = ['dashboard', 'library', 'collections', 'tags', 'import', 'plan', 'shopping', 'guide', 'settings'];
+  if (mode === 'sample') screens.push('recipe', 'edit', 'cook', 'book', 'selecting');
   for (const s of screens) {
-    await page.evaluate(s => { if (s === 'recipe') openRecipe('s1'); else if (s === 'edit') editRecipe('s1'); else if (s === 'cook') { openRecipe('s1'); go('cook'); } else if (s === 'book') { go('collections'); bookForm(); } else go(s); }, s);
+    await page.evaluate(s => { if (s === 'recipe') openRecipe('s1'); else if (s === 'edit') editRecipe('s1'); else if (s === 'cook') { openRecipe('s1'); go('cook'); } else if (s === 'book') { go('collections'); bookForm(); } else if (s === 'selecting') { lib.cat = 'none'; go('library'); ACTIONS['sel-all'](); } else go(s); }, s);
     await page.waitForTimeout(80);
     for (const p of await page.evaluate(audit)) { problems++; console.log(`${width}px ${mode} ${s}: ${p}`); }
     await page.evaluate(() => { dirty = false; document.querySelector('#dlg').open && closeModal(); });
