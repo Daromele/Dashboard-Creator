@@ -380,7 +380,7 @@ body.theme-pastel .cover .content{
 }
 .template-library-grid{
   display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
+  grid-template-columns:repeat(5,minmax(0,1fr));
   gap:7px;
 }
 .index-tile,
@@ -454,6 +454,7 @@ body.theme-pastel .cover .content{
   font-weight:800;
   text-transform:uppercase;
 }
+.template-library-grid.dense .template-tile{aspect-ratio:6/5}
 .index-template-grid .template-tile{
   padding:6px 5px 5px;
   gap:4px;
@@ -476,6 +477,7 @@ body.theme-pastel .cover .content{
 .preview-narrow-lined{background-image:repeating-linear-gradient(to bottom,#fff 0,#fff 5px,#d8dde5 6px)}
 .preview-yellow-ruled{background:#fff7c8;background-image:linear-gradient(90deg,rgba(216,221,229,0) 0 18%,#eab3a4 18% calc(18% + 1.5px),rgba(216,221,229,0) calc(18% + 1.5px)),repeating-linear-gradient(to bottom,rgba(216,221,229,0) 0,rgba(216,221,229,0) 8px,#b8c6da 9px)}
 .preview-grid{background-image:linear-gradient(#e2e6eb 1px,rgba(216,221,229,0) 1px),linear-gradient(90deg,#e2e6eb 1px,rgba(216,221,229,0) 1px);background-size:10px 10px}
+.preview-isometric{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='27.713' height='32'%3E%3Cg stroke='%23d8dde5' stroke-width='1.6' fill='none'%3E%3Cpath d='M0 0V32M0 0L27.713 16M0 16L27.713 32M0 16L27.713 0M0 32L27.713 16'/%3E%3C/g%3E%3C/svg%3E");background-size:9.24px 10.67px}
 .preview-fine-grid{background-image:linear-gradient(#e2e6eb 1px,rgba(216,221,229,0) 1px),linear-gradient(90deg,#e2e6eb 1px,rgba(216,221,229,0) 1px);background-size:6px 6px}
 .preview-large-grid{background-image:linear-gradient(#e2e6eb 1px,rgba(216,221,229,0) 1px),linear-gradient(90deg,#e2e6eb 1px,rgba(216,221,229,0) 1px);background-size:16px 16px}
 .preview-dot-grid,
@@ -762,6 +764,11 @@ body.theme-dark .tracker-table div{border-color:#344153}
   background-image:linear-gradient(#c7ccd4 1.5px,transparent 1.5px),linear-gradient(90deg,#c7ccd4 1.5px,transparent 1.5px);
   background-size:18px 18px;
 }
+.isometric-paper{
+  height:100%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='27.713' height='32'%3E%3Cg stroke='%23c7ccd4' stroke-width='1' fill='none'%3E%3Cpath d='M0 0V32M0 0L27.713 16M0 16L27.713 32M0 16L27.713 0M0 32L27.713 16'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:27.713px 32px;
+}
 .large-grid-paper{
   height:100%;
   background-image:linear-gradient(#c7ccd4 1.5px,transparent 1.5px),linear-gradient(90deg,#c7ccd4 1.5px,transparent 1.5px);
@@ -941,6 +948,7 @@ body.theme-dark .yellow-ruled-paper{
   background-image:linear-gradient(90deg,transparent 0,transparent 72px,#7d5048 73px,transparent 74px),repeating-linear-gradient(to bottom,transparent 0,transparent 33px,#465a70 34px);
 }
 body.theme-dark .grid-paper{background-image:linear-gradient(#5b6d85 1.5px,transparent 1.5px),linear-gradient(90deg,#5b6d85 1.5px,transparent 1.5px)}
+body.theme-dark .isometric-paper{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='27.713' height='32'%3E%3Cg stroke='%235b6d85' stroke-width='1.2' fill='none'%3E%3Cpath d='M0 0V32M0 0L27.713 16M0 16L27.713 32M0 16L27.713 0M0 32L27.713 16'/%3E%3C/g%3E%3C/svg%3E")}
 body.theme-dark .fine-grid-paper{background-image:linear-gradient(#5b6d85 1.5px,transparent 1.5px),linear-gradient(90deg,#5b6d85 1.5px,transparent 1.5px)}
 body.theme-dark .large-grid-paper{background-image:linear-gradient(#5b6d85 1.5px,transparent 1.5px),linear-gradient(90deg,#5b6d85 1.5px,transparent 1.5px)}
 body.theme-dark .dot-paper{background-image:radial-gradient(#6c7f99 2px,transparent 2px)}
@@ -1197,6 +1205,7 @@ const noteTemplates = [
   ["grid","Grid Notes","Core"],
   ["fine-grid","Fine Grid Notes","Core"],
   ["large-grid","Large Grid Notes","Core"],
+  ["isometric","Isometric Grid","Core"],
   ["dot-grid","Dot Grid Notes","Core"],
   ["large-dot","Large Dot Grid","Core"],
   ["blank","Blank Page","Core"],
@@ -1554,6 +1563,7 @@ function previewClass(kind){
   if(kind === "narrow-lined") return "preview-narrow-lined";
   if(kind === "yellow-ruled") return "preview-yellow-ruled";
   if(kind === "fine-grid") return "preview-fine-grid";
+  if(kind === "isometric") return "preview-isometric";
   if(kind === "large-grid") return "preview-large-grid";
   if(kind === "large-dot") return "preview-large-dot";
   if(kind === "grid") return "preview-grid";
@@ -1731,7 +1741,7 @@ function templateLibraryPage(c){
   const body = `<div class="index-layout">
     <div class="index-group">
       <h3>Template Gallery</h3>
-      <div class="template-library-grid">${activeTemplates(c).map(([id,title,group])=>templateTile(`template-${id}`,title,group,id)).join("")}</div>
+      <div class="template-library-grid${activeTemplates(c).length > 30 ? " dense" : ""}">${activeTemplates(c).map(([id,title,group])=>templateTile(`template-${id}`,title,group,id)).join("")}</div>
     </div>
   </div>`;
   return page("templates","Template Library","Note Templates","Reusable page styles for notes, study, planning, and review",body);
@@ -2030,6 +2040,7 @@ function renderTemplate(kind, title, compact=false){
     "yellow-ruled":"yellow-ruled-paper",
     "grid":"grid-paper",
     "fine-grid":"fine-grid-paper",
+    "isometric":"isometric-paper",
     "large-grid":"large-grid-paper",
     "dot-grid":"dot-paper",
     "large-dot":"large-dot-paper",
