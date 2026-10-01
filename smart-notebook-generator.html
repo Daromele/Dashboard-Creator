@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Notebook PDF Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,750&family=Instrument+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style id="pageSizeRule">@page{size:8.5in 11.333in}</style>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --ink:#24262a;
+  --muted:#72767e;
+  --paper:#fff;
+  --soft:#eef1f4;
+  --line:#d9dee5;
+  --accent:#334155;
+  --accent-2:#64748b;
+  --deep:#111827;
+  --surface:#f5f6f8;
+  --shadow:0 18px 55px rgba(17,24,39,.14);
+  --sans:"Instrument Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --serif:"Fraunces", ui-serif, Georgia, serif;
+}
+body.theme-graphite{--accent:#334155;--accent-2:#64748b;--deep:#111827;--soft:#eef1f4;--line:#d9dee5}
+body.theme-sage{--accent:#3F6B52;--accent-2:#759b85;--deep:#1a3425;--soft:#f2f8f4;--line:#d7e5dd}
+body.theme-sky{--accent:#5f8faf;--accent-2:#7fa9c2;--deep:#1f394a;--soft:#eef7fb;--line:#d5e6ef}
+body.theme-lilac{--accent:#8d7aa8;--accent-2:#a697ba;--deep:#352f45;--soft:#f4f0f8;--line:#dfd8e9}
+body.theme-blush{--accent:#bf7f8a;--accent-2:#d19ba4;--deep:#4a3036;--soft:#fff1f4;--line:#ead5da}
+body.theme-butter{--accent:#c3a45b;--accent-2:#d1bb80;--deep:#443926;--soft:#fff8e9;--line:#eadfbd}
+body.theme-coral{--accent:#c87868;--accent-2:#dc9a8d;--deep:#4c302b;--soft:#fff0eb;--line:#eed6ce}
+body.theme-mono{--accent:#353535;--accent-2:#777;--deep:#161616;--soft:#f1f1f1;--line:#dedede}
+body.theme-dark{--ink:#eef3f8;--muted:#a8b2bf;--paper:#101721;--accent:#4f6f8f;--accent-2:#9ba9b8;--deep:#f6f8fb;--soft:#1c2633;--line:#344153;--surface:#121b26}
+body.theme-multi{--accent:#5f7480;--accent-2:#8a7670;--deep:#263038;--soft:#f3f0ed;--line:#ded8d2}
+body.theme-vibrant{--accent:#2563eb;--accent-2:#f59e0b;--deep:#172554;--soft:#eef4ff;--line:#d8e3f8}
+body.theme-pastel{--accent:#7fb3d5;--accent-2:#d9ad7c;--deep:#385066;--soft:#f3f8fb;--line:#dbe8ee}
+body.theme-ember{--accent:#B5481F;--accent-2:#d98261;--deep:#5f2c19;--soft:#f8f4f2;--line:#ecd7cf}
+body.theme-plum{--accent:#6B3FA0;--accent-2:#a084c1;--deep:#3e2063;--soft:#f5f2f8;--line:#ddd4e8}
+body.theme-rose{--accent:#AE3457;--accent-2:#cc7c93;--deep:#6a1c33;--soft:#f8f2f4;--line:#e9d2d9}
+body.theme-ocean{--accent:#1E5A82;--accent-2:#4290c4;--deep:#0e2636;--soft:#f2f5f8;--line:#d1e0eb}
+body.theme-clay{--accent:#9C5A2E;--accent-2:#c68f6a;--deep:#573117;--soft:#f8f4f2;--line:#eadcd2}
+body.theme-forest{--accent:#2C5639;--accent-2:#5a8e6a;--deep:#0f2416;--soft:#f2f8f4;--line:#d6e6db}
+body.theme-berry{--accent:#8A2E5C;--accent-2:#bc628f;--deep:#49132e;--soft:#f8f2f5;--line:#e9d3de}
+body.theme-slate{--accent:#37434F;--accent-2:#687684;--deep:#131920;--soft:#f2f5f8;--line:#d8dee3}
+body.theme-marigold{--accent:#B07A14;--accent-2:#dfac4b;--deep:#523d16;--soft:#f8f6f2;--line:#ede2cf}
+body.theme-graphite{--theme-h:215;--theme-s:31%;--theme-l:43%}
+body.theme-sage{--theme-h:146;--theme-s:26%;--theme-l:48%}
+body.theme-sky{--theme-h:202;--theme-s:33%;--theme-l:53%}
+body.theme-lilac{--theme-h:269;--theme-s:22%;--theme-l:57%}
+body.theme-blush{--theme-h:350;--theme-s:36%;--theme-l:62%}
+body.theme-butter{--theme-h:43;--theme-s:47%;--theme-l:56%}
+body.theme-coral{--theme-h:10;--theme-s:47%;--theme-l:60%}
+body.theme-mono{--theme-h:0;--theme-s:0%;--theme-l:44%}
+body.theme-dark{--theme-h:217;--theme-s:33%;--theme-l:32%}
+body.theme-multi{--theme-h:202;--theme-s:25%;--theme-l:52%}
+body.theme-vibrant{--theme-h:221;--theme-s:83%;--theme-l:54%}
+body.theme-pastel{--theme-h:204;--theme-s:48%;--theme-l:67%}
+body.theme-ember{--theme-h:16;--theme-s:50%;--theme-l:48%}
+body.theme-plum{--theme-h:267;--theme-s:43%;--theme-l:48%}
+body.theme-rose{--theme-h:343;--theme-s:50%;--theme-l:48%}
+body.theme-ocean{--theme-h:204;--theme-s:50%;--theme-l:46%}
+body.theme-clay{--theme-h:24;--theme-s:50%;--theme-l:48%}
+body.theme-forest{--theme-h:139;--theme-s:32%;--theme-l:40%}
+body.theme-berry{--theme-h:330;--theme-s:50%;--theme-l:48%}
+body.theme-slate{--theme-h:210;--theme-s:18%;--theme-l:41%}
+body.theme-marigold{--theme-h:39;--theme-s:50%;--theme-l:48%}
+body{
+  margin:0;
+  background:#e7e9ed;
+  color:var(--ink);
+  font-family:var(--sans);
+  letter-spacing:0;
+}
+button,input,select{font:inherit}
+.builder{
+  max-width:1200px;
+  margin:18px auto 26px;
+  padding:16px;
+  background:#f9fafb;
+  border:1px solid rgba(17,24,39,.12);
+}
+.toolbar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+  padding-bottom:12px;
+  border-bottom:1px solid rgba(17,24,39,.12);
+}
+.brand{
+  color:var(--deep);
+  font-size:13px;
+  font-weight:850;
+  margin-right:12px;
+}
+.chip,
+.icon-btn{
+  border:1px solid rgba(17,24,39,.16);
+  background:#fff;
+  color:var(--deep);
+  border-radius:3px;
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip{display:inline-flex;align-items:center;gap:6px}
+.chip-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;border:1px solid rgba(17,24,39,.2);box-sizing:border-box}
+.chip.active .chip-dot{border-color:rgba(255,255,255,.75)}
+body.theme-dark .chip-dot{border-color:rgba(255,255,255,.3)}
+body.theme-dark .chip.active .chip-dot{border-color:rgba(255,255,255,.75)}
+.icon-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.spacer{flex:1}
+.settings{
+  background:#fff;
+  border:1px solid rgba(17,24,39,.12);
+  border-radius:3px;
+  padding:16px;
+}
+.settings h1{
+  margin:0 0 12px;
+  color:var(--deep);
+  font-size:15px;
+  letter-spacing:-.01em;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(150px,1fr));
+  gap:14px;
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.field label{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:850;
+  text-transform:uppercase;
+}
+.field input,
+.field select,
+.field textarea{
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:9px 10px;
+  background:#fff;
+  color:var(--ink);
+  outline:none;
+}
+.checks{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(150px,1fr));
+  gap:10px;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+.checks label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--deep);
+  font-size:13px;
+  font-weight:750;
+}
+.checks input{accent-color:var(--accent)}
+.hint{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+#notebook{
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+  align-items:center;
+}
+.page{
+  width:min(100%,820px);
+  aspect-ratio:3/4;
+  background:var(--paper);
+  border-radius:3px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  padding:28px 32px;
+  scroll-margin-top:24px;
+}
+.page-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  flex-shrink:0;
+  padding-bottom:13px;
+  border-bottom:1px solid var(--line);
+}
+.eyebrow{
+  color:var(--accent);
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.page-title{
+  margin-top:5px;
+  color:var(--deep);
+  font-family:var(--serif);
+  font-size:30px;
+  font-weight:750;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+.page-subtitle{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:650;
+}
+.nav{
+  display:flex;
+  justify-content:flex-end;
+  gap:4px;
+  flex-wrap:nowrap;
+  padding-top:2px;
+}
+.nav a,
+.index-link,
+.tab-link,
+.tool-link,
+.section-link{
+  color:inherit;
+  text-decoration:none;
+}
+.nav a{
+  background:#f2f4f7;
+  color:var(--muted);
+  border-radius:3px;
+  padding:5px 7px;
+  font-size:7px;
+  font-weight:850;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.index-page .nav{display:none}
+.content{
+  flex:1;
+  min-height:0;
+  padding-top:18px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.cover{
+  background:var(--accent);
+  color:#fff;
+  justify-content:center;
+  padding:0;
+}
+body.theme-multi .cover{
+  background:linear-gradient(135deg,#6f8791 0%,#8a9b76 18%,#c79374 36%,#aa7f99 56%,#6f9a96 74%,#b9a260 100%);
+}
+body.theme-vibrant .cover{
+  background:linear-gradient(135deg,#2563eb 0%,#ef4444 18%,#f59e0b 36%,#8b5cf6 56%,#10b981 74%,#ec4899 100%);
+}
+body.theme-pastel .cover{
+  background:linear-gradient(135deg,#8ab6f0 0%,#f3a1a1 18%,#f5d68a 36%,#c3a6f4 56%,#9ed9bb 74%,#e9aacb 100%);
+}
+body.theme-pastel .cover .content{
+  background:rgba(40,48,58,.18);
+}
+.cover .content{
+  justify-content:center;
+  text-align:center;
+  margin:20px;
+  padding:58px 48px;
+  border:1px solid rgba(255,255,255,.22);
+}
+.cover-mark{
+  width:fit-content;
+  min-width:78px;
+  height:78px;
+  padding:0 18px;
+  white-space:nowrap;
+  letter-spacing:.04em;
+  margin:0 auto 34px;
+  border:1px solid rgba(255,255,255,.4);
+  display:grid;
+  place-items:center;
+  font-family:var(--serif);
+  font-size:36px;
+}
+.cover h2{
+  margin:0;
+  color:#fff;
+  font-family:var(--serif);
+  font-size:62px;
+  line-height:.95;
+  letter-spacing:-.03em;
+}
+.cover p{
+  max-width:520px;
+  margin:18px auto 0;
+  color:rgba(255,255,255,.76);
+  font-size:14px;
+  font-weight:650;
+}
+.belongs{
+  width:360px;
+  max-width:100%;
+  margin:58px auto 0;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.35);
+  color:rgba(255,255,255,.75);
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.index-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px 22px;
+}
+.index-group{
+  break-inside:avoid;
+  min-height:0;
+}
+.index-group h3{
+  margin:0 0 7px;
+  color:var(--accent);
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+.index-link{
+  display:flex;
+  gap:10px;
+  padding:4px 0;
+  border-bottom:1px solid #edf0f3;
+  color:var(--ink);
+  font-size:10.5px;
+  font-weight:650;
+}
+.index-link span:first-child{flex:1}
+.index-link span:last-child{color:var(--muted)}
+.index-page .content{gap:12px}
+.index-layout{
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.index-card-grid{
+  display:grid;
+  gap:7px;
+}
+.index-pill-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+}
+.index-section-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.write-line{flex:1;align-self:flex-end;height:0;margin:0 2px 4px 2px;border-bottom:1px solid currentColor;opacity:.35}
+.course-label{white-space:nowrap;flex:0 0 auto}
+.index-template-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:7px;
+}
+.template-library-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:7px;
+}
+.index-tile,
+.template-tile{
+  border:1px solid #d8dde5;
+  background:#fff;
+  color:var(--deep);
+  border-radius:3px;
+  text-decoration:none;
+  overflow:hidden;
+}
+.index-tile{
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:7px 6px;
+  text-align:center;
+  font-size:8px;
+  line-height:1.12;
+  font-weight:850;
+  text-transform:uppercase;
+}
+.index-pill{
+  min-height:46px;
+  border-radius:999px;
+  border-color:transparent;
+  background:var(--accent);
+  color:#fff;
+  font-size:8.5px;
+  letter-spacing:.02em;
+}
+.index-tone-tile{
+  justify-content:flex-start;
+  gap:7px;
+  background:var(--tone-soft);
+  border-color:var(--tone);
+  color:var(--deep);
+  text-align:left;
+}
+.section-dot{
+  width:9px;
+  height:9px;
+  background:var(--tone);
+  border-radius:50%;
+  flex:0 0 auto;
+}
+.template-tile{
+  aspect-ratio:1/1;
+  min-height:0;
+  padding:7px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  background:#fff;
+  background-image:linear-gradient(var(--tone,var(--accent)),var(--tone,var(--accent)));
+  background-repeat:no-repeat;
+  background-size:100% 4px;
+}
+.template-tile strong{
+  color:var(--deep);
+  font-size:7.2px;
+  line-height:1.08;
+  font-weight:850;
+  text-transform:uppercase;
+}
+.template-tile span:not(.mini-preview){
+  margin-top:auto;
+  color:var(--muted);
+  font-size:6.4px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+.index-template-grid .template-tile{
+  padding:6px 5px 5px;
+  gap:4px;
+}
+.index-template-grid .template-tile strong{
+  font-size:7px;
+}
+.index-template-grid .template-tile span:not(.mini-preview){
+  display:none;
+}
+.mini-preview{
+  flex:1;
+  min-height:0;
+  border:1px solid #dce2e8;
+  background:#fff;
+  display:block;
+}
+.preview-lined{background-image:repeating-linear-gradient(to bottom,#fff 0,#fff 7px,#d8dde5 8px)}
+.preview-wide-lined{background-image:repeating-linear-gradient(to bottom,#fff 0,#fff 10px,#d8dde5 11px)}
+.preview-narrow-lined{background-image:repeating-linear-gradient(to bottom,#fff 0,#fff 5px,#d8dde5 6px)}
+.preview-yellow-ruled{background:#fff7c8;background-image:linear-gradient(90deg,rgba(216,221,229,0) 0 18%,#eab3a4 18% calc(18% + 1.5px),rgba(216,221,229,0) calc(18% + 1.5px)),repeating-linear-gradient(to bottom,rgba(216,221,229,0) 0,rgba(216,221,229,0) 8px,#b8c6da 9px)}
+.preview-grid{background-image:linear-gradient(#e2e6eb 1px,rgba(216,221,229,0) 1px),linear-gradient(90deg,#e2e6eb 1px,rgba(216,221,229,0) 1px);background-size:10px 10px}
+.preview-fine-grid{background-image:linear-gradient(#e2e6eb 1px,rgba(216,221,229,0) 1px),linear-gradient(90deg,#e2e6eb 1px,rgba(216,221,229,0) 1px);background-size:6px 6px}
+.preview-large-grid{background-image:linear-gradient(#e2e6eb 1px,rgba(216,221,229,0) 1px),linear-gradient(90deg,#e2e6eb 1px,rgba(216,221,229,0) 1px);background-size:16px 16px}
+.preview-dot-grid,
+.preview-mind-map{background-image:radial-gradient(#cfd6df 1px,rgba(216,221,229,0) 1px);background-size:9px 9px}
+.preview-large-dot{background-image:radial-gradient(#cfd6df 1px,rgba(216,221,229,0) 1px);background-size:16px 16px}
+.preview-blank{background:#fff}
+.preview-cornell{background:linear-gradient(90deg,rgba(216,221,229,0) 0 32%,#d8dde5 32% calc(32% + 1.5px),rgba(216,221,229,0) calc(32% + 1.5px)),linear-gradient(to bottom,rgba(216,221,229,0) 0 72%,#d8dde5 72% calc(72% + 1.5px),rgba(216,221,229,0) calc(72% + 1.5px)),repeating-linear-gradient(to bottom,#fff 0,#fff 7px,#e6e9ee 8px)}
+.preview-split{background:linear-gradient(90deg,rgba(216,221,229,0) 0 49%,#d8dde5 49% calc(49% + 1.5px),rgba(216,221,229,0) calc(49% + 1.5px)),repeating-linear-gradient(to bottom,#fff 0,#fff 8px,#e6e9ee 9px)}
+.preview-kanban{background:linear-gradient(90deg,rgba(216,221,229,0) 0 33%,#d8dde5 33% calc(33% + 1.5px),rgba(216,221,229,0) calc(33% + 1.5px) 66%,#d8dde5 66% calc(66% + 1.5px),rgba(216,221,229,0) calc(66% + 1.5px))}
+.preview-table{background-image:linear-gradient(#d8dde5 1.5px,rgba(216,221,229,0) 1.5px),linear-gradient(90deg,#d8dde5 1.5px,rgba(216,221,229,0) 1.5px);background-size:25% 11%;background-color:#fff}
+body.theme-dark .preview-table{background-image:linear-gradient(#405066 1.5px,rgba(64,80,102,0) 1.5px),linear-gradient(90deg,#405066 1.5px,rgba(64,80,102,0) 1.5px);background-color:#0d141d}
+.preview-monthly{background-image:linear-gradient(#d8dde5 1px,rgba(216,221,229,0) 1px),linear-gradient(90deg,#d8dde5 1px,rgba(216,221,229,0) 1px);background-size:14.28% 18%}
+.preview-structured{background:linear-gradient(to bottom,rgba(216,221,229,0) 0 22%,#d8dde5 22% calc(22% + 1.5px),rgba(216,221,229,0) calc(22% + 1.5px) 68%,#d8dde5 68% calc(68% + 1.5px),rgba(216,221,229,0) calc(68% + 1.5px)),linear-gradient(90deg,rgba(216,221,229,0) 0 50%,#d8dde5 50% calc(50% + 1.5px),rgba(216,221,229,0) calc(50% + 1.5px))}
+.metric-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+.metric{
+  border:1px solid var(--line);
+  background:#fff;
+  padding:11px 12px;
+  min-height:60px;
+  color:var(--deep);
+  font-size:17px;
+  font-weight:850;
+}
+.metric span{
+  display:block;
+  margin-bottom:4px;
+  color:var(--muted);
+  font-size:8.5px;
+  font-weight:850;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.band,
+.box{
+  border:1px solid #d8dde5;
+  background:#fff;
+  border-radius:3px;
+  padding:15px 16px;
+}
+.band h3,
+.box h3,
+.cell h3{
+  margin:0 0 12px;
+  color:var(--accent-2);
+  font-size:9.5px;
+  font-weight:850;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.section-tabs,
+.tool-grid,
+.template-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(0,1fr));
+  gap:9px;
+}
+.section-tabs{grid-template-columns:repeat(6,minmax(0,1fr))}
+.binder-section-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-auto-rows:1fr;
+}
+.smart-tool-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-rows:repeat(3,1fr);
+}
+.tab-link,
+.tool-link,
+.section-link{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  min-height:38px;
+  padding:8px 7px;
+  background:var(--accent);
+  color:#fff;
+  border:1px solid var(--accent);
+  border-radius:3px;
+  font-size:8.5px;
+  line-height:1.15;
+  font-weight:850;
+  text-transform:uppercase;
+}
+.tool-link{
+  min-height:58px;
+  flex-direction:column;
+  gap:4px;
+}
+.smart-tool-grid .tool-link{
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:9px 10px;
+  background:var(--tone,var(--accent));
+  border-color:var(--tone,var(--accent));
+  color:var(--tone-ink,#fff);
+}
+.smart-tool-grid .tool-link span{
+  color:var(--tone-ink,#fff);
+  opacity:.74;
+}
+.color-section-link{
+  justify-content:flex-start;
+  gap:8px;
+  min-height:50px;
+  padding:9px 10px;
+  background:var(--tone);
+  border-color:var(--tone);
+  color:var(--tone-ink,#fff);
+  text-align:left;
+}
+.section-number{
+  width:25px;
+  height:25px;
+  border:1px solid rgba(255,255,255,.46);
+  display:grid;
+  place-items:center;
+  color:var(--tone-ink,#fff);
+  font-size:8px;
+  font-weight:850;
+  flex:0 0 auto;
+}
+.section-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.section-cover-panel{
+  border:1px solid var(--tone);
+  background:var(--tone-soft);
+  padding:18px;
+  display:grid;
+  grid-template-columns:96px 1fr;
+  align-items:center;
+  gap:18px;
+}
+.section-cover-number{
+  width:86px;
+  height:86px;
+  display:grid;
+  place-items:center;
+  background:var(--tone);
+  color:var(--tone-ink,#fff);
+  font-family:var(--serif);
+  font-size:30px;
+  font-weight:750;
+}
+.section-cover-panel h3{
+  margin:0 0 8px;
+  color:var(--deep);
+  font-family:var(--serif);
+  font-size:32px;
+  line-height:1;
+}
+.section-cover-panel p{
+  margin:0;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:650;
+}
+.tool-link span{
+  display:block;
+  color:rgba(255,255,255,.78);
+  font-size:7.5px;
+  font-weight:750;
+}
+.smart-tool-grid .tool-link span{
+  color:var(--tone-ink,#fff);
+  opacity:.74;
+}
+.table{
+  flex:1;
+  min-height:0;
+  border:1px solid #d8dde5;
+  display:grid;
+  background:#fff;
+  overflow:hidden;
+}
+.table.two-rows{grid-template-rows:auto 1fr}
+.table.three-rows{grid-template-rows:auto 1fr minmax(150px,.58fr)}
+.row{
+  min-height:0;
+  display:grid;
+}
+.row + .row{border-top:1px solid #d8dde5}
+.row.two{grid-template-columns:1fr 1fr}
+.row.three{grid-template-columns:repeat(3,1fr)}
+.cell{
+  min-height:0;
+  padding:15px 16px;
+  display:flex;
+  flex-direction:column;
+}
+.cell + .cell{border-left:1px solid #d8dde5}
+.line-stack{
+  flex:1;
+  min-height:0;
+  display:grid;
+  grid-template-rows:repeat(var(--rows),minmax(0,1fr));
+  margin-top:-5px;
+  padding-bottom:14px;
+}
+.line{
+  min-height:30px;
+  border-bottom:1px solid #d8dde5;
+}
+.check-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-height:36px;
+  border-bottom:1px solid #d8dde5;
+  color:var(--muted);
+  font-size:10.5px;
+  font-weight:650;
+}
+.field-label{min-width:92px;color:var(--deep);font-weight:800}
+.tracker-table{height:100%;display:grid}
+.tracker-table div{border-right:1px solid #d8dde5;border-bottom:1px solid #d8dde5}
+.tracker-table .th{display:flex;align-items:center;justify-content:center;background:var(--soft);color:var(--deep);font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
+body.theme-dark .tracker-table div{border-color:#344153}
+.check{
+  width:11px;
+  height:11px;
+  border:1.5px solid var(--accent-2);
+  flex:0 0 auto;
+}
+.template-sheet{
+  flex:1;
+  min-height:0;
+  border:1px solid #d8dde5;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.template-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:44px;
+  padding:10px 14px;
+  border-bottom:1px solid #d8dde5;
+  color:var(--accent);
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.paper-area{
+  flex:1;
+  min-height:0;
+  position:relative;
+  background:#fff;
+}
+.ruled-paper{
+  height:100%;
+  background-image:repeating-linear-gradient(to bottom,#fff 0,#fff 34.5px,#c7ccd4 34.5px,#c7ccd4 36px);
+}
+.wide-paper{
+  height:100%;
+  background-image:repeating-linear-gradient(to bottom,#fff 0,#fff 43.5px,#c7ccd4 43.5px,#c7ccd4 45px);
+}
+.narrow-paper{
+  height:100%;
+  background-image:repeating-linear-gradient(to bottom,#fff 0,#fff 26.5px,#c7ccd4 26.5px,#c7ccd4 28px);
+}
+.yellow-ruled-paper{
+  height:100%;
+  background:#fff7c8;
+  background-image:linear-gradient(90deg,transparent 0,transparent 72px,#d9978a 73px,transparent 74px),repeating-linear-gradient(to bottom,transparent 0,transparent 33px,#9eb2cc 34px);
+}
+.grid-paper{
+  height:100%;
+  background-image:linear-gradient(#c7ccd4 1.5px,transparent 1.5px),linear-gradient(90deg,#c7ccd4 1.5px,transparent 1.5px);
+  background-size:28px 28px;
+}
+.fine-grid-paper{
+  height:100%;
+  background-image:linear-gradient(#c7ccd4 1.5px,transparent 1.5px),linear-gradient(90deg,#c7ccd4 1.5px,transparent 1.5px);
+  background-size:18px 18px;
+}
+.large-grid-paper{
+  height:100%;
+  background-image:linear-gradient(#c7ccd4 1.5px,transparent 1.5px),linear-gradient(90deg,#c7ccd4 1.5px,transparent 1.5px);
+  background-size:42px 42px;
+}
+.dot-paper{
+  height:100%;
+  background-image:radial-gradient(#b3bcc7 2px,transparent 2px);
+  background-size:22px 22px;
+}
+.large-dot-paper{
+  height:100%;
+  background-image:radial-gradient(#b3bcc7 2.1px,transparent 2.1px);
+  background-size:34px 34px;
+}
+.blank-paper{height:100%;background:#fff}
+.mind-map-area{position:relative}
+.mind-map-svg{position:absolute;inset:0;width:100%;height:100%}
+.mind-map-svg line{stroke:#b3bcc7;stroke-width:1.5;vector-effect:non-scaling-stroke}
+.mind-map-svg ellipse{fill:#fff;stroke:#b3bcc7;stroke-width:1.5;vector-effect:non-scaling-stroke}
+.mind-map-svg .mm-center{stroke:var(--accent);stroke-width:2}
+.mm-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--muted);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+body.theme-dark .mind-map-svg ellipse{fill:#0d141d}
+.split-paper{
+  height:100%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+.split-paper > div + div{border-left:1px solid #d8dde5}
+.cornell-paper{
+  height:100%;
+  display:grid;
+  grid-template-columns:.34fr 1fr;
+  grid-template-rows:1fr 118px;
+}
+.cornell-paper .cue{border-right:1px solid #d8dde5}
+.cornell-paper .summary{grid-column:1/-1;border-top:1px solid #d8dde5}
+.box-paper{
+  height:100%;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  grid-template-rows:repeat(3,1fr);
+}
+.box-paper div{border-right:1px solid #d8dde5;border-bottom:1px solid #d8dde5}
+.box-paper div:nth-child(2n){border-right:0}
+.box-paper div:nth-child(n+5){border-bottom:0}
+.kanban-paper{
+  height:100%;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+}
+.kanban-paper div{padding:12px;border-right:1px solid #d8dde5}
+.kanban-paper div:last-child{border-right:0}
+.kanban-paper h4{
+  margin:0;
+  color:var(--accent-2);
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.calendar-paper{
+  height:100%;
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  grid-template-rows:34px repeat(6,1fr);
+}
+.calendar-paper div{border-right:1px solid #d8dde5;border-bottom:1px solid #d8dde5}
+.calendar-paper div:nth-child(7n){border-right:0}
+.calendar-paper div:nth-child(-n+7){
+  display:grid;
+  place-items:center;
+  color:var(--accent-2);
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+.sticker-grid{
+  flex:1;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:repeat(4,1fr);
+  gap:12px;
+}
+.sticker{
+  border:1px solid var(--line);
+  background:var(--soft);
+  color:var(--accent);
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:12px;
+  font-size:9px;
+  font-weight:850;
+  text-transform:uppercase;
+}
+body.theme-dark{
+  background:#080d13;
+}
+body.theme-dark .builder,
+body.theme-dark .settings{
+  background:#101721;
+  border-color:#2d3848;
+  box-shadow:none;
+}
+body.theme-dark .chip,
+body.theme-dark .icon-btn,
+body.theme-dark .field textarea,
+body.theme-dark .field input,
+body.theme-dark .field select{
+  background:#151f2b;
+  color:#edf3f8;
+  border-color:#344153;
+}
+body.theme-dark .chip.active,
+body.theme-dark .icon-btn.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+body.theme-dark .checks label,
+body.theme-dark .brand,
+body.theme-dark .settings h1,
+body.theme-dark .page-title,
+body.theme-dark .template-tile strong,
+body.theme-dark .section-cover-panel h3{
+  color:#f3f7fb;
+}
+body.theme-dark .page{
+  border:1px solid rgba(255,255,255,.14);
+}
+body.theme-dark .nav a,
+body.theme-dark .index-page .nav a{
+  background:#1b2634;
+  color:#c1cbd8;
+}
+body.theme-dark .band,
+body.theme-dark .box,
+body.theme-dark .table,
+body.theme-dark .metric,
+body.theme-dark .template-sheet,
+body.theme-dark .template-tile,
+body.theme-dark .index-tile{
+  background:#101721;
+  border-color:#344153;
+  color:#edf3f8;
+}
+body.theme-dark .index-tone-tile,
+body.theme-dark .section-cover-panel{
+  background:color-mix(in srgb,var(--tone) 16%,#101721);
+}
+body.theme-dark .row + .row,
+body.theme-dark .cell + .cell,
+body.theme-dark .template-head,
+body.theme-dark .line,
+body.theme-dark .check-row,
+body.theme-dark .mini-preview,
+body.theme-dark .calendar-paper div,
+body.theme-dark .split-paper > div + div,
+body.theme-dark .cornell-paper .cue,
+body.theme-dark .cornell-paper .summary,
+body.theme-dark .kanban-paper div,
+body.theme-dark .box-paper div{
+  border-color:#344153;
+}
+body.theme-dark .paper-area,
+body.theme-dark .blank-paper,
+body.theme-dark .mini-preview{
+  background:#0d141d;
+}
+body.theme-dark .ruled-paper{background-image:repeating-linear-gradient(to bottom,#0d141d 0,#0d141d 34.5px,#5b6d85 34.5px,#5b6d85 36px)}
+body.theme-dark .wide-paper{background-image:repeating-linear-gradient(to bottom,#0d141d 0,#0d141d 43.5px,#5b6d85 43.5px,#5b6d85 45px)}
+body.theme-dark .narrow-paper{background-image:repeating-linear-gradient(to bottom,#0d141d 0,#0d141d 26.5px,#5b6d85 26.5px,#5b6d85 28px)}
+body.theme-dark .yellow-ruled-paper{
+  background:#211f13;
+  background-image:linear-gradient(90deg,transparent 0,transparent 72px,#7d5048 73px,transparent 74px),repeating-linear-gradient(to bottom,transparent 0,transparent 33px,#465a70 34px);
+}
+body.theme-dark .grid-paper{background-image:linear-gradient(#5b6d85 1.5px,transparent 1.5px),linear-gradient(90deg,#5b6d85 1.5px,transparent 1.5px)}
+body.theme-dark .fine-grid-paper{background-image:linear-gradient(#5b6d85 1.5px,transparent 1.5px),linear-gradient(90deg,#5b6d85 1.5px,transparent 1.5px)}
+body.theme-dark .large-grid-paper{background-image:linear-gradient(#5b6d85 1.5px,transparent 1.5px),linear-gradient(90deg,#5b6d85 1.5px,transparent 1.5px)}
+body.theme-dark .dot-paper{background-image:radial-gradient(#6c7f99 2px,transparent 2px)}
+body.theme-dark .large-dot-paper{background-image:radial-gradient(#6c7f99 2.1px,transparent 2.1px)}
+body.theme-dark .preview-lined{background-image:repeating-linear-gradient(to bottom,#0d141d 0,#0d141d 7px,#405066 8px)}
+body.theme-dark .preview-wide-lined{background-image:repeating-linear-gradient(to bottom,#0d141d 0,#0d141d 10px,#405066 11px)}
+body.theme-dark .preview-narrow-lined{background-image:repeating-linear-gradient(to bottom,#0d141d 0,#0d141d 5px,#405066 6px)}
+body.theme-dark .preview-yellow-ruled{background:#211f13;background-image:linear-gradient(90deg,rgba(64,80,102,0) 0 18%,#7d5048 18% calc(18% + 1.5px),rgba(64,80,102,0) calc(18% + 1.5px)),repeating-linear-gradient(to bottom,rgba(64,80,102,0) 0,rgba(64,80,102,0) 8px,#465a70 9px)}
+body.theme-dark .preview-grid{background-image:linear-gradient(#405066 1px,rgba(64,80,102,0) 1px),linear-gradient(90deg,#405066 1px,rgba(64,80,102,0) 1px)}
+body.theme-dark .preview-fine-grid{background-image:linear-gradient(#405066 1px,rgba(64,80,102,0) 1px),linear-gradient(90deg,#405066 1px,rgba(64,80,102,0) 1px)}
+body.theme-dark .preview-large-grid{background-image:linear-gradient(#405066 1px,rgba(64,80,102,0) 1px),linear-gradient(90deg,#405066 1px,rgba(64,80,102,0) 1px)}
+body.theme-dark .preview-dot-grid,
+body.theme-dark .preview-mind-map{background-image:radial-gradient(#53657b 1px,rgba(64,80,102,0) 1px)}
+body.theme-dark .preview-large-dot{background-image:radial-gradient(#53657b 1px,rgba(64,80,102,0) 1px)}
+body.theme-dark .preview-blank{background:#0d141d}
+body.theme-dark .preview-cornell{background:linear-gradient(90deg,rgba(64,80,102,0) 0 32%,#405066 32% calc(32% + 1.5px),rgba(64,80,102,0) calc(32% + 1.5px)),linear-gradient(to bottom,rgba(64,80,102,0) 0 72%,#405066 72% calc(72% + 1.5px),rgba(64,80,102,0) calc(72% + 1.5px)),repeating-linear-gradient(to bottom,#0d141d 0,#0d141d 7px,#344153 8px)}
+body.theme-dark .preview-split{background:linear-gradient(90deg,rgba(64,80,102,0) 0 49%,#405066 49% calc(49% + 1.5px),rgba(64,80,102,0) calc(49% + 1.5px)),repeating-linear-gradient(to bottom,#0d141d 0,#0d141d 8px,#344153 9px)}
+body.theme-dark .preview-kanban{background:linear-gradient(90deg,rgba(64,80,102,0) 0 33%,#405066 33% calc(33% + 1.5px),rgba(64,80,102,0) calc(33% + 1.5px) 66%,#405066 66% calc(66% + 1.5px),rgba(64,80,102,0) calc(66% + 1.5px))}
+body.theme-dark .preview-monthly{background-image:linear-gradient(#405066 1px,rgba(64,80,102,0) 1px),linear-gradient(90deg,#405066 1px,rgba(64,80,102,0) 1px)}
+body.theme-dark .preview-structured{background:linear-gradient(to bottom,rgba(64,80,102,0) 0 22%,#405066 22% calc(22% + 1.5px),rgba(64,80,102,0) calc(22% + 1.5px) 68%,#405066 68% calc(68% + 1.5px),rgba(64,80,102,0) calc(68% + 1.5px)),linear-gradient(90deg,rgba(64,80,102,0) 0 50%,#405066 50% calc(50% + 1.5px),rgba(64,80,102,0) calc(50% + 1.5px))}
+.instruction-list{
+  margin:0;
+  padding-left:18px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.7;
+  font-weight:600;
+}
+.signature{
+  margin-top:auto;
+  color:var(--muted);
+  font-size:9px;
+  text-align:center;
+}
+.top-link{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:20;
+  border:1px solid rgba(17,24,39,.18);
+  background:var(--accent);
+  color:#fff;
+  border-radius:3px;
+  padding:10px 14px;
+  font-size:12px;
+  font-weight:850;
+  text-decoration:none;
+}
+@media (max-width:880px){
+  .grid,.checks{grid-template-columns:1fr 1fr}
+  .page{padding:24px 26px}
+  .section-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media print{
+  body{background:#fff}
+  .builder,.top-link{display:none}
+  #notebook{display:block}
+  .page{
+    width:100%;
+    height:100vh;
+    max-width:none;
+    aspect-ratio:auto;
+    box-shadow:none;
+    border-radius:0;
+    break-after:page;
+    page-break-after:always;
+  }
+  .page:last-child{break-after:avoid;page-break-after:avoid}
+  .nav a,.tab-link,.tool-link,.section-link,.index-link{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:.35in}
+  *,*::before,*::after{box-shadow:none!important;filter:none!important;text-shadow:none!important}
+}
+</style>
+</head>
+<body class="theme-graphite" id="top">
+<a class="top-link" href="#top">Back to top</a>
+<div class="builder">
+  <div class="toolbar">
+    <div class="brand">Smart Notebook Generator</div>
+    <button class="chip active" data-theme="graphite" style="--swatch:#334155"><span class="chip-dot" style="background:var(--swatch)"></span>Graphite</button>
+    <button class="chip" data-theme="sage" style="--swatch:#3F6B52"><span class="chip-dot" style="background:var(--swatch)"></span>Sage</button>
+    <button class="chip" data-theme="sky" style="--swatch:#5f8faf"><span class="chip-dot" style="background:var(--swatch)"></span>Sky</button>
+    <button class="chip" data-theme="lilac" style="--swatch:#8d7aa8"><span class="chip-dot" style="background:var(--swatch)"></span>Lilac</button>
+    <button class="chip" data-theme="blush" style="--swatch:#bf7f8a"><span class="chip-dot" style="background:var(--swatch)"></span>Blush</button>
+    <button class="chip" data-theme="butter" style="--swatch:#c3a45b"><span class="chip-dot" style="background:var(--swatch)"></span>Butter</button>
+    <button class="chip" data-theme="coral" style="--swatch:#c87868"><span class="chip-dot" style="background:var(--swatch)"></span>Coral</button>
+    <button class="chip" data-theme="mono" style="--swatch:#353535"><span class="chip-dot" style="background:var(--swatch)"></span>Mono</button>
+    <button class="chip" data-theme="dark" style="--swatch:#4f6f8f"><span class="chip-dot" style="background:var(--swatch)"></span>Dark</button>
+    <button class="chip" data-theme="multi" style="--swatch:conic-gradient(from 0deg,#6f8791,#8a9b76,#c79374,#aa7f99,#6f9a96,#b9a260,#6f8791)"><span class="chip-dot" style="background:var(--swatch)"></span>Multi</button>
+    <button class="chip" data-theme="vibrant" style="--swatch:conic-gradient(from 0deg,#2563eb,#ef4444,#f59e0b,#8b5cf6,#10b981,#ec4899,#2563eb)"><span class="chip-dot" style="background:var(--swatch)"></span>Vibrant</button>
+    <button class="chip" data-theme="pastel" style="--swatch:conic-gradient(from 0deg,#8ab6f0,#f3a1a1,#f5d68a,#c3a6f4,#9ed9bb,#e9aacb,#8ab6f0)"><span class="chip-dot" style="background:var(--swatch)"></span>Pastel</button>
+    <button class="chip" data-theme="ember" style="--swatch:#B5481F"><span class="chip-dot" style="background:var(--swatch)"></span>Ember</button>
+    <button class="chip" data-theme="plum" style="--swatch:#6B3FA0"><span class="chip-dot" style="background:var(--swatch)"></span>Plum</button>
+    <button class="chip" data-theme="rose" style="--swatch:#AE3457"><span class="chip-dot" style="background:var(--swatch)"></span>Rose</button>
+    <button class="chip" data-theme="ocean" style="--swatch:#1E5A82"><span class="chip-dot" style="background:var(--swatch)"></span>Ocean</button>
+    <button class="chip" data-theme="clay" style="--swatch:#9C5A2E"><span class="chip-dot" style="background:var(--swatch)"></span>Clay</button>
+    <button class="chip" data-theme="forest" style="--swatch:#2C5639"><span class="chip-dot" style="background:var(--swatch)"></span>Forest</button>
+    <button class="chip" data-theme="berry" style="--swatch:#8A2E5C"><span class="chip-dot" style="background:var(--swatch)"></span>Berry</button>
+    <button class="chip" data-theme="slate" style="--swatch:#37434F"><span class="chip-dot" style="background:var(--swatch)"></span>Slate</button>
+    <button class="chip" data-theme="marigold" style="--swatch:#B07A14"><span class="chip-dot" style="background:var(--swatch)"></span>Marigold</button>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="regenerate">Generate</button>
+    <button class="icon-btn primary" onclick="window.print()">Print / Save PDF</button>
+  </div>
+  <section class="settings">
+    <h1>Build a sellable hyperlinked smart notebook PDF</h1>
+    <div class="grid">
+      <div class="field">
+        <label for="notebookTitle">Notebook title</label>
+        <input id="notebookTitle" value="Smart Study Notebook">
+      </div>
+      <div class="field">
+        <label for="ownerLabel">Belongs to label</label>
+        <input id="ownerLabel" value="This notebook belongs to">
+      </div>
+      <div class="field">
+        <label for="notebookType">Notebook type</label>
+        <select id="notebookType">
+          <option value="student" selected>Student Courses</option>
+          <option value="work">Work Projects</option>
+          <option value="personal">Personal Notes</option>
+          <option value="teacher">Teacher</option>
+          <option value="nursing">Nursing Student</option>
+          <option value="medical">Medical Student</option>
+          <option value="health">Health Sciences</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="sectionMode">Section labels</label>
+        <select id="sectionMode">
+          <option value="preset">Preset names</option>
+          <option value="blank" selected>Write-in (e.g. Topic 01:)</option>
+          <option value="custom">Custom names</option>
+        </select>
+      </div>
+      <div class="field" id="customNamesField" hidden>
+        <label for="customNames">Custom section names (one per line)</label>
+        <textarea id="customNames" rows="6" placeholder="Anatomy&#10;Pharmacology&#10;Clinicals"></textarea>
+      </div>
+      <div class="field">
+        <label for="sectionCount">Binder sections</label>
+        <select id="sectionCount">
+          <option>6</option>
+          <option>8</option>
+          <option>10</option>
+          <option selected>12</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="pagesPerSection">Pages per section</label>
+        <select id="pagesPerSection">
+          <option>2</option>
+          <option>4</option>
+          <option>6</option>
+          <option selected>8</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="formatLabel">Page size</label>
+        <select id="formatLabel">
+          <option value="ipad" selected>iPad Portrait</option>
+          <option value="letter">US Letter</option>
+          <option value="a4">A4</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="taskLabel">Calendar task title</label>
+        <input id="taskLabel" value="Notebook Study Task">
+      </div>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" id="includeTemplates" checked> Template library</label>
+      <label><input type="checkbox" id="includePlanner" checked> Planner pages</label>
+      <label><input type="checkbox" id="includeSmart" checked> AI and shortcuts hub</label>
+      <label><input type="checkbox" id="includeStickers" checked> Sticker sheet</label>
+    </div>
+    <div class="hint">The exported notebook uses internal page links for navigation and external links for AI tools, Gemini, NotebookLM, Apple Shortcuts, and Google Calendar quick-add pages.</div>
+  </section>
+</div>
+
+<main id="notebook"></main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const notebook = $("notebook");
+
+const sectionPresets = {
+  student:["Course 01","Course 02","Course 03","Course 04","Course 05","Course 06","Course 07","Course 08","Course 09","Course 10","Course 11","Course 12"],
+  work:["Inbox","Client Projects","Planning","Meetings","Research","Content","Operations","Finance","Reference","Archive","Goals","Ideas"],
+  personal:["Inbox","Journal","Wellness","Home","Money","Reading","Ideas","Travel","Projects","Archive","Goals","Reference"],
+  teacher:["Lesson Plans","Class Notes","Grading","Parent Contacts","Meetings","Student Support","Behavior Log","Professional Development","Substitute Plans","Resources","Ideas","Archive"],
+  nursing:["Anatomy","Physiology","Pharmacology","Pathophysiology","Fundamentals","Med-Surg","Pediatrics","Maternity / OB","Mental Health","Clinicals","NCLEX Review","Care Plans"],
+  medical:["Anatomy","Physiology","Biochemistry","Pathology","Pharmacology","Microbiology","Immunology","Clinical Skills","Rotations","Case Notes","Board Exam Review","Research"],
+  health:["Anatomy & Physiology","Kinesiology","Nutrition","Microbiology","Pathology","Pharmacology","Clinical Skills","Placements","Research Methods","Ethics & Practice","Case Studies","Exam Review"]
+};
+
+const toneOffsets = [
+  {h:0,s:0,l:-1},
+  {h:8,s:-4,l:3},
+  {h:-8,s:-2,l:6},
+  {h:16,s:-8,l:0},
+  {h:-16,s:-7,l:8},
+  {h:24,s:-10,l:2},
+  {h:-24,s:-8,l:5},
+  {h:4,s:-14,l:12},
+  {h:-4,s:-15,l:-5},
+  {h:12,s:-5,l:10}
+];
+
+const multiPalette = [
+  {tone:"#6f8791",soft:"#edf3f4",ink:"#fff"},
+  {tone:"#8a9b76",soft:"#f1f5ec",ink:"#fff"},
+  {tone:"#c79374",soft:"#fbefe8",ink:"#fff"},
+  {tone:"#aa7f99",soft:"#f6eef4",ink:"#fff"},
+  {tone:"#b9827b",soft:"#fbefed",ink:"#fff"},
+  {tone:"#6f9a96",soft:"#eef7f6",ink:"#fff"},
+  {tone:"#b9a260",soft:"#fbf5e4",ink:"#fff"},
+  {tone:"#7489ad",soft:"#eef2f8",ink:"#fff"},
+  {tone:"#9b826d",soft:"#f5eee8",ink:"#fff"},
+  {tone:"#7d8a8f",soft:"#eff2f3",ink:"#fff"}
+];
+
+const vibrantPalette = [
+  {tone:"#2563eb",soft:"#eaf1ff",ink:"#fff"},
+  {tone:"#ef4444",soft:"#fff0f0",ink:"#fff"},
+  {tone:"#f59e0b",soft:"#fff6df",ink:"#fff"},
+  {tone:"#8b5cf6",soft:"#f3eeff",ink:"#fff"},
+  {tone:"#10b981",soft:"#e8fbf4",ink:"#fff"},
+  {tone:"#06b6d4",soft:"#e7faff",ink:"#fff"},
+  {tone:"#ec4899",soft:"#fff0f8",ink:"#fff"},
+  {tone:"#f97316",soft:"#fff1e7",ink:"#fff"},
+  {tone:"#4f46e5",soft:"#eff0ff",ink:"#fff"},
+  {tone:"#84cc16",soft:"#f3fbdf",ink:"#fff"}
+];
+
+const pastelPalette = [
+  {tone:"#8ab6f0",soft:"#f1f6ff",ink:"#263445"},
+  {tone:"#f3a1a1",soft:"#fff3f3",ink:"#442b2b"},
+  {tone:"#f5d68a",soft:"#fff8e6",ink:"#453a22"},
+  {tone:"#c3a6f4",soft:"#f8f3ff",ink:"#392d4e"},
+  {tone:"#9ed9bb",soft:"#f0fbf5",ink:"#263d32"},
+  {tone:"#91d5df",soft:"#effbfc",ink:"#263f44"},
+  {tone:"#e9aacb",soft:"#fff4fa",ink:"#49313f"},
+  {tone:"#f2b88f",soft:"#fff3eb",ink:"#493626"},
+  {tone:"#aaa8ee",soft:"#f4f4ff",ink:"#303052"},
+  {tone:"#c9df8d",soft:"#f7fce9",ink:"#374226"}
+];
+
+const noteTemplates = [
+  ["lined","Lined Notes","Core"],
+  ["wide-lined","Wide Ruled Notes","Core"],
+  ["narrow-lined","Narrow Ruled Notes","Core"],
+  ["yellow-ruled","Yellow Ruled Notes","Core"],
+  ["grid","Grid Notes","Core"],
+  ["fine-grid","Fine Grid Notes","Core"],
+  ["large-grid","Large Grid Notes","Core"],
+  ["dot-grid","Dot Grid Notes","Core"],
+  ["large-dot","Large Dot Grid","Core"],
+  ["blank","Blank Page","Core"],
+  ["cornell","Cornell Notes","Study"],
+  ["split","Split Page Notes","Study"],
+  ["course-dashboard","Course Dashboard","Study"],
+  ["lecture","Lecture Notes","Study"],
+  ["reading","Reading Notes","Study"],
+  ["meeting","Meeting Notes","Work"],
+  ["project","Project Notes","Work"],
+  ["kanban","Kanban Board","Work"],
+  ["mind-map","Mind Map","Creative"],
+  ["smart-goals","S.M.A.R.T. Goals","Planner"],
+  ["study-log","Study Log","Planner"],
+  ["habit","Habit Tracker","Planner"],
+  ["assignment","Assignment Tracker","Planner"],
+  ["monthly","Monthly Planner","Planner"],
+  ["weekly","Weekly Planner","Planner"],
+  ["daily","Daily Planner","Planner"],
+  ["vocab","Vocabulary List","Study"],
+  ["lab","Lab Notes","Study"],
+  ["source","Source Tracker","Research"],
+  ["lesson-plan","Lesson Plan","Teaching",["teacher"]],
+  ["parent-contact","Parent Contact Log","Teaching",["teacher"]],
+  ["drug-card","Drug Card","Health",["nursing","medical","health"]],
+  ["care-plan","Care Plan","Health",["nursing","health"]],
+  ["soap-note","SOAP Note","Health",["medical","health","nursing"]]
+];
+
+function activeTemplates(c){
+  return noteTemplates.filter(t=>!t[3] || t[3].includes(c.notebookType));
+}
+
+function featuredIds(type){
+  const swaps = notebookModeMeta(type).featuredSwap || {};
+  return featuredTemplateIds.map(id=>swaps[id] || id);
+}
+
+const featuredTemplateIds = [
+  "course-dashboard","cornell","lecture","reading","assignment",
+  "study-log","lined","yellow-ruled","grid","dot-grid",
+  "blank","wide-lined","narrow-lined","fine-grid","large-grid",
+  "large-dot","split","weekly","monthly","daily",
+  "mind-map","smart-goals","habit","kanban"
+];
+
+const plannerPages = [
+  ["planner-monthly","Monthly Planner","monthly"],
+  ["planner-weekly","Weekly Planner","weekly"],
+  ["planner-daily","Daily Planner","daily"],
+  ["planner-goals","Goals Planner","smart-goals"],
+  ["planner-study","Study Log","study-log"],
+  ["planner-habit","Habit Tracker","habit"],
+  ["planner-assignment","Assignment Tracker","assignment"],
+  ["planner-project","Project Board","kanban"]
+];
+
+function esc(value){
+  return String(value ?? "").replace(/[&<>"']/g,(ch)=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+  })[ch]);
+}
+
+function attr(value){
+  return esc(value).replace(/&amp;/g,"&amp;");
+}
+
+function activePalette(){
+  const className = String(document.body.className || "");
+  if(className.includes("theme-vibrant")) return vibrantPalette;
+  if(className.includes("theme-pastel")) return pastelPalette;
+  if(className.includes("theme-multi")) return multiPalette;
+  return null;
+}
+
+function toneStyle(index){
+  const palette = activePalette();
+  if(palette){
+    const tone = palette[index % palette.length];
+    return `--tone:${tone.tone};--tone-soft:${tone.soft};--tone-ink:${tone.ink};`;
+  }
+  const tone = toneOffsets[index % toneOffsets.length];
+  return `--tone:hsl(calc(var(--theme-h) + ${tone.h}) calc(var(--theme-s) + ${tone.s}%) calc(var(--theme-l) + ${tone.l}%));--tone-soft:hsl(calc(var(--theme-h) + ${tone.h}) calc(var(--theme-s) - 12%) 94%);--tone-ink:#fff;`;
+}
+
+function toneIndexFromString(value){
+  return String(value || "").split("").reduce((sum,ch)=>sum + ch.charCodeAt(0),0) % toneOffsets.length;
+}
+
+function buttonToneStyle(index){
+  return activePalette() ? `${toneStyle(index)}background:var(--tone);border-color:var(--tone);color:var(--tone-ink,#fff);` : "";
+}
+
+function notebookModeMeta(type){
+  const modes = {
+    student:{
+      navLabel:"Courses",
+      setupTitle:"Student Setup Guide",
+      setupSubtitle:"Use each binder section as one course home base",
+      sectionPlural:"Course Sections",
+      sectionSingular:"Course",
+      indexTitle:"Course Index",
+      indexSubtitle:"Jump to each class, duplicate pages, and keep notes organized",
+      setupChecks:["Write course names on the Index","Add syllabus dates","Duplicate a Course Dashboard","Copy templates into each course","Use AI Hub for study review"],
+      detailTitle:"Course Details",
+      resourcesTitle:"Syllabus, Resources, and Links",
+      goalsTitle:"Course Goals",
+      pageTitle:"Course Pages",
+      coverText:"Course cover, quick links, and page map for this class.",
+      flowTitle:"Example Course Flow",
+      flow:["Tap Course 02","Open the course dashboard","Duplicate Cornell Notes","Add lecture notes","Schedule study block from AI Hub"],
+      topTasks:["Review notes","Schedule study block","Summarize class material","Check assignment deadlines","Choose next template"],
+      priorities:["Study Priorities",["Assignments","Readings","Review sessions","Exams","Projects"]],
+      bestPages:["Course Dashboard","Cornell Notes","Lecture Notes","Reading Notes","Assignment Tracker","Study Log"],
+      repeatFor:"lectures, readings, assignments, labs, or review sessions",
+      dashSub:"Command center for study, planning, and research",
+      study:true,
+      writeExample:"Biology"
+    },
+    work:{
+      navLabel:"Projects",
+      setupTitle:"Work Setup Guide",
+      setupSubtitle:"Use each binder section as one project or client workspace",
+      sectionPlural:"Project Sections",
+      sectionSingular:"Project",
+      indexTitle:"Project Index",
+      indexSubtitle:"Jump to each project, duplicate pages, and track work clearly",
+      setupChecks:["Review the preset sections","Add milestones","Duplicate a Project Notes page","Copy templates into each project","Use AI Hub for scheduling"],
+      detailTitle:"Project Details",
+      resourcesTitle:"Links, Files, and References",
+      goalsTitle:"Project Goals",
+      pageTitle:"Project Pages",
+      coverText:"Project cover, quick links, and page map for this workspace.",
+      flowTitle:"Example Project Flow",
+      flow:["Tap Client Projects","Open the section divider","Duplicate Meeting Notes","Add project notes","Schedule a work block from AI Hub"],
+      topTasks:["Review inbox","Schedule focus block","Prepare for meetings","Update project board","Follow up on actions"],
+      priorities:["Work Priorities",["Deadlines","Meetings","Deliverables","Follow-ups","Admin"]],
+      bestPages:["Meeting Notes","Project Notes","Kanban Board","Cornell Notes","Source Tracker","Lined Notes"],
+      repeatFor:"meetings, clients, deliverables, or research",
+      dashSub:"Command center for projects, meetings, and planning",
+      featuredSwap:{"course-dashboard":"meeting","lecture":"project","reading":"source"},
+      writeExample:"Website Launch"
+    },
+    personal:{
+      navLabel:"Sections",
+      setupTitle:"Notebook Setup Guide",
+      setupSubtitle:"Use each binder section as one personal notebook area",
+      sectionPlural:"Notebook Sections",
+      sectionSingular:"Section",
+      indexTitle:"Section Index",
+      indexSubtitle:"Jump to each area, duplicate pages, and keep notes organized",
+      setupChecks:["Review the preset sections","Choose favorite templates","Duplicate pages as needed","Bookmark the AI Hub","Review notes weekly"],
+      detailTitle:"Section Details",
+      resourcesTitle:"Links, Ideas, and References",
+      goalsTitle:"Section Goals",
+      pageTitle:"Section Pages",
+      coverText:"Section cover, quick links, and page map for this notebook area.",
+      flowTitle:"Example Notebook Flow",
+      flow:["Tap Journal","Open the section divider","Duplicate Lined Notes","Add a journal entry","Add a reminder from AI Hub"],
+      topTasks:["Clear inbox","Plan the week","Review goals","Log habits","Choose next template"],
+      priorities:["Personal Priorities",["Health","Home","Money","Relationships","Growth"]],
+      bestPages:["Lined Notes","Dot Grid Notes","Habit Tracker","S.M.A.R.T. Goals","Weekly Planner","Blank Page"],
+      repeatFor:"journal entries, goals, trips, or projects",
+      dashSub:"Command center for notes, goals, and planning",
+      featuredSwap:{"course-dashboard":"project","lecture":"meeting","reading":"source"},
+      writeExample:"Travel"
+    },
+    teacher:{
+      navLabel:"Sections", setupTitle:"Teacher Setup Guide", setupSubtitle:"Use each binder section as one area of your school year",
+      sectionPlural:"Teaching Sections", sectionSingular:"Section", indexTitle:"Teaching Index",
+      indexSubtitle:"Jump to lessons, grading, parent contacts, and meetings",
+      setupChecks:["Review the preset sections","Add term dates","Duplicate a Lesson Plan","Copy templates into each section","Use AI Hub for lesson ideas"],
+      detailTitle:"Section Details", resourcesTitle:"Resources, Links, and Materials", goalsTitle:"Section Goals",
+      pageTitle:"Section Pages", coverText:"Section cover, quick links, and page map for this area of your teaching.",
+      flowTitle:"Example Teaching Flow", flow:["Tap Lesson Plans","Open the section divider","Duplicate a Lesson Plan","Add today's objectives","Draft lesson ideas in AI Hub"],
+      topTasks:["Plan next week's lessons","Grade submissions","Contact parents","Prepare materials","Update behavior log"],
+      priorities:["Teaching Priorities",["Lesson plans","Grading","Parent contacts","Meetings","Student support"]],
+      bestPages:["Lesson Plan","Parent Contact Log","Meeting Notes","Cornell Notes","Kanban Board","Lined Notes"],
+      repeatFor:"lessons, grading, parent contacts, or meetings",
+      dashSub:"Command center for lessons, grading, and classroom planning",
+      noteKinds:["lesson-plan","lined","parent-contact","meeting","kanban","cornell","grid","blank"],
+      writeExample:"Period 3 English",
+      featuredSwap:{"course-dashboard":"lesson-plan","study-log":"parent-contact","lecture":"meeting","reading":"project"}
+    },
+    nursing:{
+      navLabel:"Topics", setupTitle:"Nursing Student Setup Guide", setupSubtitle:"Use each binder section as one nursing topic or course",
+      sectionPlural:"Nursing Topics", sectionSingular:"Topic", indexTitle:"Nursing Index",
+      indexSubtitle:"Jump to each topic, drug cards, care plans, and clinical notes",
+      setupChecks:["Review the preset topics","Add exam and clinical dates","Duplicate a Drug Card","Copy templates into each topic","Use AI Hub for NCLEX-style practice"],
+      detailTitle:"Topic Details", resourcesTitle:"Textbooks, Resources, and Links", goalsTitle:"Topic Goals",
+      pageTitle:"Topic Pages", coverText:"Topic cover, quick links, and page map for this nursing subject.",
+      flowTitle:"Example Study Flow", flow:["Tap Pharmacology","Open the section divider","Duplicate a Drug Card","Add lecture notes","Quiz yourself with AI Hub"],
+      topTasks:["Review lecture notes","Make drug cards","Prep for clinicals","Practice NCLEX questions","Update care plans"],
+      priorities:["Study Priorities",["Exams","Clinicals","Care plans","Drug cards","NCLEX prep"]],
+      bestPages:["Drug Card","Care Plan","Cornell Notes","Lecture Notes","Vocabulary List","Study Log"],
+      repeatFor:"lectures, drug cards, care plans, or clinical shifts",
+      dashSub:"Command center for nursing school, clinicals, and exam prep",
+      study:true,
+      noteKinds:["cornell","lecture","drug-card","care-plan","vocab","study-log","soap-note","blank"],
+      writeExample:"Pharmacology",
+      featuredSwap:{"course-dashboard":"drug-card","study-log":"care-plan","reading":"vocab"}
+    },
+    medical:{
+      navLabel:"Subjects", setupTitle:"Medical Student Setup Guide", setupSubtitle:"Use each binder section as one subject, block, or rotation",
+      sectionPlural:"Medical Subjects", sectionSingular:"Subject", indexTitle:"Medical Index",
+      indexSubtitle:"Jump to each subject, cases, drug cards, and board review",
+      setupChecks:["Review the preset subjects","Add block and exam dates","Duplicate a SOAP Note","Copy templates into each subject","Use AI Hub for board-style questions"],
+      detailTitle:"Subject Details", resourcesTitle:"Textbooks, Question Banks, and Links", goalsTitle:"Subject Goals",
+      pageTitle:"Subject Pages", coverText:"Subject cover, quick links, and page map for this block or rotation.",
+      flowTitle:"Example Study Flow", flow:["Tap Rotations","Open the section divider","Duplicate a SOAP Note","Write up today's case","Review with AI Hub"],
+      topTasks:["Review lecture notes","Do practice questions","Write up cases","Make drug cards","Plan board review"],
+      priorities:["Study Priorities",["Block exams","Board review","Rotations","Cases","Research"]],
+      bestPages:["SOAP Note","Drug Card","Cornell Notes","Lecture Notes","Lab Notes","Study Log"],
+      repeatFor:"lectures, cases, drug cards, or rotation notes",
+      dashSub:"Command center for medical school, rotations, and board prep",
+      study:true,
+      noteKinds:["cornell","lecture","soap-note","drug-card","lab","study-log","vocab","blank"],
+      writeExample:"Cardiology",
+      featuredSwap:{"course-dashboard":"soap-note","study-log":"drug-card","reading":"lab"}
+    },
+    health:{
+      navLabel:"Courses", setupTitle:"Health Sciences Setup Guide", setupSubtitle:"Use each binder section as one course or placement",
+      sectionPlural:"Health Science Courses", sectionSingular:"Course", indexTitle:"Course Index",
+      indexSubtitle:"Jump to each course, case studies, placements, and exam review",
+      setupChecks:["Review the preset courses","Add exam and placement dates","Duplicate a SOAP Note","Copy templates into each course","Use AI Hub for study review"],
+      detailTitle:"Course Details", resourcesTitle:"Textbooks, Resources, and Links", goalsTitle:"Course Goals",
+      pageTitle:"Course Pages", coverText:"Course cover, quick links, and page map for this subject.",
+      flowTitle:"Example Study Flow", flow:["Tap Placements","Open the section divider","Duplicate a SOAP Note","Log today's placement","Review with AI Hub"],
+      topTasks:["Review lecture notes","Prep for placement","Write case studies","Make flashcards","Plan exam review"],
+      priorities:["Study Priorities",["Exams","Placements","Case studies","Assignments","Research"]],
+      bestPages:["SOAP Note","Care Plan","Drug Card","Cornell Notes","Lecture Notes","Study Log"],
+      repeatFor:"lectures, case studies, placements, or exam review",
+      dashSub:"Command center for health science courses, placements, and exams",
+      study:true,
+      noteKinds:["cornell","lecture","soap-note","care-plan","reading","study-log","vocab","blank"],
+      writeExample:"Kinesiology",
+      featuredSwap:{"course-dashboard":"soap-note","study-log":"care-plan","reading":"drug-card"}
+    }
+  };
+  return modes[type] || modes.student;
+}
+
+let CURRENT = null;
+
+function sectionSlots(c){
+  const meta = notebookModeMeta(c.notebookType);
+  const numbered = (i)=>({name:`${meta.sectionSingular} ${String(i+1).padStart(2,"0")}`, writeIn:true});
+  const source = c.sectionMode === "custom" ? c.customNames
+    : (c.sectionMode === "preset" && c.notebookType !== "student") ? (sectionPresets[c.notebookType] || []) : [];
+  return Array.from({length:c.sectionCount},(_,i)=>source[i] ? {name:source[i], writeIn:false} : numbered(i));
+}
+
+function sectionNames(c){
+  return sectionSlots(c).map(s=>s.name);
+}
+
+function isWriteIn(c,i){
+  return sectionSlots(c)[i]?.writeIn;
+}
+
+function nav(backLink=null){
+  const meta = notebookModeMeta($("notebookType")?.value || "student");
+  const links = [
+    ["#index","Index",true],
+    ["#student-setup","Setup",true],
+    ["#sections",meta.navLabel,true],
+    ["#templates","Templates",$("includeTemplates").checked],
+    ["#planner-hub","Planner",$("includePlanner").checked],
+    ["#smart-hub","AI Hub",$("includeSmart").checked],
+    ["#stickers","Stickers",$("includeStickers").checked]
+  ];
+  return `<nav class="nav">${backLink ? `<a class="back-link" href="#${backLink[0]}">&larr; ${esc(backLink[1])}</a>` : ""}${links.filter(([, , active])=>active).map(([href,label],i)=>`<a style="${buttonToneStyle(i)}" href="${href}">${label}</a>`).join("")}</nav>`;
+}
+
+function page(id, eyebrow, title, subtitle, body, extraClass="", backLink=null){
+  return `
+    <section class="page ${extraClass}" id="${id}">
+      <header class="page-header">
+        <div>
+          <div class="eyebrow">${esc(eyebrow)}</div>
+          <div class="page-title">${esc(title)}</div>
+          ${subtitle ? `<div class="page-subtitle">${esc(subtitle)}</div>` : ""}
+        </div>
+        ${id === "cover" ? "" : nav(backLink)}
+      </header>
+      <div class="content">${body}</div>
+    </section>
+  `;
+}
+
+function lineSet(count){
+  return `<div class="line-stack" style="--rows:${count}">${Array.from({length:count},()=>`<div class="line"></div>`).join("")}</div>`;
+}
+
+function fields(items){
+  return items.map(item=>`<div class="check-row field-row"><span class="field-label">${esc(item)}</span></div>`).join("");
+}
+
+function trackerTable(cols, rows, firstWide=true){
+  const tmpl = firstWide ? `1.6fr repeat(${cols.length-1},1fr)` : `repeat(${cols.length},1fr)`;
+  return `<div class="tracker-table" style="grid-template-columns:${tmpl};grid-template-rows:26px repeat(${rows},1fr)">${cols.map(c=>`<div class="th">${esc(c)}</div>`).join("")}${Array.from({length:rows*cols.length},()=>`<div></div>`).join("")}</div>`;
+}
+
+function checks(items){
+  return items.map(item=>`<div class="check-row"><span class="check"></span><span>${esc(item)}</span></div>`).join("");
+}
+
+function compactDateTime(date, time){
+  const cleanDate = (date || "2026-01-01").replaceAll("-","");
+  const cleanTime = (time || "09:00").replace(":","") + "00";
+  return `${cleanDate}T${cleanTime}`;
+}
+
+function endTime(time, minutes=30){
+  const [h,m] = (time || "09:00").split(":").map(Number);
+  const d = new Date(2026,0,1,h || 9,m || 0);
+  d.setMinutes(d.getMinutes() + minutes);
+  return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
+
+function smartLinks(c){
+  const task = encodeURIComponent(c.taskLabel || "Notebook Task");
+  const details = encodeURIComponent("Added from Smart Notebook");
+  return [
+    ["ChatGPT","Ask or brainstorm","https://chatgpt.com/"],
+    ["Gemini","Ask Google AI","https://gemini.google.com/"],
+    ["NotebookLM","Summarize notes","https://notebooklm.google.com/"],
+    ["Google AI Studio","Build prompts","https://aistudio.google.com/"],
+    ["Translate","Translate notes","https://translate.google.com/"],
+    ["Google Calendar","Quick add event",`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${task}&details=${details}`],
+    ["Google Keep","Quick notes","https://keep.google.com/"],
+    ["Apple Calendar","Run shortcut",`shortcuts://run-shortcut?name=Add%20Notebook%20Calendar%20Event&input=text&text=${task}`],
+    ["Apple Reminder","Run shortcut",`shortcuts://run-shortcut?name=Add%20Notebook%20Reminder&input=text&text=${task}`],
+    ["Google Tasks","Open task list","https://tasks.google.com/"],
+    ["Focus Timer","Start timer","https://www.google.com/search?q=25+minute+timer"],
+    ["Scan Document","Run shortcut","shortcuts://run-shortcut?name=Scan%20Notebook%20Document"]
+  ];
+}
+
+function coverPage(c){
+  return `
+    <section class="page cover" id="cover">
+      <div class="content">
+        <div class="cover-mark">${esc(c.title.split(/\s+/).filter(w=>/^[A-Za-z0-9]/.test(w)).slice(0,3).map(w=>w[0].toUpperCase()).join("") || "N")}</div>
+        <h2>${esc(c.title)}</h2>
+        <p>${esc(c.edition)}</p>
+        <div class="belongs">${esc(c.owner)}</div>
+      </div>
+    </section>
+  `;
+}
+
+function previewClass(kind){
+  if(kind === "wide-lined") return "preview-wide-lined";
+  if(kind === "narrow-lined") return "preview-narrow-lined";
+  if(kind === "yellow-ruled") return "preview-yellow-ruled";
+  if(kind === "fine-grid") return "preview-fine-grid";
+  if(kind === "large-grid") return "preview-large-grid";
+  if(kind === "large-dot") return "preview-large-dot";
+  if(kind === "grid") return "preview-grid";
+  if(kind === "dot-grid") return "preview-dot-grid";
+  if(kind === "blank") return "preview-blank";
+  if(kind === "cornell") return "preview-cornell";
+  if(kind === "split" || kind === "two-column") return "preview-split";
+  if(kind === "kanban") return "preview-kanban";
+  if(kind === "mind-map") return "preview-mind-map";
+  if(["habit","assignment","vocab","source"].includes(kind)) return "preview-table";
+  if(kind === "monthly") return "preview-monthly";
+  if(kind === "lined") return "preview-lined";
+  return "preview-structured";
+}
+
+function previewKindFromId(id){
+  if(id.startsWith("template-")) return id.replace("template-","");
+  const planner = plannerPages.find(([pageId])=>pageId === id);
+  return planner ? planner[2] : "lined";
+}
+
+function indexTile(item,toneIndex=null){
+  const isTone = toneIndex !== null;
+  return `<a class="index-tile${isTone ? " index-tone-tile" : ""}" ${isTone ? `style="${toneStyle(toneIndex)}"` : ""} href="#${esc(item.id)}">${isTone ? `<span class="section-dot"></span><span class="course-label">${esc(item.title)}${CURRENT && isWriteIn(CURRENT,toneIndex) ? ":" : ""}</span>` : `<span>${esc(item.title)}</span>`}</a>`;
+}
+
+function indexPill(item,label,index=0){
+  return `<a class="index-tile index-pill" style="${buttonToneStyle(index)}" href="#${esc(item.id)}">${esc(label || item.title)}</a>`;
+}
+
+function templateTile(targetId,title,label,kind){
+  return `
+    <a class="template-tile" style="${toneStyle(toneIndexFromString(kind || title))}" href="#${esc(targetId)}">
+      <span class="mini-preview ${previewClass(kind)}"></span>
+      <strong>${esc(title)}</strong>
+      <span>${esc(label)}</span>
+    </a>
+  `;
+}
+
+function indexPage(entries){
+  const byGroup = (group) => entries.filter(item=>item.group === group);
+  const meta = notebookModeMeta($("notebookType")?.value || "student");
+  const byId = (id) => entries.find(item=>item.id === id);
+  const topLabels = {
+    cover:"Cover",
+    dashboard:"Dashboard",
+    "student-setup":"Setup Guide",
+    sections:meta.navLabel,
+    templates:"Templates",
+    "planner-hub":"Planner",
+    "smart-hub":"AI Hub",
+    stickers:"Stickers",
+    "duplicate-guide":"Duplicate Pages",
+    instructions:"Shortcuts"
+  };
+  const topNav = ["dashboard","student-setup","sections","templates","planner-hub","smart-hub","stickers","duplicate-guide","instructions","cover"]
+    .map(byId)
+    .filter(Boolean);
+  const sections = byGroup("Binder Sections").filter(item=>item.label === "Divider");
+  const feat = featuredIds($("notebookType")?.value || "student");
+  const templates = byGroup("Templates").filter(item=>feat.includes(item.id.replace("template-","")));
+  const body = `
+    <div class="index-layout">
+      <div class="index-group">
+        <h3>Main Navigation</h3>
+        <div class="index-pill-grid">${topNav.map((item,i)=>indexPill(item,topLabels[item.id],i)).join("")}</div>
+      </div>
+      <div class="index-group">
+        <h3>${esc(meta.sectionPlural)}</h3>
+        <div class="index-card-grid index-section-grid">${sections.map((item,i)=>indexTile(item,i)).join("")}</div>
+      </div>
+      ${templates.length ? `
+        <div class="index-group">
+          <h3>Essential Templates</h3>
+          <div class="index-template-grid">${templates.map(item=>templateTile(item.id,item.title,item.label,previewKindFromId(item.id))).join("")}</div>
+        </div>
+      ` : ""}
+    </div>
+  `;
+  return page("index","Hyperlinked Navigation","Index","Tap any page to navigate",body,"index-page");
+}
+
+function dashboardPage(c){
+  const meta = notebookModeMeta(c.notebookType);
+  const tabs = [
+    ["#student-setup","Setup",true],
+    ["#sections",meta.navLabel,true],
+    ["#templates","Templates",c.includeTemplates],
+    ["#planner-hub","Planner",c.includePlanner],
+    ["#smart-hub","AI Hub",c.includeSmart],
+    ["#stickers","Stickers",c.includeStickers]
+  ].filter(([, , active])=>active);
+  const body = `
+    <div class="section-tabs">
+      ${tabs.map(([href,label],i)=>`<a class="tab-link" style="${buttonToneStyle(i)}" href="${href}">${esc(label)}</a>`).join("")}
+    </div>
+    <div class="table three-rows">
+      <div class="row">
+        <div class="cell">
+          <div class="metric-grid">
+            <div class="metric"><span>Pages</span>${c.totalPages}</div>
+            <div class="metric"><span>${esc(meta.navLabel)}</span>${c.sectionCount}</div>
+            <div class="metric"><span>Templates</span>${c.includeTemplates ? activeTemplates(c).length : 0}</div>
+            <div class="metric"><span>Format</span>PDF</div>
+          </div>
+        </div>
+      </div>
+      <div class="row two">
+        <div class="cell"><h3>Quick Capture</h3>${lineSet(6)}</div>
+        <div class="cell"><h3>Top Tasks</h3>${checks(meta.topTasks.filter(featureFilter(c)))}</div>
+      </div>
+      <div class="row">
+        <div class="cell"><h3>Notebook Notes</h3>${lineSet(5)}</div>
+      </div>
+    </div>
+  `;
+  return page("dashboard","Notebook Overview","Dashboard",meta.dashSub,body);
+}
+
+function featureFilter(c){
+  return (item)=>!((!c.includeSmart && /AI Hub/.test(item)) || (!c.includeTemplates && /template|Cornell/i.test(item)));
+}
+
+function studentSetupPage(c){
+  const meta = notebookModeMeta(c.notebookType);
+  const ok = featureFilter(c);
+  const body = `
+    <div class="table two-rows">
+      <div class="row two">
+        <div class="cell">
+          <h3>How to Set Up</h3>
+          <ol class="instruction-list">
+            <li>Open the ${esc(meta.indexTitle)} and treat each colored section as one ${esc(meta.sectionSingular.toLowerCase())} workspace.</li>
+            ${sectionSlots(c).some(s=>s.writeIn) ? `<li>Handwrite each ${esc(meta.sectionSingular.toLowerCase())} name after its colon on the Index and ${esc(meta.indexTitle)} pages (for example, ${esc(meta.sectionSingular)} 01: ${esc(meta.writeExample || "Biology")}).</li>` : `<li>Each section comes pre-labeled; use the ${esc(meta.indexTitle)} to jump straight to the one you need.</li>`}
+            ${c.notebookType === "student" ? `<li>Use the first page in each section as the course dashboard, then duplicate templates behind it.</li>` : `<li>Use each section divider as that section's home page, then duplicate pages behind it.</li>`}
+            <li>Keep ${esc(meta.repeatFor.replace(/, or /,", and "))} inside the matching section.</li>
+          </ol>
+        </div>
+        <div class="cell"><h3>Setup Checklist</h3>${checks(meta.setupChecks.filter(ok).map(x=>!/^Review the preset/.test(x) ? x : sectionSlots(c).some(s=>s.writeIn) ? `Write ${meta.sectionSingular.toLowerCase()} names on the Index` : c.sectionMode === "custom" ? `Review your ${meta.sectionSingular.toLowerCase()} list` : x))}</div>
+      </div>
+      <div class="row two">
+        <div class="cell"><h3>${esc(meta.flowTitle)}</h3>${checks(meta.flow.filter(ok))}</div>
+        <div class="cell"><h3>First Week Setup Notes</h3>${lineSet(6)}</div>
+      </div>
+    </div>
+  `;
+  return page("student-setup","Setup Guide",meta.setupTitle,meta.setupSubtitle,body);
+}
+
+function sectionsHub(c){
+  const meta = notebookModeMeta(c.notebookType);
+  const names = sectionNames(c);
+  const body = `
+    <div class="band">
+      <h3>${esc(meta.sectionPlural)}</h3>
+      <div class="template-grid binder-section-grid">
+        ${names.map((name,i)=>`<a class="section-link color-section-link" style="${toneStyle(i)}" href="#section-${i+1}">${isWriteIn(c,i) ? "" : `<span class="section-number">${String(i+1).padStart(2,"0")}</span>`}<span class="section-name course-label">${esc(name)}${isWriteIn(c,i) ? ":" : ""}</span></a>`).join("")}
+      </div>
+    </div>
+    <div class="table two-rows">
+      <div class="row two">
+        <div class="cell"><h3>${esc(meta.detailTitle)}</h3>${lineSet(5)}</div>
+        <div class="cell"><h3>${esc(meta.resourcesTitle)}</h3>${lineSet(5)}</div>
+      </div>
+      <div class="row">
+        <div class="cell"><h3>${esc(meta.indexTitle)} Notes</h3>${lineSet(6)}</div>
+      </div>
+    </div>
+  `;
+  return page("sections","Binder Navigation",meta.indexTitle,meta.indexSubtitle,body);
+}
+
+function templateLibraryPage(c){
+  const body = `<div class="index-layout">
+    <div class="index-group">
+      <h3>Template Gallery</h3>
+      <div class="template-library-grid">${activeTemplates(c).map(([id,title,group])=>templateTile(`template-${id}`,title,group,id)).join("")}</div>
+    </div>
+  </div>`;
+  return page("templates","Template Library","Note Templates","Reusable page styles for notes, study, planning, and review",body);
+}
+
+function plannerTarget(c,id,kind){
+  return c.includeTemplates ? `template-${kind}` : id;
+}
+
+function plannerHubPage(c){
+  const meta = notebookModeMeta(c.notebookType);
+  const body = `
+    <div class="band">
+      <h3>Planner Pages</h3>
+      <div class="template-grid">
+        ${plannerPages.map(([id,title,kind],i)=>`<a class="tab-link" style="${buttonToneStyle(i)}" href="#${plannerTarget(c,id,kind)}">${esc(title)}</a>`).join("")}
+      </div>
+    </div>
+    <div class="table two-rows">
+      <div class="row two">
+        <div class="cell"><h3>This Month</h3>${lineSet(6)}</div>
+        <div class="cell"><h3>${esc(meta.priorities[0])}</h3>${checks(meta.priorities[1])}</div>
+      </div>
+      <div class="row">
+        <div class="cell"><h3>Planner Notes</h3>${lineSet(7)}</div>
+      </div>
+    </div>
+  `;
+  return page("planner-hub","Planning System","Planner Hub","Monthly, weekly, daily, and goal planning pages",body);
+}
+
+function smartHubPage(c){
+  const tools = smartLinks(c);
+  const body = `
+    <div class="tool-grid smart-tool-grid">
+      ${tools.map(([name,sub,href],i)=>`<a class="tool-link" style="${toneStyle(i)}" href="${attr(href)}"><strong>${esc(name)}</strong><span>${esc(sub)}</span></a>`).join("")}
+    </div>
+    <div class="table two-rows">
+      <div class="row two">
+        <div class="cell"><h3>AI Prompt Queue</h3>${lineSet(6)}</div>
+        <div class="cell"><h3>Calendar Tasks</h3>${checks([notebookModeMeta(c.notebookType).study ? "Add study block" : "Add focus block","Add deadline","Add reminder","Translate notes","Summarize source"])}</div>
+      </div>
+      <div class="row">
+        <div class="cell"><h3>Links and Setup Notes</h3>${lineSet(6)}</div>
+      </div>
+    </div>
+  `;
+  return page("smart-hub","Smart Shortcuts",notebookModeMeta(c.notebookType).study ? "AI Study Hub" : "AI Hub","ChatGPT, Gemini, NotebookLM, calendar shortcuts, and utilities",body);
+}
+
+function stickerPage(){
+  const stickers = ["Important","Review","Question","Exam","Idea","Due Soon","Research","Meeting","Read","Practice","Ask AI","Translate","Focus","Done","Upload","Summary"];
+  const body = `<div class="sticker-grid">${stickers.map(s=>`<div class="sticker">${esc(s)}</div>`).join("")}</div>`;
+  return page("stickers","Extras","Minimal Sticker Sheet","Use these labels to mark priorities, review items, and tasks",body);
+}
+
+function instructionsPage(){
+  const body = `
+    <div class="table two-rows">
+      <div class="row two">
+        <div class="cell">
+          <h3>Apple Shortcuts Setup</h3>
+          <ol class="instruction-list">
+            <li>These three buttons are optional and need a one-time setup on iPhone or iPad.</li>
+            <li>Open the Shortcuts app and create a new shortcut for each button.</li>
+            <li>Name them exactly: Add Notebook Calendar Event, Add Notebook Reminder, Scan Notebook Document.</li>
+            <li>Add the action Add New Event, Add New Reminder, or Scan Document to the matching shortcut.</li>
+            <li>Tap the button in your notebook to run it. All other AI Hub links work with no setup.</li>
+          </ol>
+        </div>
+        <div class="cell">
+          <h3>Google Calendar Setup</h3>
+          <ol class="instruction-list">
+            <li>Tap Google Calendar to open a new event already titled with your notebook task.</li>
+            <li>Pick the date and time in the form that opens.</li>
+            <li>Tap Save. You need to be signed in to a Google account.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="row">
+        <div class="cell"><h3>My Setup Notes</h3>${lineSet(8)}</div>
+      </div>
+    </div>
+  `;
+  return page("instructions","Setup Guide","Shortcut Instructions","Use this page to set up calendar and shortcut links",body);
+}
+
+function duplicateGuidePage(c){
+  const meta = notebookModeMeta(c.notebookType);
+  const body = `
+    <div class="table two-rows">
+      <div class="row two">
+        <div class="cell">
+          <h3>Duplicate Pages Workflow</h3>
+          <ol class="instruction-list">
+            <li>${c.includeTemplates ? "Open the Template Library and choose the page style you need." : "Choose the page style you want to reuse."}</li>
+            <li>Use the page menu to copy or duplicate that page.</li>
+            <li>Move the copied page behind the matching ${esc(meta.sectionSingular.toLowerCase())} dashboard.</li>
+            <li>Repeat as needed for ${esc(meta.repeatFor)}.</li>
+          </ol>
+        </div>
+        <div class="cell"><h3>Best Pages to Duplicate</h3>${checks(meta.bestPages)}</div>
+      </div>
+      <div class="row two">
+        <div class="cell"><h3>Notebook Setup Notes</h3>${lineSet(6)}</div>
+        <div class="cell"><h3>My Favorite Template Setup</h3>${lineSet(6)}</div>
+      </div>
+    </div>
+  `;
+  return page("duplicate-guide","Page System","Duplicate Pages Guide","Copy reusable templates into each section",body);
+}
+
+function sectionDivider(index, name, c){
+  const meta = notebookModeMeta(c.notebookType);
+  const pageLinks = Array.from({length:c.pagesPerSection},(_,i)=>`<a class="tab-link" style="${buttonToneStyle(i)}" href="#section-${index}-page-${i+1}">Page ${i+1}</a>`).join("");
+  const body = `
+    <div class="section-cover-panel" style="${toneStyle(index-1)}">
+      <div class="section-cover-number">${String(index).padStart(2,"0")}</div>
+      <div>
+        <h3>${esc(name)}</h3>
+        <p>${esc(meta.coverText)}</p>
+      </div>
+    </div>
+    <div class="band">
+      <h3>${esc(meta.pageTitle)}</h3>
+      <div class="template-grid">${pageLinks}</div>
+    </div>
+    <div class="table two-rows">
+      <div class="row two">
+        <div class="cell"><h3>${esc(meta.goalsTitle)}</h3>${lineSet(6)}</div>
+        <div class="cell"><h3>${esc(meta.resourcesTitle)}</h3>${lineSet(6)}</div>
+      </div>
+      <div class="row">
+        <div class="cell"><h3>${esc(meta.sectionSingular)} Page Index</h3>${lineSet(7)}</div>
+      </div>
+    </div>
+  `;
+  return page(`section-${index}`,`${meta.sectionSingular} ${String(index).padStart(2,"0")}`,name,`${meta.sectionSingular} divider and quick index`,body);
+}
+
+function sectionNotePage(sectionIndex, sectionName, pageIndex, c){
+  const studentKinds = ["course-dashboard","cornell","lecture","reading","assignment","study-log","blank","grid"];
+  const defaultKinds = ["lined","cornell","grid","split","dot-grid","project","meeting","blank"];
+  const kinds = notebookModeMeta(c.notebookType).noteKinds || (c.notebookType === "student" ? studentKinds : defaultKinds);
+  const kind = kinds[(pageIndex - 1) % kinds.length];
+  const body = renderTemplate(kind, `${sectionName} Page ${pageIndex}`, true);
+  return page(`section-${sectionIndex}-page-${pageIndex}`,sectionName,`Page ${pageIndex}`,"Reusable notes page",body,"",[`section-${sectionIndex}`,sectionName]);
+}
+
+function templatePage(id, title){
+  const body = renderTemplate(id, title, false);
+  return page(`template-${id}`,"Template",title,"Use this page as a reusable notebook template",body);
+}
+
+function plannerTemplatePage(id, title, kind){
+  const body = renderTemplate(kind, title, false);
+  return page(id,"Planner Page",title,"Reusable planning template",body);
+}
+
+function renderTemplate(kind, title, compact=false){
+  const label = compact ? "Section Note" : "Reusable Template";
+  if(kind === "monthly"){
+    return `<div class="template-sheet"><div class="template-head"><span>${esc(title)}</span><span>${label}</span></div><div class="paper-area"><div class="calendar-paper">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<div>${d}</div>`).join("")}${Array.from({length:42},()=>`<div></div>`).join("")}</div></div></div>`;
+  }
+  if(kind === "weekly"){
+    return `
+      <div class="table three-rows">
+        <div class="row"><div class="cell"><h3>Weekly Focus</h3>${checks(["Priority","Deadline","Study block","Review","Reset"])}</div></div>
+        <div class="row two"><div class="cell"><h3>Monday to Thursday</h3>${lineSet(6)}</div><div class="cell"><h3>Friday to Sunday</h3>${lineSet(6)}</div></div>
+        <div class="row"><div class="cell"><h3>Weekly Notes</h3>${lineSet(5)}</div></div>
+      </div>
+    `;
+  }
+  if(kind === "daily"){
+    return `
+      <div class="table three-rows">
+        <div class="row three"><div class="cell"><h3>Top Three</h3>${checks(["","",""])}</div><div class="cell"><h3>Schedule</h3>${lineSet(4)}</div><div class="cell"><h3>Quick Notes</h3>${lineSet(4)}</div></div>
+        <div class="row two"><div class="cell"><h3>Tasks</h3>${checks(["","","","",""])}</div><div class="cell"><h3>Study / Work Log</h3>${lineSet(5)}</div></div>
+        <div class="row"><div class="cell"><h3>Reflection</h3>${lineSet(4)}</div></div>
+      </div>
+    `;
+  }
+  if(kind === "smart-goals"){
+    return `
+      <div class="table three-rows">
+        <div class="row"><div class="cell"><h3>Goal Snapshot</h3>${checks(["Specific","Measurable","Achievable","Relevant","Time-bound"])}</div></div>
+        <div class="row two"><div class="cell"><h3>Action Plan</h3>${lineSet(6)}</div><div class="cell"><h3>Obstacles and Supports</h3>${lineSet(6)}</div></div>
+        <div class="row"><div class="cell"><h3>Progress Notes</h3>${lineSet(5)}</div></div>
+      </div>
+    `;
+  }
+  if(kind === "study-log"){
+    return `
+      <div class="table three-rows">
+        <div class="row"><div class="cell"><h3>Session Details</h3>${fields(["Subject","Start time","End time","Focus score","Next step"])}</div></div>
+        <div class="row two"><div class="cell"><h3>What I Studied</h3>${lineSet(6)}</div><div class="cell"><h3>What Needs Review</h3>${lineSet(6)}</div></div>
+        <div class="row"><div class="cell"><h3>Questions for AI or Tutor</h3>${lineSet(5)}</div></div>
+      </div>
+    `;
+  }
+  if(kind === "course-dashboard"){
+    return `
+      <div class="table three-rows">
+        <div class="row">
+          <div class="cell"><h3>Course Snapshot</h3>${fields(["Course name","Instructor","Class time","Office hours","Exam dates"])}</div>
+        </div>
+        <div class="row two">
+          <div class="cell"><h3>Lecture Notes Index</h3>${lineSet(6)}</div>
+          <div class="cell"><h3>Assignments and Deadlines</h3>${lineSet(6)}</div>
+        </div>
+        <div class="row">
+          <div class="cell"><h3>Study Plan, Resources, and AI Review Prompts</h3>${lineSet(5)}</div>
+        </div>
+      </div>
+    `;
+  }
+  if(kind === "lesson-plan"){
+    return `<div class="table three-rows">
+      <div class="row"><div class="cell"><h3>Lesson Overview</h3>${fields(["Subject / grade","Date / period","Objective","Standards","Materials"])}</div></div>
+      <div class="row two"><div class="cell"><h3>Lesson Steps</h3>${lineSet(6)}</div><div class="cell"><h3>Differentiation</h3>${lineSet(6)}</div></div>
+      <div class="row"><div class="cell"><h3>Assessment and Reflection</h3>${lineSet(5)}</div></div>
+    </div>`;
+  }
+  if(kind === "drug-card"){
+    return `<div class="table three-rows">
+      <div class="row"><div class="cell"><h3>Drug Card</h3>${fields(["Generic / brand","Drug class","Indications","Mechanism","Dose / route"])}</div></div>
+      <div class="row two"><div class="cell"><h3>Side Effects</h3>${lineSet(6)}</div><div class="cell"><h3>Contraindications and Interactions</h3>${lineSet(6)}</div></div>
+      <div class="row"><div class="cell"><h3>Clinical Considerations and Patient Teaching</h3>${lineSet(5)}</div></div>
+    </div>`;
+  }
+  if(kind === "care-plan"){
+    return `<div class="table three-rows">
+      <div class="row"><div class="cell"><h3>Care Plan</h3>${fields(["Patient / age","Medical diagnosis","Care diagnosis","Related to","Goal / outcome"])}</div></div>
+      <div class="row two"><div class="cell"><h3>Interventions</h3>${lineSet(6)}</div><div class="cell"><h3>Rationale</h3>${lineSet(6)}</div></div>
+      <div class="row"><div class="cell"><h3>Evaluation</h3>${lineSet(5)}</div></div>
+    </div>`;
+  }
+  if(kind === "soap-note"){
+    return `<div class="table three-rows">
+      <div class="row"><div class="cell"><h3>Case Details</h3>${fields(["Patient / case","Date","Setting","Chief complaint"])}</div></div>
+      <div class="row two"><div class="cell"><h3>Subjective</h3>${lineSet(6)}</div><div class="cell"><h3>Objective</h3>${lineSet(6)}</div></div>
+      <div class="row two"><div class="cell"><h3>Assessment</h3>${lineSet(5)}</div><div class="cell"><h3>Plan</h3>${lineSet(5)}</div></div>
+    </div>`;
+  }
+  const trackers = {
+    "parent-contact":["Parent Contact Log",["Date","Student","Parent / guardian","Method","Notes / follow-up"],16],
+    habit:["Habit Tracker",["Habit","M","T","W","T","F","S","S"],14],
+    assignment:["Assignment Tracker",["Assignment","Class","Due date","Status","Priority"],16],
+    vocab:["Vocabulary List",["Term","Definition","Example","Review"],16],
+    source:["Source Tracker",["Source","Author","Link / page","How I'll use it"],14]
+  };
+  if(trackers[kind]){
+    const [name,cols,rows] = trackers[kind];
+    return `<div class="template-sheet"><div class="template-head"><span>${esc(title)}</span><span>${esc(name)}</span></div><div class="paper-area">${trackerTable(cols,rows)}</div></div>`;
+  }
+  if(kind === "habit" || kind === "assignment" || kind === "lecture" || kind === "reading" || kind === "meeting" || kind === "project" || kind === "vocab" || kind === "lab" || kind === "source"){
+    const map = {
+      habit:["Habit Tracker","Habit","M","T","W","T","F"],
+      assignment:["Assignment Tracker","Class","Due Date","Status","Priority","Notes"],
+      lecture:["Lecture Notes","Topic","Key ideas","Examples","Questions","Summary"],
+      reading:["Reading Notes","Source","Main argument","Evidence","Quotes","Questions"],
+      meeting:["Meeting Notes","Date","Attendees","Agenda","Decisions","Actions"],
+      project:["Project Notes","Project","Milestone","Owner","Deadline","Status"],
+      vocab:["Vocabulary List","Term","Definition","Example","Memory cue","Review"],
+      lab:["Lab Notes","Question","Hypothesis","Method","Data","Conclusion"],
+      source:["Source Tracker","Source","Author","Link","Quote","Use"]
+    };
+    const data = map[kind];
+    return `
+      <div class="table three-rows">
+        <div class="row"><div class="cell"><h3>${esc(data[0])}</h3>${fields(data.slice(1))}</div></div>
+        <div class="row two"><div class="cell"><h3>Details</h3>${lineSet(6)}</div><div class="cell"><h3>Notes</h3>${lineSet(6)}</div></div>
+        <div class="row"><div class="cell"><h3>Next Steps</h3>${lineSet(5)}</div></div>
+      </div>
+    `;
+  }
+  if(kind === "cornell"){
+    return `<div class="template-sheet"><div class="template-head"><span>${esc(title)}</span><span>Cornell</span></div><div class="paper-area"><div class="cornell-paper"><div class="cue ruled-paper"></div><div class="notes ruled-paper"></div><div class="summary ruled-paper"></div></div></div></div>`;
+  }
+  if(kind === "split" || kind === "two-column"){
+    return `<div class="template-sheet"><div class="template-head"><span>${esc(title)}</span><span>Split Notes</span></div><div class="paper-area"><div class="split-paper"><div class="ruled-paper"></div><div class="ruled-paper"></div></div></div></div>`;
+  }
+  if(kind === "kanban"){
+    return `<div class="template-sheet"><div class="template-head"><span>${esc(title)}</span><span>Kanban</span></div><div class="paper-area"><div class="kanban-paper"><div><h4>To Do</h4></div><div><h4>Doing</h4></div><div><h4>Done</h4></div></div></div></div>`;
+  }
+  if(kind === "mind-map"){
+    const nodes = [[50,14],[84,32],[84,68],[50,86],[16,68],[16,32]];
+    const lines = nodes.map(([x,y])=>`<line x1="50" y1="50" x2="${x}" y2="${y}"/>`).join("");
+    const bubbles = nodes.map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="12" ry="6"/>`).join("");
+    return `<div class="template-sheet"><div class="template-head"><span>${esc(title)}</span><span>Mind Map</span></div><div class="paper-area mind-map-area"><div class="dot-paper"></div><svg class="mind-map-svg" viewBox="0 0 100 100" preserveAspectRatio="none"><g class="mm-lines">${lines}</g><g class="mm-nodes">${bubbles}<ellipse class="mm-center" cx="50" cy="50" rx="17" ry="8"/></g></svg><span class="mm-label">Main idea</span></div></div>`;
+  }
+  const paperClass = {
+    "lined":"ruled-paper",
+    "wide-lined":"wide-paper",
+    "narrow-lined":"narrow-paper",
+    "yellow-ruled":"yellow-ruled-paper",
+    "grid":"grid-paper",
+    "fine-grid":"fine-grid-paper",
+    "large-grid":"large-grid-paper",
+    "dot-grid":"dot-paper",
+    "large-dot":"large-dot-paper",
+    "blank":"blank-paper"
+  }[kind] || "ruled-paper";
+  return `<div class="template-sheet"><div class="template-head"><span>${esc(title)}</span><span>${esc(label)}</span></div><div class="paper-area"><div class="${paperClass}"></div></div></div>`;
+}
+
+function config(){
+  return {
+    title:$("notebookTitle").value.trim() || "Smart Notebook",
+    owner:$("ownerLabel").value.trim() || "This notebook belongs to",
+    notebookType:$("notebookType").value,
+    sectionCount:Number($("sectionCount").value),
+    sectionMode:$("sectionMode").value,
+    customNames:$("customNames").value.split("\n").map(s=>s.trim()).filter(Boolean),
+    pagesPerSection:Number($("pagesPerSection").value),
+    formatLabel:$("formatLabel").value,
+    formatName:$("formatLabel").selectedOptions[0].textContent,
+    taskLabel:$("taskLabel").value.trim() || "Notebook Task",
+    includeTemplates:$("includeTemplates").checked,
+    includePlanner:$("includePlanner").checked,
+    includeSmart:$("includeSmart").checked,
+    includeStickers:$("includeStickers").checked,
+    edition:notebookModeMeta($("notebookType").value).study ? "Hyperlinked PDF for notes, planning, AI study support, and smart calendar shortcuts" : "Hyperlinked PDF for notes, planning, AI tools, and smart calendar shortcuts",
+    totalPages:0
+  };
+}
+
+function collectEntries(c){
+  const meta = notebookModeMeta(c.notebookType);
+  const entries = [
+    {group:"Start Here",id:"cover",title:"Cover",label:"Start"},
+    {group:"Start Here",id:"index",title:"Index",label:"Links"},
+    {group:"Start Here",id:"dashboard",title:"Dashboard",label:"Overview"},
+    {group:"Start Here",id:"student-setup",title:meta.setupTitle,label:"Setup"},
+    {group:"Navigation",id:"sections",title:meta.indexTitle,label:`${c.sectionCount} ${meta.navLabel.toLowerCase()}`}
+  ];
+  if(c.includeTemplates) entries.push({group:"Navigation",id:"templates",title:"Template Library",label:`${activeTemplates(c).length} pages`});
+  if(c.includePlanner) entries.push({group:"Navigation",id:"planner-hub",title:"Planner Hub",label:"Pages"});
+  if(c.includeSmart) entries.push({group:"Navigation",id:"smart-hub",title:"AI Hub",label:"Links"});
+  if(c.includeStickers) entries.push({group:"Navigation",id:"stickers",title:"Sticker Sheet",label:"Extras"});
+  entries.push({group:"Navigation",id:"duplicate-guide",title:"Duplicate Pages Guide",label:"Pages"});
+  if(c.includeSmart) entries.push({group:"Navigation",id:"instructions",title:"Shortcut Instructions",label:"Setup"});
+
+  sectionNames(c).forEach((name,i)=>{
+    const sectionId = i + 1;
+    entries.push({group:"Binder Sections",id:`section-${sectionId}`,title:name,label:"Divider"});
+    for(let p=1;p<=c.pagesPerSection;p++){
+      entries.push({group:"Binder Sections",id:`section-${sectionId}-page-${p}`,title:`${name} Page ${p}`,label:"Note"});
+    }
+  });
+  if(c.includeTemplates){
+    activeTemplates(c).forEach(([id,title])=>entries.push({group:"Templates",id:`template-${id}`,title,label:"Template"}));
+  }
+  if(c.includePlanner && !c.includeTemplates){
+    plannerPages.forEach(([id,title])=>entries.push({group:"Planner Pages",id,title,label:"Plan"}));
+  }
+  return entries;
+}
+
+function generate(){
+  const c = config();
+  CURRENT = c;
+  const entries = collectEntries(c);
+  c.totalPages = entries.length;
+  let html = coverPage(c);
+  html += indexPage(entries);
+  html += dashboardPage(c);
+  html += studentSetupPage(c);
+  html += sectionsHub(c);
+  if(c.includeTemplates) html += templateLibraryPage(c);
+  if(c.includePlanner) html += plannerHubPage(c);
+  if(c.includeSmart) html += smartHubPage(c);
+  if(c.includeStickers) html += stickerPage(c);
+  html += duplicateGuidePage(c);
+  if(c.includeSmart) html += instructionsPage(c);
+
+  sectionNames(c).forEach((name,i)=>{
+    const sectionIndex = i + 1;
+    html += sectionDivider(sectionIndex, name, c);
+    for(let p=1;p<=c.pagesPerSection;p++) html += sectionNotePage(sectionIndex, name, p, c);
+  });
+  if(c.includeTemplates) activeTemplates(c).forEach(([id,title])=>html += templatePage(id,title));
+  if(c.includePlanner && !c.includeTemplates) plannerPages.forEach(([id,title,kind])=>html += plannerTemplatePage(id,title,kind));
+
+  notebook.innerHTML = html;
+  const sizes = {ipad:"8.5in 11.333in", letter:"letter", a4:"A4"};
+  $("pageSizeRule").textContent = `@page{size:${sizes[c.formatLabel] || sizes.ipad}}`;
+  const themeName = document.querySelector(".chip.active")?.textContent.trim() || "Graphite";
+  const clean = (s)=>String(s).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/['’]/g,"").replace(/[^A-Za-z0-9 ]+/g," ").split(/\s+/).filter(Boolean).map(w=>/[A-Z]/.test(w) ? w : w[0].toUpperCase()+w.slice(1)).join("");
+  document.title = [c.title, themeName, c.formatName].map(clean).filter(Boolean).join("-");
+}
+
+document.querySelectorAll("[data-theme]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll("[data-theme]").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.body.className = "theme-" + btn.dataset.theme;
+    generate();
+  });
+});
+const modeDefaults = {
+  student:{title:"Smart Study Notebook", task:"Notebook Study Task"},
+  work:{title:"Smart Work Notebook", task:"Notebook Work Task"},
+  personal:{title:"Smart Personal Notebook", task:"Notebook Task"},
+  teacher:{title:"Smart Teacher Notebook", task:"Teacher Planning Task"},
+  nursing:{title:"Smart Nursing Notebook", task:"Nursing Study Task"},
+  medical:{title:"Smart Medical Notebook", task:"Medical Study Task"},
+  health:{title:"Smart Health Sciences Notebook", task:"Health Sciences Study Task"}
+};
+$("notebookType").addEventListener("change",()=>{
+  const d = modeDefaults[$("notebookType").value];
+  const isDefault = (id,key)=>{const v=$(id).value.trim();return !v || Object.values(modeDefaults).some(m=>m[key]===v);};
+  if(isDefault("notebookTitle","title")) $("notebookTitle").value = d.title;
+  if(isDefault("taskLabel","task")) $("taskLabel").value = d.task;
+});
+document.querySelectorAll("input,select,textarea").forEach(el=>el.addEventListener("change",generate));
+["notebookTitle","ownerLabel","taskLabel","customNames"].forEach(id=>$(id).addEventListener("input",generate));
+$("sectionMode").addEventListener("change",()=>{$("customNamesField").hidden = $("sectionMode").value !== "custom";});
+$("regenerate").addEventListener("click",generate);
+generate();
+</script>
+</body>
+</html>
