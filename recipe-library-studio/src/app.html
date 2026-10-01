@@ -714,7 +714,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
 
 .rank{display:grid;gap:var(--s2)}
 .rank-row{display:grid;grid-template-columns:24px 1fr auto;gap:var(--s3);align-items:center;font-size:13px}
-.src-seg{margin-bottom:var(--s4)}.src-name{display:flex;align-items:center;gap:8px;min-width:0}.src-name .clamp{min-width:0}.src-name .pill svg{width:11px;height:11px}
+.src-seg{margin-bottom:var(--s4)}.src-name{display:flex;align-items:center;gap:8px;min-width:0}.src-name .clamp{min-width:0}.src-seg button{display:inline-flex;align-items:center;gap:6px}.src-mark{display:inline-grid;place-items:center;flex:none;width:18px;height:18px;border-radius:50%}.src-mark svg{width:11px;height:11px;stroke-width:2.6}.src-mark.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.src-mark.no{background:color-mix(in srgb,var(--over) 14%,transparent);color:var(--over)}.src-mark.unk{background:var(--sunk);color:var(--ink-3);font:700 11px var(--num)}.src-mark.own{width:18px}
 .rank-row i{font:700 11px var(--num);color:var(--ink-3);font-style:normal}
 .rank-bar{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden;margin-top:4px}.rank-bar b{display:block;height:100%;background:var(--accent)}
 .mini-list .row button{text-align:left;font-weight:600}.mini-list .row button:hover{color:var(--accent)}
@@ -1466,13 +1466,14 @@ function siteStatus(host,recipes=[]){if(!host)return 'own';const u='https://'+ho
  if(hardSite(u)||state.siteBlocks?.[host])return 'paste';
  if(SITES.good.some(([,l])=>l.some(x=>siteMatch(host,[x[1]])))||state.mySites?.[host]||recipes.some(r=>r.sourceUrl&&!r.pasted))return 'link';
  return 'unknown';}
-const SRC_LABEL={link:['Imports by link','good',ico('check')],paste:['Paste only','warn',ico('paste')],unknown:['Not checked yet','',''],own:['Your own','','']};
+const SRC_MARK={link:['Imports by link','ok','check'],paste:['Doesn’t import: paste the page','no','cross'],unknown:['Not checked yet','unk','help']};
+const srcMark=st=>{const m=SRC_MARK[st];return m?`<span class="src-mark ${m[1]}" title="${m[0]}" aria-label="${m[0]}">${m[2]==='help'?'?':ico(m[2])}</span>`:'<span class="src-mark own" aria-hidden="true"></span>';};
 let srcFilter='all';
 function srcCard(bySite){const counts={link:0,paste:0,unknown:0};bySite.forEach(x=>{if(counts[x[2]]!=null)counts[x[2]]++;});
  const rows=bySite.filter(x=>srcFilter==='all'||x[2]===srcFilter),max=Math.max(1,...rows.map(x=>x[1]));
- const seg=[['all','All'],['link','Imports by link'],['paste','Paste only'],['unknown','Not checked']].filter(([k])=>k==='all'||counts[k]).map(([k,l])=>`<button type="button" data-action="src-filter" data-v="${k}" aria-pressed="${srcFilter===k}">${l}${k!=='all'?` <span class="dim">${counts[k]}</span>`:''}</button>`).join('');
- return `<section class="card">${cardhead('Where your recipes come from','Whether each website imports by link or needs the page pasted.','globe')}<div class="segment src-seg" role="group" aria-label="Filter websites">${seg}</div>
- <div class="rank src-rank">${rows.slice(0,8).map(([s,n,st,h],i)=>{const [l,c,ic]=SRC_LABEL[st];return `<div class="rank-row"><i>${pad(i+1)}</i><div><span class="src-name"><span class="clamp">${esc(s)}</span>${st==='own'?'':`<span class="pill ${c}" title="${st==='paste'?'This website blocks automatic import: open the recipe, copy the page and use Paste the page text.':st==='unknown'?'Not tried by link yet. Check it under Add a recipe.':'Paste a link from this website and the whole recipe comes in.'}">${ic}${l}</span>`}</span><div class="rank-bar"><b style="width:${(n/max*100).toFixed(0)}%"></b></div></div><b class="number">${n}</b></div>`;}).join('')||`<p class="small dim">No websites in this group.</p>`}</div>
+ const seg=[['all','All',''],['link','Imports by link','link'],['paste','Doesn’t import','paste'],['unknown','Not checked','unknown']].filter(([k])=>k==='all'||counts[k]).map(([k,l,st])=>`<button type="button" data-action="src-filter" data-v="${k}" aria-pressed="${srcFilter===k}">${st?srcMark(st):''}${l}${k!=='all'?` <span class="dim">${counts[k]}</span>`:''}</button>`).join('');
+ return `<section class="card">${cardhead('Where your recipes come from','Tap a mark to show only those websites.','globe')}<div class="segment src-seg" role="group" aria-label="Filter websites">${seg}</div>
+ <div class="rank src-rank">${rows.slice(0,8).map(([s,n,st,h],i)=>{return `<div class="rank-row"><i>${pad(i+1)}</i><div><span class="src-name">${srcMark(st)}<span class="clamp">${esc(s)}</span></span><div class="rank-bar"><b style="width:${(n/max*100).toFixed(0)}%"></b></div></div><b class="number">${n}</b></div>`;}).join('')||`<p class="small dim">No websites in this group.</p>`}</div>
  ${rows.length>8?`<p class="small dim" style="margin-top:10px">${plural(rows.length-8,'more website')}</p>`:''}${counts.unknown&&srcFilter==='unknown'?`<div class="actions" style="margin-top:12px">${button(ico('check')+'Check a website','sites-go','small')}</div>`:''}</section>`;}
 function sitesRow(){const worked=workedHosts();
  const chip=([n,h,url])=>{const ok=[...worked.keys()].some(w=>siteMatch(w,[h]));return `<a class="site ${ok?'ok':''}" href="${url}" target="_blank" rel="noopener noreferrer" title="${ok?'You’ve imported from this site':'Tested with Recipe Library Studio'}">${ok?ico('check'):''}${esc(n)}</a>`;};

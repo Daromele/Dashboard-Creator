@@ -157,7 +157,7 @@ try {
   // where recipes come from: each website marked by how it imports, filterable
   await page.evaluate(() => { const add = (t, u, pasted='') => state.recipes.push(Logic.recipe({ title: t, sourceUrl: u, sourceName: hostOf(u), ingredients: ['x'], pasted })); add('Allrecipes One', 'https://www.allrecipes.com/recipe/1/', 'pasted text'); add('Unknown One', 'https://someblog.example/r/1', 'pasted text'); add('HF One', 'https://www.hellofresh.com/recipes/x'); srcFilter = 'all'; go('dashboard'); });
   const srcTxt = await page.textContent('.src-rank');
-  ok(srcTxt.includes('Paste only') && srcTxt.includes('Imports by link') && srcTxt.includes('Not checked yet'), 'sources show how each website imports: ' + srcTxt.replace(/\s+/g, ' '));
+  ok((await page.$$('.src-rank .src-mark.ok')).length >= 2 && (await page.$$('.src-rank .src-mark.no')).length === 1 && (await page.$$('.src-rank .src-mark.unk')).length === 1, 'sources show how each website imports: ' + srcTxt.replace(/\s+/g, ' '));
   await page.click('[data-action="src-filter"][data-v="paste"]');
   ok((await page.$$('.src-rank .rank-row')).length === 1 && (await page.textContent('.src-rank')).includes('allrecipes.com'), 'sources filter to paste-only websites');
   await shot('n-sources');
