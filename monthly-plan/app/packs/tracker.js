@@ -23,7 +23,7 @@ const NICHE = {
   themes: ['fjord', 'sage', 'lavender', 'linen', 'blush', 'slate', 'night', 'midnight'],
   // autopilot: statements import themselves · offline: the app never goes online, not even for rates
   features: { goals: true, wealth: true, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, autopilot: true, offline: true },
-  settings: { hiddenNav: ['budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review'] },
+  settings: { hiddenNav: ['paychecks', 'budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review'] },
 
   groups: [
     { id: 'income', label: 'Money in', type: 'income' },
@@ -47,10 +47,11 @@ const NICHE = {
     ['kids-pets', 'Kids & pets', 'variable'], ['gifts', 'Gifts & donations', 'variable'], ['home', 'Home & garden', 'variable'], ['fees', 'Fees & interest charges', 'variable'],
     ['cash', 'Cash & ATM', 'variable'], ['people', 'Venmo, Zelle & checks', 'variable'], ['unsorted', 'Not sorted yet', 'variable'],
     ['emergency', 'Savings', 'savings'], ['investing', 'Investing & retirement', 'investment'],
-    ['card-payoff', 'Credit card payments', 'transfer'], ['own-transfer', 'Transfers between my accounts', 'transfer'], ['platform-payout', 'PayPal & app transfers', 'transfer'],
+    ['card-payoff', 'Credit card payments', 'transfer'], ['own-transfer', 'Transfers between my accounts', 'transfer'], ['platform-payout', 'PayPal & app transfers', 'transfer'], ['inside-investing', 'Inside investment accounts', 'transfer'],
   ],
   // the categories the Autopilot falls back on
-  autopilot: { payoff: 'card-payoff', transfer: 'own-transfer', salary: 'salary', interest: 'interest', otherIncome: 'other-income', unsorted: 'unsorted', people: 'people' },
+  // savings: money moved to savings · investing: money moved to brokerage or retirement · invested: what happens inside those accounts
+  autopilot: { savings: 'emergency', investing: 'investing', invested: 'inside-investing', payoff: 'card-payoff', transfer: 'own-transfer', salary: 'salary', interest: 'interest', otherIncome: 'other-income', unsorted: 'unsorted', people: 'people' },
   // known merchants: [pattern on the lower-case description, category, the name shown]. First match wins,
   // so the specific ones ("amazon prime") come before the general ones ("amazon").
   merchantDict: [
@@ -127,10 +128,10 @@ const NICHE = {
   aliases: { coffee: 'dining', lunch: 'dining', dinner: 'dining', restaurant: 'dining', groceries: 'groceries', grocery: 'groceries', rent: 'housing', mortgage: 'housing', gas: 'transport', uber: 'transport', salary: 'salary', paycheck: 'salary', netflix: 'streaming', spotify: 'streaming', gym: 'memberships', amazon: 'shopping' },
 
   nav: [['dashboard', 'Money picture', 'today'], ['activity', 'Transactions', 'log'], ['recurring', 'Subscriptions & bills', 'calendar'],
-    ['annual', 'Year at a glance', 'insights'], ['insights', 'Insights', 'spark'], ['import', 'Add statements', 'up'], ['inbox', 'Needs a look', 'check'], ['budget', 'Spending limits', 'plan'], ['goals', 'Savings & goals', 'umbrella'], ['scheduled', 'Reminders', 'history'],
+    ['annual', 'Year at a glance', 'insights'], ['invest', 'Savings & investments', 'umbrella'], ['paychecks', 'Paychecks', 'coins'], ['insights', 'Insights', 'spark'], ['import', 'Add statements', 'up'], ['inbox', 'Needs a look', 'check'], ['budget', 'Spending limits', 'plan'], ['goals', 'Savings & goals', 'umbrella'], ['scheduled', 'Reminders', 'history'],
     ['calendar', 'Calendar', 'calendar'], ['wealth', 'Net worth', 'outlook'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
-  optionalNav: ['recurring', 'annual', 'insights', 'budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review', 'guide'],
-  navGroups: [['Your money', ['dashboard', 'activity', 'recurring', 'annual', 'insights']], ['Autopilot', ['import', 'inbox']], ['Plan (optional)', ['budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review']]],
+  optionalNav: ['recurring', 'annual', 'invest', 'paychecks', 'insights', 'budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review', 'guide'],
+  navGroups: [['Your money', ['dashboard', 'activity', 'recurring', 'annual', 'invest', 'paychecks', 'insights']], ['Autopilot', ['import', 'inbox']], ['Plan (optional)', ['budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review']]],
   navGroupRest: 'Make it yours',
 
   labels: {
@@ -170,6 +171,8 @@ const NICHE = {
       ['Why aren’t card payments counted?', 'Your card purchases are already counted as spending. The payment from checking to the card is the same money moving between your own accounts, so counting it again would double your spending. The Autopilot pairs the payment on both sides and leaves it out of every total.'],
       ['What if it sorts something wrong?', 'Change the category on the transaction. You’re asked whether to change the others from the same place and remember it for next time. Your choice always wins over the built-in list.'],
       ['What if I add the same month twice?', 'Transactions already in the app are skipped, even when two statements overlap by a few days. Two identical purchases on the same day in one file are both kept.'],
+      ['Savings, brokerage and retirement accounts', 'Drop their files in with the rest. A savings account’s transactions CSV works like checking: money moved there from checking counts as <b>saved</b>, not spent. From a brokerage or IRA (Fidelity, Vanguard, Schwab…), the <b>positions</b> or <b>holdings</b> download gives each account’s balance, and the <b>activity</b> download adds contributions, dividends and fees; nothing inside those accounts counts as spending. A 401(k) that only offers PDFs: open <b>Savings & investments</b> and type its balance with <b>Update balance</b> each quarter.'],
+      ['Gross pay, taxes and retirement (Paychecks)', 'Your bank only sees take-home pay. Switch on <b>Paychecks</b> in Settings › Simplify your sidebar, then enter one recent pay stub per employer: gross pay, taxes, 401(k), insurance and the rest. Every paycheck for that take-home amount is broken down by itself; a bonus or overtime check is estimated from it until you enter its own stub.'],
       ['Is my data really private?', 'Yes. The app is a single file that runs in your browser with no internet connection. Your data is saved in this browser on this computer. Download a backup now and then, or choose a backup folder, so a cleared browser can’t take it with it.'],
     ],
   },
@@ -185,10 +188,10 @@ const NICHE = {
     // a year of a two-account household, the way their statements would read
     extras(s, { m, year, now, uid }) {
       const A = { chk: 'acc-chk', card: 'acc-card', amex: 'acc-amex', sav: 'acc-sav' };
-      s.accounts = [{ id: A.chk, name: 'Checking ••4410', kind: 'bank' }, { id: A.card, name: 'Chase ••5471', kind: 'card' }, { id: A.amex, name: 'Amex ••1009', kind: 'card' }, { id: A.sav, name: 'Savings ••7720', kind: 'bank' }];
+      s.accounts = [{ id: A.chk, name: 'Checking ••4410', kind: 'bank' }, { id: A.card, name: 'Chase ••5471', kind: 'card' }, { id: A.amex, name: 'Amex ••1009', kind: 'card' }, { id: A.sav, name: 'Ally Savings ••7720', kind: 'savings' }, { id: 'acc-brk', name: 'Fidelity Individual ••5678', kind: 'invest' }, { id: 'acc-401k', name: 'Acme 401(k)', kind: 'retire' }];
       const tx = (date, category, amount, note, acct, why = 'merchant', look = false) => { if (date <= now) s.transactions.push({ id: uid(), date, category, amount, note, acct, auto: { why, ...(look ? { look: true } : {}) } }); };
       const d = (mo, day) => `${year}-${String(mo).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const last = +m.slice(5, 7);
+      const last = +m.slice(5, 7), bal = { sav: [], brk: [], k: [] };
       for (let mo = 1; mo <= last; mo++) {
         const w = mo % 3, card = {};
         const buy = (day, cat, amt, note, acct = A.card) => { tx(d(mo, day), cat, amt, note, acct); card[acct] = (card[acct] || 0) + amt; };
@@ -207,12 +210,18 @@ const NICHE = {
         if (mo % 2) buy(28, 'entertainment', 3200, 'AMC Theatres', A.amex);
         if (mo === 7) { buy(3, 'travel', 46800, 'Flights', A.amex); buy(19, 'travel', 61200, 'Airbnb', A.amex); }
         if (mo === 4) tx(d(mo, 12), 'shopping', -3999, 'Amazon', A.amex, 'refund');
-        tx(d(mo, 16), 'emergency', 40000, 'Transfer to Savings', A.chk, 'transfer');
+        tx(d(mo, 16), 'emergency', 40000, 'Transfer to Savings', A.chk, 'transfer'); tx(d(mo, 16), 'own-transfer', -40000, 'Transfer from Checking', A.sav, 'transfer'); tx(d(mo, 28), 'interest', 1150 + mo * 140, 'Interest Paid', A.sav, 'interest');
+        tx(d(mo, 3), 'investing', 25000, 'Fidelity', A.chk, 'transfer'); tx(d(mo, 3), 'inside-investing', -25000, 'Electronic Funds Transfer Received', 'acc-brk', 'contribution'); if (mo % 3 === 0) tx(d(mo, 27), 'inside-investing', -4130 - mo * 60, 'Dividend Received', 'acc-brk', 'dividend');
+        // month-end balances, as the statements would show them
+        const end = d(mo, 28); if (end <= now) { bal.sav.push({ date: end, value: 640000 + mo * 41300 + mo * mo * 90, how: 'file' }); bal.brk.push({ date: end, value: 1820000 + mo * 25000 + Math.round(Math.sin(mo) * 60000) + mo * 9000, how: 'file' }); if (mo % 3 === 0) bal.k.push({ date: d(mo, 28), value: 4100000 + mo * 108000 + (mo === 6 ? -90000 : 0), how: 'manual' }); }
         // the cards are paid in full from checking a few days after the statement closes: paired, not counted
         Object.entries(card).forEach(([acct, sum], i) => { const day = 27 - i * 2; tx(d(mo, day), 'card-payoff', sum, acct === A.amex ? 'Amex Epayment' : 'Chase Card Autopay', A.chk, 'card payment'); tx(d(mo, day), 'card-payoff', -sum, 'Payment Thank You', acct, 'card payment'); });
         // the sample opens on the last full month early in a month: a couple of unclear ones wait there
         if (mo === (+now.slice(8, 10) < 10 && last > 1 ? last - 1 : last)) { tx(d(mo, 9), 'people', 6000, 'Venmo', A.chk, 'guess', true); tx(d(mo, 3), 'unsorted', 2750, 'Blue Door Studio', A.card, 'guess', true); tx(d(mo, 14), 'people', 12000, 'Zelle', A.chk, 'guess', true); }
       }
+      // the usual pay stub behind each $3,120 deposit (Paychecks tab)
+      s.payStubs = { usual: { 'acme corp payroll': { name: 'Acme Corp Payroll', gross: 447000, lines: { fed: 45000, state: 17000, ss: 27900, medicare: 6500, k401: 27000, health: 9600, hsa: 2000 } } }, exact: {} };
+      s.balances = { [A.chk]: [{ date: d(last > 1 ? last - 1 : 1, 28), value: 412700, how: 'file' }], [A.sav]: bal.sav, 'acc-brk': bal.brk, 'acc-401k': bal.k };
       s.categoryRules = { 'rent': 'housing' };
       // nothing here is budgeted, so no month is closed
       Object.values(s.months).forEach(x => { x.closed = false; });

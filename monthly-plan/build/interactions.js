@@ -2,9 +2,11 @@
 //   node interactions.js <screenshot dir>
 const {chromium}=require('/opt/node22/lib/node_modules/playwright');const OUT=process.argv[2];
 const ok=(n,c,x='')=>{console.log((c?'ok   ':'FAIL ')+n+(c?'':' '+x));if(!c)process.exitCode=1;};
+// the samples fill the current month up to today; on the 1st it is nearly empty, so run on the 20th
+const MID=new Date(); MID.setDate(20); MID.setHours(12,0,0,0);
 (async()=>{const b=await chromium.launch();
 for(const [f,key,tag] of [['MonthlyBudgetPlanner.html','jps-monthly-plan','mp'],['ProfitPlanBusiness.html','jps-profit-plan','pp'],['CreatorPlan.html','jps-creator-plan','cp']]){
-const p=await b.newPage({viewport:{width:1360,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));const F='file:///home/user/Dashboard-Creator/monthly-plan/app/'+f;
+const p=await b.newPage({viewport:{width:1360,height:1000}});await p.clock.setFixedTime(MID);const errs=[];p.on('pageerror',e=>errs.push(e.message));const F='file:///home/user/Dashboard-Creator/monthly-plan/app/'+f;
 await p.goto(F);await p.evaluate(k=>{localStorage.setItem(k+'-welcome-v1','1');localStorage.setItem(k+'-manual-backup',String(Date.now()));},key);await p.goto(F);await p.waitForTimeout(300);
 await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());await p.waitForTimeout(300);
 // KPI → filtered list whose total matches

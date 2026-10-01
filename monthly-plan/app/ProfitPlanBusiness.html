@@ -1475,6 +1475,7 @@ table.ap-look select{min-width:190px}table.ap-look td small{display:block}.num.p
 .ap-acct-name{min-width:150px}
 .ap-report{margin-bottom:var(--s4)}
 table.ap-rec td small,.ap-report td small{display:block}
+.ap-stub-net{margin:14px 0 4px;font-size:15px}.ap-stub-net.warn{color:var(--over)}
 .gestor-preview{background:var(--sunk);border-radius:var(--r-md);padding:24px;overflow-x:auto;min-width:0;max-width:100%}
 .gestor-doc{--gd-ink:#1b1b1f;--gd-dim:#5f6168;--gd-rule:#d9dade;background:#fff;color:var(--gd-ink);max-width:1100px;min-width:1070px;margin:0 auto;padding:36px 40px;box-shadow:0 2px 14px rgba(0,0,0,.08);font-size:12px;line-height:1.45}
 .gestor-doc h1{font-size:24px;margin:2px 0 4px;color:var(--gd-ink)}.gestor-doc h2{font-size:14px;margin:22px 0 8px;color:var(--gd-ink);letter-spacing:0}.gestor-doc a{color:#1a56b8}
@@ -2087,10 +2088,15 @@ const Budget = ((P) => {
     }
     // Autopilot: the accounts statements come from, and how each entry was sorted
     if(s.accounts!==undefined||s.importFiles!==undefined){if(!Array.isArray(s.accounts))s.accounts=[];const seenA=new Set();
-     s.accounts=s.accounts.filter(a=>object(a)&&id(a.id)&&!seenA.has(a.id)&&str(a.name,40)&&a.name.trim()&&['card','bank'].includes(a.kind)&&seenA.add(a.id)).slice(0,40);
+     s.accounts=s.accounts.filter(a=>object(a)&&id(a.id)&&!seenA.has(a.id)&&str(a.name,40)&&a.name.trim()&&['card','bank','savings','invest','retire'].includes(a.kind)&&seenA.add(a.id)).slice(0,40);
      if(!object(s.importFiles))s.importFiles={};Object.entries(s.importFiles).forEach(([k,v])=>{if(!str(k,40)||!object(v)||!seenA.has(v.acct)||typeof v.flip!=='boolean')delete s.importFiles[k];});}
     {const accIds=new Set((s.accounts||[]).map(a=>a.id));s.transactions.forEach(t=>{if(t.acct!==undefined&&!accIds.has(t.acct))delete t.acct;if(t.raw!==undefined&&!str(t.raw,200))delete t.raw;
      if(t.auto!==undefined){if(!object(t.auto)||!str(t.auto.why,30))delete t.auto;else{if(t.auto.look!==undefined&&t.auto.look!==true)delete t.auto.look;Object.keys(t.auto).forEach(k=>{if(!['why','look','pair','batch'].includes(k))delete t.auto[k];});['pair','batch'].forEach(k=>{if(t.auto[k]!==undefined&&!id(t.auto[k]))delete t.auto[k];});}}});
+     if(s.balances!==undefined){if(!object(s.balances))s.balances={};Object.keys(s.balances).forEach(k=>{const l=s.balances[k];if(!accIds.has(k)||!Array.isArray(l)){delete s.balances[k];return;}
+      s.balances[k]=l.filter(b=>object(b)&&validDate(b.date)&&Number.isSafeInteger(b.value)&&Math.abs(b.value)<=1e12&&['file','manual'].includes(b.how)).sort((a,b)=>a.date.localeCompare(b.date)).slice(-400);});}
+     if(s.payStubs!==undefined){const P0=s.payStubs,ok=x=>object(x)&&Number.isSafeInteger(x.gross)&&x.gross>0&&x.gross<=1e10&&object(x.lines)&&Object.entries(x.lines).every(([k,v])=>['fed','state','local','ss','medicare','k401','roth','health','hsa','fsa','other'].includes(k)&&Number.isSafeInteger(v)&&v>=0&&v<=x.gross);
+      if(!object(P0)){s.payStubs={usual:{},exact:{}};}else{if(!object(P0.usual))P0.usual={};if(!object(P0.exact))P0.exact={};const tx=new Set(s.transactions.map(t=>t.id));
+       Object.entries(P0.usual).forEach(([k,v])=>{if(!str(k,80)||!ok(v)||!str(v.name||'',40))delete P0.usual[k];});Object.entries(P0.exact).forEach(([k,v])=>{if(!tx.has(k)||!ok(v))delete P0.exact[k];});Object.keys(P0).forEach(k=>{if(!['usual','exact'].includes(k))delete P0[k];});}}
      if(s.importLog!==undefined){if(!Array.isArray(s.importLog))s.importLog=[];s.importLog=s.importLog.filter(l=>object(l)&&id(l.id)&&validDate(l.date)&&Array.isArray(l.files)&&l.files.every(f=>str(f,80))&&Number.isInteger(l.count)).slice(0,60);}}
     // money in another currency keeps its original amount; rates and platforms you import are remembered.
     // A bad value is dropped, never fatal, so an older or hand-edited backup always restores.
@@ -2692,6 +2698,12 @@ const Autopilot = (()=>{
   if(issuer)return `${nice(issuer)}${last4&&!/^(19|20)\d\d$/.test(last4)?' ••'+last4:''}`.slice(0,30);
   const words=base.replace(/[\d_()-]+/g,' ').replace(/\b(activity|transactions?|statement|export|download|history|stmt|csv)\b/gi,' ').replace(/\s+/g,' ').trim();
   return ((words?nice(words):'Account')+(last4?' ••'+last4:'')).slice(0,30);}
+ // savings, brokerage and retirement accounts, by name or by the columns of their files
+ const RETIRE=/(401\s?\(?k\)?|403\s?\(?b\)?|457\s?\(?b\)?|\bira\b|\broth\b|rollover|retirement|\btsp\b|pension|\bsep\b)/i;
+ const INVEST=/(brokerage|individual|joint|fidelity|vanguard|schwab|e\*?trade|robinhood|merrill|investment|invest|portfolio|positions|holdings|betterment|wealthfront|webull|m1 finance|stash|acorns|interactive brokers|ameritrade)/i;
+ const SAVINGS=/(savings|\bhysa\b|high.?yield|money market|\bmma\b|\bcd\b)/i;
+ const VALUE_COL=/^(current value|market value|total value|value|market value \(\$\)|ending value|current balance|balance|total balance)$/i;
+ const kindFrom=(text,H=[])=>RETIRE.test(text)?'retire':H.some(h=>/^(symbol|ticker|quantity|shares|price|share price|last price)$/i.test(h))||INVEST.test(text)&&!/checking/i.test(text)?'invest':SAVINGS.test(text)?'savings':'';
  const PAYMENT_IN=/(payment thank you|\bpymt\b|\bpmt\b|thank you for (your )?payment|autopay(ment)? payment|automatic payment|payment received|online payment|mobile payment|electronic payment|internet payment|payment - thank|epayment|ach payment|^payment$|^pymt)/i;
  // decide the whole file from its columns and rows: dates, money direction, kind of account
  function read(text,name,C,mem){
@@ -2700,32 +2712,62 @@ const Autopilot = (()=>{
   if(hi<0)throw Error('The date, description and amount columns weren’t found. Check that it is a CSV download of transactions.');
   const H=parsed[hi].cells.map(h=>String(h).trim());
   // the merchant's line wins over a Details or Type column (Chase checking has both)
-  {const dc=H.findIndex(h=>/^(description|transaction description|original description|merchant|merchant name|payee|name)$/i.test(h));if(dc>=0)g.note=dc;}
   const body=parsed.slice(hi+1).filter(r=>r.cells.some(c=>String(c).trim())),cell=(r,i)=>i>=0?String(r.cells[i]??'').trim():'';
+  // the merchant's line wins over a Details or Type column (Chase checking has both), but only a column that has text
+  // (a brokerage's Description can be empty while Action says what happened)
+  {const filled=i=>i>=0&&body.filter(r=>cell(r,i)).length>=body.length*0.5,pickCol=re=>H.findIndex((h,i)=>re.test(h)&&filled(i));
+   const dc=pickCol(/^(description|transaction description|original description|merchant|merchant name|payee|name)$/i);
+   if(dc>=0)g.note=dc;else if(!filled(g.note)){const alt=pickCol(/^(action|activity|transaction|transaction type|details|type|memo)$/i);if(alt>=0)g.note=alt;}}
   // a Type column ("Sale", "Payment", "Debit") is not a category
   const catCol=g.category>=0&&!/^type$/i.test(H[g.category])?g.category:H.findIndex(h=>/^category$/i.test(h));
   const typeCol=H.findIndex(h=>/^(type|transaction type|details)$/i.test(h));
   const order=C.detectOrder(body.map(r=>cell(r,g.date))),dec=C.detectDecimal(body.flatMap(r=>[cell(r,g.amount),cell(r,g.debit),cell(r,g.credit)]).filter(Boolean))||'dot';
   const num=v=>{if(!v)return 0;try{return C.money(v,dec,true)||0;}catch{return null;}};
   let bad=0;const rows=[];
+  const balCol=H.findIndex(h=>/^(balance|running bal(ance)?\.?|ledger balance|account balance)$/i.test(h));
   body.forEach(r=>{let d;try{d=C.date(cell(r,g.date),order||'auto');}catch{bad++;return;}
    const split=!(g.amount>=0)||(g.debit>=0&&g.credit>=0&&!cell(r,g.amount));
    const v=split?(num(cell(r,g.credit))??0)-Math.abs(num(cell(r,g.debit))??0):num(cell(r,g.amount));
    const desc=mask(cell(r,g.note)).slice(0,200);
    if(v===null){bad++;return;}if(!v||!desc||/\b(beginning|starting|opening|ending|closing) balance\b/i.test(desc))return;
-   rows.push({date:d,desc,v,bankCat:cell(r,catCol).slice(0,60),type:cell(r,typeCol).slice(0,30),line:r.line});});
+   rows.push({date:d,desc,v,bankCat:cell(r,catCol).slice(0,60),type:cell(r,typeCol).slice(0,30),line:r.line,...(balCol>=0&&cell(r,balCol)&&num(cell(r,balCol))!==null?{bal:num(cell(r,balCol))}:{})});});
   if(!rows.length)throw Error(bad?'No dated amounts could be read in this file.':'This file has no transactions.');
   const all=(parsed.slice(0,hi+1).map(r=>r.cells.join(' ')).join(' ')+' '+name);
   // which way money runs: most lines in any statement are spending, so the usual sign is "out"
   const single=g.amount>=0&&!(g.debit>=0&&g.credit>=0),pos=rows.filter(x=>x.v>0).length;
-  let flip=mem?.flip??(single&&pos>rows.length*0.6);
+  // a running balance settles it: it grows by a positive amount unless the file shows spending as positive
+  const all0=(parsed.slice(0,hi+1).map(r=>r.cells.join(' ')).join(' ')+' '+name),wealthy=['savings','invest','retire'].includes(kindFrom(all0,H));
+  const bals=rows.filter(x=>x.bal!==undefined);let byBal=null;
+  if(bals.length>=2){let same=0,opp=0;for(let i=1;i<bals.length;i++){const a=bals[i-1],b=bals[i],d=b.bal-a.bal;if(d===b.v)same++;else if(d===-b.v)opp++;else if(-d===a.v)same++;else if(d===a.v)opp++;}if(same!==opp)byBal=opp>same;}
+  let flip=mem?.flip??byBal??(wealthy?false:single&&pos>rows.length*0.6);
   // a card statement: an issuer in the name, a card column, or "payment thank you" lines
   const payLines=rows.filter(x=>PAYMENT_IN.test(x.desc)||/^payment$/i.test(x.type)).length;
   // a running balance or check numbers mean a bank account, whoever the bank is
   const bankCols=H.some(h=>/balance|check or slip|check ?(no|number|#)/i.test(h));
   const card=mem?.kind?mem.kind==='card':bankCols?false:(ISSUER.test(name)&&!/checking|savings|debit/i.test(name))||H.some(h=>/^(card( no\.?| number| member)?|post(ed|ing)? date)$/i.test(h))||(payLines>0&&!H.some(h=>/balance/i.test(h)));
   rows.forEach(x=>{x.amount=flip?-x.v:x.v;delete x.v;});
-  return {rows,kind:card?'card':'bank',flip,order:order||'auto',bad,key:fileKey(name),account:mem?.account||accountName(name,all),headers:H};}
+  // the balance after the latest day: files run newest first or oldest first
+  const withBal=rows.filter(x=>x.bal!==undefined),latest=withBal.length?withBal.reduce((a,x)=>x.date>a.date?x:a):null;
+  const balance=latest?{date:latest.date,value:(rows[0].date>=rows.at(-1).date?withBal.find(x=>x.date===latest.date):[...withBal].reverse().find(x=>x.date===latest.date)).bal}:null;
+  const other=mem?.kind&&mem.kind!=='card'&&mem.kind!=='bank'?mem.kind:mem?.kind?'':kindFrom(name+' '+all,H);
+  return {rows,kind:other||(card?'card':'bank'),balance,flip,order:order||'auto',bad,key:fileKey(name),account:mem?.account||accountName(name,all),headers:H};}
+
+ // ---------- holdings: a positions or balances download is a balance, not transactions ----------
+ // returns one balance per account in the file (Fidelity lists every account in one file), or null
+ function holdings(text,name,C){const det=C.detect(text),parsed=C.parse(det.text,det.delimiter);let hi=-1;
+  for(let i=0;i<Math.min(parsed.length-1,25);i++){const H=parsed[i].cells.map(h=>String(h).trim());if(H.some(h=>VALUE_COL.test(h))&&H.some(h=>/^(symbol|ticker|description|investment name|fund name|holding|security|account name|account)$/i.test(h))&&!H.some(h=>/^(date|transaction date|posting date|trade date|run date|settlement date)$/i.test(h))){hi=i;break;}}
+  if(hi<0)return null;const H=parsed[hi].cells.map(h=>String(h).trim()),vc=H.findIndex(h=>VALUE_COL.test(h)),cell=(r,i)=>i>=0?String(r.cells[i]??'').trim():'';
+  const an=H.findIndex(h=>/^account name$/i.test(h)),ano=H.findIndex(h=>/^account( number| #)?$/i.test(h)),sym=H.findIndex(h=>/^(symbol|ticker|description|investment name|fund name|holding|security)$/i.test(h));
+  const body=parsed.slice(hi+1).filter(r=>r.cells.some(c=>String(c).trim())),dec=C.detectDecimal(body.map(r=>cell(r,vc)).filter(Boolean))||'dot',by=new Map();
+  body.forEach(r=>{const label=[cell(r,sym),cell(r,0)].join(' ');if(/\btotal\b|pending activity|^\s*$/i.test(label)&&!cell(r,sym))return;if(/\b(account )?total\b/i.test(cell(r,sym))||/\btotal\b/i.test(cell(r,0)))return;
+   let v;try{v=C.money(cell(r,vc),dec,true);}catch{return;}if(!v)return;
+   const nm=an>=0?cell(r,an):'',no=ano>=0?cell(r,ano).replace(/\D/g,'').slice(-4):'',k=nm+'|'+no;const x=by.get(k)||{name:nm,last4:no,value:0,positions:0};x.value+=v;x.positions++;by.set(k,x);});
+  if(!by.size)return null;
+  const m=String(name).match(/(20\d\d)[-_.]?(\d\d)[-_.]?(\d\d)/),fileDate=m&&+m[2]>=1&&+m[2]<=12&&+m[3]>=1&&+m[3]<=31?`${m[1]}-${m[2]}-${m[3]}`:'';
+  const base=accountName(name,parsed.slice(0,hi).map(r=>r.cells.join(' ')).join(' '));
+  return {date:fileDate,accounts:[...by.values()].map(x=>{const nice=n=>/[a-z]/.test(n)?n.replace(/\b[a-z]/g,c=>c.toUpperCase()):n.toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase()).replace(/\b(Ira|Hsa|Sep|Sep-ira|Ugma|Utma|Hysa|Cd)\b/g,w=>w.toUpperCase()).replace(/\b401\s?\(?k\)?/gi,'401(k)');
+   const label=(x.name?nice(x.name):base.replace(/\s*••\d{4}$/,''))+(x.last4?' ••'+x.last4:'');
+   return {account:label.slice(0,30),kind:kindFrom(label+' '+name)==='retire'?'retire':'invest',value:x.value,positions:x.positions,key:fileKey((x.name||name)+(x.last4?' '+x.last4:''))};})};}
 
  // ---------- categories ----------
  const CARD_PAY_OUT=/((chase|amex|american express|capital ?one|discover|citi|barclays|synchrony|apple ?card|gs ?bank|card|crd|cardmember|credit ?card|visa|mastercard)[^a-z]*(.{0,20})(pmt|payment|autopay|auto pay|epay|e-payment|online pay))|((payment|pmt|autopay|epay)[^a-z]+(.{0,12})(card|crd|amex|chase|discover|citi|capital ?one))|applecard/i;
@@ -2738,6 +2780,9 @@ const Autopilot = (()=>{
  // first match wins: transfers, your own rules, known merchants, the bank's category, then a sensible guess
  function classify(row,ctx){const t=norm(row.desc),out=row.amount<0,cats=ctx.cats,has=id=>id&&cats.has(id);
   const pick=(category,why,look=false)=>({category,why,look});
+  // inside a brokerage or retirement account nothing is spending or income: what it is still matters for the totals there
+  if(ctx.kind==='invest'||ctx.kind==='retire'){const role=/(dividend|reinvest|interest|capital gain|cap gain)/i.test(t)?'dividend':/(fee|advisory|expense ratio|commission)/i.test(t)?'fee':/(bought|\bbuy\b|purchase)/i.test(t)?'buy':/(sold|\bsell\b|sale)/i.test(t)?'sell':!out?'contribution':'withdrawal';return pick(ctx.invested||ctx.transfer,role);}
+  if(OWN_TRANSFER.test(t)&&/\bsav/i.test(t)&&ctx.savings&&ctx.kind!=='savings')return pick(ctx.savings,'transfer');
   if(ctx.kind==='card'&&!out&&(PAYMENT_IN.test(t)||/^payment$/i.test(row.type||'')))return pick(ctx.payoff,'card payment');
   if(ctx.kind==='bank'&&out&&CARD_PAY_OUT.test(t))return pick(ctx.payoff,'card payment');
   if(OWN_TRANSFER.test(t))return pick(ctx.transfer,'transfer');
@@ -2786,11 +2831,26 @@ const Autopilot = (()=>{
    const prev=days.at(-2),up=prev&&last.amount>prev.amount*1.05&&last.amount-prev.amount>=100?last.amount-prev.amount:0;
    found.push({key,name:last.name,category:last.category,cadence,count:days.length,avg,last:last.date,lastAmount:last.amount,next,perMonth,yearly:perMonth*12,fixed,active,up});}
   return found.sort((a,b)=>b.perMonth-a.perMonth);}
+ // ---------- paychecks: what the deposit doesn't show ----------
+ // a pay stub: gross pay less each deduction is the take-home that reaches the bank
+ const STUB_LINES=[['fed','Federal income tax','tax'],['state','State income tax','tax'],['local','Local tax','tax'],['ss','Social Security','tax'],['medicare','Medicare','tax'],
+  ['k401','401(k) / 403(b)','retire'],['roth','Roth 401(k)','retire'],['health','Health, dental & vision','benefit'],['hsa','HSA','benefit'],['fsa','FSA','benefit'],['other','Other deductions','other']];
+ const stubNet=x=>x.gross-STUB_LINES.reduce((n,[k])=>n+(x.lines?.[k]||0),0);
+ // a deposit's stub: the one you entered, your usual one when the take-home matches it, else the usual one
+ // scaled to this deposit (overtime, a bonus) and marked as an estimate; the parts always add up to the deposit
+ function paycheck(net,usual,exact){if(exact)return {gross:exact.gross,lines:{...exact.lines},net:stubNet(exact),how:'entered'};
+  if(!usual)return null;const un=stubNet(usual);if(un<=0)return null;
+  if(un===net)return {gross:usual.gross,lines:{...usual.lines},net,how:'usual'};
+  const f=net/un,lines={};STUB_LINES.forEach(([k])=>{if(usual.lines?.[k])lines[k]=Math.round(usual.lines[k]*f);});
+  return {gross:net+Object.values(lines).reduce((a,b)=>a+b,0),lines,net,how:'estimate'};}
+ // a year of stubs, summed by kind: taxes, retirement, benefits, other and take-home
+ function stubTotals(list){const t={gross:0,net:0,tax:0,retire:0,benefit:0,other:0,lines:{}};
+  list.forEach(x=>{t.gross+=x.gross;t.net+=x.net;STUB_LINES.forEach(([k,,kind])=>{const v=x.lines[k]||0;t[kind]+=v;t.lines[k]=(t.lines[k]||0)+v;});});return t;}
  // what classify needs from the edition and the planner: categories, your rules, the bank-category words
  function context(P,s,B,kind){const live=s.categories.filter(c=>!c.archived),cats=new Set(live.map(c=>c.id)),A=P.autopilot||{},H=P.importHints||{};
   const isIncome=id=>{const c=live.find(x=>x.id===id);return !!c&&B.type(c)==='income';};
-  return {kind,cats,dict:P.merchantDict||[],rule:name=>B.ruleFor(s,name),hint:v=>H[norm(v)]||H[norm(String(v).split(/[-/]/)[0])]||'',isIncome,...A};}
- return {norm,mask,merchant,keyOf,fileKey,accountName,read,classify,context,pairs,recurring,PAYMENT_IN,CARD_PAY_OUT,OWN_TRANSFER,dayNum};
+  return {kind,cats,dict:kind==='invest'||kind==='retire'?[]:P.merchantDict||[],rule:name=>B.ruleFor(s,name),hint:v=>H[norm(v)]||H[norm(String(v).split(/[-/]/)[0])]||'',isIncome,...A};}
+ return {norm,mask,merchant,keyOf,fileKey,accountName,read,holdings,kindFrom,classify,context,pairs,recurring,STUB_LINES,stubNet,paycheck,stubTotals,PAYMENT_IN,CARD_PAY_OUT,OWN_TRANSFER,dayNum};
 })();
 if(typeof module!=='undefined')module.exports=Autopilot;
 
@@ -5628,14 +5688,20 @@ const Auto=(()=>{
   try{return new TextDecoder(enc,{fatal:true}).decode(bytes).replace(/^﻿/,'');}catch{return new TextDecoder('windows-1252').decode(bytes);}}
  const uniqueName=(name,kind)=>{let n=name,i=2;while(accounts().some(a=>a.name===n&&a.kind!==kind)&&i<50)n=`${name} (${i++})`;return n;};
  // money that left one of your accounts and reached another: a card payment or a transfer, never spending
- const transferish=(t,acc)=>['card payment','transfer'].includes(t.auto?.why)||(acc?.kind==='card'&&flow(t)>0&&!['refund','merchant','your rule'].includes(t.auto?.why));
+ const WEALTH=['savings','invest','retire'];
+ const transferish=(t,acc)=>['card payment','transfer'].includes(t.auto?.why)||WEALTH.includes(acc?.kind)||(acc?.kind==='card'&&flow(t)>0&&!['refund','merchant','your rule'].includes(t.auto?.why));
  function pairUp(fresh){const ids=new Set(fresh.map(t=>t.id));if(!fresh.length)return 0;
   const from=Budget.plusDays(fresh.map(t=>t.date).sort()[0],-10),pool=[...state.transactions.filter(t=>t.acct&&t.date>=from&&!t.auto?.pair),...fresh];
   const rows=pool.map(t=>({acct:t.acct,date:t.date,amount:flow(t)}));let n=0;
   A.pairs(rows).forEach(([i,j])=>{const a=pool[i],b=pool[j];if(!ids.has(a.id)&&!ids.has(b.id))return;const aa=account(a.acct),bb=account(b.acct);
    if(!transferish(a,aa)&&!transferish(b,bb))return;
-   const cat=aa?.kind==='card'||bb?.kind==='card'?AP.payoff:AP.transfer,why=cat===AP.payoff?'card payment':'transfer';
-   [[a,b],[b,a]].forEach(([x,y])=>{const f=flow(x);x.category=cat;x.amount=stored(cat,f);x.auto={why,pair:y.id};});n++;});
+   // a card payment; money put into (or taken from) savings or investments, which counts as saved; or a plain transfer
+   const card=aa?.kind==='card'||bb?.kind==='card',wa=WEALTH.includes(aa?.kind),wb=WEALTH.includes(bb?.kind);
+   const set=(x,y,cat,why)=>{const f=flow(x);x.category=cat;x.amount=stored(cat,f);x.auto={why,pair:y.id};};
+   if(card){set(a,b,AP.payoff,'card payment');set(b,a,AP.payoff,'card payment');}
+   else if(wa!==wb){const [w,o]=wa?[a,b]:[b,a],kind=account(w.acct).kind,inside=kind==='savings'?AP.transfer:AP.invested;
+    set(o,w,kind==='savings'?AP.savings:AP.investing,'transfer');set(w,o,inside,kind==='savings'?'transfer':flow(w)>0?'contribution':'withdrawal');}
+   else{set(a,b,AP.transfer,'transfer');set(b,a,AP.transfer,'transfer');}n++;});
   return n;}
  async function importFiles(files){const res={files:[],added:0,dup:0,paired:0,look:0,last:'',batch:Budget.uid()},ready=[];
   for(const file of files){const F={name:file.name};
@@ -5643,17 +5709,22 @@ const Auto=(()=>{
     if(/\.(xlsx?|ofx|qfx|qbo)$/i.test(file.name))throw Error('Download the CSV version of this statement instead (in your bank’s download options).');
     if(file.size>10e6)throw Error('Files must be smaller than 10 MB.');
     F.text=await decode(file);const key=A.fileKey(file.name),mem=state.importFiles?.[key],acc=mem&&account(mem.acct);
+    // a positions or balances download (Fidelity, Vanguard, Schwab): balances, not transactions
+    const h=A.holdings(F.text,file.name,CSV);if(h){F.hold=h;ready.push(F);res.files.push(F);continue;}
     F.read=A.read(F.text,file.name,CSV,acc?{flip:mem.flip,kind:acc.kind,account:acc.name}:null);F.key=key;F.acc=acc;ready.push(F);
    }catch(e){F.error=e.message;}res.files.push(F);}
   if(!ready.length){report=res;render();return;}
-  if(state.transactions.length+ready.reduce((n,F)=>n+F.read.rows.length,0)>MAX_TRANSACTIONS){report={...res,files:res.files.map(F=>F.error?F:{...F,error:LIMIT_MESSAGE})};render();return;}
+  if(state.transactions.length+ready.reduce((n,F)=>n+(F.read?.rows.length||0),0)>MAX_TRANSACTIONS){report={...res,files:res.files.map(F=>F.error?F:{...F,error:LIMIT_MESSAGE})};render();return;}
   let msg='';
   commit(()=>{state.accounts??=[];state.importFiles??={};state.importLog??=[];
    const have=new Map();state.transactions.forEach(t=>{if(t.acct){const k=rowKey(t.acct,t.date,flow(t),t.raw||t.note);have.set(k,(have.get(k)||0)+1);}});
    const fresh=[];
-   ready.forEach(F=>{const f=F.read;let acct=F.acc?.id||accounts().find(a=>a.name===f.account&&a.kind===f.kind)?.id;
+   const addBal=(acct,date,value)=>{state.balances??={};const l=(state.balances[acct]||=[]).filter(b=>b.date!==date);l.push({date,value,how:'file'});l.sort((a,b)=>a.date.localeCompare(b.date));state.balances[acct]=l.slice(-400);};
+   ready.filter(F=>F.hold).forEach(F=>{const date=F.hold.date||Budget.today();F.balances=F.hold.accounts.map(x=>{const mem=state.importFiles[x.key];let acct=mem&&account(mem.acct)?mem.acct:accounts().find(a=>a.name===x.account)?.id;
+     if(!acct){acct=Budget.uid();state.accounts.push({id:acct,name:uniqueName(x.account,x.kind),kind:x.kind});}state.importFiles[x.key]={acct,flip:false};addBal(acct,date,x.value);return {account:account(acct).name,value:x.value,date};});res.balances=(res.balances||0)+F.balances.length;});
+   ready.filter(F=>F.read).forEach(F=>{const f=F.read;let acct=F.acc?.id||accounts().find(a=>a.name===f.account&&a.kind===f.kind)?.id;
     if(!acct){acct=Budget.uid();state.accounts.push({id:acct,name:uniqueName(f.account,f.kind),kind:f.kind});}
-    state.importFiles[F.key]={acct,flip:f.flip};
+    state.importFiles[F.key]={acct,flip:f.flip};if(f.balance)addBal(acct,f.balance.date,f.balance.value);
     const ctx=A.context(P,state,Budget,f.kind),here=new Map(),mine=[];let dup=0;
     f.rows.forEach(r=>{const k=rowKey(acct,r.date,r.amount,r.desc),n=(here.get(k)||0)+1;here.set(k,n);if(n<=(have.get(k)||0)){dup++;return;}
      const name=A.merchant(r.desc,ctx.dict),c=A.classify({...r,name},ctx);
@@ -5663,24 +5734,24 @@ const Auto=(()=>{
     Object.assign(F,{account:account(acct)?.name||f.account,kind:f.kind,added:mine.length,dup,from:dates[0],to:dates.at(-1),bad:f.bad});res.dup+=dup;});
    state.transactions.push(...fresh);res.paired=pairUp(fresh);res.added=fresh.length;res.look=fresh.filter(t=>t.auto?.look).length;
    if(fresh.length){res.last=fresh.map(t=>t.date).sort().at(-1);selected=res.last.slice(0,7);
-    state.importLog.unshift({id:res.batch,date:Budget.today(),files:ready.map(F=>F.name.slice(0,80)).slice(0,20),count:fresh.length});state.importLog=state.importLog.slice(0,60);}
-   report=res;msg=res.added?`${plural(res.added,'transaction')} added${res.look?` · ${res.look} need${res.look===1?'s':''} a look`:''}`:'Nothing new: every transaction is already here';},
+    state.importLog.unshift({id:res.batch,date:Budget.today(),files:ready.filter(F=>F.read).map(F=>F.name.slice(0,80)).slice(0,20),count:fresh.length});state.importLog=state.importLog.slice(0,60);}
+   report=res;msg=res.added?`${plural(res.added,'transaction')} added${res.look?` · ${res.look} need${res.look===1?'s':''} a look`:''}${res.balances?` · ${plural(res.balances,'balance')} updated`:''}`:res.balances?`${plural(res.balances,'balance')} updated`:'Nothing new: every transaction is already here';},
    // the message is only known once the import has run
    {toString:()=>msg});
  }
  // ---------- screens ----------
- const kindName=k=>k==='card'?'Card':'Bank account';
+ const KINDS=[['bank','Checking'],['card','Card'],['savings','Savings'],['invest','Brokerage'],['retire','Retirement']],kindName=k=>(KINDS.find(x=>x[0]===k)||KINDS[0])[1];
  function dropCard(big){return `<section class="card ap-drop${big?' is-big':''}" id="ap-drop" tabindex="0" aria-label="Drop statement files here"><div class="ap-drop-icon">${ico('up')}</div><h2>${big?'Drop all your statements here':'Drop more statements'}</h2><p>CSV downloads from your cards and bank accounts, as many as you like at once. They’re read on this computer and sorted by themselves.</p><div class="actions">${button('Choose files','ap-pick','primary')}${big?button('Explore sample data','demo','quiet'):''}</div><input type="file" id="ap-files" multiple accept=".csv,.tsv,.txt,text/csv,text/plain" hidden><p class="small muted ap-privacy">${ico('shield')} Nothing is uploaded. Long card and account numbers are hidden as soon as a file is read.</p></section>`;}
  function reportCard(){const r=report;if(!r)return '';const ok=r.files.filter(F=>!F.error),bad=r.files.filter(F=>F.error);
-  return `<section class="card ap-report"><div class="cardhead"><div><h2>${r.added?`${plural(r.added,'transaction')} added`:'Nothing new to add'}</h2><p>${[ok.length?plural(ok.length,'file')+' read':'',r.dup?`${r.dup} already here, skipped`:'',r.paired?`${plural(r.paired,'card payment or transfer','card payments and transfers')} paired`:'',r.look?`${r.look} need${r.look===1?'s':''} a look`:''].filter(Boolean).join(' · ')}</p></div><div class="actions">${r.look?button(`Review ${r.look}`,'go-inbox','small primary'):''}${r.added?button('See the money picture','go-dashboard','small'):''}${button('Close','ap-report-close','small quiet')}</div></div>`+
-   `<div class="table-wrap"><table><thead><tr><th>File</th><th>Account</th><th>Dates</th><th class="num">Added</th><th class="num">Already here</th></tr></thead><tbody>${ok.map(F=>`<tr><td><b>${esc(F.name)}</b>${F.bad?`<small class="warn">${F.bad} line${F.bad===1?'':'s'} couldn’t be read</small>`:''}</td><td>${esc(F.account)}<small class="dim">${kindName(F.kind)}</small></td><td class="nw">${F.from?dateName(F.from)+(F.to!==F.from?' – '+dateName(F.to):''):'—'}</td><td class="num">${F.added}</td><td class="num">${F.dup||'—'}</td></tr>`).join('')}${bad.map((F,i)=>`<tr><td><b>${esc(F.name)}</b><small class="warn">${esc(F.error)}</small></td><td colspan="3"></td><td class="num">${F.text?button('Map by hand','ap-map','small quiet',`data-i="${r.files.indexOf(F)}"`):''}</td></tr>`).join('')}</tbody></table></div></section>`;}
+  return `<section class="card ap-report"><div class="cardhead"><div><h2>${r.added?`${plural(r.added,'transaction')} added`:'Nothing new to add'}</h2><p>${[ok.length?plural(ok.length,'file')+' read':'',r.balances?plural(r.balances,'balance')+' updated':'',r.dup?`${r.dup} already here, skipped`:'',r.paired?`${plural(r.paired,'card payment or transfer','card payments and transfers')} paired`:'',r.look?`${r.look} need${r.look===1?'s':''} a look`:''].filter(Boolean).join(' · ')}</p></div><div class="actions">${r.look?button(`Review ${r.look}`,'go-inbox','small primary'):''}${r.added?button('See the money picture','go-dashboard','small'):''}${button('Close','ap-report-close','small quiet')}</div></div>`+
+   `<div class="table-wrap"><table><thead><tr><th>File</th><th>Account</th><th>Dates</th><th class="num">Added</th><th class="num">Already here</th></tr></thead><tbody>${ok.filter(F=>F.balances).map(F=>`<tr><td><b>${esc(F.name)}</b><small class="dim">Balances</small></td><td>${F.balances.map(x=>esc(x.account)).join('<br>')}</td><td class="nw">${dateName(F.balances[0].date)}</td><td class="num" colspan="2">${F.balances.map(x=>fmt(x.value)).join('<br>')}</td></tr>`).join('')}${ok.filter(F=>!F.balances).map(F=>`<tr><td><b>${esc(F.name)}</b>${F.bad?`<small class="warn">${F.bad} line${F.bad===1?'':'s'} couldn’t be read</small>`:''}</td><td>${esc(F.account)}<small class="dim">${kindName(F.kind)}</small></td><td class="nw">${F.from?dateName(F.from)+(F.to!==F.from?' – '+dateName(F.to):''):'—'}</td><td class="num">${F.added}</td><td class="num">${F.dup||'—'}</td></tr>`).join('')}${bad.map((F,i)=>`<tr><td><b>${esc(F.name)}</b><small class="warn">${esc(F.error)}</small></td><td colspan="3"></td><td class="num">${F.text?button('Map by hand','ap-map','small quiet',`data-i="${r.files.indexOf(F)}"`):''}</td></tr>`).join('')}</tbody></table></div></section>`;}
  function accountsCard(){const list=accounts();if(!list.length)return '';const now=Budget.today();
   return `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Your accounts</h2><p>Found from your files. Rename one to make it yours.</p></div></div><div class="table-wrap"><table><thead><tr><th>Account</th><th>Type</th><th>Latest transaction</th><th class="num">Transactions</th><th></th></tr></thead><tbody>${list.map(a=>{const tx=state.transactions.filter(t=>t.acct===a.id),last=tx.map(t=>t.date).sort().at(-1),stale=last&&Budget.plusDays(last,35)<now;
-   return `<tr><td><input class="ap-acct-name" data-acct="${a.id}" value="${esc(a.name)}" maxlength="30" aria-label="Account name"></td><td><select data-acct-kind="${a.id}" aria-label="Account type"><option value="card" ${a.kind==='card'?'selected':''}>Card</option><option value="bank" ${a.kind==='bank'?'selected':''}>Bank account</option></select></td><td class="nw">${last?dateName(last):'—'}${stale?'<small class="warn">Add a newer statement</small>':''}</td><td class="num">${tx.length}</td><td class="nw">${button('Remove','ap-acct-del','small quiet',`data-id="${a.id}"`)}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
+   return `<tr><td><input class="ap-acct-name" data-acct="${a.id}" value="${esc(a.name)}" maxlength="30" aria-label="Account name"></td><td><select data-acct-kind="${a.id}" aria-label="Account type">${KINDS.map(([k,l])=>`<option value="${k}" ${a.kind===k?'selected':''}>${l}</option>`).join('')}</select></td><td class="nw">${last?dateName(last):'—'}${stale?'<small class="warn">Add a newer statement</small>':''}</td><td class="num">${tx.length}</td><td class="nw">${button('Remove','ap-acct-del','small quiet',`data-id="${a.id}"`)}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
  function logCard(){const log=(state.importLog||[]).filter(l=>state.transactions.some(t=>t.auto?.batch===l.id));if(!log.length)return '';
   return `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Imports</h2><p>Delete one to bring its files in again.</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Files</th><th class="num">Transactions</th><th></th></tr></thead><tbody>${log.slice(0,15).map(l=>{const n=state.transactions.filter(t=>t.auto?.batch===l.id).length;return `<tr><td class="nw">${dateName(l.date)}</td><td>${l.files.map(esc).join('<br>')}</td><td class="num">${n}</td><td class="nw">${button('Delete import','ap-batch-del','small quiet',`data-id="${l.id}"`)}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
  function importScreen(){if(csvSession)return importView();
-  const tips=`<section class="card"><h2>Where to find the files</h2><div class="ap-steps"><div><b>1</b><span>Sign in to your bank or card website and open the account.</span></div><div><b>2</b><span>Find <b>Download</b> or <b>Export</b> on the transactions list (often a small arrow icon).</span></div><div><b>3</b><span>Choose <b>CSV</b> and a date range, then drop the file here.</span></div></div><p class="small muted">Works with Chase, Bank of America, Wells Fargo, Citi, Capital One, Amex, Discover, US Bank, Ally and most credit unions. Overlapping dates are fine: repeats are skipped. ${button('Map a file by hand','ap-manual','link')}</p></section>`;
+  const tips=`<section class="card"><h2>Where to find the files</h2><div class="ap-steps"><div><b>1</b><span>Sign in to your bank or card website and open the account.</span></div><div><b>2</b><span>Find <b>Download</b> or <b>Export</b> on the transactions list (often a small arrow icon).</span></div><div><b>3</b><span>Choose <b>CSV</b> and a date range, then drop the file here.</span></div></div><p class="small muted">Works with Chase, Bank of America, Wells Fargo, Citi, Capital One, Amex, Discover, US Bank, Ally and most credit unions. Savings accounts too, and from Fidelity, Vanguard, Schwab and other brokerages: the activity download and the positions (holdings) download, which gives the balance. Overlapping dates are fine: repeats are skipped. ${button('Map a file by hand','ap-manual','link')}</p></section>`;
   return pagehead('Autopilot','Add statements','Every card and bank account, as many files as you like. Each one is read, sorted and paired by itself.')+reportCard()+dropCard(!state.transactions.length)+(logCard()?`<div class="grid2 equal">${tips}${logCard()}</div>`:tips)+accountsCard();}
  // ---------- needs a look ----------
  const looking=()=>state.transactions.filter(t=>t.auto?.look);
@@ -5746,12 +5817,73 @@ const Auto=(()=>{
   const kp=`<div class="kpis kpis-lead">${kpiLink('income',L.income,inc,'This month')}${kpiLink('expense',L.expense,out,inc?`${Math.round(out/inc*100)}% of money in`:'This month')}${kpiLink('all','Kept',kept,rate===null?'Money in − spending':`${rate}% of money in`,kept<0?'warn':'')}${kpiLink('annual','Avg. monthly cash flow',Av.avg,Av.n?`${plural(Av.n,'month')} · ${selected.slice(0,4)}`:'No months yet',Av.avg<0?'warn':'')}</div>`;
   return head+hero+kp+`<div class="grid2">${spendingCard(t,'Where it went')}${topMerchants(selected)}</div>`+trend()+`<div class="grid2 equal">${subsCard()}${statusCard()}</div>`;}
 
+ // ---------- paychecks: gross pay, taxes and retirement behind each deposit ----------
+ // The bank only sees take-home pay. Your usual stub, entered once per employer, breaks every
+ // matching deposit down; a deposit that differs is scaled from it and marked as an estimate.
+ const SL=A.STUB_LINES,payKey=t=>Budget.matchKey(t.note)||A.norm(t.note);
+ const stubs=()=>state.payStubs||{usual:{},exact:{}};
+ const payDeposits=y=>state.transactions.filter(t=>t.category===AP.salary&&t.amount>0&&t.date.slice(0,4)===y&&t.date<=Budget.today()).sort((a,b)=>b.date.localeCompare(a.date));
+ const stubOf=t=>A.paycheck(t.amount,stubs().usual[payKey(t)],stubs().exact[t.id]);
+ const HOW={usual:'Usual stub',estimate:'Estimate',entered:'Entered'};
+ function paychecksScreen(){const y=selected.slice(0,4),deps=payDeposits(y),rows=deps.map(t=>({t,s:stubOf(t)})),done=rows.filter(r=>r.s),T=A.stubTotals(done.map(r=>r.s));
+  const employers=[...new Map(deps.map(t=>[payKey(t),t.note])).entries()],missing=employers.filter(([k])=>!stubs().usual[k]);
+  const head=pagehead(`${y} · year to date`,'Paychecks','Gross pay, taxes and retirement behind the take-home pay your bank shows. Enter your usual pay stub once per employer; every paycheck that matches it is filled in by itself.');
+  if(!deps.length)return head+`<section class="card">${empty('No paychecks yet',`Paychecks appear here once statements with your pay are in, sorted as ${esc(category(AP.salary)?.name||'Paychecks')}.`,'go-import','Add statements')}</section>`;
+  const setup=missing.length?`<div class="notice"><span><b>Set up your usual paycheck${missing.length>1?'s':''}.</b> Copy the amounts from one recent pay stub${missing.length>1?' for each employer':''}: ${missing.map(([,n])=>esc(n)).join(', ')}.</span>${missing.map(([k,n])=>button(missing.length>1?n:'Enter pay stub','ap-stub-usual','small primary',`data-key="${esc(k)}"`)).join('')}</div>`:'';
+  if(!done.length)return head+setup+`<section class="card">${empty('Waiting for your pay stub',`${plural(deps.length,'paycheck')} in ${y} so far. One pay stub fills them all in.`)}</section>`;
+  const pct=n=>T.gross?Math.round(n/T.gross*100):0,est=done.filter(r=>r.s.how==='estimate').length,kinds=[['tax','Taxes','var(--ch-out)'],['retire','Retirement','var(--accent)'],['benefit','Benefits','var(--cat-4)'],['other','Other deductions','var(--rule-2)']];
+  const hero=`<section class="hero"><div><div class="eyebrow">Gross pay · ${y} so far</div><h2 class="hero-big number" data-count="${T.gross}" data-split style="--n:${fmt(T.gross).length}">${splitCents(fmt(T.gross))}</h2><p>${fmt(T.net)} reached your bank: ${pct(T.net)}% of what you earned.</p><small class="hero-note">${plural(done.length,'paycheck')}${est?` · ${est} estimated from your usual stub`:''}${rows.length>done.length?` · ${rows.length-done.length} without a stub`:''}</small></div>`+
+   `<div class="hero-side"><div class="hero-fact hero-total"><span>Gross pay</span><strong>${fmt(T.gross)}</strong></div><div class="hero-bar" role="img" aria-label="Where gross pay went">${[...kinds.map(([k,,c])=>[T[k],c]),[T.net,'var(--ch-in)']].map(([n,c])=>n>0?`<i style="width:${n/Math.max(1,T.gross)*100}%;background:${c}"></i>`:'').join('')}</div>${kinds.filter(([k])=>T[k]).map(([k,l,c])=>`<div class="hero-fact"><span><i class="hero-dot" style="background:${c}"></i>${l}</span><strong>−${fmt(T[k])}</strong></div>`).join('')}<div class="hero-fact"><span><i class="hero-dot" style="background:var(--ch-in)"></i>Take-home</span><strong>${fmt(T.net)}</strong></div></div></section>`;
+  const kp=`<div class="kpis">${kpi('Gross pay',T.gross,`${plural(done.length,'paycheck')} · ${y}`,'down')}${kpi('Taxes',T.tax,`${pct(T.tax)}% of gross`,'shield')}${kpi('Retirement',T.retire,`${pct(T.retire)}% of gross · not in your bank statements`,'outlook')}${kpi('Take-home',T.net,`${pct(T.net)}% of gross`,'wallet')}</div>`;
+  const parts=SL.filter(([k])=>T.lines[k]).map(([k,l],i)=>[l,T.lines[k],SLICE_COLORS[i%8],`${pct(T.lines[k])}% of gross pay`]).concat([['Take-home',T.net,'var(--ch-in)',`${pct(T.net)}% of gross pay`]]);
+  const donut=`<section class="card"><div class="cardhead"><div><h2>Where your gross pay goes</h2><p>${y} so far · every line of your stubs</p></div></div>${donutMarkup(parts,T.gross,'gross')}</section>`;
+  const usual=`<section class="card"><div class="cardhead"><div><h2>Your usual paycheck</h2><p>Paychecks for this take-home amount use it as they are</p></div></div>${employers.map(([k,n])=>{const u=stubs().usual[k];return `<div class="row"><div><strong>${esc(n)}</strong><small>${u?`${fmt(u.gross)} gross → ${fmt(A.stubNet(u))} take-home`:'No stub yet'}</small></div>${button(u?'Edit':'Enter pay stub','ap-stub-usual','small'+(u?'':' primary'),`data-key="${esc(k)}"`)}</div>`;}).join('')}<p class="small muted" style="margin-top:12px">A raise, overtime or a bonus changes the take-home: those paychecks are estimated from this stub until you enter theirs. Update the usual stub after a raise.</p></section>`;
+  const table=`<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Every paycheck</h2><p>${y} · take-home is what your bank statement shows</p></div></div><div class="table-wrap"><table class="ap-rec"><thead><tr><th>Date</th><th>Employer</th><th class="num">Gross</th><th class="num">Taxes</th><th class="num">Retirement</th><th class="num">Benefits & other</th><th class="num">Take-home</th><th></th></tr></thead><tbody>${rows.map(({t,s})=>{const sum=k=>SL.filter(x=>x[2]===k).reduce((n,[x])=>n+(s?.lines[x]||0),0);
+    return `<tr><td class="nw">${dateName(t.date)}</td><td><b>${esc(t.note)}</b>${s?`<small class="dim">${HOW[s.how]}${s.how==='entered'&&s.net!==t.amount?` · stub take-home ${fmt(s.net)}`:''}</small>`:'<small class="warn">No stub yet</small>'}</td>${s?`<td class="num">${fmt(s.gross)}</td><td class="num">${fmt(sum('tax'))}</td><td class="num">${fmt(sum('retire'))}</td><td class="num">${fmt(sum('benefit')+sum('other'))}</td>`:'<td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>'}<td class="num"><b>${fmt(t.amount)}</b></td><td class="nw">${button(s?.how==='entered'?'Edit':'Enter stub','ap-stub-one','small quiet',`data-id="${t.id}"`)}</td></tr>`;}).join('')}</tbody>`+
+   `<tfoot><tr class="tx-total"><td colspan="2"><b>Total · ${plural(done.length,'paycheck')}</b></td><td class="num"><b>${fmt(T.gross)}</b></td><td class="num">${fmt(T.tax)}</td><td class="num">${fmt(T.retire)}</td><td class="num">${fmt(T.benefit+T.other)}</td><td class="num"><b>${fmt(T.net)}</b></td><td></td></tr></tfoot></table></div></section>`;
+  return head+setup+hero+kp+`<div class="grid2 equal">${donut}${usual}</div>`+table;}
+ const dollars=c=>c?(c/100).toFixed(2):'';
+ function stubForm(title,sub,x,attrs,net){modal(title,sub,`<form id="ap-stub-form" ${attrs}><div class="fields"><label class="full">Gross pay (before anything comes off)<input name="gross" inputmode="decimal" required value="${dollars(x?.gross)}" placeholder="0.00"></label>${SL.map(([k,l])=>`<label>${l}<input name="${k}" inputmode="decimal" value="${dollars(x?.lines?.[k])}" placeholder="0.00"></label>`).join('')}</div><p class="ap-stub-net" id="ap-stub-net"></p>${net?`<p class="small muted">The deposit in your bank was ${fmt(net)}.</p>`:''}<p class="form-error" id="form-error" hidden></p><div class="formfoot">${attrs.includes('data-id')&&stubs().exact[attrs.match(/data-id="([^"]+)"/)[1]]?button('Use the usual stub again','ap-stub-clear','quiet',attrs):''}${button('Cancel','dismiss')}<button class="btn primary" type="submit">Save</button></div></form>`);stubPreview();}
+ function readStub(f){const d=new FormData(f),c=v=>{v=String(v||'').trim().replace(/[$,\s]/g,'');return v?Budget.cents(v):0;};const x={gross:c(d.get('gross')),lines:{}};SL.forEach(([k])=>{const v=c(d.get(k));if(v)x.lines[k]=v;});return x;}
+ function stubPreview(){const f=$('#ap-stub-form'),o=$('#ap-stub-net');if(!f||!o)return;try{const x=readStub(f),n=A.stubNet(x);o.innerHTML=`Take-home on this stub: <b>${fmt(n)}</b>`;o.classList.toggle('warn',n<0);}catch{o.textContent='Use amounts like 1250.00';}}
+ document.addEventListener('input',e=>{if(e.target.form?.id==='ap-stub-form')stubPreview();});
+ document.addEventListener('submit',e=>{if(e.target.id!=='ap-stub-form')return;e.preventDefault();try{const f=e.target,x=readStub(f);if(!(x.gross>0))throw Error('Enter the gross pay.');if(A.stubNet(x)<=0)throw Error('The deductions add up to more than the gross pay.');
+  const key=f.dataset.key,id=f.dataset.id,name=f.dataset.name||'';closeModal();
+  commit(()=>{state.payStubs??={usual:{},exact:{}};if(id)state.payStubs.exact[id]=x;else state.payStubs.usual[key]={name:name.slice(0,40),...x};},id?'Pay stub saved for this paycheck':`Usual paycheck saved: ${fmt(A.stubNet(x))} take-home`);}catch(err){actionError(err);}});
+ // ---------- savings & investments: balances from files, or typed in for a 401(k) that only gives PDFs ----------
+ const balAt=(id,date)=>{const l=(state.balances||{})[id]||[];let v=null;for(const b of l){if(b.date<=date)v=b;else break;}return v;};
+ const lastBal=id=>((state.balances||{})[id]||[]).at(-1)||null;
+ function investScreen(){const now=Budget.today(),y=now.slice(0,4),wealth=accounts().filter(a=>WEALTH.includes(a.kind)),cash=accounts().filter(a=>a.kind==='bank');
+  const head=pagehead('Savings & investments','Savings & investments','Balances from your savings, brokerage and retirement statements, and what you added to them.',button('Add an account by hand','ap-bal-new','quiet'));
+  const tip=`<section class="card"><h2>Which files to use</h2><div class="ap-steps"><div><b>1</b><span><b>Savings:</b> the transactions CSV, like a checking account. Transfers from checking count as saved, not spent.</span></div><div><b>2</b><span><b>Brokerage and IRAs</b> (Fidelity, Vanguard, Schwab…): the <b>positions</b> or <b>holdings</b> download gives the balance; the <b>activity</b> download adds contributions, dividends and fees.</span></div><div><b>3</b><span><b>A 401(k) that only gives PDFs:</b> type the balance from each quarterly statement with <b>Update balance</b>.</span></div></div></section>`;
+  if(!wealth.length&&!cash.some(a=>lastBal(a.id)))return head+`<section class="card">${empty('No savings or investment accounts yet','Drop their statements on Add statements, or add an account by hand.','go-import','Add statements')}</section>`+tip;
+  const sumAt=(list,d)=>list.reduce((n,a)=>n+(balAt(a.id,d)?.value||0),0),total=sumAt(wealth,now),by=k=>sumAt(wealth.filter(a=>a.kind===k),now),cashNow=sumAt(cash,now);
+  const ytd=t=>t.date.slice(0,4)===y&&t.date<=now,added=state.transactions.filter(t=>ytd(t)&&typeOf(t.category)==='saving').reduce((n,t)=>n+t.amount,0);
+  const inside=state.transactions.filter(t=>ytd(t)&&WEALTH.includes(account(t.acct)?.kind)),role=r=>inside.filter(t=>t.auto?.why===r).reduce((n,t)=>n+Math.abs(t.amount),0);
+  const divs=role('dividend')+state.transactions.filter(t=>ytd(t)&&t.category===AP.interest).reduce((n,t)=>n+t.amount,0),fees=role('fee');
+  const start=wealth.map(a=>((state.balances||{})[a.id]||[]).find(b=>b.date>=`${y}-01-01`)).filter(Boolean),startSum=wealth.reduce((n,a)=>n+((((state.balances||{})[a.id]||[]).find(b=>b.date>=`${y}-01-01`))?.value||0),0),change=start.length?total-startSum:null;
+  // from the month every account has a balance, so a newly added account doesn't look like growth
+  const firsts=wealth.map(a=>((state.balances||{})[a.id]||[])[0]?.date).filter(Boolean).sort(),startM=(firsts.at(-1)||now).slice(0,7);
+  const months=Array.from({length:12},(_,i)=>Budget.shift(now.slice(0,7),i-11)).filter(m=>m>=startM),series=months.map(m=>{const d=Budget.endOf(m)<now?Budget.endOf(m):now;return wealth.some(a=>balAt(a.id,d))?sumAt(wealth,d):null;});
+  const hero=`<section class="hero"><div><div class="eyebrow">Saved & invested · latest balances</div><h2 class="hero-big number" data-count="${total}" data-split style="--n:${fmt(total).length}">${splitCents(fmt(total))}</h2><p>${plural(wealth.length,'account')}${change!==null?` · ${change>=0?'up':'down'} ${fmt(Math.abs(change))} since the first balance this year`:''}.</p><small class="hero-note">Balances as of each account’s latest statement</small></div>`+
+   `<div class="hero-side"><div class="hero-fact hero-total"><span>Total</span><strong>${fmt(total)}</strong></div>${[['savings','Savings','var(--ch-in)'],['invest','Brokerage','var(--accent)'],['retire','Retirement','var(--cat-4)']].filter(([k])=>by(k)).map(([k,l,c])=>`<div class="hero-fact"><span><i class="hero-dot" style="background:${c}"></i>${l}</span><strong>${fmt(by(k))}</strong></div>`).join('')}${cashNow?`<div class="hero-fact"><span><i class="hero-dot" style="background:var(--rule-2)"></i>Cash in checking (not included)</span><strong>${fmt(cashNow)}</strong></div>`:''}</div></section>`;
+  const kp=`<div class="kpis">${kpi(`Added in ${y}`,added,'Moved to savings and investments','umbrella')}${kpi('Dividends & interest',divs,`${y} so far`,'down')}${kpi('Fees',fees,`${y} so far · inside investment accounts`,'coins')}${kpi('Change this year',change??0,change===null?'Needs two balances':'Growth and money added together','outlook',change<0?'warn':'')}</div>`;
+  const chart=series.filter(v=>v!==null).length>1?`<section class="card"><div class="cardhead"><div><h2>Balance over time</h2><p>Savings and investments together, at each month’s end${months.length?` · from ${monthName(months[0])}`:''}</p></div></div>${areaChart([{name:'Saved & invested',values:series,color:'var(--accent)'}],months.map(shortMonth),'Total balance by month')}</section>`:'';
+  const table=`<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Accounts</h2><p>Latest balance of each</p></div></div><div class="table-wrap"><table class="ap-rec"><thead><tr><th>Account</th><th>Type</th><th class="num">Balance</th><th>As of</th><th class="num">Change</th><th></th></tr></thead><tbody>${[...wealth,...cash.filter(a=>lastBal(a.id))].map(a=>{const l=(state.balances||{})[a.id]||[],b=l.at(-1),first=l[0];
+    return `<tr><td><b>${esc(a.name)}</b>${a.kind==='bank'?'<small class="dim">Not in the total above</small>':''}</td><td>${kindName(a.kind)}</td><td class="num"><b>${b?fmt(b.value):'—'}</b></td><td class="nw">${b?dateName(b.date)+(b.how==='manual'?'<small class="dim">Typed in</small>':''):'No balance yet'}</td><td class="num">${b&&first&&first!==b?`<span class="${b.value>=first.value?'pos':''}">${b.value>=first.value?'+':'−'}${fmt(Math.abs(b.value-first.value))}</span><small class="dim">since ${dateName(first.date)}</small>`:'—'}</td><td class="nw">${button('Update balance','ap-bal','small quiet',`data-id="${a.id}"`)}</td></tr>`;}).join('')}</tbody></table></div></section>`;
+  return head+hero+kp+chart+table+tip;}
+ function balForm(a){modal(a?`Balance · ${esc(a.name)}`:'Add an account by hand',a?'From the account’s latest statement.':'For an account whose statements are PDFs only, such as many 401(k)s. Type its balance now and then.',`<form id="ap-bal-form" ${a?`data-id="${a.id}"`:''}><div class="fields">${a?'':`<label class="full">Name<input name="name" maxlength="30" required placeholder="e.g. Acme 401(k)"></label><label>Type<select name="kind">${KINDS.filter(([k])=>WEALTH.includes(k)).map(([k,l])=>`<option value="${k}" ${k==='retire'?'selected':''}>${l}</option>`).join('')}</select></label>`}<label>Balance<input name="value" inputmode="decimal" required placeholder="0.00"></label><label>As of<input name="date" type="date" required value="${Budget.today()}" max="${Budget.today()}"></label></div><p class="form-error" id="form-error" hidden></p><div class="formfoot">${button('Cancel','dismiss')}<button class="btn primary" type="submit">Save</button></div></form>`);}
+ document.addEventListener('submit',e=>{if(e.target.id!=='ap-bal-form')return;e.preventDefault();try{const f=new FormData(e.target),id=e.target.dataset.id,raw=String(f.get('value')||'').replace(/[$,\s]/g,''),date=String(f.get('date')||'');
+  if(!Budget.validDate(date)||date>Budget.today())throw Error('Use a date up to today.');const value=Budget.cents(raw);
+  const name=String(f.get('name')||'').trim().slice(0,30),kind=String(f.get('kind')||'retire');if(!id&&!name)throw Error('Give the account a name.');if(!id&&accounts().some(a=>a.name===name))throw Error('An account already has that name.');
+  closeModal();commit(()=>{state.accounts??=[];state.balances??={};let acct=id;if(!acct){acct=Budget.uid();state.accounts.push({id:acct,name,kind:WEALTH.includes(kind)?kind:'retire'});}
+   const l=(state.balances[acct]||[]).filter(b=>b.date!==date);l.push({date,value,how:'manual'});l.sort((a,b)=>a.date.localeCompare(b.date));state.balances[acct]=l.slice(-400);},`Balance saved: ${fmt(value)}`);}catch(err){actionError(err);}});
  // ---------- events ----------
  document.addEventListener('change',e=>{const el=e.target;
   if(el.id==='ap-files'){const f=[...el.files];el.value='';if(f.length)importFiles(f);return;}
   if(el.dataset.look!==undefined){settle(el.dataset.look,el.value);return;}
   if(el.dataset.acct!==undefined){const a=account(el.dataset.acct),v=el.value.trim().slice(0,30);if(a&&v&&v!==a.name)commit(()=>{a.name=v;},'Account renamed');return;}
-  if(el.dataset.acctKind!==undefined){const a=account(el.dataset.acctKind);if(a&&['card','bank'].includes(el.value))commit(()=>{a.kind=el.value;},'Account updated');}});
+  if(el.dataset.acctKind!==undefined){const a=account(el.dataset.acctKind);if(a&&KINDS.some(([k])=>k===el.value))commit(()=>{a.kind=el.value;},'Account updated');}});
  const onDrop=e=>{const z=e.target.closest?.('#ap-drop');if(!z)return;e.preventDefault();if(e.type==='dragover'){z.classList.add('is-over');return;}z.classList.remove('is-over');if(e.type==='drop'){const f=[...(e.dataTransfer?.files||[])];if(f.length)importFiles(f);}};
  ['dragover','dragleave','drop'].forEach(n=>document.addEventListener(n,onDrop));
  document.addEventListener('click',e=>{const b=e.target.closest('button[data-action^="ap-"]');if(!b)return;const a=b.dataset.action;
@@ -5765,13 +5897,18 @@ const Auto=(()=>{
   case 'ap-look-all':{const n=looking().length;commit(()=>looking().forEach(t=>delete t.auto.look),`${plural(n,'suggestion')} kept`);break;}
   case 'ap-rec-sort':{const k=b.dataset.k;recSort=recSort.k===k?{k,dir:recSort.dir==='asc'?'desc':'asc'}:{k,dir:['name','category','cadence','last','next'].includes(k)?'asc':'desc'};render();break;}
   case 'ap-acct-del':{const x=account(b.dataset.id);if(!x)break;const n=state.transactions.filter(t=>t.acct===x.id).length;confirmation(`Remove ${esc(x.name)}?`,`Its ${plural(n,'transaction')} are deleted too. You can undo this right after.`,'ap-acct-del-ok','Remove',`data-id="${x.id}"`);break;}
-  case 'ap-acct-del-ok':{const id=b.dataset.id,x=account(id);closeModal();if(!x)break;commit(()=>{state.transactions=state.transactions.filter(t=>t.acct!==id);state.accounts=accounts().filter(a=>a.id!==id);Object.keys(state.importFiles||{}).forEach(k=>{if(state.importFiles[k].acct===id)delete state.importFiles[k];});},`${x.name} removed`);break;}
+  case 'ap-acct-del-ok':{const id=b.dataset.id,x=account(id);closeModal();if(!x)break;commit(()=>{state.transactions=state.transactions.filter(t=>t.acct!==id);state.accounts=accounts().filter(a=>a.id!==id);if(state.balances)delete state.balances[id];Object.keys(state.importFiles||{}).forEach(k=>{if(state.importFiles[k].acct===id)delete state.importFiles[k];});},`${x.name} removed`);break;}
+  case 'ap-stub-usual':{const k=b.dataset.key,t=state.transactions.find(x=>x.category===AP.salary&&payKey(x)===k),u=stubs().usual[k],name=u?.name||t?.note||'';stubForm(`Your usual paycheck · ${esc(name)}`,'Copy the amounts from one recent pay stub. Leave a line empty if it isn’t on yours.',u,`data-key="${esc(k)}" data-name="${esc(name)}"`,t?.amount);break;}
+  case 'ap-stub-one':{const t=state.transactions.find(x=>x.id===b.dataset.id);if(!t)break;const s0=stubOf(t);stubForm(`Pay stub · ${esc(t.note)} · ${dateName(t.date)}`,'The exact amounts from this paycheck’s stub.',s0,`data-id="${t.id}"`,t.amount);break;}
+  case 'ap-stub-clear':{const id=b.dataset.id;closeModal();commit(()=>{delete state.payStubs?.exact?.[id];},'This paycheck uses your usual stub again');break;}
+  case 'ap-bal':{const x=account(b.dataset.id);if(x)balForm(x);break;}
+  case 'ap-bal-new':balForm(null);break;
   case 'ap-batch-del':{const id=b.dataset.id,n=state.transactions.filter(t=>t.auto?.batch===id).length;confirmation('Delete this import?',`Its ${plural(n,'transaction')} are removed, including any changes you made to them. You can then add the files again, or undo right after.`,'ap-batch-del-ok','Delete import',`data-id="${id}"`);break;}
   case 'ap-batch-del-ok':{const id=b.dataset.id;closeModal();const gone=new Set(state.transactions.filter(t=>t.auto?.batch===id).map(t=>t.id));
    commit(()=>{state.transactions=state.transactions.filter(t=>!gone.has(t.id));state.transactions.forEach(t=>{if(t.auto?.pair&&gone.has(t.auto.pair))delete t.auto.pair;});state.importLog=(state.importLog||[]).filter(l=>l.id!==id);},`${plural(gone.size,'transaction')} removed`);break;}
   }});
  function manualPick(){const i=document.createElement('input');i.type='file';i.accept='.csv,.tsv,.txt,text/csv,text/plain';i.onchange=()=>{if(i.files[0])readCSVFile(i.files[0]);};i.click();}
- return {views:{import:importScreen,inbox:inboxScreen,recurring:recurringScreen,dashboard},txChip,dashboard,importFiles,looking};
+ return {views:{import:importScreen,inbox:inboxScreen,recurring:recurringScreen,paychecks:paychecksScreen,invest:investScreen,dashboard},txChip,dashboard,importFiles,looking};
 })();
 render();
 </script></body></html>

@@ -58,7 +58,7 @@ DEBIT,09/25/2026,ATM WITHDRAWAL 000123 MAIN ST,-60.00,ATM,2607.05,`;
   const chk=A.read(CHK,'Chase4410_Activity_20260930.csv',CSV);
   eq('checking: a bank account (it has a balance), signs kept', [chk.kind,chk.flip], ['bank',false]);
   const kr=sort(chk,chk.rows);
-  eq('checking lines sorted', kr.map(r=>r.category), ['salary','housing','own-transfer','card-payoff','card-payoff','other-income','cash']);
+  eq('checking lines sorted', kr.map(r=>r.category), ['salary','housing','emergency','card-payoff','card-payoff','other-income','cash']);
   ok('an unknown deposit waits for a look; the paycheck does not', kr[5].look===true&&!kr[0].look);
 
   ok('two accounts at one bank keep their own file key', A.fileKey('Chase5471_Activity_20260925.csv')!==A.fileKey('Chase4410_Activity_20260930.csv')&&A.fileKey('Chase5471_Activity_20260925.csv')===A.fileKey('Chase5471_Activity_20261031.csv'));
@@ -89,4 +89,45 @@ DEBIT,09/25/2026,ATM WITHDRAWAL 000123 MAIN ST,-60.00,ATM,2607.05,`;
   st.transactions=[{id:'t1',date:'2026-09-03',category:'groceries',amount:8412,note:'Whole Foods',acct:'acc-1',raw:'WHOLEFDS MKT ••0234',auto:{why:'merchant'}},{id:'t2',date:'2026-09-04',category:'groceries',amount:100,note:'x',acct:'nope',auto:{why:'merchant',look:'yes',junk:1}}];
   const V=B.validate(JSON.parse(JSON.stringify(st)));
   eq('accounts and sorting survive a backup; unknown accounts and fields drop', [V.accounts.length,V.transactions[0].acct,V.transactions[0].auto,V.transactions[1].acct,V.transactions[1].auto], [1,'acc-1',{why:'merchant'},undefined,{why:'merchant'}]);
+
+  // savings, brokerage and retirement: kinds from the file, balances, and what happens inside
+  eq('account kinds from file names and columns', [A.kindFrom('Ally_Savings_2026.csv'),A.kindFrom('Fidelity 401(k) activity.csv'),A.kindFrom('Schwab_Brokerage_positions.csv'),A.kindFrom('x.csv',['Date','Symbol','Quantity','Amount']),A.kindFrom('Chase4410_Activity.csv')], ['savings','retire','invest','invest','']);
+  eq('a checking file remembers its latest balance (newest-first file)', chk.balance, {date:'2026-09-25',value:260705});
+  const SAV=`Date,Description,Amount,Balance
+09/16/2026,Transfer from Checking ••4410,400.00,8400.00
+09/30/2026,Interest Paid,12.34,8412.34`;
+  const sav=A.read(SAV,'Ally_Savings_7720.csv',CSV);
+  eq('savings file: kind, account and balance', [sav.kind,sav.account,sav.balance], ['savings','Ally ••7720',{date:'2026-09-30',value:841234}]);
+  eq('in savings, interest is money in and the transfer is a transfer', sort(sav,sav.rows).map(r=>r.category), ['own-transfer','interest']);
+  const ACT=`Run Date,Action,Symbol,Description,Amount ($)
+09/02/2026,CONTRIBUTION EMPLOYEE,,,450.00
+09/02/2026,YOU BOUGHT VANGUARD TARGET 2055,VFFVX,,-450.00
+09/15/2026,DIVIDEND RECEIVED,VFFVX,,23.10
+09/30/2026,ADVISORY FEE,,,-4.00`;
+  const act=A.read(ACT,'Fidelity_401k_activity.csv',CSV);
+  const ac=sort(act,act.rows);
+  eq('retirement activity: nothing counted, each line labeled', [act.kind,ac.map(r=>r.category+':'+r.why)], ['retire',['inside-investing:contribution','inside-investing:buy','inside-investing:dividend','inside-investing:fee']]);
+  const POS=`Account Number,Account Name,Symbol,Description,Quantity,Last Price,Current Value
+Z12345678,Individual,SPAXX**,HELD IN MONEY MARKET,,,$1203.44
+Z12345678,Individual,VTI,VANGUARD TOTAL STOCK MARKET ETF,40,$310.00,$12400.00
+244556677,ROTH IRA,FXAIX,FIDELITY 500 INDEX,25,$212.00,$5300.00
+Pending Activity,,,,,,$-50.00
+,,,,,,
+"Date downloaded Oct-01-2026",,,,,,`;
+  const pos=A.holdings(POS,'Portfolio_Positions_Oct-01-2026.csv',CSV);
+  eq('a positions file gives one balance per account; totals and pending lines are skipped', pos.accounts.map(x=>[x.account,x.kind,x.value]), [['Individual ••5678','invest',1360344],['Roth IRA ••6677','retire',530000]]);
+  const VAN=`Account Number,Investment Name,Symbol,Shares,Share Price,Total Value
+12345678,Vanguard 500 Index Admiral,VFIAX,10,500.00,5000.00
+12345678,Vanguard Federal Money Market,VMFXX,120.5,1.00,120.50`;
+  const van=A.holdings(VAN,'vanguard_ofxdownload_2026-09-30.csv',CSV);
+  eq('Vanguard holdings: the total of the account, dated from the file name', [van.date,van.accounts.length,van.accounts[0].value], ['2026-09-30',1,512050]);
+  ok('a transactions file is not taken for holdings', A.holdings(CHK,'checking.csv',CSV)===null&&A.holdings(CHASE,'card.csv',CSV)===null);
+
+  // pay stubs: the usual one when the take-home matches, scaled for a bonus, the entered one when there is one
+  const usual={gross:447000,lines:{fed:45000,state:17000,ss:27900,medicare:6500,k401:27000,health:9600,hsa:2000}};
+  eq('the usual stub fits a matching deposit', [A.stubNet(usual),A.paycheck(312000,usual,null).how,A.paycheck(312000,usual,null).gross], [312000,'usual',447000]);
+  const bonus=A.paycheck(624000,usual,null);
+  eq('a bigger deposit is scaled from the usual stub and still adds up', [bonus.how,bonus.gross-Object.values(bonus.lines).reduce((a,b)=>a+b,0),bonus.lines.fed], ['estimate',624000,90000]);
+  eq('an entered stub wins', A.paycheck(312000,usual,{gross:450000,lines:{fed:138000}}).how, 'entered');
+  eq('stub totals by kind', (x=>[x.gross,x.tax,x.retire,x.benefit,x.net])(A.stubTotals([A.paycheck(312000,usual,null),A.paycheck(312000,usual,null)])), [894000,192800,54000,23200,624000]);
 };

@@ -2,7 +2,9 @@
 //   node tx_flow.js [screenshot dir]
 const {chromium}=require('/opt/node22/lib/node_modules/playwright');const SS=process.argv[2];
 const ok=(n,c,x='')=>{console.log((c?'ok   ':'FAIL ')+n+(c?'':' '+x));if(!c)process.exitCode=1;};
-(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1360,height:900}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+// the samples fill the current month up to today; on the 1st it is nearly empty, so run on the 20th
+const MID=new Date(); MID.setDate(20); MID.setHours(12,0,0,0);
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1360,height:900}});await p.clock.setFixedTime(MID);const errs=[];p.on('pageerror',e=>errs.push(e.message));
 const F='file:///home/user/Dashboard-Creator/monthly-plan/app/ProfitPlanBusiness.html',k='jps-profit-plan';
 await p.goto(F);await p.evaluate(k=>{localStorage.setItem(k+'-welcome-v1','1');localStorage.setItem(k+'-manual-backup',String(Date.now()));},k);await p.goto(F);await p.waitForTimeout(300);
 await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());await p.waitForTimeout(400);
@@ -57,7 +59,7 @@ const sl=await p.$('.mix-card .donut-key-row.has-slice');await sl.click();await 
 await p.click('[data-action="slice-open"]');await p.waitForTimeout(200);
 r=await p.evaluate(()=>({n:activityList.length,ok:activityList.every(t=>Budget.type(category(t.category))==='income'),range:txRange}));ok('slice → transactions with channel filter',r.n>0&&r.ok&&r.range==='custom',JSON.stringify(r));
 // Monthly Plan: the same screen, without channels or tags
-const q=await b.newPage({viewport:{width:1360,height:900}});q.on('pageerror',e=>errs.push(e.message));const M='file:///home/user/Dashboard-Creator/monthly-plan/app/MonthlyBudgetPlanner.html';
+const q=await b.newPage({viewport:{width:1360,height:900}});await q.clock.setFixedTime(MID);q.on('pageerror',e=>errs.push(e.message));const M='file:///home/user/Dashboard-Creator/monthly-plan/app/MonthlyBudgetPlanner.html';
 await q.goto(M);await q.evaluate(()=>{localStorage.setItem('jps-monthly-plan-welcome-v1','1');localStorage.setItem('jps-monthly-plan-manual-backup',String(Date.now()));});await q.goto(M);
 await q.evaluate(()=>document.querySelector('[data-action="demo"]').click());await q.waitForTimeout(300);await q.evaluate(()=>go('activity'));
 ok('mp: all time by default',await q.evaluate(()=>activityList.length===state.transactions.length&&!document.querySelector('#tag-filter')));

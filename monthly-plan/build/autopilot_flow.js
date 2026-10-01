@@ -63,6 +63,37 @@ ok('dashboard shows the month kept and the accounts card',await p.evaluate(()=>{
 // a backup round trip keeps accounts and sorting
 const kept=await p.evaluate(()=>{const v=Budget.validate(JSON.parse(JSON.stringify(state)));return v.accounts.length===2&&v.transactions.every(t=>t.acct)&&v.transactions.some(t=>t.auto?.pair);});
 ok('a backup keeps accounts, pairs and sorting',kept);
+// savings and investments: a savings file pairs with checking and counts as saved; a positions file is a balance
+const SAVF=`Date,Description,Amount,Balance
+09/16/2026,Transfer from Checking,400.00,8400.00
+09/30/2026,Interest Paid,12.34,8412.34`;
+const BANK2=`Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #
+DEBIT,09/16/2026,Online Transfer to SAV ...7720,-400.00,ACCT_XFER,2497.70,`;
+const POSF=`Account Number,Account Name,Symbol,Description,Quantity,Last Price,Current Value
+Z12345678,Individual,VTI,VANGUARD TOTAL STOCK MARKET ETF,40,$310.00,$12400.00
+244556677,ROTH IRA,FXAIX,FIDELITY 500 INDEX,25,$212.00,$5300.00`;
+await p.evaluate(()=>go('import',true));
+await p.setInputFiles('#ap-files',[file('Ally_Savings_7720.csv',SAVF),file('Chase4410_Activity_20260917.csv',BANK2),file('Portfolio_Positions_2026-09-30.csv',POSF)]);await p.waitForTimeout(400);
+const W=await p.evaluate(()=>{const sav=state.accounts.find(a=>a.kind==='savings'),tx=state.transactions.filter(t=>t.date==='2026-09-16'&&Math.abs(t.amount)===40000);
+ return {kinds:state.accounts.map(a=>a.kind).sort().join(','),cats:tx.map(t=>t.category).sort().join(','),paired:tx.every(t=>t.auto?.pair),bal:(state.balances||{})[sav?.id]?.at(-1),invest:state.accounts.filter(a=>['invest','retire'].includes(a.kind)).map(a=>a.name+':'+state.balances[a.id].at(-1).value),toast:$('#toast').innerText};});
+ok('savings, brokerage and IRA accounts are created from their files',W.kinds==='bank,card,invest,retire,savings',W.kinds);
+ok('the move to savings is paired: saved on the checking side, not counted on the savings side',W.cats==='emergency,own-transfer'&&W.paired,JSON.stringify(W));
+ok('the savings balance is read from its file',W.bal?.value===841234&&W.bal.date==='2026-09-30',JSON.stringify(W.bal));
+ok('a positions file gives each account its balance',JSON.stringify(W.invest)==='["Individual ••5678:1240000","Roth IRA ••6677:530000"]',JSON.stringify(W.invest));
+ok('the toast counts the balances',/2 balances updated|3 balances updated/.test(W.toast),W.toast);
+// a 401(k) typed in by hand, and the Savings & investments screen
+await p.evaluate(()=>go('invest',true));await p.waitForTimeout(150);
+await p.evaluate(()=>document.querySelector('[data-action="ap-bal-new"]').click());await p.waitForTimeout(100);
+await p.fill('#ap-bal-form [name=name]','Acme 401(k)');await p.fill('#ap-bal-form [name=value]','41,250.00');await p.click('#ap-bal-form button[type=submit]');await p.waitForTimeout(200);
+ok('a 401(k) balance can be typed in',await p.evaluate(()=>{const a=state.accounts.find(x=>x.name==='Acme 401(k)');return a?.kind==='retire'&&state.balances[a.id][0].value===4125000&&state.balances[a.id][0].how==='manual';}));
+ok('Savings & investments totals the latest balances, checking left out',await p.evaluate(()=>{const b=+document.querySelector('.hero .hero-big').dataset.count;return b===841234+1240000+530000+4125000;}));
+// paychecks: one usual stub fills in each paycheck
+await p.evaluate(()=>go('paychecks',true));await p.waitForTimeout(150);
+await p.evaluate(()=>document.querySelector('[data-action="ap-stub-usual"]').click());await p.waitForTimeout(100);
+for(const [k,v] of [['gross','4470'],['fed','450'],['state','170'],['ss','279'],['medicare','65'],['k401','270'],['health','96'],['hsa','20']])await p.fill(`#ap-stub-form [name=${k}]`,v);
+ok('the stub form shows the take-home as you type',await p.evaluate(()=>/\$3,120\.00/.test($('#ap-stub-net').innerText)));
+await p.click('#ap-stub-form button[type=submit]');await p.waitForTimeout(200);
+ok('the paycheck is broken down from the usual stub',await p.evaluate(()=>{const r=document.querySelector('table.ap-rec tbody tr');return /Usual stub/.test(r.innerText)&&/\$4,470\.00/.test(r.innerText)&&+document.querySelector('.hero .hero-big').dataset.count===447000;}));
 // the sample fills every screen
 await p.evaluate(()=>document.querySelector('[data-action="demo"]')?.click()||Promise.resolve());
 ok('the app made no network requests',net===0,net);
