@@ -34,7 +34,7 @@ for (const width of [1440, 390]) for (const mode of ['empty', 'sample']) {
   const page = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
   await page.goto(`http://localhost:${PORT}/`); await page.waitForTimeout(500);
   await page.evaluate(m => { document.querySelector('#welcome')?.close(); if (m === 'sample') toggleSample(true); }, mode);
-  const screens = ['dashboard', 'library', 'collections', 'tags', 'import', 'plan', 'shopping', 'guide', 'settings'];
+  const screens = ['dashboard', 'library', 'collections', 'tags', 'import', 'plan', 'shopping', 'pantry', 'guide', 'settings'];
   if (mode === 'sample') screens.push('recipe', 'edit', 'cook', 'book', 'selecting');
   for (const s of screens) {
     await page.evaluate(s => { if (s === 'recipe') openRecipe('s1'); else if (s === 'edit') editRecipe('s1'); else if (s === 'cook') { openRecipe('s1'); go('cook'); } else if (s === 'book') { go('collections'); bookForm(); } else if (s === 'selecting') { lib.cat = 'none'; go('library'); ACTIONS['sel-all'](); } else go(s); }, s);

@@ -66,6 +66,16 @@ try {
   await page.click('#recipe-form button[type=submit]');
   await page.waitForSelector('.recipe-hero h1');
   ok(await page.textContent('.rstats') .then(t => /55 min/.test(t)), 'total filled from prep + cook');
+  // bulk import: several links, one duplicate, one without a recipe, one missing
+  await page.evaluate(() => go('import'));
+  await page.fill('#bulk-text', `${BASE}/fixtures/dotdash-array.html\n${BASE}/fixtures/string-instructions.html\nsee ${BASE}/fixtures/wprm-graph.html,\n${BASE}/fixtures/no-recipe.html\n${BASE}/fixtures/nope.html`);
+  await page.evaluate(() => { window.__sleep = sleep; });
+  await page.click('[data-form="bulk"] button');
+  await page.waitForFunction(() => !bulk.running, null, { timeout: 60000 });
+  const st = await page.evaluate(() => bulk.items.map(i => i.status).join(','));
+  ok(st === 'saved,saved,dupe,review,failed', 'bulk import: ' + st);
+  ok(await page.evaluate(() => state.recipes.some(r => r.title === 'Weeknight Chili') && state.recipes.some(r => r.tags.includes('needs review'))), 'bulk saved recipes, partial one tagged needs review');
+  await page.evaluate(() => { const ids = new Set(bulk.items.filter(i => i.status === 'saved' || i.status === 'review').map(i => i.id)); state.recipes = state.recipes.filter(r => !ids.has(r.id)); save(); bulk.items = []; });
   // a real whole-page paste: photo captions and credits never become steps
   await page.click('.topbar [data-action="add"]'); await page.click('#link-form [data-action="paste"]');
   await page.fill('#paste-form textarea', (await import('node:fs')).readFileSync(new URL('./fixtures/paste-allrecipes.txt', import.meta.url), 'utf8'));
@@ -82,7 +92,10 @@ try {
   ok(await page.textContent('.recipe-hero h1') === 'Egusi Soup' && await page.$('.recipe-hero img[src="https://img.example/egusi.jpg"]'), 'saved with its linked photo');
   await page.click('[data-action="delete-recipe"]'); await page.click('[data-action="ask-ok"]');
   await page.evaluate(() => openRecipe(state.recipes.find(r => r.title === 'Lemon Bars').id)); await page.waitForSelector('.recipe-hero h1');
-  await page.click('[data-action="made"]');
+  await page.click('[data-action="made"]'); await page.waitForSelector('#made-form');
+  await page.click('#made-form .rate-pick label:nth-child(4)'); await page.fill('#made-form [name=note]', 'Less sugar next time.'); await page.click('#made-form button[type=submit]');
+  ok(await page.evaluate(() => { const r = state.recipes.find(x => x.title === 'Lemon Bars'); return r.made.length === 1 && r.rating === 4 && r.cooklog[0].note === 'Less sugar next time.'; }), 'Made it logs the day, rating and note');
+  ok(/Less sugar next time/.test(await page.textContent('.cooklog')), 'cook log shows on the recipe');
   await page.click('[data-action="undo"]');
   ok(/Not made yet/.test(await page.textContent('.rate')), 'undo works');
   // shopping list from a recipe
@@ -159,8 +172,34 @@ try {
   ok(await page.evaluate(() => !state.recipes.some(r => r.tags.includes('make ahead'))), 'tag deleted from every recipe');
   await page.evaluate(() => go('plan'));
   ok((await page.$$('.meal')).length >= 6, 'sample week is planned');
+  // pantry: what can I cook, and pantry items stay off the list
+  await page.evaluate(() => go('pantry'));
+  ok((await page.$$('.cook-row')).length >= 3, 'pantry suggests recipes to cook');
+  await page.fill('#pantry-text', 'coconut milk, ginger'); await page.press('#pantry-text', 'Enter');
+  ok(await page.evaluate(() => state.pantry.includes('coconut milk') && state.pantry.includes('ginger')), 'pantry items added');
+  ok(await page.evaluate(() => { const x = Logic.cookable(state).find(c => c.r.id === 's4'); return x.missing.every(l => !/garlic|onion|coconut|curry/i.test(l)); }), 'curry no longer misses what the pantry has');
+  ok(await page.evaluate(() => { const before = state.shopping.length; state.shopping = []; const res = shopAdd(recipeById('s4').ingredients, { from: 'x' }); return res.skipped >= 4 && !state.shopping.some(i => /garlic|coconut milk/i.test(i.text)); }), 'adding a recipe skips pantry items');
+  await page.evaluate(() => go('shopping')); await page.click('[data-action="shop-staples"]');
+  ok(await page.evaluate(() => ['milk', 'bananas', 'bread'].every(s => state.shopping.some(i => i.text === s))), 'staples added to the list');
+  // plan: servings scale the list, fill my week, copy last week, drag to move
+  await page.evaluate(() => go('plan'));
+  ok(/serves 6/.test(await page.textContent('.week')), 'planned servings show on the meal');
+  await page.evaluate(() => { state.shopping = []; ACTIONS['shop-week'](); });
+  ok(await page.evaluate(() => state.shopping.some(i => /600 g pasta|1 1\/2 cups grated parmesan|¾ cup grated parmesan/.test(i.text) || i.text.startsWith('600 g pasta'))), 'meal servings scale the shopping list');
+  const before = await page.evaluate(() => state.plans.length);
+  await page.click('[data-action="plan-fill"]');
+  ok(await page.evaluate(n => state.plans.length > n, before), 'fill my week adds dinners');
+  await page.click('[data-action="week"][data-d="1"]'); await page.click('[data-action="plan-copy"]');
+  ok(await page.evaluate(() => state.plans.filter(p => p.date >= week && p.date <= addDays(week, 6)).length >= 6), 'copy last week');
+  const meal = page.locator('.meal').first(), target = page.locator('.day').nth(6);
+  const id = await meal.getAttribute('data-meal'); await meal.dragTo(target);
+  ok(await page.evaluate(i => state.plans.find(p => p.id === i).date === addDays(week, 6), id), 'drag a meal to another day');
+  // library time filter
+  await page.evaluate(() => { Object.assign(lib, { time: 20, cat: '', col: '', q: '', filter: 'all', view: 'grid' }); go('library'); });
+  ok(await page.evaluate(() => libRows().every(r => r.total && r.total <= 20) && libRows().length >= 2), 'time filter');
+  await page.evaluate(() => { lib.time = 0; });
   await page.click('[data-action="sample"].rail-demo');
-  ok((await page.$$('.navlink')).length === 7, 'back to own data');
+  ok((await page.$$('.navlink')).length === 8, 'back to own data');
   // dark theme + phone width
   await page.evaluate(() => go('settings')); await page.click('[data-k="night"]'); await page.evaluate(() => go('dashboard')); await shot('20-dark-dashboard');
   await page.setViewportSize({ width: 390, height: 844 });
