@@ -1,0 +1,14 @@
+# Deploy with Base directory = recipe-library-studio (Netlify: Site configuration → Build & deploy).
+[build]
+  publish = "site"
+  functions = "netlify/functions"
+  command = "node build.mjs"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
