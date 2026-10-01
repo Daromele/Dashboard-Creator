@@ -76,6 +76,12 @@ try {
   ok(st === 'saved,saved,dupe,review,failed', 'bulk import: ' + st);
   ok(await page.evaluate(() => state.recipes.some(r => r.title === 'Weeknight Chili') && state.recipes.some(r => r.tags.includes('needs review'))), 'bulk saved recipes, partial one tagged needs review');
   await page.evaluate(() => { const ids = new Set(bulk.items.filter(i => i.status === 'saved' || i.status === 'review').map(i => i.id)); state.recipes = state.recipes.filter(r => !ids.has(r.id)); save(); bulk.items = []; });
+  // hand-pasted ingredient lists: stray heading dropped, amounts on their own line joined to the ingredient
+  const ingIn = (await import('node:fs')).readFileSync(new URL('./fixtures/split-ingredients.txt', import.meta.url), 'utf8');
+  const ingOut = await page.evaluate(t => Logic.cleanIngredients(t.split('\n')), ingIn);
+  ok(ingOut[0] === '10 oz Ground Beef' && ingOut[1] === '2 Small Baguettes' && ingOut[3] === '1 Yellow Onion' && ingOut[9].startsWith('½ tbsp Weeknight Hero') && ingOut.length === 14 && ingOut[10] === 'For the sauce:' && ingOut[11] === '1 cup flour', 'split ingredient lines are joined: ' + JSON.stringify(ingOut.slice(0, 3)));
+  const pp = await page.evaluate(t => Logic.parsePaste('Cheesesteak Subs\n' + t + '\nInstructions\n1. Toast the bread.\n2. Cook the beef.'), ingIn);
+  ok(pp.ingredients[0] === '10 oz Ground Beef' && pp.ingredients.length === 14, 'page paste joins split ingredient lines');
   // which-sites lists: curated sites, sites that worked for you, social links caught before fetching, blocks remembered
   await page.evaluate(() => go('import'));
   ok((await page.$$('#sites a.site')).length === 6 && (await page.textContent('#sites')).includes('HelloFresh'), 'tested sites are listed');
