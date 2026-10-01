@@ -10,7 +10,7 @@ await new Promise(r => srv.stdout.once('data', r));
 const errors = [], fail = m => { errors.push(m); console.log('FAIL', m); }, ok = (c, m) => c ? console.log('ok', m) : fail(m);
 const browser = await pw.chromium.launch();
 try {
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', permissions: ['clipboard-read', 'clipboard-write'] });
   const page = await ctx.newPage();
   page.on('pageerror', e => fail('pageerror: ' + e.message));
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) fail('console: ' + m.text()); });
@@ -89,11 +89,25 @@ try {
   await page.click('[data-action="shop-recipe"]');
   // reload keeps everything
   await page.reload(); await page.waitForSelector('#content .pagehead');
+  await page.waitForTimeout(600); ok(await page.isVisible('#welcome[open]') && /Keep your recipes safe/.test(await page.textContent('#welcome')), 'backup reminder shows once there are recipes and no backup');
+  await page.click('#welcome [data-action="tour-close"]');
   await page.click('.navlink[data-go="library"]');
   ok((await page.$$('.rcard')).length === 2, 'library has 2 recipes after reload');
   await page.click('.navlink[data-go="shopping"]');
   ok((await page.$$('.shop-row')).length === 3, '3 shopping items saved');
   await page.click('.shop-row input'); await page.waitForTimeout(50);
+  // copy the list for another app: what's left to buy, one item per line
+  await page.click('[data-action="copy-shop"]'); await page.waitForTimeout(100);
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  ok(copied.split('\n').length === 2 && !/butter/.test(copied), 'Copy list copies the 2 items still to buy');
+  // print documents replace the screen while printing, then clear
+  await page.evaluate(() => { window.print = () => { window.__printed = (window.__printed || 0) + 1; }; });
+  await page.click('[data-action="print"]'); await page.waitForFunction(() => window.__printed === 1);
+  ok(await page.evaluate(() => document.body.classList.contains('printing') && !!document.querySelector('#print-root .pd-shop .pd-item')), 'shopping list prints as a document');
+  await page.evaluate(() => dispatchEvent(new Event('afterprint')));
+  ok(await page.evaluate(() => !document.body.classList.contains('printing') && !document.querySelector('#print-root').innerHTML), 'print document cleared afterwards');
+  // PWA pieces are served
+  ok((await page.evaluate(async () => (await fetch('manifest.webmanifest')).status)) === 200 && (await page.evaluate(async () => (await fetch('sw.js')).status)) === 200, 'manifest and service worker are served');
   ok((await page.$$('.shop-row.done')).length === 1, 'check off an item');
 
   // sample mode: every screen
@@ -106,6 +120,18 @@ try {
   await page.evaluate(() => go('library'));
   await page.click('[data-action="lib-view"][data-k="table"]'); await shot('11-library-table');
   await page.click('.titlecell button'); await page.waitForSelector('.recipe-hero'); await shot('12-sample-recipe');
+  await page.evaluate(() => { window.print = () => { window.__printed = (window.__printed || 0) + 1; }; window.__printed = 0; });
+  await page.click('[data-action="print"]'); await page.waitForFunction(() => window.__printed === 1);
+  ok(await page.evaluate(() => !!document.querySelector('#print-root .pd-recipe .pd-steps li')), 'recipe prints as a recipe card');
+  await page.evaluate(() => dispatchEvent(new Event('afterprint')));
+  await page.click('[data-action="copy-ing"]'); await page.waitForTimeout(100);
+  ok((await page.evaluate(() => navigator.clipboard.readText())).split('\n').length >= 4, 'ingredients copy');
+  await page.evaluate(() => go('collections')); await page.click('.ccard [data-action="book"]'); await page.waitForSelector('#book-form');
+  await page.click('#book-form label:has(input[value=modern])'); await page.click('#book-form button[type=submit]');
+  await page.waitForFunction(() => window.__printed === 2);
+  ok(await page.evaluate(() => document.querySelectorAll('#print-root .pd-cover.cv-modern').length === 1 && document.querySelectorAll('#print-root .pd-recipe').length >= 2 && !!document.querySelector('#print-root .pd-toc')), 'recipe book: cover, contents and recipes');
+  await page.evaluate(() => dispatchEvent(new Event('afterprint')));
+  await page.evaluate(() => go('library')); await page.click('.titlecell button'); await page.waitForSelector('.recipe-hero');
   await page.click('[data-action="cook"]'); await page.waitForSelector('.cook-step');
   await page.keyboard.press('ArrowRight');
   ok(/step 2/i.test(await page.textContent('.cook .eyebrow')), 'cook mode arrow keys');

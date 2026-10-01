@@ -8,6 +8,12 @@
 <meta name="theme-color" content="#3A2419">
 <meta name="description" content="Save any recipe from a link: ingredients, steps, times and photo, without the clutter. Plan meals and shop from one list. Your library stays on your device.">
 <title>Recipe Library Studio · Save any recipe from a link</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Recipes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='15' fill='%233A2419'/><g fill='none' stroke='%23F2B441' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'><path d='M17 18h12a5 5 0 0 1 5 5v24a6 6 0 0 0-6-5H17Z'/><path d='M47 18H35a5 5 0 0 0-5 5v24a6 6 0 0 1 6-5h11Z'/></g></svg>">
 <style>
 /*@@FONTS@@*/
@@ -672,6 +678,151 @@ dialog .subtitle{margin:0 0 var(--s5)}
  .rgrid{grid-template-columns:repeat(4,1fr)}.rcard{box-shadow:none;border:1px solid #ddd;animation:none}
  .week{grid-template-columns:repeat(4,1fr)}.day{box-shadow:none;border:1px solid #ddd;min-height:0}
  .aisles{columns:2}.shop-row input{display:none}.shop-row label:before{content:'☐';margin-right:6px}}
+
+/* ================= print documents: recipe card, shopping list, week plan, recipe book =================
+   Printing a recipe, list, plan or book swaps the whole app for #print-root, which holds a document laid out
+   for paper (real text, page sizes, page breaks). The browser's "Save as PDF" turns it into a crisp PDF. */
+#print-root{display:none}
+@media print{
+ body.printing{background:#fff!important;color:#221c18;font-size:10.5pt}
+ body.printing>*:not(#print-root){display:none!important}
+ body.printing #print-root{display:block}}
+.pd{font-variant-numeric:lining-nums;--p-ink:#221c18;--p-mute:#6e655e;--p-faint:#9a918a;--p-rule:#e6dfd7;color:var(--p-ink);font:10.5pt/1.55 var(--ui);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pd *{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-variant-numeric:lining-nums!important}
+.pd h1,.pd h2,.pd h3,.pd .serif{font-family:"Playfair Display",Georgia,"Times New Roman",serif;font-weight:600;letter-spacing:0;line-height:1.15;color:var(--p-ink);text-wrap:balance}
+.pd p{margin:0}
+.pd img{display:block;width:100%;height:100%;object-fit:cover}
+.pd figure{margin:0;overflow:hidden;background:var(--p-soft)}
+.pd figure:has(img[hidden]),.pd figure:not(:has(img)){display:none}
+.pd-kicker{font:700 7.5pt var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--p-accent)}
+.pd-lead{font:italic 400 11.5pt/1.5 "Playfair Display",Georgia,serif;color:var(--p-mute)}
+.pd-break{break-before:page}
+
+/* a recipe */
+.pd-recipe h1{font-size:27pt;margin:5pt 0 7pt}
+.pd-top{display:grid;grid-template-columns:1fr;gap:.3in;align-items:start;margin-bottom:4pt}
+.pd-top.with-photo{grid-template-columns:1fr 2.15in}
+.pd-top figure{aspect-ratio:1;border-radius:3pt}
+.pd .pd-banner{height:3.1in;border-radius:3pt;margin:0 0 18pt}
+.pd-recipe .pd-lead{margin-bottom:12pt;max-width:5.4in}
+.pd-meta{display:flex;border-top:.75pt solid var(--p-rule);border-bottom:.75pt solid var(--p-rule);margin:6pt 0 18pt;break-inside:avoid}
+.pd-meta div{flex:1;padding:6pt 10pt;border-left:.75pt solid var(--p-rule)}
+.pd-meta div:first-child{border-left:0;padding-left:0}
+.pd-meta span{display:block;font:700 6.5pt var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--p-faint)}
+.pd-meta b{font:600 11pt "Playfair Display",Georgia,serif}
+.pd-cols{display:grid;grid-template-columns:2.2in 1fr;gap:.38in;align-items:start}
+.pd-cols h2,.pd-notes h3{font-size:13pt;margin:0 0 8pt;padding-bottom:6pt;border-bottom:1.25pt solid var(--p-accent)}
+.pd-ing{list-style:none;margin:0;padding:0}
+.pd-ing li{position:relative;padding:4pt 0 4pt 11pt;border-bottom:.5pt solid var(--p-rule);break-inside:avoid;font-size:10pt}
+.pd-ing li:before{content:'';position:absolute;left:0;top:10pt;width:4pt;height:4pt;border-radius:50%;background:var(--p-accent)}
+.pd-ing li.sec{font:700 7pt var(--ui);letter-spacing:.18em;text-transform:uppercase;color:var(--p-faint);border:0;padding:10pt 0 2pt}
+.pd-ing li.sec:before{display:none}
+.pd-steps{list-style:none;margin:0;padding:0}
+.pd-steps li{display:grid;grid-template-columns:18pt 1fr;gap:7pt;margin:0 0 9pt;break-inside:avoid}
+.pd-steps li>b{font:600 13pt/1.1 "Playfair Display",Georgia,serif;color:var(--p-accent)}
+.pd-steps-sec{font:700 7.5pt var(--ui);letter-spacing:.18em;text-transform:uppercase;color:var(--p-accent);margin:12pt 0 7pt}
+.pd-steps-sec:first-child{margin-top:0}
+.pd-notes{margin-top:16pt;padding:11pt 14pt;background:var(--p-soft);border-radius:3pt;break-inside:avoid}
+.pd-notes h3{font-size:11.5pt;border:0;padding:0;margin:0 0 4pt}
+.pd-notes p{white-space:pre-line;font-size:9.5pt;color:#433b35}
+.pd-nutri{display:flex;flex-wrap:wrap;gap:4pt 16pt;margin-top:14pt;font-size:8.5pt;color:var(--p-mute);break-inside:avoid}
+.pd-nutri b{color:var(--p-ink);font-weight:600}
+.pd-source{display:flex;justify-content:space-between;gap:14pt;margin-top:18pt;padding-top:7pt;border-top:.5pt solid var(--p-rule);font-size:7.5pt;color:var(--p-faint);break-inside:avoid}
+.pd-source span:last-child{text-align:right}
+
+/* shopping list */
+.pd-docHead{display:flex;justify-content:space-between;align-items:flex-end;gap:16pt;padding-bottom:10pt;margin-bottom:16pt;border-bottom:1.25pt solid var(--p-accent)}
+.pd-docHead h1{font-size:26pt;margin-top:4pt}
+.pd-docHead .pd-lead{font-size:10.5pt;text-align:right}
+.pd-aisles{columns:2;column-gap:.42in}
+.pd-aisle{break-inside:avoid;margin:0 0 14pt}
+.pd-aisle h2{font-size:12pt;margin:0 0 3pt;display:flex;justify-content:space-between;align-items:baseline}
+.pd-aisle h2 small{font:600 7.5pt var(--ui);color:var(--p-faint);letter-spacing:.08em}
+.pd-item{display:flex;gap:8pt;align-items:flex-start;padding:4.5pt 0;border-bottom:.5pt solid var(--p-rule);font-size:10pt;break-inside:avoid}
+.pd-item i{flex:none;width:8.5pt;height:8.5pt;margin-top:2.5pt;border:.9pt solid #a39a92;border-radius:2pt}
+.pd-item small{display:block;font-size:7.5pt;color:var(--p-faint)}
+.pd-extra{break-inside:avoid;margin-top:6pt}
+.pd-extra h2{font-size:12pt;margin:0 0 3pt}
+.pd-extra div{height:22pt;border-bottom:.5pt solid var(--p-rule)}
+
+/* week plan: a landscape page */
+.pd-plan{page:land}
+.pd-week{width:100%;border-collapse:collapse;table-layout:fixed}
+.pd-week th{background:none;padding:0 6pt 7pt;text-align:left;vertical-align:bottom;border-bottom:1.25pt solid var(--p-accent)}
+.pd-week th span{display:block;font:700 7pt var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--p-faint)}
+.pd-week th b{font:600 15pt "Playfair Display",Georgia,serif}
+.pd-week th.today b{color:var(--p-accent)}
+.pd-week td{height:.98in;padding:6pt;vertical-align:top;border-bottom:.5pt solid var(--p-rule);border-left:.5pt solid var(--p-rule)}
+.pd-week td.slot{width:.75in;border-left:0;font:700 7pt var(--ui);letter-spacing:.18em;text-transform:uppercase;color:var(--p-accent);vertical-align:middle}
+.pd-week .meal-t{font:600 9.5pt/1.25 "Playfair Display",Georgia,serif;margin-bottom:3pt}
+.pd-week .meal-t small{display:block;font:500 7pt var(--ui);color:var(--p-faint);margin-top:1pt}
+.pd-planfoot{display:grid;grid-template-columns:1fr 1fr;gap:.4in;margin-top:14pt;break-inside:avoid}
+.pd-planfoot h2{font-size:11.5pt;margin:0 0 2pt}
+.pd-planfoot div div{height:19pt;border-bottom:.5pt solid var(--p-rule)}
+
+/* recipe book */
+.pd-cover{page:cover;position:relative;overflow:hidden;width:var(--pw);height:var(--ph);break-after:page;color:var(--p-ink)}
+.cv-classic{background:#F6F0E6;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.3in 1.1in}
+.cv-classic:before,.cv-classic:after{content:'';position:absolute;border:1.1pt solid var(--p-deep)}
+.cv-classic:before{inset:.42in}.cv-classic:after{inset:.52in;border-width:.5pt}
+.cv-classic h1{font-size:46pt;color:var(--p-deep);margin:16pt 0 12pt;line-height:1.08}
+.cv-classic .pd-lead{font-size:15pt}
+.cv-orn{width:120pt;height:26pt;color:var(--p-accent);margin:4pt auto}
+.cv-by{position:absolute;left:0;right:0;bottom:1.25in;text-align:center}
+.cv-by span{display:block;font:700 7pt var(--ui);letter-spacing:.26em;text-transform:uppercase;color:var(--p-faint);margin-bottom:4pt}
+.cv-by b{font:italic 400 17pt "Playfair Display",Georgia,serif;color:var(--p-deep)}
+.cv-modern{background:#fff;display:grid;grid-template-rows:62% 1fr}
+.cv-art{background:var(--p-deep);padding:.55in;display:grid;gap:6pt;position:relative;overflow:hidden}
+.cv-art.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}.cv-art.n3{grid-template-columns:1.4fr 1fr;grid-template-rows:1fr 1fr}.cv-art.n3 figure:first-child{grid-row:1/3}
+.cv-art.n2{grid-template-columns:1fr 1fr}.cv-art figure{border-radius:2pt;background:#ffffff14}
+.cv-art.none{background-image:radial-gradient(circle at 18% 22%,color-mix(in srgb,var(--p-pop) 55%,transparent) 0 9%,transparent 9.2%),radial-gradient(circle at 78% 70%,color-mix(in srgb,var(--p-accent) 70%,transparent) 0 17%,transparent 17.2%),radial-gradient(circle at 64% 18%,#ffffff1c 0 5%,transparent 5.2%),radial-gradient(circle at 30% 82%,#ffffff12 0 12%,transparent 12.2%)}
+.cv-mono{position:absolute;right:.5in;bottom:.15in;font:600 230pt/1 "Playfair Display",Georgia,serif;color:#ffffff14}
+.cv-text{padding:.55in .7in .6in;display:flex;flex-direction:column;justify-content:center;border-left:8pt solid var(--p-accent)}
+.cv-text h1{font-size:42pt;margin:8pt 0 8pt;color:var(--p-deep)}
+.cv-text .pd-lead{font-size:14pt}
+.cv-text .cv-name{margin-top:18pt;font:700 7.5pt var(--ui);letter-spacing:.24em;text-transform:uppercase;color:var(--p-faint)}
+.cv-text .cv-name b{display:block;font:italic 400 15pt "Playfair Display",Georgia,serif;letter-spacing:0;text-transform:none;color:var(--p-ink);margin-top:3pt}
+.cv-photo{background:var(--p-deep)}
+.cv-photo figure{position:absolute;inset:0;background:none}
+.cv-photo:after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(18,12,8,.88) 0%,rgba(18,12,8,.55) 34%,rgba(18,12,8,0) 62%)}
+.cv-photo .cv-over{position:absolute;left:.75in;right:.75in;bottom:.85in;z-index:1;color:#fff}
+.cv-photo .pd-kicker{color:var(--p-pop)}
+.cv-photo h1{color:#fff;font-size:48pt;margin:8pt 0 10pt}
+.cv-photo .pd-lead{color:#f2e9e1;font-size:15pt}
+.cv-photo .cv-line{width:48pt;height:2pt;background:var(--p-pop);margin:16pt 0 10pt}
+.cv-photo .cv-who{font:italic 400 14pt "Playfair Display",Georgia,serif;color:#fff}
+.pd-contents h1{font-size:32pt;margin:4pt 0 4pt}
+.pd-contents>.pd-lead{margin-bottom:22pt}
+.pd-toc{columns:2;column-gap:.45in}
+.pd-toc section{break-inside:avoid;margin-bottom:14pt}
+.pd-toc h2{font:700 7.5pt var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--p-accent);margin:0 0 4pt;padding-bottom:4pt;border-bottom:.75pt solid var(--p-rule)}
+.pd-toc div{display:flex;align-items:baseline;gap:6pt;padding:3pt 0;font-size:9.5pt}
+.pd-toc div i{font:600 8pt "Playfair Display",Georgia,serif;color:var(--p-faint);font-style:normal;width:18pt;flex:none}
+.pd-toc div span{flex:1;min-width:0;border-bottom:.75pt dotted #cfc6bd;padding-bottom:1pt}
+.pd-toc div em{font-style:normal;font-size:8pt;color:var(--p-faint);white-space:nowrap}
+.pd-made{margin-top:20pt;font-size:7.5pt;color:var(--p-faint);text-align:center}
+.pd-divider{height:calc(var(--ph) - 1.75in);display:flex;flex-direction:column;justify-content:center;break-inside:avoid;page-break-inside:avoid}
+.pd-divider .num{font:600 96pt/1 "Playfair Display",Georgia,serif;color:var(--p-soft2)}
+.pd-divider h1{font-size:44pt;margin:6pt 0 10pt}
+.pd-divider .bar{width:56pt;height:3pt;background:var(--p-accent);margin:6pt 0 14pt}
+
+/* the book dialog */
+.book-dlg{width:min(680px,calc(100% - 32px))}
+.cover-pick{display:grid;grid-template-columns:repeat(3,96px);gap:14px}
+.fields .check{flex-direction:row;align-items:center;font-weight:500;color:var(--ink);font-size:13px}
+.book-opts{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.print-tip{display:flex;gap:10px;align-items:flex-start}.print-tip svg{flex:none;margin-top:1px;color:var(--accent)}
+.cover-pick label{cursor:pointer}
+.cover-pick input{position:absolute;opacity:0;pointer-events:none}
+.cover-pick .mini{display:block;aspect-ratio:8.5/11;border-radius:6px;border:2px solid var(--rule);overflow:hidden;position:relative;transition:border-color .13s,box-shadow .13s}
+.cover-pick input:checked+.mini{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.cover-pick input:focus-visible+.mini{outline:2px solid var(--accent);outline-offset:2px}
+.cover-pick b{display:block;font-size:12px;margin-top:6px;text-align:center}
+.mini.m-classic{background:#F6F0E6}.mini.m-classic:before{content:'';position:absolute;inset:8%;border:1.5px solid var(--bold)}
+.mini.m-classic i{position:absolute;left:22%;right:22%;top:42%;height:7%;background:var(--bold);border-radius:2px}.mini.m-classic u{position:absolute;left:32%;right:32%;top:53%;height:3%;background:var(--accent);border-radius:2px}
+.mini.m-modern{background:#fff}.mini.m-modern i{position:absolute;inset:0 0 38% 0;background:var(--bold)}.mini.m-modern u{position:absolute;left:12%;right:30%;bottom:20%;height:7%;background:var(--bold);border-radius:2px}.mini.m-modern:after{content:'';position:absolute;left:0;bottom:0;width:5%;height:38%;background:var(--accent)}
+.mini.m-photo{background:linear-gradient(to top,#140c08 0%,#140c0899 35%,transparent 65%),linear-gradient(135deg,color-mix(in srgb,var(--pop) 70%,var(--bold)),var(--accent))}.mini.m-photo i{position:absolute;left:12%;right:28%;bottom:16%;height:7%;background:#fff;border-radius:2px}.mini.m-photo u{position:absolute;left:12%;width:16%;bottom:28%;height:2%;background:var(--pop)}
+.print-tip{line-height:1.5;font-size:12px;color:var(--ink-3);background:var(--sunk);border-radius:var(--r-sm);padding:10px 12px;margin-top:14px}
 </style>
 </head>
 <body>
@@ -682,7 +833,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
   <div class="brand"><span class="brand-mark" id="brand-mark"><svg viewBox="0 0 24 24" class="i" style="width:19px;height:19px;stroke-width:2.2" aria-hidden="true"><path d="M4 4.5h6a2.5 2.5 0 0 1 2.5 2.5v13a3 3 0 0 0-3-2.5H4Z"/><path d="M20 4.5h-6A2.5 2.5 0 0 0 11.5 7v13a3 3 0 0 1 3-2.5H20Z"/></svg></span><div class="brand-txt"><b>Recipe Library</b><small>DESIGNS BY DAROWAN</small></div>
    <button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" class="i"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
   <nav id="nav"></nav>
-  <div class="rail-foot"><div class="rail-note" id="rail-note"></div><button class="btn small rail-demo" data-action="sample" id="rail-demo">Explore sample recipes</button><a href="https://www.designsbydarowan.com" target="_blank" rel="noopener">Designs by Darowan ↗</a><span id="rail-version"></span><span class="status" id="rail-status">Saved on this device</span></div>
+  <div class="rail-foot"><div class="rail-note" id="rail-note"></div><button class="btn small rail-demo" data-action="install" id="rail-install" hidden>Install the app</button><button class="btn small rail-demo" data-action="sample" id="rail-demo">Explore sample recipes</button><a href="https://www.designsbydarowan.com" target="_blank" rel="noopener">Designs by Darowan ↗</a><span id="rail-version"></span><span class="status" id="rail-status">Saved on this device</span></div>
  </aside>
  <button class="scrim" data-action="menu" aria-label="Close navigation"></button>
  <div class="main">
@@ -708,6 +859,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
 <dialog id="dlg" aria-labelledby="dlg-title"></dialog>
 <dialog id="welcome" class="welcome" aria-labelledby="welcome-title"></dialog>
 <div class="timers" id="timers" aria-live="polite"></div>
+<div id="print-root" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="tip" id="tip" hidden></div>
 <input type="file" id="restore-file" accept=".json,application/json" hidden>
@@ -814,7 +966,7 @@ const Logic={
   if(s&&s.app==='RecipeLibraryStudio'&&Array.isArray(s.recipes))s=Logic.fromV1(s);   // a backup from the first, offline edition
   if(!s||typeof s!=='object'||!Array.isArray(s.recipes))throw Error(`This is not a ${CONFIG.name} file.`);
   const b=Logic.blank();s.settings={...b.settings,...s.settings};if(!CONFIG.themes.includes(s.settings.theme))s.settings.theme=CONFIG.defaultTheme;
-  if(!CONFIG.units.includes(s.settings.units))s.settings.units='Original';if(!Array.isArray(s.settings.hiddenNav))s.settings.hiddenNav=[];
+  if(!CONFIG.units.includes(s.settings.units))s.settings.units='Original';if(!Array.isArray(s.settings.hiddenNav))s.settings.hiddenNav=[];if(!['letter','a4',''].includes(s.settings.paper||''))s.settings.paper='';
   const str=v=>typeof v==='string'?v:'',arr=v=>Array.isArray(v)?v.filter(x=>typeof x==='string'):[],n=v=>Number.isFinite(+v)&&v!==null&&v!==''&&+v>=0?Math.round(+v):null;
   s.recipes=s.recipes.filter(r=>r&&typeof r.id==='string'&&typeof r.title==='string').map(r=>{const x=Logic.recipe(r);
    for(const k of ['title','description','sourceUrl','sourceName','author','servings','notes','sourceNotes','nutritionBasis','image','pasted','createdAt','updatedAt'])x[k]=str(x[k]);
@@ -1143,7 +1295,7 @@ const VIEWS={
   const per=lib.view==='table'?15:24,pages=Math.max(1,Math.ceil(rows.length/per));lib.page=Math.max(0,Math.min(lib.page,pages-1));const show=rows.slice(lib.page*per,lib.page*per+per);
   const tags=[...new Set(state.recipes.flatMap(r=>[...r.categories,...r.cuisine]))].sort(),col=state.collections.find(c=>c.id===lib.col);
   const counts={all:state.recipes.length,favorites:state.recipes.filter(r=>r.favorite).length,try:state.recipes.filter(r=>!r.made.length).length,made:state.recipes.filter(r=>r.made.length).length};
-  return pagehead(col?'Collection':'Your library',col?esc(col.name):'All recipes',col?'':'Everything you’ve saved, ready to cook.',button(ico('link')+'<span>Import from a link</span>','go','primary','data-go="import"'))+
+  return pagehead(col?'Collection':'Your library',col?esc(col.name):'All recipes',col?'':'Everything you’ve saved, ready to cook.',button(ico('book')+'<span>Recipe book</span>','book','',col?`data-pick="col:${col.id}"`:'')+button(ico('link')+'<span>Import from a link</span>','go','primary','data-go="import"'))+
    `<div class="toolbar"><div class="segment" role="group" aria-label="Show">${[['all','All'],['favorites','Favorites'],['try','To try'],['made','Made before']].map(([k,l])=>`<button data-action="lib-filter" data-k="${k}" aria-pressed="${lib.filter===k}">${l} <span class="dim">${counts[k]}</span></button>`).join('')}</div>
    <span class="count-note">${plural(rows.length,'recipe')}</span><div class="segment" role="group" aria-label="View"><button data-action="lib-view" data-k="grid" aria-pressed="${lib.view==='grid'}" aria-label="Cards" title="Cards">${ico('grid')}</button><button data-action="lib-view" data-k="table" aria-pressed="${lib.view==='table'}" aria-label="Table" title="Table">${ico('table')}</button></div></div><div class="toolbar">
    <div class="search">${ico('search')}<input id="lib-search" type="search" placeholder="Search titles, ingredients, tags…" value="${esc(lib.q)}" aria-label="Search recipes"></div>
@@ -1155,8 +1307,8 @@ const VIEWS={
    lib.view==='grid'?`<div class="rgrid">${show.map(card).join('')}</div>${pages>1?`<section class="card table-card" style="margin-top:16px">${pager(lib,rows.length,per)}</section>`:''}`:
    `<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Recipe</th><th>Category</th><th class="num">Time</th><th class="num">Rating</th><th class="num">Made</th><th>Added</th><th>Source</th></tr></thead><tbody>${show.map(r=>`<tr><td><div class="titlecell"><span class="thumb">${pic(r,false)}</span><button data-action="open" data-id="${r.id}"><span class="clamp">${esc(r.title)}</span></button></div></td><td>${esc(Logic.categoryOf(r))}</td><td class="num" data-v="${r.total??''}">${r.total?mins(r.total):'—'}</td><td class="num" data-v="${r.rating}">${r.rating?'★ '+r.rating:'—'}</td><td class="num" data-v="${r.made.length}">${r.made.length||'—'}</td><td data-v="${r.createdAt}" style="white-space:nowrap">${new Date(r.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td><td><span class="clamp">${esc(r.sourceName||'—')}</span></td></tr>`).join('')}</tbody></table></div>${pager(lib,rows.length,per)}</section>`);},
 
- collections(){return pagehead('Your library','Collections','Group recipes your way. A recipe can sit in as many collections as you like.',button(ico('plus')+'<span>New collection</span>','collection','primary'))+
-  (state.collections.length?`<div class="cgrid">${state.collections.map(c=>{const rs=state.recipes.filter(r=>r.collections.includes(c.id));return `<article class="ccard"><div class="mosaic">${[0,1,2,3].map(i=>rs[i]?pic(rs[i],false):'<div class="pic"></div>').join('')}</div><div class="ccard-body"><h2>${esc(c.name)}</h2><span class="small dim">${plural(rs.length,'recipe')}</span><div class="actions">${button('Open','open-collection','small primary',`data-id="${c.id}"`)}${button('Rename','collection','small',`data-id="${c.id}"`)}<button class="icon-action danger" data-action="delete-collection" data-id="${c.id}" aria-label="Delete ${esc(c.name)}" title="Delete">${ico('trash')}</button></div></div></article>`;}).join('')}</div>`:
+ collections(){return pagehead('Your library','Collections','Group recipes your way, then turn any collection into a printable recipe book.',button(ico('book')+'<span>Recipe book</span>','book')+button(ico('plus')+'<span>New collection</span>','collection','primary'))+
+  (state.collections.length?`<div class="cgrid">${state.collections.map(c=>{const rs=state.recipes.filter(r=>r.collections.includes(c.id));return `<article class="ccard"><div class="mosaic">${[0,1,2,3].map(i=>rs[i]?pic(rs[i],false):'<div class="pic"></div>').join('')}</div><div class="ccard-body"><h2>${esc(c.name)}</h2><span class="small dim">${plural(rs.length,'recipe')}</span><div class="actions">${button('Open','open-collection','small primary',`data-id="${c.id}"`)}${button(ico('book')+'Book','book','small',`data-pick="col:${c.id}" ${rs.length?'':'disabled'}`)}${button('Rename','collection','small',`data-id="${c.id}"`)}<button class="icon-action danger" data-action="delete-collection" data-id="${c.id}" aria-label="Delete ${esc(c.name)}" title="Delete">${ico('trash')}</button></div></div></article>`;}).join('')}</div>`:
   `<section class="card">${empty('No collections yet','Weeknight dinners, Sunday baking, family classics: make one, then add recipes from their edit page.',button('Create a collection','collection','primary'),'folder')}</section>`);},
 
  import(){return pagehead('Add a recipe','Bring a recipe home','The fastest way is a link. Pasting the page or typing it in works too.')+
@@ -1170,14 +1322,14 @@ const VIEWS={
  recipe(){const r=recipeById(openId);if(!r)return pagehead('Recipes','Recipe not found','It may have been deleted.',button('Back to recipes','go','primary','data-go="library"'));
   const base=Logic.servings(r.servings),sv=view.servings||base,f=base&&sv?sv/base:1,units=view.units||state.settings.units;
   const plannedNext=state.plans.filter(p=>p.recipeId===r.id&&p.date>=today()).sort((a,b)=>a.date.localeCompare(b.date))[0];
-  return `<div class="pagehead no-print" style="margin-bottom:16px"><div class="actions">${button(ico('left')+'All recipes','go','quiet','data-go="library"')}</div><div class="actions">${button(ico('edit')+'<span>Edit</span>','edit','',`data-id="${r.id}"`)}${button(ico('print')+'<span>Print</span>','print')}<button class="icon-action danger" data-action="delete-recipe" data-id="${r.id}" aria-label="Delete recipe" title="Delete recipe">${ico('trash')}</button></div></div>
+  return `<div class="pagehead no-print" style="margin-bottom:16px"><div class="actions">${button(ico('left')+'All recipes','go','quiet','data-go="library"')}</div><div class="actions">${button(ico('edit')+'<span>Edit</span>','edit','',`data-id="${r.id}"`)}${button(ico('print')+'<span>Print / PDF</span>','print')}<button class="icon-action danger" data-action="delete-recipe" data-id="${r.id}" aria-label="Delete recipe" title="Delete recipe">${ico('trash')}</button></div></div>
   <section class="hero recipe-hero"><div class="rh-text"><div class="eyebrow">${esc([...r.categories,...r.cuisine].slice(0,3).join(' · ')||'Recipe')}${r.sample?' · Sample':''}</div><h1>${esc(r.title)}</h1>${r.description?`<p>${esc(r.description.length>360?r.description.slice(0,358)+'…':r.description)}</p>`:''}
    <p class="src small">${r.sourceUrl?`From <a href="${esc(r.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(r.sourceName||hostOf(r.sourceUrl))} ↗</a>`:esc(r.sourceName||'From my own kitchen')}${r.author?' · by '+esc(r.author):''}${r.sourceRating?` · ${esc(r.sourceRating.value)}★ from ${esc(num(+r.sourceRating.count||0))} cooks there`:''}</p>
    <div class="rstats">${[['Prep',mins(r.prep)],['Cook',mins(r.cook)],['Total',mins(r.total)],['Serves',esc(r.servings||'—')]].map(([k,v])=>`<div><span>${k}</span><strong>${v}</strong></div>`).join('')}</div>
    <div class="actions" style="margin-top:8px">${button(ico('play')+'Start cooking','cook','pop',`data-id="${r.id}" ${Logic.stepCount(r)?'':'disabled'}`)}${button(ico('heart')+(r.favorite?'Favorite':'Add to favorites'),'favorite','',`data-id="${r.id}" aria-pressed="${r.favorite}"`)}${button(ico('check')+'Made it','made','',`data-id="${r.id}"`)}${button(ico('calendar')+'Plan','plan-recipe','',`data-id="${r.id}"`)}</div>
    <div class="rate" role="group" aria-label="Your rating">${[1,2,3,4,5].map(n=>`<button data-action="rate" data-id="${r.id}" data-n="${n}" class="${r.rating>=n?'on':''}" aria-label="Rate ${n} of 5" aria-pressed="${r.rating===n}">★</button>`).join('')}<span class="small" style="color:var(--on-bold-dim);margin-left:8px">${r.made.length?`Made ${plural(r.made.length,'time')} · last ${new Date(r.made.at(-1)+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}`:'Not made yet'}${plannedNext?` · planned for ${dayName(plannedNext.date,{weekday:'long'})}`:''}</span></div></div>
    ${pic(r,false)}</section>
-  <div class="recipe-cols"><section class="card">${cardhead('Ingredients',r.ingredients.length?plural(r.ingredients.length,'ingredient'):'','list',button(ico('cart')+'<span>Shopping list</span>','shop-recipe','small',`data-id="${r.id}"`))}
+  <div class="recipe-cols"><section class="card">${cardhead('Ingredients',r.ingredients.length?plural(r.ingredients.length,'ingredient'):'','list',`<button class="icon-action" data-action="copy-ing" data-id="${r.id}" aria-label="Copy ingredients" title="Copy ingredients">${ico('copy')}</button>`+button(ico('cart')+'<span>Shopping list</span>','shop-recipe','small',`data-id="${r.id}"`))}
    <div class="scale no-print">${base?`<span class="small dim">Serves</span><span class="stepper"><button data-action="serves" data-d="-1" aria-label="Fewer servings">−</button><output aria-live="polite">${Logic.frac(sv)}</output><button data-action="serves" data-d="1" aria-label="More servings">+</button></span>`:''}<div class="segment" role="group" aria-label="Units">${CONFIG.units.map(u=>`<button data-action="units" data-k="${u}" aria-pressed="${units===u}">${u}</button>`).join('')}</div></div>
    <div class="ing">${r.ingredients.map(l=>/:$/.test(l)&&!/\d/.test(l)?`<div class="ing-sec">${esc(l.slice(0,-1))}</div>`:`<label><input type="checkbox"><span>${esc(Logic.show(l,f,units))}</span></label>`).join('')||'<p class="dim small">No ingredients yet. Add them in Edit.</p>'}</div>
    ${units!=='Original'||f!==1?'<p class="small dim" style="margin-top:10px">Amounts are converted and scaled from the original. Volume stays volume and weight stays weight.</p>':''}</section>
@@ -1225,7 +1377,7 @@ const VIEWS={
 
  plan(){const days=Array.from({length:7},(_,i)=>addDays(week,i)),inWeek=state.plans.filter(p=>p.date>=days[0]&&p.date<=days[6]);
   return pagehead('Meal plan',`${new Date(days[0]+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'})} – ${new Date(days[6]+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`,inWeek.length?`${plural(inWeek.length,'meal')} planned. Add the week to your shopping list in one click.`:'Plan a few meals, then shop for all of them at once.',
-   `<div class="segment" role="group" aria-label="Week"><button data-action="week" data-d="-1" aria-label="Previous week">‹ Prev</button><button data-action="week" data-d="0" aria-pressed="${week===Logic.weekStart(today())}">This week</button><button data-action="week" data-d="1" aria-label="Next week">Next ›</button></div>`+button(ico('cart')+'<span>Shop this week</span>','shop-week','primary',inWeek.length?'':'disabled')+button(ico('print')+'<span>Print</span>','print'))+
+   `<div class="segment" role="group" aria-label="Week"><button data-action="week" data-d="-1" aria-label="Previous week">‹ Prev</button><button data-action="week" data-d="0" aria-pressed="${week===Logic.weekStart(today())}">This week</button><button data-action="week" data-d="1" aria-label="Next week">Next ›</button></div>`+button(ico('cart')+'<span>Shop this week</span>','shop-week','primary',inWeek.length?'':'disabled')+button(ico('print')+'<span>Print / PDF</span>','print'))+
   `<div class="week">${days.map(d=>`<section class="day ${d===today()?'today':''}"><header><span>${dayName(d)}</span><b>${+d.slice(8)}</b></header>${CONFIG.slots.map(slot=>state.plans.filter(p=>p.date===d&&p.slot===slot).map(p=>{const r=recipeById(p.recipeId);return `<div class="meal"><small>${slot}</small>${r?`<button class="open" data-action="open" data-id="${r.id}">${esc(r.title)}</button>`:`<span class="dim">${esc(p.note||'Removed recipe')}</span>`}<button class="x" data-action="unplan" data-id="${p.id}" aria-label="Remove from the plan" title="Remove">${ico('cross')}</button></div>`;}).join('')).join('')}
    <button class="addmeal" data-action="plan-add" data-date="${d}" aria-label="Plan a meal for ${dayName(d,{weekday:'long'})}">${ico('plus')}Add</button></section>`).join('')}</div>
   ${state.recipes.length?(()=>{const ideas=[...state.recipes].filter(r=>!inWeek.some(p=>p.recipeId===r.id)).sort((a,b)=>(b.favorite-a.favorite)||(a.made.at(-1)||'').localeCompare(b.made.at(-1)||'')).slice(0,4);return ideas.length?`<section class="card no-print" style="margin-top:16px">${cardhead('Need ideas?','Favorites you haven’t made in a while, and recipes still to try','compass')}<div class="rgrid">${ideas.map(card).join('')}</div></section>`:'';})():''}
@@ -1233,7 +1385,7 @@ const VIEWS={
 
  shopping(){const items=state.shopping,left=items.filter(i=>!i.checked).length;
   return pagehead('Ready for the store','Shopping list',items.length?`${plural(left,'item')} to pick up${items.length-left?`, ${num(items.length-left)} in the basket`:''}.`:'Add ingredients from a recipe or your week’s plan.',
-   button(ico('book')+'<span>From a recipe</span>','shop-pick')+button(ico('calendar')+'<span>From this week’s plan</span>','shop-week','',state.plans.some(p=>p.date>=Logic.weekStart(today())&&p.date<=addDays(Logic.weekStart(today()),6))?'':'disabled')+button(ico('print')+'<span>Print</span>','print'))+
+   button(ico('copy')+'<span>Copy list</span>','copy-shop','',state.shopping.some(i=>!i.checked)?'':'disabled')+button(ico('book')+'<span>From a recipe</span>','shop-pick')+button(ico('calendar')+'<span>From this week’s plan</span>','shop-week','',state.plans.some(p=>p.date>=Logic.weekStart(today())&&p.date<=addDays(Logic.weekStart(today()),6))?'':'disabled')+button(ico('print')+'<span>Print / PDF</span>','print'))+
   `<form class="addline no-print" data-form="item"><label class="sr-only" for="item-text">Add an item</label><input id="item-text" name="text" maxlength="200" placeholder="Add an item: 2 lemons, paper towels…" autocomplete="off"><button class="btn primary">${ico('plus')}Add</button></form>`+
   (items.length?`<div class="aisles">${CONFIG.aisles.map(a=>{const rows=items.filter(i=>i.aisle===a);return rows.length?`<section class="card">${cardhead(a,`${rows.filter(i=>!i.checked).length} of ${rows.length} left`)}${rows.map(i=>`<div class="shop-row ${i.checked?'done':''}"><label><input type="checkbox" data-item="${i.id}" ${i.checked?'checked':''}><span>${esc(i.text)}${i.from?`<small>${esc(i.from)}</small>`:''}</span></label><button class="icon-action danger" data-action="item-del" data-id="${i.id}" aria-label="Remove ${esc(i.text)}" title="Remove">${ico('cross')}</button></div>`).join('')}</section>`:'';}).join('')}</div>
    <div class="actions no-print" style="margin-top:16px">${button('Clear checked items','shop-clear-checked','',items.some(i=>i.checked)?'':'disabled')}${button('Clear the whole list','shop-clear','danger')}</div>`:
@@ -1248,6 +1400,9 @@ const VIEWS={
   <tr><td>Where are my recipes kept?</td><td>In this browser on this device. Nothing is uploaded and there’s no account. Only the link you import is sent to our recipe reader, which fetches that page and forgets it.</td></tr>
   <tr><td>Can I use it on my phone?</td><td>Yes. Open the same web address on your phone. Each device keeps its own library, so move recipes with a backup: download it on one device and restore it on the other.</td></tr>
   <tr><td>Photos?</td><td>Imported recipes show the website’s photo (it needs internet). Photos you upload are shrunk and kept on this device, inside your backups too.</td></tr>
+  <tr><td>Install it on my phone or computer?</td><td>Choose <b>Install the app</b> in the sidebar or Settings. On iPhone and iPad: in Safari, tap Share, then <b>Add to Home Screen</b>. It opens like any app and works offline, except importing links.</td></tr>
+  <tr><td>Print or save a PDF?</td><td>Use <b>Print / PDF</b> on a recipe, the shopping list or the meal plan, then pick <b>Save as PDF</b> as the printer. For a cookbook, choose <b>Recipe book</b> in Recipes or Collections: pick the recipes, a cover and the paper size. Turn off Headers and footers in the print window for the cleanest pages.</td></tr>
+  <tr><td>Send my list to another app?</td><td><b>Copy list</b> on the shopping list copies what’s left to buy, one item per line. Paste it into Reminders, AnyList, Google Keep or a note.</td></tr>
   <tr><td>Keyboard shortcuts</td><td><b>N</b> adds a recipe from a link. <b>/</b> searches your recipes. In cook mode, <b>←</b> and <b>→</b> move between steps.</td></tr>
   <tr><td>I used the first, offline edition</td><td>Export a full backup there, then choose <b>Restore backup</b> in Settings here. Recipes, collections, meal plans and the shopping list come across.</td></tr></tbody></table></div></section>`;},
 
@@ -1265,6 +1420,7 @@ const VIEWS={
    <h3 class="sub-head">Move your data</h3><div class="row"><div><strong>Recipe list as CSV</strong><small>Titles, categories, times, ratings and links, for a spreadsheet.</small></div>${button('Export','csv','small')}</div>
    <h3 class="sub-head">Start fresh</h3><div class="row"><div><strong>Clear everything in one step</strong><small>${demo?'Return to your own recipes first. Sample mode is never saved.':'You can undo it straight after.'}</small></div>${button('Start fresh','fresh','small danger',demo?'disabled':'')}</div></section></div>
   <section class="card"><div class="cardhead"><div><h2>Simplify your sidebar</h2><p>Switch extra views on or off. Changes appear immediately.</p></div><span class="pill">${optional.filter(([id])=>!hidden.has(id)).length} of ${optional.length} shown</span></div><div class="toggle-grid">${optional.map(([id,name,icon])=>`<label class="nav-toggle"><input type="checkbox" data-nav-toggle="${id}" ${hidden.has(id)?'':'checked'}><span>${ico(icon)}<b>${name}</b><i aria-hidden="true"></i></span></label>`).join('')}</div></section>
+  <section class="card"><div class="cardhead"><div><h2>Install the app</h2><p>${esc(installHelp())}</p></div>${standalone()?'<span class="pill good">Installed</span>':button(ico('down')+'Install','install','small primary')}</div></section>
   <section class="card"><div class="cardhead"><div><h2>Getting started</h2><p>A short tour, and made-up recipes to explore.</p></div>${button(demo?'Return to my recipes':'Open sample mode','sample')}</div><div class="row"><div><strong>Show the welcome tour again</strong><small>${CONFIG.welcome.length} short slides, including backups.</small></div>${button('Show tour','tour','small')}</div>
    <p class="small muted" style="margin-top:12px">${esc(CONFIG.name)} ${CONFIG.version} by <a href="${CONFIG.site}" target="_blank" rel="noopener">${CONFIG.publisher}</a> · <a href="mailto:${CONFIG.email}">${CONFIG.email}</a> · Personal use by the purchaser. Recipes you import belong to their creators; links to the original are kept.</p></section>`;},
 };
@@ -1359,6 +1515,110 @@ function photoFromLink(raw){let u=String(raw||'').trim().replace(/^<|>$/g,'');co
  img.onload=()=>{if(done)return;done=true;clearTimeout(t);if(!draft)return;keepForm();draft.image=u;draft.images=[u,...draft.images.filter(x=>x!==u)].slice(0,12);draftPhoto=null;draft.hasPhoto=false;dirty=true;render();toast('Photo added from the link');};
  img.onerror=()=>{if(done)return;done=true;clearTimeout(t);toast('That link didn’t load as a picture. Open it, save the image, and use Upload a photo instead.');};img.src=u;}
 
+/* ================================================================================
+   Print documents · real page layouts for paper and "Save as PDF", not a picture of the screen
+   ================================================================================ */
+const PAPER={letter:['8.5in','11in'],a4:['210mm','297mm']};
+const paperOf=()=>state.settings.paper||(/^en-(US|CA)|^es-MX|^fr-CA/.test(navigator.language||'')?'letter':'a4');
+// print colors follow the chosen palette; the two dark palettes print in Kiln so paper stays light
+function printPalette(){const t=['night','midnight'].includes(state.settings.theme)?'kiln':state.settings.theme,el=document.createElement('div');el.dataset.theme=t;el.hidden=true;document.body.appendChild(el);
+ const cs=getComputedStyle(el),v=n=>cs.getPropertyValue(n).trim();const p={accent:v('--accent'),deep:v('--bold'),pop:v('--pop'),soft:v('--accent-soft'),line:v('--accent-line')};el.remove();return p;}
+const ORNAMENT=`<svg class="cv-orn" viewBox="0 0 120 26" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M4 13h38M78 13h38"/><path d="M60 4c-5 5-5 13 0 18 5-5 5-13 0-18Z"/><path d="M48 13c4-5 8-5 12 0-4 5-8 5-12 0ZM72 13c-4-5-8-5-12 0 4 5 8 5 12 0Z"/><circle cx="44" cy="13" r="1.4" fill="currentColor"/><circle cx="76" cy="13" r="1.4" fill="currentColor"/></svg>`;
+const imgTag=r=>r.hasPhoto?`<img data-photo="${esc(r.id)}" alt="">`:r.image?`<img src="${esc(r.image)}" alt="" referrerpolicy="no-referrer" data-remote>`:'';
+const hasImg=r=>r.hasPhoto||!!r.image;
+function recipeDoc(r,{factor=1,units=state.settings.units,photo=true,notes=true,nutrition=true,num='',book=false}={}){
+ const kick=[num,...r.categories.slice(0,2),...r.cuisine.slice(0,1)].filter(Boolean).join(' · ')||'Recipe',pic=photo&&hasImg(r);
+ const meta=[['Prep',r.prep?mins(r.prep):''],['Cook',r.cook?mins(r.cook):''],['Total',r.total?mins(r.total):''],['Serves',r.servings&&factor!==1&&Logic.servings(r.servings)?Logic.frac(Logic.servings(r.servings)*factor):r.servings]].filter(x=>x[1]);
+ const head=`<div class="pd-kicker">${esc(kick)}</div><h1>${esc(r.title)}</h1>${r.description?`<p class="pd-lead">${esc(r.description.length>420?r.description.slice(0,418)+'…':r.description)}</p>`:''}`;
+ return `<article class="pd-recipe">${pic&&book?`<figure class="pd-banner">${imgTag(r)}</figure>${head}`:pic?`<div class="pd-top with-photo"><div>${head}</div><figure>${imgTag(r)}</figure></div>`:head}
+ ${meta.length?`<div class="pd-meta">${meta.map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>`:''}
+ <div class="pd-cols"><section><h2>Ingredients</h2><ul class="pd-ing">${r.ingredients.map(l=>/:$/.test(l)&&!/\d/.test(l)?`<li class="sec">${esc(l.slice(0,-1))}</li>`:`<li>${esc(Logic.show(l,factor,units))}</li>`).join('')}</ul></section>
+ <section><h2>Method</h2>${r.sections.map(s=>`${s.name?`<div class="pd-steps-sec">${esc(s.name)}</div>`:''}<ol class="pd-steps">${s.steps.map((t,i)=>`<li><b>${i+1}</b><span>${esc(t)}</span></li>`).join('')}</ol>`).join('')}
+ ${notes&&r.notes?`<div class="pd-notes"><h3>My notes</h3><p>${esc(r.notes)}</p></div>`:''}${notes&&r.sourceNotes&&!book?`<div class="pd-notes"><h3>Notes from the source</h3><p>${esc(r.sourceNotes)}</p></div>`:''}
+ ${nutrition&&r.nutrition?`<div class="pd-nutri">${Object.entries(r.nutrition).slice(0,8).map(([k,v])=>`<span>${esc(k)} <b>${esc(v)}</b></span>`).join('')}${r.nutritionBasis?`<span>${esc(r.nutritionBasis)}</span>`:''}</div>`:''}</section></div>
+ <div class="pd-source"><span>${r.sourceUrl?`${esc(r.sourceName||hostOf(r.sourceUrl))} · ${esc(r.sourceUrl.length>70?r.sourceUrl.slice(0,68)+'…':r.sourceUrl)}`:esc(r.sourceName||'From my own kitchen')}${r.author?' · '+esc(r.author):''}</span><span>${book?'':esc(state.settings.name||CONFIG.name)}</span></div></article>`;}
+function shoppingDoc(){const items=state.shopping.filter(i=>!i.checked),inBasket=state.shopping.length-items.length,from=new Set(items.flatMap(i=>(i.from||'').split(', ').filter(Boolean)));
+ return `<div class="pd-shop"><header class="pd-docHead"><div><div class="pd-kicker">${esc(new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}))}</div><h1>Shopping list</h1></div><p class="pd-lead">${plural(items.length,'item')}${from.size?` for ${plural(from.size,'recipe')}`:''}${inBasket?`<br>${num(inBasket)} already in the basket`:''}</p></header>
+ <div class="pd-aisles">${CONFIG.aisles.map(a=>{const rows=items.filter(i=>i.aisle===a);return rows.length?`<section class="pd-aisle"><h2>${a}<small>${rows.length}</small></h2>${rows.map(i=>`<div class="pd-item"><i></i><span>${esc(i.text)}${i.from?`<small>${esc(i.from)}</small>`:''}</span></div>`).join('')}</section>`:'';}).join('')}
+ <section class="pd-extra"><h2>Also</h2>${'<div></div>'.repeat(6)}</section></div></div>`;}
+function planDoc(){const days=Array.from({length:7},(_,i)=>addDays(week,i)),fmt=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'});
+ return `<div class="pd-plan"><header class="pd-docHead"><div><div class="pd-kicker">Meal plan</div><h1>${fmt(days[0])} – ${fmt(days[6])}</h1></div><p class="pd-lead">${esc(state.settings.name||'')}</p></header>
+ <table class="pd-week"><thead><tr><th></th>${days.map(d=>`<th class="${d===today()?'today':''}"><span>${dayName(d)}</span><b>${+d.slice(8)}</b></th>`).join('')}</tr></thead><tbody>
+ ${CONFIG.slots.map(slot=>`<tr><td class="slot">${slot}</td>${days.map(d=>`<td>${state.plans.filter(p=>p.date===d&&p.slot===slot).map(p=>{const r=recipeById(p.recipeId);return `<div class="meal-t">${esc(r?.title||p.note||'')}${r?.total?`<small>${mins(r.total)}</small>`:''}</div>`;}).join('')}</td>`).join('')}</tr>`).join('')}</tbody></table>
+ <div class="pd-planfoot"><div><h2>Prep ahead</h2>${'<div></div>'.repeat(3)}</div><div><h2>Notes</h2>${'<div></div>'.repeat(3)}</div></div></div>`;}
+// the meal order a cookbook reads in; anything else follows A to Z
+const COURSE=['breakfast','brunch','lunch','soup','soups','salad','salads','starter','appetizer','appetizers','main','mains','dinner','side','sides','bread','baking','dessert','desserts','snack','snacks','drink','drinks'];
+function bookDoc(rs,o){const year=new Date().getFullYear(),groups=new Map();
+ const rank=c=>{const i=COURSE.indexOf(c.toLowerCase());return i<0?99:i;};
+ for(const r of [...rs].sort((a,b)=>a.title.localeCompare(b.title))){const c=o.order==='alpha'?'All recipes':Logic.categoryOf(r);if(!groups.has(c))groups.set(c,[]);groups.get(c).push(r);}
+ const cats=[...groups.keys()].sort((a,b)=>rank(a)-rank(b)||a.localeCompare(b));let n=0;const numbered=cats.map(c=>[c,groups.get(c).map(r=>[++n,r])]);
+ const lead=o.subtitle?`<p class="pd-lead">${esc(o.subtitle)}</p>`:'',who=o.name?esc(o.name):'',photos=rs.filter(hasImg);
+ let cover;
+ if(o.cover==='photo'&&photos.length){const hero=photos.find(r=>r.favorite)||photos[0];cover=`<section class="pd-cover cv-photo"><figure>${imgTag(hero)}</figure><div class="cv-over"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')}</div><h1>${esc(o.title)}</h1>${lead}<div class="cv-line"></div>${who?`<div class="cv-who">From the kitchen of ${who}</div>`:''}</div></section>`;}
+ else if(o.cover==='modern'||o.cover==='photo'){const pics=photos.slice(0,4);cover=`<section class="pd-cover cv-modern"><div class="cv-art ${pics.length>=2?'n'+pics.length:'none'}">${pics.length>=2?pics.map(r=>`<figure>${imgTag(r)}</figure>`).join(''):`<div class="cv-mono">${esc((o.title.trim()[0]||'R').toUpperCase())}</div>`}</div>
+  <div class="cv-text"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')} · ${year}</div><h1>${esc(o.title)}</h1>${lead}${who?`<div class="cv-name">From the kitchen of<b>${who}</b></div>`:''}</div></section>`;}
+ else cover=`<section class="pd-cover cv-classic"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')}</div><h1>${esc(o.title)}</h1>${ORNAMENT}${lead}${who?`<div class="cv-by"><span>From the kitchen of</span><b>${who}</b><span style="margin-top:6px">${year}</span></div>`:''}</section>`;
+ const toc=`<section class="pd-contents"><div class="pd-kicker">Inside</div><h1>Contents</h1><p class="pd-lead">${plural(rs.length,'recipe')}${cats.length>1&&o.order!=='alpha'?` in ${plural(cats.length,'chapter')}`:''}</p>
+  <div class="pd-toc">${numbered.map(([c,list])=>`<section><h2>${esc(c)}</h2>${list.map(([i,r])=>`<div><i>${pad(i)}</i><span>${esc(r.title)}</span><em>${r.total?mins(r.total):''}</em></div>`).join('')}</section>`).join('')}</div>
+  <p class="pd-made">Printed ${esc(new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'}))} with ${CONFIG.name}</p></section>`;
+ const body=numbered.map(([c,list],ci)=>(o.dividers&&cats.length>1&&o.order!=='alpha'?`<section class="pd-divider pd-break"><div class="num">${pad(ci+1)}</div><h1>${esc(c)}</h1><div class="bar"></div><p class="pd-lead">${plural(list.length,'recipe')}</p></section>`:'')+
+  list.map(([i,r])=>`<div class="pd-break">${recipeDoc(r,{photo:o.photos,notes:o.notes,nutrition:o.nutrition,num:'No. '+pad(i),book:true})}</div>`).join('')).join('');
+ return `<div class="pd-book">${cover}${toc}${body}</div>`;}
+async function printDoc(html,title){
+ closeModal();const [w,h]=PAPER[paperOf()]||PAPER.letter,p=printPalette(),root=$('#print-root');
+ root.style.cssText=`--pw:${w};--ph:${h};--p-accent:${p.accent};--p-deep:${p.deep};--p-pop:${p.pop};--p-soft:${p.soft};--p-soft2:${p.line}`;
+ root.innerHTML=`<div class="pd">${html}</div>`;
+ let st=$('#page-style');if(!st){st=document.createElement('style');st.id='page-style';document.head.appendChild(st);}
+ st.textContent=`@page{size:${w} ${h};margin:.7in .75in .8in;@bottom-center{content:counter(page);font:8pt "DM Sans",sans-serif;color:#9a918a}}@page cover{size:${w} ${h};margin:0;@bottom-center{content:none}}@page land{size:${h} ${w};margin:.5in .6in .55in;@bottom-center{content:none}}`;
+ toast('Preparing your pages…');
+ // your own photos come from this device; website photos must finish loading before the print window opens
+ await Promise.all([...root.querySelectorAll('img[data-photo]')].map(async img=>{const d=await getPhoto(img.dataset.photo);if(d)img.src=d;else img.hidden=true;}));
+ await Promise.race([Promise.all([...root.querySelectorAll('img')].map(img=>img.complete&&img.naturalWidth?0:new Promise(res=>{img.addEventListener('load',res,{once:true});img.addEventListener('error',()=>{img.hidden=true;res();},{once:true});}))),new Promise(r=>setTimeout(r,12000))]);
+ root.querySelectorAll('img').forEach(img=>{if(!img.complete||!img.naturalWidth)img.hidden=true;});
+ // the print area is hidden on screen, so its fonts aren't loaded yet: load them before the print window opens
+ try{await Promise.all(['600 20px "Playfair Display"','italic 400 20px "Playfair Display"','400 12px "DM Sans"','700 12px "DM Sans"'].map(f=>document.fonts.load(f)));await document.fonts.ready;}catch{}
+ $('#toast').hidden=true;const old=document.title;document.title=title;document.body.classList.add('printing');
+ const done=()=>{document.body.classList.remove('printing');root.innerHTML='';st.textContent='';document.title=old;window.removeEventListener('afterprint',done);};
+ window.addEventListener('afterprint',done);setTimeout(()=>print(),60);}
+const fileTitle=s=>String(s).replace(/[\\/:*?"<>|]+/g,'').trim().slice(0,80)||CONFIG.name;
+function printRecipe(id){const r=recipeById(id);if(!r)return;const base=Logic.servings(r.servings),f=base&&view.servings?view.servings/base:1;printDoc(recipeDoc(r,{factor:f,units:view.units||state.settings.units}),fileTitle(r.title));}
+function printScreen(){if(screen==='recipe'||screen==='cook')return printRecipe(openId);if(screen==='shopping'){if(!state.shopping.some(i=>!i.checked))return toast('Nothing left to buy on the list.');return printDoc(shoppingDoc(),'Shopping list '+today());}
+ if(screen==='plan')return printDoc(planDoc(),'Meal plan week of '+week);print();}
+function bookForm(pick=''){if(!state.recipes.length)return toast('Save a few recipes first, then make your book.');
+ const cats=[...new Set(state.recipes.map(Logic.categoryOf))].sort(),col=pick.startsWith('col:')?state.collections.find(c=>'col:'+c.id===pick):null;
+ modal('Make a recipe book','A printable book with a cover, contents and one recipe per page. Save it as a PDF or print it.',`<form id="book-form"><div class="fields">
+  <label class="full">Recipes<select name="pick">${[['all',`All recipes (${state.recipes.length})`],['fav',`Favorites (${state.recipes.filter(r=>r.favorite).length})`],...state.collections.map(c=>['col:'+c.id,`Collection: ${c.name} (${state.recipes.filter(r=>r.collections.includes(c.id)).length})`]),...cats.map(c=>['cat:'+c,`Category: ${c} (${state.recipes.filter(r=>Logic.categoryOf(r)===c).length})`])].map(([v,l])=>`<option value="${esc(v)}" ${v===(pick||'all')?'selected':''}>${esc(l)}</option>`).join('')}</select></label>
+  <label>Title<input name="title" maxlength="60" value="${esc(col?col.name:'Our Family Recipes')}" required></label>
+  <label>Subtitle<input name="subtitle" maxlength="80" value="Recipes worth keeping"></label>
+  <label>From the kitchen of<input name="name" maxlength="60" value="${esc(state.settings.name)}" placeholder="The Rivera family"></label>
+  <label>Paper<select name="paper"><option value="letter" ${paperOf()==='letter'?'selected':''}>US Letter</option><option value="a4" ${paperOf()==='a4'?'selected':''}>A4</option></select></label>
+  <div class="full"><span class="small" style="font-weight:600;color:var(--ink-2)">Cover</span><div class="cover-pick" role="radiogroup" aria-label="Cover style" style="margin-top:6px">${[['classic','Classic'],['modern','Modern'],['photo','Photo']].map(([k,l],i)=>`<label><input type="radio" name="cover" value="${k}" ${i?'':'checked'}><span class="mini m-${k}"><i></i><u></u></span><b>${l}</b></label>`).join('')}</div></div>
+  <label>Order<select name="order"><option value="course">By category, with chapter pages</option><option value="alpha">A to Z</option></select></label>
+  <div><span class="small" style="font-weight:600;color:var(--ink-2)">Include</span><div class="book-opts" style="margin-top:6px"><label class="check"><input type="checkbox" name="photos" checked>Photos</label><label class="check"><input type="checkbox" name="notes" checked>My notes</label><label class="check"><input type="checkbox" name="nutrition">Nutrition</label></div></div></div>
+  <p class="print-tip">${ico('print')}<span>In the print window, choose <b>Save as PDF</b> as the printer. For the cleanest pages, turn <b>Headers and footers</b> off and <b>Background graphics</b> on.</span></p>${formFoot('Create the book')}</form>`);
+ $('#dlg').classList.add('book-dlg');$('#dlg').addEventListener('close',()=>$('#dlg').classList.remove('book-dlg'),{once:true});}
+async function copyText(text,msg){let ok=false;try{await navigator.clipboard.writeText(text);ok=true;}catch{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.select();try{ok=document.execCommand('copy');}catch{}ta.remove();}
+ toast(ok?msg:'Copying was blocked by the browser. Select the items and copy them instead.');}
+function copyShopping(){const items=CONFIG.aisles.flatMap(a=>state.shopping.filter(i=>!i.checked&&i.aisle===a));if(!items.length)return toast('Nothing left to buy on the list.');
+ copyText(items.map(i=>i.text).join('\n'),`${plural(items.length,'item')} copied. Paste into Reminders, AnyList, Google Keep or a note: each line becomes an item.`);}
+function copyIngredients(id){const r=recipeById(id);if(!r)return;const base=Logic.servings(r.servings),f=base&&view.servings?view.servings/base:1,u=view.units||state.settings.units;
+ copyText(r.ingredients.filter(l=>!(/:$/.test(l)&&!/\d/.test(l))).map(l=>Logic.show(l,f,u)).join('\n'),'Ingredients copied');}
+
+/* ---------- install as an app (PWA) ---------- */
+let installEvt=null;
+const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isMacSafari=()=>/Macintosh/.test(navigator.userAgent)&&/Safari/.test(navigator.userAgent)&&!/Chrome|Chromium|Edg|Firefox/.test(navigator.userAgent)&&!isIOS();
+function installHelp(){return standalone()?'Installed. You’re using the app.':installEvt?'One click adds it to your home screen, dock or start menu.':isIOS()?'In Safari, tap the Share button, then Add to Home Screen.':isMacSafari()?'In Safari, choose File, then Add to Dock.':'In Chrome or Edge, use the install icon in the address bar. On Android, open the browser menu and choose Install app.';}
+function renderInstall(){const b=$('#rail-install');if(b)b.hidden=standalone()||!(installEvt||isIOS()||isMacSafari());}
+async function installApp(){if(installEvt){installEvt.prompt();const c=await installEvt.userChoice.catch(()=>null);installEvt=null;renderInstall();if(c?.outcome==='accepted')toast('Installed. Find Recipe Library Studio with your other apps.');if(screen==='settings')render();}
+ else modal('Install the app',installHelp(),`<p class="small dim">It opens in its own window, works without internet (except importing links), and keeps your recipes safer on iPhone and iPad. Your library on this device is the same one; on iPhone the installed app keeps its own copy, so move it once with a backup.</p><div class="formfoot"><button type="button" class="btn primary" data-action="dismiss">Got it</button></div>`);}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;renderInstall();if(screen==='settings')render();});
+window.addEventListener('appinstalled',()=>{installEvt=null;renderInstall();toast('Installed. Find Recipe Library Studio with your other apps.');});
+if('serviceWorker' in navigator&&(location.protocol==='https:'||/^localhost$|^127\./.test(location.hostname)))window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+// shared to the app from a phone's share menu (Android): …/?url=… or ?text=… with a link inside
+function linkFromShare(){const q=new URLSearchParams(location.search),u=q.get('url')||(q.get('text')||'').match(/https?:\/\/\S+/)?.[0]||'';if(!u)return false;history.replaceState(null,'',location.pathname);screen='import';render();importLink(u);return true;}
+
 /* ---------- timers and the screen wake lock ---------- */
 const timers=[];let wake=null;
 function startTimer(m,label){timers.push({id:uid(),end:Date.now()+m*60000,label,m,done:false});paintTimers();toast(`${mins(m)} timer started`);}
@@ -1415,7 +1675,7 @@ const ACTIONS={
  'lib-reset':()=>{Object.assign(lib,{q:'',filter:'all',cat:'',col:'',page:0});render();},
  'ask-ok':()=>{const f=askFn;askFn=null;closeModal();f?.();},dismiss:closeModal,
  undo:()=>{if(!undoState)return;state=undoState;undoState=null;save();if(screen==='recipe'&&!recipeById(openId))screen='library';render();toast('Undone');},
- sample:()=>toggleSample(),backup,restore:()=>$('#restore-file').click(),print:()=>print(),csv:exportCSV,
+ sample:()=>toggleSample(),backup,restore:()=>$('#restore-file').click(),print:printScreen,csv:exportCSV,install:installApp,book:b=>bookForm(b.dataset.pick||''),'copy-shop':copyShopping,'copy-ing':b=>copyIngredients(b.dataset.id),
  'choose-folder':chooseFolder,'reconnect-folder':reconnectFolder,'banner-hide':()=>{bannerHidden=true;renderStatus();},
  theme:b=>commit(()=>state.settings.theme=b.dataset.k,'Palette changed'),
  fresh:()=>ask('Start fresh?','This clears every recipe, collection, plan and list. Download a backup first if you may need it. You can undo straight after.','Start fresh',()=>commit(()=>{const t=state.settings.theme;state=Logic.blank();state.settings.theme=t;},'Started fresh')),
@@ -1449,6 +1709,10 @@ document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d=Obj
   commit(()=>state.plans.push({id:uid(),date:d.date,slot:d.slot,recipeId:d.recipe,servings:''}),`${r?.title||'Meal'} planned for ${dayName(d.date,{weekday:'long'})}`);}
  if(f.id==='shop-form'){closeModal();const r=recipeById(d.recipe);commit(()=>{state.shopping=Logic.addToList(state.shopping,r.ingredients.filter(l=>!/:$/.test(l)),{from:r.title});},`${plural(r.ingredients.length,'ingredient')} added`);}
  if(f.dataset.form==='item'){const text=String(d.text||'').trim();if(!text)return;commit(()=>{state.shopping=Logic.addToList(state.shopping,[text]);},'Item added',{quiet:true});$('#item-text')?.focus();}
+ if(f.id==='book-form'){const pick=d.pick||'all',rs=state.recipes.filter(r=>pick==='all'||(pick==='fav'&&r.favorite)||(pick.startsWith('col:')&&r.collections.includes(pick.slice(4)))||(pick.startsWith('cat:')&&Logic.categoryOf(r)===pick.slice(4)));
+  if(!rs.length)return formError('No recipes in that choice yet. Pick another one.');const title=String(d.title||'').trim()||'Our Family Recipes';
+  if(!demo&&state.settings.paper!==d.paper){state.settings.paper=d.paper;save();}else state.settings.paper=d.paper;
+  printDoc(bookDoc(rs,{title,subtitle:String(d.subtitle||'').trim(),name:String(d.name||'').trim(),cover:d.cover||'classic',order:d.order,dividers:true,photos:!!d.photos,notes:!!d.notes,nutrition:!!d.nutrition}),fileTitle(title));}
  if(f.id==='settings-form')commit(()=>Object.assign(state.settings,{name:String(d.name||'').trim(),units:d.units}),'Preferences saved');});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='photo-url'){e.preventDefault();return photoFromLink(e.target.value);}if(e.key==='Escape')document.body.classList.remove('menu-open');
  const typing=/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable,dlg=document.querySelector('dialog[open]');if(typing||dlg||e.metaKey||e.ctrlKey||e.altKey)return;
@@ -1468,7 +1732,7 @@ function linkFromHash(){const m=location.hash.match(/^#(?:import|url)=(.+)$/);if
 document.querySelectorAll('[data-action="prev"]').forEach(b=>b.innerHTML=ico('left'));document.querySelectorAll('[data-action="next"]').forEach(b=>b.innerHTML=ico('right'));
 $('.mobile-menu').innerHTML=ico('menu');$('.topbar [data-go="guide"]').innerHTML=ico('help')+'<span>Guide</span>';$('.topbar [data-action="backup"]').innerHTML=ico('down')+'<span>Back up</span>';$('.topbar [data-action="add"]').innerHTML=ico('link')+'<span>Add recipe</span>';
 $('#rail-note').innerHTML=CONFIG.railNote;$('#rail-version').textContent=`${CONFIG.tagline} · v${CONFIG.version}`;
-Promise.all([load(),initFolder()]).then(()=>{render();if(location.hash.length>1)linkFromHash();else startupPrompt();});
+Promise.all([load(),initFolder()]).then(()=>{render();renderInstall();if(linkFromShare())return;if(location.hash.length>1)linkFromHash();else startupPrompt();});
 window.addEventListener('hashchange',linkFromHash);
 </script>
 </body>
