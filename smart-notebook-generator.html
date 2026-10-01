@@ -454,7 +454,6 @@ body.theme-pastel .cover .content{
   font-weight:800;
   text-transform:uppercase;
 }
-.template-library-grid.dense .template-tile{aspect-ratio:6/5}
 .index-template-grid .template-tile{
   padding:6px 5px 5px;
   gap:4px;
@@ -1235,8 +1234,17 @@ const noteTemplates = [
   ["soap-note","SOAP Note","Health",["medical","health","nursing"]]
 ];
 
+// Niche notebooks drop their least relevant general templates so every gallery has 30 (5 x 6).
+const templateExclusions = {
+  teacher:["lab","study-log"],
+  nursing:["kanban","project","source"],
+  medical:["kanban","project"],
+  health:["kanban","project","source"]
+};
+
 function activeTemplates(c){
-  return noteTemplates.filter(t=>!t[3] || t[3].includes(c.notebookType));
+  const skip = templateExclusions[c.notebookType] || [];
+  return noteTemplates.filter(t=>(!t[3] || t[3].includes(c.notebookType)) && !skip.includes(t[0]));
 }
 
 function featuredIds(type){
@@ -1406,7 +1414,7 @@ function notebookModeMeta(type){
       study:true,
       noteKinds:["cornell","lecture","drug-card","care-plan","vocab","study-log","soap-note","blank"],
       writeExample:"Pharmacology",
-      featuredSwap:{"course-dashboard":"drug-card","study-log":"care-plan","reading":"vocab"}
+      featuredSwap:{"course-dashboard":"drug-card","study-log":"care-plan","reading":"vocab","kanban":"soap-note"}
     },
     medical:{
       navLabel:"Subjects", setupTitle:"Medical Student Setup Guide", setupSubtitle:"Use each binder section as one subject, block, or rotation",
@@ -1424,7 +1432,7 @@ function notebookModeMeta(type){
       study:true,
       noteKinds:["cornell","lecture","soap-note","drug-card","lab","study-log","vocab","blank"],
       writeExample:"Cardiology",
-      featuredSwap:{"course-dashboard":"soap-note","study-log":"drug-card","reading":"lab"}
+      featuredSwap:{"course-dashboard":"soap-note","study-log":"drug-card","reading":"lab","kanban":"vocab"}
     },
     health:{
       navLabel:"Courses", setupTitle:"Health Sciences Setup Guide", setupSubtitle:"Use each binder section as one course or placement",
@@ -1442,7 +1450,7 @@ function notebookModeMeta(type){
       study:true,
       noteKinds:["cornell","lecture","soap-note","care-plan","reading","study-log","vocab","blank"],
       writeExample:"Kinesiology",
-      featuredSwap:{"course-dashboard":"soap-note","study-log":"care-plan","reading":"drug-card"}
+      featuredSwap:{"course-dashboard":"soap-note","study-log":"care-plan","reading":"drug-card","kanban":"lab"}
     }
   };
   return modes[type] || modes.student;
@@ -1741,14 +1749,14 @@ function templateLibraryPage(c){
   const body = `<div class="index-layout">
     <div class="index-group">
       <h3>Template Gallery</h3>
-      <div class="template-library-grid${activeTemplates(c).length > 30 ? " dense" : ""}">${activeTemplates(c).map(([id,title,group])=>templateTile(`template-${id}`,title,group,id)).join("")}</div>
+      <div class="template-library-grid">${activeTemplates(c).map(([id,title,group])=>templateTile(`template-${id}`,title,group,id)).join("")}</div>
     </div>
   </div>`;
   return page("templates","Template Library","Note Templates","Reusable page styles for notes, study, planning, and review",body);
 }
 
 function plannerTarget(c,id,kind){
-  return c.includeTemplates ? `template-${kind}` : id;
+  return c.includeTemplates && activeTemplates(c).some(t=>t[0]===kind) ? `template-${kind}` : id;
 }
 
 function plannerHubPage(c){
@@ -2125,7 +2133,7 @@ function generate(){
     for(let p=1;p<=c.pagesPerSection;p++) html += sectionNotePage(sectionIndex, name, p, c);
   });
   if(c.includeTemplates) activeTemplates(c).forEach(([id,title])=>html += templatePage(id,title));
-  if(c.includePlanner && !c.includeTemplates) plannerPages.forEach(([id,title,kind])=>html += plannerTemplatePage(id,title,kind));
+  if(c.includePlanner) plannerPages.filter(([id,,kind])=>plannerTarget(c,id,kind) === id).forEach(([id,title,kind])=>html += plannerTemplatePage(id,title,kind));
 
   notebook.innerHTML = html;
   const sizes = {ipad:"8.5in 11.333in", letter:"letter", a4:"A4"};
