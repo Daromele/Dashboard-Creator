@@ -148,3 +148,9 @@ dialog.wide{width:min(1000px,calc(100% - 32px))}
 .recipe-thumb{display:grid;place-items:center;width:44px;height:33px;border-radius:6px;overflow:hidden;background:color-mix(in srgb,var(--rc) 24%,var(--card));font:800 11px var(--num)}
 .recipe-thumb img{width:100%;height:100%;object-fit:cover}
 tr.dim td{opacity:.65}
+.cat-chip{--cc:var(--accent);display:inline-flex;align-items:center;gap:6px;align-self:flex-start;max-width:100%;padding:3px 10px 3px 8px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in srgb,var(--cc) 45%,var(--ink));background:color-mix(in srgb,var(--cc) 15%,var(--card));border:1px solid color-mix(in srgb,var(--cc) 35%,var(--line))}
+.cat-chip::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--cc);box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 25%,transparent)}
+.recipe>.cat-chip{margin-bottom:6px}
+.cat-name{display:flex;align-items:center;gap:var(--s3);min-width:0}
+.cat-swatch{flex:none;width:30px;height:30px;padding:0;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer}
+.cat-swatch::-webkit-color-swatch-wrapper{padding:3px}.cat-swatch::-webkit-color-swatch{border:0;border-radius:5px}.cat-swatch::-moz-color-swatch{border:0;border-radius:5px}

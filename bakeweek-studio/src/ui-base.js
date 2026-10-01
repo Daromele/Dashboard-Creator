@@ -76,6 +76,7 @@ const ls={get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(
 // recipe pictures, the category list (in the baker's order) and the recipes view live here too
 const readPrefs=u=>({theme:CONFIG.themes.includes(u?.theme)?u.theme:CONFIG.defaultTheme,hiddenNav:Array.isArray(u?.hiddenNav)?u.hiddenNav.filter(id=>CONFIG.optionalNav.includes(id)):[...CONFIG.hiddenNav],
  categories:Array.isArray(u?.categories)?[...new Set(u.categories.filter(c=>typeof c==='string').map(c=>c.trim().slice(0,80)).filter(Boolean))]:[],
+ categoryColors:Object.fromEntries(Object.entries(u?.categoryColors&&typeof u.categoryColors==='object'?u.categoryColors:{}).filter(([k,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v)).map(([k,v])=>[k.slice(0,80),v.toLowerCase()])),
  images:Object.fromEntries(Object.entries(u?.images&&typeof u.images==='object'?u.images:{}).filter(([k,v])=>typeof v==='string'&&/^data:image\/(jpeg|png|webp);base64,/.test(v)&&v.length<400000)),
  recipeView:u?.recipeView==='table'?'table':'grid'});
 let state=C.createBlank(),prefs=readPrefs(null),real=null,sampleState=null,demo=false,undoState=null,storageProblem='',storageReloadable=false,recoveryRaw='',

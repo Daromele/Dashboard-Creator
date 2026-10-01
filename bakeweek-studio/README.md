@@ -44,7 +44,10 @@ node ../.claude/skills/sellable-html-app/scripts/check_app.js Bakeweek_Studio.ht
 - **Orders**: the order book, with status filter, search, paging and sorting.
 - **Year at a glance**: sales by month by product, month-by-month table, best sellers. It can be
   switched off in Settings.
-- **Recipes**: cards with cost and price per piece and what each piece keeps.
+- **Recipes**: one grid (or a table) of every recipe, with search, a category filter, sorting and
+  an optional picture per recipe. Each card shows its category as a colored chip. Categories, their
+  order and their colors are managed in Settings (`ui.categories`, `ui.categoryColors`); a
+  category without a chosen color takes the next palette color by position.
 - **Pantry**: ingredients, pack prices, stock and its value.
 - **Settings & backup** and **How to use**.
 - **Dialogs**:
