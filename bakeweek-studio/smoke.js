@@ -116,6 +116,18 @@ const fails=[],check=(ok,msg)=>{console.log((ok?'  ok  ':'  FAIL ')+msg);if(!ok)
  check(await ev(()=>state.orders.some(o=>o.menuId&&o.customer==='Jo')),'a pre-order from the menu joins the order book');
  check(await ev(()=>/Jo/.test(document.querySelector('#content').textContent)&&/Order by/.test(document.querySelector('#menu-text').textContent)),'menu screen lists it, with the menu text');
  await ev(()=>printOut('menu'));await wait(300);check(await ev(()=>/Order by/.test(document.querySelector('#print-area').textContent)),'the menu prints');await ev(()=>document.body.classList.remove('printing'));
+ // 14. labels, customers, expenses, messages and pantry minimums
+ await p.click('.navlink[data-go=pantry]');await p.click('#content tbody [data-action=ingredient-form]');await wait(150);await p.click('#ingredient-form .day-pick:has([value=wheat])');await p.fill('#ingredient-form [name=minStock]','999999');await p.click('#ingredient-form button[type=submit]');await wait(250);
+ check(await ev(()=>state.ingredients.some(i=>i.allergens.includes('wheat')&&i.minStock===999999)),'an ingredient’s allergens and minimum are saved');
+ await p.click('.navlink[data-go=week]');await p.click('.hub-tabs [data-go=shopping]');await wait(150);check(await ev(()=>/Restock to your minimums/.test(document.querySelector('#content').textContent)),'shopping shows the restock list');
+ await p.click('.navlink[data-go=labels]');await wait(150);await p.fill('#content [data-lbl]','3');await wait(500);await ev(()=>printLabels());await wait(300);
+ check(await ev(()=>document.querySelectorAll('#print-area .lbl:not(.empty)').length===3&&/Contains: Wheat/.test(document.querySelector('#print-area').textContent)),'three labels print with their allergens');await ev(()=>document.body.classList.remove('printing'));
+ await p.click('.navlink[data-go=customers]');await wait(150);await p.click('#content tbody [data-action=customer-form]');await wait(150);await p.fill('#customer-form [name=allergies]','Sesame');await p.click('#customer-form button[type=submit]');await wait(250);
+ const cname=await ev(()=>state.customers[0]?.name);check(!!cname,'a customer card is saved');
+ await ev(n=>orderForm(state.orders.find(o=>o.customer===n&&o.kind!=='market').id),cname);await wait(150);check(await ev(()=>/Allergies:/.test(document.querySelector('#dlg').textContent)),'their allergy shows on the order');
+ await p.click('#dlg [data-action=msg-copy][data-k=confirm]');await wait(200);check(await ev(()=>/copied|Copying/.test(document.querySelector('#toast').textContent)),'a confirmation message can be copied');await ev(()=>closeModal());
+ await ev(()=>expenseForm());await wait(150);await p.fill('#expense-form [name=amount]','25');await p.fill('#expense-form [name=description]','Bags');await p.click('#expense-form button[type=submit]');await wait(250);
+ check(await ev(()=>state.expenses.length===1&&state.expenses[0].description==='Bags'),'an expense is logged');
  await p.click('.navlink[data-go=tools]');await p.fill('[data-c="scale.value"]','36');await wait(100);check(await ev(()=>/× 3/.test(document.querySelector('#calc-out').textContent)),'calculator scales a recipe to 36 pieces');
  check(!errs.length,'no page errors'+(errs.length?': '+errs.slice(0,3).join(' | '):''));
  await b.close();console.log(fails.length?`\n${fails.length} failure(s)`:'\nall flows passed');process.exit(fails.length?1:0);})();

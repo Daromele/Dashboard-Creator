@@ -78,7 +78,30 @@ node ../.claude/skills/sellable-html-app/scripts/check_app.js Bakeweek_Studio.ht
   an optional picture per recipe. Each card shows its category as a colored chip. Categories, their
   order and their colors are managed in Settings (`ui.categories`, `ui.categoryColors`); a
   category without a chosen color takes the next palette color by position.
+- **Customers**: everyone who has ordered, with contact details, allergies and notes, order
+  count, spending, last order and usual product.
+  - Allergies show in red on the customer's orders and Pack & collect cards, and print in capitals
+    on packing tickets.
+  - Renaming a customer renames their orders and standing orders too.
+- **Reports** is a hub with two tabs: Year at a glance and **Profit & expenses**.
+  - Profit is sales less ingredients and packaging (at pantry prices), card and stall fees, and
+    the expenses you log; the baker's own time isn't taken off.
+  - The screen shows profit per hands-on hour, profit by month, expenses by kind and a list of
+    expenses.
+  - CSV exports the monthly summary plus every expense.
+- **Labels**: ingredient and allergen labels on Avery 5163 (2×4 in), 5164 (3⅓×4 in) or L7163 (A4)
+  sheets.
+  - Each label has the business name, product, ingredients heaviest first (or the baker's own
+    list), "Contains:", an extra note line, net weight, baked and best-by dates, the address and
+    the home-kitchen statement.
+  - Counts can come from this week's batches, a recipe or a batch. You can skip labels at the
+    start to use a part-used sheet.
+- **Messages**: the order dialog copies a confirmation, a ready-for-pickup note or a payment
+  reminder.
 - **Pantry**: ingredients, pack prices, stock and its value.
+  - Each ingredient has a label name, allergens and a "keep at least" minimum.
+  - Shopping shows "Restock to your minimums" for anything that would end the week below its
+    minimum.
 - **Calculators**:
   - scale a recipe (by pieces, batches or a multiplier, and printable);
   - dough by baker's %, including true hydration with the levain;
@@ -100,6 +123,15 @@ node ../.claude/skills/sellable-html-app/scripts/check_app.js Bakeweek_Studio.ht
 
 ## Data
 
+- **Labels, customers, expenses.**
+  - Ingredients: `labelName`, `allergens` (wheat, milk, eggs, soy, peanuts, tree nuts, sesame,
+    fish, shellfish) and `minStock`.
+  - Recipes: `keepsDays`, `pieceWeight`, `labelText` and `labelNote`.
+  - Settings: `address` and `labelFooter`.
+  - `labelInfo(recipe)` gives the ingredient line (an "each" ingredient counts as 50 g when
+    ordering by weight) and the allergens.
+  - `customers` holds `{name, contact, allergies, notes}`, matched to orders by name with case
+    ignored. `expenses` holds `{date, category, description, amount}`.
 - **Dough prep.** Recipes have `prepDays` (0–3), `prepMinutes` per batch and `prepNote`.
   - `planWeek` puts each run's prep on the day it's done, including runs early next week. Each day
     gets `prepMinutes` and `preps`, which count toward its hours.

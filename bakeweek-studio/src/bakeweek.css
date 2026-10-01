@@ -195,3 +195,21 @@ tr.dim td{opacity:.65}
 .menu-pick input{width:78px;text-align:right;flex:none}.menu-pick.out{opacity:.5}
 .prep-line{border-left:3px solid var(--cat-3)}
 .menu-sheet table td,.menu-sheet table th{font-size:14px;padding:8px 6px}
+/* labels, customers, profit */
+.lbl-previews{display:flex;flex-direction:column;gap:12px;align-items:flex-start;overflow-x:auto}
+.lbl-preview{width:var(--w);height:var(--h);flex:none;border:1px dashed var(--rule-2);border-radius:6px;background:#fff;color:#111;overflow:hidden}
+.lbl-preview .lbl,.lbl-page .lbl{width:100%;height:100%}
+.lbl{box-sizing:border-box;overflow:hidden;padding:.1in .16in;font:8.2pt/1.28 var(--ui);color:#111;display:flex;flex-direction:column;gap:1.5pt;background:#fff}
+.lbl-biz{font-size:6.6pt;letter-spacing:.08em;text-transform:uppercase;color:#444}
+.lbl-name{font:700 12.5pt/1.15 var(--num)}
+.lbl-meta{display:flex;flex-wrap:wrap;gap:0 8pt;font-weight:600}
+.lbl-addr{color:#333}.lbl-foot{font-size:6.6pt;line-height:1.2;color:#333;margin-top:auto}
+.big .lbl{font-size:8.6pt;padding:.16in .2in;gap:3pt}.big .lbl-name{font-size:14pt}.big .lbl-biz{font-size:7pt}.big .lbl-foot{font-size:7pt}
+.lbl-page{display:grid;grid-template-columns:repeat(var(--cols),var(--w));grid-auto-rows:var(--h);column-gap:var(--gx);padding:var(--top) 0 0 var(--left);break-after:page;box-sizing:border-box}
+.lbl-page:last-child{break-after:auto}
+.lbl.empty{background:none}
+.recipe-contains{margin:var(--s2) 0 0;color:var(--ink-2);font-size:12px}
+.note.allergy{color:var(--over);font-weight:700}
+.msg-actions{align-items:center;margin:0 0 8px;flex-wrap:wrap}
+.neg-t{color:var(--over)}
+.table-card>p.small{padding:0 var(--s5) var(--s4)}

@@ -14,11 +14,11 @@ const CONFIG={
  railNote:'<b>A little planning.</b>Room for more baking.',
  // [id, label, icon, hub tabs?]: This week is one sidebar item with four tabs
  nav:[['week','This week','today',[['week','Week plan'],['shopping','Shopping'],['batches','Batch sheets'],['packing','Pack & collect']]],
-  ['orders','Orders','log'],['menu','Pre-order menu','note'],['standing','Standing orders','repeat'],['markets','Market days','tent'],['year','Year at a glance','outlook'],
-  ['recipes','Recipes','tags'],['pantry','Pantry','cart'],['tools','Calculators','calc'],
+  ['orders','Orders','log'],['menu','Pre-order menu','note'],['standing','Standing orders','repeat'],['markets','Market days','tent'],['customers','Customers','users'],['year','Reports','outlook',[['year','Year at a glance'],['money','Profit & expenses']]],
+  ['recipes','Recipes','tags'],['pantry','Pantry','cart'],['labels','Labels','label'],['tools','Calculators','calc'],
   ['settings','Settings & backup','palette'],['guide','How to use','help']],
- navGroups:[['Your week',['week']],['Selling',['orders','menu','standing','markets','year']],['Your library',['recipes','pantry','tools']]], navGroupRest:'Help & settings',
- optionalNav:['menu','standing','markets','year','tools','guide'], hiddenNav:[],
+ navGroups:[['Your week',['week']],['Selling',['orders','menu','standing','markets','customers','year']],['Your library',['recipes','pantry','labels','tools']]], navGroupRest:'Help & settings',
+ optionalNav:['menu','standing','markets','customers','year','labels','tools','guide'], hiddenNav:[],
  welcome:[
   {icon:'today',step:'WELCOME',title:'Your bakery week, in order',text:'Orders, standing orders and market days become one day-by-day bake plan, one combined shopping list, scaled batch sheets and packing tickets.'},
   {icon:'note',step:'EVERY WEEK',title:'Post the menu, bake what’s ordered',text:'Copy a pre-order menu into your posts and messages. Subscriptions and café orders repeat on their own, and market days suggest how much to bring next time.'},
@@ -45,6 +45,7 @@ const ICON={today:S('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'
  upload:S('<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>'),
  repeat:S('<path d="M17 2.5 20.5 6 17 9.5"/><path d="M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5"/><path d="M7 21.5 3.5 18 7 14.5"/><path d="M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5"/>'),
  tent:S('<path d="M3 9.5 5.5 4h13L21 9.5"/><path d="M3 9.5c0 1.4 1 2.5 2.25 2.5S7.5 10.9 7.5 9.5c0 1.4 1 2.5 2.25 2.5S12 10.9 12 9.5c0 1.4 1 2.5 2.25 2.5s2.25-1.1 2.25-2.5c0 1.4 1 2.5 2.25 2.5S21 10.9 21 9.5"/><path d="M5 12v8.5h14V12M10 20.5v-5h4v5"/>'),
+ label:S('<path d="M3 7.5V4a1 1 0 0 1 1-1h3.5l12 12-5 5-12-12Z" transform="translate(.5 .5)"/><path d="M8 12h7M10 15h4"/>'),
  note:S('<rect x="4.5" y="3" width="15" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/>'),
  calc:S('<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8.5 6.5h7v3.5h-7Z"/><path d="M8.5 14h.01M12 14h.01M15.5 14h.01M8.5 17.5h.01M12 17.5h.01M15.5 17.5h.01"/>'),
  scale:S('<path d="M12 3v18M7 21h10"/><path d="M4 7h16"/><path d="m4 7-2.5 6a3 3 0 0 0 5 0Z"/><path d="m20 7-2.5 6a3 3 0 0 0 5 0Z"/>')};
@@ -219,7 +220,7 @@ function render(){const f=captureFocus();if(typeof autoSync==='function')autoSyn
  document.documentElement.dataset.theme=prefs.theme;applyRail();renderNav();renderStatus();
  $('#week-label').textContent=weekLabel(week);$('#week-picker').value=week;
  const hub=hubOf(screen);
- $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.business)}</b> · Bakeweek Studio</span><b>${esc(['year','markets'].includes(screen)?week.slice(0,4):['orders','standing','recipes','pantry','tools','settings','guide'].includes(screen)?'Printed '+date(today()):'Week of '+weekLabel(week))}</b></div>`+
+ $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.business)}</b> · Bakeweek Studio</span><b>${esc(['year','markets','money'].includes(screen)?week.slice(0,4):['orders','standing','customers','labels','recipes','pantry','tools','settings','guide'].includes(screen)?'Printed '+date(today()):'Week of '+weekLabel(week))}</b></div>`+
   (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${hub[3].map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
   (VIEWS[screen]||VIEWS.week)()+`<footer class="footer"><span>Bakeweek Studio · JPS Digital Pages</span><span>${demo?'Sample bakery · nothing saved':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
  sortTables();countUp();restoreFocus(f);}
