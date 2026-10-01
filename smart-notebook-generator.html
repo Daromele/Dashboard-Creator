@@ -2151,6 +2151,35 @@ document.querySelectorAll("input,select,textarea").forEach(el=>el.addEventListen
 ["notebookTitle","ownerLabel","taskLabel","customNames"].forEach(id=>$(id).addEventListener("input",generate));
 $("sectionMode").addEventListener("change",()=>{$("customNamesField").hidden = $("sectionMode").value !== "custom";});
 $("regenerate").addEventListener("click",generate);
+
+const SETTINGS_KEY = "smartNotebookSettings";
+const FIELD_IDS = ["notebookTitle","ownerLabel","notebookType","sectionMode","customNames","sectionCount","pagesPerSection","formatLabel","taskLabel","includeTemplates","includePlanner","includeSmart","includeStickers"];
+function saveSettings(){
+  const data = {theme:(document.querySelector("[data-theme].active")||{}).dataset?.theme};
+  FIELD_IDS.forEach(id=>{const el=$(id); data[id] = el.type === "checkbox" ? el.checked : el.value;});
+  try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(data)); }catch(e){}
+}
+function loadSettings(){
+  let data;
+  try{ data = JSON.parse(localStorage.getItem(SETTINGS_KEY)); }catch(e){}
+  if(!data) return;
+  FIELD_IDS.forEach(id=>{
+    const el=$(id);
+    if(!(id in data)) return;
+    if(el.type === "checkbox") el.checked = !!data[id];
+    else if(el.tagName !== "SELECT" || [...el.options].some(o=>o.value===data[id])) el.value = data[id];
+  });
+  const btn = data.theme && document.querySelector(`[data-theme="${data.theme}"]`);
+  if(btn){
+    document.querySelectorAll("[data-theme]").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.body.className = "theme-" + data.theme;
+  }
+  $("customNamesField").hidden = $("sectionMode").value !== "custom";
+}
+document.querySelectorAll("input,select,textarea").forEach(el=>{el.addEventListener("change",saveSettings);el.addEventListener("input",saveSettings);});
+document.querySelectorAll("[data-theme]").forEach(btn=>btn.addEventListener("click",saveSettings));
+loadSettings();
 generate();
 </script>
 </body>
