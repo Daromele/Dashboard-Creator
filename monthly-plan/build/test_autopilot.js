@@ -130,4 +130,12 @@ Pending Activity,,,,,,$-50.00
   eq('a bigger deposit is scaled from the usual stub and still adds up', [bonus.how,bonus.gross-Object.values(bonus.lines).reduce((a,b)=>a+b,0),bonus.lines.fed], ['estimate',624000,90000]);
   eq('an entered stub wins', A.paycheck(312000,usual,{gross:450000,lines:{fed:138000}}).how, 'entered');
   eq('stub totals by kind', (x=>[x.gross,x.tax,x.retire,x.benefit,x.net])(A.stubTotals([A.paycheck(312000,usual,null),A.paycheck(312000,usual,null)])), [894000,192800,54000,23200,624000]);
+
+  // balances: kept current from the latest one; a card with none is estimated from its charges since the last payment
+  const tx=[{date:'2026-09-02',flow:-5000,why:'merchant'},{date:'2026-09-10',flow:30000,why:'card payment'},{date:'2026-09-12',flow:-2500,why:'merchant'},{date:'2026-09-14',flow:1000,why:'refund'}];
+  eq('a card with no balance: charges since the last payment, less refunds', A.balanceAt('card',[],tx,'2026-09-30'), {value:1500,how:'estimate',from:'2026-09-10'});
+  eq('a typed card balance rolls forward with charges and payments after it', A.balanceAt('card',[{date:'2026-09-01',value:40000,how:'manual'}],tx,'2026-09-30'), {value:40000+5000-30000+2500-1000,how:'rolled',from:'2026-09-01'});
+  eq('checking rolls forward the other way', A.balanceAt('bank',[{date:'2026-09-01',value:100000,how:'file'}],tx,'2026-09-11').value, 100000-5000+30000);
+  eq('investments and loans keep their latest balance', [A.balanceAt('retire',[{date:'2026-06-30',value:500,how:'manual'}],tx,'2026-09-30').value,A.balanceAt('loan',[],tx,'2026-09-30')], [500,null]);
+  eq('nothing before the first balance or transaction', [A.balanceAt('bank',[],tx,'2026-09-30'),A.balanceAt('card',[],tx,'2026-08-01')], [null,null]);
 };

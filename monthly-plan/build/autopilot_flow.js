@@ -86,7 +86,14 @@ await p.evaluate(()=>go('invest',true));await p.waitForTimeout(150);
 await p.evaluate(()=>document.querySelector('[data-action="ap-bal-new"]').click());await p.waitForTimeout(100);
 await p.fill('#ap-bal-form [name=name]','Acme 401(k)');await p.fill('#ap-bal-form [name=value]','41,250.00');await p.click('#ap-bal-form button[type=submit]');await p.waitForTimeout(200);
 ok('a 401(k) balance can be typed in',await p.evaluate(()=>{const a=state.accounts.find(x=>x.name==='Acme 401(k)');return a?.kind==='retire'&&state.balances[a.id][0].value===4125000&&state.balances[a.id][0].how==='manual';}));
-ok('Savings & investments totals the latest balances, checking left out',await p.evaluate(()=>{const b=+document.querySelector('.hero .hero-big').dataset.count;return b===841234+1240000+530000+4125000;}));
+ok('Net worth is what you own less what you owe',await p.evaluate(()=>{const n=+document.querySelector('.hero .hero-big').dataset.count,txt=document.querySelector('.hero-side').innerText;return /Credit cards/.test(txt)&&/Retirement/.test(txt)&&Number.isInteger(n);}));
+ok('a card without a balance is estimated and asks for one',await p.evaluate(()=>[...document.querySelectorAll('.notice')].some(n=>/card balance is estimated/.test(n.innerText))&&/Estimate: charges since the last payment/.test(document.querySelector('#content').innerText)));
+const card=await p.evaluate(()=>state.accounts.find(a=>a.kind==='card').id);
+await p.evaluate(id=>document.querySelector(`[data-action="ap-bal"][data-id="${id}"]`).click(),card);await p.waitForTimeout(100);
+await p.fill('#ap-bal-form [name=value]','500');await p.fill('#ap-bal-form [name=date]','2026-09-15');await p.click('#ap-bal-form button[type=submit]');await p.waitForTimeout(200);
+const owed=await p.evaluate(id=>{const t=state.transactions.filter(x=>x.acct===id&&x.date>'2026-09-15'&&x.date<=Budget.today());const f=t.reduce((n,x)=>n+(Budget.type(state.categories.find(c=>c.id===x.category))==='income'?x.amount:-x.amount),0);return [50000-f,/Kept current with new transactions/.test(document.querySelector('#content').innerText)];},card);
+ok('a typed card balance is kept current by the statements after it',owed[1]&&await p.evaluate(v=>[...document.querySelectorAll('table.ap-rec tbody tr')].some(r=>r.innerText.includes(fmt(v))),owed[0]),JSON.stringify(owed));
+
 // paychecks: one usual stub fills in each paycheck
 await p.evaluate(()=>go('paychecks',true));await p.waitForTimeout(150);
 await p.evaluate(()=>document.querySelector('[data-action="ap-stub-usual"]').click());await p.waitForTimeout(100);
