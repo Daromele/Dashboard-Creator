@@ -66,6 +66,47 @@ try {
   await page.click('#recipe-form button[type=submit]');
   await page.waitForSelector('.recipe-hero h1');
   ok(await page.textContent('.rstats') .then(t => /55 min/.test(t)), 'total filled from prep + cook');
+  // bulk import: several links, one duplicate, one without a recipe, one missing
+  await page.evaluate(() => go('import'));
+  await page.fill('#bulk-text', `${BASE}/fixtures/dotdash-array.html\n${BASE}/fixtures/string-instructions.html\nsee ${BASE}/fixtures/wprm-graph.html,\n${BASE}/fixtures/no-recipe.html\n${BASE}/fixtures/nope.html`);
+  await page.evaluate(() => { window.__sleep = sleep; });
+  await page.click('[data-form="bulk"] button');
+  await page.waitForFunction(() => !bulk.running, null, { timeout: 60000 });
+  const st = await page.evaluate(() => bulk.items.map(i => i.status).join(','));
+  ok(st === 'saved,saved,dupe,review,failed', 'bulk import: ' + st);
+  ok(await page.evaluate(() => state.recipes.some(r => r.title === 'Weeknight Chili') && state.recipes.some(r => r.tags.includes('needs review'))), 'bulk saved recipes, partial one tagged needs review');
+  await page.evaluate(() => { const ids = new Set(bulk.items.filter(i => i.status === 'saved' || i.status === 'review').map(i => i.id)); state.recipes = state.recipes.filter(r => !ids.has(r.id)); save(); bulk.items = []; });
+  // hand-pasted ingredient lists: stray heading dropped, amounts on their own line joined to the ingredient
+  const ingIn = (await import('node:fs')).readFileSync(new URL('./fixtures/split-ingredients.txt', import.meta.url), 'utf8');
+  const ingOut = await page.evaluate(t => Logic.cleanIngredients(t.split('\n')), ingIn);
+  ok(ingOut[0] === '10 oz Ground Beef' && ingOut[1] === '2 Small Baguettes' && ingOut[3] === '1 Yellow Onion' && ingOut[9].startsWith('½ tbsp Weeknight Hero') && ingOut.length === 14 && ingOut[10] === 'For the sauce:' && ingOut[11] === '1 cup flour', 'split ingredient lines are joined: ' + JSON.stringify(ingOut.slice(0, 3)));
+  const pp = await page.evaluate(t => Logic.parsePaste('Cheesesteak Subs\n' + t + '\nInstructions\n1. Toast the bread.\n2. Cook the beef.'), ingIn);
+  ok(pp.ingredients[0] === '10 oz Ground Beef' && pp.ingredients.length === 14, 'page paste joins split ingredient lines');
+  // which-sites lists: curated sites, sites that worked for you, social links caught before fetching, blocks remembered
+  await page.evaluate(() => go('import'));
+  ok((await page.$$('#sites a.site')).length === 20 && (await page.textContent('#sites')).includes('HelloFresh'), 'tested sites are listed');
+  ok((await page.textContent('#sites')).includes('Allrecipes, Simply Recipes'), 'blocked sites are listed with a workaround');
+  ok(await page.evaluate(() => !!state.mySites.localhost), 'a site you imported from is saved to your sites');
+  await page.evaluate(() => { delete state.mySites.localhost; render(); });
+  await page.fill('#site-url', `${BASE}/fixtures/dotdash-array.html`);
+  await page.click('[data-form="site-check"] button');
+  await page.waitForFunction(() => !checking);
+  ok((await page.textContent('#site-check-status')).includes('works') && await page.evaluate(() => !!state.mySites.localhost), 'check a website: a working site is saved');
+  ok(await page.evaluate(() => !state.recipes.some(r => r.title === 'Weeknight Chili')), 'checking a site does not save the recipe');
+  await page.click('[data-action="site-del"][data-h="localhost"]');
+  ok(await page.evaluate(() => !state.mySites.localhost), 'a saved site can be removed');
+  await page.fill('.import-hero input[name=url]', 'https://www.allrecipes.com/recipe/1/x/');
+  await page.click('.import-hero [data-import-go]');
+  ok((await page.textContent('.import-hero .import-status')).includes('allrecipes.com blocks automatic import'), 'known blocked sites get the workaround without a fetch');
+  await page.fill('.import-hero input[name=url]', 'https://www.instagram.com/p/abc123/');
+  await page.click('.import-hero [data-import-go]');
+  ok((await page.textContent('.import-hero .import-status')).includes('Instagram, TikTok, Facebook links don’t import'), 'social links get the workaround without a fetch');
+  await page.evaluate(() => { noteSite('https://www.picky.example/r/1', false); render(); });
+  ok((await page.textContent('#sites')).includes('picky.example'), 'a site that refused you is remembered');
+  await page.click('[data-action="sites-clear"]');
+  ok(!(await page.textContent('#sites')).includes('picky.example'), 'blocked list can be cleared');
+  await page.evaluate(() => { importMsg = ''; lastLink = ''; render(); });
+  await shot('n-sites');
   // a real whole-page paste: photo captions and credits never become steps
   await page.click('.topbar [data-action="add"]'); await page.click('#link-form [data-action="paste"]');
   await page.fill('#paste-form textarea', (await import('node:fs')).readFileSync(new URL('./fixtures/paste-allrecipes.txt', import.meta.url), 'utf8'));
@@ -82,7 +123,10 @@ try {
   ok(await page.textContent('.recipe-hero h1') === 'Egusi Soup' && await page.$('.recipe-hero img[src="https://img.example/egusi.jpg"]'), 'saved with its linked photo');
   await page.click('[data-action="delete-recipe"]'); await page.click('[data-action="ask-ok"]');
   await page.evaluate(() => openRecipe(state.recipes.find(r => r.title === 'Lemon Bars').id)); await page.waitForSelector('.recipe-hero h1');
-  await page.click('[data-action="made"]');
+  await page.click('[data-action="made"]'); await page.waitForSelector('#made-form');
+  await page.click('#made-form .rate-pick label:nth-child(4)'); await page.fill('#made-form [name=note]', 'Less sugar next time.'); await page.click('#made-form button[type=submit]');
+  ok(await page.evaluate(() => { const r = state.recipes.find(x => x.title === 'Lemon Bars'); return r.made.length === 1 && r.rating === 4 && r.cooklog[0].note === 'Less sugar next time.'; }), 'Made it logs the day, rating and note');
+  ok(/Less sugar next time/.test(await page.textContent('.cooklog')), 'cook log shows on the recipe');
   await page.click('[data-action="undo"]');
   ok(/Not made yet/.test(await page.textContent('.rate')), 'undo works');
   // shopping list from a recipe
@@ -110,6 +154,35 @@ try {
   ok((await page.evaluate(async () => (await fetch('manifest.webmanifest')).status)) === 200 && (await page.evaluate(async () => (await fetch('sw.js')).status)) === 200, 'manifest and service worker are served');
   ok((await page.$$('.shop-row.done')).length === 1, 'check off an item');
 
+  // where recipes come from: each website marked by how it imports, filterable
+  await page.evaluate(() => { const add = (t, u, pasted='') => state.recipes.push(Logic.recipe({ title: t, sourceUrl: u, sourceName: hostOf(u), ingredients: ['x'], pasted })); add('Allrecipes One', 'https://www.allrecipes.com/recipe/1/', 'pasted text'); add('Unknown One', 'https://someblog.example/r/1', 'pasted text'); add('HF One', 'https://www.hellofresh.com/recipes/x'); srcFilter = 'all'; go('dashboard'); });
+  const srcTxt = await page.textContent('.src-rank');
+  ok((await page.$$('.src-rank .src-mark.ok')).length >= 2 && (await page.$$('.src-rank .src-mark.no')).length === 1 && (await page.$$('.src-rank .src-mark.unk')).length === 1, 'sources show how each website imports: ' + srcTxt.replace(/\s+/g, ' '));
+  ok(await page.$eval('.src-rank a.src-link[href="https://www.hellofresh.com/"]', a => a.target === '_blank'), 'website names open the site home page');
+  await page.click('[data-action="src-filter"][data-v="paste"]');
+  ok((await page.$$('.src-rank .rank-row')).length === 1 && (await page.textContent('.src-rank')).includes('allrecipes.com'), 'sources filter to paste-only websites');
+  await shot('n-sources');
+  await page.evaluate(() => { state.recipes = state.recipes.filter(r => !['Allrecipes One', 'Unknown One', 'HF One'].includes(r.title)); srcFilter = 'all'; save(); render(); });
+  // restore a backup: merge adds what's missing, keeps the newest edit, never duplicates
+  const pre = await page.evaluate(() => ({ n: state.recipes.length, shop: state.shopping.length }));
+  const bk = await page.evaluate(async () => { const j = JSON.parse(await backupJSON());
+    const r = j.data.recipes[0]; r.title += ' (edited)'; r.updatedAt = '2999-01-01T00:00:00.000Z'; r.made = [...r.made, '2026-09-01'];
+    j.data.recipes[1].id = 'other-id';   // same recipe saved under another id (another device)
+    j.data.recipes.push({ ...j.data.recipes[1], id: 'bk-new', title: 'Backup Only Soup', sourceUrl: '', ingredients: ['1 onion', '4 cups stock'], hasPhoto: false });
+    j.data.shopping.push({ id: 'bk-i', text: 'Backup Item', checked: false }, ...j.data.shopping.slice(0, 1)); return JSON.stringify(j); });
+  await page.evaluate(() => go('settings'));
+  await page.setInputFiles('#restore-file', { name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from(bk) });
+  await page.waitForSelector('[data-action="restore-go"][data-mode="merge"]');
+  const sum = await page.textContent('.restore-sum');
+  ok(/^\s*1\s*new/.test(sum.replace(/\s+/g, ' ').trim().replace(/recipes.*/, '')) || sum.includes('1new'), 'restore summary: ' + sum.replace(/\s+/g, ' '));
+  await shot('n-restore');
+  await page.click('[data-action="restore-go"][data-mode="merge"]');
+  const post = await page.evaluate(() => ({ n: state.recipes.length, shop: state.shopping.length, edited: state.recipes.some(r => r.title.endsWith('(edited)')), soup: state.recipes.filter(r => r.title === 'Backup Only Soup').length, other: state.recipes.some(r => r.id === 'other-id'), made: state.recipes.find(r => r.title.endsWith('(edited)'))?.made.includes('2026-09-01') }));
+  ok(post.n === pre.n + 1 && post.soup === 1 && !post.other, 'merge adds only the new recipe, no duplicates: ' + JSON.stringify(post));
+  ok(post.edited && post.made, 'merge keeps the newer edit and the cook history');
+  ok(post.shop === pre.shop + 1, 'merge adds missing shopping items only');
+  await page.click('#toast [data-action="undo"]');
+  ok(await page.evaluate(n => state.recipes.length === n, pre.n), 'merge can be undone');
   // sample mode: every screen
   await page.click('#rail-demo');
   for (const s of ['dashboard', 'library', 'collections', 'import', 'plan', 'shopping', 'guide', 'settings']) {
@@ -159,8 +232,34 @@ try {
   ok(await page.evaluate(() => !state.recipes.some(r => r.tags.includes('make ahead'))), 'tag deleted from every recipe');
   await page.evaluate(() => go('plan'));
   ok((await page.$$('.meal')).length >= 6, 'sample week is planned');
+  // pantry: what can I cook, and pantry items stay off the list
+  await page.evaluate(() => go('pantry'));
+  ok((await page.$$('.cook-row')).length >= 3, 'pantry suggests recipes to cook');
+  await page.fill('#pantry-text', 'coconut milk, ginger'); await page.press('#pantry-text', 'Enter');
+  ok(await page.evaluate(() => state.pantry.includes('coconut milk') && state.pantry.includes('ginger')), 'pantry items added');
+  ok(await page.evaluate(() => { const x = Logic.cookable(state).find(c => c.r.id === 's4'); return x.missing.every(l => !/garlic|onion|coconut|curry/i.test(l)); }), 'curry no longer misses what the pantry has');
+  ok(await page.evaluate(() => { const before = state.shopping.length; state.shopping = []; const res = shopAdd(recipeById('s4').ingredients, { from: 'x' }); return res.skipped >= 4 && !state.shopping.some(i => /garlic|coconut milk/i.test(i.text)); }), 'adding a recipe skips pantry items');
+  await page.evaluate(() => go('shopping')); await page.click('[data-action="shop-staples"]');
+  ok(await page.evaluate(() => ['milk', 'bananas', 'bread'].every(s => state.shopping.some(i => i.text === s))), 'staples added to the list');
+  // plan: servings scale the list, fill my week, copy last week, drag to move
+  await page.evaluate(() => go('plan'));
+  ok(/serves 6/.test(await page.textContent('.week')), 'planned servings show on the meal');
+  await page.evaluate(() => { state.shopping = []; ACTIONS['shop-week'](); });
+  ok(await page.evaluate(() => state.shopping.some(i => /600 g pasta|1 1\/2 cups grated parmesan|¾ cup grated parmesan/.test(i.text) || i.text.startsWith('600 g pasta'))), 'meal servings scale the shopping list');
+  const before = await page.evaluate(() => state.plans.length);
+  await page.click('[data-action="plan-fill"]');
+  ok(await page.evaluate(n => state.plans.length > n, before), 'fill my week adds dinners');
+  await page.click('[data-action="week"][data-d="1"]'); await page.click('[data-action="plan-copy"]');
+  ok(await page.evaluate(() => state.plans.filter(p => p.date >= week && p.date <= addDays(week, 6)).length >= 6), 'copy last week');
+  const meal = page.locator('.meal').first(), target = page.locator('.day').nth(6);
+  const id = await meal.getAttribute('data-meal'); await meal.dragTo(target);
+  ok(await page.evaluate(i => state.plans.find(p => p.id === i).date === addDays(week, 6), id), 'drag a meal to another day');
+  // library time filter
+  await page.evaluate(() => { Object.assign(lib, { time: 20, cat: '', col: '', q: '', filter: 'all', view: 'grid' }); go('library'); });
+  ok(await page.evaluate(() => libRows().every(r => r.total && r.total <= 20) && libRows().length >= 2), 'time filter');
+  await page.evaluate(() => { lib.time = 0; });
   await page.click('[data-action="sample"].rail-demo');
-  ok((await page.$$('.navlink')).length === 7, 'back to own data');
+  ok((await page.$$('.navlink')).length === 8, 'back to own data');
   // dark theme + phone width
   await page.evaluate(() => go('settings')); await page.click('[data-k="night"]'); await page.evaluate(() => go('dashboard')); await shot('20-dark-dashboard');
   await page.setViewportSize({ width: 390, height: 844 });
