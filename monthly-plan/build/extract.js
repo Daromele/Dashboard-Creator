@@ -26,7 +26,8 @@ function extractImport(html){
   return extract(html).replace("if(typeof module!=='undefined')module.exports=Budget;",'')
     +cut('const CSV = (()=>{',"if(typeof module!=='undefined')module.exports=CSV;")
     +cut('const Platforms = (()=>{',"if(typeof module!=='undefined')module.exports=Platforms;")
-    +'\nmodule.exports={Budget,CSV,Platforms};\n';
+    +cut('const Autopilot = (()=>{',"if(typeof module!=='undefined')module.exports=Autopilot;")
+    +'\nmodule.exports={Budget,CSV,Platforms,Autopilot};\n';
 }
 function extractImportTo(htmlFile,outFile){fs.writeFileSync(outFile,extractImport(fs.readFileSync(htmlFile,'utf8')));return outFile;}
 

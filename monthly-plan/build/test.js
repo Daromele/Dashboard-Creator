@@ -150,6 +150,7 @@ require('./test_creator.js')({eq,ok});
 require('./test_import.js')({eq,ok});
 require('./test_tags.js')({eq,ok});
 require('./test_autonomo.js')({eq,ok});
+require('./test_autopilot.js')({eq,ok});
 const stale=require('child_process').spawnSync(process.execPath,[path.join(__dirname,'build_app.js'),'--check'],{encoding:'utf8'});
 ok('built files match core + packs', stale.status===0, stale.stdout);
 
