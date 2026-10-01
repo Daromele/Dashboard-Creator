@@ -541,6 +541,8 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .site svg{width:14px;height:14px}.site.ok{border-color:color-mix(in srgb,var(--ok) 45%,var(--rule))}.site.ok svg{color:var(--ok)}.site-tip{margin-top:var(--s4)}
 .site>a{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none}.site .site-x{display:inline-grid;place-items:center;width:24px;height:24px;margin-right:-6px;border-radius:50%;color:var(--ink-3)}.site .site-x:hover{color:var(--over);background:var(--sunk)}
 .site-check{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--rule)}.site-check label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}.site-check-row{display:flex;gap:8px}.site-check-row input{flex:1;min-width:0}#site-check-status:not(:empty){margin-top:10px}
+.restore-sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:4px 0 14px}.restore-sum div{background:var(--sunk);border-radius:var(--r-sm);padding:12px;display:grid;gap:4px}.restore-sum b{font:700 22px var(--num)}.restore-sum span{font-size:12px;color:var(--ink-2);line-height:1.35}
+@media(max-width:620px){.restore-sum{grid-template-columns:1fr}}
 .site-row{display:grid;gap:2px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:13.5px}.site-row:last-of-type{border-bottom:0}.site-row>span{color:var(--ink-2)}
 .how{display:flex;gap:var(--s5);flex-wrap:wrap;color:var(--on-bold-dim);font-size:12.5px}
 .how span{display:inline-flex;align-items:center;gap:6px}.how b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#ffffff1f;color:var(--on-bold);font:700 11px var(--num)}
@@ -1089,6 +1091,32 @@ const Logic={
   s.mySites=Object.fromEntries(Object.entries(s.mySites&&typeof s.mySites==='object'?s.mySites:{}).filter(([h,v])=>/^[a-z0-9.-]{1,253}$/i.test(h)&&v&&typeof v.name==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v.date)).slice(0,200).map(([h,v])=>[h,{name:tidy(v.name).slice(0,60)||h,date:v.date}]));
   s.siteBlocks=Object.fromEntries(Object.entries(s.siteBlocks&&typeof s.siteBlocks==='object'?s.siteBlocks:{}).filter(([h,d])=>/^[a-z0-9.-]{1,253}$/i.test(h)&&/^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0,200));
   s.version=2;s.app=CONFIG.storageKey;return s;},
+ // merge a backup into what's here without duplicates. A recipe is the same when it has the same id, the same
+ // source link, or the same title and ingredients. The more recently edited copy wins; cook history, favorites and
+ // collections from both are kept. Returns the merged state, counts, and which backup photos to keep (backup id → id here).
+ merge(cur,inc){const out=clone(cur),stats={added:0,updated:0,same:0},photoMap={};
+  const norm=t=>String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(),sig=r=>norm(r.title)+'|'+r.ingredients.slice(0,4).map(norm).join('|');
+  const byId=new Map(out.recipes.map(r=>[r.id,r])),byUrl=new Map(),bySig=new Map();
+  out.recipes.forEach(r=>{const u=Logic.normalizeLink(r.sourceUrl);if(u)byUrl.set(u,r);if(r.ingredients.length)bySig.set(sig(r),r);});
+  // collections: same id or same name are one collection
+  const colMap={};for(const c of inc.collections){const have=out.collections.find(x=>x.id===c.id)||out.collections.find(x=>norm(x.name)===norm(c.name));if(have)colMap[c.id]=have.id;else{out.collections.push(clone(c));colMap[c.id]=c.id;}}
+  const recMap={};
+  for(const r0 of inc.recipes){const r={...clone(r0),collections:r0.collections.map(id=>colMap[id]||id)};
+   const u=Logic.normalizeLink(r.sourceUrl),have=byId.get(r.id)||(u&&byUrl.get(u))||(r.ingredients.length&&bySig.get(sig(r)));
+   if(!have){out.recipes.push(r);byId.set(r.id,r);if(u)byUrl.set(u,r);recMap[r.id]=r.id;if(r.hasPhoto)photoMap[r.id]=r.id;stats.added++;continue;}
+   recMap[r.id]=have.id;
+   const made=[...new Set([...have.made,...r.made])].sort(),log=[...have.cooklog];r.cooklog.forEach(e=>{if(!log.some(x=>x.date===e.date&&x.note===e.note))log.push(e);});log.sort((a,b)=>a.date.localeCompare(b.date));
+   const cols=[...new Set([...have.collections,...r.collections])],fav=have.favorite||r.favorite,newer=String(r.updatedAt)>String(have.updatedAt);
+   if(newer){const keepPhoto=have.hasPhoto&&!r.hasPhoto;Object.assign(have,r,{id:have.id,hasPhoto:have.hasPhoto||r.hasPhoto});if(r.hasPhoto)photoMap[r.id]=have.id;if(keepPhoto)have.hasPhoto=true;stats.updated++;}
+   else{if(!have.hasPhoto&&r.hasPhoto){have.hasPhoto=true;photoMap[r.id]=have.id;}
+    const changed=made.length!==have.made.length||log.length!==have.cooklog.length||cols.length!==have.collections.length||fav!==have.favorite;changed?stats.updated++:stats.same++;}
+   Object.assign(have,{made,cooklog:log,collections:cols,favorite:fav,rating:have.rating||r.rating});}
+  const pk=p=>`${p.date}|${p.slot}|${p.recipeId||''}|${norm(p.note)}`,plans=new Set(out.plans.map(pk));
+  for(const p of inc.plans){const q={...clone(p),recipeId:p.recipeId?recMap[p.recipeId]||p.recipeId:p.recipeId};if(!plans.has(pk(q))){plans.add(pk(q));q.id=out.plans.some(x=>x.id===q.id)?uid():q.id;out.plans.push(q);}}
+  const items=new Set(out.shopping.map(i=>norm(i.text)));for(const i of inc.shopping)if(!items.has(norm(i.text))){items.add(norm(i.text));out.shopping.push({...clone(i),id:out.shopping.some(x=>x.id===i.id)?uid():i.id});}
+  out.pantry=[...new Set([...out.pantry,...inc.pantry])];out.staples=[...new Set([...out.staples,...inc.staples])];
+  out.mySites={...inc.mySites,...out.mySites};out.siteBlocks={...inc.siteBlocks,...out.siteBlocks};
+  return {state:out,stats,photoMap};},
  // the first edition kept recipes with different field names; map them across so nothing is lost
  fromV1(o){const s=Logic.blank();if(o.settings?.units)s.settings.units=o.settings.units;
   s.collections=(o.collections||[]).map(c=>({id:String(c.id),name:String(c.name||'Collection')}));
@@ -1271,12 +1299,26 @@ function download(name,text,type='application/json'){const a=document.createElem
 async function backupJSON(){const photos={};for(const r of state.recipes)if(r.hasPhoto){const p=await getPhoto(r.id);if(p)photos[r.id]=p;}
  return JSON.stringify({app:CONFIG.storageKey,version:CONFIG.version,saved:new Date().toISOString(),data:state,photos});}
 async function backup(){download(`${CONFIG.storageKey}-${demo?'sample-':''}${today()}.json`,await backupJSON());if(!demo){ls.set(MANUAL_BACKUP_KEY,String(Date.now()));renderStatus();}toast('Backup downloaded. Keep it somewhere safe.');}
+let pendingRestore=null;
 async function restore(file){try{if(file.size>200*1024*1024)throw Error('That file is too large to be a backup.');const j=JSON.parse(await file.text());
   const v1=j.app==='RecipeLibraryStudio';if(j.app!==CONFIG.storageKey&&!v1)throw Error(`This backup is from another app. Choose a ${CONFIG.name} backup.`);
-  const next=Logic.validate(v1?j:j.data);if(demo)toggleSample(true);storageProblem='';
-  const photos=v1?{}:j.photos||{};for(const [id,p] of Object.entries(photos))if(typeof p==='string'&&p.startsWith('data:image/'))await putPhoto(id,p);
-  commit(()=>{state=next;},v1?`${plural(next.recipes.length,'recipe')} moved over from the first edition`:'Backup restored');}
+  const next=Logic.validate(v1?j:j.data),photos=v1?{}:j.photos||{};
+  if(demo||!state.recipes.length&&!state.plans.length&&!state.shopping.length)return applyRestore('replace',{next,photos,v1});
+  pendingRestore={next,photos,v1};const m=Logic.merge(state,next).stats,saved=j.saved?new Date(j.saved).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+  modal('Restore this backup?',`The backup${saved?` from ${saved}`:''} has ${plural(next.recipes.length,'recipe')}. You have ${plural(state.recipes.length,'recipe')} here.`,
+   `<div class="restore-sum"><div><b>${num(m.added)}</b><span>new recipes to add</span></div><div><b>${num(m.updated)}</b><span>already here, with newer edits or cook history to bring in</span></div><div><b>${num(m.same)}</b><span>already here and identical</span></div></div>
+   <p class="small dim">Merge adds what’s missing and keeps the most recently edited copy of each recipe, so nothing is duplicated. Plans, the shopping list, pantry and collections are combined the same way. You can undo straight after.</p>
+   <div class="formfoot"><button type="button" class="btn" data-action="dismiss">Cancel</button><button type="button" class="btn" data-action="restore-go" data-mode="replace">Replace everything</button><button type="button" class="btn primary" data-action="restore-go" data-mode="merge" autofocus>Merge</button></div>`);}
  catch(e){toast(e instanceof SyntaxError?'That file is not a backup.':e.message||'That file could not be read.');}}
+async function applyRestore(mode,p=pendingRestore){if(!p)return;pendingRestore=null;closeModal();const {next,photos,v1}=p;
+ try{if(demo)toggleSample(true);storageProblem='';const ok=(v)=>typeof v==='string'&&v.startsWith('data:image/');
+  if(mode==='replace'){for(const [id,ph] of Object.entries(photos))if(ok(ph))await putPhoto(id,ph);
+   commit(()=>{state=next;},v1?`${plural(next.recipes.length,'recipe')} moved over from the first edition`:'Backup restored');return;}
+  const m=Logic.merge(state,next);for(const [from,to] of Object.entries(m.photoMap))if(ok(photos[from]))await putPhoto(to,photos[from]);
+  // a photo the backup promised but didn't carry: only keep the flag if this browser already had that photo
+  for(const [from,to] of Object.entries(m.photoMap))if(!ok(photos[from])){const r=m.state.recipes.find(x=>x.id===to);if(r&&!state.recipes.some(x=>x.id===to&&x.hasPhoto))r.hasPhoto=false;}
+  commit(()=>{state=m.state;},`Merged: ${plural(m.stats.added,'recipe')} added, ${num(m.stats.updated)} updated, no duplicates`);}
+ catch(e){toast(e.message||'That backup could not be restored.');}}
 const folderSupported=()=>!!globalThis.showDirectoryPicker;
 let folder=null,folderStatus='Not connected',folderTimer=null,folderChain=Promise.resolve(),bannerHidden=false;
 const handleStore=(mode,v)=>kv(CONFIG.storageKey+'-backup','handles','folder',mode,v);
@@ -1628,7 +1670,7 @@ const VIEWS={
   <tr><td>A link says “blocks automatic access”?</td><td>A few large sites refuse automated readers even though they open fine in your browser. Open the page, select everything (Ctrl+A or ⌘A), copy, and use <b>Paste the page text</b>. Your link is kept.</td></tr>
   <tr><td>Only part of a recipe came through?</td><td>Some pages leave pieces out of their recipe card. The editor opens with what was found, so you can fill in the rest before saving.</td></tr>
   <tr><td>Where are my recipes kept?</td><td>In this browser on this device. Nothing is uploaded and there’s no account. Only the link you import is sent to our recipe reader, which fetches that page and forgets it.</td></tr>
-  <tr><td>Can I use it on my phone?</td><td>Yes. Open the same web address on your phone. Each device keeps its own library, so move recipes with a backup: download it on one device and restore it on the other.</td></tr>
+  <tr><td>Can I use it on my phone?</td><td>Yes. Open the same web address on your phone. Each device keeps its own library, so move recipes with a backup: download it on one device and restore it on the other. Choose <b>Merge</b> to combine both libraries without duplicates.</td></tr>
   <tr><td>Photos?</td><td>Imported recipes show the website’s photo (it needs internet). Photos you upload are shrunk and kept on this device, inside your backups too.</td></tr>
   <tr><td>Install it on my phone or computer?</td><td>Choose <b>Install the app</b> in the sidebar or Settings. On iPhone and iPad: in Safari, tap Share, then <b>Add to Home Screen</b>. It opens like any app and works offline, except importing links.</td></tr>
   <tr><td>Print or save a PDF?</td><td>Use <b>Print / PDF</b> on a recipe, the shopping list or the meal plan, then pick <b>Save as PDF</b> as the printer. For a cookbook, choose <b>Recipe book</b> in Recipes or Collections: pick the recipes and a cover. Choose the paper size (Letter, A4 and more) in the print window. Turn off Headers and footers in the print window for the cleanest pages.</td></tr>
@@ -1907,6 +1949,7 @@ const ACTIONS={
  open:b=>openRecipe(b.dataset.id),edit:b=>editRecipe(b.dataset.id),add:linkDialog,
  'import-again':b=>importLink(b.dataset.url,{again:true}),
  'sites':()=>{const el=$('#sites');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},
+ 'restore-go':b=>applyRestore(b.dataset.mode),
  'site-del':b=>commit(()=>{delete state.mySites[b.dataset.h];},'Site removed'),
  'sites-clear':()=>commit(()=>{state.siteBlocks={};},'Cleared the blocked sites list'),
  paste:b=>pasteDialog(b.dataset.url||''),
@@ -1994,7 +2037,7 @@ document.addEventListener('change',async e=>{const t=e.target;
  if(t.dataset.item){const it=state.shopping.find(i=>i.id===t.dataset.item);if(it)commit(()=>{it.checked=t.checked;},'',{quiet:true});}
  if(t.id==='lib-cat'){lib.cat=t.value;lib.page=0;render();}if(t.id==='lib-col'){lib.col=t.value;lib.page=0;render();}if(t.id==='lib-sort'){lib.sort=t.value;lib.page=0;render();}if(t.id==='lib-time'){lib.time=+t.value;lib.page=0;render();}
  if(t.id==='photo-file'&&t.files[0]){const f=t.files[0];t.value='';try{const url=await shrink(f);keepForm();draftPhoto=url;dirty=true;render();}catch(err){toast(err.message);}}
- if(t.id==='restore-file'&&t.files[0]){const f=t.files[0];t.value='';ask('Restore this backup?','It replaces what’s in this browser now. You can undo straight after.','Restore',()=>restore(f),false);}});
+ if(t.id==='restore-file'&&t.files[0]){const f=t.files[0];t.value='';restore(f);}});
 document.addEventListener('input',e=>{if(e.target.id==='lib-search'){lib.q=e.target.value;lib.page=0;clearTimeout(lib.t);lib.t=setTimeout(render,250);}if(e.target.closest?.('#recipe-form'))dirty=true;});
 document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f));
  if(f.dataset.form==='link'||f.id==='link-form'){if(f.id==='link-form'){closeModal();if(screen!=='import'&&screen!=='dashboard')go('import');}importLink(d.url);}

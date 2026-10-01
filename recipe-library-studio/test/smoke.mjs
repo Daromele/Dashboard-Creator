@@ -154,6 +154,26 @@ try {
   ok((await page.evaluate(async () => (await fetch('manifest.webmanifest')).status)) === 200 && (await page.evaluate(async () => (await fetch('sw.js')).status)) === 200, 'manifest and service worker are served');
   ok((await page.$$('.shop-row.done')).length === 1, 'check off an item');
 
+  // restore a backup: merge adds what's missing, keeps the newest edit, never duplicates
+  const pre = await page.evaluate(() => ({ n: state.recipes.length, shop: state.shopping.length }));
+  const bk = await page.evaluate(async () => { const j = JSON.parse(await backupJSON());
+    const r = j.data.recipes[0]; r.title += ' (edited)'; r.updatedAt = '2999-01-01T00:00:00.000Z'; r.made = [...r.made, '2026-09-01'];
+    j.data.recipes[1].id = 'other-id';   // same recipe saved under another id (another device)
+    j.data.recipes.push({ ...j.data.recipes[1], id: 'bk-new', title: 'Backup Only Soup', sourceUrl: '', ingredients: ['1 onion', '4 cups stock'], hasPhoto: false });
+    j.data.shopping.push({ id: 'bk-i', text: 'Backup Item', checked: false }, ...j.data.shopping.slice(0, 1)); return JSON.stringify(j); });
+  await page.evaluate(() => go('settings'));
+  await page.setInputFiles('#restore-file', { name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from(bk) });
+  await page.waitForSelector('[data-action="restore-go"][data-mode="merge"]');
+  const sum = await page.textContent('.restore-sum');
+  ok(/^\s*1\s*new/.test(sum.replace(/\s+/g, ' ').trim().replace(/recipes.*/, '')) || sum.includes('1new'), 'restore summary: ' + sum.replace(/\s+/g, ' '));
+  await shot('n-restore');
+  await page.click('[data-action="restore-go"][data-mode="merge"]');
+  const post = await page.evaluate(() => ({ n: state.recipes.length, shop: state.shopping.length, edited: state.recipes.some(r => r.title.endsWith('(edited)')), soup: state.recipes.filter(r => r.title === 'Backup Only Soup').length, other: state.recipes.some(r => r.id === 'other-id'), made: state.recipes.find(r => r.title.endsWith('(edited)'))?.made.includes('2026-09-01') }));
+  ok(post.n === pre.n + 1 && post.soup === 1 && !post.other, 'merge adds only the new recipe, no duplicates: ' + JSON.stringify(post));
+  ok(post.edited && post.made, 'merge keeps the newer edit and the cook history');
+  ok(post.shop === pre.shop + 1, 'merge adds missing shopping items only');
+  await page.click('#toast [data-action="undo"]');
+  ok(await page.evaluate(n => state.recipes.length === n, pre.n), 'merge can be undone');
   // sample mode: every screen
   await page.click('#rail-demo');
   for (const s of ['dashboard', 'library', 'collections', 'import', 'plan', 'shopping', 'guide', 'settings']) {
