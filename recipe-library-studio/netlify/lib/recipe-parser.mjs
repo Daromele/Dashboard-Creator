@@ -26,7 +26,9 @@ export function clean(s) {
   if (typeof s !== 'string') return '';
   let t = s.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, ' ');
   t = decodeEntities(decodeEntities(t));
-  return t.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+  // recipe plugins put checkbox and bullet glyphs before list items (▢ 2 cups flour)
+  return t.replace(/\u00a0/g, ' ').replace(/[\u200b-\u200d\ufeff]/g, '').replace(/\s+/g, ' ').trim()
+    .replace(/^[▢☐□■◻◼▪▫●○•◦‣∙⁃·✓✔✅☑❑❒➤►▶»*–—-]+\s*(?=\S)/u, '');
 }
 
 const asArray = v => (v == null ? [] : Array.isArray(v) ? v : [v]);

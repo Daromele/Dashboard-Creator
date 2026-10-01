@@ -8,6 +8,12 @@
 <meta name="theme-color" content="#3A2419">
 <meta name="description" content="Save any recipe from a link: ingredients, steps, times and photo, without the clutter. Plan meals and shop from one list. Your library stays on your device.">
 <title>Recipe Library Studio · Save any recipe from a link</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Recipes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='15' fill='%233A2419'/><g fill='none' stroke='%23F2B441' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'><path d='M17 18h12a5 5 0 0 1 5 5v24a6 6 0 0 0-6-5H17Z'/><path d='M47 18H35a5 5 0 0 0-5 5v24a6 6 0 0 1 6-5h11Z'/></g></svg>">
 <style>
 /*@@FONTS@@*/
@@ -353,8 +359,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .notice.refused{background:color-mix(in srgb,var(--over) 10%,var(--card));color:var(--ink)}.notice.refused b:first-child{color:var(--over)}
 .empty{padding:var(--s7) var(--s5);text-align:center;color:var(--ink-3);font-size:13px}
 .empty svg{height:28px;width:28px;color:var(--accent);margin-bottom:var(--s3);opacity:.7}
+.empty-actions{justify-content:center;gap:var(--s3)}
 .empty h3{color:var(--ink);margin-bottom:var(--s2)}.empty p{max-width:42ch;margin:0 auto var(--s4)}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3)}
+.steps.steps4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1150px){.steps.steps4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .step{background:var(--sunk);padding:var(--s5);border-radius:var(--r-sm)}
 .step span{font:700 11px var(--num);color:var(--accent);letter-spacing:.06em}
 .step h3{margin:var(--s3) 0 var(--s2)}.step p{font-size:12.5px;color:var(--ink-2);margin-bottom:var(--s4)}
@@ -432,7 +441,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .kit-mid{font:800 20px var(--num);fill:var(--ink);text-anchor:middle}.kit-mid-sub{font:600 9px var(--ui);letter-spacing:.08em;fill:var(--ink-3);text-anchor:middle}
 .kit-key{display:grid;gap:2px;width:100%}
 .kit-key-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:6px 8px;border-radius:8px;font-size:13.5px}
-.kit-key-row:hover{background:var(--sunk)}.kit-key-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kit-key-row em{font-style:normal;color:var(--ink-2);font-size:12.5px}
+.kit-key-row:hover{background:var(--sunk)}.kit-key-row.linked{cursor:pointer}.kit-key-row.linked:hover span{color:var(--accent);text-decoration:underline;text-underline-offset:3px}.kit-key-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kit-key-row em{font-style:normal;color:var(--ink-2);font-size:12.5px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--accent)}
 .kit-gauge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}.kit-gauge svg{width:100%;height:auto;max-width:200px}
 .kit-gauge-track,.kit-gauge-val{fill:none;stroke-width:14;stroke-linecap:round}.kit-gauge-track{stroke:var(--sunk)}.kit-gauge-val{stroke:var(--accent);animation:kit-fill 1.1s cubic-bezier(.2,.8,.2,1) both}
@@ -476,7 +485,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
  .picker{flex-direction:row;align-items:center;gap:var(--s2);width:100%;margin:var(--s2) 0 0}.picker select{flex:1;max-width:none}
  #save-status{display:none}.topbar .actions{flex-wrap:nowrap}.topbar .btn span{display:none}.period-label{font-size:14px}
  .banner{padding:var(--s2) var(--s4)}.banner .btn{white-space:nowrap}
- .kpis{grid-template-columns:1fr 1fr}.kpi{padding:var(--s3)}.steps,.fields,.toggle-grid{grid-template-columns:1fr}.theme-grid{grid-template-columns:1fr 1fr}
+ .kpis{grid-template-columns:1fr 1fr}.kpi{padding:var(--s3)}.steps,.steps.steps4,.fields,.toggle-grid{grid-template-columns:1fr}.theme-grid{grid-template-columns:1fr 1fr}
  .cardhead{flex-wrap:wrap}.cardhead .actions,.filters,.filters input{width:100%}.pulse{flex-wrap:wrap}.pulse-track{min-height:44px;flex-basis:calc(100% - 30px)}
  .welcome{width:100%;max-width:none;margin:auto 0 0;border-radius:20px 20px 0 0}.welcome-art{height:150px}.footer{flex-direction:column;gap:6px}.formfoot .btn{flex:1}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
@@ -540,6 +549,21 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .toolbar .search input{width:100%;padding-left:36px}
 .toolbar select{max-width:200px}
 .toolbar select{font-size:13.5px}
+.chip-edit{display:grid;grid-template-columns:104px 1fr;gap:var(--s2);align-items:start;padding:7px 0;border-bottom:1px solid var(--rule)}.chip-edit:last-of-type{border-bottom:0}
+.chip-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding-top:6px}
+.chip-edit .chips{align-items:center}.chip-edit .chip{padding:0 2px 0 10px;gap:2px;min-height:28px}
+.chip-go{font-weight:600;color:inherit;padding:4px 0}.chip-go:hover{text-decoration:underline;text-underline-offset:3px}
+.chip-x{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;color:inherit;opacity:.6}.chip-x:hover{opacity:1;background:#0000000f}.chip-x svg{width:12px;height:12px;stroke-width:2.2}
+.chip-add{min-height:30px;height:30px;padding:2px 10px;font-size:12.5px;border-style:dashed;width:130px;border-radius:99px}
+.link-btn{font-weight:600;color:var(--ink);text-align:left}.link-btn:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.row-actions{display:inline-flex;gap:var(--s2)}
+.bulkbar{position:sticky;top:64px;z-index:16;display:flex;justify-content:space-between;align-items:center;gap:var(--s3);flex-wrap:wrap;background:var(--bold);color:var(--on-bold);border-radius:var(--r-md);padding:var(--s3) var(--s4);margin-bottom:var(--s4);box-shadow:var(--shadow-md)}
+.bulkbar .btn{background:#ffffff14;border-color:#ffffff33;color:var(--on-bold)}.bulkbar .btn:hover{background:#ffffff26;color:var(--on-bold)}.bulkbar .btn.quiet{border-color:transparent}
+.filter-pill{display:inline-flex;align-items:center;gap:var(--s3);background:var(--accent-soft);color:var(--ink-2);border-radius:99px;padding:6px 8px 6px 14px;font-size:13px;margin-bottom:var(--s4)}
+.rcard.selecting{cursor:pointer}.rcard.picked{box-shadow:0 0 0 3px var(--accent)}
+.pick{position:absolute;top:10px;left:10px;z-index:2;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--card) 90%,transparent);border:2px solid var(--rule-2);color:transparent}
+.rcard.picked .pick{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.pick svg{width:15px;height:15px;stroke-width:2.4}
+.titlecell input{min-height:0;width:18px;height:18px;accent-color:var(--accent);flex:none}
 .count-note{margin-left:auto;font-size:12px;color:var(--ink-3)}
 .thumb{width:44px;height:34px;border-radius:6px;overflow:hidden;flex:none}
 .thumb .pic{aspect-ratio:auto;height:100%}.thumb .pic svg,.thumb .pic small{display:none}
@@ -563,6 +587,17 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .recipe-hero .actions .btn[aria-pressed=true]{background:#ffffff1f;border-color:var(--pop);color:var(--pop)}
 .recipe-hero .actions .btn[aria-pressed=true] svg{fill:currentColor}
 .recipe-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:var(--s4);margin-bottom:var(--s4);align-items:start}
+/* matched rows: cards side by side share one height, set by the shorter card (never below data-floor);
+   a longer card scrolls inside its body so the row stays flush and the cards below line up */
+.grid-even{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:var(--s4);margin-bottom:var(--s4)}
+.grid-even>.card{margin:0}
+.match-row.measuring{align-items:start}
+.card.pair{display:flex;flex-direction:column;min-width:0}
+.card.pair>.cardhead{flex:none}
+.pair-body{flex:1;min-height:0}
+.card.pair.scrolls .pair-body{overflow-y:auto;overscroll-behavior:contain;margin-right:calc(var(--s2)*-1);padding-right:var(--s2);scrollbar-width:thin;scrollbar-color:var(--rule-2) transparent;
+ -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 28px),transparent);padding-bottom:20px}
+.pair-body::-webkit-scrollbar{width:8px}.pair-body::-webkit-scrollbar-thumb{background:var(--rule-2);border-radius:8px}
 .ing{display:grid}
 .ing label{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--rule);font-size:14px;cursor:pointer}
 .ing label:last-child{border-bottom:0}
@@ -654,10 +689,10 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .mini-list .row button{text-align:left;font-weight:600}.mini-list .row button:hover{color:var(--accent)}
 
 @media(max-width:1300px){.week{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:1150px){.aisles{columns:2}.recipe-cols,.editor{grid-template-columns:1fr}}
+@media(max-width:1150px){.grid-even{grid-template-columns:repeat(min(var(--n,3),2),minmax(0,1fr))}.aisles{columns:2}.recipe-cols,.editor{grid-template-columns:1fr}}
 @media(max-width:900px){.recipe-hero{grid-template-columns:1fr}.recipe-hero .pic{min-height:220px;order:-1}.week{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){
- .aisles{columns:1}.week{grid-template-columns:1fr}.day{min-height:0}
+ .grid-even{grid-template-columns:1fr}.aisles{columns:1}.week{grid-template-columns:1fr}.day{min-height:0}
  .rgrid{grid-template-columns:1fr 1fr;gap:var(--s3)}.rcard-body{padding:var(--s2) var(--s3) var(--s3)}.rcard h3{font-size:13.5px}
  .rstats{grid-template-columns:1fr 1fr}.recipe-hero .rh-text{padding:var(--s5)}
  .linkbar{flex-direction:column}.linkbar .btn{width:100%}.how{gap:var(--s3)}
@@ -672,6 +707,155 @@ dialog .subtitle{margin:0 0 var(--s5)}
  .rgrid{grid-template-columns:repeat(4,1fr)}.rcard{box-shadow:none;border:1px solid #ddd;animation:none}
  .week{grid-template-columns:repeat(4,1fr)}.day{box-shadow:none;border:1px solid #ddd;min-height:0}
  .aisles{columns:2}.shop-row input{display:none}.shop-row label:before{content:'☐';margin-right:6px}}
+
+/* ================= print documents: recipe card, shopping list, week plan, recipe book =================
+   Printing a recipe, list, plan or book swaps the whole app for #print-root, which holds a document laid out
+   for paper (real text, page sizes, page breaks). The browser's "Save as PDF" turns it into a crisp PDF. */
+#print-root{display:none}
+@media print{
+ body.printing{background:#fff!important;color:#221c18;font-size:10.5pt}
+ body.printing>*:not(#print-root){display:none!important}
+ body.printing #print-root{display:block}}
+.pd{font-variant-numeric:lining-nums;--p-ink:#221c18;--p-mute:#6e655e;--p-faint:#9a918a;--p-rule:#e6dfd7;color:var(--p-ink);font:10.5pt/1.55 var(--ui);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pd *{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-variant-numeric:lining-nums!important}
+/* Playfair Display is for titles and a few short accents only; headings and body read in the app fonts */
+.pd h1,.pd .serif{font-family:"Playfair Display",Georgia,"Times New Roman",serif;font-weight:600;letter-spacing:0;line-height:1.15;color:var(--p-ink);text-wrap:balance}
+.pd h2,.pd h3{font-family:var(--num);font-weight:700;letter-spacing:-.01em;line-height:1.25;color:var(--p-ink)}
+.pd p{margin:0}
+.pd img{display:block;width:100%;height:100%;object-fit:cover}
+.pd figure{margin:0;overflow:hidden;background:var(--p-soft)}
+.pd figure:has(img[hidden]),.pd figure:not(:has(img)){display:none}
+.pd-kicker{font:700 7.5pt var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--p-accent)}
+.pd-lead{font:400 11pt/1.55 var(--ui);color:var(--p-mute)}
+/* a short line of accent text (cover subtitle, a name) may use the italic serif */
+.pd-accent,.pd-cover .pd-lead{font-family:"Playfair Display",Georgia,serif;font-style:italic}
+.pd-break{break-before:page}
+
+/* a recipe */
+.pd-recipe h1{font-size:27pt;margin:5pt 0 7pt}
+.pd-top{display:grid;grid-template-columns:1fr;gap:.3in;align-items:start;margin-bottom:4pt}
+.pd-top.with-photo{grid-template-columns:1fr 2.15in}
+.pd-top figure{aspect-ratio:1;border-radius:3pt}
+.pd .pd-banner{height:3.1in;border-radius:3pt;margin:0 0 18pt}
+.pd-recipe .pd-lead{margin-bottom:12pt;max-width:5.4in}
+.pd-meta{display:flex;border-top:.75pt solid var(--p-rule);border-bottom:.75pt solid var(--p-rule);margin:6pt 0 18pt;break-inside:avoid}
+.pd-meta div{flex:1;padding:6pt 10pt;border-left:.75pt solid var(--p-rule)}
+.pd-meta div:first-child{border-left:0;padding-left:0}
+.pd-meta span{display:block;font:700 6.5pt var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--p-faint)}
+.pd-meta b{font:700 11pt var(--num);letter-spacing:-.01em}
+.pd-cols{display:grid;grid-template-columns:2.2in 1fr;gap:.38in;align-items:start}
+.pd-cols h2,.pd-notes h3{font-size:13pt;margin:0 0 8pt;padding-bottom:6pt;border-bottom:1.25pt solid var(--p-accent)}
+.pd-ing{list-style:none;margin:0;padding:0}
+.pd-ing li{position:relative;padding:4pt 0 4pt 11pt;border-bottom:.5pt solid var(--p-rule);break-inside:avoid;font-size:10pt}
+.pd-ing li:before{content:'';position:absolute;left:0;top:10pt;width:4pt;height:4pt;border-radius:50%;background:var(--p-accent)}
+.pd-ing li.sec{font:700 7pt var(--ui);letter-spacing:.18em;text-transform:uppercase;color:var(--p-faint);border:0;padding:10pt 0 2pt}
+.pd-ing li.sec:before{display:none}
+.pd-steps{list-style:none;margin:0;padding:0}
+.pd-steps li{display:grid;grid-template-columns:18pt 1fr;gap:7pt;margin:0 0 9pt;break-inside:avoid}
+.pd-steps li>b{font:800 11pt/1.35 var(--num);color:var(--p-accent)}
+.pd-steps-sec{font:700 7.5pt var(--ui);letter-spacing:.18em;text-transform:uppercase;color:var(--p-accent);margin:12pt 0 7pt}
+.pd-steps-sec:first-child{margin-top:0}
+.pd-notes{margin-top:16pt;padding:11pt 14pt;background:var(--p-soft);border-radius:3pt;break-inside:avoid}
+.pd-notes h3{font-size:11.5pt;border:0;padding:0;margin:0 0 4pt}
+.pd-notes p{white-space:pre-line;font-size:9.5pt;color:#433b35}
+.pd-nutri{display:flex;flex-wrap:wrap;gap:4pt 16pt;margin-top:14pt;font-size:8.5pt;color:var(--p-mute);break-inside:avoid}
+.pd-nutri b{color:var(--p-ink);font-weight:600}
+.pd-source{display:flex;justify-content:space-between;gap:14pt;margin-top:18pt;padding-top:7pt;border-top:.5pt solid var(--p-rule);font-size:7.5pt;color:var(--p-faint);break-inside:avoid}
+.pd-source span:last-child{text-align:right}
+
+/* shopping list */
+.pd-docHead{display:flex;justify-content:space-between;align-items:flex-end;gap:16pt;padding-bottom:10pt;margin-bottom:16pt;border-bottom:1.25pt solid var(--p-accent)}
+.pd-docHead h1{font-size:26pt;margin-top:4pt}
+.pd-docHead .pd-lead{font-size:9.5pt;text-align:right}
+.pd-aisles{columns:2;column-gap:.42in}
+.pd-aisle{break-inside:avoid;margin:0 0 14pt}
+.pd-aisle h2{font-size:12pt;margin:0 0 3pt;display:flex;justify-content:space-between;align-items:baseline}
+.pd-aisle h2 small{font:600 7.5pt var(--ui);color:var(--p-faint);letter-spacing:.08em}
+.pd-item{display:flex;gap:8pt;align-items:flex-start;padding:4.5pt 0;border-bottom:.5pt solid var(--p-rule);font-size:10pt;break-inside:avoid}
+.pd-item i{flex:none;width:8.5pt;height:8.5pt;margin-top:2.5pt;border:.9pt solid #a39a92;border-radius:2pt}
+.pd-item small{display:block;font-size:7.5pt;color:var(--p-faint)}
+.pd-extra{break-inside:avoid;margin-top:6pt}
+.pd-extra h2{font-size:12pt;margin:0 0 3pt}
+.pd-extra div{height:22pt;border-bottom:.5pt solid var(--p-rule)}
+
+/* week plan: a landscape page */
+.pd-plan{page:land}
+.pd-week{width:100%;border-collapse:collapse;table-layout:fixed}
+.pd-week th{background:none;padding:0 6pt 7pt;text-align:left;vertical-align:bottom;border-bottom:1.25pt solid var(--p-accent)}
+.pd-week th span{display:block;font:700 7pt var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--p-faint)}
+.pd-week th b{font:700 14pt var(--num)}
+.pd-week th.today b{color:var(--p-accent)}
+.pd-week td{height:.98in;padding:6pt;vertical-align:top;border-bottom:.5pt solid var(--p-rule);border-left:.5pt solid var(--p-rule)}
+.pd-week td.slot{width:.75in;border-left:0;font:700 7pt var(--ui);letter-spacing:.18em;text-transform:uppercase;color:var(--p-accent);vertical-align:middle}
+.pd-week .meal-t{font:600 9pt/1.3 var(--ui);margin-bottom:4pt}
+.pd-week .meal-t small{display:block;font:500 7pt var(--ui);color:var(--p-faint);margin-top:1pt}
+.pd-planfoot{display:grid;grid-template-columns:1fr 1fr;gap:.4in;margin-top:14pt;break-inside:avoid}
+.pd-planfoot h2{font-size:11.5pt;margin:0 0 2pt}
+.pd-planfoot div div{height:19pt;border-bottom:.5pt solid var(--p-rule)}
+
+/* recipe book */
+.pd-cover{position:relative;overflow:hidden;width:100vw;height:100vh;break-after:page;color:var(--p-ink)}
+.cv-classic{background:#F6F0E6;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.3in 1.1in}
+.cv-classic:before,.cv-classic:after{content:'';position:absolute;border:1.1pt solid var(--p-deep)}
+.cv-classic:before{inset:.42in}.cv-classic:after{inset:.52in;border-width:.5pt}
+.cv-classic h1{font-size:46pt;color:var(--p-deep);margin:16pt 0 12pt;line-height:1.08}
+.cv-classic .pd-lead{font-size:15pt}
+.cv-orn{width:120pt;height:26pt;color:var(--p-accent);margin:4pt auto}
+.cv-by{position:absolute;left:0;right:0;bottom:1.25in;text-align:center}
+.cv-by span{display:block;font:700 7pt var(--ui);letter-spacing:.26em;text-transform:uppercase;color:var(--p-faint);margin-bottom:4pt}
+.cv-by b{font:italic 400 17pt "Playfair Display",Georgia,serif;color:var(--p-deep)}
+.cv-modern{background:#fff;display:grid;grid-template-rows:62% 1fr}
+.cv-art{background:var(--p-deep);padding:.55in;display:grid;gap:6pt;position:relative;overflow:hidden}
+.cv-art.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}.cv-art.n3{grid-template-columns:1.4fr 1fr;grid-template-rows:1fr 1fr}.cv-art.n3 figure:first-child{grid-row:1/3}
+.cv-art.n2{grid-template-columns:1fr 1fr}.cv-art figure{border-radius:2pt;background:#ffffff14}
+.cv-art.none{background-image:radial-gradient(circle at 18% 22%,color-mix(in srgb,var(--p-pop) 55%,transparent) 0 9%,transparent 9.2%),radial-gradient(circle at 78% 70%,color-mix(in srgb,var(--p-accent) 70%,transparent) 0 17%,transparent 17.2%),radial-gradient(circle at 64% 18%,#ffffff1c 0 5%,transparent 5.2%),radial-gradient(circle at 30% 82%,#ffffff12 0 12%,transparent 12.2%)}
+.cv-mono{position:absolute;right:.5in;bottom:.15in;font:600 230pt/1 "Playfair Display",Georgia,serif;color:#ffffff14}
+.cv-text{padding:.55in .7in .6in;display:flex;flex-direction:column;justify-content:center;border-left:8pt solid var(--p-accent)}
+.cv-text h1{font-size:42pt;margin:8pt 0 8pt;color:var(--p-deep)}
+.cv-text .pd-lead{font-size:14pt}
+.cv-text .cv-name{margin-top:18pt;font:700 7.5pt var(--ui);letter-spacing:.24em;text-transform:uppercase;color:var(--p-faint)}
+.cv-text .cv-name b{display:block;font:italic 400 15pt "Playfair Display",Georgia,serif;letter-spacing:0;text-transform:none;color:var(--p-ink);margin-top:3pt}
+.cv-photo{background:var(--p-deep)}
+.cv-photo figure{position:absolute;inset:0;background:none}
+.cv-photo:after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(18,12,8,.88) 0%,rgba(18,12,8,.55) 34%,rgba(18,12,8,0) 62%)}
+.cv-photo .cv-over{position:absolute;left:.75in;right:.75in;bottom:.85in;z-index:1;color:#fff}
+.cv-photo .pd-kicker{color:var(--p-pop)}
+.cv-photo h1{color:#fff;font-size:48pt;margin:8pt 0 10pt}
+.cv-photo .pd-lead{color:#f2e9e1;font-size:15pt}
+.cv-photo .cv-line{width:48pt;height:2pt;background:var(--p-pop);margin:16pt 0 10pt}
+.cv-photo .cv-who{font:italic 400 14pt "Playfair Display",Georgia,serif;color:#fff}
+.pd-contents h1{font-size:32pt;margin:4pt 0 4pt}
+.pd-contents>.pd-lead{margin-bottom:22pt}
+.pd-toc{columns:2;column-gap:.45in}
+.pd-toc section{break-inside:avoid;margin-bottom:14pt}
+.pd-toc h2{font:700 7.5pt var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--p-accent);margin:0 0 4pt;padding-bottom:4pt;border-bottom:.75pt solid var(--p-rule)}
+.pd-toc div{display:flex;align-items:baseline;gap:6pt;padding:3pt 0;font-size:9.5pt}
+.pd-toc div i{font:700 8pt var(--num);color:var(--p-faint);font-style:normal;width:18pt;flex:none}
+.pd-toc div span{flex:1;min-width:0;border-bottom:.75pt dotted #cfc6bd;padding-bottom:1pt}
+.pd-toc div em{font-style:normal;font-size:8pt;color:var(--p-faint);white-space:nowrap}
+.pd-made{margin-top:20pt;font-size:7.5pt;color:var(--p-faint);text-align:center}
+.pd-divider{height:calc(100vh - 1.75in);display:flex;flex-direction:column;justify-content:center;break-inside:avoid;page-break-inside:avoid}
+.pd-divider .num{font:600 96pt/1 "Playfair Display",Georgia,serif;color:var(--p-soft2)}
+.pd-divider h1{font-size:44pt;margin:6pt 0 10pt}
+.pd-divider .bar{width:56pt;height:3pt;background:var(--p-accent);margin:6pt 0 14pt}
+
+/* the book dialog */
+.book-dlg{width:min(680px,calc(100% - 32px))}
+.cover-pick{display:grid;grid-template-columns:repeat(3,96px);gap:14px}
+.fields .check{flex-direction:row;align-items:center;font-weight:500;color:var(--ink);font-size:13px}
+.book-opts{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.print-tip{display:flex;gap:10px;align-items:flex-start}.print-tip svg{flex:none;margin-top:1px;color:var(--accent)}
+.cover-pick label{cursor:pointer}
+.cover-pick input{position:absolute;opacity:0;pointer-events:none}
+.cover-pick .mini{display:block;aspect-ratio:8.5/11;border-radius:6px;border:2px solid var(--rule);overflow:hidden;position:relative;transition:border-color .13s,box-shadow .13s}
+.cover-pick input:checked+.mini{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.cover-pick input:focus-visible+.mini{outline:2px solid var(--accent);outline-offset:2px}
+.cover-pick b{display:block;font-size:12px;margin-top:6px;text-align:center}
+.mini.m-classic{background:#F6F0E6}.mini.m-classic:before{content:'';position:absolute;inset:8%;border:1.5px solid var(--bold)}
+.mini.m-classic i{position:absolute;left:22%;right:22%;top:42%;height:7%;background:var(--bold);border-radius:2px}.mini.m-classic u{position:absolute;left:32%;right:32%;top:53%;height:3%;background:var(--accent);border-radius:2px}
+.mini.m-modern{background:#fff}.mini.m-modern i{position:absolute;inset:0 0 38% 0;background:var(--bold)}.mini.m-modern u{position:absolute;left:12%;right:30%;bottom:20%;height:7%;background:var(--bold);border-radius:2px}.mini.m-modern:after{content:'';position:absolute;left:0;bottom:0;width:5%;height:38%;background:var(--accent)}
+.mini.m-photo{background:linear-gradient(to top,#140c08 0%,#140c0899 35%,transparent 65%),linear-gradient(135deg,color-mix(in srgb,var(--pop) 70%,var(--bold)),var(--accent))}.mini.m-photo i{position:absolute;left:12%;right:28%;bottom:16%;height:7%;background:#fff;border-radius:2px}.mini.m-photo u{position:absolute;left:12%;width:16%;bottom:28%;height:2%;background:var(--pop)}
+.print-tip{line-height:1.5;font-size:12px;color:var(--ink-3);background:var(--sunk);border-radius:var(--r-sm);padding:10px 12px;margin-top:14px}
 </style>
 </head>
 <body>
@@ -682,7 +866,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
   <div class="brand"><span class="brand-mark" id="brand-mark"><svg viewBox="0 0 24 24" class="i" style="width:19px;height:19px;stroke-width:2.2" aria-hidden="true"><path d="M4 4.5h6a2.5 2.5 0 0 1 2.5 2.5v13a3 3 0 0 0-3-2.5H4Z"/><path d="M20 4.5h-6A2.5 2.5 0 0 0 11.5 7v13a3 3 0 0 1 3-2.5H20Z"/></svg></span><div class="brand-txt"><b>Recipe Library</b><small>DESIGNS BY DAROWAN</small></div>
    <button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" class="i"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
   <nav id="nav"></nav>
-  <div class="rail-foot"><div class="rail-note" id="rail-note"></div><button class="btn small rail-demo" data-action="sample" id="rail-demo">Explore sample recipes</button><a href="https://www.designsbydarowan.com" target="_blank" rel="noopener">Designs by Darowan ↗</a><span id="rail-version"></span><span class="status" id="rail-status">Saved on this device</span></div>
+  <div class="rail-foot"><div class="rail-note" id="rail-note"></div><button class="btn small rail-demo" data-action="install" id="rail-install" hidden>Install the app</button><button class="btn small rail-demo" data-action="sample" id="rail-demo">Explore sample recipes</button><a href="https://www.designsbydarowan.com" target="_blank" rel="noopener">Designs by Darowan ↗</a><span id="rail-version"></span><span class="status" id="rail-status">Saved on this device</span></div>
  </aside>
  <button class="scrim" data-action="menu" aria-label="Close navigation"></button>
  <div class="main">
@@ -708,6 +892,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
 <dialog id="dlg" aria-labelledby="dlg-title"></dialog>
 <dialog id="welcome" class="welcome" aria-labelledby="welcome-title"></dialog>
 <div class="timers" id="timers" aria-live="polite"></div>
+<div id="print-root" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="tip" id="tip" hidden></div>
 <input type="file" id="restore-file" accept=".json,application/json" hidden>
@@ -727,7 +912,7 @@ const CONFIG={
  themes:['kiln','ledger','sage','linen','fjord','slate','night','midnight'],
  railNote:'<b>Save any recipe from a link.</b>Your library stays on this device.',
  // [id, label, icon, hub tabs?]. Recipe, edit and cook pages live under the library hub.
- nav:[['dashboard','Kitchen','today'],['library','Recipes','book',[['library','All recipes'],['collections','Collections']]],['import','Add a recipe','link'],
+ nav:[['dashboard','Kitchen','today'],['library','Recipes','book',[['library','All recipes'],['collections','Collections'],['tags','Categories & tags']]],['import','Add a recipe','link'],
   ['plan','Meal plan','calendar'],['shopping','Shopping list','cart'],
   ['settings','Settings & backup','palette'],['guide','How to use','help']],
  navGroups:[['Your kitchen',['dashboard','library','import']],['Plan & shop',['plan','shopping']]], navGroupRest:'Help & settings',
@@ -791,6 +976,9 @@ const plural=(n,one,many=one+'s')=>`${num(n)} ${n===1?one:many}`;
 const uid=()=>globalThis.crypto?.randomUUID?.().slice(0,8)||Math.random().toString(36).slice(2,10);
 const button=(label,action,cls='',extra='')=>`<button type="button" class="btn ${cls}" data-action="${action}" ${extra}>${label}</button>`;
 const mins=m=>!m?'—':m<60?`${m} min`:`${Math.floor(m/60)} hr${m%60?` ${m%60} min`:''}`;
+// recipe sites put checkbox and bullet glyphs before ingredients (▢ 2 cups flour); keep only the words
+const GLYPHS=/^[\s\u200b-\u200d\ufeff▢☐□■◻◼▪▫●○•◦‣∙⁃·✓✔✅☑❑❒➤►▶»*–—-]+(?=\S)/u;
+const tidy=t=>String(t??'').replace(/[\u200b-\u200d\ufeff]/g,'').replace(GLYPHS,'').replace(/\s+/g,' ').trim();
 const safeUrl=u=>{try{const x=new URL(u);return /^https?:$/.test(x.protocol)&&!x.username&&!x.password?x.href:'';}catch{return '';}};
 const hostOf=u=>{try{return new URL(u).hostname.replace(/^www\./,'');}catch{return '';}};
 
@@ -814,13 +1002,13 @@ const Logic={
   if(s&&s.app==='RecipeLibraryStudio'&&Array.isArray(s.recipes))s=Logic.fromV1(s);   // a backup from the first, offline edition
   if(!s||typeof s!=='object'||!Array.isArray(s.recipes))throw Error(`This is not a ${CONFIG.name} file.`);
   const b=Logic.blank();s.settings={...b.settings,...s.settings};if(!CONFIG.themes.includes(s.settings.theme))s.settings.theme=CONFIG.defaultTheme;
-  if(!CONFIG.units.includes(s.settings.units))s.settings.units='Original';if(!Array.isArray(s.settings.hiddenNav))s.settings.hiddenNav=[];
+  if(!CONFIG.units.includes(s.settings.units))s.settings.units='Original';if(!Array.isArray(s.settings.hiddenNav))s.settings.hiddenNav=[];if(!['letter','a4',''].includes(s.settings.paper||''))s.settings.paper='';
   const str=v=>typeof v==='string'?v:'',arr=v=>Array.isArray(v)?v.filter(x=>typeof x==='string'):[],n=v=>Number.isFinite(+v)&&v!==null&&v!==''&&+v>=0?Math.round(+v):null;
   s.recipes=s.recipes.filter(r=>r&&typeof r.id==='string'&&typeof r.title==='string').map(r=>{const x=Logic.recipe(r);
    for(const k of ['title','description','sourceUrl','sourceName','author','servings','notes','sourceNotes','nutritionBasis','image','pasted','createdAt','updatedAt'])x[k]=str(x[k]);
    for(const k of ['categories','cuisine','tags','ingredients','images','collections','made'])x[k]=arr(x[k]);
    x.made=x.made.filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort();x.prep=n(x.prep);x.cook=n(x.cook);x.total=n(x.total);x.rating=Math.max(0,Math.min(5,Math.round(+x.rating||0)));
-   x.sections=(Array.isArray(x.sections)?x.sections:[]).filter(q=>q&&Array.isArray(q.steps)).map(q=>({name:str(q.name),steps:arr(q.steps)}));
+   x.ingredients=x.ingredients.map(tidy).filter(Boolean);x.sections=(Array.isArray(x.sections)?x.sections:[]).filter(q=>q&&Array.isArray(q.steps)).map(q=>({name:tidy(str(q.name)),steps:arr(q.steps).map(tidy).filter(Boolean)}));
    x.sourceUrl=safeUrl(x.sourceUrl);x.image=safeUrl(x.image);x.images=x.images.map(safeUrl).filter(Boolean);x.favorite=!!x.favorite;x.hasPhoto=!!x.hasPhoto;
    x.nutrition=x.nutrition&&typeof x.nutrition==='object'&&!Array.isArray(x.nutrition)?x.nutrition:null;return x;});
   s.collections=(Array.isArray(s.collections)?s.collections:[]).filter(c=>c&&typeof c.id==='string'&&typeof c.name==='string');
@@ -884,7 +1072,7 @@ const Logic={
   const images=[...new Set(list(d.imageURLs).map(safeUrl).filter(u=>u.startsWith('https:')))].slice(0,12);
   return Logic.recipe({title:String(d.title||'').slice(0,200),description:String(d.description||''),sourceUrl:safeUrl(d.sourceUrl||''),sourceName:String(d.sourceName||hostOf(d.sourceUrl||'')),author:String(d.author||''),
    prep:d.prepTimeMinutes??null,cook:d.cookTimeMinutes??null,total:d.totalTimeMinutes??null,servings:String(d.servings||''),categories:list(d.categories).slice(0,5),cuisine:list(d.cuisine).slice(0,5),tags:list(d.tags).slice(0,12),
-   ingredients:list(d.ingredients).map(i=>typeof i==='string'?i:i.original),sections:(Array.isArray(d.instructionSections)?d.instructionSections:[]).map(s=>({name:s.section==='Main'?'':String(s.section||''),steps:list(s.steps)})).filter(s=>s.steps.length),
+   ingredients:list(d.ingredients).map(i=>tidy(typeof i==='string'?i:i.original)).filter(Boolean),sections:(Array.isArray(d.instructionSections)?d.instructionSections:[]).map(s=>({name:s.section==='Main'?'':tidy(s.section),steps:list(s.steps).map(tidy).filter(Boolean)})).filter(s=>s.steps.length),
    sourceNotes:String(d.sourceNotes||''),nutrition:d.nutrition&&typeof d.nutrition==='object'?d.nutrition:null,nutritionBasis:String(d.nutritionBasis||''),images,image:images[0]||'',sourceRating:d.sourceRating||null,pasted:String(d.originalPastedText||''),...extra});},
  normalizeLink(raw){let s=String(raw||'').trim();if(!s)return '';if(!/^[a-z]+:\/\//i.test(s)&&/^[\w-]+(\.[\w-]+)+\//.test(s))s='https://'+s;
   try{const u=new URL(s);if(!/^https?:$/.test(u.protocol)||u.username||u.password)return '';u.hash='';for(const k of [...u.searchParams.keys()])if(/^utm_|^(fbclid|gclid|mc_cid|mc_eid)$/i.test(k))u.searchParams.delete(k);return u.href;}catch{return '';}},
@@ -894,7 +1082,7 @@ const Logic={
   const md=/!?\[([^\]\n]*)\]\(([^)\s]+)\)/g,urls=[];
   const lines=all.replace(/\r\n?/g,'\n').split('\n').map(l=>{l=l.replace(/&nbsp;| /g,' ').replace(/&amp;/g,'&');const heading=/^#{1,6}\s/.test(l);
    l=l.replace(md,(m,label,u)=>{urls.push({label,u});return /^!/.test(m)?'':label;});
-   return {text:l.replace(/\*\*|__/g,'').replace(/^#{1,6}\s*/,'').replace(/^[•●▪*]\s+|^-\s+/,'').replace(/\s+/g,' ').trim(),heading};});
+   return {text:tidy(l.replace(/\*\*|__/g,'').replace(/^#{1,6}\s*/,'')),heading};});
   const H=s=>s.replace(/:$/,'').trim(),junk=/^(?:jump to .*|print|save|rate|share|pin|advertisement|sponsored|cook mode|keep screen awake|gather (?:all )?ingredients|(?:0[.,]5|½|1\/2|1|2|3|4)\s*x|\d+\s+(?:photos?|reviews?|ratings?)|add photos?|original recipe.*yields?.*)$/i,
    // photo credits that sites print under each step picture
    credit=/^(?:(?:photo(?:graph)?|image|food styl\w*|prop styl\w*)\s*(?:by|credit)\b.*|credit:.*|.*\b(?:food studios?|getty images|shutterstock|istock(?:photo)?)|dotdash meredith.*)$/i,
@@ -934,7 +1122,10 @@ const Logic={
  // ---------- weeks, stats ----------
  weekStart(day){const d=new Date(day+'T12:00:00');d.setDate(d.getDate()-((d.getDay()+6)%7));return ymd(d);},
  madeBetween:(s,from,to)=>s.recipes.flatMap(r=>r.made.filter(d=>d>=from&&d<=to).map(d=>({r,d}))),
- categoryOf:r=>r.categories[0]||r.cuisine[0]||'Uncategorized',
+ categoryOf:r=>r.categories[0]||'Uncategorized',
+ // the library's category/cuisine/tag filter: '' everything, 'none' no category, 'c:Dinner', 'u:Italian', 't:make ahead'
+ matchesFacet(r,f){if(!f)return true;if(f==='none')return !r.categories.length;const k=f[0],v=f.slice(2);return (k==='c'?r.categories:k==='u'?r.cuisine:r.tags).includes(v);},
+ facetLabel:f=>f==='none'?'No category':f?f.slice(2):'',
 };
 const recipeById=id=>state.recipes.find(r=>r.id===id);
 
@@ -946,7 +1137,7 @@ let state=Logic.blank(),real=null,demo=false,undoState=null,storageProblem='',sc
  railMin=ls.get(RAIL_KEY)==='1',hubLast={},returnFocus=null,askFn=null;
 // what's open: the recipe page, the editor's draft, cook mode, the plan's week, the library's filters
 let openId='',draft=null,draftPhoto=null,dirty=false,cookAt=0,week=Logic.weekStart(today()),importing=false,importMsg='',lastLink='';
-const lib={q:'',filter:'all',cat:'',col:'',sort:'recent',page:0,view:ls.get(VIEW_KEY)==='table'?'table':'grid'};
+const lib={q:'',filter:'all',cat:'',col:'',sort:'recent',page:0,view:ls.get(VIEW_KEY)==='table'?'table':'grid',selecting:false,sel:new Set()};
 const view={servings:null,units:null};
 
 /* ---------- storage: IndexedDB (room for big data) with a localStorage fallback ---------- */
@@ -1012,14 +1203,14 @@ const SAMPLE=[
  ['Weeknight chicken curry','Dinner','Indian',35,'4','Mild, creamy and quick. Serve with rice and a squeeze of lime.',['1 1/2 pounds chicken thighs, cubed','1 onion, chopped','3 garlic cloves, minced','1 tablespoon grated ginger','2 tablespoons curry powder','1 can coconut milk','1 cup chicken stock','1 lime'],['Brown the onion in a little oil for 6 minutes.','Add garlic, ginger and curry powder and stir for 1 minute.','Add chicken, coconut milk and stock. Simmer for 20 minutes.','Finish with lime juice and serve with rice.'],'spiceroute.example',5,true,[5,12,26,40,66,88]],
  ['Brown butter banana bread','Baking','American',75,'10 slices','Toasty brown butter and very ripe bananas make the loaf you will bake again and again.',['3 ripe bananas','1/2 cup butter','3/4 cup brown sugar','2 eggs','1 3/4 cups flour','1 teaspoon baking soda','1/2 teaspoon salt'],['Heat the oven to 350°F and line a loaf pan.','Brown the butter in a pan for 5 minutes, then let it cool.','Mash bananas; whisk in butter, sugar and eggs.','Fold in flour, soda and salt. Bake for 55 minutes.'],'fernkitchen.example',5,true,[20,47,110]],
  ['Crispy smashed potatoes','Side','American',50,'4','Boiled, smashed and roasted until the edges crackle.',['2 pounds small potatoes','3 tablespoons olive oil','1 teaspoon salt','2 tablespoons chopped chives'],['Boil the potatoes for 20 minutes, until tender.','Smash each one flat on an oiled tray.','Drizzle with oil and salt, then roast at 450°F for 25 minutes.','Top with chives.'],'copperpot.example',4,false,[8,39]],
- ['Green goddess soup','Lunch','Vegetarian',30,'4','A big pot of greens that tastes like spring.',['1 onion, chopped','2 zucchini, chopped','4 cups vegetable stock','2 cups spinach','1 handful basil','1/2 cup cream'],['Soften the onion in a pot for 5 minutes.','Add zucchini and stock and simmer for 15 minutes.','Stir in spinach and basil, then blend until smooth.','Swirl in the cream.'],'',0,false,[]],
- ['Salmon with honey soy glaze','Dinner','Japanese',25,'2','Sticky, glossy and on the table in under half an hour.',['2 salmon fillets','2 tablespoons soy sauce','1 tablespoon honey','1 teaspoon grated ginger','1 scallion, sliced'],['Heat the oven to 400°F.','Whisk soy sauce, honey and ginger.','Brush over the salmon and bake for 12 minutes.','Scatter scallion over the top.'],'spiceroute.example',0,false,[]],
+ ['Green goddess soup','','Vegetarian',30,'4','A big pot of greens that tastes like spring.',['1 onion, chopped','2 zucchini, chopped','4 cups vegetable stock','2 cups spinach','1 handful basil','1/2 cup cream'],['Soften the onion in a pot for 5 minutes.','Add zucchini and stock and simmer for 15 minutes.','Stir in spinach and basil, then blend until smooth.','Swirl in the cream.'],'',0,false,[]],
+ ['Salmon with honey soy glaze','','Japanese',25,'2','Sticky, glossy and on the table in under half an hour.',['2 salmon fillets','2 tablespoons soy sauce','1 tablespoon honey','1 teaspoon grated ginger','1 scallion, sliced'],['Heat the oven to 400°F.','Whisk soy sauce, honey and ginger.','Brush over the salmon and bake for 12 minutes.','Scatter scallion over the top.'],'spiceroute.example',0,false,[]],
  ['Blueberry yogurt pancakes','Breakfast','American',25,'4','Thick, fluffy and studded with berries.',['2 cups flour','2 teaspoons baking powder','2 tablespoons sugar','1 1/2 cups yogurt','2 eggs','1 cup blueberries'],['Whisk the dry ingredients in a bowl.','Whisk yogurt and eggs, then stir into the dry mix.','Fold in blueberries.','Cook 1/4 cup portions for 3 minutes per side.'],'copperpot.example',0,false,[]],
  ['Black bean tacos','Dinner','Mexican',20,'4','Smoky beans, quick pickled onion and plenty of lime.',['2 cans black beans','1 teaspoon cumin','1 teaspoon smoked paprika','8 tortillas','1 red onion, sliced','1 avocado','1 lime'],['Warm the beans with cumin and paprika for 8 minutes.','Toss the onion with lime juice and a pinch of salt.','Fill warm tortillas with beans, onion and avocado.'],'spiceroute.example',4,false,[10,24,52]],
  ['Olive oil chocolate cake','Baking','Italian',60,'8','A dark, tender cake that keeps for days.',['1 1/2 cups flour','1/2 cup cocoa','1 cup sugar','3/4 cup olive oil','1 cup warm water','1 teaspoon baking soda'],['Heat the oven to 350°F and oil a round pan.','Whisk the dry ingredients.','Whisk in oil and warm water until smooth.','Bake for 35 minutes.'],'fernkitchen.example',0,false,[]]];
 function sampleData(){const s=Logic.blank();s.settings.theme=state.settings.theme;s.settings.units=state.settings.units;
  s.collections=[{id:'c1',name:'Weeknight dinners'},{id:'c2',name:'Sunday baking'},{id:'c3',name:'Family favorites'}];
- s.recipes=SAMPLE.map(([title,cat,cuisine,total,servings,description,ingredients,steps,site,rating,fav,ago],i)=>Logic.recipe({id:'s'+i,title,description,categories:[cat],cuisine:[cuisine],total,prep:Math.round(total/3),cook:total-Math.round(total/3),servings,
+ s.recipes=SAMPLE.map(([title,cat,cuisine,total,servings,description,ingredients,steps,site,rating,fav,ago],i)=>Logic.recipe({id:'s'+i,title,description,categories:cat?[cat]:[],cuisine:[cuisine],total,prep:Math.round(total/3),cook:total-Math.round(total/3),servings,
   ingredients,sections:[{name:'',steps}],sourceUrl:site?`https://${site}/recipes/${title.toLowerCase().replace(/[^a-z]+/g,'-')}`:'',sourceName:site||'From my own kitchen',rating,favorite:fav,sample:true,
   made:[...ago,...(i%4===1?[0]:[])].map(n=>addDays(today(),-n)).filter((d,k,a)=>a.indexOf(d)===k).sort(),collections:[cat==='Dinner'&&total<=35?'c1':'',cat==='Baking'?'c2':'',fav?'c3':''].filter(Boolean),
   createdAt:new Date(Date.now()-Math.max(0,130-i*12)*864e5).toISOString(),tags:i%3?[]:['make ahead']}));
@@ -1037,15 +1228,16 @@ const CAT=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--ca
 const tipOf=(t,rows)=>esc(JSON.stringify({t,r:rows}));
 const fold=rows=>{const r=rows.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),top=r.slice(0,5).map((x,i)=>[x[0],x[1],x[2]||CAT[i]]);const rest=r.slice(5).reduce((n,x)=>n+x[1],0);if(rest)top.push([`Other (${r.length-5} more)`,rest,CAT[5]]);return top;};
 const count=n=>num(n);
-function pie(parts,{label='',donut=true,center='',sub='',f=count}={}){
+function pie(parts,{label='',donut=true,center='',sub='',f=count,act=null}={}){
+ const go=name=>{const a=act&&!/^Other \(/.test(name)?act(name):'';return a?` data-action="lib-cat" data-v="${esc(a)}" role="link" title="Show these recipes"`:'';};
  parts=parts.filter(p=>p[1]>0);const total=parts.reduce((n,p)=>n+p[1],0);if(!total)return '';
  const R=80,r0=donut?52:0,c=90,pt=(a,r)=>[(c+r*Math.cos(a)).toFixed(2),(c+r*Math.sin(a)).toFixed(2)];let a=-Math.PI/2;
  const segs=parts.map(([name,n,color],i)=>{const sw=n/total*Math.PI*2,a1=a,a2=a+sw;a=a2;let d;
   if(sw>=Math.PI*2-1e-6)d=`M${c} ${c-R}A${R} ${R} 0 1 1 ${c-0.01} ${c-R}Z`+(donut?`M${c} ${c-r0}A${r0} ${r0} 0 1 0 ${c+0.01} ${c-r0}Z`:'');
   else{const lg=sw>Math.PI?1:0,[x1,y1]=pt(a1,R),[x2,y2]=pt(a2,R);if(donut){const [x3,y3]=pt(a2,r0),[x4,y4]=pt(a1,r0);d=`M${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${r0} ${r0} 0 ${lg} 0 ${x4} ${y4}Z`;}else d=`M${c} ${c}L${x1} ${y1}A${R} ${R} 0 ${lg} 1 ${x2} ${y2}Z`;}
-  return `<path class="kit-seg" d="${d}" fill="${color}" fill-rule="evenodd" style="--i:${i}" tabindex="0" aria-label="${esc(name)}: ${pc(n/total)}" data-tip="${tipOf(name,[{name:label,value:f(n),color},{name:'Share',value:pc(n/total)}])}"/>`;}).join('');
+  return `<path class="kit-seg" d="${d}" fill="${color}" fill-rule="evenodd" style="--i:${i}"${go(name)} tabindex="0" aria-label="${esc(name)}: ${pc(n/total)}" data-tip="${tipOf(name,[{name:label,value:f(n),color},{name:'Share',value:pc(n/total)}])}"/>`;}).join('');
  let cuts='';if(parts.length>1){let b=-Math.PI/2;for(const p of parts){const [x1,y1]=pt(b,r0),[x2,y2]=pt(b,R+1);cuts+=`<line class="kit-cut" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;b+=p[1]/total*Math.PI*2;}}
- const key=parts.map(([name,n,color])=>`<div class="kit-key-row"><i class="dot" style="background:${color}"></i><span>${esc(name)}</span><b class="number">${pc(n/total,n/total<0.1?1:0)}</b><em class="number">${f(n)}</em></div>`).join('');
+ const key=parts.map(([name,n,color])=>`<div class="kit-key-row${act&&go(name)?' linked':''}"${go(name)}><i class="dot" style="background:${color}"></i><span>${esc(name)}</span><b class="number">${pc(n/total,n/total<0.1?1:0)}</b><em class="number">${f(n)}</em></div>`).join('');
  return `<div class="kit-pie"><svg viewBox="0 0 180 180" role="img" aria-label="${esc(label)}">${segs}${cuts}${donut&&center?`<text x="90" y="92" class="kit-mid">${esc(center)}</text><text x="90" y="110" class="kit-mid-sub">${esc(sub)}</text>`:''}</svg><div class="kit-key">${key}</div></div>`;}
 function gauge(v,title,note){const p=Math.max(0,Math.min(1,Number.isFinite(v)?v:0));return `<div class="kit-gauge"><svg viewBox="0 0 180 104" role="img" aria-label="${esc(title)} ${pc(v)}"><path d="M20 92A70 70 0 0 1 160 92" class="kit-gauge-track" pathLength="100"/><path d="M20 92A70 70 0 0 1 160 92" class="kit-gauge-val" pathLength="100" style="stroke-dasharray:${(p*100).toFixed(1)} 100"/><text x="90" y="86" class="kit-gauge-num">${pc(v)}</text></svg><b>${esc(title)}</b><small>${esc(note)}</small></div>`;}
 function spark(vals){const pts=vals.map((n,i)=>Number.isFinite(n)?[i,n]:null).filter(Boolean);if(pts.length<2)return '';const ys=pts.map(p=>p[1]),mn=Math.min(...ys),sp=(Math.max(...ys)-mn)||1,W=120,H=30,X=i=>2+i*(W-6)/Math.max(1,vals.length-1),Y=n=>H-4-(n-mn)/sp*(H-8),l=pts.at(-1);
@@ -1064,15 +1256,16 @@ function bars(series,labels,{title='',H=240,W=700,f=count}={}){
 const pagehead=(eyebrow,title,sub,actions='')=>`<div class="pagehead"><div class="pagehead-text"><div class="eyebrow">${eyebrow}</div><h1>${title}</h1>${sub?`<p class="subtitle">${sub}</p>`:''}</div>${actions?`<div class="actions">${actions}</div>`:''}</div>`;
 const tile=(label,value,note,sp='',icon='',i=0,tone='neutral')=>`<div class="kpi" style="--i:${i}" data-icon="${icon}" data-tone="${tone}"><div class="label">${label}</div><b class="number">${value}</b>${sp}<small>${note}</small></div>`;
 const cardhead=(title,note='',icon='',actions='')=>`<div class="cardhead"><div><h2>${icon?`<span class="h-ico">${ico(icon)}</span>`:''}${title}</h2>${note?`<p>${note}</p>`:''}</div>${actions?`<div class="actions">${actions}</div>`:''}</div>`;
-const empty=(title,text,btn='',icon='compass')=>`<div class="empty">${ico(icon)}<h3>${title}</h3><p>${text}</p>${btn}</div>`;
+const empty=(title,text,btn='',icon='compass')=>`<div class="empty">${ico(icon)}<h3>${title}</h3><p>${text}</p>${btn?`<div class="actions empty-actions">${btn}</div>`:''}</div>`;
 const pager=(st,total,per)=>{const pages=Math.max(1,Math.ceil(total/per));return pages<2?'':`<div class="pager no-print"><span>${num(st.page*per+1)}–${num(Math.min(total,(st.page+1)*per))} of ${num(total)} · page ${st.page+1} of ${pages}</span><span class="actions">${button('Previous','page','small',`data-d="-1" ${st.page?'':'disabled'}`)}${button('Next','page','small',`data-d="1" ${st.page<pages-1?'':'disabled'}`)}</span></div>`;};
 const catColor=name=>{const cats=[...new Set(state.recipes.map(Logic.categoryOf))].sort();const i=cats.indexOf(name);return CAT[i<0?5:i%5];};
 // a picture: your photo, else the source's photo, else a tinted tile with the category
 function pic(r,label=true){const img=r.hasPhoto?`<img data-photo="${esc(r.id)}" alt="" hidden>`:r.image?`<img src="${esc(r.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-remote>`:'';
  return `<div class="pic" style="--c:${catColor(Logic.categoryOf(r))}">${ico('chef')}${label?`<small>${esc(Logic.categoryOf(r))}</small>`:''}${img}</div>`;}
 const stars=n=>n?`<span class="stars" aria-label="${n} of 5 stars">${'★'.repeat(n)}<span class="off">${'★'.repeat(5-n)}</span></span>`:'';
-function card(r,i=0){return `<article class="rcard" style="--i:${i%12}">${r.sample?'<span class="chip sample-tag">Sample</span>':''}<button class="fav" data-action="favorite" data-id="${r.id}" aria-pressed="${r.favorite}" aria-label="${r.favorite?'Remove from':'Add to'} favorites: ${esc(r.title)}" title="Favorite">${ico('heart')}</button>
- <button class="rcard-open" data-action="open" data-id="${r.id}" aria-label="Open ${esc(r.title)}">${pic(r)}<div class="rcard-body"><div class="eyebrow">${esc(r.sourceName||'My recipe')}</div><h3>${esc(r.title)}</h3>
+function card(r,i=0){const sel=lib.selecting&&screen==='library',on=sel&&lib.sel.has(r.id);
+ return `<article class="rcard${sel?' selecting':''}${on?' picked':''}" style="--i:${i%12}">${sel?`<span class="pick" aria-hidden="true">${ico('check')}</span>`:r.sample?'<span class="chip sample-tag">Sample</span>':''}<button class="fav" data-action="favorite" data-id="${r.id}" aria-pressed="${r.favorite}" aria-label="${r.favorite?'Remove from':'Add to'} favorites: ${esc(r.title)}" title="Favorite">${ico('heart')}</button>
+ <button class="rcard-open" data-action="${sel?'sel':'open'}" data-id="${r.id}" aria-label="${sel?(on?'Unselect ':'Select '):'Open '}${esc(r.title)}" ${sel?`aria-pressed="${on}"`:''}>${pic(r)}<div class="rcard-body"><div class="eyebrow">${esc(r.sourceName||'My recipe')}</div><h3>${esc(r.title)}</h3>
  <div class="rmeta">${r.total?`<span>${ico('clock')}${mins(r.total)}</span>`:''}${r.made.length?`<span>${ico('check')}Made ${r.made.length}×</span>`:'<span class="chip accent">To try</span>'}${stars(r.rating)}</div></div></button></article>`;}
 
 /* ---------- link import: the browser asks our Netlify function to read the page ---------- */
@@ -1100,6 +1293,16 @@ const linkbar=(light=false)=>`<form class="linkbar ${light?'light':''}" data-for
 /* ================================================================================
    Screens
    ================================================================================ */
+// the recipes the library shows for the current search and filters
+function libRows(){const q=lib.q.toLowerCase().trim();return state.recipes.filter(r=>{
+ if(lib.filter==='favorites'&&!r.favorite)return false;if(lib.filter==='try'&&r.made.length)return false;if(lib.filter==='made'&&!r.made.length)return false;
+ if(!Logic.matchesFacet(r,lib.cat))return false;if(lib.col&&!r.collections.includes(lib.col))return false;
+ return !q||[r.title,r.description,r.sourceName,r.author,...r.categories,...r.cuisine,...r.tags,...r.ingredients].join(' ').toLowerCase().includes(q);});}
+// category, cuisine and tag chips on a recipe: × removes one, typing in the box adds (Enter or comma)
+const FACETS=[['categories','Category','c'],['cuisine','Cuisine','u'],['tags','Tags','t']];
+const datalists=()=>FACETS.map(([k])=>`<datalist id="dl-${k}">${[...new Set(state.recipes.flatMap(r=>r[k]))].sort().map(v=>`<option value="${esc(v)}">`).join('')}</datalist>`).join('');
+function chipEditor(r){return FACETS.map(([k,label,pre])=>`<div class="chip-edit"><span class="chip-label">${label}</span><div class="chips">${r[k].map(v=>`<span class="chip ${k==='tags'?'':'accent'}"><button class="chip-go" data-action="lib-cat" data-v="${esc(pre+':'+v)}" title="Show all recipes with this">${k==='tags'?'#':''}${esc(v)}</button><button class="chip-x" data-action="chip-x" data-id="${r.id}" data-k="${k}" data-v="${esc(v)}" aria-label="Remove ${esc(v)}" title="Remove">${ico('cross')}</button></span>`).join('')}
+ <input class="chip-add" data-chip="${k}" data-id="${r.id}" list="dl-${k}" maxlength="40" placeholder="${r[k].length?'+ Add':k==='categories'?'+ Add a category':'+ Add'}" aria-label="Add ${label.toLowerCase()}"></div></div>`).join('')+datalists();}
 const VIEWS={
  dashboard(){
   const rs=state.recipes;
@@ -1127,36 +1330,38 @@ const VIEWS={
    <div class="hero-side"><div class="hero-fact">Favorites<strong>${num(favs.length)}</strong></div><div class="hero-fact">Still to try<strong>${num(toTry.length)}</strong></div><div class="hero-meter"><i style="width:${(rs.length?cooked.length/rs.length*100:0).toFixed(1)}%"></i></div><div class="hero-fact">Cooked at least once<strong>${pc(rs.length?cooked.length/rs.length:NaN)}</strong></div><div class="hero-fact">Planned this week<strong>${plural(planned.length,'meal')}</strong></div></div></section>`+
    `<div class="kpis">${tile('Meals cooked',num(made.length),d(made.length,prevMade),spark(perMonth),'chef',0,'pos')}${tile('Recipes added',num(added.at(-1)),`${num(added.reduce((a,b)=>a+b,0))} in the last 12 months`,spark(added),'link',1,'net')}${tile('Favorites',num(favs.length),pc(rs.length?favs.length/rs.length:NaN)+' of your library','','heart',2)}${tile('Still to try',num(toTry.length),next?'Next: '+esc(next.title.length>34?next.title.slice(0,32)+'…':next.title):'You’ve tried everything','','compass',3)}</div>`+
    `<div class="grid2"><section class="card">${cardhead('Meals cooked by month','Each “Made it” you log, over the last 12 months','insights')}${bars([{name:'Meals cooked',color:'var(--accent)',values:perMonth}],months.map(shortMonth),{title:'Meals cooked by month',H:330})||empty('Nothing cooked yet','Press “Made it” on a recipe after you cook it, and your cooking shows up here.','','chef')}</section>
-   <section class="card">${cardhead('What’s in your library','By category','grid')}${pie(fold(cats),{label:'Recipes',center:num(rs.length),sub:'RECIPES'})}</section></div>`+
+   <section class="card">${cardhead('What’s in your library','By category · click one to open it','grid')}${pie(fold(cats),{label:'Recipes',center:num(rs.length),sub:'RECIPES',act:n=>n==='Uncategorized'?'none':'c:'+n})}${cats.some(([c])=>c==='Uncategorized')?`<p class="small dim" style="margin-top:10px;text-align:center">Click a category to see its recipes.</p>`:''}</section></div>`+
    `<div class="grid3"><section class="card mini-list">${cardhead('Recently added','','link',button('See all','go','small','data-go="library"'))}${[...rs].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,5).map(r=>`<div class="row"><button data-action="open" data-id="${r.id}">${esc(r.title)}</button><small>${esc(r.sourceName||'')}</small></div>`).join('')}</section>
    <section class="card mini-list">${cardhead('Cook again soon','Favorites and top-rated, longest since last made','heart')}${again.map(r=>`<div class="row"><button data-action="open" data-id="${r.id}">${esc(r.title)}</button><small>${r.made.length?'Last made '+esc(new Date(r.made.at(-1)+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})):'Not made yet'}</small></div>`).join('')||empty('No favorites yet','Tap the heart on a recipe you love.','','heart')}</section>
    <section class="card">${cardhead('Where your recipes come from','','globe')}<div class="rank">${bySite.slice(0,5).map(([s,n],i)=>`<div class="rank-row"><i>${pad(i+1)}</i><div><span>${esc(s)}</span><div class="rank-bar"><b style="width:${(n/bySite[0][1]*100).toFixed(0)}%"></b></div></div><b class="number">${n}</b></div>`).join('')}</div></section></div>`;},
 
  library(){
-  const q=lib.q.toLowerCase().trim();let rows=state.recipes.filter(r=>{
-   if(lib.filter==='favorites'&&!r.favorite)return false;if(lib.filter==='try'&&r.made.length)return false;if(lib.filter==='made'&&!r.made.length)return false;
-   if(lib.cat&&![...r.categories,...r.cuisine,...r.tags].includes(lib.cat))return false;if(lib.col&&!r.collections.includes(lib.col))return false;
-   return !q||[r.title,r.description,r.sourceName,r.author,...r.categories,...r.cuisine,...r.tags,...r.ingredients].join(' ').toLowerCase().includes(q);});
+  let rows=libRows();
   const by={recent:(a,b)=>b.createdAt.localeCompare(a.createdAt),alpha:(a,b)=>a.title.localeCompare(b.title),rated:(a,b)=>b.rating-a.rating||a.title.localeCompare(b.title),
    made:(a,b)=>(b.made.at(-1)||'').localeCompare(a.made.at(-1)||''),often:(a,b)=>b.made.length-a.made.length,time:(a,b)=>(a.total??1e9)-(b.total??1e9)};
   rows.sort(by[lib.sort]||by.recent);
   const per=lib.view==='table'?15:24,pages=Math.max(1,Math.ceil(rows.length/per));lib.page=Math.max(0,Math.min(lib.page,pages-1));const show=rows.slice(lib.page*per,lib.page*per+per);
-  const tags=[...new Set(state.recipes.flatMap(r=>[...r.categories,...r.cuisine]))].sort(),col=state.collections.find(c=>c.id===lib.col);
+  const col=state.collections.find(c=>c.id===lib.col),uniq=k=>[...new Set(state.recipes.flatMap(r=>r[k]))].sort((a,b)=>a.localeCompare(b)),noCat=state.recipes.filter(r=>!r.categories.length).length;
+  const opt=(v,l)=>`<option value="${esc(v)}" ${lib.cat===v?'selected':''}>${esc(l)}</option>`;
+  lib.sel.forEach(id=>{if(!recipeById(id))lib.sel.delete(id);});const nSel=lib.sel.size;
   const counts={all:state.recipes.length,favorites:state.recipes.filter(r=>r.favorite).length,try:state.recipes.filter(r=>!r.made.length).length,made:state.recipes.filter(r=>r.made.length).length};
-  return pagehead(col?'Collection':'Your library',col?esc(col.name):'All recipes',col?'':'Everything you’ve saved, ready to cook.',button(ico('link')+'<span>Import from a link</span>','go','primary','data-go="import"'))+
+  return pagehead(col?'Collection':'Your library',col?esc(col.name):'All recipes',col?'':'Everything you’ve saved, ready to cook.',button(ico('book')+'<span>Recipe book</span>','book','',col?`data-pick="col:${col.id}"`:'')+button(ico('link')+'<span>Import from a link</span>','go','primary','data-go="import"'))+
    `<div class="toolbar"><div class="segment" role="group" aria-label="Show">${[['all','All'],['favorites','Favorites'],['try','To try'],['made','Made before']].map(([k,l])=>`<button data-action="lib-filter" data-k="${k}" aria-pressed="${lib.filter===k}">${l} <span class="dim">${counts[k]}</span></button>`).join('')}</div>
-   <span class="count-note">${plural(rows.length,'recipe')}</span><div class="segment" role="group" aria-label="View"><button data-action="lib-view" data-k="grid" aria-pressed="${lib.view==='grid'}" aria-label="Cards" title="Cards">${ico('grid')}</button><button data-action="lib-view" data-k="table" aria-pressed="${lib.view==='table'}" aria-label="Table" title="Table">${ico('table')}</button></div></div><div class="toolbar">
+   <span class="count-note">${plural(rows.length,'recipe')}</span>${button(ico('check')+(lib.selecting?'Done selecting':'Select'),'sel-mode','small'+(lib.selecting?' primary':''),'aria-pressed="'+lib.selecting+'"')}<div class="segment" role="group" aria-label="View"><button data-action="lib-view" data-k="grid" aria-pressed="${lib.view==='grid'}" aria-label="Cards" title="Cards">${ico('grid')}</button><button data-action="lib-view" data-k="table" aria-pressed="${lib.view==='table'}" aria-label="Table" title="Table">${ico('table')}</button></div></div><div class="toolbar">
    <div class="search">${ico('search')}<input id="lib-search" type="search" placeholder="Search titles, ingredients, tags…" value="${esc(lib.q)}" aria-label="Search recipes"></div>
-   <select id="lib-cat" aria-label="Category or cuisine"><option value="">All categories</option>${tags.map(t=>`<option ${lib.cat===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
+   <select id="lib-cat" aria-label="Category, cuisine or tag"><option value="">All categories & tags</option>${noCat?opt('none',`No category (${noCat})`):''}${[['categories','Categories','c'],['cuisine','Cuisines','u'],['tags','Tags','t']].map(([k,l,pre])=>{const v=uniq(k);return v.length?`<optgroup label="${l}">${v.map(x=>opt(pre+':'+x,pre==='t'?'#'+x:x)).join('')}</optgroup>`:'';}).join('')}</select>
    ${state.collections.length?`<select id="lib-col" aria-label="Collection"><option value="">All collections</option>${state.collections.map(c=>`<option value="${c.id}" ${lib.col===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>`:''}
    <select id="lib-sort" aria-label="Sort">${[['recent','Newest first'],['alpha','A to Z'],['rated','Highest rated'],['often','Made most often'],['made','Recently made'],['time','Quickest first']].map(([k,l])=>`<option value="${k}" ${lib.sort===k?'selected':''}>${l}</option>`).join('')}</select>
    </div>`+
+   (lib.cat==='none'&&rows.length&&!lib.selecting?`<div class="notice warning"><span><b>${plural(rows.length,'recipe')} without a category.</b> Select them and give each group its category, or open one and add it there.</span><span class="actions">${button(ico('check')+'Select all of them','sel-all','small primary')}</span></div>`:'')+
+   (lib.selecting?`<div class="bulkbar" role="region" aria-label="Selected recipes"><b>${nSel?plural(nSel,'recipe')+' selected':'Tap recipes to select them'}</b><span class="actions">${button('Select all '+num(rows.length),'sel-all','small')}${nSel?button('Clear','sel-clear','small quiet'):''}${button(ico('tags')+'Set category','bulk-cat','small',nSel?'':'disabled')}${button('#&nbsp;Tags','bulk-tags','small',nSel?'':'disabled')}${state.collections.length?button(ico('folder')+'Add to collection','bulk-col','small',nSel?'':'disabled'):''}</span></div>`:'')+
+   (lib.cat&&!lib.selecting?`<div class="filter-pill"><span>Showing <b>${esc(Logic.facetLabel(lib.cat))}</b></span><button class="link" data-action="lib-cat" data-v="">Show all</button></div>`:'')+
    (!rows.length?`<section class="card">${state.recipes.length?empty('No recipes match','Try another search or filter.',button('Show everything','lib-reset','primary'),'search'):empty('Your library is empty','Paste a recipe link to save your first recipe.',button(ico('link')+'Import from a link','go','primary','data-go="import"')+' '+button('Explore sample recipes','sample'),'book')}</section>`:
    lib.view==='grid'?`<div class="rgrid">${show.map(card).join('')}</div>${pages>1?`<section class="card table-card" style="margin-top:16px">${pager(lib,rows.length,per)}</section>`:''}`:
-   `<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Recipe</th><th>Category</th><th class="num">Time</th><th class="num">Rating</th><th class="num">Made</th><th>Added</th><th>Source</th></tr></thead><tbody>${show.map(r=>`<tr><td><div class="titlecell"><span class="thumb">${pic(r,false)}</span><button data-action="open" data-id="${r.id}"><span class="clamp">${esc(r.title)}</span></button></div></td><td>${esc(Logic.categoryOf(r))}</td><td class="num" data-v="${r.total??''}">${r.total?mins(r.total):'—'}</td><td class="num" data-v="${r.rating}">${r.rating?'★ '+r.rating:'—'}</td><td class="num" data-v="${r.made.length}">${r.made.length||'—'}</td><td data-v="${r.createdAt}" style="white-space:nowrap">${new Date(r.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td><td><span class="clamp">${esc(r.sourceName||'—')}</span></td></tr>`).join('')}</tbody></table></div>${pager(lib,rows.length,per)}</section>`);},
+   `<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Recipe</th><th>Category</th><th class="num">Time</th><th class="num">Rating</th><th class="num">Made</th><th>Added</th><th>Source</th></tr></thead><tbody>${show.map(r=>`<tr><td><div class="titlecell">${lib.selecting?`<input type="checkbox" data-sel="${r.id}" ${lib.sel.has(r.id)?'checked':''} aria-label="Select ${esc(r.title)}">`:''}<span class="thumb">${pic(r,false)}</span><button data-action="${lib.selecting?'sel':'open'}" data-id="${r.id}"><span class="clamp">${esc(r.title)}</span></button></div></td><td>${esc(Logic.categoryOf(r))}</td><td class="num" data-v="${r.total??''}">${r.total?mins(r.total):'—'}</td><td class="num" data-v="${r.rating}">${r.rating?'★ '+r.rating:'—'}</td><td class="num" data-v="${r.made.length}">${r.made.length||'—'}</td><td data-v="${r.createdAt}" style="white-space:nowrap">${new Date(r.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td><td><span class="clamp">${esc(r.sourceName||'—')}</span></td></tr>`).join('')}</tbody></table></div>${pager(lib,rows.length,per)}</section>`);},
 
- collections(){return pagehead('Your library','Collections','Group recipes your way. A recipe can sit in as many collections as you like.',button(ico('plus')+'<span>New collection</span>','collection','primary'))+
-  (state.collections.length?`<div class="cgrid">${state.collections.map(c=>{const rs=state.recipes.filter(r=>r.collections.includes(c.id));return `<article class="ccard"><div class="mosaic">${[0,1,2,3].map(i=>rs[i]?pic(rs[i],false):'<div class="pic"></div>').join('')}</div><div class="ccard-body"><h2>${esc(c.name)}</h2><span class="small dim">${plural(rs.length,'recipe')}</span><div class="actions">${button('Open','open-collection','small primary',`data-id="${c.id}"`)}${button('Rename','collection','small',`data-id="${c.id}"`)}<button class="icon-action danger" data-action="delete-collection" data-id="${c.id}" aria-label="Delete ${esc(c.name)}" title="Delete">${ico('trash')}</button></div></div></article>`;}).join('')}</div>`:
+ collections(){return pagehead('Your library','Collections','Group recipes your way, then turn any collection into a printable recipe book.',button(ico('book')+'<span>Recipe book</span>','book')+button(ico('plus')+'<span>New collection</span>','collection','primary'))+
+  (state.collections.length?`<div class="cgrid">${state.collections.map(c=>{const rs=state.recipes.filter(r=>r.collections.includes(c.id));return `<article class="ccard"><div class="mosaic">${[0,1,2,3].map(i=>rs[i]?pic(rs[i],false):'<div class="pic"></div>').join('')}</div><div class="ccard-body"><h2>${esc(c.name)}</h2><span class="small dim">${plural(rs.length,'recipe')}</span><div class="actions">${button('Open','open-collection','small primary',`data-id="${c.id}"`)}${button(ico('book')+'Book','book','small',`data-pick="col:${c.id}" ${rs.length?'':'disabled'}`)}${button('Rename','collection','small',`data-id="${c.id}"`)}<button class="icon-action danger" data-action="delete-collection" data-id="${c.id}" aria-label="Delete ${esc(c.name)}" title="Delete">${ico('trash')}</button></div></div></article>`;}).join('')}</div>`:
   `<section class="card">${empty('No collections yet','Weeknight dinners, Sunday baking, family classics: make one, then add recipes from their edit page.',button('Create a collection','collection','primary'),'folder')}</section>`);},
 
  import(){return pagehead('Add a recipe','Bring a recipe home','The fastest way is a link. Pasting the page or typing it in works too.')+
@@ -1170,23 +1375,23 @@ const VIEWS={
  recipe(){const r=recipeById(openId);if(!r)return pagehead('Recipes','Recipe not found','It may have been deleted.',button('Back to recipes','go','primary','data-go="library"'));
   const base=Logic.servings(r.servings),sv=view.servings||base,f=base&&sv?sv/base:1,units=view.units||state.settings.units;
   const plannedNext=state.plans.filter(p=>p.recipeId===r.id&&p.date>=today()).sort((a,b)=>a.date.localeCompare(b.date))[0];
-  return `<div class="pagehead no-print" style="margin-bottom:16px"><div class="actions">${button(ico('left')+'All recipes','go','quiet','data-go="library"')}</div><div class="actions">${button(ico('edit')+'<span>Edit</span>','edit','',`data-id="${r.id}"`)}${button(ico('print')+'<span>Print</span>','print')}<button class="icon-action danger" data-action="delete-recipe" data-id="${r.id}" aria-label="Delete recipe" title="Delete recipe">${ico('trash')}</button></div></div>
+  return `<div class="pagehead no-print" style="margin-bottom:16px"><div class="actions">${button(ico('left')+'All recipes','go','quiet','data-go="library"')}</div><div class="actions">${button(ico('edit')+'<span>Edit</span>','edit','',`data-id="${r.id}"`)}${button(ico('print')+'<span>Print / PDF</span>','print')}<button class="icon-action danger" data-action="delete-recipe" data-id="${r.id}" aria-label="Delete recipe" title="Delete recipe">${ico('trash')}</button></div></div>
   <section class="hero recipe-hero"><div class="rh-text"><div class="eyebrow">${esc([...r.categories,...r.cuisine].slice(0,3).join(' · ')||'Recipe')}${r.sample?' · Sample':''}</div><h1>${esc(r.title)}</h1>${r.description?`<p>${esc(r.description.length>360?r.description.slice(0,358)+'…':r.description)}</p>`:''}
    <p class="src small">${r.sourceUrl?`From <a href="${esc(r.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(r.sourceName||hostOf(r.sourceUrl))} ↗</a>`:esc(r.sourceName||'From my own kitchen')}${r.author?' · by '+esc(r.author):''}${r.sourceRating?` · ${esc(r.sourceRating.value)}★ from ${esc(num(+r.sourceRating.count||0))} cooks there`:''}</p>
    <div class="rstats">${[['Prep',mins(r.prep)],['Cook',mins(r.cook)],['Total',mins(r.total)],['Serves',esc(r.servings||'—')]].map(([k,v])=>`<div><span>${k}</span><strong>${v}</strong></div>`).join('')}</div>
    <div class="actions" style="margin-top:8px">${button(ico('play')+'Start cooking','cook','pop',`data-id="${r.id}" ${Logic.stepCount(r)?'':'disabled'}`)}${button(ico('heart')+(r.favorite?'Favorite':'Add to favorites'),'favorite','',`data-id="${r.id}" aria-pressed="${r.favorite}"`)}${button(ico('check')+'Made it','made','',`data-id="${r.id}"`)}${button(ico('calendar')+'Plan','plan-recipe','',`data-id="${r.id}"`)}</div>
    <div class="rate" role="group" aria-label="Your rating">${[1,2,3,4,5].map(n=>`<button data-action="rate" data-id="${r.id}" data-n="${n}" class="${r.rating>=n?'on':''}" aria-label="Rate ${n} of 5" aria-pressed="${r.rating===n}">★</button>`).join('')}<span class="small" style="color:var(--on-bold-dim);margin-left:8px">${r.made.length?`Made ${plural(r.made.length,'time')} · last ${new Date(r.made.at(-1)+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}`:'Not made yet'}${plannedNext?` · planned for ${dayName(plannedNext.date,{weekday:'long'})}`:''}</span></div></div>
    ${pic(r,false)}</section>
-  <div class="recipe-cols"><section class="card">${cardhead('Ingredients',r.ingredients.length?plural(r.ingredients.length,'ingredient'):'','list',button(ico('cart')+'<span>Shopping list</span>','shop-recipe','small',`data-id="${r.id}"`))}
+  <div class="recipe-cols match-row" data-floor="420"><section class="card pair">${cardhead('Ingredients',r.ingredients.length?plural(r.ingredients.length,'ingredient'):'','list',`<button class="icon-action" data-action="copy-ing" data-id="${r.id}" aria-label="Copy ingredients" title="Copy ingredients">${ico('copy')}</button>`+button(ico('cart')+'<span>Shopping list</span>','shop-recipe','small',`data-id="${r.id}"`))}<div class="pair-body">
    <div class="scale no-print">${base?`<span class="small dim">Serves</span><span class="stepper"><button data-action="serves" data-d="-1" aria-label="Fewer servings">−</button><output aria-live="polite">${Logic.frac(sv)}</output><button data-action="serves" data-d="1" aria-label="More servings">+</button></span>`:''}<div class="segment" role="group" aria-label="Units">${CONFIG.units.map(u=>`<button data-action="units" data-k="${u}" aria-pressed="${units===u}">${u}</button>`).join('')}</div></div>
    <div class="ing">${r.ingredients.map(l=>/:$/.test(l)&&!/\d/.test(l)?`<div class="ing-sec">${esc(l.slice(0,-1))}</div>`:`<label><input type="checkbox"><span>${esc(Logic.show(l,f,units))}</span></label>`).join('')||'<p class="dim small">No ingredients yet. Add them in Edit.</p>'}</div>
-   ${units!=='Original'||f!==1?'<p class="small dim" style="margin-top:10px">Amounts are converted and scaled from the original. Volume stays volume and weight stays weight.</p>':''}</section>
-  <section class="card">${cardhead('Method',Logic.stepCount(r)?plural(Logic.stepCount(r),'step'):'','chef')}${r.sections.map(s=>`${s.name?`<h3 class="sec-name">${esc(s.name)}</h3>`:''}<ol class="steps-list">${s.steps.map((t,i)=>{const tm=Logic.timerIn(t);return `<li><span class="stepnum">${i+1}</span><div><p>${esc(t)}</p>${tm?button(ico('clock')+`Start ${mins(tm)} timer`,'timer','small timer-btn no-print',`data-m="${tm}" data-label="${esc(r.title)}"`):''}</div></li>`;}).join('')}</ol>`).join('')||'<p class="dim small">No steps yet. Add them in Edit.</p>'}</section></div>
-  <div class="grid3">${r.sourceNotes?`<section class="card">${cardhead('Notes from the source','','book')}<p class="pre">${esc(r.sourceNotes)}</p></section>`:''}
-   <section class="card">${cardhead('My notes','Your tweaks for next time','edit',button('Edit','edit','small',`data-id="${r.id}"`))}<p class="pre">${esc(r.notes)||'<span class="dim">A little less salt? An extra squeeze of lemon? Add notes in Edit.</span>'}</p></section>
-   ${r.nutrition?`<section class="card">${cardhead('Nutrition',esc(r.nutritionBasis||'As published by the source'),'insights')}<dl class="nutri">${Object.entries(r.nutrition).slice(0,12).map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl></section>`:''}
-   <section class="card">${cardhead('In your library','','folder')}<div class="chips" style="margin-bottom:12px">${r.collections.map(id=>state.collections.find(c=>c.id===id)).filter(Boolean).map(c=>`<span class="chip accent">${ico('folder')}${esc(c.name)}</span>`).join('')||'<span class="small dim">Not in a collection yet.</span>'}</div>${r.tags.length?`<div class="chips">${r.tags.map(t=>`<span class="chip">#${esc(t)}</span>`).join('')}</div>`:''}
-   <div class="actions" style="margin-top:14px">${button(ico('copy')+'Make my version','duplicate','small',`data-id="${r.id}"`)}${button(ico('down')+'Export','export-recipe','small',`data-id="${r.id}"`)}</div></section></div>`;},
+   ${units!=='Original'||f!==1?'<p class="small dim" style="margin-top:10px">Amounts are converted and scaled from the original. Volume stays volume and weight stays weight.</p>':''}</div></section>
+  <section class="card pair">${cardhead('Method',Logic.stepCount(r)?plural(Logic.stepCount(r),'step'):'','chef')}<div class="pair-body">${r.sections.map(s=>`${s.name?`<h3 class="sec-name">${esc(s.name)}</h3>`:''}<ol class="steps-list">${s.steps.map((t,i)=>{const tm=Logic.timerIn(t);return `<li><span class="stepnum">${i+1}</span><div><p>${esc(t)}</p>${tm?button(ico('clock')+`Start ${mins(tm)} timer`,'timer','small timer-btn no-print',`data-m="${tm}" data-label="${esc(r.title)}"`):''}</div></li>`;}).join('')}</ol>`).join('')||'<p class="dim small">No steps yet. Add them in Edit.</p>'}</div></section></div>
+  <div class="grid-even match-row" data-floor="280" style="--n:${2+!!r.sourceNotes+!!r.nutrition}">${r.sourceNotes?`<section class="card pair">${cardhead('Notes from the source','','book')}<div class="pair-body"><p class="pre">${esc(r.sourceNotes)}</p></div></section>`:''}
+   <section class="card pair">${cardhead('My notes','Your tweaks for next time','edit',button('Edit','edit','small',`data-id="${r.id}"`))}<div class="pair-body"><p class="pre">${esc(r.notes)||'<span class="dim">A little less salt? An extra squeeze of lemon? Add notes in Edit.</span>'}</p></div></section>
+   ${r.nutrition?`<section class="card pair">${cardhead('Nutrition',esc(r.nutritionBasis||'As published by the source'),'insights')}<div class="pair-body"><dl class="nutri">${Object.entries(r.nutrition).slice(0,12).map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl></div></section>`:''}
+   <section class="card pair">${cardhead('In your library','','folder',`<button class="icon-action" data-action="duplicate" data-id="${r.id}" aria-label="Make my version" title="Make my version">${ico('copy')}</button><button class="icon-action" data-action="export-recipe" data-id="${r.id}" aria-label="Export this recipe" title="Export this recipe">${ico('down')}</button>`)}<div class="pair-body">${chipEditor(r)}<div class="chip-edit"><span class="chip-label">Collections</span><div class="chips">${r.collections.map(id=>state.collections.find(c=>c.id===id)).filter(Boolean).map(c=>`<span class="chip">${ico('folder')}${esc(c.name)}</span>`).join('')||'<span class="small dim">None yet · add in Edit</span>'}</div></div>
+</div></section></div>`;},
 
  edit(){if(!draft)return pagehead('Recipes','Nothing to edit','Open a recipe first.',button('Back to recipes','go','primary','data-go="library"'));
   const d=draft,isNew=!recipeById(d.id),photo=draftPhoto||(d.hasPhoto?PHOTOS.get(d.id):'');
@@ -1225,7 +1430,7 @@ const VIEWS={
 
  plan(){const days=Array.from({length:7},(_,i)=>addDays(week,i)),inWeek=state.plans.filter(p=>p.date>=days[0]&&p.date<=days[6]);
   return pagehead('Meal plan',`${new Date(days[0]+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'})} – ${new Date(days[6]+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`,inWeek.length?`${plural(inWeek.length,'meal')} planned. Add the week to your shopping list in one click.`:'Plan a few meals, then shop for all of them at once.',
-   `<div class="segment" role="group" aria-label="Week"><button data-action="week" data-d="-1" aria-label="Previous week">‹ Prev</button><button data-action="week" data-d="0" aria-pressed="${week===Logic.weekStart(today())}">This week</button><button data-action="week" data-d="1" aria-label="Next week">Next ›</button></div>`+button(ico('cart')+'<span>Shop this week</span>','shop-week','primary',inWeek.length?'':'disabled')+button(ico('print')+'<span>Print</span>','print'))+
+   `<div class="segment" role="group" aria-label="Week"><button data-action="week" data-d="-1" aria-label="Previous week">‹ Prev</button><button data-action="week" data-d="0" aria-pressed="${week===Logic.weekStart(today())}">This week</button><button data-action="week" data-d="1" aria-label="Next week">Next ›</button></div>`+button(ico('cart')+'<span>Shop this week</span>','shop-week','primary',inWeek.length?'':'disabled')+button(ico('print')+'<span>Print / PDF</span>','print'))+
   `<div class="week">${days.map(d=>`<section class="day ${d===today()?'today':''}"><header><span>${dayName(d)}</span><b>${+d.slice(8)}</b></header>${CONFIG.slots.map(slot=>state.plans.filter(p=>p.date===d&&p.slot===slot).map(p=>{const r=recipeById(p.recipeId);return `<div class="meal"><small>${slot}</small>${r?`<button class="open" data-action="open" data-id="${r.id}">${esc(r.title)}</button>`:`<span class="dim">${esc(p.note||'Removed recipe')}</span>`}<button class="x" data-action="unplan" data-id="${p.id}" aria-label="Remove from the plan" title="Remove">${ico('cross')}</button></div>`;}).join('')).join('')}
    <button class="addmeal" data-action="plan-add" data-date="${d}" aria-label="Plan a meal for ${dayName(d,{weekday:'long'})}">${ico('plus')}Add</button></section>`).join('')}</div>
   ${state.recipes.length?(()=>{const ideas=[...state.recipes].filter(r=>!inWeek.some(p=>p.recipeId===r.id)).sort((a,b)=>(b.favorite-a.favorite)||(a.made.at(-1)||'').localeCompare(b.made.at(-1)||'')).slice(0,4);return ideas.length?`<section class="card no-print" style="margin-top:16px">${cardhead('Need ideas?','Favorites you haven’t made in a while, and recipes still to try','compass')}<div class="rgrid">${ideas.map(card).join('')}</div></section>`:'';})():''}
@@ -1233,14 +1438,20 @@ const VIEWS={
 
  shopping(){const items=state.shopping,left=items.filter(i=>!i.checked).length;
   return pagehead('Ready for the store','Shopping list',items.length?`${plural(left,'item')} to pick up${items.length-left?`, ${num(items.length-left)} in the basket`:''}.`:'Add ingredients from a recipe or your week’s plan.',
-   button(ico('book')+'<span>From a recipe</span>','shop-pick')+button(ico('calendar')+'<span>From this week’s plan</span>','shop-week','',state.plans.some(p=>p.date>=Logic.weekStart(today())&&p.date<=addDays(Logic.weekStart(today()),6))?'':'disabled')+button(ico('print')+'<span>Print</span>','print'))+
+   button(ico('copy')+'<span>Copy list</span>','copy-shop','',state.shopping.some(i=>!i.checked)?'':'disabled')+button(ico('book')+'<span>From a recipe</span>','shop-pick')+button(ico('calendar')+'<span>From this week’s plan</span>','shop-week','',state.plans.some(p=>p.date>=Logic.weekStart(today())&&p.date<=addDays(Logic.weekStart(today()),6))?'':'disabled')+button(ico('print')+'<span>Print / PDF</span>','print'))+
   `<form class="addline no-print" data-form="item"><label class="sr-only" for="item-text">Add an item</label><input id="item-text" name="text" maxlength="200" placeholder="Add an item: 2 lemons, paper towels…" autocomplete="off"><button class="btn primary">${ico('plus')}Add</button></form>`+
   (items.length?`<div class="aisles">${CONFIG.aisles.map(a=>{const rows=items.filter(i=>i.aisle===a);return rows.length?`<section class="card">${cardhead(a,`${rows.filter(i=>!i.checked).length} of ${rows.length} left`)}${rows.map(i=>`<div class="shop-row ${i.checked?'done':''}"><label><input type="checkbox" data-item="${i.id}" ${i.checked?'checked':''}><span>${esc(i.text)}${i.from?`<small>${esc(i.from)}</small>`:''}</span></label><button class="icon-action danger" data-action="item-del" data-id="${i.id}" aria-label="Remove ${esc(i.text)}" title="Remove">${ico('cross')}</button></div>`).join('')}</section>`:'';}).join('')}</div>
    <div class="actions no-print" style="margin-top:16px">${button('Clear checked items','shop-clear-checked','',items.some(i=>i.checked)?'':'disabled')}${button('Clear the whole list','shop-clear','danger')}</div>`:
    `<section class="card">${empty('Your list is empty','Add the ingredients of a recipe, or everything in this week’s meal plan, sorted by aisle.',button(ico('book')+'Add from a recipe','shop-pick','primary'),'cart')}</section>`);},
 
+ tags(){const noCat=state.recipes.filter(r=>!r.categories.length).length;
+  const card=([k,label,pre])=>{const m=new Map();state.recipes.forEach(r=>r[k].forEach(v=>m.set(v,(m.get(v)||0)+1)));const list=[...m].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+   return `<section class="card pair table-card">${cardhead({categories:'Categories',cuisine:'Cuisines',tags:'Tags'}[k],{categories:plural(list.length,'category','categories'),cuisine:plural(list.length,'cuisine'),tags:plural(list.length,'tag')}[k],k==='tags'?'tags':k==='cuisine'?'globe':'grid')}<div class="pair-body">${list.length?`<div class="table-wrap"><table><thead><tr><th>Name</th><th class="num">Recipes</th><th></th></tr></thead><tbody>${list.map(([v,n])=>`<tr><td><button class="link-btn" data-action="lib-cat" data-v="${esc(pre+':'+v)}">${k==='tags'?'#':''}${esc(v)}</button></td><td class="num" data-v="${n}">${n}</td><td class="num"><span class="row-actions"><button class="icon-action" data-action="facet-rename" data-k="${k}" data-v="${esc(v)}" aria-label="Rename ${esc(v)}" title="Rename or merge">${ico('edit')}</button><button class="icon-action danger" data-action="facet-del" data-k="${k}" data-v="${esc(v)}" aria-label="Delete ${esc(v)}" title="Delete from every recipe">${ico('trash')}</button></span></td></tr>`).join('')}</tbody></table></div>`:empty('None yet',k==='tags'?'Add tags on a recipe page, or to many recipes at once with Select in All recipes.':'Add them on a recipe page or in Edit.','',k==='tags'?'tags':'grid')}</div></section>`;};
+  return pagehead('Your library','Categories & tags','Rename, merge or delete them across every recipe. Renaming one to a name that already exists merges the two.')+
+   (noCat?`<div class="notice warning"><span><b>${plural(noCat,'recipe')} without a category.</b> Give them one so they show up in the right place.</span><span class="actions">${button('Show them','lib-cat','small primary','data-v="none"')}</span></div>`:'')+
+   `<div class="grid-even match-row" data-floor="360" style="--n:3">${FACETS.map(card).join('')}</div>`;},
  guide(){return pagehead('Help','How to use '+esc(CONFIG.name),'Four moves. Everything else fills in by itself.')+
-  `<div class="steps" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">${[['01 / IMPORT','Paste a link','Copy a recipe page’s link and paste it in Add a recipe. Press N anywhere to start.','Add a recipe','go','data-go="import"'],['02 / COOK','Cook','Scale servings, switch to metric and use Start cooking for one big step at a time.','My recipes','go','data-go="library"'],['03 / PLAN','Plan & shop','Add recipes to days of the week, then send the week to your shopping list.','Meal plan','go','data-go="plan"'],['04 / PROTECT','Back up','Choose a backup folder once, or download a backup now and then.','Settings & backup','go','data-go="settings"']].map(([n,h,p,b,a,x])=>`<div class="step"><span>${n}</span><h3>${h}</h3><p>${p}</p>${button(b,a,'small',x)}</div>`).join('')}</div>
+  `<div class="steps steps4" style="margin-bottom:16px">${[['01 / IMPORT','Paste a link','Copy a recipe page’s link and paste it in Add a recipe. Press N anywhere to start.','Add a recipe','go','data-go="import"'],['02 / COOK','Cook','Scale servings, switch to metric and use Start cooking for one big step at a time.','My recipes','go','data-go="library"'],['03 / PLAN','Plan & shop','Add recipes to days of the week, then send the week to your shopping list.','Meal plan','go','data-go="plan"'],['04 / PROTECT','Back up','Choose a backup folder once, or download a backup now and then.','Settings & backup','go','data-go="settings"']].map(([n,h,p,b,a,x])=>`<div class="step"><span>${n}</span><h3>${h}</h3><p>${p}</p>${button(b,a,'small',x)}</div>`).join('')}</div>
   <section class="card table-card">${cardhead('Good to know','','help')}<div class="table-wrap"><table data-nosort><thead><tr><th>Question</th><th>Answer</th></tr></thead><tbody>
   <tr><td>Which websites can I import from?</td><td>Most of them. Food blogs and recipe sites publish a hidden recipe card for search engines, and that’s what we read: ingredients, steps, times, servings, nutrition and photos.</td></tr>
   <tr><td>A link says “blocks automatic access”?</td><td>A few large sites refuse automated readers even though they open fine in your browser. Open the page, select everything (Ctrl+A or ⌘A), copy, and use <b>Paste the page text</b>. Your link is kept.</td></tr>
@@ -1248,6 +1459,11 @@ const VIEWS={
   <tr><td>Where are my recipes kept?</td><td>In this browser on this device. Nothing is uploaded and there’s no account. Only the link you import is sent to our recipe reader, which fetches that page and forgets it.</td></tr>
   <tr><td>Can I use it on my phone?</td><td>Yes. Open the same web address on your phone. Each device keeps its own library, so move recipes with a backup: download it on one device and restore it on the other.</td></tr>
   <tr><td>Photos?</td><td>Imported recipes show the website’s photo (it needs internet). Photos you upload are shrunk and kept on this device, inside your backups too.</td></tr>
+  <tr><td>Install it on my phone or computer?</td><td>Choose <b>Install the app</b> in the sidebar or Settings. On iPhone and iPad: in Safari, tap Share, then <b>Add to Home Screen</b>. It opens like any app and works offline, except importing links.</td></tr>
+  <tr><td>Print or save a PDF?</td><td>Use <b>Print / PDF</b> on a recipe, the shopping list or the meal plan, then pick <b>Save as PDF</b> as the printer. For a cookbook, choose <b>Recipe book</b> in Recipes or Collections: pick the recipes and a cover. Choose the paper size (Letter, A4 and more) in the print window. Turn off Headers and footers in the print window for the cleanest pages.</td></tr>
+  <tr><td>Recipes without a category?</td><td>On the Kitchen page, click <b>Uncategorized</b> in the library chart (or pick <b>No category</b> in the Recipes filter). Choose <b>Select all of them</b>, then <b>Set category</b>. Or open a recipe and type a category in its <b>In your library</b> card.</td></tr>
+  <tr><td>Tags and categories?</td><td>Add or remove them on any recipe page (type and press Enter; × removes one). To change many at once, use <b>Select</b> in All recipes. To rename, merge or delete one everywhere, open <b>Recipes → Categories &amp; tags</b>.</td></tr>
+  <tr><td>Send my list to another app?</td><td><b>Copy list</b> on the shopping list copies what’s left to buy, one item per line. Paste it into Reminders, AnyList, Google Keep or a note.</td></tr>
   <tr><td>Keyboard shortcuts</td><td><b>N</b> adds a recipe from a link. <b>/</b> searches your recipes. In cook mode, <b>←</b> and <b>→</b> move between steps.</td></tr>
   <tr><td>I used the first, offline edition</td><td>Export a full backup there, then choose <b>Restore backup</b> in Settings here. Recipes, collections, meal plans and the shopping list come across.</td></tr></tbody></table></div></section>`;},
 
@@ -1265,6 +1481,7 @@ const VIEWS={
    <h3 class="sub-head">Move your data</h3><div class="row"><div><strong>Recipe list as CSV</strong><small>Titles, categories, times, ratings and links, for a spreadsheet.</small></div>${button('Export','csv','small')}</div>
    <h3 class="sub-head">Start fresh</h3><div class="row"><div><strong>Clear everything in one step</strong><small>${demo?'Return to your own recipes first. Sample mode is never saved.':'You can undo it straight after.'}</small></div>${button('Start fresh','fresh','small danger',demo?'disabled':'')}</div></section></div>
   <section class="card"><div class="cardhead"><div><h2>Simplify your sidebar</h2><p>Switch extra views on or off. Changes appear immediately.</p></div><span class="pill">${optional.filter(([id])=>!hidden.has(id)).length} of ${optional.length} shown</span></div><div class="toggle-grid">${optional.map(([id,name,icon])=>`<label class="nav-toggle"><input type="checkbox" data-nav-toggle="${id}" ${hidden.has(id)?'':'checked'}><span>${ico(icon)}<b>${name}</b><i aria-hidden="true"></i></span></label>`).join('')}</div></section>
+  <section class="card"><div class="cardhead"><div><h2>Install the app</h2><p>${esc(installHelp())}</p></div>${standalone()?'<span class="pill good">Installed</span>':button(ico('down')+'Install','install','small primary')}</div></section>
   <section class="card"><div class="cardhead"><div><h2>Getting started</h2><p>A short tour, and made-up recipes to explore.</p></div>${button(demo?'Return to my recipes':'Open sample mode','sample')}</div><div class="row"><div><strong>Show the welcome tour again</strong><small>${CONFIG.welcome.length} short slides, including backups.</small></div>${button('Show tour','tour','small')}</div>
    <p class="small muted" style="margin-top:12px">${esc(CONFIG.name)} ${CONFIG.version} by <a href="${CONFIG.site}" target="_blank" rel="noopener">${CONFIG.publisher}</a> · <a href="mailto:${CONFIG.email}">${CONFIG.email}</a> · Personal use by the purchaser. Recipes you import belong to their creators; links to the original are kept.</p></section>`;},
 };
@@ -1301,8 +1518,18 @@ function afterRender(){
   if(m){const up=m[1]==='+';sm.innerHTML=`<span class="delta ${up?'up':'down'}">${m[1]}${m[2]}%</span>`+esc(sm.textContent.slice(m[0].length));if(sp)sp.style.setProperty('--spark',up?'var(--ok)':'var(--over)');}});
  // pictures: your own photos come from this device; a website photo that fails falls back to the tinted tile
  document.querySelectorAll('#content img[data-photo]').forEach(async img=>{const p=await getPhoto(img.dataset.photo);if(p&&img.isConnected){img.src=p;img.hidden=false;}});
- sortTables();countUp();}
+ sortTables();countUp();matchRows();}
 document.addEventListener('error',e=>{if(e.target?.matches?.('img[data-remote]'))e.target.hidden=true;},true);
+// matched rows: every card in a .match-row takes the height of the shortest one (at least data-floor px);
+// taller cards scroll inside. Rows that have stacked into one column (phones) keep their natural height.
+function matchRows(){document.querySelectorAll('#content .match-row').forEach(row=>{const cards=[...row.children].filter(c=>c.classList.contains('pair'));
+ row.classList.add('measuring');cards.forEach(c=>{c.style.height='';c.classList.remove('scrolls');});
+ // cards are matched per visual line, so a row that wraps (tablets) or stacks (phones) still lines up where it can
+ const lines=new Map();for(const c of cards){const t=Math.round(c.getBoundingClientRect().top);if(!lines.has(t))lines.set(t,[]);lines.get(t).push(c);}
+ const hs=new Map(cards.map(c=>[c,c.getBoundingClientRect().height]));row.classList.remove('measuring');
+ for(const line of lines.values()){if(line.length<2)continue;const h=Math.max(Math.min(...line.map(c=>hs.get(c))),+row.dataset.floor||0);
+  line.forEach(c=>{c.style.height=h+'px';if(hs.get(c)>h+1)c.classList.add('scrolls');});}});}
+let matchT;window.addEventListener('resize',()=>{clearTimeout(matchT);matchT=setTimeout(matchRows,120);});
 const sorts=new Map();
 const cellVal=td=>{if(!td)return null;if(td.dataset.v!==undefined){const v=td.dataset.v;if(v==='')return null;return /^-?\d+(\.\d+)?$/.test(v)?+v:v;}const t=td.textContent.trim();if(!t||t==='—')return null;const n=t.replace(/[−–]/g,'-').replace(/[^\d.-]/g,'');return /^[−–\-$€£(]?\s*[\d$]/.test(t)&&/^-?\d+(\.\d+)?$/.test(n)?+n:t.toLowerCase();};
 function sortTables(){document.querySelectorAll('#content table').forEach(tb=>{if(tb.hasAttribute('data-nosort')||!tb.tHead||!tb.tBodies[0]||tb.tBodies[0].rows.length<3)return;
@@ -1334,6 +1561,16 @@ function planForm(date,recipeId=''){const rs=[...state.recipes].sort((a,b)=>a.ti
  <label>Day<input type="date" name="date" value="${date||today()}" required></label><label>Meal<select name="slot">${CONFIG.slots.map(s=>`<option ${s==='Dinner'?'selected':''}>${s}</option>`).join('')}</select></label></div>${formFoot('Add to plan')}</form>`);}
 function shopPickForm(){const rs=[...state.recipes].filter(r=>r.ingredients.length).sort((a,b)=>a.title.localeCompare(b.title));if(!rs.length)return toast('Save a recipe with ingredients first.');
  modal('Add a recipe’s ingredients','Amounts of the same thing are added together.',`<form id="shop-form"><div class="fields"><label class="full">Recipe<select name="recipe" autofocus>${rs.map(r=>`<option value="${r.id}">${esc(r.title)}</option>`).join('')}</select></label></div>${formFoot('Add to list')}</form>`);}
+const pickedRecipes=()=>[...lib.sel].map(recipeById).filter(Boolean);
+const listOf=k=>[...new Set(state.recipes.flatMap(r=>r[k]))].sort((a,b)=>a.localeCompare(b));
+function bulkCategoryForm(){const n=lib.sel.size;if(!n)return;modal('Set a category',`For ${plural(n,'selected recipe')}. Pick one you use, or type a new one.`,`<form id="bulk-cat-form"><div class="fields"><label class="full">Category<input name="v" list="dl-bulk-cat" maxlength="40" required autofocus placeholder="Dinner"><datalist id="dl-bulk-cat">${listOf('categories').map(v=>`<option value="${esc(v)}">`).join('')}</datalist></label>
+ <label class="full">How<select name="mode"><option value="replace">Make it their category (replaces the one they have)</option><option value="add">Add it alongside their current categories</option></select></label></div>${formFoot('Set category')}</form>`);}
+function bulkTagsForm(){const rs=pickedRecipes();if(!rs.length)return;const has=[...new Set(rs.flatMap(r=>r.tags))].sort();
+ modal('Tags',`For ${plural(rs.length,'selected recipe')}.`,`<form id="bulk-tags-form"><div class="fields"><label class="full">Add tags<input name="add" list="dl-bulk-tag" maxlength="200" placeholder="make ahead, freezer friendly" autofocus><small>Separate with commas.</small><datalist id="dl-bulk-tag">${listOf('tags').map(v=>`<option value="${esc(v)}">`).join('')}</datalist></label>
+ ${has.length?`<div class="full"><span class="small" style="font-weight:600;color:var(--ink-2)">Remove tags</span><div class="book-opts" style="margin-top:6px">${has.map(t=>`<label class="check"><input type="checkbox" name="remove" value="${esc(t)}">#${esc(t)}</label>`).join('')}</div></div>`:''}</div>${formFoot('Save tags')}</form>`);}
+function bulkCollectionForm(){const n=lib.sel.size;if(!n||!state.collections.length)return;modal('Add to a collection',`${plural(n,'selected recipe')}.`,`<form id="bulk-col-form"><div class="fields"><label class="full">Collection<select name="v" autofocus>${state.collections.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label></div>${formFoot('Add')}</form>`);}
+function facetForm(k,v){const n=state.recipes.filter(r=>r[k].includes(v)).length,what={categories:'category',cuisine:'cuisine',tags:'tag'}[k];
+ modal(`Rename this ${what}`,`“${esc(v)}” is on ${plural(n,'recipe')}. Use the name of another ${what} to merge them.`,`<form id="facet-form" data-k="${k}" data-v="${esc(v)}"><div class="fields"><label class="full">New name<input name="to" value="${esc(v)}" maxlength="40" required autofocus list="dl-facet"><datalist id="dl-facet">${listOf(k).filter(x=>x!==v).map(x=>`<option value="${esc(x)}">`).join('')}</datalist></label></div>${formFoot('Rename')}</form>`);}
 const BACKUP_SLIDE={icon:'shield',step:'BACK UP',title:'Keep your recipes safe',text:'Your library lives in this browser. In Chrome or Edge, choose a cloud-synced folder once and a backup is saved after every change. Elsewhere, download a backup from Settings now and then.'};
 let tourAt=0,tourReminder=false;
 const slides=()=>tourReminder?[BACKUP_SLIDE]:CONFIG.welcome.map(s=>s==='backup'?BACKUP_SLIDE:s);
@@ -1358,6 +1595,109 @@ function photoFromLink(raw){let u=String(raw||'').trim().replace(/^<|>$/g,'');co
  const img=new Image();img.referrerPolicy='no-referrer';let done=false;const t=setTimeout(()=>{if(!done){done=true;img.src='';toast('That image took too long to load. Try another link, or save the picture and upload it.');}},10000);
  img.onload=()=>{if(done)return;done=true;clearTimeout(t);if(!draft)return;keepForm();draft.image=u;draft.images=[u,...draft.images.filter(x=>x!==u)].slice(0,12);draftPhoto=null;draft.hasPhoto=false;dirty=true;render();toast('Photo added from the link');};
  img.onerror=()=>{if(done)return;done=true;clearTimeout(t);toast('That link didn’t load as a picture. Open it, save the image, and use Upload a photo instead.');};img.src=u;}
+
+/* ================================================================================
+   Print documents · real page layouts for paper and "Save as PDF", not a picture of the screen
+   ================================================================================ */
+// print colors follow the chosen palette; the two dark palettes print in Kiln so paper stays light
+function printPalette(){const t=['night','midnight'].includes(state.settings.theme)?'kiln':state.settings.theme,el=document.createElement('div');el.dataset.theme=t;el.hidden=true;document.body.appendChild(el);
+ const cs=getComputedStyle(el),v=n=>cs.getPropertyValue(n).trim();const p={accent:v('--accent'),deep:v('--bold'),pop:v('--pop'),soft:v('--accent-soft'),line:v('--accent-line')};el.remove();return p;}
+const ORNAMENT=`<svg class="cv-orn" viewBox="0 0 120 26" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M4 13h38M78 13h38"/><path d="M60 4c-5 5-5 13 0 18 5-5 5-13 0-18Z"/><path d="M48 13c4-5 8-5 12 0-4 5-8 5-12 0ZM72 13c-4-5-8-5-12 0 4 5 8 5 12 0Z"/><circle cx="44" cy="13" r="1.4" fill="currentColor"/><circle cx="76" cy="13" r="1.4" fill="currentColor"/></svg>`;
+const imgTag=r=>r.hasPhoto?`<img data-photo="${esc(r.id)}" alt="">`:r.image?`<img src="${esc(r.image)}" alt="" referrerpolicy="no-referrer" data-remote>`:'';
+const hasImg=r=>r.hasPhoto||!!r.image;
+function recipeDoc(r,{factor=1,units=state.settings.units,photo=true,notes=true,nutrition=true,num='',book=false}={}){
+ const kick=[num,...r.categories.slice(0,2),...r.cuisine.slice(0,1)].filter(Boolean).join(' · ')||'Recipe',pic=photo&&hasImg(r);
+ const meta=[['Prep',r.prep?mins(r.prep):''],['Cook',r.cook?mins(r.cook):''],['Total',r.total?mins(r.total):''],['Serves',r.servings&&factor!==1&&Logic.servings(r.servings)?Logic.frac(Logic.servings(r.servings)*factor):r.servings]].filter(x=>x[1]);
+ const head=`<div class="pd-kicker">${esc(kick)}</div><h1>${esc(r.title)}</h1>${r.description?`<p class="pd-lead">${esc(r.description.length>420?r.description.slice(0,418)+'…':r.description)}</p>`:''}`;
+ return `<article class="pd-recipe">${pic&&book?`<figure class="pd-banner">${imgTag(r)}</figure>${head}`:pic?`<div class="pd-top with-photo"><div>${head}</div><figure>${imgTag(r)}</figure></div>`:head}
+ ${meta.length?`<div class="pd-meta">${meta.map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>`:''}
+ <div class="pd-cols"><section><h2>Ingredients</h2><ul class="pd-ing">${r.ingredients.map(l=>/:$/.test(l)&&!/\d/.test(l)?`<li class="sec">${esc(l.slice(0,-1))}</li>`:`<li>${esc(Logic.show(l,factor,units))}</li>`).join('')}</ul></section>
+ <section><h2>Method</h2>${r.sections.map(s=>`${s.name?`<div class="pd-steps-sec">${esc(s.name)}</div>`:''}<ol class="pd-steps">${s.steps.map((t,i)=>`<li><b>${i+1}</b><span>${esc(t)}</span></li>`).join('')}</ol>`).join('')}
+ ${notes&&r.notes?`<div class="pd-notes"><h3>My notes</h3><p>${esc(r.notes)}</p></div>`:''}${notes&&r.sourceNotes&&!book?`<div class="pd-notes"><h3>Notes from the source</h3><p>${esc(r.sourceNotes)}</p></div>`:''}
+ ${nutrition&&r.nutrition?`<div class="pd-nutri">${Object.entries(r.nutrition).slice(0,8).map(([k,v])=>`<span>${esc(k)} <b>${esc(v)}</b></span>`).join('')}${r.nutritionBasis?`<span>${esc(r.nutritionBasis)}</span>`:''}</div>`:''}</section></div>
+ <div class="pd-source"><span>${r.sourceUrl?`${esc(r.sourceName||hostOf(r.sourceUrl))} · ${esc(r.sourceUrl.length>70?r.sourceUrl.slice(0,68)+'…':r.sourceUrl)}`:esc(r.sourceName||'From my own kitchen')}${r.author?' · '+esc(r.author):''}</span><span>${book?'':esc(state.settings.name||CONFIG.name)}</span></div></article>`;}
+function shoppingDoc(){const items=state.shopping.filter(i=>!i.checked),inBasket=state.shopping.length-items.length,from=new Set(items.flatMap(i=>(i.from||'').split(', ').filter(Boolean)));
+ return `<div class="pd-shop"><header class="pd-docHead"><div><div class="pd-kicker">${esc(new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}))}</div><h1>Shopping list</h1></div><p class="pd-lead">${plural(items.length,'item')}${from.size?` for ${plural(from.size,'recipe')}`:''}${inBasket?`<br>${num(inBasket)} already in the basket`:''}</p></header>
+ <div class="pd-aisles">${CONFIG.aisles.map(a=>{const rows=items.filter(i=>i.aisle===a);return rows.length?`<section class="pd-aisle"><h2>${a}<small>${rows.length}</small></h2>${rows.map(i=>`<div class="pd-item"><i></i><span>${esc(i.text)}${i.from?`<small>${esc(i.from)}</small>`:''}</span></div>`).join('')}</section>`:'';}).join('')}
+ <section class="pd-extra"><h2>Also</h2>${'<div></div>'.repeat(6)}</section></div></div>`;}
+function planDoc(){const days=Array.from({length:7},(_,i)=>addDays(week,i)),fmt=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'});
+ return `<div class="pd-plan"><header class="pd-docHead"><div><div class="pd-kicker">Meal plan</div><h1>${fmt(days[0])} – ${fmt(days[6])}</h1></div><p class="pd-lead">${esc(state.settings.name||'')}</p></header>
+ <table class="pd-week"><thead><tr><th></th>${days.map(d=>`<th class="${d===today()?'today':''}"><span>${dayName(d)}</span><b>${+d.slice(8)}</b></th>`).join('')}</tr></thead><tbody>
+ ${CONFIG.slots.map(slot=>`<tr><td class="slot">${slot}</td>${days.map(d=>`<td>${state.plans.filter(p=>p.date===d&&p.slot===slot).map(p=>{const r=recipeById(p.recipeId);return `<div class="meal-t">${esc(r?.title||p.note||'')}${r?.total?`<small>${mins(r.total)}</small>`:''}</div>`;}).join('')}</td>`).join('')}</tr>`).join('')}</tbody></table>
+ <div class="pd-planfoot"><div><h2>Prep ahead</h2>${'<div></div>'.repeat(3)}</div><div><h2>Notes</h2>${'<div></div>'.repeat(3)}</div></div></div>`;}
+// the meal order a cookbook reads in; anything else follows A to Z
+const COURSE=['breakfast','brunch','lunch','soup','soups','salad','salads','starter','appetizer','appetizers','main','mains','dinner','side','sides','bread','baking','dessert','desserts','snack','snacks','drink','drinks'];
+function bookDoc(rs,o){const year=new Date().getFullYear(),groups=new Map();
+ const rank=c=>{const i=COURSE.indexOf(c.toLowerCase());return i<0?99:i;};
+ for(const r of [...rs].sort((a,b)=>a.title.localeCompare(b.title))){const c=o.order==='alpha'?'All recipes':Logic.categoryOf(r);if(!groups.has(c))groups.set(c,[]);groups.get(c).push(r);}
+ const cats=[...groups.keys()].sort((a,b)=>rank(a)-rank(b)||a.localeCompare(b));let n=0;const numbered=cats.map(c=>[c,groups.get(c).map(r=>[++n,r])]);
+ const lead=o.subtitle?`<p class="pd-lead">${esc(o.subtitle)}</p>`:'',who=o.name?esc(o.name):'',photos=rs.filter(hasImg);
+ let cover;
+ if(o.cover==='photo'&&photos.length){const hero=photos.find(r=>r.favorite)||photos[0];cover=`<section class="pd pd-cover cv-photo"><figure>${imgTag(hero)}</figure><div class="cv-over"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')}</div><h1>${esc(o.title)}</h1>${lead}<div class="cv-line"></div>${who?`<div class="cv-who">From the kitchen of ${who}</div>`:''}</div></section>`;}
+ else if(o.cover==='modern'||o.cover==='photo'){const pics=photos.slice(0,4);cover=`<section class="pd pd-cover cv-modern"><div class="cv-art ${pics.length>=2?'n'+pics.length:'none'}">${pics.length>=2?pics.map(r=>`<figure>${imgTag(r)}</figure>`).join(''):`<div class="cv-mono">${esc((o.title.trim()[0]||'R').toUpperCase())}</div>`}</div>
+  <div class="cv-text"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')} · ${year}</div><h1>${esc(o.title)}</h1>${lead}${who?`<div class="cv-name">From the kitchen of<b>${who}</b></div>`:''}</div></section>`;}
+ else cover=`<section class="pd pd-cover cv-classic"><div class="pd-kicker">A collection of ${plural(rs.length,'recipe')}</div><h1>${esc(o.title)}</h1>${ORNAMENT}${lead}${who?`<div class="cv-by"><span>From the kitchen of</span><b>${who}</b><span style="margin-top:6px">${year}</span></div>`:''}</section>`;
+ const toc=`<section class="pd-contents"><div class="pd-kicker">Inside</div><h1>Contents</h1><p class="pd-lead">${plural(rs.length,'recipe')}${cats.length>1&&o.order!=='alpha'?` in ${plural(cats.length,'chapter')}`:''}</p>
+  <div class="pd-toc">${numbered.map(([c,list])=>`<section><h2>${esc(c)}</h2>${list.map(([i,r])=>`<div><i>${pad(i)}</i><span>${esc(r.title)}</span><em>${r.total?mins(r.total):''}</em></div>`).join('')}</section>`).join('')}</div>
+  <p class="pd-made">Printed ${esc(new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'}))} with ${CONFIG.name}</p></section>`;
+ const body=numbered.map(([c,list],ci)=>(o.dividers&&cats.length>1&&o.order!=='alpha'?`<section class="pd-divider pd-break"><div class="num">${pad(ci+1)}</div><h1>${esc(c)}</h1><div class="bar"></div><p class="pd-lead">${plural(list.length,'recipe')}</p></section>`:'')+
+  list.map(([i,r])=>`<div class="pd-break">${recipeDoc(r,{photo:o.photos,notes:o.notes,nutrition:o.nutrition,num:'No. '+pad(i),book:true})}</div>`).join('')).join('');
+ // the cover goes outside the document wrapper: Chrome only gives it its own edge-to-edge page there
+ return {lead:cover,html:`<div class="pd-book">${toc}${body}</div>`};}
+async function printDoc(doc,title){const {lead='',html=''}=typeof doc==='string'?{html:doc}:doc,cover=!!lead;
+ closeModal();const p=printPalette(),root=$('#print-root');
+ root.style.cssText=`--p-accent:${p.accent};--p-deep:${p.deep};--p-pop:${p.pop};--p-soft:${p.soft};--p-soft2:${p.line}`;
+ root.innerHTML=`${lead}<div class="pd">${html}</div>`;
+ let st=$('#page-style');if(!st){st=document.createElement('style');st.id='page-style';document.head.appendChild(st);}
+ // no fixed paper size: the print window offers Letter, A4 and the rest; the cover and chapter pages size themselves to it
+ st.textContent=`@page{margin:.7in .75in .8in;@bottom-center{content:counter(page);font:8pt "DM Sans",sans-serif;color:#9a918a}}${cover?'@page :first{margin:0;@bottom-center{content:none}}':''}@page land{size:landscape;margin:.5in .6in .55in;@bottom-center{content:none}}`;
+ toast('Preparing your pages…');
+ // your own photos come from this device; website photos must finish loading before the print window opens
+ await Promise.all([...root.querySelectorAll('img[data-photo]')].map(async img=>{const d=await getPhoto(img.dataset.photo);if(d)img.src=d;else img.hidden=true;}));
+ await Promise.race([Promise.all([...root.querySelectorAll('img')].map(img=>img.complete&&img.naturalWidth?0:new Promise(res=>{img.addEventListener('load',res,{once:true});img.addEventListener('error',()=>{img.hidden=true;res();},{once:true});}))),new Promise(r=>setTimeout(r,12000))]);
+ root.querySelectorAll('img').forEach(img=>{if(!img.complete||!img.naturalWidth)img.hidden=true;});
+ // the print area is hidden on screen, so its fonts aren't loaded yet: load them before the print window opens
+ try{await Promise.all(['600 20px "Playfair Display"','italic 400 20px "Playfair Display"','400 12px "DM Sans"','700 12px "DM Sans"','700 12px Manrope','800 12px Manrope'].map(f=>document.fonts.load(f)));await document.fonts.ready;}catch{}
+ $('#toast').hidden=true;const old=document.title;document.title=title;document.body.classList.add('printing');
+ const done=()=>{document.body.classList.remove('printing');root.innerHTML='';st.textContent='';document.title=old;window.removeEventListener('afterprint',done);};
+ window.addEventListener('afterprint',done);setTimeout(()=>print(),60);}
+const fileTitle=s=>String(s).replace(/[\\/:*?"<>|]+/g,'').trim().slice(0,80)||CONFIG.name;
+function printRecipe(id){const r=recipeById(id);if(!r)return;const base=Logic.servings(r.servings),f=base&&view.servings?view.servings/base:1;printDoc(recipeDoc(r,{factor:f,units:view.units||state.settings.units}),fileTitle(r.title));}
+function printScreen(){if(screen==='recipe'||screen==='cook')return printRecipe(openId);if(screen==='shopping'){if(!state.shopping.some(i=>!i.checked))return toast('Nothing left to buy on the list.');return printDoc(shoppingDoc(),'Shopping list '+today());}
+ if(screen==='plan')return printDoc(planDoc(),'Meal plan week of '+week);print();}
+function bookForm(pick=''){if(!state.recipes.length)return toast('Save a few recipes first, then make your book.');
+ const cats=[...new Set(state.recipes.map(Logic.categoryOf))].sort(),col=pick.startsWith('col:')?state.collections.find(c=>'col:'+c.id===pick):null;
+ modal('Make a recipe book','A printable book with a cover, contents and one recipe per page. Save it as a PDF or print it.',`<form id="book-form"><div class="fields">
+  <label class="full">Recipes<select name="pick">${[['all',`All recipes (${state.recipes.length})`],['fav',`Favorites (${state.recipes.filter(r=>r.favorite).length})`],...state.collections.map(c=>['col:'+c.id,`Collection: ${c.name} (${state.recipes.filter(r=>r.collections.includes(c.id)).length})`]),...cats.map(c=>['cat:'+c,`Category: ${c} (${state.recipes.filter(r=>Logic.categoryOf(r)===c).length})`])].map(([v,l])=>`<option value="${esc(v)}" ${v===(pick||'all')?'selected':''}>${esc(l)}</option>`).join('')}</select></label>
+  <label>Title<input name="title" maxlength="60" value="${esc(col?col.name:'Our Family Recipes')}" required></label>
+  <label>Subtitle<input name="subtitle" maxlength="80" value="Recipes worth keeping"></label>
+  <label class="full">From the kitchen of<input name="name" maxlength="60" value="${esc(state.settings.name)}" placeholder="The Rivera family"></label>
+  <div class="full"><span class="small" style="font-weight:600;color:var(--ink-2)">Cover</span><div class="cover-pick" role="radiogroup" aria-label="Cover style" style="margin-top:6px">${[['classic','Classic'],['modern','Modern'],['photo','Photo']].map(([k,l],i)=>`<label><input type="radio" name="cover" value="${k}" ${i?'':'checked'}><span class="mini m-${k}"><i></i><u></u></span><b>${l}</b></label>`).join('')}</div></div>
+  <label>Order<select name="order"><option value="course">By category, with chapter pages</option><option value="alpha">A to Z</option></select></label>
+  <div><span class="small" style="font-weight:600;color:var(--ink-2)">Include</span><div class="book-opts" style="margin-top:6px"><label class="check"><input type="checkbox" name="photos" checked>Photos</label><label class="check"><input type="checkbox" name="notes" checked>My notes</label><label class="check"><input type="checkbox" name="nutrition">Nutrition</label></div></div></div>
+  <p class="print-tip">${ico('print')}<span>In the print window, pick the <b>paper size</b> (Letter, A4 and more) and choose <b>Save as PDF</b> or your printer. For the cleanest pages, turn <b>Headers and footers</b> off and <b>Background graphics</b> on.</span></p>${formFoot('Create the book')}</form>`);
+ $('#dlg').classList.add('book-dlg');$('#dlg').addEventListener('close',()=>$('#dlg').classList.remove('book-dlg'),{once:true});}
+async function copyText(text,msg){let ok=false;try{await navigator.clipboard.writeText(text);ok=true;}catch{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.select();try{ok=document.execCommand('copy');}catch{}ta.remove();}
+ toast(ok?msg:'Copying was blocked by the browser. Select the items and copy them instead.');}
+function copyShopping(){const items=CONFIG.aisles.flatMap(a=>state.shopping.filter(i=>!i.checked&&i.aisle===a));if(!items.length)return toast('Nothing left to buy on the list.');
+ copyText(items.map(i=>tidy(i.text)).join('\n'),`${plural(items.length,'item')} copied. Paste into Reminders, AnyList, Google Keep or a note: each line becomes an item.`);}
+function copyIngredients(id){const r=recipeById(id);if(!r)return;const base=Logic.servings(r.servings),f=base&&view.servings?view.servings/base:1,u=view.units||state.settings.units;
+ copyText(r.ingredients.filter(l=>!(/:$/.test(l)&&!/\d/.test(l))).map(l=>tidy(Logic.show(l,f,u))).join('\n'),'Ingredients copied');}
+
+/* ---------- install as an app (PWA) ---------- */
+let installEvt=null;
+const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isMacSafari=()=>/Macintosh/.test(navigator.userAgent)&&/Safari/.test(navigator.userAgent)&&!/Chrome|Chromium|Edg|Firefox/.test(navigator.userAgent)&&!isIOS();
+function installHelp(){return standalone()?'Installed. You’re using the app.':installEvt?'One click adds it to your home screen, dock or start menu.':isIOS()?'In Safari, tap the Share button, then Add to Home Screen.':isMacSafari()?'In Safari, choose File, then Add to Dock.':'In Chrome or Edge, use the install icon in the address bar. On Android, open the browser menu and choose Install app.';}
+function renderInstall(){const b=$('#rail-install');if(b)b.hidden=standalone()||!(installEvt||isIOS()||isMacSafari());}
+async function installApp(){if(installEvt){installEvt.prompt();const c=await installEvt.userChoice.catch(()=>null);installEvt=null;renderInstall();if(c?.outcome==='accepted')toast('Installed. Find Recipe Library Studio with your other apps.');if(screen==='settings')render();}
+ else modal('Install the app',installHelp(),`<p class="small dim">It opens in its own window, works without internet (except importing links), and keeps your recipes safer on iPhone and iPad. Your library on this device is the same one; on iPhone the installed app keeps its own copy, so move it once with a backup.</p><div class="formfoot"><button type="button" class="btn primary" data-action="dismiss">Got it</button></div>`);}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;renderInstall();if(screen==='settings')render();});
+window.addEventListener('appinstalled',()=>{installEvt=null;renderInstall();toast('Installed. Find Recipe Library Studio with your other apps.');});
+if('serviceWorker' in navigator&&(location.protocol==='https:'||/^localhost$|^127\./.test(location.hostname)))window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+// shared to the app from a phone's share menu (Android): …/?url=… or ?text=… with a link inside
+function linkFromShare(){const q=new URLSearchParams(location.search),u=q.get('url')||(q.get('text')||'').match(/https?:\/\/\S+/)?.[0]||'';if(!u)return false;history.replaceState(null,'',location.pathname);screen='import';render();importLink(u);return true;}
 
 /* ---------- timers and the screen wake lock ---------- */
 const timers=[];let wake=null;
@@ -1411,25 +1751,38 @@ const ACTIONS={
  'photo-url':()=>photoFromLink($('#photo-url')?.value),
  'remove-photo':()=>{draft.image='';draftPhoto=null;draft.hasPhoto=false;dirty=true;keepForm();render();},
  'cancel-edit':()=>{const id=draft&&recipeById(draft.id)?draft.id:'';dirty=false;draft=null;if(id)openRecipe(id);else go('library');},
+ 'lib-cat':b=>{lib.cat=b.dataset.v||'';lib.filter='all';lib.col='';lib.page=0;if(screen!=='library')go('library');else render();},
+ 'sel-mode':()=>{lib.selecting=!lib.selecting;if(!lib.selecting)lib.sel.clear();render();},
+ sel:b=>{const id=b.dataset.id;lib.sel.has(id)?lib.sel.delete(id):lib.sel.add(id);render();},
+ 'sel-all':()=>{lib.selecting=true;libRows().forEach(r=>lib.sel.add(r.id));render();},'sel-clear':()=>{lib.sel.clear();render();},
+ 'bulk-cat':bulkCategoryForm,'bulk-tags':bulkTagsForm,'bulk-col':bulkCollectionForm,
+ 'chip-x':b=>{const r=recipeById(b.dataset.id),k=b.dataset.k,v=b.dataset.v;if(r)commit(()=>{r[k]=r[k].filter(x=>x!==v);r.updatedAt=new Date().toISOString();},`Removed “${v}”`);},
+ 'facet-rename':b=>facetForm(b.dataset.k,b.dataset.v),
+ 'facet-del':b=>{const k=b.dataset.k,v=b.dataset.v,n=state.recipes.filter(r=>r[k].includes(v)).length;ask(`Delete “${esc(v)}”?`,`It comes off ${plural(n,'recipe')}. The recipes stay. You can undo it straight after.`,'Delete',()=>commit(()=>{state.recipes.forEach(r=>{r[k]=r[k].filter(x=>x!==v);});if(lib.cat.slice(2)===v)lib.cat='';},`“${v}” deleted from ${plural(n,'recipe')}`));},
  'lib-filter':b=>{lib.filter=b.dataset.k;lib.page=0;render();},'lib-view':b=>{lib.view=b.dataset.k;ls.set(VIEW_KEY,lib.view);lib.page=0;render();},
  'lib-reset':()=>{Object.assign(lib,{q:'',filter:'all',cat:'',col:'',page:0});render();},
  'ask-ok':()=>{const f=askFn;askFn=null;closeModal();f?.();},dismiss:closeModal,
  undo:()=>{if(!undoState)return;state=undoState;undoState=null;save();if(screen==='recipe'&&!recipeById(openId))screen='library';render();toast('Undone');},
- sample:()=>toggleSample(),backup,restore:()=>$('#restore-file').click(),print:()=>print(),csv:exportCSV,
+ sample:()=>toggleSample(),backup,restore:()=>$('#restore-file').click(),print:printScreen,csv:exportCSV,install:installApp,book:b=>bookForm(b.dataset.pick||''),'copy-shop':copyShopping,'copy-ing':b=>copyIngredients(b.dataset.id),
  'choose-folder':chooseFolder,'reconnect-folder':reconnectFolder,'banner-hide':()=>{bannerHidden=true;renderStatus();},
  theme:b=>commit(()=>state.settings.theme=b.dataset.k,'Palette changed'),
  fresh:()=>ask('Start fresh?','This clears every recipe, collection, plan and list. Download a backup first if you may need it. You can undo straight after.','Start fresh',()=>commit(()=>{const t=state.settings.theme;state=Logic.blank();state.settings.theme=t;},'Started fresh')),
  tour:()=>openTour(false),'tour-step':b=>{tourAt+=+b.dataset.d;renderTour();$('#welcome [autofocus]')?.focus();},'tour-close':closeTour,'tour-sample':()=>{closeTour();if(!demo)toggleSample();},
 };
+function addChip(input){const r=recipeById(input.dataset.id),k=input.dataset.chip,vals=input.value.split(',').map(tidy).filter(Boolean).map(v=>v.slice(0,40));if(!r||!vals.length)return;
+ commit(()=>{r[k]=[...new Set([...r[k],...vals])];r.updatedAt=new Date().toISOString();},`Added ${vals.map(v=>'“'+v+'”').join(', ')}`);setTimeout(()=>$(`.chip-add[data-chip="${k}"]`)?.focus(),0);}
+// a value picked from the suggestion list is added straight away
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset?.chip&&t.value.trim())addChip(t);});
 // the editor keeps what you've typed when it re-renders for a photo change
 function keepForm(){const f=$('#recipe-form');if(!f||!draft)return;const d=Object.fromEntries(new FormData(f)),list=v=>String(v||'').split(',').map(s=>s.trim()).filter(Boolean),n=v=>v===''||v==null?null:Math.max(0,Math.min(99999,Math.round(+v)||0));
  Object.assign(draft,{title:String(d.title||'').trim(),description:String(d.description||'').trim(),servings:String(d.servings||'').trim(),categories:list(d.categories),cuisine:list(d.cuisine),tags:list(d.tags),prep:n(d.prep),cook:n(d.cook),total:n(d.total),
-  ingredients:String(d.ingredients||'').split('\n').map(s=>s.trim()).filter(Boolean),sections:Logic.sectionsFromText(d.steps||''),notes:String(d.notes||'').trim(),sourceUrl:safeUrl(String(d.sourceUrl||'').trim()),sourceName:String(d.sourceName||'').trim(),author:String(d.author||'').trim(),
+  ingredients:String(d.ingredients||'').split('\n').map(tidy).filter(Boolean),sections:Logic.sectionsFromText(d.steps||''),notes:String(d.notes||'').trim(),sourceUrl:safeUrl(String(d.sourceUrl||'').trim()),sourceName:String(d.sourceName||'').trim(),author:String(d.author||'').trim(),
   collections:new FormData(f).getAll('collection')});if('sourceNotes' in d)draft.sourceNotes=String(d.sourceNotes).trim();}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled||b.tagName==='INPUT')return;if(b.tagName==='A')return;ACTIONS[b.dataset.action]?.(b);});
 document.addEventListener('change',async e=>{const t=e.target;
  if(t.dataset.navToggle){const k=t.dataset.navToggle;commit(()=>{const h=state.settings.hiddenNav.filter(x=>x!==k);if(!t.checked)h.push(k);state.settings.hiddenNav=h;},t.checked?'Shown in the sidebar':'Hidden from the sidebar');}
  if(t.id==='month-picker'&&/^\d{4}-\d{2}$/.test(t.value)){selected=t.value;render();}
+ if(t.dataset.sel){t.checked?lib.sel.add(t.dataset.sel):lib.sel.delete(t.dataset.sel);render();}
  if(t.dataset.item){const it=state.shopping.find(i=>i.id===t.dataset.item);if(it)commit(()=>{it.checked=t.checked;},'',{quiet:true});}
  if(t.id==='lib-cat'){lib.cat=t.value;lib.page=0;render();}if(t.id==='lib-col'){lib.col=t.value;lib.page=0;render();}if(t.id==='lib-sort'){lib.sort=t.value;lib.page=0;render();}
  if(t.id==='photo-file'&&t.files[0]){const f=t.files[0];t.value='';try{const url=await shrink(f);keepForm();draftPhoto=url;dirty=true;render();}catch(err){toast(err.message);}}
@@ -1448,9 +1801,19 @@ document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d=Obj
  if(f.id==='plan-form'){if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date||''))return formError('Pick a day.');closeModal();const r=recipeById(d.recipe);
   commit(()=>state.plans.push({id:uid(),date:d.date,slot:d.slot,recipeId:d.recipe,servings:''}),`${r?.title||'Meal'} planned for ${dayName(d.date,{weekday:'long'})}`);}
  if(f.id==='shop-form'){closeModal();const r=recipeById(d.recipe);commit(()=>{state.shopping=Logic.addToList(state.shopping,r.ingredients.filter(l=>!/:$/.test(l)),{from:r.title});},`${plural(r.ingredients.length,'ingredient')} added`);}
- if(f.dataset.form==='item'){const text=String(d.text||'').trim();if(!text)return;commit(()=>{state.shopping=Logic.addToList(state.shopping,[text]);},'Item added',{quiet:true});$('#item-text')?.focus();}
+ if(f.dataset.form==='item'){const text=tidy(d.text);if(!text)return;commit(()=>{state.shopping=Logic.addToList(state.shopping,[text]);},'Item added',{quiet:true});$('#item-text')?.focus();}
+ if(f.id==='bulk-cat-form'){const v=tidy(d.v).slice(0,40);if(!v)return formError('Type a category.');const rs=pickedRecipes();closeModal();
+  commit(()=>{rs.forEach(r=>{r.categories=d.mode==='add'?[...new Set([...r.categories,v])]:[v,...r.categories.filter(x=>x!==v).slice(1)];r.updatedAt=new Date().toISOString();});lib.sel.clear();},`${plural(rs.length,'recipe')} now in ${v}`);}
+ if(f.id==='bulk-tags-form'){const add=String(d.add||'').split(',').map(tidy).filter(Boolean).map(t=>t.slice(0,40)),rem=new FormData(f).getAll('remove');if(!add.length&&!rem.length)return formError('Add a tag or choose one to remove.');const rs=pickedRecipes();closeModal();
+  commit(()=>{rs.forEach(r=>{r.tags=[...new Set([...r.tags.filter(t=>!rem.includes(t)),...add])];r.updatedAt=new Date().toISOString();});lib.sel.clear();},`Tags updated on ${plural(rs.length,'recipe')}`);}
+ if(f.id==='bulk-col-form'){const rs=selected(),c=state.collections.find(x=>x.id===d.v);closeModal();commit(()=>{rs.forEach(r=>{if(!r.collections.includes(d.v))r.collections.push(d.v);});lib.sel.clear();},`${plural(rs.length,'recipe')} added to ${c?.name||'the collection'}`);}
+ if(f.id==='facet-form'){const k=f.dataset.k,v=f.dataset.v,to=tidy(d.to).slice(0,40);if(!to)return formError('Type a name.');closeModal();if(to===v)return;const merge=listOf(k).includes(to);
+  commit(()=>{state.recipes.forEach(r=>{if(r[k].includes(v))r[k]=[...new Set(r[k].map(x=>x===v?to:x))];});if(lib.cat.slice(2)===v)lib.cat=lib.cat.slice(0,2)+to;},merge?`Merged “${v}” into “${to}”`:`Renamed to “${to}”`);}
+ if(f.id==='book-form'){const pick=d.pick||'all',rs=state.recipes.filter(r=>pick==='all'||(pick==='fav'&&r.favorite)||(pick.startsWith('col:')&&r.collections.includes(pick.slice(4)))||(pick.startsWith('cat:')&&Logic.categoryOf(r)===pick.slice(4)));
+  if(!rs.length)return formError('No recipes in that choice yet. Pick another one.');const title=String(d.title||'').trim()||'Our Family Recipes';
+  printDoc(bookDoc(rs,{title,subtitle:String(d.subtitle||'').trim(),name:String(d.name||'').trim(),cover:d.cover||'classic',order:d.order,dividers:true,photos:!!d.photos,notes:!!d.notes,nutrition:!!d.nutrition}),fileTitle(title));}
  if(f.id==='settings-form')commit(()=>Object.assign(state.settings,{name:String(d.name||'').trim(),units:d.units}),'Preferences saved');});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='photo-url'){e.preventDefault();return photoFromLink(e.target.value);}if(e.key==='Escape')document.body.classList.remove('menu-open');
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===',')&&e.target.dataset?.chip){e.preventDefault();return addChip(e.target);}if(e.key==='Enter'&&e.target.id==='photo-url'){e.preventDefault();return photoFromLink(e.target.value);}if(e.key==='Escape')document.body.classList.remove('menu-open');
  const typing=/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable,dlg=document.querySelector('dialog[open]');if(typing||dlg||e.metaKey||e.ctrlKey||e.altKey)return;
  if(e.key.toLowerCase()==='n'){e.preventDefault();linkDialog();}
  if(e.key==='/'){e.preventDefault();if(screen!=='library')go('library');$('#lib-search')?.focus();}
@@ -1468,7 +1831,7 @@ function linkFromHash(){const m=location.hash.match(/^#(?:import|url)=(.+)$/);if
 document.querySelectorAll('[data-action="prev"]').forEach(b=>b.innerHTML=ico('left'));document.querySelectorAll('[data-action="next"]').forEach(b=>b.innerHTML=ico('right'));
 $('.mobile-menu').innerHTML=ico('menu');$('.topbar [data-go="guide"]').innerHTML=ico('help')+'<span>Guide</span>';$('.topbar [data-action="backup"]').innerHTML=ico('down')+'<span>Back up</span>';$('.topbar [data-action="add"]').innerHTML=ico('link')+'<span>Add recipe</span>';
 $('#rail-note').innerHTML=CONFIG.railNote;$('#rail-version').textContent=`${CONFIG.tagline} · v${CONFIG.version}`;
-Promise.all([load(),initFolder()]).then(()=>{render();if(location.hash.length>1)linkFromHash();else startupPrompt();});
+Promise.all([load(),initFolder()]).then(()=>{render();renderInstall();if(linkFromShare())return;if(location.hash.length>1)linkFromHash();else startupPrompt();});
 window.addEventListener('hashchange',linkFromHash);
 </script>
 </body>
