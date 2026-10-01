@@ -78,8 +78,20 @@ try {
   await page.evaluate(() => { const ids = new Set(bulk.items.filter(i => i.status === 'saved' || i.status === 'review').map(i => i.id)); state.recipes = state.recipes.filter(r => !ids.has(r.id)); save(); bulk.items = []; });
   // which-sites lists: curated sites, sites that worked for you, social links caught before fetching, blocks remembered
   await page.evaluate(() => go('import'));
-  ok((await page.$$('#sites a.site')).length >= 15 && (await page.textContent('#sites')).includes('HelloFresh'), 'sites that import well are listed');
-  ok((await page.textContent('#sites')).includes('Also worked for you') && (await page.$$('#sites .site.ok')).length >= 1, 'sites you imported from get a check');
+  ok((await page.$$('#sites a.site')).length === 6 && (await page.textContent('#sites')).includes('HelloFresh'), 'tested sites are listed');
+  ok((await page.textContent('#sites')).includes('Allrecipes, Simply Recipes'), 'blocked sites are listed with a workaround');
+  ok(await page.evaluate(() => !!state.mySites.localhost), 'a site you imported from is saved to your sites');
+  await page.evaluate(() => { delete state.mySites.localhost; render(); });
+  await page.fill('#site-url', `${BASE}/fixtures/dotdash-array.html`);
+  await page.click('[data-form="site-check"] button');
+  await page.waitForFunction(() => !checking);
+  ok((await page.textContent('#site-check-status')).includes('works') && await page.evaluate(() => !!state.mySites.localhost), 'check a website: a working site is saved');
+  ok(await page.evaluate(() => !state.recipes.some(r => r.title === 'Weeknight Chili')), 'checking a site does not save the recipe');
+  await page.click('[data-action="site-del"][data-h="localhost"]');
+  ok(await page.evaluate(() => !state.mySites.localhost), 'a saved site can be removed');
+  await page.fill('.import-hero input[name=url]', 'https://www.allrecipes.com/recipe/1/x/');
+  await page.click('.import-hero [data-import-go]');
+  ok((await page.textContent('.import-hero .import-status')).includes('allrecipes.com blocks automatic import'), 'known blocked sites get the workaround without a fetch');
   await page.fill('.import-hero input[name=url]', 'https://www.instagram.com/p/abc123/');
   await page.click('.import-hero [data-import-go]');
   ok((await page.textContent('.import-hero .import-status')).includes('Instagram, TikTok, Facebook links don’t import'), 'social links get the workaround without a fetch');
