@@ -1,0 +1,13 @@
+{
+  "name": "recipe-library-studio",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs --check",
+    "dev": "node dev-server.mjs",
+    "test": "node build.mjs --check && node --test test/parser.test.mjs && node test/smoke.mjs"
+  }
+}
