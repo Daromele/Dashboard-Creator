@@ -76,6 +76,19 @@ try {
   ok(st === 'saved,saved,dupe,review,failed', 'bulk import: ' + st);
   ok(await page.evaluate(() => state.recipes.some(r => r.title === 'Weeknight Chili') && state.recipes.some(r => r.tags.includes('needs review'))), 'bulk saved recipes, partial one tagged needs review');
   await page.evaluate(() => { const ids = new Set(bulk.items.filter(i => i.status === 'saved' || i.status === 'review').map(i => i.id)); state.recipes = state.recipes.filter(r => !ids.has(r.id)); save(); bulk.items = []; });
+  // which-sites lists: curated sites, sites that worked for you, social links caught before fetching, blocks remembered
+  await page.evaluate(() => go('import'));
+  ok((await page.$$('#sites a.site')).length >= 15 && (await page.textContent('#sites')).includes('HelloFresh'), 'sites that import well are listed');
+  ok((await page.textContent('#sites')).includes('Also worked for you') && (await page.$$('#sites .site.ok')).length >= 1, 'sites you imported from get a check');
+  await page.fill('.import-hero input[name=url]', 'https://www.instagram.com/p/abc123/');
+  await page.click('.import-hero [data-import-go]');
+  ok((await page.textContent('.import-hero .import-status')).includes('Instagram, TikTok, Facebook links don’t import'), 'social links get the workaround without a fetch');
+  await page.evaluate(() => { noteSite('https://www.picky.example/r/1', false); render(); });
+  ok((await page.textContent('#sites')).includes('picky.example'), 'a site that refused you is remembered');
+  await page.click('[data-action="sites-clear"]');
+  ok(!(await page.textContent('#sites')).includes('picky.example'), 'blocked list can be cleared');
+  await page.evaluate(() => { importMsg = ''; lastLink = ''; render(); });
+  await shot('n-sites');
   // a real whole-page paste: photo captions and credits never become steps
   await page.click('.topbar [data-action="add"]'); await page.click('#link-form [data-action="paste"]');
   await page.fill('#paste-form textarea', (await import('node:fs')).readFileSync(new URL('./fixtures/paste-allrecipes.txt', import.meta.url), 'utf8'));

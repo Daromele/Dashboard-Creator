@@ -535,6 +535,10 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .import-status .loading{display:flex;gap:10px;align-items:center;color:var(--on-bold-dim);font-size:13px}
 .spinner{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
+.sites{display:flex;flex-wrap:wrap;gap:8px}.site-group{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin:var(--s4) 0 var(--s2)}.pair-body>.site-group:first-child{margin-top:0}
+.site{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 12px;border-radius:99px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font-size:13px;font-weight:600;text-decoration:none}a.site:hover{border-color:var(--accent);color:var(--accent)}
+.site svg{width:14px;height:14px}.site.ok{border-color:color-mix(in srgb,var(--ok) 45%,var(--rule))}.site.ok svg{color:var(--ok)}.site-tip{margin-top:var(--s4)}
+.site-row{display:grid;gap:2px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:13.5px}.site-row:last-of-type{border-bottom:0}.site-row>span{color:var(--ink-2)}
 .how{display:flex;gap:var(--s5);flex-wrap:wrap;color:var(--on-bold-dim);font-size:12.5px}
 .how span{display:inline-flex;align-items:center;gap:6px}.how b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#ffffff1f;color:var(--on-bold);font:700 11px var(--num)}
 
@@ -1009,6 +1013,22 @@ const GLYPHS=/^[\s\u200b-\u200d\ufeff▢☐□■◻◼▪▫●○•◦‣∙�
 const tidy=t=>String(t??'').replace(/[\u200b-\u200d\ufeff]/g,'').replace(GLYPHS,'').replace(/\s+/g,' ').trim();
 const safeUrl=u=>{try{const x=new URL(u);return /^https?:$/.test(x.protocol)&&!x.username&&!x.password?x.href:'';}catch{return '';}};
 const hostOf=u=>{try{return new URL(u).hostname.replace(/^www\./,'');}catch{return '';}};
+// ---------- which websites import well, and which need a workaround ----------
+// "good" sites publish a full schema.org recipe card; tested:true means checked by hand in the live app.
+// The lists also learn on each device: sites you imported from get a check, sites that refused you are listed.
+const SITES={good:[
+  ['Meal kits & big recipe sites',[['HelloFresh','hellofresh.com',1],['Allrecipes','allrecipes.com'],['Simply Recipes','simplyrecipes.com'],['Serious Eats','seriouseats.com'],['EatingWell','eatingwell.com'],['BBC Good Food','bbcgoodfood.com'],['Taste of Home','tasteofhome.com'],['King Arthur Baking','kingarthurbaking.com']]],
+  ['Food blogs people love',[['Budget Bytes','budgetbytes.com'],['RecipeTin Eats','recipetineats.com'],['Sally’s Baking Addiction','sallysbakingaddiction.com'],['Minimalist Baker','minimalistbaker.com'],['Pinch of Yum','pinchofyum.com'],['Cookie and Kate','cookieandkate.com'],['Love and Lemons','loveandlemons.com'],['Once Upon a Chef','onceuponachef.com'],['Downshiftology','downshiftology.com'],['The Woks of Life','thewoksoflife.com'],['Immaculate Bites','africanbites.com']]]],
+ hard:[
+  {name:'NYT Cooking',hosts:['cooking.nytimes.com'],why:'Recipes are for subscribers.',fix:'Sign in, open the recipe, copy the whole page and use Paste the page text.'},
+  {name:'America’s Test Kitchen, Cook’s Illustrated, Cook’s Country',hosts:['americastestkitchen.com','cooksillustrated.com','cookscountry.com'],why:'Recipes are for members.',fix:'Sign in, open the recipe, copy the whole page and use Paste the page text.'},
+  {name:'Pinterest',hosts:['pinterest.com','pin.it'],social:1,why:'A pin points to someone else’s recipe.',fix:'Open the pin, tap Visit to reach the original website, and import that link.'},
+  {name:'Instagram, TikTok, Facebook',hosts:['instagram.com','tiktok.com','facebook.com','fb.watch'],social:1,why:'Posts and videos don’t carry a recipe card.',fix:'Follow the link in the bio to the creator’s blog and import that, or copy the caption and use Paste the page text.'},
+  {name:'YouTube',hosts:['youtube.com','youtu.be'],social:1,why:'Videos don’t carry a recipe card.',fix:'Check the description for a link to the written recipe and import that, or copy the description and use Paste the page text.'}]};
+const siteMatch=(host,list)=>list.some(h=>host===h||host.endsWith('.'+h));
+const hardSite=u=>{const h=hostOf(u);return h?SITES.hard.find(x=>siteMatch(h,x.hosts)):null;};
+const workedHosts=()=>{const m=new Map();state.recipes.forEach(r=>{const h=hostOf(r.sourceUrl);if(h)m.set(h,(m.get(h)||0)+1);});return m;};
+function noteSite(url,ok){const h=hostOf(url);if(!h)return;state.siteBlocks=state.siteBlocks||{};if(ok){if(state.siteBlocks[h]){delete state.siteBlocks[h];save();}}else{state.siteBlocks[h]=today();save();}}
 
 /* ================================================================================
    Logic · pure, no DOM. Ingredients, scaling, units, paste reading, shopping, plans.
@@ -1022,7 +1042,7 @@ const UNIT_KEY=u=>{u=String(u||'').toLowerCase().replace(/\.$/,'').replace(/\s/g
  if(/^(ml|millilit(er|re)s?)$/.test(u))return 'ml';if(/^(l|lit(er|re)s?)$/.test(u))return 'l';if(/^(g|grams?)$/.test(u))return 'g';if(/^(kg|kilograms?)$/.test(u))return 'kg';
  if(/^(oz|ounces?)$/.test(u))return 'oz';if(/^(lbs?|pounds?)$/.test(u))return 'lb';if(/^pints?$/.test(u))return 'pint';if(/^(quarts?|qt)$/.test(u))return 'quart';if(/^fl\.?oz$/.test(u))return 'floz';return u;};
 const Logic={
- blank:()=>({version:2,app:CONFIG.storageKey,settings:{name:'',theme:CONFIG.defaultTheme,units:'Original',hiddenNav:[...CONFIG.hiddenNav],skipPantry:true},recipes:[],collections:[],plans:[],shopping:[],pantry:[],staples:[]}),
+ blank:()=>({version:2,app:CONFIG.storageKey,settings:{name:'',theme:CONFIG.defaultTheme,units:'Original',hiddenNav:[...CONFIG.hiddenNav],skipPantry:true},recipes:[],collections:[],plans:[],shopping:[],pantry:[],staples:[],siteBlocks:{}}),
  recipe:(o={})=>{const now=new Date().toISOString();return {id:uid(),title:'',description:'',sourceUrl:'',sourceName:'',author:'',prep:null,cook:null,total:null,servings:'',
   categories:[],cuisine:[],tags:[],ingredients:[],sections:[],notes:'',sourceNotes:'',nutrition:null,nutritionBasis:'',image:'',images:[],hasPhoto:false,
   rating:0,sourceRating:null,favorite:false,made:[],cooklog:[],collections:[],pasted:'',sample:false,createdAt:now,updatedAt:now,...o};},
@@ -1045,6 +1065,7 @@ const Logic={
   s.shopping=(Array.isArray(s.shopping)?s.shopping:[]).filter(i=>i&&typeof i.text==='string');
   const strs=v=>(Array.isArray(v)?v:[]).filter(x=>typeof x==='string').map(tidy).filter(Boolean);s.pantry=[...new Set(strs(s.pantry))];s.staples=[...new Set(strs(s.staples))];
   s.plans.forEach(p=>{p.servings=Logic.servings(p.servings)?String(Logic.servings(p.servings)):'';});if(typeof s.settings.skipPantry!=='boolean')s.settings.skipPantry=true;
+  s.siteBlocks=Object.fromEntries(Object.entries(s.siteBlocks&&typeof s.siteBlocks==='object'?s.siteBlocks:{}).filter(([h,d])=>/^[a-z0-9.-]{1,253}$/i.test(h)&&/^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0,200));
   s.version=2;s.app=CONFIG.storageKey;return s;},
  // the first edition kept recipes with different field names; map them across so nothing is lost
  fromV1(o){const s=Logic.blank();if(o.settings?.units)s.settings.units=o.settings.units;
@@ -1336,12 +1357,14 @@ async function bulkImport(text){if(bulk.running)return;if(location.protocol==='f
  bulk.items=urls.map(url=>({url,status:'waiting'}));bulk.running=true;bulk.stop=false;render();
  for(const it of bulk.items){if(bulk.stop){it.status='skipped';continue;}
   const have=state.recipes.find(r=>r.sourceUrl&&Logic.normalizeLink(r.sourceUrl)===it.url);if(have){Object.assign(it,{status:'dupe',id:have.id,title:have.title});paintBulk();continue;}
+  const hs=hardSite(it.url);if(hs?.social){Object.assign(it,{status:'failed',msg:`${hs.name}: ${hs.fix}`});paintBulk();continue;}
   it.status='working';paintBulk();
   for(let attempt=0;attempt<2;attempt++){try{const data=await fetchRecipe(it.url),r=Logic.fromImport(data,{sourceUrl:it.url});if(!r.title)r.title=hostOf(it.url);
     if(data.partial)r.tags=[...new Set([...r.tags,'needs review'])];
-    commit(()=>state.recipes.unshift(r),'',{quiet:true});Object.assign(it,{status:data.partial?'review':'saved',id:r.id,title:r.title});break;}
+    commit(()=>state.recipes.unshift(r),'',{quiet:true});noteSite(it.url,true);Object.assign(it,{status:data.partial?'review':'saved',id:r.id,title:r.title});break;}
    catch(e){if(e.code==='RATE_LIMIT'&&!attempt){it.status='waiting';paintBulk();await sleep(Math.min(90,e.wait||60)*1000);continue;}
-    Object.assign(it,{status:'failed',msg:e.name==='TimeoutError'?'The website took too long.':e.message});break;}}
+    if(e.code==='SOURCE_ACCESS_DENIED')noteSite(it.url,false);const hs2=hardSite(it.url);
+    Object.assign(it,{status:'failed',msg:e.name==='TimeoutError'?'The website took too long.':hs2?`${e.message} ${hs2.fix}`:e.message});break;}}
   paintBulk();await sleep(3500);}
  bulk.running=false;const n=bulk.items.filter(i=>i.status==='saved'||i.status==='review').length;render();toast(`${plural(n,'recipe')} imported${bulk.items.some(i=>i.status==='review')?'. Some need a quick review.':''}`);}
 const BULK_LABEL={waiting:['Waiting',''],working:['Reading…','accent'],saved:['Saved','good'],review:['Saved · needs review','warn'],dupe:['Already in your library',''],failed:['Not imported','warn'],skipped:['Skipped','']};
@@ -1354,18 +1377,33 @@ async function importLink(raw,{again=false}={}){
  if(!url){importMsg=errorBox('Paste a full recipe link, like https://www.example.com/recipes/lemon-cake','');return paintImport();}
  const have=state.recipes.find(r=>r.sourceUrl&&Logic.normalizeLink(r.sourceUrl)===url);
  if(have&&!again){importMsg=`<div class="notice"><span><b>Already in your library:</b> ${esc(have.title)}</span><span class="actions">${button('Open it','open','small primary',`data-id="${have.id}"`)}${button('Import again','import-again','small',`data-url="${esc(url)}"`)}</span></div>`;return paintImport();}
+ const hs=hardSite(url);if(hs?.social&&!again){importMsg=`<div class="notice warning" role="status"><span><b>${esc(hs.name)} links don’t import.</b> ${esc(hs.why)} ${esc(hs.fix)}</span><span class="actions">${button(ico('paste')+'Paste the text','paste','small primary',`data-url="${esc(url)}"`)}${button('Try anyway','import-again','small',`data-url="${esc(url)}"`)}</span></div>`;return paintImport();}
  if(location.protocol==='file:'){importMsg=errorBox('Link import works in the hosted app, not in a file opened from your computer. Open your Recipe Library Studio web address, or paste the recipe text instead.',url);return paintImport();}
  if(importing)return;const now=Date.now();while(recent.length&&recent[0]<now-60000)recent.shift();if(recent.length>=10){importMsg=errorBox('That’s a lot of imports in one minute. Wait a moment, then try again.',url);return paintImport();}
  recent.push(now);importing=true;importMsg=`<div class="loading" role="status"><span class="spinner"></span>Reading the recipe from ${esc(hostOf(url))}…</div>`;paintImport();
  try{const data=await fetchRecipe(url);
-  const r=Logic.fromImport(data,{sourceUrl:url});if(!r.title)r.title=hostOf(url);importing=false;importMsg='';lastLink='';
+  const r=Logic.fromImport(data,{sourceUrl:url});if(!r.title)r.title=hostOf(url);importing=false;importMsg='';lastLink='';noteSite(url,true);
   if(data.partial){draft=r;draftPhoto=null;dirty=true;go('edit');toast(r.ingredients.length?'Part of this recipe was found. Fill in the rest, then save.':'No recipe data on that page. We kept the title and photo; add the rest, then save.');}
   else{commit(()=>state.recipes.unshift(r),`Saved “${r.title}” from ${r.sourceName||hostOf(url)}`);openRecipe(r.id);}}
  catch(e){importing=false;const msg=e.name==='TimeoutError'?'The website took too long to answer. Try again, or paste the recipe text.':e instanceof TypeError?'We couldn’t reach the recipe reader. Check your internet connection, or paste the recipe text.':e.message;
-  importMsg=errorBox(msg,url,e.code==='SOURCE_ACCESS_DENIED');paintImport();}}
+  if(e.code==='SOURCE_ACCESS_DENIED')noteSite(url,false);
+  importMsg=errorBox(hs?`${msg} ${hs.fix}`:msg,url,e.code==='SOURCE_ACCESS_DENIED'&&!hs);paintImport();}}
 function errorBox(msg,url,blocked=false){return `<div class="notice refused" role="alert"><span><b>Not imported.</b> ${esc(msg)}${blocked?' Open the page, copy everything on it, and use Paste the page text: your link is kept.':''}</span><span class="actions">${button(ico('paste')+'Paste the page text','paste','small',url?`data-url="${esc(url)}"`:'')}${url&&safeUrl(url)?`<a class="btn small" href="${esc(safeUrl(url))}" target="_blank" rel="noopener noreferrer">Open page ${ico('ext')}</a>`:''}</span></div>`;}
 function paintImport(){document.querySelectorAll('.import-status').forEach(el=>el.innerHTML=importMsg);document.querySelectorAll('[data-import-go]').forEach(b=>{b.disabled=importing;});}
 const linkbar=(light=false)=>`<form class="linkbar ${light?'light':''}" data-form="link" role="search" aria-label="Import a recipe from a link"><label class="sr-only" for="link-${light?'b':'a'}">Recipe link</label><input id="link-${light?'b':'a'}" name="url" type="url" inputmode="url" autocomplete="off" placeholder="Paste a recipe link: https://…" value="${esc(lastLink)}" required><button class="btn ${light?'primary':'pop'}" data-import-go ${importing?'disabled':''}>${ico('link')}Import recipe</button></form><div class="import-status" aria-live="polite">${importMsg}</div>`;
+
+function sitesRow(){const worked=workedHosts(),listed=SITES.good.flatMap(([,l])=>l.map(x=>x[1]));
+ const chip=([n,h,tested])=>{const ok=[...worked.keys()].some(w=>siteMatch(w,[h]));return `<a class="site ${ok?'ok':''}" href="https://www.${h}/" target="_blank" rel="noopener noreferrer" title="${ok?'You’ve imported from this site':tested?'Tested with Recipe Library Studio':'Publishes a full recipe card'}">${ok?ico('check'):''}${esc(n)}${tested&&!ok?'<span class="pill good">Tested</span>':''}</a>`;};
+ const extra=[...worked].filter(([h])=>!listed.some(l=>siteMatch(h,[l]))&&!hardSite('https://'+h)).sort((a,b)=>b[1]-a[1]).slice(0,10);
+ const mine=Object.entries(state.siteBlocks||{}).filter(([h])=>!hardSite('https://'+h)).sort((a,b)=>b[1].localeCompare(a[1]));
+ return `<div class="grid2 match-row" id="sites" data-floor="380"><section class="card pair">${cardhead('Sites that import well','These publish a full recipe card, so the link brings in everything. A check means you’ve already imported from it.','check')}<div class="pair-body">
+  ${SITES.good.map(([g,l])=>`<h3 class="site-group">${g}</h3><div class="sites">${l.map(chip).join('')}</div>`).join('')}
+  ${extra.length?`<h3 class="site-group">Also worked for you</h3><div class="sites">${extra.map(([h,n])=>`<span class="site ok" title="${plural(n,'recipe')} imported">${ico('check')}${esc(h)}</span>`).join('')}</div>`:''}
+  <p class="small dim site-tip">Any food blog with a “Jump to recipe” or “Print recipe” button almost always works.</p></div></section>
+ <section class="card pair">${cardhead('Sites that need a workaround','They open fine in your browser but won’t hand the recipe to an app. Here’s the quick way around each one.','cross')}<div class="pair-body">
+  ${SITES.hard.map(x=>`<div class="site-row"><b>${esc(x.name)}</b><span>${esc(x.why)}</span><span class="small"><b>Do this:</b> ${esc(x.fix)}</span></div>`).join('')}
+  ${mine.length?`<h3 class="site-group">Blocked when you tried</h3>${mine.map(([h,d])=>`<div class="site-row"><b>${esc(h)}</b><span>Refused an import on ${new Date(d+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}. Open the recipe, copy the page and use Paste the page text.</span></div>`).join('')}<div class="actions" style="margin-top:10px">${button('Clear this list','sites-clear','small quiet')}</div>`:''}
+ </div></section></div>`;}
 
 /* ================================================================================
    Screens
@@ -1451,7 +1489,8 @@ const VIEWS={
    <div id="bulk-list" aria-live="polite">${bulkList()}</div></section>
   <div class="grid3"><section class="card"><div class="card-ico">${ico('paste')}</div><h2>Paste the whole page</h2><p class="subtitle" style="margin-bottom:16px">For a site that blocks imports: select everything on the recipe page, copy, and paste it here. We find the ingredients and steps.</p>${button(ico('paste')+'Paste the page text','paste','primary')}</section>
   <section class="card"><div class="card-ico">${ico('edit')}</div><h2>Type it in</h2><p class="subtitle" style="margin-bottom:16px">Family favorites, handwritten cards and your own creations. Add a photo of the dish or the card.</p>${button(ico('plus')+'Write a recipe','manual')}</section>
-  <section class="card"><div class="card-ico">${ico('help')}</div><h2>Which sites work?</h2><p class="subtitle" style="margin-bottom:16px">Most food blogs and recipe sites publish a recipe card behind the page. A few big sites block automatic reading; for those, paste the page text instead.</p>${button('Read the guide','go','','data-go="guide"')}</section></div>
+  <section class="card"><div class="card-ico">${ico('help')}</div><h2>Which sites work?</h2><p class="subtitle" style="margin-bottom:16px">Most food blogs and recipe sites publish a recipe card behind the page. A few block automatic reading; see the lists below for what to do.</p>${button('See the lists','sites')}</section></div>
+  ${sitesRow()}
   ${state.recipes.some(r=>r.sourceUrl)?`<section class="card table-card">${cardhead('Recently imported','','history')}<div class="table-wrap"><table><thead><tr><th>Recipe</th><th>Website</th><th>Added</th></tr></thead><tbody>${state.recipes.filter(r=>r.sourceUrl).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,8).map(r=>`<tr><td><div class="titlecell"><button data-action="open" data-id="${r.id}"><span class="clamp">${esc(r.title)}</span></button></div></td><td>${esc(r.sourceName)}</td><td data-v="${r.createdAt}">${new Date(r.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td></tr>`).join('')}</tbody></table></div></section>`:''}`;},
 
  recipe(){const r=recipeById(openId);if(!r)return pagehead('Recipes','Recipe not found','It may have been deleted.',button('Back to recipes','go','primary','data-go="library"'));
@@ -1554,6 +1593,7 @@ const VIEWS={
   `<div class="steps steps4" style="margin-bottom:16px">${[['01 / IMPORT','Paste a link','Copy a recipe page’s link and paste it in Add a recipe. Press N anywhere to start.','Add a recipe','go','data-go="import"'],['02 / COOK','Cook','Scale servings, switch to metric and use Start cooking for one big step at a time.','My recipes','go','data-go="library"'],['03 / PLAN','Plan & shop','Add recipes to days of the week, then send the week to your shopping list.','Meal plan','go','data-go="plan"'],['04 / PROTECT','Back up','Choose a backup folder once, or download a backup now and then.','Settings & backup','go','data-go="settings"']].map(([n,h,p,b,a,x])=>`<div class="step"><span>${n}</span><h3>${h}</h3><p>${p}</p>${button(b,a,'small',x)}</div>`).join('')}</div>
   <section class="card table-card">${cardhead('Good to know','','help')}<div class="table-wrap"><table data-nosort><thead><tr><th>Question</th><th>Answer</th></tr></thead><tbody>
   <tr><td>Which websites can I import from?</td><td>Most of them. Food blogs and recipe sites publish a hidden recipe card for search engines, and that’s what we read: ingredients, steps, times, servings, nutrition and photos.</td></tr>
+  <tr><td>Which websites work best?</td><td>Meal-kit sites like HelloFresh, big recipe sites and most food blogs publish a full recipe card, so a link brings everything in. Pinterest, Instagram, TikTok and YouTube don’t: follow them to the original recipe page. <b>Add a recipe</b> lists both, and remembers which sites worked for you.</td></tr>
   <tr><td>A link says “blocks automatic access”?</td><td>A few large sites refuse automated readers even though they open fine in your browser. Open the page, select everything (Ctrl+A or ⌘A), copy, and use <b>Paste the page text</b>. Your link is kept.</td></tr>
   <tr><td>Only part of a recipe came through?</td><td>Some pages leave pieces out of their recipe card. The editor opens with what was found, so you can fill in the rest before saving.</td></tr>
   <tr><td>Where are my recipes kept?</td><td>In this browser on this device. Nothing is uploaded and there’s no account. Only the link you import is sent to our recipe reader, which fetches that page and forgets it.</td></tr>
@@ -1835,6 +1875,8 @@ const ACTIONS={
  page:b=>{lib.page+=+b.dataset.d;render();scrollTo({top:0});},
  open:b=>openRecipe(b.dataset.id),edit:b=>editRecipe(b.dataset.id),add:linkDialog,
  'import-again':b=>importLink(b.dataset.url,{again:true}),
+ 'sites':()=>{const el=$('#sites');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},
+ 'sites-clear':()=>commit(()=>{state.siteBlocks={};},'Cleared the blocked sites list'),
  paste:b=>pasteDialog(b.dataset.url||''),
  manual:()=>{draft=Logic.recipe();draftPhoto=null;dirty=false;go('edit');},
  favorite:b=>{const r=recipeById(b.dataset.id);if(r)commit(()=>{r.favorite=!r.favorite;},r.favorite?'Removed from favorites':'Added to favorites');},
