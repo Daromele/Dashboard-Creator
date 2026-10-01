@@ -895,10 +895,16 @@ const Logic={
   const lines=all.replace(/\r\n?/g,'\n').split('\n').map(l=>{l=l.replace(/&nbsp;| /g,' ').replace(/&amp;/g,'&');const heading=/^#{1,6}\s/.test(l);
    l=l.replace(md,(m,label,u)=>{urls.push({label,u});return /^!/.test(m)?'':label;});
    return {text:l.replace(/\*\*|__/g,'').replace(/^#{1,6}\s*/,'').replace(/^[•●▪*]\s+|^-\s+/,'').replace(/\s+/g,' ').trim(),heading};});
-  const H=s=>s.replace(/:$/,'').trim(),junk=/^(?:jump to .*|print|save|rate|share|pin|advertisement|sponsored|cook mode|keep screen awake|gather (?:all )?ingredients|(?:0[.,]5|½|1|2|3)\s*x|\d+\s+(?:photos?|reviews?|ratings?)|add photos?)$/i,
-   ok=l=>l.text&&!junk.test(l.text)&&!/^https?:\/\/\S+$/.test(l.text),
+  const H=s=>s.replace(/:$/,'').trim(),junk=/^(?:jump to .*|print|save|rate|share|pin|advertisement|sponsored|cook mode|keep screen awake|gather (?:all )?ingredients|(?:0[.,]5|½|1\/2|1|2|3|4)\s*x|\d+\s+(?:photos?|reviews?|ratings?)|add photos?|original recipe.*yields?.*)$/i,
+   // photo credits that sites print under each step picture
+   credit=/^(?:(?:photo(?:graph)?|image|food styl\w*|prop styl\w*)\s*(?:by|credit)\b.*|credit:.*|.*\b(?:food studios?|getty images|shutterstock|istock(?:photo)?)|dotdash meredith.*)$/i,
+   // picture descriptions ("an overhead shot of beef cubes in a pot"): no full stop, and they describe a photo
+   caption=/^(?:(?:an?|the)\s+(?:[\w-]+\s+){0,3}(?:shot|photo(?:graph)?|image|view|picture|close-?up)\b|(?:looking (?:down|at)|close-?up|overhead|top-?down|side view)\b)/i,
+   ok=l=>l.text&&!junk.test(l.text)&&!credit.test(l.text)&&!(caption.test(l.text)&&!/[.!?]$/.test(l.text))&&!/^https?:\/\/\S+$/.test(l.text),
    notes=/^(?:(?:cook|chef|recipe)['’]?s?\s+notes?|notes?|tips)$/i,nutri=/^nutrition(?:al)?(?:\s+(?:facts|information))?(?:\s*\(.*\))?$/i,stop=/^(?:reviews?|ratings?|comments?|photos(?: of.*)?|you['’]?ll also love|related recipes|more recipes|rate this recipe)$/i,
    meta=/^(prep(?:aration)?(?: time)?|cook(?:ing)? time|total time|servings|yield|serves)\s*:?\s*(.*)$/i;
+  // the line just before a photo credit, without a full stop, is that photo's caption
+  lines.forEach((l,i)=>{if(credit.test(l.text)){for(let k=i-1;k>=0&&k>=i-2;k--){if(!lines[k].text)continue;if(!/[.!?:]$/.test(lines[k].text))lines[k].text='';break;}}});
   const iI=lines.findIndex(l=>/^ingredients(?:\s*\([^)]*\))?$/i.test(H(l.text))),iD=lines.findIndex((l,i)=>i>iI&&/^(directions|instructions|method|preparation|steps)$/i.test(H(l.text)));
   if(iI<0||iD<0)throw Error('Include the “Ingredients” and “Directions” (or “Instructions”) headings in your paste so we can tell them apart.');
   const ingredients=[],ingLines=lines.slice(iI+1,iD).filter(ok);
@@ -911,13 +917,18 @@ const Logic={
   const head=lines.slice(0,iI),title=(head.find(l=>l.heading&&ok(l))||head.find(l=>ok(l)&&!meta.test(l.text)&&l.text.length<120&&!/^(?:by |updated|submitted|home$|recipes$|\d)/i.test(l.text)))?.text||'Pasted recipe';
   const facts={};head.forEach((l,i)=>{const m=l.text.match(meta);if(m)facts[m[1].toLowerCase()]=m[2]||head.slice(i+1).find(x=>x.text)?.text||'';});
   const minsOf=re=>{const v=Object.entries(facts).find(([k])=>re.test(k))?.[1]||'';let t=0,f=false;for(const x of v.matchAll(/(\d+(?:\.\d+)?)\s*(hours?|hrs?|h|minutes?|mins?|m)\b/gi)){t+=+x[1]*(/^h/i.test(x[2])?60:1);f=true;}return f?Math.round(t):null;};
-  const desc=head.slice(head.findIndex(l=>l.text===title)+1).filter(l=>ok(l)&&l.text.length>60&&/[.!?]$/.test(l.text)).slice(0,2).map(l=>l.text).join('\n\n');
-  const author=head.find(l=>/^(?:(?:submitted|written|recipe) )?by\s+/i.test(l.text))?.text.replace(/^(?:(?:submitted|written|recipe) )?by\s+/i,'')||'';
+  const dHead=head.slice(head.findIndex(l=>l.text===title)+1),dEnd=dHead.findIndex(l=>meta.test(l.text)||/^(?:submitted|written|recipe)?\s*by\s|^updated|^why you|^jump to/i.test(l.text)),desc=(dEnd<0?dHead:dHead.slice(0,dEnd)).filter(l=>ok(l)&&l.text.length>60&&/[.!?]$/.test(l.text)).slice(0,2).map(l=>l.text).join('\n\n');
+  const author=head.find(l=>/^(?:(?:submitted|written|recipe) )?by\s+/i.test(l.text))?.text.replace(/^(?:(?:submitted|written|recipe) )?by\s+/i,'').replace(/\s+(?:updated|published|posted|tested)\b.*$/i,'').trim()||'';
   const nI=after.findIndex(l=>notes.test(H(l.text)));let nb=nI<0?[]:after.slice(nI+1);const ne=nb.findIndex(l=>nutri.test(H(l.text))||stop.test(H(l.text)));if(ne>=0)nb=nb.slice(0,ne);
+  // nutrition: "758 / Calories", "Calories 758" or "Fat: 51g"
+  const fI=after.findIndex(l=>nutri.test(H(l.text))),nutrition={};if(fI>=0){const fl=after.slice(fI+1,fI+40).map(l=>l.text).filter(Boolean),lab=/^(calories|total fat|fat|saturated fat|carbs|carbohydrates?|protein|sodium|fiber|sugars?|cholesterol)$/i,val=/^\d[\d.,]*\s*(?:k?cal|g|mg)?$/i,cap=w=>w[0].toUpperCase()+w.slice(1).toLowerCase();
+   for(let i=0;i<fl.length;i++){const m=fl[i].match(/^([a-z][a-z ]+?)\s*:?\s+(\d[\d.,]*\s*(?:k?cal|g|mg)?)$/i);if(m&&lab.test(m[1])){nutrition[cap(m[1])]=m[2];continue;}
+    if(val.test(fl[i])&&lab.test(fl[i+1]||'')){nutrition[cap(fl[i+1])]=fl[i];i++;}else if(stop.test(H(fl[i]))||notes.test(H(fl[i])))break;}}
+  const basis=fI>=0?(after[fI].text.match(/\(([^)]+)\)/)||[])[1]||'':'';
   const pages=[...new Set(urls.map(x=>safeUrl(x.u)).filter(u=>u&&/\/recipes?\//i.test(new URL(u).pathname)&&!/\.(jpe?g|png|webp|gif)$/i.test(u)))];
   const src=safeUrl(sourceUrl)||(pages.length===1?pages[0]:'');
   return {title,description:desc,author,sourceUrl:src,sourceName:hostOf(src),prepTimeMinutes:minsOf(/^prep/),cookTimeMinutes:minsOf(/^cook/),totalTimeMinutes:minsOf(/^total/),servings:facts.servings||facts.serves||facts.yield||'',
-   ingredients,instructionSections:Logic.sectionsFromText(out.join('\n')).map(s=>({section:s.name||'Main',steps:s.steps})),sourceNotes:nb.filter(ok).map(l=>l.text).join('\n\n'),
+   ingredients,instructionSections:Logic.sectionsFromText(out.join('\n')).map(s=>({section:s.name||'Main',steps:s.steps})),sourceNotes:nb.filter(ok).map(l=>l.text).join('\n\n'),nutrition:Object.keys(nutrition).length?nutrition:null,nutritionBasis:basis?basis[0].toUpperCase()+basis.slice(1):'',
    imageURLs:urls.filter(x=>/\.(jpe?g|png|webp)(\?|$)/i.test(x.u)).map(x=>x.u),originalPastedText:all};},
 
  // ---------- weeks, stats ----------
@@ -1197,8 +1208,9 @@ const VIEWS={
    ${d.pasted?`<details style="margin-top:12px"><summary class="small dim">Show the text you pasted</summary><pre class="pre small" style="max-height:260px;overflow:auto">${esc(d.pasted)}</pre></details>`:''}</section></div>
   <aside><section class="card">${cardhead('Photo','','image')}<div class="photo-box" id="photo-box">${photo?`<div class="pic"><img src="${esc(photo)}" alt="Recipe photo"></div>`:pic({...d,hasPhoto:false},true)}</div>
    ${d.images.length>1?`<p class="small dim">Photos from the page. Pick one:</p><div class="photo-choices">${d.images.slice(0,8).map((u,i)=>`<button type="button" data-action="pick-photo" data-url="${esc(u)}" aria-pressed="${!draftPhoto&&!d.hasPhoto&&d.image===u}" aria-label="Use photo ${i+1}"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-remote></button>`).join('')}</div>`:''}
+   <div class="addline" style="margin:10px 0 0"><label class="sr-only" for="photo-url">Image link</label><input id="photo-url" type="url" inputmode="url" placeholder="Paste an image link: https://…" autocomplete="off"><button type="button" class="btn small" data-action="photo-url">${ico('link')}Use link</button></div>
    <div class="actions" style="margin-top:10px"><label class="btn small" style="cursor:pointer">${ico('image')}Upload a photo<input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp" hidden></label>${photo||d.image?button('Remove','remove-photo','small quiet'):''}</div>
-   <p class="small dim" style="margin-top:8px">Your own photos are shrunk and kept on this device. Photos from websites load from that site.</p></section>
+   <p class="small dim" style="margin-top:8px">Uploaded photos are shrunk and kept on this device. Photos from a link load from that website, so they need internet.</p></section>
    <section class="card">${cardhead('Collections','','folder')}${state.collections.map(c=>`<label class="check"><input type="checkbox" name="collection" value="${c.id}" ${d.collections.includes(c.id)?'checked':''}>${esc(c.name)}</label>`).join('')||'<p class="small dim">None yet.</p>'}<div style="margin-top:8px">${button(ico('plus')+'New collection','collection','small')}</div></section>
    <section class="card">${cardhead('Source','','globe')}<div class="fields"><label class="full">Recipe link<input name="sourceUrl" type="url" value="${esc(d.sourceUrl)}" placeholder="https://"></label><label>Website<input name="sourceName" value="${esc(d.sourceName)}"></label><label>Author<input name="author" value="${esc(d.author)}"></label></div></section></aside>
   <div class="savebar" style="grid-column:1/-1"><span class="small dim">${isNew?'Not saved yet.':'Changes are saved when you press Save.'}</span><span class="actions">${button('Cancel','cancel-edit')}<button class="btn primary" type="submit">${ico('check')}${isNew?'Save to my library':'Save changes'}</button></span></div></form>`;},
@@ -1340,6 +1352,13 @@ async function shrink(file){if(!/^image\/(jpeg|png|webp)$/.test(file.type))throw
  const bmp=await createImageBitmap(file);try{let side=1200;for(let k=0;k<5;k++){const s=Math.min(1,side/Math.max(bmp.width,bmp.height)),c=document.createElement('canvas');c.width=Math.round(bmp.width*s);c.height=Math.round(bmp.height*s);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
   let url=c.toDataURL('image/webp',.8);if(!url.startsWith('data:image/webp'))url=c.toDataURL('image/jpeg',.8);if(url.length<=340000)return url;side*=.75;}throw Error('That photo could not be made small enough. Try another one.');}finally{bmp.close?.();}}
 
+// a photo from an image link: loaded once to check it is a picture, then shown from that website
+function photoFromLink(raw){let u=String(raw||'').trim().replace(/^<|>$/g,'');const md=u.match(/^!?\[[^\]]*\]\(([^)\s]+)\)$/);if(md)u=md[1];u=safeUrl(u);
+ if(!u||!u.startsWith('https:'))return toast('Paste an image link that starts with https://');
+ const img=new Image();img.referrerPolicy='no-referrer';let done=false;const t=setTimeout(()=>{if(!done){done=true;img.src='';toast('That image took too long to load. Try another link, or save the picture and upload it.');}},10000);
+ img.onload=()=>{if(done)return;done=true;clearTimeout(t);if(!draft)return;keepForm();draft.image=u;draft.images=[u,...draft.images.filter(x=>x!==u)].slice(0,12);draftPhoto=null;draft.hasPhoto=false;dirty=true;render();toast('Photo added from the link');};
+ img.onerror=()=>{if(done)return;done=true;clearTimeout(t);toast('That link didn’t load as a picture. Open it, save the image, and use Upload a photo instead.');};img.src=u;}
+
 /* ---------- timers and the screen wake lock ---------- */
 const timers=[];let wake=null;
 function startTimer(m,label){timers.push({id:uid(),end:Date.now()+m*60000,label,m,done:false});paintTimers();toast(`${mins(m)} timer started`);}
@@ -1389,6 +1408,7 @@ const ACTIONS={
  duplicate:b=>{const r=recipeById(b.dataset.id);draft=Logic.recipe({...clone(r),id:uid(),title:r.title+' (my version)',made:[],rating:0,favorite:false,sample:false,hasPhoto:false,createdAt:new Date().toISOString()});draftPhoto=r.hasPhoto?PHOTOS.get(r.id)||null:null;dirty=true;go('edit');},
  'export-recipe':b=>{const r=recipeById(b.dataset.id);download(`${r.title.replace(/[^\w]+/g,'-').toLowerCase().slice(0,60)||'recipe'}.json`,JSON.stringify({app:CONFIG.storageKey,recipe:r},null,2));toast('Recipe file downloaded');},
  'pick-photo':b=>{draft.image=b.dataset.url;draftPhoto=null;draft.hasPhoto=false;dirty=true;keepForm();render();},
+ 'photo-url':()=>photoFromLink($('#photo-url')?.value),
  'remove-photo':()=>{draft.image='';draftPhoto=null;draft.hasPhoto=false;dirty=true;keepForm();render();},
  'cancel-edit':()=>{const id=draft&&recipeById(draft.id)?draft.id:'';dirty=false;draft=null;if(id)openRecipe(id);else go('library');},
  'lib-filter':b=>{lib.filter=b.dataset.k;lib.page=0;render();},'lib-view':b=>{lib.view=b.dataset.k;ls.set(VIEW_KEY,lib.view);lib.page=0;render();},
@@ -1430,7 +1450,7 @@ document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d=Obj
  if(f.id==='shop-form'){closeModal();const r=recipeById(d.recipe);commit(()=>{state.shopping=Logic.addToList(state.shopping,r.ingredients.filter(l=>!/:$/.test(l)),{from:r.title});},`${plural(r.ingredients.length,'ingredient')} added`);}
  if(f.dataset.form==='item'){const text=String(d.text||'').trim();if(!text)return;commit(()=>{state.shopping=Logic.addToList(state.shopping,[text]);},'Item added',{quiet:true});$('#item-text')?.focus();}
  if(f.id==='settings-form')commit(()=>Object.assign(state.settings,{name:String(d.name||'').trim(),units:d.units}),'Preferences saved');});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.body.classList.remove('menu-open');
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='photo-url'){e.preventDefault();return photoFromLink(e.target.value);}if(e.key==='Escape')document.body.classList.remove('menu-open');
  const typing=/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable,dlg=document.querySelector('dialog[open]');if(typing||dlg||e.metaKey||e.ctrlKey||e.altKey)return;
  if(e.key.toLowerCase()==='n'){e.preventDefault();linkDialog();}
  if(e.key==='/'){e.preventDefault();if(screen!=='library')go('library');$('#lib-search')?.focus();}

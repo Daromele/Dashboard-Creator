@@ -66,6 +66,22 @@ try {
   await page.click('#recipe-form button[type=submit]');
   await page.waitForSelector('.recipe-hero h1');
   ok(await page.textContent('.rstats') .then(t => /55 min/.test(t)), 'total filled from prep + cook');
+  // a real whole-page paste: photo captions and credits never become steps
+  await page.click('.topbar [data-action="add"]'); await page.click('#link-form [data-action="paste"]');
+  await page.fill('#paste-form textarea', (await import('node:fs')).readFileSync(new URL('./fixtures/paste-allrecipes.txt', import.meta.url), 'utf8'));
+  await page.click('#paste-form button[type=submit]'); await page.waitForSelector('#recipe-form');
+  const steps = await page.inputValue('#ed-steps');
+  ok(steps.split('\n').length === 6 && !/Dotdash|overhead shot/i.test(steps), 'captions and photo credits are left out of the steps');
+  ok((await page.inputValue('#ed-ing')).split('\n').length === 12, '12 ingredients, no scale buttons');
+  // a photo from an image link
+  await page.route('https://img.example/**', r => r.fulfill({ contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64') }));
+  await page.fill('#photo-url', 'https://img.example/egusi.jpg'); await page.press('#photo-url', 'Enter');
+  await page.waitForSelector('#photo-box img[src="https://img.example/egusi.jpg"]');
+  ok(true, 'photo added from an image link');
+  await page.click('#recipe-form button[type=submit]'); await page.waitForSelector('.recipe-hero h1');
+  ok(await page.textContent('.recipe-hero h1') === 'Egusi Soup' && await page.$('.recipe-hero img[src="https://img.example/egusi.jpg"]'), 'saved with its linked photo');
+  await page.click('[data-action="delete-recipe"]'); await page.click('[data-action="ask-ok"]');
+  await page.evaluate(() => openRecipe(state.recipes.find(r => r.title === 'Lemon Bars').id)); await page.waitForSelector('.recipe-hero h1');
   await page.click('[data-action="made"]');
   await page.click('[data-action="undo"]');
   ok(/Not made yet/.test(await page.textContent('.rate')), 'undo works');
