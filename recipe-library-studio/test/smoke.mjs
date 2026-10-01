@@ -84,7 +84,7 @@ try {
   ok(pp.ingredients[0] === '10 oz Ground Beef' && pp.ingredients.length === 14, 'page paste joins split ingredient lines');
   // which-sites lists: curated sites, sites that worked for you, social links caught before fetching, blocks remembered
   await page.evaluate(() => go('import'));
-  ok((await page.$$('#sites a.site')).length === 6 && (await page.textContent('#sites')).includes('HelloFresh'), 'tested sites are listed');
+  ok((await page.$$('#sites a.site')).length === 20 && (await page.textContent('#sites')).includes('HelloFresh'), 'tested sites are listed');
   ok((await page.textContent('#sites')).includes('Allrecipes, Simply Recipes'), 'blocked sites are listed with a workaround');
   ok(await page.evaluate(() => !!state.mySites.localhost), 'a site you imported from is saved to your sites');
   await page.evaluate(() => { delete state.mySites.localhost; render(); });

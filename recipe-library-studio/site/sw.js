@@ -1,7 +1,7 @@
 // Recipe Library Studio service worker: the app opens offline once it has been visited.
 // Pages: network first (so a new version shows up), then the saved copy. Icons and the manifest: saved copy first.
 // The recipe importer and other websites' photos are never cached here.
-const CACHE = 'rls-b9d292f14a3e';
+const CACHE = 'rls-06d95b6b6955';
 const SHELL = ['./', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('rls-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
