@@ -74,6 +74,8 @@ test('durations and text cleanup', () => {
   assert.equal(minutes('1 hr 20 mins'), 80);
   assert.equal(minutes(''), null);
   assert.equal(clean('a&amp;amp;b <b>c</b>'), 'a&b c');
+  assert.equal(clean('▢ 2 cups flour'), '2 cups flour');
+  assert.equal(clean('• ½ cup sugar'), '½ cup sugar');
 });
 
 test('URL rules: tracking removed, private hosts refused', async () => {

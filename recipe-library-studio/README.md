@@ -26,6 +26,8 @@ Recipes are stored in the buyer's browser (IndexedDB); only the link being impor
 
 ## Test
 
+`node test/spacing.mjs`: no two controls closer than 8px, no button against the bottom of its card, every screen at 1440 and 390 px.
+
 `npm test` — build is current, 10 parser/function checks, and the browser smoke test (import a link, duplicate link,
 partial page, 404, paste text, undo, reload, every screen in sample mode, dark theme, no sideways scroll at 390 px).
 
