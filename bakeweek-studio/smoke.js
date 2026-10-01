@@ -93,7 +93,20 @@ const fails=[],check=(ok,msg)=>{console.log((ok?'  ok  ':'  FAIL ')+msg);if(!ok)
  check(await ev(()=>!document.querySelector('.navlink[data-go=year]')),'switched-off view stays hidden');
  // 11. sample mode is separate and never saved
  await p.click('[data-action=rail-toggle]');const mine=await ev(()=>state.orders.length);await p.click('#rail-demo');await wait(300);
- check(await ev(()=>demo&&state.orders.length>90),'sample bakery has a year of history');
+ check(await ev(()=>demo&&state.orders.length>250&&state.standing.length===6),'sample bakery has nine months of history');
  await p.click('#rail-demo');await wait(200);check(await ev(m=>!demo&&state.orders.length===m,mine),'leaving the sample restores your bakery');
+ // 12. a standing order and a market day in the buyer's own bakery, through the real forms
+ await p.click('.navlink[data-go=standing]');await p.click('.pagehead [data-action=standing-form]');await wait(200);
+ await p.fill('#standing-form [name=customer]','Bread club: Sam');await p.check('#standing-form [name=prepaid]');await p.click('#standing-form button[type=submit]');await wait(300);
+ check(await ev(()=>state.standing.length===1&&state.orders.filter(o=>o.standingId).length===4&&state.orders.filter(o=>o.standingId).every(o=>o.paid>0)),'standing order adds four prepaid weekly drops');
+ await p.reload();await wait(900);await closeTour();check(await ev(()=>state.standing.length===1&&state.orders.filter(o=>o.standingId).length===4),'…kept after reload, with no extra drops');
+ await p.click('.navlink[data-go=markets]');await p.click('.pagehead [data-action=market-form]');await wait(200);await p.fill('#market-form [name=customer]','Riverside market');
+ await p.fill('#market-form [name=dueDate]','2026-10-10');await p.dispatchEvent('#market-form [name=dueDate]','change');await p.click('#market-form button[type=submit]');await wait(300);
+ const mk=await ev(()=>state.orders.find(o=>o.kind==='market')?.id);check(!!mk&&await ev(()=>C.planWeek(state,week).totals.markets===1),'market day joins the week plan');
+ await ev(m=>{commit(s=>{for(const i of s.ingredients)i.stock+=1e5;for(const r of C.planWeek(s,week).runs.filter(r=>r.allocations.some(a=>a.orderId===m)))C.completeRun(s,r.key,week);});},mk);
+ await ev(m=>closeForm(m),mk);await wait(200);await p.fill('#close-form [name=sold0]','5');await p.click('#close-form button[type=submit]');await wait(300);
+ check(await ev(m=>order(m).status==='Collected'&&order(m).market.results[0].sold===5,mk),'record what sold closes the market day');
+ check(await ev(()=>document.querySelector('.hero-num')&&/Market days/.test(document.querySelector('h1').textContent)),'market days screen shows the takings hero');
+ await p.click('.navlink[data-go=tools]');await p.fill('[data-c="scale.value"]','36');await wait(100);check(await ev(()=>/× 3/.test(document.querySelector('#calc-out').textContent)),'calculator scales a recipe to 36 pieces');
  check(!errs.length,'no page errors'+(errs.length?': '+errs.slice(0,3).join(' | '):''));
  await b.close();console.log(fails.length?`\n${fails.length} failure(s)`:'\nall flows passed');process.exit(fails.length?1:0);})();

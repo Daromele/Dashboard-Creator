@@ -6,7 +6,7 @@
    ================================================================================ */
 const C=globalThis.BakeCore;
 const CONFIG={
- name:'Bakeweek Studio', version:'2.0', publisher:'JPS Digital Pages', tagline:'Home bakery planner',
+ name:'Bakeweek Studio', version:'2.1', publisher:'JPS Digital Pages', tagline:'Microbakery planner',
  support:'https://www.etsy.com/shop/JPSDigitalPages',
  storageKey:'jps-bakeweek',       // KEY below is the same key the first (Codex) version saved under
  file:'bakeweek-studio', idb:true, defaultTheme:'fjord',
@@ -14,16 +14,18 @@ const CONFIG={
  railNote:'<b>A little planning.</b>Room for more baking.',
  // [id, label, icon, hub tabs?]: This week is one sidebar item with four tabs
  nav:[['week','This week','today',[['week','Week plan'],['shopping','Shopping'],['batches','Batch sheets'],['packing','Pack & collect']]],
-  ['orders','Orders','log'],['year','Year at a glance','outlook'],['recipes','Recipes','tags'],['pantry','Pantry','cart'],
+  ['orders','Orders','log'],['standing','Standing orders','repeat'],['markets','Market days','tent'],['year','Year at a glance','outlook'],
+  ['recipes','Recipes','tags'],['pantry','Pantry','cart'],['tools','Calculators','calc'],
   ['settings','Settings & backup','palette'],['guide','How to use','help']],
- navGroups:[['Your week',['week','orders','year']],['Your library',['recipes','pantry']]], navGroupRest:'Help & settings',
- optionalNav:['year','guide'], hiddenNav:[],
+ navGroups:[['Your week',['week']],['Selling',['orders','standing','markets','year']],['Your library',['recipes','pantry','tools']]], navGroupRest:'Help & settings',
+ optionalNav:['standing','markets','year','tools','guide'], hiddenNav:[],
  welcome:[
-  {icon:'today',step:'WELCOME',title:'Your bakery week, in order',text:'Customer orders become a day-by-day bake plan, one combined shopping list, scaled batch sheets and packing tickets.'},
-  {icon:'spark',step:'TRY IT FIRST',title:'Should you say yes?',text:'Try an order before you accept it: see the extra hands-on hours, the extra shopping and a minimum quote for your target margin.'},
+  {icon:'today',step:'WELCOME',title:'Your bakery week, in order',text:'Orders, standing orders and market days become one day-by-day bake plan, one combined shopping list, scaled batch sheets and packing tickets.'},
+  {icon:'repeat',step:'EVERY WEEK',title:'Set it up once',text:'Bread-club subscriptions and café orders repeat on their own. Market days learn from what sold and what came home, and suggest how much to bring next time.'},
+  {icon:'spark',step:'TRY IT FIRST',title:'Should you say yes?',text:'Try a custom order before you accept it: see the extra hands-on hours, the extra shopping and a minimum quote for your target margin.'},
   {icon:'shield',step:'PRIVATE',title:'Your recipes stay yours',text:'Everything is saved in this browser on this computer. Nothing is uploaded, and there is no account or subscription.'},
   'backup',
-  {icon:'check',step:'START',title:'Start with the sample bakery',text:'Explore Sunday Crumb, a made-up bakery, then add your pantry, your first recipe and your first order.'}],
+  {icon:'check',step:'START',title:'Start with the sample bakery',text:'Explore Sunday Crumb, a made-up microbakery with a bread club, a café account and a Saturday market. Then add your pantry, your first recipe and your first order.'}],
 };
 
 /* ---------- icons: 24px stroke set (core names, plus a few for the kitchen) ---------- */
@@ -40,7 +42,11 @@ const ICON={today:S('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'
  clock:S('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),cart:S('<path d="M3 4h2l2.4 11h10.2L20 7H6.2"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/>'),
  box:S('<path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5Z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/>'),oven:S('<rect x="3" y="4" width="18" height="16" rx="2.5"/><rect x="6.5" y="10" width="11" height="7" rx="1.5"/><path d="M7 7h.01M10 7h.01"/>'),
  users:S('<circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.4 3-5 6-5s5.4 1.6 6 5"/><path d="M16 5.2a3 3 0 0 1 0 5.6M18 15.3c1.6.7 2.6 2.2 3 4.7"/>'),
- upload:S('<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>')};
+ upload:S('<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>'),
+ repeat:S('<path d="M17 2.5 20.5 6 17 9.5"/><path d="M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5"/><path d="M7 21.5 3.5 18 7 14.5"/><path d="M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5"/>'),
+ tent:S('<path d="M3 9.5 5.5 4h13L21 9.5"/><path d="M3 9.5c0 1.4 1 2.5 2.25 2.5S7.5 10.9 7.5 9.5c0 1.4 1 2.5 2.25 2.5S12 10.9 12 9.5c0 1.4 1 2.5 2.25 2.5s2.25-1.1 2.25-2.5c0 1.4 1 2.5 2.25 2.5S21 10.9 21 9.5"/><path d="M5 12v8.5h14V12M10 20.5v-5h4v5"/>'),
+ calc:S('<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8.5 6.5h7v3.5h-7Z"/><path d="M8.5 14h.01M12 14h.01M15.5 14h.01M8.5 17.5h.01M12 17.5h.01M15.5 17.5h.01"/>'),
+ scale:S('<path d="M12 3v18M7 21h10"/><path d="M4 7h16"/><path d="m4 7-2.5 6a3 3 0 0 0 5 0Z"/><path d="m20 7-2.5 6a3 3 0 0 0 5 0Z"/>')};
 const ico=n=>ICON[n]||ICON.today;
 
 /* ---------- helpers ---------- */
@@ -129,7 +135,7 @@ function writeFolder(){const f=folder;folderChain=folderChain.catch(()=>{}).then
  if(await f.queryPermission({mode:'readwrite'})!=='granted')return setFolderStatus('Reconnect needed');
  const h=await f.getFileHandle(`${CONFIG.file}-backup-${today()}.json`,{create:true}),w=await h.createWritable();await w.write(backupJSON(demo?real:state));await w.close();setFolderStatus('Connected');});return folderChain;}
 async function initFolder(){if(!folderSupported()){folderStatus='Not available here';return;}try{folder=await handleStore('get')||null;if(folder){const p=await folder.queryPermission({mode:'readwrite'});setFolderStatus(p==='granted'?'Connected':'Reconnect needed');}}catch{folderStatus='Not available here';}}
-const hasData=()=>!!(state.orders.length||state.recipes.length||state.ingredients.length);
+const hasData=()=>!!(state.orders.length||state.recipes.length||state.ingredients.length||state.standing?.length);
 const protectedNow=()=>(folder&&folderStatus==='Connected')||Date.now()-(+ls.get(MANUAL_BACKUP_KEY)||0)<7*864e5;
 
 /* ---------- sample mode: Sunday Crumb, separate from the buyer's bakery and never saved ---------- */
@@ -207,12 +213,12 @@ function captureFocus(){const el=document.activeElement;if(!el||el===document.bo
  const key=el.id?'#'+CSS.escape(el.id):Object.keys(el.dataset||{}).length?el.tagName.toLowerCase()+Object.entries(el.dataset).map(([k,v])=>`[data-${k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())}="${CSS.escape(v)}"]`).join(''):'';
  if(!key)return null;let sel=null;try{if(el.selectionStart!=null)sel=[el.selectionStart,el.selectionEnd];}catch{}return {key,sel};}
 function restoreFocus(f){if(!f)return;let el=null;try{el=document.querySelector(f.key);}catch{}if(!el)return;el.focus({preventScroll:true});try{if(f.sel)el.setSelectionRange(...f.sel);}catch{}}
-function render(){const f=captureFocus();
+function render(){const f=captureFocus();if(typeof autoSync==='function')autoSync();
  if(prefs.hiddenNav.includes(hubOf(screen)?.[0]||screen))screen='week';
  document.documentElement.dataset.theme=prefs.theme;applyRail();renderNav();renderStatus();
  $('#week-label').textContent=weekLabel(week);$('#week-picker').value=week;
  const hub=hubOf(screen);
- $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.business)}</b> · Bakeweek Studio</span><b>${esc(['year'].includes(screen)?week.slice(0,4):['orders','recipes','pantry','settings','guide'].includes(screen)?'Printed '+date(today()):'Week of '+weekLabel(week))}</b></div>`+
+ $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.business)}</b> · Bakeweek Studio</span><b>${esc(['year','markets'].includes(screen)?week.slice(0,4):['orders','standing','recipes','pantry','tools','settings','guide'].includes(screen)?'Printed '+date(today()):'Week of '+weekLabel(week))}</b></div>`+
   (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${hub[3].map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
   (VIEWS[screen]||VIEWS.week)()+`<footer class="footer"><span>Bakeweek Studio · JPS Digital Pages</span><span>${demo?'Sample bakery · nothing saved':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
  sortTables();countUp();restoreFocus(f);}
