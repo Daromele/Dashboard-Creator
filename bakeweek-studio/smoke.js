@@ -107,6 +107,15 @@ const fails=[],check=(ok,msg)=>{console.log((ok?'  ok  ':'  FAIL ')+msg);if(!ok)
  await ev(m=>closeForm(m),mk);await wait(200);await p.fill('#close-form [name=sold0]','5');await p.click('#close-form button[type=submit]');await wait(300);
  check(await ev(m=>order(m).status==='Collected'&&order(m).market.results[0].sold===5,mk),'record what sold closes the market day');
  check(await ev(()=>document.querySelector('.hero-num')&&/Market days/.test(document.querySelector('h1').textContent)),'market days screen shows the takings hero');
+ // 13. dough prep the day before, and the weekly pre-order menu
+ await ev(()=>recipeForm(state.recipes[0].id));await wait(150);await p.selectOption('#recipe-form [name=prepDays]','1');await p.fill('#recipe-form [name=prepMinutes]','20');await p.fill('#recipe-form [name=prepNote]','Chill the dough');await p.click('#recipe-form button[type=submit]');await wait(250);
+ check(await ev(()=>state.recipes[0].prepDays===1&&C.planWeek(state,week).totals.prepMinutes>0),'a recipe’s day-before prep lands in the plan');
+ await p.click('.navlink[data-go=menu]');await p.click('#content [data-action=menu-form]');await wait(200);await p.click('#menu-form button[type=submit]');await wait(300);
+ check(await ev(()=>!!menuOf(week)),'this week’s menu is created');await p.click('.pagehead [data-action=menu-order]');await wait(200);
+ await p.fill('#menu-order-form [name=customer]','Jo');await p.fill('#menu-order-form [data-price]','3');await p.click('#menu-order-form button[type=submit]');await wait(300);
+ check(await ev(()=>state.orders.some(o=>o.menuId&&o.customer==='Jo')),'a pre-order from the menu joins the order book');
+ check(await ev(()=>/Jo/.test(document.querySelector('#content').textContent)&&/Order by/.test(document.querySelector('#menu-text').textContent)),'menu screen lists it, with the menu text');
+ await ev(()=>printOut('menu'));await wait(300);check(await ev(()=>/Order by/.test(document.querySelector('#print-area').textContent)),'the menu prints');await ev(()=>document.body.classList.remove('printing'));
  await p.click('.navlink[data-go=tools]');await p.fill('[data-c="scale.value"]','36');await wait(100);check(await ev(()=>/× 3/.test(document.querySelector('#calc-out').textContent)),'calculator scales a recipe to 36 pieces');
  check(!errs.length,'no page errors'+(errs.length?': '+errs.slice(0,3).join(' | '):''));
  await b.close();console.log(fails.length?`\n${fails.length} failure(s)`:'\nall flows passed');process.exit(fails.length?1:0);})();

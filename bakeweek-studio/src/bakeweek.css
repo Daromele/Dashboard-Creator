@@ -186,3 +186,12 @@ tr.dim td{opacity:.65}
 .line-row.dough-row{grid-template-columns:minmax(0,2fr) minmax(0,.8fr) minmax(0,1.3fr) 36px}
 @media(max-width:620px){.line-row.dough-row{grid-template-columns:1fr 1fr}.calc-big b{font-size:28px}}
 .order-line .actions{flex-wrap:nowrap;flex:none}
+/* pre-order menu */
+.menu-text{white-space:pre-wrap;font:14px/1.65 var(--ui);background:var(--sunk);padding:var(--s4);border-radius:var(--r-sm);margin:0;color:var(--ink);overflow-wrap:anywhere}
+.line-row.menu-row{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 36px}
+.menu-picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--s2)}
+.menu-pick{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:10px 12px;border:1px solid var(--rule);border-radius:var(--r-sm);cursor:text}
+.menu-pick span{display:flex;flex-direction:column;gap:2px;min-width:0}.menu-pick b{font-size:13px}.menu-pick small{color:var(--ink-3);font-size:11.5px}
+.menu-pick input{width:78px;text-align:right;flex:none}.menu-pick.out{opacity:.5}
+.prep-line{border-left:3px solid var(--cat-3)}
+.menu-sheet table td,.menu-sheet table th{font-size:14px;padding:8px 6px}

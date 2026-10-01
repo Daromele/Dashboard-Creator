@@ -8,8 +8,8 @@ const isMarket=o=>o.kind==='market';
 const lineSales=(o,l)=>{if(!isMarket(o)||!o.market.closed)return l.qty*l.unitPrice;const r=o.market.results.find(x=>x.recipeId===l.recipeId);return r?r.sold*l.unitPrice+(r.fate==='discounted'?r.reducedTakings:0):0;};
 const linePieces=(o,l)=>isMarket(o)&&o.market.closed?(o.market.results.find(x=>x.recipeId===l.recipeId)?.sold||0):l.qty;
 const sales=o=>o.lines.reduce((n,l)=>n+lineSales(o,l),0);
-const CHANNELS=[['One-off orders','var(--cat-1)'],['Standing orders','var(--cat-3)'],['Market days','var(--cat-2)']];
-const channelOf=o=>isMarket(o)?'Market days':o.standingId?'Standing orders':'One-off orders';
+const CHANNELS=[['One-off orders','var(--cat-1)'],['Pre-orders','var(--cat-4)'],['Standing orders','var(--cat-3)'],['Market days','var(--cat-2)']];
+const channelOf=o=>isMarket(o)?'Market days':o.standingId?'Standing orders':o.menuId?'Pre-orders':'One-off orders';
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const joinAnd=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' & '+a.at(-1);
 const scheduleText=so=>`${so.every===1?'Every':`Every ${so.every} weeks on`} ${joinAnd(so.days.map(d=>DAYS[d]))}`;
@@ -22,7 +22,7 @@ const runningNow=so=>!so.paused&&(!so.end||so.end>=today());
 // a market day's status, in market words
 const marketLabel=s=>({Confirmed:'Planned',Ready:'Packed',Collected:'Closed',Cancelled:'Canceled'}[s]||s);
 const marketPill=s=>pill(marketLabel(s),{Confirmed:'flag',Ready:'good',Collected:'',Cancelled:'warn'}[s]||'');
-const kindPill=o=>isMarket(o)?pill(ico('tent')+'Market','accent'):o.standingId?pill(ico('repeat')+'Standing','accent'):'';
+const kindPill=o=>isMarket(o)?pill(ico('tent')+'Market','accent'):o.standingId?pill(ico('repeat')+'Standing','accent'):o.menuId?pill(ico('note')+'Pre-order','accent'):'';
 const allMade=o=>o.lines.every(l=>state.completedRuns.reduce((n,r)=>n+r.allocations.filter(a=>a.orderId===o.id&&a.recipeId===l.recipeId).reduce((k,a)=>k+a.qty,0),0)===l.qty);
 const hasMade=o=>state.completedRuns.some(r=>r.allocations.some(a=>a.orderId===o.id));
 

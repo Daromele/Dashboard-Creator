@@ -14,14 +14,14 @@ const CONFIG={
  railNote:'<b>A little planning.</b>Room for more baking.',
  // [id, label, icon, hub tabs?]: This week is one sidebar item with four tabs
  nav:[['week','This week','today',[['week','Week plan'],['shopping','Shopping'],['batches','Batch sheets'],['packing','Pack & collect']]],
-  ['orders','Orders','log'],['standing','Standing orders','repeat'],['markets','Market days','tent'],['year','Year at a glance','outlook'],
+  ['orders','Orders','log'],['menu','Pre-order menu','note'],['standing','Standing orders','repeat'],['markets','Market days','tent'],['year','Year at a glance','outlook'],
   ['recipes','Recipes','tags'],['pantry','Pantry','cart'],['tools','Calculators','calc'],
   ['settings','Settings & backup','palette'],['guide','How to use','help']],
- navGroups:[['Your week',['week']],['Selling',['orders','standing','markets','year']],['Your library',['recipes','pantry','tools']]], navGroupRest:'Help & settings',
- optionalNav:['standing','markets','year','tools','guide'], hiddenNav:[],
+ navGroups:[['Your week',['week']],['Selling',['orders','menu','standing','markets','year']],['Your library',['recipes','pantry','tools']]], navGroupRest:'Help & settings',
+ optionalNav:['menu','standing','markets','year','tools','guide'], hiddenNav:[],
  welcome:[
   {icon:'today',step:'WELCOME',title:'Your bakery week, in order',text:'Orders, standing orders and market days become one day-by-day bake plan, one combined shopping list, scaled batch sheets and packing tickets.'},
-  {icon:'repeat',step:'EVERY WEEK',title:'Set it up once',text:'Bread-club subscriptions and café orders repeat on their own. Market days learn from what sold and what came home, and suggest how much to bring next time.'},
+  {icon:'note',step:'EVERY WEEK',title:'Post the menu, bake what’s ordered',text:'Copy a pre-order menu into your posts and messages. Subscriptions and café orders repeat on their own, and market days suggest how much to bring next time.'},
   {icon:'spark',step:'TRY IT FIRST',title:'Should you say yes?',text:'Try a custom order before you accept it: see the extra hands-on hours, the extra shopping and a minimum quote for your target margin.'},
   {icon:'shield',step:'PRIVATE',title:'Your recipes stay yours',text:'Everything is saved in this browser on this computer. Nothing is uploaded, and there is no account or subscription.'},
   'backup',
@@ -45,6 +45,7 @@ const ICON={today:S('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'
  upload:S('<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>'),
  repeat:S('<path d="M17 2.5 20.5 6 17 9.5"/><path d="M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5"/><path d="M7 21.5 3.5 18 7 14.5"/><path d="M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5"/>'),
  tent:S('<path d="M3 9.5 5.5 4h13L21 9.5"/><path d="M3 9.5c0 1.4 1 2.5 2.25 2.5S7.5 10.9 7.5 9.5c0 1.4 1 2.5 2.25 2.5S12 10.9 12 9.5c0 1.4 1 2.5 2.25 2.5s2.25-1.1 2.25-2.5c0 1.4 1 2.5 2.25 2.5S21 10.9 21 9.5"/><path d="M5 12v8.5h14V12M10 20.5v-5h4v5"/>'),
+ note:S('<rect x="4.5" y="3" width="15" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/>'),
  calc:S('<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8.5 6.5h7v3.5h-7Z"/><path d="M8.5 14h.01M12 14h.01M15.5 14h.01M8.5 17.5h.01M12 17.5h.01M15.5 17.5h.01"/>'),
  scale:S('<path d="M12 3v18M7 21h10"/><path d="M4 7h16"/><path d="m4 7-2.5 6a3 3 0 0 0 5 0Z"/><path d="m20 7-2.5 6a3 3 0 0 0 5 0Z"/>')};
 const ico=n=>ICON[n]||ICON.today;

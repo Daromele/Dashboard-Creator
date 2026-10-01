@@ -3,6 +3,7 @@
 A single-file, offline planner for microbakeries and home bakeries, sold as a digital download by JPS
 Digital Pages. It covers the ways these bakers actually sell:
 - custom orders;
+- a weekly pre-order menu;
 - standing orders (bread-club subscriptions, café and deli wholesale, regulars);
 - market days baked for stock.
 
@@ -14,7 +15,8 @@ pricing.
 
 Version 2.0 moved the first version (made in Codex) onto the JPS Digital Pages house style
 (`.claude/skills/sellable-html-app`, the Shop Insights look). Version 2.1 adds standing orders,
-market days and calculators. Its sample bakery is now a microbakery.
+market days, calculators, the pre-order menu and dough prep the day before. Its sample bakery is
+now a microbakery.
 
 ## What's where
 
@@ -28,6 +30,7 @@ market days and calculators. Its sample bakery is now a microbakery.
 | `src/ui-base.js` | House shell behavior: storage, commit and undo, backups, sample mode, chart kit, dialogs, tour |
 | `src/ui-views.js` | Screens, dialogs, kitchen paperwork, events, and the sample bakery's history |
 | `src/ui-sales.js` | Standing orders and market days: screens, forms, Record what sold, drop syncing |
+| `src/ui-menu.js` | The weekly pre-order menu: items and limits, pickup days, cutoff, menu text to copy, pre-orders, printable menu |
 | `src/ui-tools.js` | Calculators. Scratch math only; it never changes data |
 | `build.js` | Inlines fonts, CSS, BakeCore and UI into `Bakeweek_Studio.html` |
 | `test.js`, `smoke.js` | Unit tests on the built file; browser flows |
@@ -53,6 +56,14 @@ node ../.claude/skills/sellable-html-app/scripts/check_app.js Bakeweek_Studio.ht
   - **Pack & collect**: one card per pickup.
 - **Orders**: custom orders and standing drops, with a status filter, a filter by kind, search,
   paging and sorting. Market days are kept on their own screen.
+- **Pre-order menu**: one menu a week, following the week at the top.
+  - It holds the items, prices and optional limits, the pickup days, when orders close, and what
+    day to bake.
+  - The hero shows money ordered and a countdown to the cutoff.
+  - The screen shows what's left of each item, the menu text ready to copy into posts and messages
+    (with "N left" and "sold out"), and pre-orders grouped by pickup day.
+  - "Add a pre-order" checks the limits. "Start from last week" copies a menu forward a week.
+    Print gives a menu for a shop window or market table.
 - **Standing orders**: the repeat schedule for each customer, steady weekly sales, and the next four
   weeks of drops, each of which can be skipped or restored.
 - **Market days**: market takings, sell-through, leftovers and the cost of waste. Upcoming market
@@ -89,6 +100,15 @@ node ../.claude/skills/sellable-html-app/scripts/check_app.js Bakeweek_Studio.ht
 
 ## Data
 
+- **Dough prep.** Recipes have `prepDays` (0–3), `prepMinutes` per batch and `prepNote`.
+  - `planWeek` puts each run's prep on the day it's done, including runs early next week. Each day
+    gets `prepMinutes` and `preps`, which count toward its hours.
+  - The prep shows on the day's kitchen plan, in the batch sheets, and on the printed sheets.
+- **Pre-order menus** live in BakeCore's `menus` list, one per week: `week`, `title`, `days`,
+  `cutoffDate`, `cutoffTime`, `bakeLead`, `items` (`recipeId`, `unitPrice`, `limit` or null),
+  `intro`, `pickup` and `payment`.
+  - Orders taken from a menu carry its `menuId`. `addMenuOrder` refuses quantities over what's left.
+  - `menuTally` counts every non-canceled order from the menu.
 - **Standing orders** live in BakeCore's `standing` list (`code`, `customer`, `type`, `lines`,
   `days` with Monday = 0, `every` 1–4 weeks counted from the start week, `start`/`end`, `bakeLead`
   and `finishLead` in days before the drop, `prepaid`, `paused`, `skips`).

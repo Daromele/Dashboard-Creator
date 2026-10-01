@@ -40,6 +40,18 @@ t('market: close needs made batches; results give takings, leftovers and waste',
  assert.strictEqual(o.status,'Collected');assert.strictEqual(r.sold,32);assert.strictEqual(r.leftover,8);assert.ok(Math.abs(r.takings-(20*2.6+12*3.5+4))<1e-6);assert.strictEqual(r.byFate.wasted,4);assert.ok(Math.abs(r.sellThrough-0.8)<1e-9);assert.ok(r.lostValue>0);
  const sg=C.marketSuggestion(s,'saturday MARKET','brownie','2026-12-01');assert.strictEqual(sg.suggest,Math.ceil(12*1.05));const so=C.marketSuggestion(s,'Saturday market','shortbread','2026-12-01');assert.strictEqual(so.soldOut,0);
  C.setOrderStatus(s,m.id,'Ready');assert.strictEqual(s.orders.find(x=>x.id===m.id).market.closed,false);});
+// dough prep the day before, and the weekly pre-order menu
+t('prep: lands on the day before, counts toward that day, and reaches back from next week',()=>{const s=demo();C.updateRecipe(s,'cookie',{prepDays:1,prepMinutes:10,prepNote:'Chill dough'});const p=C.planWeek(s,W),runs=p.runs.filter(r=>r.recipeId==='cookie');
+ for(const r of runs){const d=p.days.find(x=>x.date===C.addDays(r.date,-1));assert.ok(d.preps.some(x=>x.bakeDate===r.date&&x.minutes===r.batches*10&&x.note==='Chill dough'));}
+ assert.strictEqual(p.totals.prepMinutes,runs.reduce((n,r)=>n+r.batches*10,0));assert.strictEqual(p.totals.activeMinutes,842+p.totals.prepMinutes);
+ C.addOrder(s,{reference:'MON-1',customer:'Early',dueDate:'2026-10-12',bakeDate:'2026-10-12',finishDate:'2026-10-12',payment:'Cash',lines:[{recipeId:'cookie',qty:12}]});assert.ok(C.planWeek(s,W).days[6].preps.some(x=>x.bakeDate==='2026-10-12'));
+ assert.throws(()=>C.updateRecipe(s,'cookie',{prepDays:5}),/prep/i);});
+const MENU={week:'2026-10-07',days:['2026-10-09'],cutoffDate:'2026-10-07',cutoffTime:'20:00',bakeLead:'1',items:[{recipeId:'cookie',unitPrice:'3.5',limit:'24'},{recipeId:'brownie',limit:''}]};
+t('menu: one a week, limits enforced, orders go into the plan',()=>{const s=demo(),m=C.saveMenu(s,MENU);assert.strictEqual(m.week,W);assert.throws(()=>C.saveMenu(s,MENU),/already has a menu/);
+ const o=C.addMenuOrder(s,m.id,{customer:'Sam',dueDate:'2026-10-09',qty:{cookie:20,brownie:2},paid:'10',payment:'Card'});assert.strictEqual(o.menuId,m.id);assert.strictEqual(o.bakeDate,'2026-10-08');assert.strictEqual(o.lines[0].unitPrice,3.5);
+ assert.throws(()=>C.addMenuOrder(s,m.id,{customer:'X',dueDate:'2026-10-09',qty:{cookie:5}}),/Only 4/);assert.throws(()=>C.addMenuOrder(s,m.id,{customer:'X',dueDate:'2026-10-10',qty:{cookie:1}}),/pickup days/);assert.throws(()=>C.addMenuOrder(s,m.id,{customer:'X',dueDate:'2026-10-09',qty:{}}),/at least one/);
+ assert.ok(C.planWeek(s,W).orders.some(x=>x.id===o.id));const t=C.menuTally(s,m);assert.strictEqual(t[0].left,4);assert.strictEqual(t[1].left,null);C.setOrderStatus(s,o.id,'Cancelled');assert.strictEqual(C.menuTally(s,m)[0].left,24);});
+t('menu: bad input refused',()=>{const s=demo();assert.throws(()=>C.saveMenu(s,{...MENU,days:[]}),/pickup day/);assert.throws(()=>C.saveMenu(s,{...MENU,days:['2026-10-20']}),/week/);assert.throws(()=>C.saveMenu(s,{...MENU,cutoffDate:'2026-10-10'}),/close/);assert.throws(()=>C.saveMenu(s,{...MENU,cutoffTime:'25:00'}),/time/);assert.throws(()=>C.saveMenu(s,{...MENU,items:[]}),/at least one product/);});
 // the sample bakery (UI layer) must be valid data too
 const ui=scripts[1],f=ui.slice(ui.indexOf('function sampleBakery'),ui.indexOf('/* ---------- recipe categories'));
 const sb=new Function('C','today',f+'\nreturn sampleBakery();')(C,()=>'2026-10-06');
@@ -47,6 +59,7 @@ t('sample bakery: history validates',()=>{assert.ok(C.validateBackup(sb));assert
 t('sample bakery: the past is collected, paid, made and closed',()=>{const past=sb.orders.filter(o=>o.dueDate<'2026-10-05'&&o.status!=='Cancelled');assert.ok(past.every(o=>o.status==='Collected'&&o.snapshot&&(o.kind==='market'?o.market.closed:Math.abs(o.paid-o.snapshot.revenue)<1e-6)));});
 t('sample bakery: this week has drops, custom orders and a planned market',()=>{const p=C.planWeek(sb,W),t=p.totals;assert.strictEqual(t.markets,1);assert.ok(p.orders.some(o=>o.standingId)&&p.orders.some(o=>!o.standingId&&o.kind==='order'));assert.strictEqual(t.completedBatches,0);assert.strictEqual(C.missingStanding(sb,'2026-10-06','2026-11-01').length,0);});
 t('sample bakery: market suggestions come from its history',()=>{const s=C.marketSuggestion(sb,'Saturday farmers market','country','2026-10-10');assert.ok(s&&s.markets===4&&s.suggest>10);});
+t('sample bakery: weekly menus with pre-orders inside their limits, and prep the day before',()=>{assert.strictEqual(sb.menus.length,13);for(const m of sb.menus)for(const x of C.menuTally(sb,m))assert.ok(x.left===null||x.left>=0&&x.ordered<=x.limit);assert.ok(C.planWeek(sb,W).totals.prepMinutes>0);});
 t('sample bakery: pantry stock untouched by history',()=>assert.strictEqual(sb.ingredients.find(i=>i.id==='butter').stock,1500));
 t('no British spellings in the UI',()=>{const bad=ui.match(/\b(colour|favourite|totalled|organis|recognis|licence|xx)\b/gi)||[];assert.deepStrictEqual(bad.filter(w=>!/cancelled orders are left out/i.test(w)),[]);});
 t('no window.confirm or alert in the UI',()=>assert.ok(!/\b(confirm|alert)\(/.test(ui.replace(/C\.\w+|ask\(/g,''))));
