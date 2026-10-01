@@ -5,7 +5,7 @@
 // 10 s timeout, 4 MB page limit, and a per-visitor rate limit on each warm instance.
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
-import { parseRecipeHtml } from './recipe-parser.mjs';
+import { parseRecipeHtml } from '../lib/recipe-parser.mjs';
 
 const MAX_BYTES = 4 * 1024 * 1024, TIMEOUT_MS = 10000, MAX_REDIRECTS = 5;
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36';

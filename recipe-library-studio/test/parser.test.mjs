@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseRecipeHtml, minutes, clean } from '../netlify/functions/recipe-parser.mjs';
+import { parseRecipeHtml, minutes, clean } from '../netlify/lib/recipe-parser.mjs';
 import { normalizeUrl, checkHost, fetchPage, importRecipe } from '../netlify/functions/import-recipe.mjs';
 import handler from '../netlify/functions/import-recipe.mjs';
 

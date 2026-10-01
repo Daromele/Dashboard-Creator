@@ -13,7 +13,7 @@ Recipes are stored in the buyer's browser (IndexedDB); only the link being impor
 | `build.mjs` | Builds `site/index.html` (`--check` fails when it's stale). |
 | `site/index.html` | The built app Netlify serves. Committed, so deploys need no build. |
 | `netlify/functions/import-recipe.mjs` | `POST {url}` → recipe JSON. Fetches the page server-side (browsers can't, CORS). Blocks private/local addresses on every redirect, 10 s timeout, 4 MB cap, 20 imports/min per visitor per warm instance. |
-| `netlify/functions/recipe-parser.mjs` | Reads schema.org Recipe JSON-LD (incl. `@graph`, HowToSection), falls back to microdata, then Open Graph title/photo. |
+| `netlify/lib/recipe-parser.mjs` | Reads schema.org Recipe JSON-LD (incl. `@graph`, HowToSection), falls back to microdata, then Open Graph title/photo. |
 | `dev-server.mjs` | Local preview with the function: `node dev-server.mjs` → http://localhost:8888 |
 | `test/` | `parser.test.mjs` (parser + function), `smoke.mjs` (browser flows), `fixtures/` (synthetic pages). |
 
