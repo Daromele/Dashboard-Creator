@@ -114,6 +114,18 @@ await p.click('#ap-stub-form button[type=submit]');await p.waitForTimeout(200);
 ok('the paycheck is broken down from the usual stub',await p.evaluate(()=>{const r=document.querySelector('table.ap-rec tbody tr');return /Usual stub/.test(r.innerText)&&/\$4,470\.00/.test(r.innerText)&&+document.querySelector('.hero .hero-big').dataset.count===447000;}));
 // the sample fills every screen
 await p.evaluate(()=>document.querySelector('[data-action="demo"]')?.click()||Promise.resolve());
+// every table sorts and searches; the year tiles open their transactions
+await p.evaluate(()=>{document.querySelector('[data-action="demo"]')?.click();});await p.waitForTimeout(300);
+await p.evaluate(()=>go('annual',true));await p.waitForTimeout(200);
+await p.evaluate(()=>[...document.querySelector('.annual-table').tHead.rows[0].cells].find(h=>/spending/i.test(h.innerText)).click());await p.waitForTimeout(100);
+ok('a table sorts by a heading click, totals stay last',await p.evaluate(()=>{const r=[...document.querySelector('.annual-table').tBodies[0].rows],v=r.map(x=>x.cells[2].innerText).filter(x=>x!=='—').slice(0,-1).map(x=>+x.replace(/[^\d.]/g,''));return v.every((x,i)=>!i||v[i-1]>=x)&&/To date/.test(r.at(-1).innerText);}));
+await p.evaluate(()=>go('recurring',true));await p.waitForTimeout(200);await p.fill('.tbl-search','netflix');await p.waitForTimeout(100);
+ok('a table filters by search',await p.evaluate(()=>{const t=document.querySelector('.tbl-tools').nextElementSibling.querySelector('table');return [...t.tBodies[0].rows].filter(r=>!r.hidden).every(r=>/netflix/i.test(r.innerText))&&[...t.tBodies[0].rows].some(r=>r.hidden);}));
+await p.evaluate(()=>render());ok('search survives a re-render',await p.evaluate(()=>document.querySelector('.tbl-search').value==='netflix'));
+await p.evaluate(()=>go('annual',true));await p.waitForTimeout(200);
+ok('the year shows monthly averages',await p.evaluate(()=>/Money in \/ month/i.test(document.querySelector('.kpis').innerText)&&/Cash flow \/ month/i.test(document.querySelector('.kpis').innerText)));
+await p.evaluate(()=>document.querySelector('[data-action="kpi-year"][data-type="saving"]').click());await p.waitForTimeout(200);
+ok('the saved tile opens the year’s saving transactions',await p.evaluate(()=>screen==='activity'&&filterType==='saving'&&txFrom.endsWith('-01-01')&&txTo.endsWith('-12-31')));
 ok('the app made no network requests',net===0,net);
 ok('no page errors',!errs.length,errs.join('|'));
 await b.close();console.log(fails?`${fails} failed`:'autopilot flow: all checks passed');process.exit(fails?1:0);})();
