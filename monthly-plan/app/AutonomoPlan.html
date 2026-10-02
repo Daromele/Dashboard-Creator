@@ -1610,6 +1610,10 @@ tr.is-sel td{background:color-mix(in srgb,var(--accent) 7%,var(--card))}
  .hero-side,.hero-side *{color:#222!important}.hero-side span{color:#555!important}.hero::before,.hero::after{display:none!important}
  thead{display:table-header-group}.pagehead,.cardhead,.statement-head,h2,h3,tr.st-section,tr.st-group{break-after:avoid}}
 @media print{.statement{box-shadow:none;padding:0}.statement-table tr.st-key td,.statement-table tr.st-net td{-webkit-print-color-adjust:exact;print-color-adjust:exact}.statement-table td{padding:4px 8px}.quarter-grid{grid-template-columns:repeat(4,1fr)}.statement-memo{break-inside:avoid}}
+/* donuts: the ring on top, its legend underneath in two columns (one on a narrow phone), any number of rows */
+.donut-wrap{flex-direction:column;align-items:stretch;gap:18px}.donut-wrap .donut{margin:0 auto}
+.donut-key,.donut-key.many{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(var(--rows),auto);grid-auto-flow:column;column-gap:28px}
+@container (max-width:420px){.donut-key,.donut-key.many{display:block}}
 </style></head>
 <body>
 <a href="#content" style="position:absolute;left:-9999px" onfocus="this.style.left='10px'" onblur="this.style.left='-9999px'">Skip to content</a>
@@ -3238,7 +3242,7 @@ function activitySummary(list){
  const colors=SLICE_COLORS;
  const N=namedSlices(ranked.length),parts=ranked.slice(0,N).map(([id,v],i)=>[category(id).name,v,colors[i],`${total?percent(v,total):0}% of these expenses`,{src:'activity',pos:true,cats:[id]}]);
  const other=ranked.slice(N).reduce((n,[,v])=>n+v,0);
- if(other)parts.push(['Other categories',other,colors[8],`${percent(other,total)}% of these expenses`,{src:'activity',pos:true,cats:ranked.slice(N).map(([id])=>id)}]);
+ if(other)parts.push(['Other categories',other,SLICE_OTHER,`${percent(other,total)}% of these expenses`,{src:'activity',pos:true,cats:ranked.slice(N).map(([id])=>id)}]);
  const types=[[L.income,byType.income,'var(--cat-3)'],[L.expense,byType.expense,'var(--cat-2)'],[L.saving,byType.saving,'var(--cat-1)'],...(byType.transfer?[[L.transfer,byType.transfer,'var(--rule-2)']]:[])];
  const max=Math.max(1,...types.map(([,v])=>Math.abs(v)));
  return `<div class="grid2 equal activity-charts">`+
@@ -4015,8 +4019,9 @@ function compareBarChart(series,labels,title,orientation='vertical',format=fmt){
 
 // Eight distinct hues for named slices; grey for the rest. Up to nine rows show by name,
 // so "Other" only appears when it groups two or more.
-const SLICE_COLORS=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--tag-6)','var(--tag-7)','var(--tag-8)','var(--cat-6)'];
-const namedSlices=n=>n<=9?9:8;
+// up to 15 named slices: the theme's eight, then lighter tints of them; grey is kept for "Other"
+const SLICE_COLORS=['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--tag-6)','var(--tag-7)','var(--tag-8)',...['--cat-1','--cat-2','--cat-3','--cat-4','--cat-5','--tag-6','--tag-7'].map(v=>`color-mix(in srgb,var(${v}) 55%,var(--card))`)],SLICE_OTHER='var(--cat-6)';
+const namedSlices=n=>n<=15?15:14;
 const sharePct=(n,total)=>{const p=total?percent(n,total):0;return p===0&&n>0?'<1%':p+'%';};
 function donutMarkup(parts,total,label){
  let offset=0;
@@ -4043,7 +4048,7 @@ function spendingCard(t,title='Where the money went'){
  const range={from:selected+'-01',to:selected+'-'+String(Budget.days(selected)).padStart(2,'0')},share=n=>t.income.actual?`${percent(n,t.income.actual)}% of ${L.income.toLowerCase()}`:'';
  const note=c=>REC&&paid.get(c.id)>c.actual?`${percent(c.actual,paid.get(c.id))}% of ${fmt(paid.get(c.id))} paid`:share(c.actual);
  const N=namedSlices(spend.length),mix=spend.slice(0,N).map((c,i)=>[c.name,c.actual,colors[i],note(c),{cats:[c.id],...range}]),other=spend.slice(N).reduce((n,c)=>n+c.actual,0);
- if(other)mix.push(['Other',other,colors[8],share(other),{cats:spend.slice(N).map(c=>c.id),...range}]);
+ if(other)mix.push(['Other',other,SLICE_OTHER,share(other),{cats:spend.slice(N).map(c=>c.id),...range}]);
  return `<section class="card"><div class="cardhead"><div><h2>${esc(title)}</h2><p>${monthName(selected)} · ${REC?'business share (the part you can deduct)':'click a slice to see its transactions'}</p></div></div>${mix.length?donutMarkup(mix,total,REC?'business':'spent'):empty('No spending yet this month','Log or import an expense to see where the money goes.','add','Add an entry')}</section>`;
 }
 function cashflowTrend(){const year=selected.slice(0,4),months=Budget.annual(state,year),cutoff=Budget.today().slice(0,7),values=months.map(m=>m.month<=cutoff?m.net:null);return `<section class="card"><div class="cardhead"><div><h2>Cash flow over time</h2><p>Income − expenses − contributions · future months are blank</p></div><span class="pill">${year}</span></div>${areaChart([{name:'Net cash flow',values,color:'var(--accent)'}],months.map(m=>shortMonth(m.month)),'Monthly net cash flow')}</section>`;}
@@ -5369,7 +5374,7 @@ const Biz=(()=>{
   const cutoff=today().slice(0,7),months=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`),pm=months.map(m=>m<=cutoff?Budget.plMonth(state,m):null);
   const end=y===cutoff.slice(0,4)?today():y+'-12-31',Y=Budget.pl(state,y+'-01-01',end),colors=SLICE_COLORS;
   const mix=(lines,total,of)=>{const ranked=[...lines].filter(l=>l.amount>0).sort((a,b)=>b.amount-a.amount),rg={from:y+'-01-01',to:end},N=namedSlices(ranked.length),parts=ranked.slice(0,N).map((l,i)=>[l.name,l.amount,colors[i],`${percent(l.amount,total)}% of ${of}`,{cats:[l.id],...rg}]),rest=ranked.slice(N).reduce((n,l)=>n+l.amount,0);
-   if(rest)parts.push(['Other categories',rest,colors[8],`${percent(rest,total)}% of ${of}`,{cats:ranked.slice(N).map(l=>l.id),...rg}]);return parts;};
+   if(rest)parts.push(['Other categories',rest,SLICE_OTHER,`${percent(rest,total)}% of ${of}`,{cats:ranked.slice(N).map(l=>l.id),...rg}]);return parts;};
   const costs=[...Y.cogs.lines,...Y.opex.groups.flatMap(g=>g.lines)],costTotal=Y.cogs.total+Y.opex.total,revMix=mix(Y.revenue.lines,Y.revenue.total,L.income.toLowerCase()),costMix=mix(costs,costTotal,'expenses');
   const when=y===cutoff.slice(0,4)?`${y} to date`:y>cutoff.slice(0,4)?`${y} · nothing recorded yet`:`Full year ${y}`;
   return `<section class="card"><div class="cardhead"><div><h2>${esc(L.income)} vs expenses</h2><p>Recorded each month · expenses are cost of goods sold plus running costs · future months are blank</p></div></div>${areaChart([{name:L.income,values:pm.map(p=>p?p.revenue.total:null),color:'var(--ch-in)'},{name:'Expenses',values:pm.map(p=>p?p.cogs.total+p.opex.total:null),color:'var(--ch-out)'}],months.map(shortMonth),`${L.income} and expenses by month`)}<div class="chart-summary"><span><small>${esc(L.income)}</small><b>${fmt(Y.revenue.total)}</b></span><span><small>Expenses</small><b>${fmt(costTotal)}</b></span><span><small>Net profit</small><b>${acct(Y.net)}</b></span><span><small>Expenses as a share of ${esc(L.income.toLowerCase())}</small><b>${Y.revenue.total?percent(costTotal,Y.revenue.total)+'%':'—'}</b></span></div></section>`+
