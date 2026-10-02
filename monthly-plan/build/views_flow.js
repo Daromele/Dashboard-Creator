@@ -37,5 +37,13 @@ for(const app of APPS){const p=await b.newPage({viewport:{width:1400,height:1000
  ok(`${app}: the year toggles between averages and totals`,/\/ month/i.test(avg)&&!/\/ month/i.test(tot.split('\n').filter(l=>!/a month/.test(l)).join(' ')),tot);
  await p.evaluate(()=>{annualKpiMode='avg';state.categoryRules={'test shop':state.categories[0].id};go('settings',true);});await p.waitForTimeout(150);
  ok(`${app}: categories and rules sit side by side at the same height`,await p.evaluate(()=>{const c=[...document.querySelectorAll('.pair-scroll>.card')];return c.length===2&&Math.abs(c[0].offsetHeight-c[1].offsetHeight)<1&&Math.abs(c[0].offsetTop-c[1].offsetTop)<1;}));
+ await p.evaluate(()=>showTransactions('all'));await p.waitForTimeout(150);
+ ok(`${app}: transactions show four totals and two donuts`,await p.evaluate(()=>document.querySelectorAll('#content .kpis .kpi').length>=4&&document.querySelectorAll('.activity-charts .card').length===2&&/Where it came from/.test(document.querySelector('.activity-charts').innerText)));
+ await p.evaluate(()=>go('annual',true));await p.waitForTimeout(150);
+ const yc=await p.evaluate(()=>{const b=document.querySelector('[data-action="year-cat"]');if(!b)return null;const id=b.dataset.id;b.click();return {id,f:filterCategory,s:screen,from:txFrom};});
+ ok(`${app}: the year lists every category and opens its transactions`,yc&&yc.f===yc.id&&yc.s==='activity'&&/-01-01$/.test(yc.from),JSON.stringify(yc));
+ await p.evaluate(()=>go('calendar',true));await p.waitForTimeout(100);
+ const cal=await p.evaluate(()=>{const off=document.querySelectorAll('.cal-total').length;const c=document.querySelector('#cal-totals');c.checked=true;c.dispatchEvent(new Event('change',{bubbles:true}));const on=document.querySelectorAll('.cal-total').length;c.checked=false;c.dispatchEvent(new Event('change',{bubbles:true}));return {off,on};});
+ ok(`${app}: daily totals are off until switched on`,cal.off===0&&cal.on>0,JSON.stringify(cal));
  ok(`${app}: no page errors`,!errs.length,errs.join('|'));await p.close();}
 await b.close();console.log(fails?`${fails} failed`:'views flow: all checks passed');process.exit(fails?1:0);})();
