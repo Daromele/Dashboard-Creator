@@ -52,7 +52,7 @@ const NICHE = {
   ],
   // the categories the Autopilot falls back on
   // savings: money moved to savings · investing: money moved to brokerage or retirement · invested: what happens inside those accounts
-  autopilot: { savings: 'emergency', investing: 'investing', invested: 'inside-investing', payoff: 'card-payoff', transfer: 'own-transfer', salary: 'salary', interest: 'interest', otherIncome: 'other-income', unsorted: 'unsorted', people: 'people' },
+  autopilot: { savings: 'emergency', investing: 'investing', invested: 'inside-investing', payoff: 'card-payoff', transfer: 'own-transfer', salary: 'salary', interest: 'interest', otherIncome: 'other-income', unsorted: 'unsorted', people: 'people', rent: 'housing' },
   // known merchants: [pattern on the lower-case description, category, the name shown]. First match wins,
   // so the specific ones ("amazon prime") come before the general ones ("amazon").
   merchantDict: [

@@ -179,4 +179,17 @@ Pending Activity,,,,,,$-50.00
     eq('a card reward is money in, sorted by itself', [A.classify({...r,name:n},c).why,A.classify({...r,name:n},c).look], ['reward',false]); }
   { const C2='Transaction Date,Posted Date,Card No.,Description,Category,Debit,Credit\n2026-09-29,2026-09-29,1234,Travel Reward,Payment/Credit,,35.46\n2026-09-28,2026-09-29,1234,UBER TRIP,Other Travel,18.40,';
     eq('Capital One debit and credit columns keep rewards as money in', A.read(C2,'2026-09-30_transaction_download.csv',CSV).rows.map(r=>r.amount), [3546,-1840]); }
+  // the files people actually have: other languages, odd signs, no header, pending lines, wallets
+  { const amt=(txt,name)=>A.read(txt,name,CSV).rows.map(r=>r.amount);
+    eq('a German bank file (semicolons, decimal commas, German headings)', amt('Buchungstag;Verwendungszweck;Betrag (EUR)\n03.09.2026;REWE SAGT DANKE;-1.234,56\n15.09.2026;Gehalt ACME GmbH;2.500,00','dkb.csv'), [-123456,250000]);
+    eq('DR and CR after amounts give the direction', amt('Date,Description,Amount\n09/03/2026,Grocery Store,45.10 DR\n09/15/2026,Payroll ACME,2500.00 CR\n09/20/2026,Gas Station,30.00-','bank.csv'), [-4510,250000,-3000]);
+    eq('a file with no header row (Wells Fargo)', amt('"09/03/2026","-45.10","*","","GROCERY STORE"\n"09/15/2026","2500.00","*","","ACME PAYROLL DIR DEP"','Checking1.csv'), [-4510,250000]);
+    { const f=A.read('Date,Description,Amount,Status\n09/03/2026,Grocery Store,-45.10,Posted\n09/29/2026,Coffee Shop,-5.00,Pending','card.csv',CSV); eq('pending lines wait until they post', [f.rows.length,f.pending], [1,1]); }
+    eq('PayPal: the Net column and the Name', A.read('"Date","Time","TimeZone","Name","Type","Status","Currency","Gross","Fee","Net","Balance"\n"09/03/2026","10:00:00","PDT","Netflix","Preapproved Payment","Completed","USD","-15.49","0.00","-15.49","0.00"','Download.CSV',CSV).rows.map(r=>[r.desc,r.amount]), [['Netflix',-1549]]);
+    eq('Venmo: who the money went to is part of the line', A.read('Username,ID,Datetime,Type,Status,Note,From,To,Amount (total)\n,1,2026-09-03T10:00:00,Payment,Complete,Dinner,Me,Alex,- $25.00','venmo_statement.csv',CSV).rows.map(r=>r.desc), ['Alex · Dinner']);
+    eq('all-positive amounts with nothing else: the words decide', amt('Date,Description,Amount\n09/01/2026,ACME PAYROLL DIR DEP,2500.00\n09/03/2026,GROCERY,45.10\n09/05/2026,GAS,30.00','mybank.csv'), [250000,-4510,-3000]);
+    eq('a bank file with pay shown as money out is turned round', amt('Date,Description,Amount\n09/01/2026,ACME PAYROLL DIR DEP,-2500.00\n09/03/2026,GROCERY,45.10\n09/05/2026,GAS,30.00\n09/15/2026,ACME PAYROLL DIR DEP,-2500.00','mybank.csv'), [250000,-4510,-3000,250000]);
+    eq('a salary means a bank account, even from a card issuer', A.read('Date,Description,Amount\n03/09/2026,TESCO STORES,-12.50\n15/09/2026,SALARY ACME LTD,2500.00','barclays.csv',CSV).kind, 'bank');
+    { const f=A.read('"Date","Description","Original Description","Amount","Transaction Type","Category","Account Name"\n"9/03/2026","Whole Foods","WHOLEFDS","45.10","debit","Groceries","Chase Sapphire"\n"9/15/2026","Acme Payroll","ACME PAYROLL","2500.00","credit","Paycheck","Ally Checking"','transactions.csv',CSV);
+      eq('a Mint export knows each line’s account', [f.accounts,f.rows.map(r=>[r.account,r.amount])], [['Chase Sapphire','Ally Checking'],[['Chase Sapphire',-4510],['Ally Checking',250000]]]); } }
 };
