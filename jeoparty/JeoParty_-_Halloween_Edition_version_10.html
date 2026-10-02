@@ -1186,7 +1186,7 @@
             <div id="datetime-display" class="nav-brand" style="font-size: 1.25rem;"></div>
             <div class="nav-links">
                 <button id="install-btn" class="btn btn-primary btn-sm d-none" title="Install this game as an app">⬇️ Install App</button>
-                <button class="btn btn-secondary btn-sm nav-games" data-view="games">🎃 Games</button>
+                <button class="btn btn-secondary btn-sm nav-games" data-view="games">🎃 Game Library</button>
                 <button class="btn btn-secondary btn-sm" data-view="game-board">Game Board</button>
                 <button class="btn btn-secondary btn-sm" data-view="scoreboard">Scores</button>
                 <button class="btn btn-secondary btn-sm" data-view="settings">Settings</button>
@@ -1213,6 +1213,35 @@
             <h1>🎃 Game Library</h1>
             <p class="text-muted games-intro">Ten complete games are built in. Pick the one that matches your guests &mdash; the questions and the matching Final JeoParty load together, and you go straight to the board.</p>
             <div id="games-library"></div>
+            <!-- Categories & Questions Editor -->
+            <div class="card mt-4">
+                <div class="flex justify-between align-center mb-4" style="flex-wrap:wrap;gap:.75rem;">
+                    <div>
+                        <h2 style="margin-bottom:.25rem;">Edit Questions</h2>
+                        <p class="text-muted" style="margin:0;font-size:.9rem;">Change any category, question or answer in the game that&rsquo;s loaded now. Edits save automatically.</p>
+                    </div>
+                    <button id="save-settings-btn" class="btn btn-primary">Save Changes</button>
+                </div>
+
+                <!-- Final JeoParty Editor -->
+                <div class="final-jeoparty-editor">
+                    <h3>Final JeoParty</h3>
+                    <div class="form-group">
+                        <label for="fj-category">Category</label>
+                        <input type="text" id="fj-category" class="form-control" placeholder="e.g., World Capitals">
+                    </div>
+                    <div class="form-group">
+                        <label for="fj-question">Question</label>
+                        <textarea id="fj-question" class="form-control" placeholder="e.g., This city is the capital of Australia."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="fj-answer">Answer</label>
+                        <input type="text" id="fj-answer" class="form-control" placeholder="e.g., What is Canberra?">
+                    </div>
+                </div>
+                <div id="categories-editor-container"></div>
+                <button id="add-category-btn" class="btn btn-accent mt-4">Add Category</button>
+            </div>
         </section>
         <!-- Game Board View -->
         <section id="game-board-view" class="app-view active">
@@ -1349,9 +1378,9 @@
                 <div class="card">
                     <h3>Data Management</h3>
                     <div class="form-group">
-                        <label>Game</label>
+                        <label>Game Library</label>
                         <p class="text-muted" style="font-size:.9rem;margin:.25rem 0 .6rem;">Now playing: <strong id="settings-now-playing"></strong></p>
-                        <button type="button" class="btn btn-info" style="width:100%;" data-view="games">🎃 Open Game Library</button>
+                        <button type="button" class="btn btn-info" style="width:100%;" data-view="games">🎃 Choose or edit games</button>
                     </div>
                     <div class="data-grid">
                          <button class="btn btn-accent" onclick="document.getElementById('import-file-input').click();">Import Game Data</button>
@@ -1373,32 +1402,6 @@
                         <button type="submit" class="btn btn-primary">Add</button>
                     </form>
                 </div>
-            </div>
-            <!-- Categories & Questions Editor -->
-            <div class="card mt-4">
-                <div class="flex justify-between align-center mb-4">
-                    <h2>Categories & Questions</h2>
-                    <button id="save-settings-btn" class="btn btn-primary">Save Changes</button>
-                </div>
-
-                <!-- Final JeoParty Editor -->
-                <div class="final-jeoparty-editor">
-                    <h3>Final JeoParty</h3>
-                    <div class="form-group">
-                        <label for="fj-category">Category</label>
-                        <input type="text" id="fj-category" class="form-control" placeholder="e.g., World Capitals">
-                    </div>
-                    <div class="form-group">
-                        <label for="fj-question">Question</label>
-                        <textarea id="fj-question" class="form-control" placeholder="e.g., This city is the capital of Australia."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="fj-answer">Answer</label>
-                        <input type="text" id="fj-answer" class="form-control" placeholder="e.g., What is Canberra?">
-                    </div>
-                </div>
-                <div id="categories-editor-container"></div>
-                <button id="add-category-btn" class="btn btn-accent mt-4">Add Category</button>
             </div>
         </section>
 
@@ -1440,7 +1443,7 @@
             <div class="card mb-4">
                 <h3>⚡ Start in 30 seconds</h3>
                 <ol>
-                    <li>Open <strong>🎃 Games</strong> in the top bar and choose the game that matches your guests.</li>
+                    <li>Open <strong>🎃 Game Library</strong> in the top bar and choose the game that matches your guests.</li>
                     <li>Rename the four teams, or keep The Ghouls, Witch Please, Pumpkin Spice and Bat Attitude.</li>
                     <li>Click <strong>Game Board</strong>, then click any tile. That's the whole setup.</li>
                 </ol>
@@ -1517,7 +1520,7 @@
 
             <div class="card mt-4">
                 <h3>✍️ Want your own questions?</h3>
-                <p>You don't need them — but you can. Every question is editable in Settings, or click <strong>Download CSV Sample</strong>, fill it in a spreadsheet, and import it. Great for an office party or a themed birthday.</p>
+                <p>You don't need them — but you can. Every question is editable in the <strong>Game Library</strong> under Edit Questions, or click <strong>Download CSV Sample</strong>, fill it in a spreadsheet, and import it. Great for an office party or a themed birthday.</p>
                 <ul>
                     <li>Your game saves itself in this browser. Close the tab and come back to it.</li>
                     <li><strong>Export Game Data</strong> saves a file you can send to a friend or open on another computer.</li>
@@ -2309,6 +2312,8 @@
         };
         const renderGamesLibrary = () => {
             const current = getCurrentPackKey();
+            // Remember the inferred game so later question edits don't lose it.
+            if (current && !gameState.settings.currentPack) gameState.settings.currentPack = current;
             const esc = (t) => String(t).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
             document.getElementById('games-library').innerHTML = GAME_LIBRARY.map(g => `
                 <h2 class="games-group-title">${esc(g.group)}</h2>
@@ -3272,7 +3277,7 @@
                 handleFinalScoring(teamIndex, outcome);
             }
         });
-        document.getElementById('settings-view').addEventListener('change', (e) => {
+        document.querySelector('main').addEventListener('change', (e) => {
             if (e.target.id === 'theme-selector') {
                 gameState.settings.theme = e.target.value;
             } else if (e.target.id === 'sound-toggle') {
@@ -3318,7 +3323,7 @@
             saveState();
             renderAll();
         });
-        document.getElementById('settings-view').addEventListener('click', (e) => {
+        document.querySelector('main').addEventListener('click', (e) => {
             if (e.target.closest('[data-remove-team]')) {
                 const button = e.target.closest('[data-remove-team]');
                 const index = parseInt(button.dataset.removeTeam);
