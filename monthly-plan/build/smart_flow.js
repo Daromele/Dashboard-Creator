@@ -45,5 +45,7 @@ const BANK='Date,Description,Amount\n'+months.flatMap(m=>[`${m}/01/2026,ZELLE TO
   state.transactions=state.transactions.filter(t=>!(t.acct===acct&&t.date>='2026-06-02'&&t.date<='2026-07-15'));go('dashboard',true);return document.querySelector('.ap-alerts')?.innerText||'';});
  ok('pay that usually comes by now is flagged',/Pay not seen yet/.test(w),w.slice(0,300));
  ok('a gap in a busy account suggests a missing statement',/statement may be missing/.test(w),w.slice(0,300));
+ await p.evaluate(()=>go('cuts',true));const idea=await p.evaluate(()=>{const b=document.querySelector('[data-action="cut-no"]');if(!b)return null;const a=b.dataset.arg;b.click();return [a,cutIdeas(cutsData()).some(i=>i.arg===a)];});
+ ok('a declined idea is not suggested again',idea&&idea[1]===false,JSON.stringify(idea));
  ok('the app made no network requests',net===0);ok('no page errors',!errs.length,errs.join('|'));
  await b.close();console.log(fails?`${fails} failed`:'smart flow: all checks passed');process.exit(fails?1:0);})();
