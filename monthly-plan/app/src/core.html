@@ -3975,7 +3975,7 @@ function writeFolderBackup(force=false){
   const writer=await file.createWritable();
   try{await writer.write(JSON.stringify(state,null,2));}finally{await writer.close();}
   localStorage.setItem(DAILY_BACKUP_KEY,String(Date.now()));
-  setBackupStatus('Backed up '+new Date().toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}));
+  {const d=Budget.today(),day=dateName(d);setBackupStatus(`Backed up ${day}${/\d{4}/.test(day)?'':', '+d.slice(0,4)} at ${new Date().toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}`);}
   return true;
  });
  return backupWriteChain;
