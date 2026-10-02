@@ -203,6 +203,30 @@ await p.evaluate(()=>{state.transactions=state.transactions.filter(t=>!t.id.star
 ok('the edit dialog shows the account it came from',await p.evaluate(()=>{const t=state.transactions.find(t=>t.acct&&writable(t.date.slice(0,7)));transactionForm(t.id);const pill=document.querySelector('#transaction-form .acct-pill')?.innerText||'';closeModal();return pill.includes(state.accounts.find(a=>a.id===t.acct).name);}));
 await p.evaluate(()=>go('dashboard',true));await p.waitForTimeout(150);
 ok('the money picture shows where it went and where it came from',await p.evaluate(()=>/Where it went/.test(document.querySelector('main').innerText)&&/Where it came from/.test(document.querySelector('main').innerText)&&document.querySelectorAll('.kpis-lead .kpi').length===4));
+// a statement in euros: asks for a rate, converts, keeps the euro amount; a water bill every two months is a bill
+{const mo=n=>{const d=new Date(Date.UTC(2026,8-n,1));return d.toISOString().slice(0,7);};
+ const EUR=`"Booking Date","Value Date","Partner Name","Partner Iban",Type,"Payment Reference","Account Name","Amount (EUR)","Original Amount","Original Currency","Exchange Rate"
+${mo(8)}-27,${mo(8)}-27,E.M.A.S.E.S.A.,,"Direct Debit",REF1,"Main Account",-50.45,,,
+${mo(6)}-24,${mo(6)}-24,E.M.A.S.E.S.A.,,"Direct Debit",REF2,"Main Account",-70.60,,,
+${mo(4)}-26,${mo(4)}-26,E.M.A.S.E.S.A.,,"Direct Debit",REF3,"Main Account",-70.60,,,
+${mo(2)}-22,${mo(2)}-22,E.M.A.S.E.S.A,,"Direct Debit",REF4,"Main Account",-43.74,,,
+${mo(0)}-10,${mo(0)}-10,Test Employer SL,,Income,NOMINA,"Main Account",1500.00,,,`;
+ await p.evaluate(()=>go('import',true));await p.setInputFiles('#ap-files',[file('N26-test-eur.csv',EUR)]);await p.waitForTimeout(400);
+ ok('a euro statement asks for a rate first',await p.evaluate(()=>!!document.querySelector('.ap-fx-rate')&&/in EUR/.test(document.querySelector('.ap-report').innerText)));
+ await p.fill('.ap-fx-rate','1.1');await p.evaluate(()=>document.querySelector('[data-action="ap-fx-go"]').click());await p.waitForTimeout(500);
+ const fx=await p.evaluate(()=>{const l=state.transactions.filter(t=>t.fx?.currency==='EUR');const w=l.find(t=>/EMASESA/.test(t.note)&&t.fx.amount===4374);return {n:l.length,w:w&&[w.amount,w.fx.amount,category(w.category).name],rate:state.fxRates.EUR,cur:state.accounts.find(a=>a.id===w?.acct)?.cur};});
+ ok('euro rows are converted and keep their euro amount',fx.n===5&&fx.w&&fx.w[0]===Math.round(4374*1.1)&&fx.w[1]===4374&&fx.rate===1.1&&fx.cur==='EUR',JSON.stringify(fx));
+ ok('EMASESA is sorted as a utility',/Utilities/.test(fx.w?.[2]||''),JSON.stringify(fx));
+ await p.evaluate(()=>go('recurring',true));await p.waitForTimeout(150);
+ ok('a bill every two months shows under bills',await p.evaluate(()=>[...document.querySelectorAll('table.ap-rec')].some(t=>/EMASESA/.test(t.innerText)&&/2 months/i.test(t.innerText))),await p.evaluate(()=>JSON.stringify([Budget.today(),state.transactions.filter(t=>/EMASESA/.test(t.note)).map(t=>[t.date,t.amount,t.category,Autopilot.keyOf(t.note)])])));
+ await p.evaluate(()=>go('import',true));await p.setInputFiles('#ap-files',[file('N26-test-eur.csv',EUR)]);await p.waitForTimeout(400);
+ ok('the same euro file again adds nothing',await p.evaluate(()=>state.transactions.filter(t=>t.fx?.currency==='EUR').length===5));
+ await p.evaluate(()=>{const a=state.accounts.find(a=>a.cur==='EUR');go('accounts',true);const i=document.querySelector(`.ap-acct-rate[data-rate-acct="${a.id}"]`);i.value='1.2';i.dispatchEvent(new Event('change',{bubbles:true}));});await p.waitForTimeout(150);
+ ok('changing an account’s rate converts it again',await p.evaluate(()=>{const w=state.transactions.find(t=>/EMASESA/.test(t.note)&&t.fx?.amount===4374);return w&&w.amount===Math.round(4374*1.2)&&state.accounts.find(a=>a.cur==='EUR').name!=='1.2';}));
+ // the account pill opens that account's transactions
+ const pill=await p.evaluate(()=>{const t=state.transactions.find(t=>t.fx&&writable(t.date.slice(0,7)));transactionForm(t.id);document.querySelector('#transaction-form .acct-pill').click();return {s:screen,acct:filterAcct===t.acct,all:activityList.every(x=>x.acct===t.acct),n:activityList.length};});
+ ok('the account pill shows that account’s transactions',pill.s==='activity'&&pill.acct&&pill.all&&pill.n>=5,JSON.stringify(pill));
+ await p.evaluate(()=>{filterAcct='';state.transactions=state.transactions.filter(t=>!t.fx);});}
 ok('the app made no network requests',net===0,net);
 ok('no page errors',!errs.length,errs.join('|'));
 await b.close();console.log(fails?`${fails} failed`:'autopilot flow: all checks passed');process.exit(fails?1:0);})();

@@ -165,4 +165,7 @@ Pending Activity,,,,,,$-50.00
   { const st={...B.blank(),categoryRules:{amazon:'shopping','amazon prime':'streaming'}};
     eq('rules keep Amazon and Amazon Prime apart', [B.ruleFor(st,'AMAZON PRIME*2K4AB'),B.ruleFor(st,'Amazon'),B.ruleFor({...st,categoryRules:{amazon:'shopping'}},'Amazon Prime')], ['streaming','shopping','']); }
   { const c=A.context(P,s,B,'card');eq('Prime memberships are named Amazon Prime', ['AMAZON PRIME*2K4AB1C23','Amazon.com*Prime 8XY','PRIME VIDEO*ABC'].map(x=>A.merchant(x,c.dict)), ['Amazon Prime','Amazon Prime','Amazon Prime']); }
+  eq('dotted names read as one word', [A.keyOf('E.M.A.S.E.S.A.'),A.keyOf('E.M.A.S.E.S.A'),B.matchKey('E.M.A.S.E.S.A.')], ['emasesa','emasesa','emasesa']);
+  { const r=A.recurring([['2026-01-27',5045],['2026-03-24',7060],['2026-05-26',7060],['2026-07-22',4374]].map(([date,amount])=>({date,amount,key:'water',name:'Water Co',category:'utilities'})),'2026-08-01');
+    eq('a bill every two months is found', r.map(x=>[x.cadence,x.perMonth]), [['every 2 months',Math.round(5885*0.5)]]); }
 };
