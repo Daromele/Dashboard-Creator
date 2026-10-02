@@ -1458,6 +1458,7 @@ table.ap-look select{min-width:190px}table.ap-look td small{display:block}.num.p
 .sel-col{width:34px}.sel-col input{width:16px;height:16px}.sel-bar{margin:12px 20px}table.tbl-edit input:not([type=checkbox]),table.tbl-edit select{width:100%;min-width:140px}
 .pair-scroll{align-items:stretch}.pair-scroll>.card{display:flex;flex-direction:column;height:640px;min-width:0}.pair-scroll>.card>.table-wrap{flex:1;min-height:0;overflow:auto}.pair-scroll thead th{position:sticky;top:0;z-index:1;background:var(--card)}.pair-scroll .sel-bar{margin:0 0 12px;position:static}
 @media(max-width:900px){.pair-scroll>.card{height:520px}}
+.cut-growth{align-items:center;gap:12px}.cut-growth label{display:block;margin:0;font-size:inherit;font-weight:500;color:var(--ink)}.cut-sums .row span>small,.cut-growth label small{display:block;font-weight:400}.cut-growth select{width:auto;flex:none}
 .cut-idea .actions{align-items:center;gap:12px;flex-wrap:nowrap}.cut-idea{gap:12px}
 .kpi-mode{display:flex;justify-content:flex-end;margin:-8px 0 10px}
 .merge-box{display:flex;align-items:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}.merge-box label{flex:1}
@@ -1698,10 +1699,14 @@ const Budget = ((P) => {
   // match key keeps the first few words without digits, so the same merchant matches itself.
   const matchKey = text => String(text||'').toLowerCase().replace(/\b(refund|returned|reversal|withdrawal)\b/g,' ').split(/[^a-z0-9]+/).filter(w=>w.length>1&&!/\d/.test(w)).slice(0,4).join(' ');
   // "whole foods" and "whole foods market" are the same merchant: one key starts the other, on whole words
-  const sameMerchant = (a,b) => !!a&&!!b&&(a===b||a.startsWith(b+' ')||b.startsWith(a+' '));
+  // "starbucks seattle" is still Starbucks, but "amazon prime" is not Amazon: a name that only adds a
+  // product word ("prime", "music", "eats") is a different service from the same company
+  const PRODUCT_WORD=/^(prime|video|music|plus|premium|fresh|web|aws|pay|cash|card|kids|unlimited|membership|subscription|eats|one|tv|games|arcade|cloud|icloud|storage|drive|photos|store|ads|audible|kindle|business|pharmacy|insurance|auto|loan|mobile|wireless|internet|energy|gas)$/;
+  const extendsKey = (long,short) => long===short||long.startsWith(short+' ')&&!PRODUCT_WORD.test(long.slice(short.length+1).split(' ')[0]);
+  const sameMerchant = (a,b) => !!a&&!!b&&(extendsKey(a,b)||extendsKey(b,a));
   // the most specific rule wins: "amazon prime" beats "amazon"
   const ruleFor = (s,note) => {const k=matchKey(note);if(!k)return '';
-    const hit=Object.entries(s.categoryRules||{}).filter(([r])=>r===k||k.startsWith(r+' ')).sort((a,b)=>b[0].length-a[0].length).find(([,id])=>s.categories.some(c=>c.id===id&&!c.archived));
+    const hit=Object.entries(s.categoryRules||{}).filter(([r])=>extendsKey(k,r)).sort((a,b)=>b[0].length-a[0].length).find(([,id])=>s.categories.some(c=>c.id===id&&!c.archived));
     return hit?hit[1]:'';};
   const quickKey = text => String(text||'').toLowerCase().replace(/\b(refund|returned|reversal|withdrawal)\b/g,' ').replace(/[^a-z0-9]+/g,' ').trim().slice(0,80);
   function parseQuick(text,categories,memory={}){
@@ -1838,10 +1843,10 @@ const Budget = ((P) => {
       let k=by==='tag'?tagOf(s,t):t.channel||'';if(!names.has(k))k='';sums.set(k,(sums.get(k)||0)+netOf(t,s));}
     return [...sums.entries()].map(([id,amount])=>({id,name:names.get(id)||'',amount})).sort((a,b)=>b.amount-a.amount);}
   const tagFor=(s,note)=>{const k=matchKey(note);if(!k)return '';
-    const hit=Object.entries(s.tagRules||{}).filter(([r])=>r===k||k.startsWith(r+' ')).sort((a,b)=>b[0].length-a[0].length).find(([,id])=>(s.tags||[]).some(g=>g.id===id));
+    const hit=Object.entries(s.tagRules||{}).filter(([r])=>extendsKey(k,r)).sort((a,b)=>b[0].length-a[0].length).find(([,id])=>(s.tags||[]).some(g=>g.id===id));
     return hit?hit[1]:'';};
   const channelFor=(s,note)=>{const k=matchKey(note);if(!k)return '';
-    const hit=Object.entries(s.channelRules||{}).filter(([r])=>r===k||k.startsWith(r+' ')).sort((a,b)=>b[0].length-a[0].length).find(([,id])=>(s.channels||[]).some(c=>c.id===id));
+    const hit=Object.entries(s.channelRules||{}).filter(([r])=>extendsKey(k,r)).sort((a,b)=>b[0].length-a[0].length).find(([,id])=>(s.channels||[]).some(c=>c.id===id));
     return hit?hit[1]:'';};
   // What should be in the tax pot: the rate applied to profit so far this year. A loss month
   // lowers the year-to-date figure, so a month's share is the change in that running total.
@@ -2060,7 +2065,7 @@ const Budget = ((P) => {
     if(s.categoryRules!==undefined){if(!object(s.categoryRules))s.categoryRules={};
      Object.entries(s.categoryRules).forEach(([k,v])=>{if(!str(k,80)||!k||!ids.has(v))delete s.categoryRules[k];});
      const rk=Object.keys(s.categoryRules);if(rk.length>MAX_QUICK_MEMORY)for(const k of rk.slice(0,rk.length-MAX_QUICK_MEMORY))delete s.categoryRules[k];}
-    if(s.cuts!==undefined){if(!object(s.cuts))s.cuts={};const C=s.cuts;Object.keys(C).forEach(k=>{if(!['n','c','s'].includes(k))delete C[k];});if(C.n!==undefined&&![3,6,12].includes(C.n))delete C.n;
+    if(s.cuts!==undefined){if(!object(s.cuts))s.cuts={};const C=s.cuts;Object.keys(C).forEach(k=>{if(!['n','c','s','g'].includes(k))delete C[k];});if(C.g!==undefined&&![2,3,4,5,6,7,8,10].includes(C.g))delete C.g;if(C.n!==undefined&&![3,6,12].includes(C.n))delete C.n;
      if(!object(C.c))C.c={};Object.entries(C.c).forEach(([k,v])=>{if(!ids.has(k)||!Number.isInteger(v)||v<0||v>100)delete C.c[k];});if(!object(C.s))C.s={};Object.entries(C.s).forEach(([k,v])=>{if(!str(k,80)||!k||v!==1)delete C.s[k];});}
     const qk=Object.keys(s.quickMemory);if(qk.length>MAX_QUICK_MEMORY)for(const k of qk.slice(0,qk.length-MAX_QUICK_MEMORY))delete s.quickMemory[k];
     const scheduleIds=new Set();s.schedules.forEach(r=>{if(!object(r)||!id(r.id)||scheduleIds.has(r.id)||!str(r.name,100)||!r.name.trim()||!ids.has(r.category)||!amount(r.amount)||r.amount<=0||!validDate(r.start)||!validDate(r.end)||r.end<r.start||!Object.hasOwn(FREQUENCIES,r.frequency))fail();scheduleIds.add(r.id);});
@@ -2192,7 +2197,7 @@ const Budget = ((P) => {
     if(S.extras)S.extras(s,{m,year,now,uid,days,shift,plusDays,totals:(st,mm)=>{invalidate(st);return totals(st,mm);}});
     return s;
   }
-  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,ruleFor,channelFor,tagFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,VAT_RATES,RET_RATES,vatSplit,netOf,esTax,esMonths,takeHome,usualTagFor,esChecklist,recOf,recTax,recPayout,gestorReport,recCash,eur,ACTS,EV_TYPES,ACCOUNTS,EV_STATUS,cuotaFor,irpfScale,workday,CUOTA_TRAMOS,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,invoiceTotal,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
+  return {P,GROUP_DEFS,group,isDebt,counted,matchKey,sameMerchant,extendsKey,ruleFor,channelFor,tagFor,channelProfit,health,MAX_CHANNELS,MAX_TAGS,TAG_COLORS,tagOf,breakdown,VAT_RATES,RET_RATES,vatSplit,netOf,esTax,esMonths,takeHome,usualTagFor,esChecklist,recOf,recTax,recPayout,gestorReport,recCash,eur,ACTS,EV_TYPES,ACCOUNTS,EV_STATUS,cuotaFor,irpfScale,workday,CUOTA_TRAMOS,TAX_LINES,taxLineFor,pl,plMonth,monthsBetween,endOf,taxSetAside,mileageAmount,mileageTotals,taxSummary,receivables,invoiceTotal,planFor,overrides,CURRENCIES,DATE_FORMATS,THEMES,MAX_QUICK_MEMORY,invalidate,FREQUENCIES,plusDays,occurrences,schedulePlan,reserves,annualCategories,snapshotTotals,quickKey,parseQuick,protectClosedSchedules,GROUPS,type,uid,today,validMonth,validDate,days,shift,cents,blank,month,transactions,actual,rows,totals,annual,goalProgress,due,validate,sample};
 })(NICHE);
 if(typeof module!=='undefined')module.exports=Budget;
 
@@ -3283,18 +3288,22 @@ const SIMILAR={
 function similarFor(kind,value,rows){const K=SIMILAR[kind],ids=new Set(rows.map(t=>t.id)),keys=[...new Set(rows.map(t=>Budget.matchKey(t.note)).filter(Boolean))];
  const same=keys.length?state.transactions.filter(x=>!ids.has(x.id)&&K.now(x)!==value&&keys.some(k=>Budget.sameMerchant(Budget.matchKey(x.note),k))):[];
  return {keys,same,open:same.filter(K.can),newRules:keys.filter(k=>state[K.rules]?.[k]!==value)};}
+// Similar transactions, one line per name. The same name is ticked; a name that only starts the same
+// way ("Amazon" next to "Amazon Prime") is listed unticked, since it is often a different thing.
 function offerSimilarFor(kind,value,rows,lead){const K=SIMILAR[kind],name=K.name(value);if(!name||!rows.length)return;
  const {keys,same,open,newRules}=similarFor(kind,value,rows);if(!same.length&&!newRules.length)return;
- const held=same.length-open.length,shown=keys.slice(0,4).map(k=>`“${esc(k)}”`).join(', ')+(keys.length>4?` and ${keys.length-4} more`:'');
- const list=[...same].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6).map(x=>`<div class="row"><div><strong>${esc(x.note||category(x.category).name)}</strong><small>${dateName(x.date)}, ${x.date.slice(0,4)}${K.name(K.now(x))?' · now '+esc(K.name(K.now(x))):''}${K.can(x)?'':' · stays as it is'}</small></div><span class="number">${fmt(x.amount)}</span></div>`).join('');
- modal(`${K.verb} similar transactions too?`,`${lead} <b>${esc(name)}</b>.${same.length?` ${same.length} other transaction${same.length===1?' looks':'s look'} like ${rows.length===1?'it':'them'}.`:''}`,
-  `<form id="similar-any-form" data-kind="${kind}" data-value="${esc(value)}" data-ids="${esc(rows.map(t=>t.id).join(','))}">${list}${same.length>6?`<p class="small muted" style="margin-top:8px">…and ${same.length-6} more.</p>`:''}`+
-  (same.length&&!open.length?`<p class="small muted" style="margin:10px 0">${same.length===1?'It is':'All '+same.length+' are'} in a closed month, so ${same.length===1?'it stays':'they stay'} as ${same.length===1?'it is':'they are'}. Reopen the month to change ${same.length===1?'it':'them'}.</p>`:'')+(open.length?`<label class="checkline choice"><input type="checkbox" name="others" ${open.length?'checked':'disabled'}><span><b>${K.verb} ${open.length===same.length?(same.length===1?'it':'all '+same.length):open.length+' of '+same.length} ${K.to} ${esc(name)}</b>${held?`<br><small>${held} in a closed month${kind==='category'?' or matched to a recurring payment':''} ${held===1?'stays':'stay'} as ${held===1?'it is':'they are'}.</small>`:''}</span></label>`:'')+
+ const shown=keys.slice(0,4).map(k=>`“${esc(k)}”`).join(', ')+(keys.length>4?` and ${keys.length-4} more`:''),mine=new Set(keys),groups=new Map();
+ same.forEach(x=>{const k=Budget.matchKey(x.note),g=groups.get(k)||groups.set(k,{k,name:x.note||category(x.category).name,all:[],open:[]}).get(k);g.all.push(x);if(K.can(x))g.open.push(x);});
+ const list=[...groups.values()].sort((a,b)=>mine.has(b.k)-mine.has(a.k)||b.all.length-a.all.length).slice(0,12).map(g=>{const exact=mine.has(g.k),held=g.all.length-g.open.length,now=[...new Set(g.all.map(x=>K.name(K.now(x))).filter(Boolean))].slice(0,2).map(esc).join(', ');
+  return `<label class="checkline choice"><input type="checkbox" name="g" value="${esc(g.k)}" ${exact&&g.open.length?'checked':''} ${g.open.length?'':'disabled'}><span><b>${esc(g.name)}</b> · ${g.all.length} transaction${g.all.length===1?'':'s'}${now?` · now ${now}`:''}<br><small>${exact?'Same name':'A different name that starts the same way. Tick it only if it’s the same thing.'}${held?` · ${held} in a closed month${kind==='category'?' or matched to a recurring payment':''} ${held===1?'stays':'stay'} as ${held===1?'it is':'they are'}`:''}</small></span></label>`;}).join('');
+ modal(`${K.verb} similar transactions too?`,`${lead} <b>${esc(name)}</b>.${same.length?` Tick the ones to ${K.verb.toLowerCase()} ${K.to} ${esc(name)} as well.`:''}`,
+  `<form id="similar-any-form" data-kind="${kind}" data-value="${esc(value)}" data-ids="${esc(rows.map(t=>t.id).join(','))}">${list}${groups.size>12?`<p class="small muted" style="margin-top:8px">…and ${groups.size-12} more names.</p>`:''}`+
+  (same.length&&!open.length?`<p class="small muted" style="margin:10px 0">${same.length===1?'It is':'All '+same.length+' are'} in a closed month, so ${same.length===1?'it stays':'they stay'} as ${same.length===1?'it is':'they are'}. Reopen the month to change ${same.length===1?'it':'them'}.</p>`:'')+
   (newRules.length?`<label class="checkline choice"><input type="checkbox" name="future" checked><span><b>Use ${esc(name)} for future ${shown} transactions</b><br><small>Bank imports and Quick Log will apply it. Manage rules in Settings.</small></span></label>`:'')+
   `${formFoot('Apply',`<button type="button" class="btn" data-action="dismiss">Only ${rows.length===1?'this one':'these'}</button>`).replace('<button type="button" class="btn" data-action="dismiss">Cancel</button>','')}</form>`);}
 document.addEventListener('submit',e=>{if(e.target.id!=='similar-any-form')return;e.preventDefault();const f=new FormData(e.target),d=e.target.dataset,K=SIMILAR[d.kind],v=d.value;closeModal();if(!K||!K.name(v))return;
- const rows=state.transactions.filter(t=>d.ids.split(',').includes(t.id)),{keys,open,newRules}=similarFor(d.kind,v,rows),others=f.get('others')==='on',future=f.get('future')==='on';
- const ids=new Set(others?open.map(x=>x.id):[]);if(!ids.size&&!(future&&newRules.length))return;
+ const rows=state.transactions.filter(t=>d.ids.split(',').includes(t.id)),{keys,open,newRules}=similarFor(d.kind,v,rows),picked=new Set(f.getAll('g')),future=f.get('future')==='on';
+ const ids=new Set(open.filter(x=>picked.has(Budget.matchKey(x.note))).map(x=>x.id));if(!ids.size&&!(future&&newRules.length))return;
  commit(()=>{state.transactions.forEach(x=>{if(ids.has(x.id)){K.set(x,v);if(d.kind==='category'&&x.scheduleKey)delete x.scheduleKey;}});if(future){state[K.rules]??={};newRules.forEach(k=>state[K.rules][k]=v);}},
   [ids.size&&`${ids.size} more set to ${K.name(v)}`,future&&newRules.length&&`future ${newRules.length===1?'“'+newRules[0]+'”':newRules.length+' kinds of'} transactions will be too`].filter(Boolean).join(' · '));
  if(d.kind==='tag'&&P.features.channels)Biz.offerCatTag(state.transactions.find(t=>t.id===rows[0]?.id));});
@@ -3611,7 +3620,7 @@ document.addEventListener('click',e=>{const b=e.target.closest?.('button[data-ac
   commit(()=>{ids.forEach(id=>{const c=category(id);if(c&&!gone.has(id))c.archived=true;});state.categories=state.categories.filter(c=>!gone.has(c.id));
    for(const m of [state.quickMemory,state.categoryRules,state.importMap])if(m)for(const k of Object.keys(m))if(gone.has(m[k]))delete m[k];},`${ids.length} ${ids.length===1?'category':'categories'} deleted or archived`);}});
 function rulesCard(){const R=state.categoryRules||{},r=Object.entries(R).filter(([,id])=>category(id));if(!r.length)return '';
- const keys=state.transactions.map(t=>Budget.matchKey(t.note)),hits=k=>keys.filter(x=>x===k||x.startsWith(k+' ')).length;
+ const keys=state.transactions.map(t=>Budget.matchKey(t.note)),hits=k=>keys.filter(x=>Budget.extendsKey(x,k)).length;
  return `<section class="card"><div class="cardhead"><div><h2>Category rules</h2><p>Transactions whose description starts like this go to the category shown, on import and in Quick Log. Edit the words or the category in place.</p></div><span class="pill">${r.length}</span></div>`+
   selBar('rule',`<select class="sel-do" data-do="rule-bulk-cat" aria-label="Send the selected rules to a category"><option value="">Send to category…</option>${categoryOptions()}</select>${button('Delete','rule-bulk-delete','small danger')}`)+
   `<div class="table-wrap"><table class="tbl-edit"><thead><tr><th class="sel-col"><input type="checkbox" class="sel-all" aria-label="Select all rules"></th><th>Description starts with</th><th>Category</th><th class="num">Matches</th><th class="num">Actions</th></tr></thead><tbody>${r.sort((a,b)=>a[0].localeCompare(b[0])).map(([k,id])=>`<tr><td class="sel-col"><input type="checkbox" class="sel-pick" value="${esc(k)}" aria-label="Select the rule for ${esc(k)}"></td><td><input class="rule-key" data-key="${esc(k)}" value="${esc(k)}" maxlength="80" aria-label="Words for this rule"></td><td><select class="rule-cat" data-key="${esc(k)}" aria-label="Category for ${esc(k)}">${categoryOptions(id)}</select></td><td class="num">${hits(k)}</td><td class="num"><button class="icon-action" data-action="remove-rule" data-key="${esc(k)}" title="Remove this rule" aria-label="Remove the rule for ${esc(k)}">${ico('trash')}</button></td></tr>`).join('')}</tbody></table></div></section>`;}
@@ -6115,6 +6124,9 @@ const Auto=(()=>{
 // the content (statements, the gestor report, month grids) and tables with their own tools are left alone.
 // ---------- cut back: what could go, and what that adds up to ----------
 const CUT_STEPS=[0,5,10,15,20,25,30,40,50,75,100];
+const CUT_GROWTH=[0,2,3,4,5,6,7,8,10];
+// what a monthly amount grows to, put away each month at a yearly rate (compounded monthly)
+const grown=(monthly,pct,years)=>{const r=Math.pow(1+pct/100,1/12)-1,n=years*12;return Math.round(r?monthly*((Math.pow(1+r,n)-1)/r):monthly*n);};
 function cutsData(){const C=state.cuts||{},n=[3,6,12].includes(C.n)?C.n:6,now=Budget.today().slice(0,7),months=[];
  for(let i=1;i<=n;i++){const d=new Date(Date.UTC(+now.slice(0,4),+now.slice(5,7)-1-i,1));months.push(d.toISOString().slice(0,7));}
  const inMonths=new Set(months),by=new Map(),seen=new Set();let inc=0;
@@ -6125,7 +6137,7 @@ function cutsData(){const C=state.cuts||{},n=[3,6,12].includes(C.n)?C.n:6,now=Bu
  const rows=[...by.entries()].map(([id,sum])=>{const c=category(id),avg=Math.round(sum/k),pct=(C.c||{})[id]||0,g=Budget.group(c),sc=Math.min(avg,subCut.get(id)||0),after=Math.round((avg-sc)*(1-pct/100));
   return {id,c,avg,pct,kind:g.subscription?'Subscription':g.fixed?'Fixed':'Flexible',subs:sc,after,saves:avg-after};}).filter(r=>r.avg>0).sort((a,b)=>b.avg-a.avg);
  const now$=rows.reduce((a,r)=>a+r.avg,0),after$=rows.reduce((a,r)=>a+r.after,0);
- return {n,k,months:seen.size,rows,subs,off,inc:Math.round(inc/k),now:now$,after:after$,saves:now$-after$};}
+ return {n,g:CUT_GROWTH.includes(C.g)?C.g:0,k,months:seen.size,rows,subs,off,inc:Math.round(inc/k),now:now$,after:after$,saves:now$-after$};}
 function cutIdeas(d){const ideas=[],recent=new Map(),C=state.cuts||{};
  const last3=new Set([1,2,3].map(i=>{const t=Budget.today(),x=new Date(Date.UTC(+t.slice(0,4),+t.slice(5,7)-1-i,1));return x.toISOString().slice(0,7);}));
  state.transactions.forEach(t=>{if(last3.has(t.date.slice(0,7)))recent.set(t.category,(recent.get(t.category)||0)+t.amount);});
@@ -6138,7 +6150,7 @@ function cutsView(){const d=cutsData(),ideas=cutIdeas(d),yr=d.saves*12,cfNow=d.i
  if(!d.rows.length)return head+empty('Nothing to cut yet',`Once a few months of ${L.expense.toLowerCase()} are recorded, this shows where it goes and what you could change.`);
  const kp=`<div class="kpis kpis-lead">${kpi(`${L.expense} / month now`,d.now,`Average of ${d.months||d.k} month${(d.months||d.k)===1?'':'s'}`,'up')}${kpi('Your cuts / month',d.saves,d.saves?`${fmt(yr)} a year`:'Nothing picked yet','coins',d.saves?'pos':'')}${kpi(`${L.expense} after cuts`,d.after,d.now?`${Math.round(d.after/d.now*100)}% of today`:'','up')}${kpi('Cash flow / month after',cfAfter,`Now ${fmt(cfNow)} · kept ${rate(cfNow)} → ${rate(cfAfter)}`,'wallet',cfAfter<0?'warn':'pos')}</div>`;
  const ideaCard=`<section class="card"><div class="cardhead"><div><h2>Ideas to start with</h2><p>Repeating charges, categories running above your usual, and the biggest flexible spending.</p></div></div>${ideas.length?ideas.map(i=>`<div class="row cut-idea"><div><span>${i.text}</span><small>${i.note}</small></div><div class="actions"><b class="number pos">+${fmt(i.saves)}/mo</b>${button('Apply',i.act,'small',`data-arg="${esc(i.arg)}"${i.pct?` data-pct="${i.pct}"`:''}`)}</div></div>`).join(''):'<p class="muted">You’ve used every idea. Adjust the table below to go further.</p>'}</section>`;
- const sums=`<section class="card"><div class="cardhead"><div><h2>What it adds up to</h2><p>Money you keep if the cuts last, before any interest.</p></div>${d.saves?button('Clear all cuts','cut-reset','small quiet'):''}</div>${[['Each month',d.saves],['In a year',yr],['In 5 years',yr*5],['In 10 years',yr*10]].map(([l,v])=>`<div class="row"><span>${l}</span><b class="number">${fmt(v)}</b></div>`).join('')}<div class="row"><span>${esc(L.expense)} a month</span><b class="number">${fmt(d.now)} → ${fmt(d.after)}</b></div><div class="row"><span>Cash flow a month</span><b class="number">${fmt(cfNow)} → ${fmt(cfAfter)}</b></div><div class="row"><span>Share of money in you keep</span><b>${rate(cfNow)} → ${rate(cfAfter)}</b></div>${d.saves?`<div class="actions" style="margin-top:14px">${button('Use these as my monthly limits','cut-limits','small primary')}</div>`:''}</section>`;
+ const sums=`<section class="card cut-sums"><div class="cardhead"><div><h2>What it adds up to</h2><p>Money you keep if the cuts last. Add a growth rate to see it invested.</p></div>${d.saves?button('Clear all cuts','cut-reset','small quiet'):''}</div><div class="row cut-growth"><label for="cut-growth"><span>If you invest it, growth a year</span><small>Optional. Stocks have averaged about 7% a year after inflation over the long run, never guaranteed.</small></label><select id="cut-growth" aria-label="Yearly growth on the money saved">${CUT_GROWTH.map(g=>`<option value="${g}" ${d.g===g?'selected':''}>${g?g+'%':'No growth'}</option>`).join('')}</select></div>${[['Each month',d.saves,0],['In a year',yr,1],['In 5 years',yr*5,5],['In 10 years',yr*10,10],['In 20 years',yr*20,20]].map(([l,v,y])=>{const fv=y&&d.g?grown(d.saves,d.g,y):v;return `<div class="row"><span>${l}${fv>v?`<small>${fmt(v)} saved + ${fmt(fv-v)} growth</small>`:''}</span><b class="number">${fmt(fv)}</b></div>`;}).join('')}<div class="row"><span>${esc(L.expense)} a month</span><b class="number">${fmt(d.now)} → ${fmt(d.after)}</b></div><div class="row"><span>Cash flow a month</span><b class="number">${fmt(cfNow)} → ${fmt(cfAfter)}</b></div><div class="row"><span>Share of money in you keep</span><b>${rate(cfNow)} → ${rate(cfAfter)}</b></div>${d.saves?`<div class="actions" style="margin-top:14px">${button('Use these as my monthly limits','cut-limits','small primary')}</div>`:''}</section>`;
  const top=d.rows.slice(0,8),chart=`<section class="card"><div class="cardhead"><div><h2>Now and after your cuts</h2><p>Your biggest categories, per month</p></div></div>${compareBarChart([{name:'Now',values:top.map(r=>r.avg),color:'var(--pop)'},{name:'After cuts',values:top.map(r=>r.after),color:'var(--accent)'}],top.map(r=>r.c.name),'Spending now and after cuts')}</section>`;
  const table=`<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Every category</h2><p>Choose a cut for any category. Fixed costs usually need a bigger change (a cheaper plan, a new provider).</p></div></div><div class="table-wrap"><table class="tbl-edit"><thead><tr><th>Category</th><th>Kind</th><th class="num">Now / month</th><th>Cut</th><th class="num">Saves / month</th><th class="num">After</th></tr></thead><tbody>${d.rows.map(r=>`<tr><td>${esc(r.c.name)}${r.subs?`<small class="dim">${fmt(r.subs)} in cancelled charges</small>`:''}</td><td>${r.kind}</td><td class="num">${fmt(r.avg)}</td><td><select class="cut-pct" data-id="${r.id}" aria-label="Cut for ${esc(r.c.name)}">${CUT_STEPS.map(p=>`<option value="${p}" ${r.pct===p?'selected':''}>${p?p+'%':'No cut'}</option>`).join('')}</select></td><td class="num${r.saves?' pos':''}">${r.saves?fmt(r.saves):'—'}</td><td class="num">${fmt(r.after)}</td></tr>`).join('')}<tr class="tx-total"><td><b>Total</b></td><td></td><td class="num"><b>${fmt(d.now)}</b></td><td></td><td class="num pos"><b>${d.saves?fmt(d.saves):'—'}</b></td><td class="num"><b>${fmt(d.after)}</b></td></tr></tbody></table></div></section>`;
  const subs=d.subs.length?`<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Subscriptions and memberships</h2><p>Charges that repeat at the same price. Bills like rent and loans aren’t listed. Tick the ones you’d cancel.</p></div><span class="pill">${fmt(d.subs.reduce((a,r)=>a+r.perMonth,0))} a month</span></div><div class="table-wrap"><table><thead><tr><th>Cancel</th><th>Charge</th><th>Category</th><th>How often</th><th class="num">Per month</th><th class="num">Per year</th></tr></thead><tbody>${d.subs.map(r=>`<tr><td><input type="checkbox" class="cut-sub" data-key="${esc(r.key)}" ${d.off[r.key]?'checked':''} aria-label="Cancel ${esc(r.name)}"></td><td>${esc(r.name)}</td><td>${esc(category(r.category)?.name||'')}</td><td>${r.cadence}</td><td class="num">${fmt(r.perMonth)}</td><td class="num">${fmt(r.yearly)}</td></tr>`).join('')}</tbody></table></div></section>`:'';
@@ -6146,6 +6158,7 @@ function cutsView(){const d=cutsData(),ideas=cutIdeas(d),yr=d.saves*12,cfNow=d.i
 function setCut(fn){commit(()=>{state.cuts??={};state.cuts.c??={};state.cuts.s??={};fn(state.cuts);},'Cuts updated');}
 document.addEventListener('change',e=>{const el=e.target;
  if(el.classList?.contains('cut-pct')){const v=+el.value;if(CUT_STEPS.includes(v)&&category(el.dataset.id))setCut(C=>{if(v)C.c[el.dataset.id]=v;else delete C.c[el.dataset.id];});}
+ else if(el.id==='cut-growth'){const g=+el.value;if(CUT_GROWTH.includes(g))setCut(C=>{if(g)C.g=g;else delete C.g;});}
  else if(el.classList?.contains('cut-sub'))setCut(C=>{if(el.checked)C.s[el.dataset.key]=1;else delete C.s[el.dataset.key];});});
 // ---------- year over year: every year with records side by side ----------
 let yearsCat='';

@@ -59,7 +59,7 @@ const NICHE = {
     [/netflix/, 'streaming', 'Netflix'], [/spotify/, 'streaming', 'Spotify'], [/hulu/, 'streaming', 'Hulu'], [/disney ?\+|disneyplus|disney plus/, 'streaming', 'Disney+'],
     [/\bhbo\b|\bmax\.com|hbomax/, 'streaming', 'Max'], [/paramount/, 'streaming', 'Paramount+'], [/peacock/, 'streaming', 'Peacock'], [/youtube ?premium|youtube ?tv|google \*youtube/, 'streaming', 'YouTube'],
     [/apple\.com\/bill|apple music|itunes/, 'streaming', 'Apple'], [/audible/, 'streaming', 'Audible'], [/sirius ?xm/, 'streaming', 'SiriusXM'], [/pandora/, 'streaming', 'Pandora'], [/crunchyroll/, 'streaming', 'Crunchyroll'],
-    [/amazon prime|prime video|amzn prime/, 'streaming', 'Amazon Prime'], [/kindle unlimited/, 'streaming', 'Kindle Unlimited'],
+    [/amazon ?prime|amzn ?prime|prime ?video|prime membership|amazon\.com\*prime|\bprime\*[a-z0-9]/, 'streaming', 'Amazon Prime'], [/kindle unlimited/, 'streaming', 'Kindle Unlimited'],
     [/openai|chatgpt/, 'software', 'ChatGPT'], [/anthropic|claude\.ai/, 'software', 'Claude'], [/adobe/, 'software', 'Adobe'], [/microsoft|msft|xbox/, 'software', 'Microsoft'], [/google \*(storage|one|workspace|gsuite)|google one/, 'software', 'Google One'],
     [/icloud/, 'software', 'iCloud'], [/dropbox/, 'software', 'Dropbox'], [/\bcanva\b/, 'software', 'Canva'], [/\bnotion\b/, 'software', 'Notion'], [/1password|lastpass|dashlane/, 'software', 'Password manager'],
     [/nordvpn|expressvpn|surfshark/, 'software', 'VPN'], [/grammarly/, 'software', 'Grammarly'], [/duolingo/, 'software', 'Duolingo'], [/patreon/, 'software', 'Patreon'], [/substack/, 'software', 'Substack'],

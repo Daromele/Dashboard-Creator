@@ -159,4 +159,10 @@ Pending Activity,,,,,,$-50.00
   eq('a steady charge going up is a price rise', A.alerts([AR('1','2026-07-05',999,'tv',{cat:'s'}),AR('2','2026-08-05',999,'tv',{cat:'s'}),AR('3','2026-09-05',1299,'tv',{cat:'s',fresh:true})]).map(a=>[a.kind,a.before,a.amount]), [['price',999,1299]]);
   eq('a category well above its usual months is flagged', kinds(A.alerts([AR('1','2026-06-10',20000,'a'),AR('2','2026-07-10',20000,'b'),AR('3','2026-08-10',20000,'c'),AR('4','2026-09-10',60000,'d',{fresh:true})])), ['spike']);
   eq('old transactions alone raise nothing', A.alerts([AR('1','2026-09-10',4200,'gym'),AR('2','2026-09-11',4200,'gym')]), []);
+  // a product name is a different service from the same company
+  eq('Amazon Prime is not the same place as Amazon', [B.sameMerchant('amazon prime','amazon'),B.sameMerchant('amazon','amazon prime'),B.sameMerchant('uber eats','uber')], [false,false,false]);
+  eq('a place with a city added is still the same place', [B.sameMerchant('starbucks seattle','starbucks'),B.sameMerchant('whole foods','whole foods')], [true,true]);
+  { const st={...B.blank(),categoryRules:{amazon:'shopping','amazon prime':'streaming'}};
+    eq('rules keep Amazon and Amazon Prime apart', [B.ruleFor(st,'AMAZON PRIME*2K4AB'),B.ruleFor(st,'Amazon'),B.ruleFor({...st,categoryRules:{amazon:'shopping'}},'Amazon Prime')], ['streaming','shopping','']); }
+  { const c=A.context(P,s,B,'card');eq('Prime memberships are named Amazon Prime', ['AMAZON PRIME*2K4AB1C23','Amazon.com*Prime 8XY','PRIME VIDEO*ABC'].map(x=>A.merchant(x,c.dict)), ['Amazon Prime','Amazon Prime','Amazon Prime']); }
 };

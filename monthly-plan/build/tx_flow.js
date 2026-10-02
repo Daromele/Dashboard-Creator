@@ -39,7 +39,7 @@ ok('tag colours are assigned, not chosen',await p.evaluate(()=>!document.querySe
 await p.evaluate(()=>go('activity'));await p.selectOption('#tx-range','all');await p.fill('#search','');await p.waitForTimeout(250);
 const tid=await p.evaluate(()=>state.transactions.find(t=>/^Order batch/.test(t.note)&&editable(t)).id);
 await p.evaluate(id=>transactionForm(id),tid);await p.fill('#transaction-form input[name=tag]','Workshop');await p.click('#transaction-form button[type=submit]');await p.waitForTimeout(200);
-r=await p.evaluate(()=>({dlg:document.querySelector('#similar-any-form')?.innerText||'',n:document.querySelectorAll('#similar-any-form .row').length}));
+r=await p.evaluate(()=>({dlg:document.querySelector('#similar-any-form')?.innerText||'',n:document.querySelectorAll('#similar-any-form [name="g"]').length}));
 ok('single tag change asks about similar and future',/Tag similar transactions too/.test(await p.evaluate(()=>document.querySelector('dialog[open]')?.innerText||''))&&/future/.test(r.dlg)&&r.n>0,JSON.stringify(r).slice(0,200));
 await p.click('#similar-any-form button[type=submit]');await p.waitForTimeout(200);
 r=await p.evaluate(()=>{const g=Biz.tags().find(g=>g.name==='Workshop').id;const like=state.transactions.filter(t=>/^Order batch/.test(t.note)&&editable(t));return {all:like.every(t=>Biz.tagOf(t)===g),rule:Object.values(state.tagRules).includes(g)};});

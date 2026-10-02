@@ -20,6 +20,16 @@ for(const app of APPS){const p=await b.newPage({viewport:{width:1400,height:1000
  ok(`${app}: no cancel ideas for rent, loans or contractors`,!r.rent);ok(`${app}: cut back shows no NaN`,!r.nan);
  await p.evaluate(()=>document.querySelector('[data-action="cut-limits"]').click());await p.waitForTimeout(100);await p.evaluate(()=>document.querySelector('[data-action="cut-limits-ok"]').click());await p.waitForTimeout(100);
  ok(`${app}: cuts become monthly limits`,await p.evaluate(()=>{const d=cutsData(),r=d.rows.find(x=>x.saves);return state.baseline[r.id].amount===Math.round(r.after/100)*100;}));
+ await p.evaluate(()=>{const s=document.querySelector('#cut-growth');s.value='7';s.dispatchEvent(new Event('change',{bubbles:true}));});await p.waitForTimeout(100);
+ ok(`${app}: a growth rate adds growth to the totals`,await p.evaluate(()=>{const d=cutsData();return d.g===7&&grown(d.saves,7,10)>d.saves*120&&/growth/.test(document.querySelector('.cut-sums').innerText);}));
+ const sim=await p.evaluate(()=>{const c=state.categories.find(c=>!c.archived&&Budget.type(c)==='expense').id,mk=(id,note)=>({id,date:'2026-08-0'+(state.transactions.length%9+1),category:c,amount:1000,note});
+  state.transactions.push(mk('zA1','Amazon'),mk('zA2','Amazon'),mk('zP1','Amazon Prime'),mk('zP2','Amazon Prime'),mk('zS1','Starbucks'),mk('zS2','Starbucks Seattle'));
+  const other=state.categories.find(x=>!x.archived&&Budget.type(x)==='expense'&&x.id!==c).id;
+  offerSimilarFor('category',other,[state.transactions.find(t=>t.id==='zP1')],'Changed to');const prime=[...document.querySelectorAll('#similar-any-form [name="g"]')].map(x=>x.value+':'+x.checked);closeModal();
+  offerSimilarFor('category',other,[state.transactions.find(t=>t.id==='zS1')],'Changed to');const sb=[...document.querySelectorAll('#similar-any-form [name="g"]')].map(x=>x.value+':'+x.checked);closeModal();
+  state.transactions=state.transactions.filter(t=>!t.id.startsWith('z'));return {prime,sb};});
+ ok(`${app}: changing Amazon Prime never pulls in Amazon`,sim.prime.length&&sim.prime.every(x=>x.startsWith('amazon prime:')),JSON.stringify(sim.prime));
+ ok(`${app}: a city variant is offered but left unticked`,sim.sb.includes('starbucks seattle:false'),JSON.stringify(sim.sb));
  await p.evaluate(()=>go('annual',true));await p.waitForTimeout(150);
  const avg=await p.evaluate(()=>document.querySelector('.kpis').innerText);
  await p.evaluate(()=>document.querySelector('[data-action="annual-kpi-mode"][data-mode="total"]').click());await p.waitForTimeout(100);
