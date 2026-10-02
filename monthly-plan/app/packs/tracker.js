@@ -21,7 +21,8 @@ const NICHE = {
   build: { file: 'MoneyAutopilot.html' },
   storage: { key: 'jps-money-autopilot', file: 'money-autopilot' },
   themes: ['fjord', 'sage', 'lavender', 'linen', 'blush', 'slate', 'night', 'midnight'],
-  // autopilot: statements import themselves · offline: the app never goes online, not even for rates
+  // autopilot: statements import themselves · offline: the app never goes online, except to look up
+  // exchange rates (currencies and dates only) once you switch that on
   features: { goals: true, wealth: true, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, autopilot: true, offline: true },
   settings: { hiddenNav: ['paychecks', 'budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review'] },
 

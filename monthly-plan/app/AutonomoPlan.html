@@ -1511,6 +1511,8 @@ table.ap-look select{min-width:190px}table.ap-look td small{display:block}.num.p
 .cal-total{display:flex;flex-wrap:wrap;gap:2px 6px;font-size:11px;font-family:var(--num);line-height:1.2;margin:2px 0}.cal-total .out{color:var(--ink);font-weight:700}.cal-total .in{color:var(--pos);font-weight:700}.switch-line{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;margin:0}.switch-line input{width:auto;accent-color:var(--accent)}
 .tx-source{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;margin:-4px 0 14px}.acct-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);font-weight:700;font-size:13px;order:2;margin-left:auto}.acct-pill{cursor:pointer;font-family:inherit}.acct-pill:hover{background:color-mix(in srgb,var(--accent) 18%,var(--card))}.acct-chip{order:0;margin-left:0}
 .ap-fx{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}.ap-fx label,.ap-acct-fx{display:inline-flex;align-items:center;gap:4px;font-size:12px;margin:4px 0 0;white-space:nowrap}.ap-fx input,.ap-acct-fx input{width:90px;padding:4px 6px}
+.fx-choice{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px}.fx-choice>div{border:1px solid var(--rule);border-radius:var(--r-md);padding:14px}.fx-choice p{margin:6px 0 12px}@media(max-width:620px){.fx-choice{grid-template-columns:1fr}}.ap-acct-cur{width:auto;min-width:80px}
+table.tbl-edit td small{display:block}table.tbl-edit select.ap-acct-cur{width:84px;min-width:84px}table.tbl-edit .ap-acct-fx input{width:76px;min-width:76px}table.tbl-edit select[data-acct-kind]{min-width:120px;width:auto}table.tbl-edit input.ap-acct-name{min-width:130px}
 .acct-pill svg{width:14px;height:14px}.acct-pill small{font-weight:600;opacity:.75}.tx-raw{color:var(--ink-2);font-family:var(--num);font-size:12px;order:1}
 .kpis-lead{grid-template-columns:repeat(4,minmax(0,1fr))}.kpis-lead:has(>:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1250px){.kpis-lead:has(>:nth-child(5)){grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -2098,6 +2100,7 @@ const Budget = ((P) => {
      if(s.settings.symbol===undefined)s.settings.symbol='';
      if(!Object.hasOwn(DATE_FORMATS,s.settings.dateFormat))s.settings.dateFormat='auto';
     }
+    if(object(s)&&object(s.settings)&&s.settings.fxOnline!==undefined&&typeof s.settings.fxOnline!=='boolean')delete s.settings.fxOnline;
     if(!object(s)||s.version!==1||!object(s.settings)||!str(s.settings.name,100)||!str(s.settings.symbol,6)||!CURRENCIES.includes(s.settings.currency)||!Array.isArray(s.categories)||!s.categories.length||s.categories.length>300||!object(s.months)||!Array.isArray(s.transactions)||s.transactions.length>100000||!Array.isArray(s.goals)||!object(s.reviews))fail();
     const optionalNav=P.optionalNav;
     if(!Array.isArray(s.settings.hiddenNav))s.settings.hiddenNav=[];
@@ -2154,7 +2157,7 @@ const Budget = ((P) => {
     // Autopilot: the accounts statements come from, and how each entry was sorted
     if(s.accounts!==undefined||s.importFiles!==undefined){if(!Array.isArray(s.accounts))s.accounts=[];const seenA=new Set();
      s.accounts=s.accounts.filter(a=>object(a)&&id(a.id)&&!seenA.has(a.id)&&str(a.name,40)&&a.name.trim()&&['card','bank','savings','invest','retire','loan'].includes(a.kind)&&seenA.add(a.id)).slice(0,40);
-     s.accounts.forEach(a=>{if(a.cur!==undefined&&!CURRENCIES.includes(a.cur))delete a.cur;if(a.archived!==undefined&&a.archived!==true)delete a.archived;});
+     s.accounts.forEach(a=>{if(a.cur!==undefined&&!CURRENCIES.includes(a.cur))delete a.cur;if(a.pending!==undefined&&a.pending!==true)delete a.pending;if(a.archived!==undefined&&a.archived!==true)delete a.archived;});
      if(!object(s.importFiles))s.importFiles={};Object.entries(s.importFiles).forEach(([k,v])=>{if(!str(k,40)||!object(v)||!seenA.has(v.acct)||typeof v.flip!=='boolean')delete s.importFiles[k];});}
     {const accIds=new Set((s.accounts||[]).map(a=>a.id));s.transactions.forEach(t=>{if(t.acct!==undefined&&!accIds.has(t.acct))delete t.acct;if(t.raw!==undefined&&!str(t.raw,200))delete t.raw;
      if(t.auto!==undefined){if(!object(t.auto)||!str(t.auto.why,30))delete t.auto;else{if(t.auto.look!==undefined&&t.auto.look!==true)delete t.auto.look;Object.keys(t.auto).forEach(k=>{if(!['why','look','pair','batch','bc'].includes(k))delete t.auto[k];});if(t.auto.bc!==undefined&&!str(t.auto.bc,40))delete t.auto.bc;['pair','batch'].forEach(k=>{if(t.auto[k]!==undefined&&!id(t.auto[k]))delete t.auto[k];});}}});
@@ -3824,7 +3827,7 @@ document.addEventListener('submit',e=>{const form=e.target;if(!['transaction-for
  case 'review-form':commit(()=>state.reviews[reviewDate]={win:f.get('win').trim(),change:f.get('change').trim(),checks:[0,1,2].map(i=>f.get('check'+i)==='on'),done:e.submitter?.value==='done'},e.submitter?.value==='done'?'Weekly review complete':'Review notes saved');break;
  case 'settings-form':{const sym=f.get('symbol').trim();if(sym.length>6)throw Error('Use at most 6 characters for the symbol.');
   const df=f.get('dateFormat');if(!Object.hasOwn(Budget.DATE_FORMATS,df))throw Error('Choose a date format.');
-  commit(()=>{state.settings.name=f.get('name').trim();state.settings.currency=f.get('currency');state.settings.symbol=sym;state.settings.dateFormat=df;},'Preferences saved');break;}
+  {const old=state.settings.currency;commit(()=>{state.settings.name=f.get('name').trim();state.settings.currency=f.get('currency');state.settings.symbol=sym;state.settings.dateFormat=df;},'Preferences saved');if(old!==state.settings.currency&&Auto.rehome)Auto.rehome(old);}break;}
  }
  }catch(err){if($('#modal').open)formError(err);else toast(err.message);}
 });
@@ -4553,6 +4556,10 @@ const Xlsx=(()=>{
 // corrected the next time the app is online.
 const FX_URLS=[(c,a,b)=>`https://api.frankfurter.dev/v1/${a}..${b}?base=${c}&symbols=EUR`,(c,a,b)=>`https://api.frankfurter.app/${a}..${b}?from=${c}&to=EUR`];
 const fxTried=new Set();
+// an edition that stays offline looks rates up only after you allow it (Settings: state.settings.fxOnline)
+const fxOnlineOk=()=>!P.features.offline||state.settings.fxOnline===true;
+// how much 1 unit of cur is worth in home on a day, from the ECB tables (each holds euros per unit)
+function fxCross(cur,home,date){const a=fxDay(cur,date),b=fxDay(home,date);return a&&b?a/b:null;}
 const fxTable=cur=>state.fxECB?.[cur]||{};
 const dayShift=(d,n)=>new Date(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)+n)).toISOString().slice(0,10);
 // the rate for a day: that day's, else the last working day before it (up to ten days back)
@@ -4564,7 +4571,7 @@ function fxLatest(cur){if(cur==='EUR')return 1;const T=fxTable(cur),k=Object.key
 async function fxEnsure(cur,months){if(!cur||cur==='EUR'||typeof fetch!=='function')return true;const t0=Budget.today(),now=t0.slice(0,7);
  const need=[...new Set(months)].filter(m=>m<=now&&(fxMonth(cur,m)===null||m===now)).sort();if(!need.length)return true;
  const a=dayShift(need[0]+'-01',-10),b=[Budget.endOf(need.at(-1)),t0].sort()[0],key=`${cur}|${a}|${b}`;if(fxTried.has(key)&&need.every(m=>fxMonth(cur,m)!==null))return true;
- if(P.features.offline)return false;for(const url of FX_URLS){try{const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),9000),r=await fetch(url(cur,a,b),{signal:ctl.signal});clearTimeout(tm);if(!r.ok)continue;
+ if(!fxOnlineOk())return false;for(const url of FX_URLS){try{const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),9000),r=await fetch(url(cur,a,b),{signal:ctl.signal});clearTimeout(tm);if(!r.ok)continue;
    fxTried.add(key);const j=await r.json(),got=Object.entries(j.rates||{}).map(([d,v])=>[d,Number(v?.EUR)]).filter(([d,v])=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&v>0&&v<1e6);if(!got.length)continue;
    state.fxECB??={};const T=state.fxECB[cur]??={};got.forEach(([d,v])=>{T[d]=Math.round(v*1e6)/1e6;});const ks=Object.keys(T).sort();if(ks.length>2000)ks.slice(0,ks.length-2000).forEach(k=>delete T[k]);save();return true;}catch{}}
  return false;}
@@ -5897,7 +5904,7 @@ const Auto=(()=>{
     set(o,w,kind==='savings'?AP.savings:AP.investing,'transfer');set(w,o,inside,kind==='savings'?'transfer':flow(w)>0?'contribution':'withdrawal');}
    else{set(a,b,AP.transfer,'transfer');set(b,a,AP.transfer,'transfer');}n++;});
   return n;}
- async function importFiles(files,rates=null){const res={files:[],added:0,dup:0,paired:0,look:0,last:'',batch:Budget.uid()},ready=[];
+ async function importFiles(files,opt={}){const res={files:[],added:0,dup:0,paired:0,look:0,last:'',batch:Budget.uid()},ready=[];
   for(const file of files){const F={name:file.name};
    try{if(/\.(pdf)$/i.test(file.name))throw Error('PDF statements can’t be read. Download the CSV version from your bank (look for Download or Export).');
     if(/\.(xlsx?|ofx|qfx|qbo)$/i.test(file.name))throw Error('Download the CSV version of this statement instead (in your bank’s download options).');
@@ -5907,8 +5914,11 @@ const Auto=(()=>{
     const h=A.holdings(F.text,file.name,CSV);if(h){F.hold=h;ready.push(F);res.files.push(F);continue;}
     F.read=A.read(F.text,file.name,CSV,acc?{flip:mem.flip,kind:acc.kind,account:acc.name}:null);F.key=key;F.acc=acc;
     // a statement in another currency ("Amount (EUR)") is converted at your rate and keeps its original amount
-    const cur=fileCurrency(F.read.headers),home=state.settings.currency;
-    if(cur&&cur!==home){const rate=rates?.[cur]||state.fxRates?.[cur];if(!rate){F.error=`This statement is in ${cur}. Enter how much 1 ${cur} is in ${home} to add it.`;F.needRate=cur;F.file=file;res.files.push(F);continue;}F.fx={cur,rate};}
+    // its currency: named in the headers, else the account's, else the app's
+    const home=state.settings.currency,cur=fileCurrency(F.read.headers)||acc?.cur||home;
+    if(cur!==home){const g=await rateGetter(cur,F.read.rows.map(r=>r.date).concat(F.read.balance?[F.read.balance.date]:[]),{online:opt.online,manual:opt.rates?.[cur]});
+     if(!g){F.error=state.settings.fxOnline===true?`This statement is in ${cur}, and the exchange rates couldn’t be reached. Try again online, or enter a rate.`:`This statement is in ${cur}. Convert it to ${home} with each day’s real rate, or a rate you choose.`;F.needRate=cur;F.file=file;res.files.push(F);continue;}
+     F.fx={cur,...g,manual:opt.rates?.[cur]};}
     ready.push(F);
    }catch(e){F.error=e.message;}res.files.push(F);}
   if(!ready.length){report=res;render();return;}
@@ -5923,15 +5933,15 @@ const Auto=(()=>{
      if(!acct){acct=Budget.uid();state.accounts.push({id:acct,name:uniqueName(x.account,x.kind),kind:x.kind});}state.importFiles[x.key]={acct,flip:false};addBal(acct,date,x.value,F.id);return {account:account(acct).name,value:x.value,date};});res.balances=(res.balances||0)+F.balances.length;});
    ready.filter(F=>F.read).forEach(F=>{const f=F.read;let acct=F.acc?.id||accounts().find(a=>a.name===f.account&&a.kind===f.kind)?.id;
     if(!acct){acct=Budget.uid();state.accounts.push({id:acct,name:uniqueName(f.account,f.kind),kind:f.kind});}
-    state.importFiles[F.key]={acct,flip:f.flip};if(F.fx){const a=account(acct);if(a)a.cur=F.fx.cur;}if(f.balance){const bv=F.fx?Math.round(f.balance.value*F.fx.rate):f.balance.value;addBal(acct,f.balance.date,f.kind==='card'?Math.abs(bv):bv,F.id);}
+    state.importFiles[F.key]={acct,flip:f.flip};{const a=account(acct);if(a){if(F.fx)a.cur=F.fx.cur;else if(a.cur===state.settings.currency)delete a.cur;}}if(f.balance){const bv=F.fx?Math.round(f.balance.value*F.fx.get(f.balance.date)):f.balance.value;addBal(acct,f.balance.date,f.kind==='card'?Math.abs(bv):bv,F.id);}
     const ctx=A.context(P,state,Budget,f.kind),here=new Map(),mine=[];let dup=0;
     f.rows.forEach(r=>{const k=rowKey(acct,r.date,r.amount,r.desc),n=(here.get(k)||0)+1;here.set(k,n);if(n<=(have.get(k)||0)){dup++;return;}
-     const m0=A.merchant(r.desc,ctx.dict),name=(state.nameRules||{})[A.keyOf(m0)]||m0,c=A.classify({...r,name},ctx),home=F.fx?Math.round(r.amount*F.fx.rate):r.amount,amt=stored(c.category,home);
-     mine.push({id:Budget.uid(),date:r.date,category:c.category,amount:amt,...(F.fx&&amt?{fx:{currency:F.fx.cur,amount:Math.sign(amt)*Math.abs(r.amount)}}:{}),note:name,acct,raw:r.desc,auto:{why:c.why,batch:F.id,...(c.look?{look:true}:{}),...(r.bankCat&&c.look?{bc:r.bankCat.slice(0,40)}:{})}});});
+     const m0=A.merchant(r.desc,ctx.dict),name=(state.nameRules||{})[A.keyOf(m0)]||m0,c=A.classify({...r,name},ctx),home=F.fx?Math.round(r.amount*F.fx.get(r.date)):r.amount,amt=stored(c.category,home);
+     mine.push({id:Budget.uid(),date:r.date,category:c.category,amount:amt,...(F.fx&&amt?{fx:{currency:F.fx.cur,amount:Math.sign(amt)*Math.abs(r.amount),...(F.fx.src?{src:F.fx.src}:{})}}:{}),note:name,acct,raw:r.desc,auto:{why:c.why,batch:F.id,...(c.look?{look:true}:{}),...(r.bankCat&&c.look?{bc:r.bankCat.slice(0,40)}:{})}});});
     mine.forEach(t=>{const k=rowKey(acct,t.date,fileAmt(t),t.raw);have.set(k,(have.get(k)||0)+1);});
     fresh.push(...mine);const dates=f.rows.map(r=>r.date).sort();
     Object.assign(F,{acctId:acct,account:account(acct)?.name||f.account,kind:f.kind,added:mine.length,dup,from:dates[0],to:dates.at(-1),bad:f.bad});res.dup+=dup;});
-   ready.filter(F=>F.fx).forEach(F=>{state.fxRates??={};state.fxRates[F.fx.cur]=F.fx.rate;});
+   ready.filter(F=>F.fx?.manual).forEach(F=>{state.fxRates??={};state.fxRates[F.fx.cur]=F.fx.manual;});
    state.transactions.push(...fresh);res.paired=pairUp(fresh);res.added=fresh.length;res.look=fresh.filter(t=>t.auto?.look).length;res.alerts=fresh.length?alertsFor(new Set(fresh.map(t=>t.id))):[];
    if(fresh.length){res.last=fresh.map(t=>t.date).sort().at(-1);selected=res.last.slice(0,7);}
    ready.filter(F=>F.balances||F.added).forEach(F=>state.importLog.unshift({id:F.id,date:Budget.today(),files:[F.name.slice(0,80)],count:F.added||0}));state.importLog=state.importLog.slice(0,200);
@@ -5939,6 +5949,35 @@ const Auto=(()=>{
    // the message is only known once the import has run
    {toString:()=>msg});
  }
+ // ---------- currencies: each account has its own; amounts are kept in the app's currency ----------
+ // A rate for a list of dates, best first: the rate you typed for this import, the ECB rate on each day
+ // (online, only once you allow it), then the rate you saved for that currency. null: ask for one.
+ async function rateGetter(cur,dates,o={}){const home=state.settings.currency;if(cur===home)return {get:()=>1,src:''};
+  if(o.manual)return {get:()=>o.manual,src:'rate'};
+  if(o.online||state.settings.fxOnline===true){const ms=[...new Set(dates.map(d=>d.slice(0,7)))];await fxEnsure(cur,ms);await fxEnsure(home,ms);
+   if(dates.every(d=>fxCross(cur,home,d)))return {get:d=>fxCross(cur,home,d),src:'ecb'};}
+  const saved=state.fxRates?.[cur];return saved?{get:()=>saved,src:'rate',fallback:state.settings.fxOnline===true}:null;}
+ const quietly=fn=>{fn();Budget.invalidate(state);save();render();};
+ const origAbs=t=>Math.abs(t.fx?t.fx.amount:t.amount);
+ // restate an account in a currency: the statement's own numbers stay, the app's amounts follow
+ async function setAccountCurrency(a,cur,o={}){const home=state.settings.currency,list=state.transactions.filter(t=>t.acct===a.id);
+  const g=cur===home?{get:()=>1,src:''}:await rateGetter(cur,list.map(t=>t.date),o);
+  if(!g){commit(()=>{a.cur=cur;a.pending=true;},`${a.name} is in ${cur}: add a rate to convert it`);currencyDialog(a);return false;}
+  let n=0;(o.quiet?quietly:f=>commit(f,{toString:msg}))(()=>{if(cur===home)delete a.cur;else a.cur=cur;delete a.pending;if(o.manual&&cur!==home){state.fxRates??={};state.fxRates[cur]=o.manual;}
+   list.forEach(t=>{const v=origAbs(t),sg=Math.sign(t.amount)||1;if(cur===home){t.amount=sg*v;delete t.fx;}else{const h=Math.round(v*g.get(t.date));if(!h)return;t.amount=sg*h;t.fx={currency:cur,amount:sg*v,...(g.src?{src:g.src}:{})};}n++;});});
+  function msg(){return cur===home?`${a.name} is in ${cur}, the app’s currency`:`${a.name}: ${n} transaction${n===1?'':'s'} converted from ${cur} at ${g.src==='ecb'?'each day’s ECB rate':`1 ${cur} = ${g.get()} ${home}`}`;}
+  return true;}
+ // ask for a way to convert: the ECB rates online, or a rate of your own
+ function currencyDialog(a){const home=state.settings.currency,cur=a.cur;
+  modal(`Convert ${esc(a.name)} from ${cur} to ${home}`,`Its statements are in ${cur}; the app counts everything in ${home}.`,
+   `<div class="fx-choice"><div><b>Each day’s real rate</b><p class="small muted">The app looks up the European Central Bank rate for every transaction’s date (frankfurter.dev). Only the currencies and dates are sent: never amounts, names or your transactions.</p>${button('Look up rates online','ap-cur-online','primary',`data-id="${a.id}"`)}</div>
+    <div><b>Or one rate you choose</b><p class="small muted">Works offline. Used for every transaction in this account.</p><label class="ap-acct-fx">1 ${cur} =<input type="number" step="0.0001" min="0.0001" id="cur-rate" value="${state.fxRates?.[cur]||''}" aria-label="How much 1 ${cur} is in ${home}">${home}</label>${button('Use this rate','ap-cur-rate','',`data-id="${a.id}"`)}</div></div>`);}
+ // the app's own currency changed: every account keeps its statement numbers and is converted again
+ async function rehome(old){const home=state.settings.currency,R=state.fxRates||{},per=R[home];
+  commit(()=>{const N={};if(per){Object.entries(R).forEach(([c,v])=>{if(c!==home)N[c]=Math.round(v/per*1e6)/1e6;});N[old]=Math.round(1/per*1e6)/1e6;}state.fxRates=N;accounts().forEach(a=>{if(!a.cur)a.cur=old;});},`Converting your accounts to ${home}…`);
+  const left=[];for(const a of accounts()){if(!state.transactions.some(t=>t.acct===a.id)){if(a.cur===home)delete a.cur;continue;}
+   const g=a.cur===home?true:await rateGetter(a.cur,state.transactions.filter(t=>t.acct===a.id).map(t=>t.date));if(!g){quietly(()=>{a.pending=true;});left.push(a);continue;}await setAccountCurrency(a,a.cur,{quiet:true});}
+  if(left.length){toast(`${left.length} account${left.length===1?' needs':'s need'} a rate to convert to ${home}.`);currencyDialog(left[0]);}else toast(`Every account is now counted in ${home}.`);}
  // ---------- alerts: what deserves a look after an import ----------
  const HIDDEN_ALERTS=P.storage.key+'-alerts-hidden',alertKey=a=>a.kind+':'+a.ids.join(',');
  const hiddenAlerts=()=>{try{return JSON.parse(localStorage.getItem(HIDDEN_ALERTS)||'[]');}catch{return [];}};
@@ -5976,13 +6015,16 @@ const Auto=(()=>{
  function dropCard(big){return `<section class="card ap-drop${big?' is-big':''}" id="ap-drop" tabindex="0" aria-label="Drop statement files here"><div class="ap-drop-icon">${ico('up')}</div><h2>${big?'Drop all your statements here':'Drop more statements'}</h2><p>CSV downloads from your cards and bank accounts, as many as you like at once. They’re read on this computer and sorted by themselves.</p><div class="actions">${button('Choose files','ap-pick','primary')}${big?button('Explore sample data','demo','quiet'):''}</div><input type="file" id="ap-files" multiple accept=".csv,.tsv,.txt,text/csv,text/plain" hidden><p class="small muted ap-privacy">${ico('shield')} Nothing is uploaded. Long card and account numbers are hidden as soon as a file is read.</p></section>`;}
  function reportCard(){const r=report;if(!r)return '';const ok=r.files.filter(F=>!F.error),bad=r.files.filter(F=>F.error);
   return `<section class="card ap-report"><div class="cardhead"><div><h2>${r.added?`${plural(r.added,'transaction')} added`:'Nothing new to add'}</h2><p>${[ok.length?plural(ok.length,'file')+' read':'',r.balances?plural(r.balances,'balance')+' updated':'',r.dup?`${r.dup} already here, skipped`:'',r.paired?`${plural(r.paired,'card payment or transfer','card payments and transfers')} paired`:'',r.look?`${r.look} need${r.look===1?'s':''} a look`:''].filter(Boolean).join(' · ')}</p></div><div class="actions">${r.look?button(`Review ${r.look}`,'go-inbox','small primary'):''}${r.added?button('See the money picture','go-dashboard','small'):''}${button('Close','ap-report-close','small quiet')}</div></div>`+
-   `<div class="table-wrap"><table><thead><tr><th>File</th><th>Account</th><th>Dates</th><th class="num">Added</th><th class="num">Already here</th></tr></thead><tbody>${ok.filter(F=>F.balances).map(F=>`<tr><td><b>${esc(F.name)}</b><small class="dim">Balances</small></td><td>${F.balances.map(x=>esc(x.account)).join('<br>')}</td><td class="nw">${dateName(F.balances[0].date)}</td><td class="num" colspan="2">${F.balances.map(x=>fmt(x.value)).join('<br>')}</td></tr>`).join('')}${ok.filter(F=>!F.balances).map(F=>`<tr><td><b>${esc(F.name)}</b>${F.bad?`<small class="warn">${F.bad} line${F.bad===1?'':'s'} couldn’t be read</small>`:''}</td><td>${esc(F.account)}${account(F.acctId)?kindSelect(account(F.acctId)):`<small class="dim">${kindName(F.kind)}</small>`}</td><td class="nw">${F.from?dateName(F.from)+(F.to!==F.from?' – '+dateName(F.to):''):'—'}</td><td class="num">${F.added}</td><td class="num">${F.dup||'—'}</td></tr>`).join('')}${bad.map((F,i)=>`<tr><td><b>${esc(F.name)}</b><small class="warn">${esc(F.error)}</small></td><td colspan="3"></td><td class="num">${F.needRate?`<div class="ap-fx"><label>1 ${F.needRate} =<input type="number" step="0.0001" min="0.0001" class="ap-fx-rate" data-i="${r.files.indexOf(F)}" placeholder="rate" aria-label="How much 1 ${F.needRate} is in ${state.settings.currency}">${state.settings.currency}</label>${button('Add with this rate','ap-fx-go','small primary',`data-i="${r.files.indexOf(F)}"`)}</div>`:F.text?button('Map by hand','ap-map','small quiet',`data-i="${r.files.indexOf(F)}"`):''}</td></tr>`).join('')}</tbody></table></div></section>`;}
+   `<div class="table-wrap"><table><thead><tr><th>File</th><th>Account</th><th>Dates</th><th class="num">Added</th><th class="num">Already here</th></tr></thead><tbody>${ok.filter(F=>F.balances).map(F=>`<tr><td><b>${esc(F.name)}</b><small class="dim">Balances</small></td><td>${F.balances.map(x=>esc(x.account)).join('<br>')}</td><td class="nw">${dateName(F.balances[0].date)}</td><td class="num" colspan="2">${F.balances.map(x=>fmt(x.value)).join('<br>')}</td></tr>`).join('')}${ok.filter(F=>!F.balances).map(F=>`<tr><td><b>${esc(F.name)}</b>${F.bad?`<small class="warn">${F.bad} line${F.bad===1?'':'s'} couldn’t be read</small>`:''}</td><td>${esc(F.account)}${account(F.acctId)?kindSelect(account(F.acctId)):`<small class="dim">${kindName(F.kind)}</small>`}</td><td class="nw">${F.from?dateName(F.from)+(F.to!==F.from?' – '+dateName(F.to):''):'—'}</td><td class="num">${F.added}</td><td class="num">${F.dup||'—'}</td></tr>`).join('')}${bad.map((F,i)=>`<tr><td><b>${esc(F.name)}</b><small class="warn">${esc(F.error)}</small></td><td colspan="3"></td><td class="num">${F.needRate?`<div class="ap-fx">${button('Look up daily rates online','ap-fx-online','small primary',`data-i="${r.files.indexOf(F)}" title="Only the currencies and dates are sent (European Central Bank rates via frankfurter.dev), never your transactions"`)}<label>or 1 ${F.needRate} =<input type="number" step="0.0001" min="0.0001" class="ap-fx-rate" data-i="${r.files.indexOf(F)}" placeholder="rate" aria-label="How much 1 ${F.needRate} is in ${state.settings.currency}">${state.settings.currency}</label>${button('Use this rate','ap-fx-go','small',`data-i="${r.files.indexOf(F)}"`)}</div>`:F.text?button('Map by hand','ap-map','small quiet',`data-i="${r.files.indexOf(F)}"`):''}</td></tr>`).join('')}</tbody></table></div></section>`;}
  const kindSelect=a=>`<select data-acct-kind="${a.id}" aria-label="Account type for ${esc(a.name)}">${KINDS.map(([k,l])=>`<option value="${k}" ${a.kind===k?'selected':''}>${l}</option>`).join('')}</select>`;
  function accountsCard(full){const list=accounts();if(!list.length)return full?empty('No accounts yet','Accounts appear here as soon as you add a statement.','go-import','Add statements'):'';const now=Budget.today();
-  return `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Your accounts</h2><p>Found from your files. Rename one, fix its type (checking, card, savings…), or archive one you’ve closed. The type decides how money in and out are read.</p></div><span class="pill">${list.length}</span></div><div class="table-wrap"><table class="tbl-edit"><thead><tr><th>Account</th><th>Type</th><th>Latest transaction</th><th class="num">Transactions</th><th>Status</th><th class="num">Actions</th></tr></thead><tbody>${list.map(a=>{const tx=state.transactions.filter(t=>t.acct===a.id),last=tx.map(t=>t.date).sort().at(-1),stale=!a.archived&&last&&Budget.plusDays(last,35)<now;
-   return `<tr${a.archived?' class="dim"':''}><td><input class="ap-acct-name" data-acct="${a.id}" value="${esc(a.name)}" maxlength="30" aria-label="Account name"></td><td>${kindSelect(a)}${a.cur&&a.cur!==state.settings.currency?`<label class="ap-acct-fx"><span>${a.cur} · 1 ${a.cur} =</span><input type="number" step="0.0001" min="0.0001" class="ap-acct-rate" data-rate-acct="${a.id}" value="${state.fxRates?.[a.cur]||''}" aria-label="How much 1 ${a.cur} is in ${state.settings.currency}"><span>${state.settings.currency}</span></label>`:''}</td><td class="nw">${last?dateName(last):'—'}${stale?'<small class="warn">Add a newer statement</small>':''}</td><td class="num">${tx.length}</td><td>${a.archived?'Archived':'Active'}</td><td class="num nw"><div class="imp-acts">${button('Swap in/out','ap-acct-flip','small quiet',`data-id="${a.id}" title="Use when money in shows as money out"`)}${button(a.archived?'Restore':'Archive','ap-acct-arch','small quiet',`data-id="${a.id}" title="${a.archived?'Show it again':'Closed account: keep its history, hide it from net worth'}"`)}${button('Delete','ap-acct-del','small quiet',`data-id="${a.id}"`)}</div></td></tr>`;}).join('')}</tbody></table></div></section>`;}
+  return `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Your accounts</h2><p>Found from your files. Rename one, fix its type (checking, card, savings…), or archive one you’ve closed. The type decides how money in and out are read.</p></div><span class="pill">${list.length}</span></div><div class="table-wrap"><table class="tbl-edit"><thead><tr><th>Account</th><th>Type</th><th>Currency</th><th>Latest transaction</th><th class="num">Transactions</th><th>Status</th><th class="num">Actions</th></tr></thead><tbody>${list.map(a=>{const tx=state.transactions.filter(t=>t.acct===a.id),last=tx.map(t=>t.date).sort().at(-1),stale=!a.archived&&last&&Budget.plusDays(last,35)<now;
+   return `<tr${a.archived?' class="dim"':''}><td><input class="ap-acct-name" data-acct="${a.id}" value="${esc(a.name)}" maxlength="30" aria-label="Account name"></td><td>${kindSelect(a)}</td><td>${curCell(a)}</td><td class="nw">${last?dateName(last):'—'}${stale?'<small class="warn">Add a newer statement</small>':''}</td><td class="num">${tx.length}</td><td>${a.archived?'Archived':'Active'}</td><td class="num nw"><div class="imp-acts">${button('Swap in/out','ap-acct-flip','small quiet',`data-id="${a.id}" title="Use when money in shows as money out"`)}${button(a.archived?'Restore':'Archive','ap-acct-arch','small quiet',`data-id="${a.id}" title="${a.archived?'Show it again':'Closed account: keep its history, hide it from net worth'}"`)}${button('Delete','ap-acct-del','small quiet',`data-id="${a.id}"`)}</div></td></tr>`;}).join('')}</tbody></table></div></section>`;}
+ function curCell(a){const home=state.settings.currency,cur=a.cur||home,tx=state.transactions.filter(t=>t.acct===a.id&&t.fx),ecb=tx.length&&tx.every(t=>t.fx.src==='ecb');
+  return `<select class="ap-acct-cur" data-cur-acct="${a.id}" aria-label="Currency of ${esc(a.name)}">${[home,...Budget.CURRENCIES.filter(c=>c!==home)].map(c=>`<option ${c===cur?'selected':''}>${c}</option>`).join('')}</select>${cur===home?'':a.pending?`<small class="warn">Not converted yet</small>${button('Convert','ap-cur-convert','small',`data-id="${a.id}"`)}`:ecb?`<small class="dim">Each day’s ECB rate</small>`:`<label class="ap-acct-fx"><span>1 ${cur} =</span><input type="number" step="0.0001" min="0.0001" class="ap-acct-rate" data-rate-acct="${a.id}" value="${state.fxRates?.[cur]||''}" aria-label="How much 1 ${cur} is in ${home}"><span>${home}</span></label>`}`;}
  function accountsScreen(){return pagehead('Autopilot','Accounts','Every card and bank account the app found in your statements.',button('Add statements','go-import','primary'))+accountsCard(true)+
-  `<section class="card"><h2>Which type to pick</h2><div class="ap-steps"><div><b>${ico('wallet')}</b><span><b>Checking</b> and <b>Savings</b>: a debit card or bank account. Deposits are money in.</span></div><div><b>${ico('coins')}</b><span><b>Card</b>: a credit card. What it shows is money you owe; payments to it are not spending.</span></div><div><b>${ico('umbrella')}</b><span><b>Brokerage</b>, <b>Retirement</b> and <b>Loan or mortgage</b> count in your net worth.</span></div></div><p class="small muted">If you change between Card and a bank type, the app offers to swap money in and out for that account’s transactions.</p></section>`;}
+  `<section class="card"><h2>Which type to pick</h2><div class="ap-steps"><div><b>${ico('wallet')}</b><span><b>Checking</b> and <b>Savings</b>: a debit card or bank account. Deposits are money in.</span></div><div><b>${ico('coins')}</b><span><b>Card</b>: a credit card. What it shows is money you owe; payments to it are not spending.</span></div><div><b>${ico('umbrella')}</b><span><b>Brokerage</b>, <b>Retirement</b> and <b>Loan or mortgage</b> count in your net worth.</span></div></div><p class="small muted">If you change between Card and a bank type, the app offers to swap money in and out for that account’s transactions.</p></section>`+
+  `<section class="card"><div class="cardhead"><div><h2>Accounts in other currencies</h2><p>Set an account’s currency above. Its statement amounts are kept as they are and converted to ${state.settings.currency}, the app’s currency (Settings).</p></div></div><label class="switch-line"><input type="checkbox" id="fx-online" ${state.settings.fxOnline===true?'checked':''}><span>Look up each day’s exchange rate online</span></label><p class="small muted" style="margin-top:8px">European Central Bank rates, via frankfurter.dev. Only the currencies and dates are sent, never amounts, names or transactions. Off: you give one rate per currency and nothing goes online.</p></section>`;}
  // one line per imported file; an older import of several files at once splits by account (one file per account)
  const balSrc=id=>Object.entries(state.balances||{}).flatMap(([acct,l])=>l.filter(b=>b.src===id).map(b=>({acct,...b})));
  function importLines(){const lines=[];(state.importLog||[]).forEach(l=>{const tx=state.transactions.filter(t=>t.auto?.batch===l.id),bals=balSrc(l.id);
@@ -6157,8 +6199,9 @@ const Auto=(()=>{
   if(el.dataset.look!==undefined){settle(el.dataset.look,el.value);return;}
   if(el.dataset.sug!==undefined){if(el.value)fileSuggestion(el.dataset.sug,el.value,false);return;}
   if(el.dataset.acct!==undefined){const a=account(el.dataset.acct),v=el.value.trim().slice(0,30);if(a&&v&&v!==a.name)commit(()=>{a.name=v;},'Account renamed');return;}
-  if(el.classList.contains('ap-acct-rate')){const a=account(el.dataset.rateAcct),v=Math.round(+el.value*1e6)/1e6;if(!a?.cur)return;if(!(v>0&&v<1e6)){toast('Enter a rate above zero.');render();return;}
-   let n=0;commit(()=>{state.fxRates??={};state.fxRates[a.cur]=v;state.transactions.forEach(t=>{if(t.acct===a.id&&t.fx?.currency===a.cur){t.amount=Math.sign(t.amount)*Math.round(Math.abs(t.fx.amount)*v);n++;}});},`1 ${a.cur} = ${v} ${state.settings.currency} · ${n} ${a.name} transaction${n===1?'':'s'} converted again`);return;}
+  if(el.id==='fx-online'){const on=el.checked;commit(()=>{state.settings.fxOnline=on;},on?'Exchange rates will be looked up online':'Exchange rates stay offline: you give the rate');return;}
+  if(el.classList.contains('ap-acct-rate')){const a=account(el.dataset.rateAcct),v=Math.round(+el.value*1e6)/1e6;if(!a?.cur)return;if(!(v>0&&v<1e6)){toast('Enter a rate above zero.');render();return;}setAccountCurrency(a,a.cur,{manual:v});return;}
+  if(el.classList.contains('ap-acct-cur')){const a=account(el.dataset.curAcct);if(a&&Budget.CURRENCIES.includes(el.value)&&el.value!==(a.cur||state.settings.currency))setAccountCurrency(a,el.value);return;}
   if(el.dataset.acctKind!==undefined){const a=account(el.dataset.acctKind);if(!a||!KINDS.some(([k])=>k===el.value))return;const was=a.kind,debt=k=>['card','loan'].includes(k),n=state.transactions.filter(t=>t.acct===a.id).length;
   commit(()=>{a.kind=el.value;Object.values(state.importFiles||{}).forEach(f=>{if(f.acct===a.id)f.kind=el.value;});},`${a.name} is now a ${kindName(el.value).toLowerCase()} account`);
   if(n&&debt(was)!==debt(el.value))confirmation(`Swap money in and out for ${esc(a.name)}?`,`It was read as a ${kindName(was).toLowerCase()} account, and those often show money in and out the other way round. If deposits to ${esc(a.name)} show as money out (negative), swap its ${plural(n,'transaction')}. You can undo this right after.`,'ap-acct-flip-ok','Swap money in and out',`data-id="${a.id}"`);}});
@@ -6168,7 +6211,11 @@ const Auto=(()=>{
   switch(a){
   case 'ap-pick':$('#ap-files')?.click();break;
   case 'ap-report-close':report=null;render();break;
-  case 'ap-fx-go':{const F=report?.files[+b.dataset.i],v=+document.querySelector(`.ap-fx-rate[data-i="${b.dataset.i}"]`)?.value;if(!F?.needRate||!F.file)break;if(!(v>0&&v<1e6)){toast(`Enter how much 1 ${F.needRate} is in ${state.settings.currency}, e.g. 1.08.`);break;}importFiles([F.file],{[F.needRate]:Math.round(v*1e6)/1e6});break;}
+  case 'ap-fx-go':{const F=report?.files[+b.dataset.i],v=+document.querySelector(`.ap-fx-rate[data-i="${b.dataset.i}"]`)?.value;if(!F?.needRate||!F.file)break;if(!(v>0&&v<1e6)){toast(`Enter how much 1 ${F.needRate} is in ${state.settings.currency}, e.g. 1.08.`);break;}importFiles([F.file],{rates:{[F.needRate]:Math.round(v*1e6)/1e6}});break;}
+  case 'ap-fx-online':{const F=report?.files[+b.dataset.i];if(!F?.needRate||!F.file)break;commit(()=>{state.settings.fxOnline=true;},'Exchange rates will be looked up online');importFiles([F.file],{online:true});break;}
+  case 'ap-cur-online':{const a=account(b.dataset.id);if(!a?.cur)break;closeModal();commit(()=>{state.settings.fxOnline=true;},'Exchange rates will be looked up online');setAccountCurrency(a,a.cur,{online:true});break;}
+  case 'ap-cur-rate':{const a=account(b.dataset.id),v=Math.round(+($('#cur-rate')?.value)*1e6)/1e6;if(!a?.cur)break;if(!(v>0&&v<1e6)){toast(`Enter how much 1 ${a.cur} is in ${state.settings.currency}.`);break;}closeModal();setAccountCurrency(a,a.cur,{manual:v});break;}
+  case 'ap-cur-convert':{const a=account(b.dataset.id);if(a?.cur)currencyDialog(a);break;}
   case 'ap-alert-hide':{const k=b.dataset.k;try{localStorage.setItem(HIDDEN_ALERTS,JSON.stringify([...hiddenAlerts(),k].slice(-300)));}catch{}if(report?.alerts)report.alerts=report.alerts.filter(x=>alertKey(x)!==k);render();break;}
   case 'ap-folder-pick':pickFolder();break;
   case 'ap-folder-scan':scanFolder(true);break;
@@ -6215,7 +6262,7 @@ const Auto=(()=>{
    // a category rule for the old name follows the new one
    const R=state.categoryRules||{};keys.forEach(k=>{if(R[k]&&nk&&!R[nk])R[nk]=R[k];});},`${plural(all.length,'transaction')} renamed to ${name} · future statements follow`);});
  if(canFolder())setTimeout(()=>folderStore('get',null,'statements').then(h=>{if(h){stmtFolder=h;if(!demo)scanFolder(false);}}).catch(()=>{}),300);
- return {bulkTools,views:{import:importScreen,accounts:accountsScreen,inbox:inboxScreen,recurring:recurringScreen,paychecks:paychecksScreen,invest:netWorthScreen,dashboard},txChip,dashboard,importFiles,looking};
+ return {rehome,bulkTools,views:{import:importScreen,accounts:accountsScreen,inbox:inboxScreen,recurring:recurringScreen,paychecks:paychecksScreen,invest:netWorthScreen,dashboard},txChip,dashboard,importFiles,looking};
 })();
 // ---------- every table: sort by any column, search, filter ----------
 // Runs after each render on the tables of the screen. A heading click sorts (numbers, money and dates by
