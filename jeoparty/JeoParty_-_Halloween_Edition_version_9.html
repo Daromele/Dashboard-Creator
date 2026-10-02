@@ -1768,7 +1768,7 @@
         // ============================================================
         const Spooky = (() => {
             let master = null, musicBus = null, musicSource = null,
-                musicBuffer = null, musicLoading = null, ambienceOn = false;
+                musicBuffer = null, musicLoading = null, ambienceOn = false, musicFade = null;
 
             // Volume setting -> master gain. Phone speakers are quiet, so even
             // "medium" sits well above the old fixed 0.9.
@@ -1968,8 +1968,15 @@
                         musicSource = c.createBufferSource();
                         musicSource.buffer = buf;
                         musicSource.loop = true;
-                        musicSource.connect(musicBus);
-                        musicSource.start(0);
+                        // The track starts at full level on its first sample, so
+                        // fade it in; otherwise the first click sounds like a blast.
+                        const t = c.currentTime;
+                        musicFade = c.createGain();
+                        musicFade.gain.setValueAtTime(0.0001, t);
+                        musicFade.gain.exponentialRampToValueAtTime(1, t + 3);
+                        musicSource.connect(musicFade);
+                        musicFade.connect(musicBus);
+                        musicSource.start(t + 0.05);
                     }).catch((e) => {
                         console.warn('Could not start the music bed:', e);
                         ambienceOn = false;
@@ -1978,9 +1985,16 @@
                 stopAmbience() {
                     ambienceOn = false;
                     if (musicSource) {
-                        try { musicSource.stop(); } catch (e) {}
-                        try { musicSource.disconnect(); } catch (e) {}
-                        musicSource = null;
+                        const src = musicSource, fade = musicFade, c = ctx();
+                        musicSource = null; musicFade = null;
+                        try {
+                            const t = c.currentTime;
+                            fade.gain.cancelScheduledValues(t);
+                            fade.gain.setValueAtTime(fade.gain.value, t);
+                            fade.gain.linearRampToValueAtTime(0, t + 0.4);
+                            src.stop(t + 0.45);
+                        } catch (e) { try { src.stop(); } catch (e2) {} }
+                        src.onended = () => { try { src.disconnect(); fade && fade.disconnect(); } catch (e) {} };
                     }
                 },
                 isAmbient: () => ambienceOn,
@@ -2258,10 +2272,8 @@
                 { key: 'halloween-kids-2', emoji: '🏠', name: 'Family Night', tag: 'All ages', blurb: 'Everyone plays together, kids and grown-ups.' },
                 { key: 'halloween-world', emoji: '🌍', name: 'Around the World', tag: 'Family', blurb: 'Day of the Dead, Obon, Samhain and more.' }
             ]},
-            { group: 'Teens & Up', games: [
-                { key: 'halloween-witches', emoji: '🧙', name: 'Witches & Folklore', tag: 'Teens+', blurb: 'Salem, superstition and legends.' }
-            ]},
-            { group: 'Grown-Ups', games: [
+            { group: 'Teens & Grown-Ups', games: [
+                { key: 'halloween-witches', emoji: '🧙', name: 'Witches & Folklore', tag: 'Teens+', blurb: 'Salem, superstition and legends.' },
                 { key: 'halloween-adult', emoji: '🦇', name: 'Adult Party', tag: 'Ages 16+', blurb: 'The crowd-pleaser and the default game.' },
                 { key: 'halloween-party', emoji: '🍷', name: 'Second Helping', tag: 'Ages 16+', blurb: 'A whole second adult game.' },
                 { key: 'halloween-costume', emoji: '👗', name: 'Costume Party', tag: 'Ages 16+', blurb: 'Dressing up, done properly.' },
