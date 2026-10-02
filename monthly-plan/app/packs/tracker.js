@@ -128,10 +128,10 @@ const NICHE = {
   aliases: { coffee: 'dining', lunch: 'dining', dinner: 'dining', restaurant: 'dining', groceries: 'groceries', grocery: 'groceries', rent: 'housing', mortgage: 'housing', gas: 'transport', uber: 'transport', salary: 'salary', paycheck: 'salary', netflix: 'streaming', spotify: 'streaming', gym: 'memberships', amazon: 'shopping' },
 
   nav: [['dashboard', 'Money picture', 'today'], ['activity', 'Transactions', 'log'], ['recurring', 'Subscriptions & bills', 'calendar'],
-    ['annual', 'Year at a glance', 'insights'], ['invest', 'Net worth', 'umbrella'], ['paychecks', 'Paychecks', 'coins'], ['insights', 'Insights', 'spark'], ['import', 'Add statements', 'up'], ['inbox', 'Needs a look', 'check'], ['budget', 'Spending limits', 'plan'], ['goals', 'Savings & goals', 'umbrella'], ['scheduled', 'Reminders', 'history'],
+    ['annual', 'Year at a glance', 'insights'], ['years', 'Year over year', 'outlook'], ['invest', 'Net worth', 'umbrella'], ['paychecks', 'Paychecks', 'coins'], ['insights', 'Insights', 'spark'], ['import', 'Add statements', 'up'], ['inbox', 'Needs a look', 'check'], ['accounts', 'Accounts', 'wallet'], ['budget', 'Spending limits', 'plan'], ['goals', 'Savings & goals', 'umbrella'], ['scheduled', 'Reminders', 'history'],
     ['calendar', 'Calendar', 'calendar'], ['wealth', 'Monthly snapshots', 'outlook'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
-  optionalNav: ['recurring', 'annual', 'invest', 'paychecks', 'insights', 'budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review', 'guide'],
-  navGroups: [['Your money', ['dashboard', 'activity', 'recurring', 'annual', 'invest', 'paychecks', 'insights']], ['Autopilot', ['import', 'inbox']], ['Plan (optional)', ['budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review']]],
+  optionalNav: ['recurring', 'annual', 'years', 'invest', 'paychecks', 'insights', 'budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review', 'guide'],
+  navGroups: [['Your money', ['dashboard', 'activity', 'recurring', 'annual', 'years', 'invest', 'paychecks', 'insights']], ['Autopilot', ['import', 'inbox', 'accounts']], ['Plan (optional)', ['budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review']]],
   navGroupRest: 'Make it yours',
 
   labels: {

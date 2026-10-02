@@ -180,6 +180,20 @@ ok('categories archive in bulk',await p.evaluate(()=>['zz1','zz2'].every(id=>cat
 await p.evaluate(()=>{['zz1','zz2'].forEach(id=>{const x=document.querySelector(`.sel-pick[value="${id}"]`);x.checked=true;x.dispatchEvent(new Event('change',{bubbles:true}));});document.querySelector('[data-action="cat-bulk-delete"]').click();});await p.waitForTimeout(150);
 await p.evaluate(()=>document.querySelector('[data-action="cat-bulk-delete-ok"]').click());await p.waitForTimeout(150);
 ok('unused categories delete in bulk',await p.evaluate(()=>!category('zz1')&&!category('zz2')));
+// accounts: type change offers a swap; archive leaves net worth; year over year renders
+await p.evaluate(()=>go('accounts',true));await p.waitForTimeout(200);
+const acc=await p.evaluate(()=>{const a=state.accounts.find(a=>a.kind==='card'&&state.transactions.some(t=>t.acct===a.id));return a.id;});
+const amtsBefore=await p.evaluate(id=>state.transactions.filter(t=>t.acct===id).map(t=>t.amount),acc);
+await p.evaluate(id=>{const s=document.querySelector(`[data-acct-kind="${id}"]`);s.value='bank';s.dispatchEvent(new Event('change',{bubbles:true}));},acc);await p.waitForTimeout(150);
+ok('changing card to checking offers a swap',await p.evaluate(()=>!!document.querySelector('[data-action="ap-acct-flip-ok"]')));
+await p.evaluate(()=>document.querySelector('[data-action="ap-acct-flip-ok"]').click());await p.waitForTimeout(150);
+ok('the swap reverses that account’s money in and out',await p.evaluate(([id,b])=>{const a=state.transactions.filter(t=>t.acct===id).map(t=>t.amount);return state.accounts.find(x=>x.id===id).kind==='bank'&&a.every((v,i)=>v===-b[i]);},[acc,amtsBefore]));
+await p.evaluate(id=>document.querySelector(`[data-action="ap-acct-arch"][data-id="${id}"]`).click(),acc);await p.waitForTimeout(150);
+ok('an account can be archived',await p.evaluate(id=>state.accounts.find(x=>x.id===id).archived===true,acc));
+await p.evaluate(()=>go('years',true));await p.waitForTimeout(200);
+ok('year over year shows a row per year',await p.evaluate(()=>/Year by year/.test(document.querySelector('main').innerText)&&document.querySelectorAll('[data-action="years-open"]').length>=1));
+await p.evaluate(()=>document.querySelector('[data-action="years-open"]').click());await p.waitForTimeout(150);
+ok('a year opens its overview',await p.evaluate(()=>screen==='annual'));
 ok('the app made no network requests',net===0,net);
 ok('no page errors',!errs.length,errs.join('|'));
 await b.close();console.log(fails?`${fails} failed`:'autopilot flow: all checks passed');process.exit(fails?1:0);})();
