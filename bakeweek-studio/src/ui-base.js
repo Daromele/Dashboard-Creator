@@ -13,12 +13,16 @@ const CONFIG={
  themes:['fjord','kiln','linen','sage','ledger','slate','night','midnight'],
  railNote:'<b>A little planning.</b>Room for more baking.',
  // [id, label, icon, hub tabs?]: This week is one sidebar item with four tabs
- nav:[['week','This week','today',[['week','Week plan'],['shopping','Shopping'],['batches','Batch sheets'],['packing','Pack & collect']]],
-  ['orders','Orders','log'],['menu','Pre-order menu','note'],['standing','Standing orders','repeat'],['markets','Market days','tent'],['customers','Customers','users'],['year','Reports','outlook',[['year','Year at a glance'],['money','Profit & expenses']]],
+ // [id, label, icon, hub tabs?]: a hub is one sidebar item with tabs; a tab is [id, label, icon]
+ nav:[['week','This week','today',[['week','Week plan','today'],['shopping','Shopping','cart'],['batches','Batch sheets','oven'],['packing','Pack & collect','box']]],
+  ['calendar','Calendar','calendar'],
+  ['orders','Sales','log',[['orders','Orders','log'],['menu','Pre-order menu','note'],['standing','Standing orders','repeat'],['markets','Market days','tent'],['customers','Customers','users']]],
+  ['year','Reports','outlook',[['year','Year at a glance','outlook'],['money','Profit & expenses','coins']]],
   ['recipes','Recipes','tags'],['pantry','Pantry','cart'],['labels','Labels','label'],['tools','Calculators','calc'],
   ['settings','Settings & backup','palette'],['guide','How to use','help']],
- navGroups:[['Your week',['week']],['Selling',['orders','menu','standing','markets','customers','year']],['Your library',['recipes','pantry','labels','tools']]], navGroupRest:'Help & settings',
- optionalNav:['menu','standing','markets','customers','year','labels','tools','guide'], hiddenNav:[],
+ navGroups:[['Your week',['week','calendar']],['Selling',['orders','year']],['Your library',['recipes','pantry','labels','tools']]], navGroupRest:'Help & settings',
+ // views the baker can switch off in Settings: whole items or single tabs
+ optionalNav:['calendar','menu','standing','markets','customers','year','money','labels','tools','guide'], hiddenNav:[],
  welcome:[
   {icon:'today',step:'WELCOME',title:'Your bakery week, in order',text:'Orders, standing orders and market days become one day-by-day bake plan, one combined shopping list, scaled batch sheets and packing tickets.'},
   {icon:'note',step:'EVERY WEEK',title:'Post the menu, bake what’s ordered',text:'Copy a pre-order menu into your posts and messages. Subscriptions and café orders repeat on their own, and market days suggest how much to bring next time.'},
@@ -200,11 +204,12 @@ setInterval(()=>{const box=$('#pulse');if(!box||box.matches(':hover,:focus-withi
 
 /* ---------- render ---------- */
 const hubOf=id=>CONFIG.nav.find(n=>n[3]&&n[3].some(([c])=>c===id));
+const tabsOf=hub=>hub[3].filter(([c])=>!prefs.hiddenNav.includes(c));
 const navGroup=id=>(CONFIG.navGroups.find(([,ids])=>ids.includes(id))||[CONFIG.navGroupRest])[0];
 function applyRail(){$('#app').classList.toggle('rail-min',railMin);const t=$('.rail-toggle');t.setAttribute('aria-expanded',String(!railMin));t.setAttribute('aria-label',railMin?'Expand navigation':'Collapse navigation');}
 function renderNav(){const hidden=new Set(prefs.hiddenNav),hub=hubOf(screen);let last='';if(hub)hubLast[hub[0]]=screen;
- $('#nav').innerHTML=CONFIG.nav.filter(([id])=>!hidden.has(id)).map(([id,label,icon,kids])=>{const g=navGroup(id),h=g!==last?`<div class="navgroup">${g}</div>`:'';last=g;
-  const current=kids?hub&&hub[0]===id:screen===id;return h+`<button class="navlink" data-action="go" data-go="${kids?hubLast[id]||id:id}" title="${label}" ${current?'aria-current="page"':''}>${ico(icon)}<span>${label}</span></button>`;}).join('');}
+ $('#nav').innerHTML=CONFIG.nav.filter(n=>n[3]?tabsOf(n).length:!hidden.has(n[0])).map(([id,label,icon,kids])=>{if(kids&&hidden.has(hubLast[id]))delete hubLast[id];const g=navGroup(id),h=g!==last?`<div class="navgroup">${g}</div>`:'';last=g;
+  const current=kids?hub&&hub[0]===id:screen===id;return h+`<button class="navlink" data-action="go" data-go="${kids?hubLast[id]||tabsOf(CONFIG.nav.find(n=>n[0]===id))[0][0]:id}" title="${label}" ${current?'aria-current="page"':''}>${ico(icon)}<span>${label}</span></button>`;}).join('');}
 function renderStatus(){const s=storageProblem?'Backup needed':demo?'Sample mode':'Saved on this device';['#save-status','#rail-status'].forEach(k=>{const el=$(k);el.textContent=s;el.classList.toggle('warn',!!storageProblem);});
  $('#storage-banner').hidden=!storageProblem||demo;$('#storage-banner').innerHTML=storageProblem?`<span><b>Not saved.</b> ${esc(storageProblem)}</span><div class="actions">${button('Download backup','backup','small primary')}${recoveryRaw?button('Save recovery data','recovery','small'):''}${storageReloadable?button('Reload this tab','reload','small'):''}</div>`:'';
  const show=!demo&&!storageProblem&&!bannerHidden&&hasData()&&!protectedNow(),reconnect=folder&&folderStatus!=='Connected';
@@ -216,12 +221,12 @@ function captureFocus(){const el=document.activeElement;if(!el||el===document.bo
  if(!key)return null;let sel=null;try{if(el.selectionStart!=null)sel=[el.selectionStart,el.selectionEnd];}catch{}return {key,sel};}
 function restoreFocus(f){if(!f)return;let el=null;try{el=document.querySelector(f.key);}catch{}if(!el)return;el.focus({preventScroll:true});try{if(f.sel)el.setSelectionRange(...f.sel);}catch{}}
 function render(){const f=captureFocus();if(typeof autoSync==='function')autoSync();
- if(prefs.hiddenNav.includes(hubOf(screen)?.[0]||screen))screen='week';
+ if(prefs.hiddenNav.includes(screen))screen='week';
  document.documentElement.dataset.theme=prefs.theme;applyRail();renderNav();renderStatus();
  $('#week-label').textContent=weekLabel(week);$('#week-picker').value=week;
  const hub=hubOf(screen);
- $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.business)}</b> · Bakeweek Studio</span><b>${esc(['year','markets','money'].includes(screen)?week.slice(0,4):['orders','standing','customers','labels','recipes','pantry','tools','settings','guide'].includes(screen)?'Printed '+date(today()):'Week of '+weekLabel(week))}</b></div>`+
-  (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${hub[3].map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
+ $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.business)}</b> · Bakeweek Studio</span><b>${esc(['year','markets','money'].includes(screen)?week.slice(0,4):screen==='calendar'?monthName(calMonth()):['orders','standing','customers','labels','recipes','pantry','tools','settings','guide'].includes(screen)?'Printed '+date(today()):'Week of '+weekLabel(week))}</b></div>`+
+  (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${tabsOf(hub).map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
   (VIEWS[screen]||VIEWS.week)()+`<footer class="footer"><span>Bakeweek Studio · JPS Digital Pages</span><span>${demo?'Sample bakery · nothing saved':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
  sortTables();countUp();restoreFocus(f);}
 // every table sorts by its headings (click, Enter or Space); totals rows stay at the bottom; the choice survives re-renders

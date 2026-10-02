@@ -8,6 +8,7 @@
 //   src/ui-sales.js    standing orders and market days (sell-through, leftovers, suggested amounts)
 //   src/ui-menu.js     the weekly pre-order menu: limits, cutoff, copyable menu text, pre-orders
 //   src/ui-extras.js   labels, customers, profit & expenses, order messages, pantry minimums
+//   src/ui-cal.js      the month calendar and weekly routines
 //   src/ui-tools.js    kitchen calculators: scale a recipe, dough, levain, dough temperature, pans, conversions, price check
 // Fonts (DM Sans + Manrope) are embedded from the skill's assets/fonts.css.
 //   node build.js            build
@@ -16,7 +17,7 @@ const fs=require('fs'),path=require('path');
 const S=f=>fs.readFileSync(path.join(__dirname,'src',f),'utf8');
 const FONTS=path.join(__dirname,'../.claude/skills/sellable-html-app/assets/fonts.css');
 function build(){let html=S('shell.html');
- const parts={'/*@@FONTS@@*/':fs.readFileSync(FONTS,'utf8').trim(),'/*@@CSS@@*/':S('house.css')+'\n'+S('bakeweek.css'),'/*@@BAKECORE@@*/':S('bakecore.js').trim(),'/*@@UI@@*/':S('ui-base.js')+'\n'+S('ui-views.js')+'\n'+S('ui-sales.js')+'\n'+S('ui-menu.js')+'\n'+S('ui-extras.js')+'\n'+S('ui-tools.js')};
+ const parts={'/*@@FONTS@@*/':fs.readFileSync(FONTS,'utf8').trim(),'/*@@CSS@@*/':S('house.css')+'\n'+S('bakeweek.css'),'/*@@BAKECORE@@*/':S('bakecore.js').trim(),'/*@@UI@@*/':S('ui-base.js')+'\n'+S('ui-views.js')+'\n'+S('ui-sales.js')+'\n'+S('ui-menu.js')+'\n'+S('ui-extras.js')+'\n'+S('ui-cal.js')+'\n'+S('ui-tools.js')};
  for(const [k,v] of Object.entries(parts)){if(html.split(k).length!==2)throw Error('shell.html needs exactly one '+k);html=html.replace(k,()=>v);}
  if(/@@[A-Z]+@@/.test(html))throw Error('unfilled marker in shell.html');
  return html;}

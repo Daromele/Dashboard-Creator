@@ -68,7 +68,7 @@ const fails=[],check=(ok,msg)=>{console.log((ok?'  ok  ':'  FAIL ')+msg);if(!ok)
  check(await ev(()=>{const t=document.querySelector('#print-area').textContent;return t.includes('Order quote')&&!/ingredients|Kitchen note/i.test(t);}),'the customer quote leaves out costs and kitchen notes');
  await ev(()=>window.dispatchEvent(new Event('afterprint')));
  // 7. orders screen: filter, search keeps focus
- await p.click('.navlink[data-go=orders]');await p.click('[data-action=status-filter][data-k=all]');await p.fill('#search','pat');await wait(400);
+ await ev(()=>go('orders'));await p.click('[data-action=status-filter][data-k=all]');await p.fill('#search','pat');await wait(400);
  check(await ev(()=>document.activeElement?.id==='search'&&document.querySelectorAll('#content tbody tr').length===1),'search filters and keeps the caret in the box');
  // 8. backup, start fresh, restore
  const [dl]=await Promise.all([p.waitForEvent('download'),p.click('.topbar [data-action=backup]')]);const bk=path.join(os.tmpdir(),'bakeweek-smoke-backup.json');await dl.saveAs(bk);
@@ -96,11 +96,11 @@ const fails=[],check=(ok,msg)=>{console.log((ok?'  ok  ':'  FAIL ')+msg);if(!ok)
  check(await ev(()=>demo&&state.orders.length>250&&state.standing.length===6),'sample bakery has nine months of history');
  await p.click('#rail-demo');await wait(200);check(await ev(m=>!demo&&state.orders.length===m,mine),'leaving the sample restores your bakery');
  // 12. a standing order and a market day in the buyer's own bakery, through the real forms
- await p.click('.navlink[data-go=standing]');await p.click('.pagehead [data-action=standing-form]');await wait(200);
+ await ev(()=>go('standing'));await p.click('.pagehead [data-action=standing-form]');await wait(200);
  await p.fill('#standing-form [name=customer]','Bread club: Sam');await p.check('#standing-form [name=prepaid]');await p.click('#standing-form button[type=submit]');await wait(300);
  check(await ev(()=>state.standing.length===1&&state.orders.filter(o=>o.standingId).length===4&&state.orders.filter(o=>o.standingId).every(o=>o.paid>0)),'standing order adds four prepaid weekly drops');
  await p.reload();await wait(900);await closeTour();check(await ev(()=>state.standing.length===1&&state.orders.filter(o=>o.standingId).length===4),'…kept after reload, with no extra drops');
- await p.click('.navlink[data-go=markets]');await p.click('.pagehead [data-action=market-form]');await wait(200);await p.fill('#market-form [name=customer]','Riverside market');
+ await ev(()=>go('markets'));await p.click('.pagehead [data-action=market-form]');await wait(200);await p.fill('#market-form [name=customer]','Riverside market');
  await p.fill('#market-form [name=dueDate]','2026-10-10');await p.dispatchEvent('#market-form [name=dueDate]','change');await p.click('#market-form button[type=submit]');await wait(300);
  const mk=await ev(()=>state.orders.find(o=>o.kind==='market')?.id);check(!!mk&&await ev(()=>C.planWeek(state,week).totals.markets===1),'market day joins the week plan');
  await ev(m=>{commit(s=>{for(const i of s.ingredients)i.stock+=1e5;for(const r of C.planWeek(s,week).runs.filter(r=>r.allocations.some(a=>a.orderId===m)))C.completeRun(s,r.key,week);});},mk);
@@ -110,7 +110,7 @@ const fails=[],check=(ok,msg)=>{console.log((ok?'  ok  ':'  FAIL ')+msg);if(!ok)
  // 13. dough prep the day before, and the weekly pre-order menu
  await ev(()=>recipeForm(state.recipes[0].id));await wait(150);await p.selectOption('#recipe-form [name=prepDays]','1');await p.fill('#recipe-form [name=prepMinutes]','20');await p.fill('#recipe-form [name=prepNote]','Chill the dough');await p.click('#recipe-form button[type=submit]');await wait(250);
  check(await ev(()=>state.recipes[0].prepDays===1&&C.planWeek(state,week).totals.prepMinutes>0),'a recipe’s day-before prep lands in the plan');
- await p.click('.navlink[data-go=menu]');await p.click('#content [data-action=menu-form]');await wait(200);await p.click('#menu-form button[type=submit]');await wait(300);
+ await ev(()=>go('menu'));await p.click('#content [data-action=menu-form]');await wait(200);await p.click('#menu-form button[type=submit]');await wait(300);
  check(await ev(()=>!!menuOf(week)),'this week’s menu is created');await p.click('.pagehead [data-action=menu-order]');await wait(200);
  await p.fill('#menu-order-form [name=customer]','Jo');await p.fill('#menu-order-form [data-price]','3');await p.click('#menu-order-form button[type=submit]');await wait(300);
  check(await ev(()=>state.orders.some(o=>o.menuId&&o.customer==='Jo')),'a pre-order from the menu joins the order book');
@@ -122,12 +122,23 @@ const fails=[],check=(ok,msg)=>{console.log((ok?'  ok  ':'  FAIL ')+msg);if(!ok)
  await p.click('.navlink[data-go=week]');await p.click('.hub-tabs [data-go=shopping]');await wait(150);check(await ev(()=>/Restock to your minimums/.test(document.querySelector('#content').textContent)),'shopping shows the restock list');
  await p.click('.navlink[data-go=labels]');await wait(150);await p.fill('#content [data-lbl]','3');await wait(500);await ev(()=>printLabels());await wait(300);
  check(await ev(()=>document.querySelectorAll('#print-area .lbl:not(.empty)').length===3&&/Contains: Wheat/.test(document.querySelector('#print-area').textContent)),'three labels print with their allergens');await ev(()=>document.body.classList.remove('printing'));
- await p.click('.navlink[data-go=customers]');await wait(150);await p.click('#content tbody [data-action=customer-form]');await wait(150);await p.fill('#customer-form [name=allergies]','Sesame');await p.click('#customer-form button[type=submit]');await wait(250);
+ await ev(()=>go('customers'));await wait(150);await p.click('#content tbody [data-action=customer-form]');await wait(150);await p.fill('#customer-form [name=allergies]','Sesame');await p.click('#customer-form button[type=submit]');await wait(250);
  const cname=await ev(()=>state.customers[0]?.name);check(!!cname,'a customer card is saved');
  await ev(n=>orderForm(state.orders.find(o=>o.customer===n&&o.kind!=='market').id),cname);await wait(150);check(await ev(()=>/Allergies:/.test(document.querySelector('#dlg').textContent)),'their allergy shows on the order');
  await p.click('#dlg [data-action=msg-copy][data-k=confirm]');await wait(200);check(await ev(()=>/copied|Copying/.test(document.querySelector('#toast').textContent)),'a confirmation message can be copied');await ev(()=>closeModal());
  await ev(()=>expenseForm());await wait(150);await p.fill('#expense-form [name=amount]','25');await p.fill('#expense-form [name=description]','Bags');await p.click('#expense-form button[type=submit]');await wait(250);
  check(await ev(()=>state.expenses.length===1&&state.expenses[0].description==='Bags'),'an expense is logged');
+ // 15. a tidy sidebar: sales views are tabs of one item, and a tab can be switched off on its own
+ check(await ev(()=>document.querySelectorAll('#nav .navlink').length<=11&&!!document.querySelector('.navlink[data-go=orders],.navlink[data-go=menu],.navlink[data-go=standing],.navlink[data-go=markets],.navlink[data-go=customers]')),'one Sales item in the sidebar');
+ await ev(()=>go('orders'));check(await ev(()=>document.querySelectorAll('.hub-tabs button').length===5),'Sales has five tabs');
+ await ev(()=>commit((s,p)=>{p.hiddenNav=[...p.hiddenNav,'markets'];}));await ev(()=>go('markets'));check(await ev(()=>screen==='week'&&![...document.querySelectorAll('.hub-tabs button')].some(b=>b.dataset.go==='markets')),'a switched-off tab is gone and can’t be opened');
+ await ev(()=>commit((s,p)=>{p.hiddenNav=p.hiddenNav.filter(x=>x!=='markets');}));
+ // 16. routines and the month calendar
+ await ev(()=>{go('settings');routineForm();});await wait(150);await p.fill('#routine-form [name=name]','Feed the starter');await p.click('#routine-form button[type=submit]');await wait(250);
+ check(await ev(()=>state.routines.length===1&&C.planWeek(state,week).totals.routineMinutes===70),'a daily routine adds its minutes to every day');
+ await ev(()=>{selectedDay=today();go('week');});await wait(150);await p.click('#content [data-routine]');await wait(200);check(await ev(()=>state.routineLog.length===1),'ticking a routine off is saved');
+ await ev(()=>go('calendar'));await wait(150);check(await ev(()=>document.querySelectorAll('.cal-day').length>=28),'the calendar shows the month');
+ await p.click(`.cal-day[data-date="${await ev(()=>C.addDays(today(),2))}"]`);await wait(150);check(await ev(()=>screen==='week'&&selectedDay===C.addDays(today(),2)),'picking a day opens its kitchen plan');
  await p.click('.navlink[data-go=tools]');await p.fill('[data-c="scale.value"]','36');await wait(100);check(await ev(()=>/× 3/.test(document.querySelector('#calc-out').textContent)),'calculator scales a recipe to 36 pieces');
  check(!errs.length,'no page errors'+(errs.length?': '+errs.slice(0,3).join(' | '):''));
  await b.close();console.log(fails.length?`\n${fails.length} failure(s)`:'\nall flows passed');process.exit(fails.length?1:0);})();

@@ -54,6 +54,18 @@ node ../.claude/skills/sellable-html-app/scripts/check_app.js Bakeweek_Studio.ht
   - **Shopping**: the combined list and spend by supplier;
   - **Batch sheets**: scaled runs to make and already made;
   - **Pack & collect**: one card per pickup.
+- **Sidebar**: This week, Calendar, Sales, Reports, Recipes, Pantry, Labels, Calculators,
+  Settings and How to use.
+  - **Sales** is a hub with five tabs: Orders, Pre-order menu, Standing orders, Market days and
+    Customers.
+  - Any optional view, including a single tab, can be switched off in Settings.
+- **Calendar**: the month, Monday to Sunday.
+  - Each day shows pickups, standing drops, pre-orders, market days, menu cutoffs and dough prep,
+    with a bar for its hands-on hours (red when over).
+  - The KPIs show the month's pickups and drops, market days, sales, and days over your hours.
+  - Picking a day opens its kitchen plan. It prints.
+- **Routines** (Settings): weekly jobs such as feeding the starter, a deep clean or ordering flour.
+  They show on each day's kitchen plan to tick off, and their minutes count toward that day.
 - **Orders**: custom orders and standing drops, with a status filter, a filter by kind, search,
   paging and sorting. Market days are kept on their own screen.
 - **Pre-order menu**: one menu a week, following the week at the top.
@@ -123,6 +135,10 @@ node ../.claude/skills/sellable-html-app/scripts/check_app.js Bakeweek_Studio.ht
 
 ## Data
 
+- **Routines** live in BakeCore's `routines` (`name`, `days`, `minutes`, `note`) and
+  `routineLog` (`{id, date}` ticks).
+  - `planWeek` gives each day its `routines` (with `done`) and `routineMinutes`.
+  - The functions are `saveRoutine`, `deleteRoutine` and `toggleRoutine`.
 - **Labels, customers, expenses.**
   - Ingredients: `labelName`, `allergens` (wheat, milk, eggs, soy, peanuts, tree nuts, sesame,
     fish, shellfish) and `minStock`.
