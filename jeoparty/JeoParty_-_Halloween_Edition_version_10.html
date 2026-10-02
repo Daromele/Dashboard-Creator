@@ -265,6 +265,11 @@
         .nav-links button { margin-left: 0; }
         .nav-icons { display: inline-flex; gap: 0.25rem; margin-left: 0.35rem; padding-left: 0.6rem; border-left: 1px solid var(--border); }
         .btn-nav-icon { width: 2.25rem; height: 2.1rem; padding: 0; font-size: 1.05rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+        .vol-wrap { position: relative; display: inline-flex; }
+        .vol-pop { position: absolute; top: calc(100% + .45rem); right: 0; z-index: 50; width: 14rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); padding: .8rem; display: flex; flex-direction: column; gap: .35rem; text-align: left; }
+        .vol-pop[hidden] { display: none; }
+        .vol-pop label { font-size: .85rem; margin-top: .4rem; display: flex; justify-content: space-between; color: var(--text); }
+        .vol-pop input[type=range] { width: 100%; accent-color: var(--primary); }
         .now-playing { margin: .35rem 0 0; font-size: .95rem; color: var(--text-muted); }
         .link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--primary); text-decoration: underline; cursor: pointer; }
         .games-intro { max-width: 46rem; margin: .25rem 0 1.5rem; }
@@ -975,6 +980,7 @@
             100% { transform: translate(112vw, 2vh) scale(.8) rotate(-6deg); }
         }
         main, .app-nav, .app-footer { position: relative; z-index: 1; }
+        .app-nav { z-index: 20; }
         body:not(.no-atmos) .question-tile:not(.used) {
             animation: candleFlicker 5.5s ease-in-out infinite;
         }
@@ -1104,7 +1110,7 @@
             28% { transform: scale(1); } 42% { transform: scale(1.16); } 60% { transform: scale(1); }
         }
         /* Ambience button in the nav */
-        .ambience-btn.on { background: var(--primary); color: #fff; border-color: transparent; }
+        .ambience-btn.on, #vol-btn.on { background: var(--primary); color: #fff; border-color: transparent; }
 
         @media (prefers-reduced-motion: reduce) {
             .moon, .ghost, .fall, .spider, .category-header, .question-tile,
@@ -1185,7 +1191,16 @@
                 <button class="btn btn-secondary btn-sm" data-view="scoreboard">Scores</button>
                 <button class="btn btn-secondary btn-sm" data-view="settings">Settings</button>
                 <span class="nav-icons">
-                    <button id="ambience-btn" class="btn btn-secondary btn-sm btn-nav-icon ambience-btn" title="Background wind, distant thunder and howls" aria-label="Ambience">🔈</button>
+                    <span class="vol-wrap">
+                        <button id="vol-btn" class="btn btn-secondary btn-sm btn-nav-icon" title="Sound &amp; volume" aria-label="Sound and volume" aria-expanded="false" aria-controls="vol-pop">🔈</button>
+                        <div id="vol-pop" class="vol-pop" hidden>
+                            <button id="ambience-btn" type="button" class="btn btn-secondary btn-sm ambience-btn" style="width:100%;">🔈 Ambience off</button>
+                            <label for="pop-music">Music <span id="pop-music-val"></span></label>
+                            <input type="range" id="pop-music" min="0" max="100" step="5">
+                            <label for="pop-sfx">Effects <span id="pop-sfx-val"></span></label>
+                            <input type="range" id="pop-sfx" min="0" max="100" step="5">
+                        </div>
+                    </span>
                     <button class="btn btn-secondary btn-sm btn-nav-icon" data-view="print" title="Print Center" aria-label="Print">🖨️</button>
                     <button class="btn btn-secondary btn-sm btn-nav-icon" data-view="help" title="Help" aria-label="Help">❓</button>
                 </span>
@@ -1429,7 +1444,7 @@
                     <li>Rename the four teams, or keep The Ghouls, Witch Please, Pumpkin Spice and Bat Attitude.</li>
                     <li>Click <strong>Game Board</strong>, then click any tile. That's the whole setup.</li>
                 </ol>
-                <p class="text-muted" style="font-size:.9rem;margin-bottom:0;">Tap <strong>🔈 Ambience</strong> in the top bar for wind, distant thunder and the occasional howl.</p>
+                <p class="text-muted" style="font-size:.9rem;margin-bottom:0;">Tap the <strong>🔈 speaker</strong> in the top bar, then <strong>Ambience</strong>, for wind, distant thunder and the occasional howl.</p>
             </div>
 
             <div class="help-grid">
@@ -3720,8 +3735,10 @@
         const syncAmbienceBtn = () => {
             const on = Spooky.isAmbient();
             ambienceBtn.classList.toggle('on', on);
-            ambienceBtn.textContent = on ? '🔊' : '🔈';
-            ambienceBtn.setAttribute('aria-label', on ? 'Ambience on' : 'Ambience off');
+            ambienceBtn.textContent = on ? '🔊 Ambience on' : '🔈 Ambience off';
+            const vb = document.getElementById('vol-btn');
+            vb.textContent = on ? '🔊' : '🔈';
+            vb.classList.toggle('on', on);
             ambienceBtn.title = on
                 ? 'Background wind and distant storm are playing. Click to silence.'
                 : 'Play background wind, distant thunder and howls.';
@@ -3874,6 +3891,28 @@
             };
             sfx.addEventListener('input', onSfx);
             music.addEventListener('input', onMusic);
+
+            // Pop-up volume panel on the speaker icon mirrors the Settings sliders.
+            const volBtn = document.getElementById('vol-btn');
+            const pop = document.getElementById('vol-pop');
+            const pairs = [['pop-music', music], ['pop-sfx', sfx]];
+            const syncPop = () => pairs.forEach(([id, src]) => {
+                document.getElementById(id).value = src.value;
+                document.getElementById(id + '-val').textContent = src.value + '%';
+            });
+            pairs.forEach(([id, src]) => document.getElementById(id).addEventListener('input', (e) => {
+                src.value = e.target.value;
+                src.dispatchEvent(new Event('input'));
+                document.getElementById(id + '-val').textContent = e.target.value + '%';
+            }));
+            const setOpen = (open) => {
+                pop.hidden = !open;
+                volBtn.setAttribute('aria-expanded', String(open));
+                if (open) { music.value = gameState.settings.musicVolume; sfx.value = gameState.settings.sfxVolume; syncPop(); }
+            };
+            volBtn.addEventListener('click', (e) => { e.stopPropagation(); setOpen(pop.hidden); });
+            document.addEventListener('click', (e) => { if (!pop.hidden && !e.target.closest('.vol-wrap')) setOpen(false); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.hidden) setOpen(false); });
         })();
 
         const updateDateTime = () => {
