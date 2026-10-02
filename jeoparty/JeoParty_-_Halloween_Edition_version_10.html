@@ -270,6 +270,8 @@
         .vol-pop[hidden] { display: none; }
         .vol-pop label { font-size: .85rem; margin-top: .4rem; display: flex; justify-content: space-between; color: var(--text); }
         .vol-pop input[type=range] { width: 100%; accent-color: var(--primary); }
+        .edit-toggle-row { margin-top: 2rem; display: flex; justify-content: center; }
+        #questions-editor[hidden], .edit-toggle-row[hidden] { display: none; }
         .now-playing { margin: .35rem 0 0; font-size: .95rem; color: var(--text-muted); }
         .link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--primary); text-decoration: underline; cursor: pointer; }
         .games-intro { max-width: 46rem; margin: .25rem 0 1.5rem; }
@@ -1213,8 +1215,11 @@
             <h1>🎃 Game Library</h1>
             <p class="text-muted games-intro">Ten complete games are built in. Pick the one that matches your guests &mdash; the questions and the matching Final JeoParty load together, and you go straight to the board.</p>
             <div id="games-library"></div>
-            <!-- Categories & Questions Editor -->
-            <div class="card mt-4">
+            <!-- Categories & Questions Editor (collapsed until asked for) -->
+            <div class="edit-toggle-row">
+                <button type="button" id="edit-questions-toggle" class="btn btn-accent" aria-expanded="false" aria-controls="questions-editor">✏️ Edit questions for <span id="edit-game-name"></span></button>
+            </div>
+            <div id="questions-editor" class="card mt-4" hidden>
                 <div class="flex justify-between align-center mb-4" style="flex-wrap:wrap;gap:.75rem;">
                     <div>
                         <h2 style="margin-bottom:.25rem;">Edit Questions</h2>
@@ -1241,6 +1246,7 @@
                 </div>
                 <div id="categories-editor-container"></div>
                 <button id="add-category-btn" class="btn btn-accent mt-4">Add Category</button>
+                <button type="button" id="edit-questions-close" class="btn btn-secondary mt-4" style="margin-left:.5rem;">Done editing</button>
             </div>
         </section>
         <!-- Game Board View -->
@@ -2332,6 +2338,7 @@
             GAME_LIBRARY.forEach(g => g.games.forEach(x => { if (x.key === current) label = `${x.emoji} ${x.name}`; }));
             document.getElementById('now-playing-name').textContent = label;
             document.getElementById('settings-now-playing').textContent = label;
+            document.getElementById('edit-game-name').textContent = label;
         };
         const renderAll = () => {
             renderGamesLibrary();
@@ -3388,6 +3395,19 @@
             renderAll();
             showView('game-board');
         };
+        const setEditorOpen = (open) => {
+            const ed = document.getElementById('questions-editor');
+            const tg = document.getElementById('edit-questions-toggle');
+            ed.hidden = !open;
+            tg.setAttribute('aria-expanded', String(open));
+            tg.parentElement.hidden = open;
+            if (open) ed.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        document.getElementById('edit-questions-toggle').addEventListener('click', () => setEditorOpen(true));
+        document.getElementById('edit-questions-close').addEventListener('click', () => {
+            setEditorOpen(false);
+            document.getElementById('games-view').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
         document.getElementById('games-library').addEventListener('click', (e) => {
             const card = e.target.closest('[data-pack]');
             if (!card) return;
