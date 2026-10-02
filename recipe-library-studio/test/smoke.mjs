@@ -163,6 +163,17 @@ try {
   ok((await page.$$('.src-rank .rank-row')).length === 1 && (await page.textContent('.src-rank')).includes('allrecipes.com'), 'sources filter to paste-only websites');
   await shot('n-sources');
   await page.evaluate(() => { state.recipes = state.recipes.filter(r => !['Allrecipes One', 'Unknown One', 'HF One'].includes(r.title)); srcFilter = 'all'; save(); render(); });
+  // folder backups: one file per day, named with date and time; the earlier file from the same day is replaced
+  const fb = await page.evaluate(async () => {
+    const files = new Map(), fake = { queryPermission: async () => 'granted', getFileHandle: async n => { files.set(n, ''); return { createWritable: async () => ({ write: async t => files.set(n, t.length), close: async () => {} }) }; }, removeEntry: async n => { files.delete(n); } };
+    const keep = folder; folder = fake; localStorage.removeItem(CONFIG.storageKey + '-folder-file');
+    await writeFolder(); const first = [...files.keys()];
+    await new Promise(r => setTimeout(r, 61000 - (Date.now() % 60000)));  // next minute
+    await writeFolder(); const second = [...files.keys()];
+    folder = keep; return { first, second };
+  });
+  ok(/^jps-recipe-library-backup-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.json$/.test(fb.first[0]), 'folder backup name has date and time: ' + fb.first[0]);
+  ok(fb.second.length === 1 && fb.second[0] !== fb.first[0], 'a later save the same day replaces that day’s file: ' + fb.second.join());
   // restore a backup: merge adds what's missing, keeps the newest edit, never duplicates
   const pre = await page.evaluate(() => ({ n: state.recipes.length, shop: state.shopping.length }));
   const bk = await page.evaluate(async () => { const j = JSON.parse(await backupJSON());
