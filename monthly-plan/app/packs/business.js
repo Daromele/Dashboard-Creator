@@ -128,9 +128,9 @@ const NICHE = {
     platforms: { paypal: { sale: 'client-work', refund: 'client-work' }, stripe: { sale: 'client-work', refund: 'client-work' }, youtube: { sale: 'other-biz-income', refund: 'other-biz-income' }, patreon: { sale: 'retainers', refund: 'retainers' }, substack: { sale: 'retainers', refund: 'retainers' } } },
 
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['invoices', 'mileage', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
-  navGroups: [['Your business', ['dashboard', 'activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Invoices & tax', ['invoices', 'tax', 'taxlines', 'mileage']]],
+  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['years', 'Year over year', 'years'], ['cuts', 'Cut costs', 'scissors'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  optionalNav: ['years', 'cuts', 'invoices', 'mileage', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
+  navGroups: [['Your business', ['dashboard', 'activity', 'pl', 'annual', 'years', 'insights', 'cuts', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Invoices & tax', ['invoices', 'tax', 'taxlines', 'mileage']]],
   navGroupRest: 'Settings & help',
 
   labels: {

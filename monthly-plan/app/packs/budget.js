@@ -79,9 +79,9 @@ const NICHE = {
   defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', payout: 'platform-payout', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
 
   // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
-  nav: [['dashboard', 'Monthly dashboard', 'today'], ['annual', 'Annual dashboard', 'insights'], ['budget', 'Monthly budget', 'plan'], ['activity', 'Transactions', 'log'], ['goals', 'Savings & goals', 'umbrella'], ['scheduled', 'Recurring payments', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['wealth', 'Wealth snapshots', 'outlook'], ['insights', 'Insights', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['annual', 'goals', 'scheduled', 'calendar', 'wealth', 'insights', 'review', 'guide'],
-  navGroups: [['Your money', ['dashboard', 'annual', 'budget', 'activity', 'goals', 'scheduled']], ['Your rhythm', ['calendar', 'wealth', 'insights', 'review']]],
+  nav: [['dashboard', 'Monthly dashboard', 'today'], ['annual', 'Annual dashboard', 'insights'], ['years', 'Year over year', 'years'], ['cuts', 'Cut back', 'scissors'], ['budget', 'Monthly budget', 'plan'], ['activity', 'Transactions', 'log'], ['goals', 'Savings & goals', 'umbrella'], ['scheduled', 'Recurring payments', 'calendar'], ['calendar', 'Calendar', 'calendar'], ['wealth', 'Wealth snapshots', 'outlook'], ['insights', 'Insights', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  optionalNav: ['years', 'cuts', 'annual', 'goals', 'scheduled', 'calendar', 'wealth', 'insights', 'review', 'guide'],
+  navGroups: [['Your money', ['dashboard', 'annual', 'years', 'cuts', 'budget', 'activity', 'goals', 'scheduled']], ['Your rhythm', ['calendar', 'wealth', 'insights', 'review']]],
   navGroupRest: 'Make it yours',
 
   // words used across the screens

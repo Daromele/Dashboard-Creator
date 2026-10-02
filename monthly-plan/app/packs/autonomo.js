@@ -121,8 +121,8 @@ const NICHE = {
   platformDefaults: { sale: 'inc-digital', refund: 'inc-digital', fees: 'platform-fees', ads: 'advertising', shipping: 'other-expense', feeTax: 'platform-fees', payout: '__skip', conversion: '__skip', taxWithheld: 'irpf-paid', purchase: '', other: '',
     platforms: { paypal: { sale: 'inc-prof', refund: 'inc-prof' }, stripe: { sale: 'inc-prof', refund: 'inc-prof' } } },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['income', 'Income', 'down'], ['expenses', 'Expenses', 'up'], ['evidence', 'Evidence', 'link'], ['payers', 'Payers & platforms', 'globe'], ['invoices', 'Invoices', 'table'], ['report', 'Gestor report', 'print'], ['filings', 'Checklist & dates', 'check'], ['taxlines', 'Year-end summary', 'tags'], ['tax', 'IVA & IRPF estimates', 'shield'], ['activity', 'All transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['income', 'expenses', 'evidence', 'payers', 'report', 'filings', 'taxlines', 'tax', 'activity', 'pl', 'annual', 'invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review', 'guide'],
+  nav: [['dashboard', 'Dashboard', 'today'], ['income', 'Income', 'down'], ['expenses', 'Expenses', 'up'], ['evidence', 'Evidence', 'link'], ['payers', 'Payers & platforms', 'globe'], ['invoices', 'Invoices', 'table'], ['report', 'Gestor report', 'print'], ['filings', 'Checklist & dates', 'check'], ['taxlines', 'Year-end summary', 'tags'], ['tax', 'IVA & IRPF estimates', 'shield'], ['activity', 'All transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['years', 'Year over year', 'years'], ['cuts', 'Cut costs', 'scissors'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  optionalNav: ['years', 'cuts', 'income', 'expenses', 'evidence', 'payers', 'report', 'filings', 'taxlines', 'tax', 'activity', 'pl', 'annual', 'invoices', 'budget', 'scheduled', 'goals', 'calendar', 'insights', 'review', 'guide'],
   // the estimate screens only appear when switched on in Settings
   estimateNav: ['tax', 'taxlines'],
   // deductions with a yearly limit, in cents per person covered
@@ -166,7 +166,7 @@ const NICHE = {
     [/\b(pago tarjeta|liquidacion tarjeta|recibo tarjeta|autopay|automatic payment|payment thank you|payment received|traspaso|transferencia a|bizum|starting balance|ending balance)\b/, 'transfer'],
     [/\b(forus|gimnasio|gym|basic ?fit|holmes place|mcfit|dreamfit|mercadona|carrefour|lidl|aldi|eroski|alcampo|consum|hipercor|el corte ingles|zara|primark|farmacia|restaurante?|bar|cafeteria|burger|mcdonald|glovo|just eat|uber eats|netflix|spotify|hbo|disney|prime video)\b/, 'personal'],
   ],
-  navGroups: [['Records', ['dashboard', 'income', 'expenses', 'evidence', 'payers', 'invoices']], ['For your gestor', ['report', 'filings', 'taxlines', 'tax']], ['Your business', ['activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']]],
+  navGroups: [['Records', ['dashboard', 'income', 'expenses', 'evidence', 'payers', 'invoices']], ['For your gestor', ['report', 'filings', 'taxlines', 'tax']], ['Your business', ['activity', 'pl', 'annual', 'years', 'insights', 'cuts', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']]],
   navGroupRest: 'Settings & help',
 
   labels: {

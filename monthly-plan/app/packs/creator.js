@@ -130,9 +130,9 @@ const NICHE = {
       kofi: { sale: 'tips', refund: 'tips' }, buymeacoffee: { sale: 'tips', refund: 'tips' }, shopify: { sale: 'merch', refund: 'merch' }, paypal: { sale: 'sponsorships', refund: 'sponsorships' } } },
   defaults: { category: 'ad-revenue', schedule: 'software', annualCategory: 'ad-revenue', payout: 'platform-payout', quickSetup: ['ad-revenue', 'sponsorships', 'memberships', 'editors', 'software', 'tax-reserve'] },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['insights', 'Creator health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Brand deals & invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['invoices', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
-  navGroups: [['Your creator business', ['dashboard', 'activity', 'pl', 'annual', 'insights', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Deals & tax', ['invoices', 'tax', 'taxlines', 'mileage']]],
+  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['years', 'Year over year', 'years'], ['cuts', 'Cut costs', 'scissors'], ['insights', 'Creator health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Brand deals & invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
+  optionalNav: ['years', 'cuts', 'invoices', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
+  navGroups: [['Your creator business', ['dashboard', 'activity', 'pl', 'annual', 'years', 'insights', 'cuts', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Deals & tax', ['invoices', 'tax', 'taxlines', 'mileage']]],
   navGroupRest: 'Settings & help',
 
   labels: {
