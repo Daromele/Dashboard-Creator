@@ -763,27 +763,32 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
         }
-        .help-card {
-            color: white;
-        }
-        .help-card h3 {
-            color: white;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .help-card ul {
-            padding-left: 1.25rem;
-        }
-        .help-card li {
-            margin-bottom: 0.5rem;
-        }
-        .help-card-1 { background-color: var(--kpi-color-1); }
-        .help-card-2 { background-color: var(--kpi-color-2); }
-        .help-card-3 { background-color: var(--kpi-color-3); }
-        .help-card-4 { background-color: var(--kpi-color-4); }
-        .help-card-5 { background-color: var(--kpi-color-5); }
-        .help-card-6 { background-color: var(--kpi-color-6); }
+        /* Help page: theme-safe. Cards use the theme's own surface and text
+           colours; the bright KPI colours are only used as accents. */
+        #help-view { max-width: 1200px; margin: 0 auto; }
+        .help-hero { text-align: center; padding: 1.5rem 1rem 1rem; }
+        .help-hero h1 { margin-bottom: .5rem; }
+        .help-hero p { color: var(--text-muted); font-size: 1.15rem; max-width: 40rem; margin: 0 auto; }
+        .help-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0 .75rem; list-style: none; padding: 0; counter-reset: step; }
+        .help-steps li { counter-increment: step; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.1rem 1.1rem 3.6rem; position: relative; box-shadow: var(--shadow); margin: 0; }
+        .help-steps li::before { content: counter(step); position: absolute; left: 1rem; top: 1rem; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--primary); color: #fff; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .help-tip { text-align: center; color: var(--text-muted); font-size: .95rem; margin: 0 0 2rem; }
+        .help-section-title { font-size: .95rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin: 2rem 0 .9rem; }
+        #help-view .card { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-top: 4px solid var(--hc, var(--primary)); border-radius: 12px; }
+        #help-view .card h3 { color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: .55rem; margin-bottom: .9rem; display: flex; align-items: center; gap: .55rem; }
+        #help-view .card strong { color: var(--text); }
+        #help-view .card li { margin-bottom: .45rem; }
+        #help-view .card ul, #help-view .card ol { padding-left: 1.25rem; }
+        #help-view .text-muted { color: var(--text-muted) !important; }
+        .help-card-1 { --hc: var(--kpi-color-1); }
+        .help-card-2 { --hc: var(--kpi-color-2); }
+        .help-card-3 { --hc: var(--kpi-color-3); }
+        .help-card-4 { --hc: var(--kpi-color-4); }
+        .help-card-5 { --hc: var(--kpi-color-5); }
+        .help-card-6 { --hc: var(--kpi-color-6); }
+        .help-wide { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .help-backup { background: var(--bg); border: 1px dashed var(--hc, var(--primary)); border-radius: 10px; padding: .75rem .9rem; font-size: .92rem; margin: .9rem 0 0; }
+        @media (max-width: 900px) { .help-steps, .help-wide { grid-template-columns: 1fr; } }
 
         /* Utility */
         .d-none { display: none !important; }
@@ -1455,19 +1460,19 @@
         </div>
         <!-- Help Guide View -->
         <section id="help-view" class="app-view">
-            <h1 class="mb-4">🎃 Welcome to JeoParty — Halloween Edition</h1>
-            <p class="text-muted mb-4" style="font-size: 1.25rem;">Ten complete Halloween games are already loaded. Pick your crowd and press play — there is nothing to write, upload or set up.</p>
-
-            <div class="card mb-4">
-                <h3>⚡ Start in 30 seconds</h3>
-                <ol>
-                    <li>Open <strong>🎃 Game Library</strong> in the top bar and choose the game that matches your guests.</li>
-                    <li>Rename the four teams, or keep The Ghouls, Witch Please, Pumpkin Spice and Bat Attitude.</li>
-                    <li>Click <strong>Game Board</strong>, then click any tile. That's the whole setup.</li>
-                </ol>
-                <p class="text-muted" style="font-size:.9rem;margin-bottom:0;">Tap the <strong>🔈 speaker</strong> in the top bar, then <strong>Ambience</strong>, for wind, distant thunder and the occasional howl.</p>
+            <div class="help-hero">
+                <h1>🎃 Welcome to JeoParty</h1>
+                <p>Ten complete Halloween games are already loaded. Pick your crowd and press play. There's nothing to write, upload or set up.</p>
             </div>
 
+            <ol class="help-steps">
+                <li><strong>Pick a game.</strong><br>Open <strong>🎃 Game Library</strong> and choose the one that matches your guests.</li>
+                <li><strong>Name your teams.</strong><br>Rename them in <strong>Settings</strong>, or keep The Ghouls, Witch Please, Pumpkin Spice and Bat Attitude.</li>
+                <li><strong>Play.</strong><br>Click <strong>Game Board</strong>, then click any tile. That's the whole setup.</li>
+            </ol>
+            <p class="help-tip">Tap the <strong>🔈 speaker</strong> in the top bar, then <strong>Ambience</strong>, for wind, distant thunder and the occasional howl.</p>
+
+            <h2 class="help-section-title">How the game works</h2>
             <div class="help-grid">
                 <div class="card help-card help-card-1">
                     <h3>🍬 Ten games, one for every crowd</h3>
@@ -1536,16 +1541,37 @@
                 </div>
             </div>
 
-            <div class="card mt-4">
-                <h3>✍️ Want your own questions?</h3>
-                <p>You don't need them — but you can. Every question is editable in the <strong>Game Library</strong> under Edit Questions (your changes save as a new game under <strong>My Games</strong>, so the originals stay intact), or click <strong>Download CSV Sample</strong>, fill it in a spreadsheet, and import it. Great for an office party or a themed birthday.</p>
+            <h2 class="help-section-title">Your own questions</h2>
+            <div class="help-wide">
+            <div class="card help-card-2">
+                <h3>⭐ My Games &mdash; make a game your own</h3>
+                <p>Want to swap a question, add an inside joke or write a whole category about your office? Do it without losing the original.</p>
+                <ol>
+                    <li>Open <strong>🎃 Game Library</strong>, pick a game, then click <strong>✏️ Edit questions</strong>.</li>
+                    <li>Change anything: categories, questions, answers or the Final JeoParty.</li>
+                    <li>Your first change saves a copy, such as <em>&ldquo;Adult Party (my copy)&rdquo;</em>, under <strong>My Games</strong> at the top of the library. The built-in game stays exactly as it was.</li>
+                    <li>Every change after that saves straight into your copy. There's no save button to remember.</li>
+                </ol>
+                <ul>
+                    <li><strong>Rename</strong> your game in the <em>Game name</em> box at the top of the editor, or <strong>delete</strong> it with 🗑️ Delete this game.</li>
+                    <li>Edit the same built-in game again later and you get a second copy, <em>&ldquo;(my copy 2)&rdquo;</em>, so nothing is ever overwritten.</li>
+                    <li>Imported CSV question files are saved into My Games too.</li>
+                    <li><strong>New Game</strong> and <strong>Restart Round</strong> keep your games. Only <strong>Start Fresh (Erase Everything)</strong> deletes them.</li>
+                </ul>
+                <p class="help-backup"><strong>Keep a backup.</strong> My Games live in this browser on this device. Clearing your browsing data, using a private window or switching devices means they won't be there. Use <strong>Settings &rarr; Export Game Data</strong> to save a backup file, and <strong>Import Game Data</strong> to bring your games back.</p>
+            </div>
+
+            <div class="card help-card-5">
+                <h3>✍️ More ways to customise</h3>
+                <p>You don't need them, but you can. Edit any game in the <strong>Game Library</strong> (see My Games above), or click <strong>Download CSV Sample</strong> in Settings, fill it in a spreadsheet, and import it. Great for an office party or a themed birthday.</p>
                 <ul>
                     <li>Your game saves itself in this browser. Close the tab and come back to it.</li>
-                    <li><strong>Export Game Data</strong> saves a file you can send to a friend or open on another computer.</li>
-                    <li><strong>Reset Game</strong> clears the scores and board but keeps your teams and questions.</li>
-                    <li><strong>New Game</strong> restores the factory setup. Export first if you've written your own.</li>
+                    <li><strong>Export Game Data</strong> saves a file with your current game and all of My Games. Send it to a friend or open it on another computer.</li>
+                    <li><strong>Reset Scores</strong> clears the scores and board but keeps your teams and questions.</li>
+                    <li><strong>New Game</strong> restores the factory teams and the Adult Party game. My Games are kept.</li>
                     <li>Everything runs offline in one file. No account, no subscription, no internet needed.</li>
                 </ul>
+            </div>
             </div>
         </section>
     </main>
@@ -3528,7 +3554,8 @@
         });
         document.getElementById('export-data-btn').addEventListener('click', () => {
             try {
-                const dataStr = JSON.stringify(gameState, null, 2);
+                // Include My Games so the export is a full backup.
+                const dataStr = JSON.stringify(Object.assign({}, gameState, { myGames }), null, 2);
                 const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
                 const linkElement = document.createElement('a');
                 linkElement.setAttribute('href', dataUri);
@@ -3579,6 +3606,17 @@
                         const importedState = JSON.parse(content);
                         if (importedState.settings && importedState.teams && importedState.categories) {
                             // On JSON import, we replace the entire state
+                            // Bring back any My Games in the file, keeping ones already here.
+                            if (Array.isArray(importedState.myGames)) {
+                                importedState.myGames.forEach(g => {
+                                    if (!g || !g.id || !Array.isArray(g.categories)) return;
+                                    const have = findMyGame(g.id);
+                                    if (!have) myGames.push(g);
+                                    else if ((g.updated || 0) > (have.updated || 0)) Object.assign(have, g);
+                                });
+                                saveMyGames();
+                            }
+                            delete importedState.myGames;
                             gameState = importedState;
                             gameState.appId = APP_ID;
                             gameState.dataVersion = DATA_VERSION;
