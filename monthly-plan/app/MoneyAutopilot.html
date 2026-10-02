@@ -66,7 +66,7 @@ const NICHE = {
     [/apple\.com\/bill|apple music|itunes/, 'streaming', 'Apple'], [/audible/, 'streaming', 'Audible'], [/sirius ?xm/, 'streaming', 'SiriusXM'], [/pandora/, 'streaming', 'Pandora'], [/crunchyroll/, 'streaming', 'Crunchyroll'],
     [/amazon prime|prime video|amzn prime/, 'streaming', 'Amazon Prime'], [/kindle unlimited/, 'streaming', 'Kindle Unlimited'],
     [/openai|chatgpt/, 'software', 'ChatGPT'], [/anthropic|claude\.ai/, 'software', 'Claude'], [/adobe/, 'software', 'Adobe'], [/microsoft|msft|xbox/, 'software', 'Microsoft'], [/google \*(storage|one|workspace|gsuite)|google one/, 'software', 'Google One'],
-    [/icloud/, 'software', 'iCloud'], [/dropbox/, 'software', 'Dropbox'], [/canva/, 'software', 'Canva'], [/notion/, 'software', 'Notion'], [/1password|lastpass|dashlane/, 'software', 'Password manager'],
+    [/icloud/, 'software', 'iCloud'], [/dropbox/, 'software', 'Dropbox'], [/\bcanva\b/, 'software', 'Canva'], [/\bnotion\b/, 'software', 'Notion'], [/1password|lastpass|dashlane/, 'software', 'Password manager'],
     [/nordvpn|expressvpn|surfshark/, 'software', 'VPN'], [/grammarly/, 'software', 'Grammarly'], [/duolingo/, 'software', 'Duolingo'], [/patreon/, 'software', 'Patreon'], [/substack/, 'software', 'Substack'],
     [/nytimes|new york times|wsj|washington post|the atlantic/, 'software', 'News subscription'], [/linkedin/, 'software', 'LinkedIn'], [/zoom\.us|zoom video/, 'software', 'Zoom'], [/github/, 'software', 'GitHub'],
     [/planet fitness/, 'memberships', 'Planet Fitness'], [/equinox/, 'memberships', 'Equinox'], [/la fitness/, 'memberships', 'LA Fitness'], [/24 hour fitness/, 'memberships', '24 Hour Fitness'], [/anytime fitness/, 'memberships', 'Anytime Fitness'],
@@ -74,12 +74,12 @@ const NICHE = {
     [/walmart\+|walmart plus/, 'memberships', 'Walmart+'], [/dashpass/, 'memberships', 'DashPass'], [/uber one/, 'memberships', 'Uber One'],
     // bills
     [/comcast|xfinity/, 'internet', 'Xfinity'], [/verizon/, 'internet', 'Verizon'], [/at&t|\batt\b|at ?& ?t/, 'internet', 'AT&T'], [/t-mobile|tmobile/, 'internet', 'T-Mobile'], [/spectrum|charter comm/, 'internet', 'Spectrum'],
-    [/cox comm/, 'internet', 'Cox'], [/mint mobile/, 'internet', 'Mint Mobile'], [/google \*fi|google fi/, 'internet', 'Google Fi'], [/visible/, 'internet', 'Visible'], [/cricket wireless/, 'internet', 'Cricket'], [/optimum/, 'internet', 'Optimum'], [/frontier comm/, 'internet', 'Frontier'],
-    [/pg&e|pacific gas|con ?ed|coned|duke energy|dominion energy|georgia power|fpl\b|florida power|southern california edison|\bsce\b|xcel|ameren|eversource|national grid|pseg|dte energy|consumers energy|entergy|oncor|reliant|txu|aps\b|srp\b|electric|power co/, 'utilities', 'Electricity'],
+    [/cox comm/, 'internet', 'Cox'], [/mint mobile/, 'internet', 'Mint Mobile'], [/google \*fi|google fi/, 'internet', 'Google Fi'], [/\bvisible\b/, 'internet', 'Visible'], [/cricket wireless/, 'internet', 'Cricket'], [/\boptimum\b/, 'internet', 'Optimum'], [/frontier comm/, 'internet', 'Frontier'],
+    [/pg&e|pacific gas|con ?ed|coned|duke energy|dominion energy|georgia power|\bfpl\b|florida power|southern california edison|\bsce\b|xcel|ameren|eversource|national grid|pseg|dte energy|consumers energy|entergy|oncor|reliant|txu|\baps\b|\bsrp\b|electric|power co/, 'utilities', 'Electricity'],
     [/water (dept|district|utility|bill)|city of .* water|american water|aqua america/, 'utilities', 'Water'], [/socalgas|so cal gas|nicor|peoples gas|gas company|atmos energy|piedmont natural|spire\b/, 'utilities', 'Gas bill'], [/waste management|republic services/, 'utilities', 'Trash'],
     [/geico/, 'insurance', 'GEICO'], [/progressive/, 'insurance', 'Progressive'], [/state farm/, 'insurance', 'State Farm'], [/allstate/, 'insurance', 'Allstate'], [/liberty mutual/, 'insurance', 'Liberty Mutual'], [/usaa ins|usaa p&c/, 'insurance', 'USAA Insurance'],
     [/farmers ins/, 'insurance', 'Farmers'], [/nationwide/, 'insurance', 'Nationwide'], [/lemonade/, 'insurance', 'Lemonade'], [/metlife|prudential|northwestern mutual|haven life|ladder life/, 'insurance', 'Life insurance'],
-    [/rent|apartments|property mgmt|property management|landlord|zillow rent|avail\.co|appfolio|buildium|rentcafe|yardi|bilt/, 'housing', 'Rent'], [/mortgage|mtg pmt|rocket mortgage|mr\.? cooper|loancare|wells fargo home|pennymac|freedom mortgage/, 'housing', 'Mortgage'], [/\bhoa\b|homeowners assoc/, 'housing', 'HOA'],
+    [/\brent\b|\brent payment|apartments|property mgmt|property management|landlord|zillow rent|avail\.co|appfolio|buildium|rentcafe|yardi|bilt/, 'housing', 'Rent'], [/mortgage|mtg pmt|rocket mortgage|mr\.? cooper|loancare|wells fargo home|pennymac|freedom mortgage/, 'housing', 'Mortgage'], [/\bhoa\b|homeowners assoc/, 'housing', 'HOA'],
     [/irs\b|us treasury|treas tax|franchise tax|dept of revenue|department of revenue|state tax/, 'taxes', 'Taxes'],
     [/navient|nelnet|mohela|aidvantage|great lakes|sallie mae|edfinancial|student loan|dept of ed/, 'loan', 'Student loan'], [/toyota financial|honda financial|ford credit|gm financial|ally auto|capital one auto|santander consumer|carmax auto|auto loan/, 'loan', 'Car loan'], [/sofi loan|lending ?club|upstart|best egg|marcus loan|prosper/, 'loan', 'Personal loan'],
     // everyday
@@ -87,23 +87,23 @@ const NICHE = {
     [/\bh-?e-?b\b/, 'groceries', 'H-E-B'], [/wegmans/, 'groceries', 'Wegmans'], [/albertsons/, 'groceries', 'Albertsons'], [/food lion/, 'groceries', 'Food Lion'], [/stop & shop|stop and shop/, 'groceries', 'Stop & Shop'], [/giant eagle|giant food/, 'groceries', 'Giant'],
     [/sprouts/, 'groceries', 'Sprouts'], [/meijer/, 'groceries', 'Meijer'], [/hy-?vee/, 'groceries', 'Hy-Vee'], [/winco/, 'groceries', 'WinCo'], [/ralphs/, 'groceries', 'Ralphs'], [/vons\b/, 'groceries', 'Vons'], [/harris teeter/, 'groceries', 'Harris Teeter'], [/shoprite/, 'groceries', 'ShopRite'],
     [/instacart/, 'groceries', 'Instacart'], [/costco/, 'groceries', 'Costco'], [/sam'?s club/, 'groceries', 'Sam’s Club'], [/grocery|supermarket|market basket|food mart/, 'groceries', ''],
-    [/starbucks/, 'dining', 'Starbucks'], [/dunkin/, 'dining', 'Dunkin’'], [/mcdonald/, 'dining', 'McDonald’s'], [/chipotle/, 'dining', 'Chipotle'], [/chick-?fil-?a/, 'dining', 'Chick-fil-A'], [/taco bell/, 'dining', 'Taco Bell'], [/subway/, 'dining', 'Subway'],
+    [/starbucks/, 'dining', 'Starbucks'], [/dunkin/, 'dining', 'Dunkin’'], [/mcdonald/, 'dining', 'McDonald’s'], [/chipotle/, 'dining', 'Chipotle'], [/chick-?fil-?a/, 'dining', 'Chick-fil-A'], [/taco bell/, 'dining', 'Taco Bell'], [/\bsubway\b/, 'dining', 'Subway'],
     [/panera/, 'dining', 'Panera'], [/wendy/, 'dining', 'Wendy’s'], [/burger king/, 'dining', 'Burger King'], [/domino/, 'dining', 'Domino’s'], [/pizza hut/, 'dining', 'Pizza Hut'], [/sweetgreen/, 'dining', 'Sweetgreen'], [/shake shack/, 'dining', 'Shake Shack'], [/in-n-out/, 'dining', 'In-N-Out'],
     [/panda express/, 'dining', 'Panda Express'], [/five guys/, 'dining', 'Five Guys'], [/popeyes/, 'dining', 'Popeyes'], [/kfc\b/, 'dining', 'KFC'], [/dutch bros/, 'dining', 'Dutch Bros'], [/peet'?s coffee/, 'dining', 'Peet’s'],
     [/doordash/, 'dining', 'DoorDash'], [/uber ?eats/, 'dining', 'Uber Eats'], [/grubhub/, 'dining', 'Grubhub'], [/postmates/, 'dining', 'Postmates'], [/seamless/, 'dining', 'Seamless'],
-    [/restaurant|grill|cafe|coffee|bistro|pizza|sushi|taqueria|kitchen|diner|bakery|bar & grill|brewing|tst\*|toast/, 'dining', ''],
-    [/uber(?! ?eats| one)|lyft/, 'transport', 'Uber & Lyft'], [/shell oil|\bshell\b/, 'transport', 'Shell'], [/chevron/, 'transport', 'Chevron'], [/exxon|mobil\b/, 'transport', 'Exxon'], [/\bbp\b|bp#/, 'transport', 'BP'], [/sunoco/, 'transport', 'Sunoco'],
-    [/marathon petro|speedway/, 'transport', 'Speedway'], [/wawa/, 'transport', 'Wawa'], [/sheetz/, 'transport', 'Sheetz'], [/circle k/, 'transport', 'Circle K'], [/7-eleven|7 eleven/, 'transport', '7-Eleven'], [/quiktrip|\bqt\b/, 'transport', 'QuikTrip'], [/valero/, 'transport', 'Valero'], [/arco\b/, 'transport', 'ARCO'],
-    [/e-?zpass|fastrak|sunpass|toll/, 'transport', 'Tolls'], [/parking|parkmobile|spothero/, 'transport', 'Parking'], [/\bmta\b|metro ?card|bart\b|clipper|ventra|septa|wmata|caltrain|amtrak|transit/, 'transport', 'Transit'], [/jiffy lube|valvoline|autozone|o'?reilly auto|advance auto|pep boys|firestone|discount tire|car wash/, 'transport', 'Car care'], [/dmv|motor vehicle/, 'transport', 'DMV'],
+    [/restaurant|\bgrill\b|\bcafe\b|coffee|bistro|pizza|sushi|taqueria|kitchen|diner|bakery|bar & grill|brewing|tst\*|\btoast\b/, 'dining', ''],
+    [/\buber\b(?! ?eats| one)|\blyft\b/, 'transport', 'Uber & Lyft'], [/shell oil|\bshell\b/, 'transport', 'Shell'], [/chevron/, 'transport', 'Chevron'], [/exxon|mobil\b/, 'transport', 'Exxon'], [/\bbp\b|bp#/, 'transport', 'BP'], [/sunoco/, 'transport', 'Sunoco'],
+    [/marathon petro|speedway/, 'transport', 'Speedway'], [/wawa/, 'transport', 'Wawa'], [/sheetz/, 'transport', 'Sheetz'], [/circle k/, 'transport', 'Circle K'], [/7-eleven|7 eleven/, 'transport', '7-Eleven'], [/quiktrip|\bqt\b/, 'transport', 'QuikTrip'], [/valero/, 'transport', 'Valero'], [/\barco\b/, 'transport', 'ARCO'],
+    [/e-?zpass|fastrak|sunpass|\btolls?\b/, 'transport', 'Tolls'], [/parking|parkmobile|spothero/, 'transport', 'Parking'], [/\bmta\b|metro ?card|bart\b|clipper|ventra|septa|wmata|caltrain|amtrak|transit/, 'transport', 'Transit'], [/jiffy lube|valvoline|autozone|o'?reilly auto|advance auto|pep boys|firestone|discount tire|car wash/, 'transport', 'Car care'], [/dmv|motor vehicle/, 'transport', 'DMV'],
     [/gas station|fuel/, 'transport', ''],
-    [/amazon|amzn/, 'shopping', 'Amazon'], [/walmart|wal-mart/, 'shopping', 'Walmart'], [/target/, 'shopping', 'Target'], [/best buy/, 'shopping', 'Best Buy'], [/apple store|apple\.com(?!\/bill)/, 'shopping', 'Apple Store'], [/ebay/, 'shopping', 'eBay'], [/etsy/, 'shopping', 'Etsy'],
-    [/tj ?maxx|marshalls|homegoods|ross stores|burlington/, 'shopping', 'Off-price stores'], [/macy|nordstrom|kohl'?s|old navy|gap\b|banana republic|h&m|zara|uniqlo|nike|lululemon/, 'shopping', 'Clothing'], [/shein|temu|wish\.com|aliexpress/, 'shopping', 'Online shopping'],
+    [/amazon|amzn/, 'shopping', 'Amazon'], [/walmart|wal-mart/, 'shopping', 'Walmart'], [/\btarget\b/, 'shopping', 'Target'], [/best buy/, 'shopping', 'Best Buy'], [/apple store|apple\.com(?!\/bill)/, 'shopping', 'Apple Store'], [/ebay/, 'shopping', 'eBay'], [/etsy/, 'shopping', 'Etsy'],
+    [/tj ?maxx|marshalls|homegoods|ross stores|burlington/, 'shopping', 'Off-price stores'], [/\bmacy'?s?\b|nordstrom|\bkohl'?s\b|old navy|\bgap\b|banana republic|\bh&m\b|\bzara\b|uniqlo|\bnike\b|lululemon/, 'shopping', 'Clothing'], [/shein|temu|wish\.com|aliexpress/, 'shopping', 'Online shopping'],
     [/dollar tree|dollar general|family dollar|five below/, 'shopping', 'Dollar stores'], [/michaels|hobby lobby|joann/, 'shopping', 'Crafts'], [/ikea/, 'home', 'IKEA'], [/home depot/, 'home', 'Home Depot'], [/lowe'?s/, 'home', 'Lowe’s'], [/bed bath|wayfair|crate|pottery barn|west elm/, 'home', 'Home goods'], [/ace hardware|true value/, 'home', 'Hardware'],
-    [/cvs/, 'health', 'CVS'], [/walgreens/, 'health', 'Walgreens'], [/rite aid/, 'health', 'Rite Aid'], [/pharmacy|medical|hospital|clinic|dental|dentist|orthodont|optometr|vision|urgent care|labcorp|quest diag|kaiser|doctor|dr\.? /, 'health', ''],
-    [/great clips|supercuts|salon|barber|spa\b|nail|ulta|sephora/, 'personal', ''],
+    [/\bcvs\b/, 'health', 'CVS'], [/walgreens/, 'health', 'Walgreens'], [/rite aid/, 'health', 'Rite Aid'], [/pharmacy|medical|hospital|clinic|dental|dentist|orthodont|optometr|\bvision\b|urgent care|labcorp|quest diag|kaiser|doctor|dr\.? /, 'health', ''],
+    [/great clips|supercuts|\bsalon\b|barber|\bspa\b|\bnails?\b|\bulta\b|sephora/, 'personal', ''],
     [/amc theat|regal cinema|cinemark|fandango|ticketmaster|stubhub|live nation|eventbrite|steam games|steampowered|playstation|nintendo|xbox live|bowling|golf|museum|concert/, 'entertainment', ''],
     [/airbnb/, 'travel', 'Airbnb'], [/vrbo/, 'travel', 'Vrbo'], [/marriott/, 'travel', 'Marriott'], [/hilton/, 'travel', 'Hilton'], [/hyatt/, 'travel', 'Hyatt'], [/expedia/, 'travel', 'Expedia'], [/booking\.com/, 'travel', 'Booking.com'],
-    [/delta air|united air|american air|southwest|jetblue|alaska air|spirit air|frontier air|airline/, 'travel', 'Flights'], [/hertz|enterprise rent|avis|budget rent|national car/, 'travel', 'Car rental'], [/hotel|motel|inn\b|resort/, 'travel', ''],
+    [/delta air|united air|american air|southwest|jetblue|alaska air|spirit air|frontier air|airline/, 'travel', 'Flights'], [/hertz|enterprise rent|avis|budget rent|national car/, 'travel', 'Car rental'], [/\bhotel\b|\bmotel\b|\binn\b|\bresort\b/, 'travel', ''],
     [/petco|petsmart|chewy|veterinar|\bvet\b|banfield/, 'kids-pets', 'Pets'], [/daycare|child care|childcare|kindercare|tuition|school/, 'kids-pets', 'Kids'],
     [/gofundme|red cross|unicef|donation|charity|church|tithe/, 'gifts', 'Donations'], [/1-800-flowers|ftd\b|edible arrangements/, 'gifts', 'Gifts'],
     [/annual fee|late fee|overdraft|nsf fee|service fee|monthly maintenance|foreign transaction fee|interest charge|finance charge|purchase interest|cash advance fee|atm fee/, 'fees', ''],
@@ -111,7 +111,7 @@ const NICHE = {
     [/venmo/, 'people', 'Venmo'], [/zelle/, 'people', 'Zelle'], [/cash ?app|square cash/, 'people', 'Cash App'], [/apple cash/, 'people', 'Apple Cash'], [/^check\b|check #|check paid/, 'people', 'Check'],
     // money in
     [/irs treas.*tax ref|tax refund|state.*tax ref/, 'other-income', 'Tax refund'], [/etsy deposit|etsy inc|shopify|stripe|paypal transfer|square inc|gumroad|upwork|fiverr|doordash dasher|uber .*pay|lyft .*pay|instacart shopper/, 'side', 'Side income'],
-    [/dividend|interest paid|interest earned|int earned/, 'interest', 'Interest'], [/robinhood|fidelity|vanguard|schwab|e\*trade|etrade|betterment|wealthfront|acorns|stash|m1 finance|coinbase/, 'investing', 'Investing'],
+    [/dividend|interest paid|interest earned|int earned/, 'interest', 'Interest'], [/robinhood|fidelity|vanguard|schwab|e\*trade|etrade|betterment|wealthfront|acorns|\bstash\b|m1 finance|coinbase/, 'investing', 'Investing'],
     [/ally bank|marcus|amex savings|capital one 360|discover savings|sofi savings|high yield/, 'emergency', 'Savings'],
   ],
   // words a statement's own Category column uses (Chase, Amex, Capital One, Discover…) → category id
@@ -1419,6 +1419,7 @@ table.ap-look select{min-width:190px}table.ap-look td small{display:block}.num.p
 .ap-side{display:grid;gap:var(--s4);align-content:start}.ap-side .card{margin:0}
 .ap-acct-name{min-width:150px}
 .ap-report{margin-bottom:var(--s4)}
+.ap-rec+.pager,.table-wrap+.pager{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:12px 20px}
 table.ap-rec td small,.ap-report td small{display:block}
 .ap-stub-net{margin:14px 0 4px;font-size:15px}.ap-stub-net.warn{color:var(--over)}
 .gestor-preview{background:var(--sunk);border-radius:var(--r-md);padding:24px;overflow-x:auto;min-width:0;max-width:100%}
@@ -2038,11 +2039,11 @@ const Budget = ((P) => {
     {const accIds=new Set((s.accounts||[]).map(a=>a.id));s.transactions.forEach(t=>{if(t.acct!==undefined&&!accIds.has(t.acct))delete t.acct;if(t.raw!==undefined&&!str(t.raw,200))delete t.raw;
      if(t.auto!==undefined){if(!object(t.auto)||!str(t.auto.why,30))delete t.auto;else{if(t.auto.look!==undefined&&t.auto.look!==true)delete t.auto.look;Object.keys(t.auto).forEach(k=>{if(!['why','look','pair','batch'].includes(k))delete t.auto[k];});['pair','batch'].forEach(k=>{if(t.auto[k]!==undefined&&!id(t.auto[k]))delete t.auto[k];});}}});
      if(s.balances!==undefined){if(!object(s.balances))s.balances={};Object.keys(s.balances).forEach(k=>{const l=s.balances[k];if(!accIds.has(k)||!Array.isArray(l)){delete s.balances[k];return;}
-      s.balances[k]=l.filter(b=>object(b)&&validDate(b.date)&&Number.isSafeInteger(b.value)&&Math.abs(b.value)<=1e12&&['file','manual'].includes(b.how)).sort((a,b)=>a.date.localeCompare(b.date)).slice(-400);});}
+      s.balances[k]=l.filter(b=>object(b)&&validDate(b.date)&&Number.isSafeInteger(b.value)&&Math.abs(b.value)<=1e12&&['file','manual'].includes(b.how)&&(b.src===undefined||id(b.src))).sort((a,b)=>a.date.localeCompare(b.date)).slice(-400);});}
      if(s.payStubs!==undefined){const P0=s.payStubs,ok=x=>object(x)&&Number.isSafeInteger(x.gross)&&x.gross>0&&x.gross<=1e10&&object(x.lines)&&Object.entries(x.lines).every(([k,v])=>['fed','state','local','ss','medicare','k401','roth','health','hsa','fsa','other'].includes(k)&&Number.isSafeInteger(v)&&v>=0&&v<=x.gross);
       if(!object(P0)){s.payStubs={usual:{},exact:{}};}else{if(!object(P0.usual))P0.usual={};if(!object(P0.exact))P0.exact={};const tx=new Set(s.transactions.map(t=>t.id));
        Object.entries(P0.usual).forEach(([k,v])=>{if(!str(k,80)||!ok(v)||!str(v.name||'',40))delete P0.usual[k];});Object.entries(P0.exact).forEach(([k,v])=>{if(!tx.has(k)||!ok(v))delete P0.exact[k];});Object.keys(P0).forEach(k=>{if(!['usual','exact'].includes(k))delete P0[k];});}}
-     if(s.importLog!==undefined){if(!Array.isArray(s.importLog))s.importLog=[];s.importLog=s.importLog.filter(l=>object(l)&&id(l.id)&&validDate(l.date)&&Array.isArray(l.files)&&l.files.every(f=>str(f,80))&&Number.isInteger(l.count)).slice(0,60);}}
+     if(s.importLog!==undefined){if(!Array.isArray(s.importLog))s.importLog=[];s.importLog=s.importLog.filter(l=>object(l)&&id(l.id)&&validDate(l.date)&&Array.isArray(l.files)&&l.files.every(f=>str(f,80))&&Number.isInteger(l.count)).slice(0,200);}}
     // money in another currency keeps its original amount; rates and platforms you import are remembered.
     // A bad value is dropped, never fatal, so an older or hand-edited backup always restores.
     s.transactions.forEach(t=>{if(t.fx!==undefined&&!(object(t.fx)&&CURRENCIES.includes(t.fx.currency)&&amount(t.fx.amount)&&t.fx.amount&&Math.sign(t.fx.amount)===Math.sign(t.amount)))delete t.fx;});
@@ -5676,22 +5677,23 @@ const Auto=(()=>{
   commit(()=>{state.accounts??=[];state.importFiles??={};state.importLog??=[];
    const have=new Map();state.transactions.forEach(t=>{if(t.acct){const k=rowKey(t.acct,t.date,flow(t),t.raw||t.note);have.set(k,(have.get(k)||0)+1);}});
    const fresh=[];
-   const addBal=(acct,date,value)=>{state.balances??={};const l=(state.balances[acct]||=[]).filter(b=>b.date!==date);l.push({date,value,how:'file'});l.sort((a,b)=>a.date.localeCompare(b.date));state.balances[acct]=l.slice(-400);};
+   const addBal=(acct,date,value,src)=>{state.balances??={};const l=(state.balances[acct]||=[]).filter(b=>b.date!==date);l.push({date,value,how:'file',...(src?{src}:{})});l.sort((a,b)=>a.date.localeCompare(b.date));state.balances[acct]=l.slice(-400);};
+   ready.forEach(F=>{F.id=Budget.uid();});
    ready.filter(F=>F.hold).forEach(F=>{const date=F.hold.date||Budget.today();F.balances=F.hold.accounts.map(x=>{const mem=state.importFiles[x.key];let acct=mem&&account(mem.acct)?mem.acct:accounts().find(a=>a.name===x.account)?.id;
-     if(!acct){acct=Budget.uid();state.accounts.push({id:acct,name:uniqueName(x.account,x.kind),kind:x.kind});}state.importFiles[x.key]={acct,flip:false};addBal(acct,date,x.value);return {account:account(acct).name,value:x.value,date};});res.balances=(res.balances||0)+F.balances.length;});
+     if(!acct){acct=Budget.uid();state.accounts.push({id:acct,name:uniqueName(x.account,x.kind),kind:x.kind});}state.importFiles[x.key]={acct,flip:false};addBal(acct,date,x.value,F.id);return {account:account(acct).name,value:x.value,date};});res.balances=(res.balances||0)+F.balances.length;});
    ready.filter(F=>F.read).forEach(F=>{const f=F.read;let acct=F.acc?.id||accounts().find(a=>a.name===f.account&&a.kind===f.kind)?.id;
     if(!acct){acct=Budget.uid();state.accounts.push({id:acct,name:uniqueName(f.account,f.kind),kind:f.kind});}
-    state.importFiles[F.key]={acct,flip:f.flip};if(f.balance)addBal(acct,f.balance.date,f.kind==='card'?Math.abs(f.balance.value):f.balance.value);
+    state.importFiles[F.key]={acct,flip:f.flip};if(f.balance)addBal(acct,f.balance.date,f.kind==='card'?Math.abs(f.balance.value):f.balance.value,F.id);
     const ctx=A.context(P,state,Budget,f.kind),here=new Map(),mine=[];let dup=0;
     f.rows.forEach(r=>{const k=rowKey(acct,r.date,r.amount,r.desc),n=(here.get(k)||0)+1;here.set(k,n);if(n<=(have.get(k)||0)){dup++;return;}
      const name=A.merchant(r.desc,ctx.dict),c=A.classify({...r,name},ctx);
-     mine.push({id:Budget.uid(),date:r.date,category:c.category,amount:stored(c.category,r.amount),note:name,acct,raw:r.desc,auto:{why:c.why,batch:res.batch,...(c.look?{look:true}:{})}});});
+     mine.push({id:Budget.uid(),date:r.date,category:c.category,amount:stored(c.category,r.amount),note:name,acct,raw:r.desc,auto:{why:c.why,batch:F.id,...(c.look?{look:true}:{})}});});
     mine.forEach(t=>{const k=rowKey(acct,t.date,flow(t),t.raw);have.set(k,(have.get(k)||0)+1);});
     fresh.push(...mine);const dates=f.rows.map(r=>r.date).sort();
     Object.assign(F,{account:account(acct)?.name||f.account,kind:f.kind,added:mine.length,dup,from:dates[0],to:dates.at(-1),bad:f.bad});res.dup+=dup;});
    state.transactions.push(...fresh);res.paired=pairUp(fresh);res.added=fresh.length;res.look=fresh.filter(t=>t.auto?.look).length;
-   if(fresh.length){res.last=fresh.map(t=>t.date).sort().at(-1);selected=res.last.slice(0,7);
-    state.importLog.unshift({id:res.batch,date:Budget.today(),files:ready.filter(F=>F.read).map(F=>F.name.slice(0,80)).slice(0,20),count:fresh.length});state.importLog=state.importLog.slice(0,60);}
+   if(fresh.length){res.last=fresh.map(t=>t.date).sort().at(-1);selected=res.last.slice(0,7);}
+   ready.filter(F=>F.balances||F.added).forEach(F=>state.importLog.unshift({id:F.id,date:Budget.today(),files:[F.name.slice(0,80)],count:F.added||0}));state.importLog=state.importLog.slice(0,200);
    report=res;msg=res.added?`${plural(res.added,'transaction')} added${res.look?` · ${res.look} need${res.look===1?'s':''} a look`:''}${res.balances?` · ${plural(res.balances,'balance')} updated`:''}`:res.balances?`${plural(res.balances,'balance')} updated`:'Nothing new: every transaction is already here';},
    // the message is only known once the import has run
    {toString:()=>msg});
@@ -5705,11 +5707,19 @@ const Auto=(()=>{
  function accountsCard(){const list=accounts();if(!list.length)return '';const now=Budget.today();
   return `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Your accounts</h2><p>Found from your files. Rename one to make it yours.</p></div></div><div class="table-wrap"><table><thead><tr><th>Account</th><th>Type</th><th>Latest transaction</th><th class="num">Transactions</th><th></th></tr></thead><tbody>${list.map(a=>{const tx=state.transactions.filter(t=>t.acct===a.id),last=tx.map(t=>t.date).sort().at(-1),stale=last&&Budget.plusDays(last,35)<now;
    return `<tr><td><input class="ap-acct-name" data-acct="${a.id}" value="${esc(a.name)}" maxlength="30" aria-label="Account name"></td><td><select data-acct-kind="${a.id}" aria-label="Account type">${KINDS.map(([k,l])=>`<option value="${k}" ${a.kind===k?'selected':''}>${l}</option>`).join('')}</select></td><td class="nw">${last?dateName(last):'—'}${stale?'<small class="warn">Add a newer statement</small>':''}</td><td class="num">${tx.length}</td><td class="nw">${button('Remove','ap-acct-del','small quiet',`data-id="${a.id}"`)}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
- function logCard(){const log=(state.importLog||[]).filter(l=>state.transactions.some(t=>t.auto?.batch===l.id));if(!log.length)return '';
-  return `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Imports</h2><p>Delete one to bring its files in again.</p></div></div><div class="table-wrap"><table><thead><tr><th>Imported</th><th>Files</th><th class="num">Transactions</th><th></th></tr></thead><tbody>${log.slice(0,15).map(l=>{const n=state.transactions.filter(t=>t.auto?.batch===l.id).length;return `<tr><td class="nw">${dateName(l.date)}</td><td>${l.files.map(esc).join('<br>')}</td><td class="num">${n}</td><td class="nw">${button('Delete import','ap-batch-del','small quiet',`data-id="${l.id}"`)}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
+ // one line per imported file; an older import of several files at once splits by account (one file per account)
+ const balSrc=id=>Object.entries(state.balances||{}).flatMap(([acct,l])=>l.filter(b=>b.src===id).map(b=>({acct,...b})));
+ function importLines(){const lines=[];(state.importLog||[]).forEach(l=>{const tx=state.transactions.filter(t=>t.auto?.batch===l.id),bals=balSrc(l.id);
+   if(!tx.length&&!bals.length)return;const accts=[...new Set([...tx.map(t=>t.acct),...bals.map(b=>b.acct)])];
+   if(l.files.length>1&&accts.length>1)accts.forEach(a=>lines.push({id:l.id,acct:a,date:l.date,files:l.files,n:tx.filter(t=>t.acct===a).length,bals:bals.filter(b=>b.acct===a).length,split:true}));
+   else lines.push({id:l.id,acct:'',date:l.date,files:l.files,n:tx.length,bals:bals.length,accts});});return lines;}
+ let logPage=0;
+ function logCard(){const all=importLines();if(!all.length)return '';const per=10,pages=Math.ceil(all.length/per);logPage=Math.min(logPage,pages-1);const shown=all.slice(logPage*per,(logPage+1)*per);
+  return `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Imports</h2><p>Each file you added. Delete one to remove what it brought in, then add it again if you like.</p></div><span class="pill">${plural(all.length,'file')}</span></div><div class="table-wrap"><table class="ap-rec"><thead><tr><th>File</th><th>Account</th><th>Added on</th><th class="num">Brought in</th><th></th></tr></thead><tbody>${shown.map(l=>{const accs=(l.acct?[l.acct]:l.accts).map(a=>account(a)?.name).filter(Boolean);
+   return `<tr><td>${l.split?`<b>${esc(accs[0]||'')} statement</b><small class="dim">Added together with: ${l.files.map(esc).join(', ')}</small>`:`<b>${l.files.map(esc).join('<br>')}</b>`}</td><td>${accs.map(esc).join('<br>')||'—'}</td><td class="nw">${dateName(l.date)}</td><td class="num">${[l.n?plural(l.n,'transaction'):'',l.bals?plural(l.bals,'balance'):''].filter(Boolean).join(' · ')}</td><td class="nw">${button('Delete','ap-batch-del','small quiet',`data-id="${l.id}" data-acct="${esc(l.acct)}"`)}</td></tr>`;}).join('')}</tbody></table></div>${pages>1?`<div class="pager no-print">${button('Previous','ap-log-prev','small quiet',logPage?'':'disabled')}<span class="small muted">Page ${logPage+1} of ${pages}</span>${button('Next','ap-log-next','small quiet',logPage<pages-1?'':'disabled')}</div>`:''}</section>`;}
  function importScreen(){if(csvSession)return importView();
   const tips=`<section class="card"><h2>Where to find the files</h2><div class="ap-steps"><div><b>1</b><span>Sign in to your bank or card website and open the account.</span></div><div><b>2</b><span>Find <b>Download</b> or <b>Export</b> on the transactions list (often a small arrow icon).</span></div><div><b>3</b><span>Choose <b>CSV</b> and a date range, then drop the file here.</span></div></div><p class="small muted">Works with Chase, Bank of America, Wells Fargo, Citi, Capital One, Amex, Discover, US Bank, Ally and most credit unions. Savings accounts too, and from Fidelity, Vanguard, Schwab and other brokerages: the activity download and the positions (holdings) download, which gives the balance. Overlapping dates are fine: repeats are skipped. ${button('Map a file by hand','ap-manual','link')}</p></section>`;
-  return pagehead('Autopilot','Add statements','Every card and bank account, as many files as you like. Each one is read, sorted and paired by itself.')+reportCard()+dropCard(!state.transactions.length)+(logCard()?`<div class="grid2 equal">${tips}${logCard()}</div>`:tips)+accountsCard();}
+  return pagehead('Autopilot','Add statements','Every card and bank account, as many files as you like. Each one is read, sorted and paired by itself.')+reportCard()+dropCard(!state.transactions.length)+logCard()+accountsCard()+tips;}
  // ---------- needs a look ----------
  const looking=()=>state.transactions.filter(t=>t.auto?.look);
  const PEOPLE=/^(venmo|zelle|cash app|apple cash|check|cash withdrawal)$/i;
@@ -5867,9 +5877,15 @@ const Auto=(()=>{
   case 'ap-stub-clear':{const id=b.dataset.id;closeModal();commit(()=>{delete state.payStubs?.exact?.[id];},'This paycheck uses your usual stub again');break;}
   case 'ap-bal':{const x=account(b.dataset.id);if(x)balForm(x);break;}
   case 'ap-bal-new':balForm(null);break;
-  case 'ap-batch-del':{const id=b.dataset.id,n=state.transactions.filter(t=>t.auto?.batch===id).length;confirmation('Delete this import?',`Its ${plural(n,'transaction')} are removed, including any changes you made to them. You can then add the files again, or undo right after.`,'ap-batch-del-ok','Delete import',`data-id="${id}"`);break;}
-  case 'ap-batch-del-ok':{const id=b.dataset.id;closeModal();const gone=new Set(state.transactions.filter(t=>t.auto?.batch===id).map(t=>t.id));
-   commit(()=>{state.transactions=state.transactions.filter(t=>!gone.has(t.id));state.transactions.forEach(t=>{if(t.auto?.pair&&gone.has(t.auto.pair))delete t.auto.pair;});state.importLog=(state.importLog||[]).filter(l=>l.id!==id);},`${plural(gone.size,'transaction')} removed`);break;}
+  case 'ap-log-prev':logPage=Math.max(0,logPage-1);render();break;
+  case 'ap-log-next':logPage++;render();break;
+  case 'ap-batch-del':{const id=b.dataset.id,acct=b.dataset.acct||'',l=importLines().find(x=>x.id===id&&x.acct===acct);if(!l)break;const what=[l.n?plural(l.n,'transaction'):'',l.bals?plural(l.bals,'balance'):''].filter(Boolean).join(' and ');
+   confirmation(`Delete ${esc(l.split?account(acct)?.name||'this import':l.files[0])}?`,`Its ${what} ${l.n+l.bals===1?'is':'are'} removed, including any changes you made to them. Other files stay as they are. You can add the file again, or undo right after.`,'ap-batch-del-ok','Delete',`data-id="${id}" data-acct="${esc(acct)}"`);break;}
+  case 'ap-batch-del-ok':{const id=b.dataset.id,acct=b.dataset.acct||'';closeModal();const hit=t=>t.auto?.batch===id&&(!acct||t.acct===acct),gone=new Set(state.transactions.filter(hit).map(t=>t.id));let nb=0;
+   commit(()=>{state.transactions=state.transactions.filter(t=>!gone.has(t.id));state.transactions.forEach(t=>{if(t.auto?.pair&&gone.has(t.auto.pair))delete t.auto.pair;});
+    Object.keys(state.balances||{}).forEach(k=>{if(acct&&k!==acct)return;const before=state.balances[k].length;state.balances[k]=state.balances[k].filter(x=>x.src!==id);nb+=before-state.balances[k].length;});
+    if(!state.transactions.some(t=>t.auto?.batch===id)&&!balSrc(id).length)state.importLog=(state.importLog||[]).filter(l=>l.id!==id);},
+    [gone.size?plural(gone.size,'transaction'):'',nb?plural(nb,'balance'):''].filter(Boolean).join(' and ')+' removed');break;}
   }});
  function manualPick(){const i=document.createElement('input');i.type='file';i.accept='.csv,.tsv,.txt,text/csv,text/plain';i.onchange=()=>{if(i.files[0])readCSVFile(i.files[0]);};i.click();}
  return {views:{import:importScreen,inbox:inboxScreen,recurring:recurringScreen,paychecks:paychecksScreen,invest:netWorthScreen,dashboard},txChip,dashboard,importFiles,looking};

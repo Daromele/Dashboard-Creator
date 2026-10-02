@@ -138,4 +138,8 @@ Pending Activity,,,,,,$-50.00
   eq('checking rolls forward the other way', A.balanceAt('bank',[{date:'2026-09-01',value:100000,how:'file'}],tx,'2026-09-11').value, 100000-5000+30000);
   eq('investments and loans keep their latest balance', [A.balanceAt('retire',[{date:'2026-06-30',value:500,how:'manual'}],tx,'2026-09-30').value,A.balanceAt('loan',[],tx,'2026-09-30')], [500,null]);
   eq('nothing before the first balance or transaction', [A.balanceAt('bank',[],tx,'2026-09-30'),A.balanceAt('card',[],tx,'2026-08-01')], [null,null]);
+
+  // short merchant words only match whole words: “pharmacy” is not Macy’s, “current” is not rent
+  const hit=x=>(P.merchantDict.find(([re])=>re.test(x.toLowerCase()))||[])[1]||'';
+  eq('merchant words match whole words only', ['CVS PHARMACY 123','CURRENT ACCOUNT FEE','PARENT TEACHER ASSN','PROMOTION CREDIT','HUBER DRUGS','AVAIL RENT 3304','MACYS #22'].map(hit), ['health','','','','','housing','shopping']);
 };
