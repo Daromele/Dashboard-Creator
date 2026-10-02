@@ -168,4 +168,15 @@ Pending Activity,,,,,,$-50.00
   eq('dotted names read as one word', [A.keyOf('E.M.A.S.E.S.A.'),A.keyOf('E.M.A.S.E.S.A'),B.matchKey('E.M.A.S.E.S.A.')], ['emasesa','emasesa','emasesa']);
   { const r=A.recurring([['2026-01-27',5045],['2026-03-24',7060],['2026-05-26',7060],['2026-07-22',4374]].map(([date,amount])=>({date,amount,key:'water',name:'Water Co',category:'utilities'})),'2026-08-01');
     eq('a bill every two months is found', r.map(x=>[x.cadence,x.perMonth]), [['every 2 months',Math.round(5885*0.5)]]); }
+  { const C1=`Transaction Date,Posted Date,Card No.,Description,Category,Transaction Type,Transaction Amount
+2026-09-29,2026-09-29,1234,Travel Reward,Payment/Credit,Credit,35.46
+2026-09-28,2026-09-29,1234,UBER TRIP,Other Travel,Debit,18.40
+2026-09-27,2026-09-28,1234,STARBUCKS,Dining,Debit,6.25
+2026-09-20,2026-09-21,1234,CAPITAL ONE MOBILE PYMT,Payment/Credit,Credit,200.00`;
+    const f=A.read(C1,'capital-one-transactions.csv',CSV);
+    eq('unsigned amounts take their sign from a Debit/Credit column', f.rows.map(r=>r.amount), [3546,-1840,-625,20000]);
+    const c=A.context(P,s,B,'card'),r=f.rows[0],n=A.merchant(r.desc,c.dict);
+    eq('a card reward is money in, sorted by itself', [A.classify({...r,name:n},c).why,A.classify({...r,name:n},c).look], ['reward',false]); }
+  { const C2='Transaction Date,Posted Date,Card No.,Description,Category,Debit,Credit\n2026-09-29,2026-09-29,1234,Travel Reward,Payment/Credit,,35.46\n2026-09-28,2026-09-29,1234,UBER TRIP,Other Travel,18.40,';
+    eq('Capital One debit and credit columns keep rewards as money in', A.read(C2,'2026-09-30_transaction_download.csv',CSV).rows.map(r=>r.amount), [3546,-1840]); }
 };

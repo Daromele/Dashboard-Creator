@@ -2734,7 +2734,11 @@ const Autopilot = (()=>{
   if(bals.length>=2){let same=0,opp=0;for(let i=1;i<bals.length;i++){const a=bals[i-1],b=bals[i],d=b.bal-a.bal;if(d===b.v)same++;else if(d===-b.v)opp++;else if(-d===a.v)same++;else if(d===a.v)opp++;}if(same!==opp)byBal=opp>same;}
   // a Type column that says deposit or withdrawal (Ally, many credit unions) settles it too
   let byType=null;{let same=0,opp=0;rows.forEach(x=>{const ty=String(x.type||'').toLowerCase(),inn=/\b(deposit|credit|interest|refund|transfer in|incoming)\b/.test(ty),out=/\b(withdrawal|debit|purchase|payment|fee|transfer out|outgoing)\b/.test(ty);if(inn===out)return;if((x.v>0)===inn)same++;else opp++;});if(same+opp>=2&&same!==opp)byType=opp>same;}
-  let flip=mem?.flip??byBal??byType??(wealthy?false:single&&pos>rows.length*0.6);
+  // every amount positive and a Type column saying Debit or Credit (some Capital One downloads): each row takes its own sign
+  const dirOf=x=>{const ty=String(x.type||'').toLowerCase(),inn=/\b(deposit|credit|interest|refund|transfer in|incoming)\b/.test(ty),out=/\b(withdrawal|debit|purchase|payment|fee|transfer out|outgoing|sale)\b/.test(ty);return inn===out?0:inn?1:-1;};
+  const unsigned=single&&rows.length>=2&&rows.every(x=>x.v>0)&&rows.filter(x=>dirOf(x)).length>=rows.length*0.8&&rows.some(x=>dirOf(x)>0)&&rows.some(x=>dirOf(x)<0);
+  if(unsigned)rows.forEach(x=>{if(dirOf(x)<0)x.v=-x.v;});
+  let flip=unsigned?false:mem?.flip??byBal??byType??(wealthy?false:single&&pos>rows.length*0.6);
   // a card statement: an issuer in the name, a card column, or "payment thank you" lines
   const payLines=rows.filter(x=>PAYMENT_IN.test(x.desc)||/^payment$/i.test(x.type)).length;
   // a running balance or check numbers mean a bank account, whoever the bank is
@@ -2769,6 +2773,7 @@ const Autopilot = (()=>{
  const OWN_TRANSFER=/\b(online transfer|internal transfer|transfer (to|from) (my |your )?(sav|savings|chk|checking|share|account|acct|brokerage)|xfer|funds transfer|transfer to sav|transfer from sav|to savings|from savings|to checking|from checking)\b/i;
  const PAYROLL=/\b(payroll|direct dep|dir dep|dirdep|salary|paycheck|adp|gusto|paychex|intuit payroll|ppd payroll|employer)\b/i;
  const INTEREST=/\b(interest (paid|payment|earned|credit)|int paid|interest)\b/i;
+ const REWARD=/\b(rewards?|cash ?back|cashback|statement credit|points? redemption|redemption credit|bonus miles|miles credit)\b/i;
  const REFUND=/\b(refund|return|returned|reversal|credit adj|adjustment|cashback|cash back|rebate)\b/i;
  // people apps and cash: often fine, but only you know what they were
  const PEOPLE=/\b(venmo|zelle|cash ?app|square cash|paypal|apple cash|check #?\d*|^check|atm|cash withdrawal|withdrawal)\b/i;
@@ -2787,6 +2792,8 @@ const Autopilot = (()=>{
    // money back from a shop is a refund in the shop's category; money in under an expense merchant otherwise needs a look
    if(!out&&!ctx.isIncome(c))return pick(c,REFUND.test(t)||ctx.kind==='card'?'refund':'merchant',!(REFUND.test(t)||ctx.kind==='card'));
    return pick(c,'merchant',PEOPLE.test(t));}
+  // card rewards and cash back are money in, not a refund of something bought
+  if(!out&&REWARD.test(t))return pick(ctx.otherIncome,'reward');
   if(!out){if(PAYROLL.test(t))return pick(ctx.salary,'paycheck');if(INTEREST.test(t))return pick(ctx.interest,'interest');}
   const hinted=ctx.hint(row.bankCat);if(has(hinted)&&(out?!ctx.isIncome(hinted):true))return pick(hinted,'bank category',PEOPLE.test(t));
   if(PEOPLE.test(t))return pick(out?ctx.people:ctx.otherIncome,'guess',true);
@@ -5812,7 +5819,7 @@ const Auto=(()=>{
  const uniqueName=(name,kind)=>{let n=name,i=2;while(accounts().some(a=>a.name===n&&a.kind!==kind)&&i<50)n=`${name} (${i++})`;return n;};
  // money that left one of your accounts and reached another: a card payment or a transfer, never spending
  const WEALTH=['savings','invest','retire'];
- const transferish=(t,acc)=>['card payment','transfer'].includes(t.auto?.why)||WEALTH.includes(acc?.kind)||(acc?.kind==='card'&&flow(t)>0&&!['refund','merchant','your rule'].includes(t.auto?.why));
+ const transferish=(t,acc)=>['card payment','transfer'].includes(t.auto?.why)||WEALTH.includes(acc?.kind)||(acc?.kind==='card'&&flow(t)>0&&!['refund','reward','merchant','your rule'].includes(t.auto?.why));
  function pairUp(fresh){const ids=new Set(fresh.map(t=>t.id));if(!fresh.length)return 0;
   const from=Budget.plusDays(fresh.map(t=>t.date).sort()[0],-10),pool=[...state.transactions.filter(t=>t.acct&&t.date>=from&&!t.auto?.pair),...fresh];
   const rows=pool.map(t=>({acct:t.acct,date:t.date,amount:flow(t)}));let n=0;
@@ -6171,11 +6178,12 @@ const Auto=(()=>{
   }});
  function manualPick(){const i=document.createElement('input');i.type='file';i.accept='.csv,.tsv,.txt,text/csv,text/plain';i.onchange=()=>{if(i.files[0])readCSVFile(i.files[0]);};i.click();}
  // ---------- bulk: rename a place everywhere, move to another account, select every entry from the same places ----------
- function bulkTools(){const accs=accounts();return `${button('Select all from the same places','ap-bulk-same','small quiet')}<span class="ap-bulk-rename"><input id="bulk-rename" maxlength="40" placeholder="Rename the place to…" aria-label="Rename the place of the selected">${button('Rename','ap-bulk-rename','small')}</span>`+
+ function bulkTools(){const accs=accounts();return `${button('Select all from the same places','ap-bulk-same','small quiet')}<span class="ap-bulk-rename"><input id="bulk-rename" maxlength="40" placeholder="Rename the place to…" aria-label="Rename the place of the selected">${button('Rename','ap-bulk-rename','small')}</span>${button('Swap in/out','ap-bulk-swap','small quiet','title="Money in becomes money out, and back"')}`+
   (accs.length>1?`<select id="bulk-acct" aria-label="Move the selected to another account"><option value="">Move to account…</option>${accs.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')}</select>`:'');}
  document.addEventListener('change',e=>{if(e.target.id!=='bulk-acct'||!e.target.value)return;const a=account(e.target.value);if(a)bulkApply(t=>{t.acct=a.id;if(t.auto?.pair)delete t.auto.pair;},`Moved to ${a.name}`);});
- document.addEventListener('click',e=>{const b=e.target.closest('button[data-action="ap-bulk-same"],button[data-action="ap-bulk-rename"]');if(!b)return;
+ document.addEventListener('click',e=>{const b=e.target.closest('button[data-action="ap-bulk-same"],button[data-action="ap-bulk-rename"],button[data-action="ap-bulk-swap"]');if(!b)return;
   const sel=selectedRows();if(!sel.length)return toast('Select a transaction first.');
+  if(b.dataset.action==='ap-bulk-swap'){bulkApply(t=>{t.amount=-t.amount;if(t.fx)t.fx.amount=-t.fx.amount;if(t.auto?.pair)delete t.auto.pair;},`${sel.length} transaction${sel.length===1?'':'s'}: money in and out swapped`);return;}
   if(b.dataset.action==='ap-bulk-same'){const keys=new Set(sel.map(t=>Budget.matchKey(t.note)).filter(Boolean));let n=0;activityList.filter(t=>editable(t)&&keys.has(Budget.matchKey(t.note))).forEach(t=>{if(!txSel.has(t.id)){txSel.add(t.id);n++;}});render();toast(n?`${n} more from the same place${keys.size>1?'s':''} selected`:'Everything from these places is already selected');return;}
   const name=String($('#bulk-rename')?.value||'').trim().slice(0,40);if(!name)return toast('Type the new name first.');
   // every entry from the same places, not only the selected, and the name is remembered for future statements

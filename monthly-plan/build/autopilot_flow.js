@@ -227,6 +227,9 @@ ${mo(0)}-10,${mo(0)}-10,Test Employer SL,,Income,NOMINA,"Main Account",1500.00,,
  const pill=await p.evaluate(()=>{const t=state.transactions.find(t=>t.fx&&writable(t.date.slice(0,7)));transactionForm(t.id);document.querySelector('#transaction-form .acct-pill').click();return {s:screen,acct:filterAcct===t.acct,all:activityList.every(x=>x.acct===t.acct),n:activityList.length};});
  ok('the account pill shows that account’s transactions',pill.s==='activity'&&pill.acct&&pill.all&&pill.n>=5,JSON.stringify(pill));
  await p.evaluate(()=>{filterAcct='';state.transactions=state.transactions.filter(t=>!t.fx);});}
+// swap money in and out for just the selected rows
+{const r=await p.evaluate(()=>{showTransactions('all');txRange='all';render();const t=activityList.find(t=>t.acct&&editable(t));const before=t.amount;txSel.clear();txSel.add(t.id);render();const btn=document.querySelector('[data-action="ap-bulk-swap"]');if(!btn)return ['nobtn',screen,!!document.querySelector('.bulk-bar'),document.querySelector('.bulk-bar')?.innerText.slice(0,200)];btn.click();return [before,state.transactions.find(x=>x.id===t.id).amount];});
+ ok('swap in/out flips only the selected rows',r[1]===-r[0],JSON.stringify(r));await p.evaluate(()=>{txSel.clear();});}
 ok('the app made no network requests',net===0,net);
 ok('no page errors',!errs.length,errs.join('|'));
 await b.close();console.log(fails?`${fails} failed`:'autopilot flow: all checks passed');process.exit(fails?1:0);})();
