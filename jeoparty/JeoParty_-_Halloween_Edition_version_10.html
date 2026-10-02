@@ -270,6 +270,10 @@
         .vol-pop[hidden] { display: none; }
         .vol-pop label { font-size: .85rem; margin-top: .4rem; display: flex; justify-content: space-between; color: var(--text); }
         .vol-pop input[type=range] { width: 100%; accent-color: var(--primary); }
+        .my-game-tools { display: flex; align-items: flex-end; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+        .my-game-tools[hidden] { display: none; }
+        .games-mine-note { font-size: .85rem; margin: -.25rem 0 .75rem; }
+        .game-card-mine { position: absolute; top: .7rem; left: auto; right: .7rem; }
         .edit-toggle-row { margin-top: 2rem; display: flex; justify-content: center; }
         #questions-editor[hidden], .edit-toggle-row[hidden] { display: none; }
         .now-playing { margin: .35rem 0 0; font-size: .95rem; color: var(--text-muted); }
@@ -1223,9 +1227,17 @@
                 <div class="flex justify-between align-center mb-4" style="flex-wrap:wrap;gap:.75rem;">
                     <div>
                         <h2 style="margin-bottom:.25rem;">Edit Questions</h2>
-                        <p class="text-muted" style="margin:0;font-size:.9rem;">Change any category, question or answer in the game that&rsquo;s loaded now. Edits save automatically.</p>
+                        <p id="editor-note" class="text-muted" style="margin:0;font-size:.9rem;"></p>
                     </div>
                     <button id="save-settings-btn" class="btn btn-primary">Save Changes</button>
+                </div>
+
+                <div id="my-game-tools" class="my-game-tools" hidden>
+                    <div class="form-group" style="flex:1;min-width:12rem;margin:0;">
+                        <label for="my-game-name">Game name</label>
+                        <input type="text" id="my-game-name" class="form-control" maxlength="60">
+                    </div>
+                    <button type="button" id="my-game-delete" class="btn btn-danger">🗑️ Delete this game</button>
                 </div>
 
                 <!-- Final JeoParty Editor -->
@@ -1526,7 +1538,7 @@
 
             <div class="card mt-4">
                 <h3>✍️ Want your own questions?</h3>
-                <p>You don't need them — but you can. Every question is editable in the <strong>Game Library</strong> under Edit Questions, or click <strong>Download CSV Sample</strong>, fill it in a spreadsheet, and import it. Great for an office party or a themed birthday.</p>
+                <p>You don't need them — but you can. Every question is editable in the <strong>Game Library</strong> under Edit Questions (your changes save as a new game under <strong>My Games</strong>, so the originals stay intact), or click <strong>Download CSV Sample</strong>, fill it in a spreadsheet, and import it. Great for an office party or a themed birthday.</p>
                 <ul>
                     <li>Your game saves itself in this browser. Close the tab and come back to it.</li>
                     <li><strong>Export Game Data</strong> saves a file you can send to a friend or open on another computer.</li>
@@ -1657,6 +1669,17 @@
         const DATA_VERSION = 3;
         const STORAGE_KEY = 'jeoparty-halloween-v3';
         const HISTORY_STORAGE_KEY = 'jeoparty-halloween-history-v3';
+        const MY_GAMES_KEY = 'jeoparty-halloween-my-games-v1';
+        // Games the customer made by editing a built-in one. Kept apart from the
+        // game state so New Game and Restart Round never touch them.
+        let myGames = [];
+        try { myGames = JSON.parse(localStorage.getItem(MY_GAMES_KEY) || '[]'); if (!Array.isArray(myGames)) myGames = []; }
+        catch (e) { myGames = []; }
+        const saveMyGames = () => {
+            try { localStorage.setItem(MY_GAMES_KEY, JSON.stringify(myGames)); }
+            catch (e) { console.error('Could not save My Games', e); }
+        };
+        const findMyGame = (id) => myGames.find(g => g.id === id);
         const AVATAR_OPTIONS = ['🎃', '👻', '🦇', '🕷️', '🕸️', '🧙', '🧛', '🧟', '💀', '☠️', '🐈‍⬛', '🦉', '🍬', '🍭', '⚰️', '🔮', '🌙', '🪦', '😀', '😎', '😂', '🤔', '🤠', '🤩', '🐶', '🐱', '🦊', '🐻', '🐼', '🦁', '🚀', '🤖', '👾', '💡', '⭐', '💎', '🍕', '🌮', '🍔', '🍩', '🥑', '🥦'];
 
         // --- SOUND LOGIC ---
@@ -2307,7 +2330,7 @@
         ];
         const getCurrentPackKey = () => {
             const k = gameState.settings.currentPack;
-            if (k && DEMO_DATA_PACKS[k]) return k;
+            if (k && (DEMO_DATA_PACKS[k] || findMyGame(k))) return k;
             if (k === 'custom') return null;
             // Older saves: infer from the first category name.
             const first = gameState.categories[0] && gameState.categories[0].name;
@@ -2321,7 +2344,17 @@
             // Remember the inferred game so later question edits don't lose it.
             if (current && !gameState.settings.currentPack) gameState.settings.currentPack = current;
             const esc = (t) => String(t).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
-            document.getElementById('games-library').innerHTML = GAME_LIBRARY.map(g => `
+            const mineHtml = myGames.length ? `
+                <h2 class="games-group-title">My Games</h2>
+                <p class="text-muted games-mine-note">Saved in this browser only. Use <strong>Export Game Data</strong> in Settings to keep a backup.</p>
+                <div class="games-grid">${myGames.map(x => `<button type="button" class="game-card${x.id === current ? ' current' : ''}" data-pack="${x.id}">
+                        ${x.id === current ? '<span class="game-card-badge">Now playing</span>' : ''}
+                        <span class="game-card-emoji">${x.emoji || '✏️'}</span>
+                        <span class="game-card-name">${esc(x.name)}</span>
+                        <span class="game-card-meta">Your game${x.basedOnName ? ' · based on ' + esc(x.basedOnName) : ''}</span>
+                        <span class="game-card-blurb">${x.categories.length} categories · edited ${esc(new Date(x.updated).toLocaleDateString())}</span>
+                    </button>`).join('')}</div>` : '';
+            document.getElementById('games-library').innerHTML = mineHtml + GAME_LIBRARY.map(g => `
                 <h2 class="games-group-title">${esc(g.group)}</h2>
                 <div class="games-grid">${g.games.filter(x => DEMO_DATA_PACKS[x.key]).map(x => {
                     const p = DEMO_DATA_PACKS[x.key];
@@ -2336,6 +2369,14 @@
                 }).join('')}</div>`).join('');
             let label = 'Your own questions';
             GAME_LIBRARY.forEach(g => g.games.forEach(x => { if (x.key === current) label = `${x.emoji} ${x.name}`; }));
+            const mine = findMyGame(current);
+            if (mine) label = `${mine.emoji || '✏️'} ${mine.name}`;
+            document.getElementById('editor-note').innerHTML = mine
+                ? 'This is your game. Changes save automatically.'
+                : 'This is a built-in game. Your first change saves a copy under <strong>My Games</strong>, so the original stays as it is.';
+            document.getElementById('my-game-tools').hidden = !mine;
+            const nameInput = document.getElementById('my-game-name');
+            if (mine && document.activeElement !== nameInput) nameInput.value = mine.name;
             document.getElementById('now-playing-name').textContent = label;
             document.getElementById('settings-now-playing').textContent = label;
             document.getElementById('edit-game-name').textContent = label;
@@ -3309,9 +3350,12 @@
                 gameState.settings.eventTitle = e.target.value;
             } else if (e.target.id === 'host-name-input') {
                 gameState.settings.hostName = e.target.value;
+            } else if (e.target.id === 'my-game-name') {
+                return; // handled by its own listener
             } else if (e.target.id.startsWith('fj-')) {
                 const key = e.target.id.split('-')[1];
                 gameState.settings.finalJeoparty[key] = e.target.value; // Use finalJeoparty
+                noteQuestionEdit();
             } else if (e.target.matches('[data-team-name]')) {
                 const index = parseInt(e.target.dataset.teamName);
                 gameState.teams[index].name = e.target.value;
@@ -3321,11 +3365,13 @@
             } else if (e.target.matches('[data-cat-name]')) {
                 const catIndex = parseInt(e.target.dataset.catName);
                 gameState.categories[catIndex].name = e.target.value;
+                noteQuestionEdit();
             } else if (e.target.matches('[data-cat][data-q]')) {
                  const catIndex = parseInt(e.target.dataset.cat);
                  const qIndex = parseInt(e.target.dataset.q);
                  const type = e.target.dataset.type;
                  gameState.categories[catIndex].questions[qIndex][type] = e.target.value;
+                 noteQuestionEdit();
             }
             saveState();
             renderAll();
@@ -3345,6 +3391,7 @@
                 const index = parseInt(button.dataset.removeCat);
                 showConfirmation('Are you sure you want to delete this category and all its questions?', () => {
                     gameState.categories.splice(index, 1);
+                    noteQuestionEdit();
                     saveState();
                     renderAll();
                 });
@@ -3370,11 +3417,12 @@
                 name: "New Category",
                 questions: Array.from({ length: 5 }, () => ({ q: "", a: "" }))
             });
+            noteQuestionEdit();
             saveState();
             renderAll();
         });
         const loadPack = (key) => {
-            const pack = DEMO_DATA_PACKS[key];
+            const pack = DEMO_DATA_PACKS[key] || findMyGame(key);
             if (!pack) return;
             gameState.categories = JSON.parse(JSON.stringify(pack.categories));
             gameState.settings.finalJeoparty = pack.finalJeoparty
@@ -3395,6 +3443,61 @@
             renderAll();
             showView('game-board');
         };
+        // Called after any change to categories, questions or Final JeoParty.
+        // Editing a built-in game makes a copy under My Games; editing one of
+        // the customer's own games updates it in place.
+        const noteQuestionEdit = () => {
+            const key = getCurrentPackKey();
+            let mine = findMyGame(key);
+            if (!mine) {
+                let baseName = 'My game', emoji = '✏️';
+                GAME_LIBRARY.forEach(g => g.games.forEach(x => { if (x.key === key) { baseName = x.name; emoji = x.emoji; } }));
+                const stem = key ? `${baseName} (my copy` : baseName;
+                let name = key ? `${stem})` : stem, n = 2;
+                while (myGames.some(g => g.name === name)) name = key ? `${stem} ${n++})` : `${stem} ${n++}`;
+                mine = { id: 'my-' + Date.now().toString(36), name, emoji, basedOn: key || null,
+                         basedOnName: key ? baseName : '', categories: [], finalJeoparty: {}, updated: 0 };
+                myGames.unshift(mine);
+                gameState.settings.currentPack = mine.id;
+                showToast(`Saved as “${name}” under My Games. The original is unchanged.`);
+            }
+            mine.categories = JSON.parse(JSON.stringify(gameState.categories));
+            mine.finalJeoparty = JSON.parse(JSON.stringify(gameState.settings.finalJeoparty || {}));
+            mine.updated = Date.now();
+            saveMyGames();
+        };
+        const showToast = (msg) => {
+            let t = document.getElementById('edit-toast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'edit-toast';
+                t.setAttribute('role', 'status');
+                t.style.cssText = 'position:fixed;left:50%;bottom:1.25rem;transform:translateX(-50%);z-index:100;background:var(--accent);color:#fff;padding:.7rem 1.1rem;border-radius:10px;box-shadow:var(--shadow);font-weight:600;max-width:calc(100% - 2rem);text-align:center;';
+                document.body.appendChild(t);
+            }
+            t.textContent = msg;
+            t.style.display = 'block';
+            clearTimeout(showToast.timer);
+            showToast.timer = setTimeout(() => { t.style.display = 'none'; }, 4500);
+        };
+        document.getElementById('my-game-name').addEventListener('change', (e) => {
+            const mine = findMyGame(getCurrentPackKey());
+            const v = e.target.value.trim();
+            if (!mine) return;
+            if (!v) { e.target.value = mine.name; return; }
+            mine.name = v; mine.updated = Date.now();
+            saveMyGames(); renderGamesLibrary();
+        });
+        document.getElementById('my-game-delete').addEventListener('click', () => {
+            const mine = findMyGame(getCurrentPackKey());
+            if (!mine) return;
+            showConfirmation(`Delete <strong>${mine.name.replace(/[&<>"]/g, '')}</strong>? This can't be undone.`, () => {
+                myGames = myGames.filter(g => g !== mine);
+                saveMyGames();
+                setEditorOpen(false);
+                loadPack(mine.basedOn && DEMO_DATA_PACKS[mine.basedOn] ? mine.basedOn : 'halloween-adult');
+            });
+        });
         const setEditorOpen = (open) => {
             const ed = document.getElementById('questions-editor');
             const tg = document.getElementById('edit-questions-toggle');
@@ -3412,10 +3515,10 @@
             const card = e.target.closest('[data-pack]');
             if (!card) return;
             const key = card.dataset.pack;
-            const pack = DEMO_DATA_PACKS[key];
+            const pack = DEMO_DATA_PACKS[key] || findMyGame(key);
             if (!pack) return;
             const inProgress = gameState.answeredQuestions.length > 0 || gameState.teams.some(t => t.score);
-            const name = pack.label || key;
+            const name = pack.label || pack.name || key;
             if (key === getCurrentPackKey() && !inProgress) { showView('game-board'); return; }
             if (inProgress) {
                 showConfirmation(`Switch to <strong>${name}</strong>? The current board and scores will be cleared.`, () => loadPack(key));
@@ -3512,6 +3615,9 @@
                             } else {
                                 gameState.settings.finalJeoparty = { category: '', question: '', answer: '' }; // Use finalJeoparty
                             }
+                            // Keep imported questions as one of the customer's own games.
+                            gameState.settings.currentPack = 'custom';
+                            noteQuestionEdit();
                         } else {
                             throw new Error('No valid categories or Final JeoParty found in CSV.');
                         }
@@ -3650,6 +3756,7 @@
                     const targetQIndex = parseInt(targetElement.dataset.q);
                     const questions = gameState.categories[draggedCatIndex].questions;
                     [questions[draggedQIndex], questions[targetQIndex]] = [questions[targetQIndex], questions[draggedQIndex]];
+                    noteQuestionEdit();
                     saveState();
                     renderSettings();
                 } else {
@@ -3799,10 +3906,11 @@
 
 
         document.getElementById('start-fresh-btn').addEventListener('click', () => {
-            showConfirmation('This erases every saved score, team, custom question and game-history entry for this file, then reloads the factory game. This cannot be undone. Continue?', () => {
+            showConfirmation('This erases every saved score, team, custom question, My Games entry and game-history entry for this file, then reloads the factory game. This cannot be undone. Continue?', () => {
                 try {
                     localStorage.removeItem(STORAGE_KEY);
                     localStorage.removeItem(HISTORY_STORAGE_KEY);
+                    localStorage.removeItem(MY_GAMES_KEY);
                 } catch (e) { console.error('Could not clear storage', e); }
                 Spooky.stopAmbience();
                 location.reload();
