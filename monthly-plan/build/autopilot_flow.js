@@ -194,6 +194,11 @@ await p.evaluate(()=>go('years',true));await p.waitForTimeout(200);
 ok('year over year shows a row per year',await p.evaluate(()=>/Year by year/.test(document.querySelector('main').innerText)&&document.querySelectorAll('[data-action="years-open"]').length>=1));
 await p.evaluate(()=>document.querySelector('[data-action="years-open"]').click());await p.waitForTimeout(150);
 ok('a year opens its overview',await p.evaluate(()=>screen==='annual'));
+// bills that vary (electricity) and move around the month still show under bills
+await p.evaluate(()=>{const c=state.categories.find(c=>c.group==='bills'&&!c.archived).id,today=Budget.today(),mo=n=>{const d=new Date(today+'T12:00:00Z');d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()-n);return d.toISOString().slice(0,7);};
+ [[1,'03',4210],[2,'19',9875],[3,'08',15230],[4,'25',6120]].forEach(([n,day,a],i)=>state.transactions.push({id:'zel'+i,date:mo(n)+'-'+day,category:c,amount:a,note:'Volt Power Co',acct:state.accounts[0]?.id}));render();go('recurring',true);});await p.waitForTimeout(150);
+ok('a varying electricity bill is listed under bills',await p.evaluate(()=>[...document.querySelectorAll('table.ap-rec')].some(t=>/Volt Power Co/.test(t.innerText)&&/Bills/i.test(t.closest('section').querySelector('h2').innerText))));
+await p.evaluate(()=>{state.transactions=state.transactions.filter(t=>!t.id.startsWith('zel'));});
 ok('the app made no network requests',net===0,net);
 ok('no page errors',!errs.length,errs.join('|'));
 await b.close();console.log(fails?`${fails} failed`:'autopilot flow: all checks passed');process.exit(fails?1:0);})();

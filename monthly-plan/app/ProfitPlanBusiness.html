@@ -1601,6 +1601,8 @@ th.tbl-th{cursor:pointer;user-select:none;white-space:nowrap}th.tbl-th:hover,th.
 /* the amount and its share on one line; they stack only when the legend column is too narrow */
 .donut-value{display:flex;gap:10px;align-items:baseline;justify-content:flex-end}.donut-value span{display:inline}.donut-value small{min-width:36px;margin-top:0;text-align:right}
 @container (max-width:260px){.donut-value{display:block}.donut-value span{display:block}}
+/* a long category name wraps onto a second line instead of being cut off */
+.donut-key .row small{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.3}.donut-key .row{align-items:center;gap:10px}.donut-key .row>div{flex:1 1 auto}.donut-value{flex:none}
 </style></head>
 <body>
 <a href="#content" style="position:absolute;left:-9999px" onfocus="this.style.left='10px'" onblur="this.style.left='-9999px'">Skip to content</a>
@@ -5972,7 +5974,18 @@ const Auto=(()=>{
  function found(){const skip=new Set([AP.people,'cash',AP.unsorted]);
   const list=state.transactions.filter(t=>typeOf(t.category)==='expense'&&!skip.has(t.category)&&t.date<=Budget.today()).map(t=>({date:t.date,amount:t.amount,key:A.keyOf(t.note),name:t.note,category:t.category}));
   // everyday spending (groceries, gas, coffee) repeats too; only a fixed charge there is a subscription
-  return A.recurring(list,Budget.today()).filter(r=>category(r.category)?.group!=='variable'||r.fixed);}
+  const res=A.recurring(list,Budget.today()).filter(r=>category(r.category)?.group!=='variable'||r.fixed),have=new Set(res.map(r=>r.key));
+  // bills move: electricity doubles in winter and gets paid on a different day each month. In a bill
+  // category, a payee seen in most recent months counts as a monthly bill whatever the amount.
+  const billCat=id=>{const c=category(id),g=Budget.group(c);return ['bills','debt'].includes(c?.group)||g?.fixed&&!g?.subscription;};
+  const today=Budget.today(),m0=today.slice(0,7),ago=n=>{const d=new Date(Date.UTC(+m0.slice(0,4),+m0.slice(5,7)-1-n,1));return d.toISOString().slice(0,7);},window=new Set([0,1,2,3,4,5].map(ago)),by=new Map();
+  list.forEach(t=>{if(!t.key||have.has(t.key)||!billCat(t.category)||t.amount<=0)return;(by.get(t.key)||by.set(t.key,[]).get(t.key)).push(t);});
+  for(const [key,l] of by){l.sort((a,b)=>a.date.localeCompare(b.date));const months=new Map();l.forEach(t=>{const m=t.date.slice(0,7);if(window.has(m))months.set(m,(months.get(m)||0)+t.amount);});
+   const first=l[0].date.slice(0,7),span=[...window].filter(m=>m>=first&&m<=m0).length,last=l.at(-1);
+   if(months.size<2||months.size<Math.ceil(span*0.5))continue;
+   const amts=[...months.values()],avg=Math.round(amts.reduce((a,b)=>a+b,0)/amts.length),d=new Date(last.date+'T12:00:00Z');d.setUTCMonth(d.getUTCMonth()+1);
+   res.push({key,name:last.name,category:last.category,cadence:'monthly',count:l.length,avg,last:last.date,lastAmount:last.amount,next:d.toISOString().slice(0,10),perMonth:avg,yearly:avg*12,fixed:Math.max(...amts)-Math.min(...amts)<=Math.max(100,avg*0.05),active:A.dayNum(today)-A.dayNum(last.date)<=50,up:0});}
+  return res.sort((a,b)=>b.perMonth-a.perMonth);}
  const CAD={weekly:'Weekly','every 2 weeks':'Every 2 weeks',monthly:'Monthly',quarterly:'Every 3 months',yearly:'Yearly'};
  function recurringScreen(){const all=found(),live=all.filter(r=>r.active),stopped=all.filter(r=>!r.active),isBill=r=>['bills','debt'].includes(category(r.category)?.group)||Budget.group(category(r.category))?.fixed&&!Budget.group(category(r.category))?.subscription,subs=live.filter(r=>!isBill(r)),bills=live.filter(isBill);
   const per=l=>l.reduce((n,r)=>n+r.perMonth,0),soon=live.filter(r=>r.next<=Budget.plusDays(Budget.today(),30)).sort((a,b)=>a.next.localeCompare(b.next)),ups=live.filter(r=>r.up);
@@ -6228,7 +6241,7 @@ function enhanceTables(){
   const filters=rows.length<6?[]:heads.map((h,c)=>{if(!h.innerText.trim()||h.classList.contains('num'))return null;const vals=[...new Set(rows.map(r=>(r.cells[c]?.innerText||'').split('\n')[0].trim()).filter(Boolean))];
    return vals.length>=2&&vals.length<=12&&vals.length<rows.length?{c,label:h.innerText.replace(/[↕▲▼]/g,'').trim(),vals:vals.sort()}:null;}).filter(Boolean).slice(0,3);
   if(rows.length>=6){const wrap=t.closest('.table-wrap')||t;
-   wrap.insertAdjacentHTML('beforebegin',`<div class="tbl-tools no-print" data-for="${esc(key)}"><input type="search" class="tbl-search" placeholder="Search this table" aria-label="Search this table" value="${esc(st.q)}">${filters.map(f=>`<select class="tbl-filter" data-col="${f.c}" aria-label="Filter by ${esc(f.label)}"><option value="">All ${esc((l=>/(s|ed|ing|transaction|status)$/.test(l)?l:l.endsWith('y')?l.slice(0,-1)+'ies':l+'s')(f.label.toLowerCase()))}</option>${f.vals.map(v=>`<option ${st.f[f.c]===v?'selected':''}>${esc(v)}</option>`).join('')}</select>`).join('')}<span class="tbl-count small muted"></span></div>`);}
+   wrap.insertAdjacentHTML('beforebegin',`<div class="tbl-tools no-print" data-for="${esc(key)}"><input type="search" class="tbl-search" placeholder="Search this table" aria-label="Search this table" value="${esc(st.q)}">${filters.map(f=>`<select class="tbl-filter" data-col="${f.c}" aria-label="Filter by ${esc(f.label)}"><option value="">${esc((l=>/\s/.test(l)?l[0].toUpperCase()+l.slice(1)+': all':'All '+(/(s|ed|ing|transaction|status)$/.test(l)?l:l.endsWith('y')?l.slice(0,-1)+'ies':l+'s'))(f.label.toLowerCase()))}</option>${f.vals.map(v=>`<option ${st.f[f.c]===v?'selected':''}>${esc(v)}</option>`).join('')}</select>`).join('')}<span class="tbl-count small muted"></span></div>`);}
   tblApply(t,key);});}
 function tblApply(t,key){const st=TBL[key];if(!st)return;const body=t.tBodies[0],rows=tblRows(t),pinned=[...body.rows].filter(r=>!rows.includes(r));
  if(st.col>=0){const v=r=>tblValue(tblText(r.cells[st.col]));rows.sort((a,b)=>{const x=v(a),y=v(b);return (typeof x==='number'&&typeof y==='number'?x-y:String(x).localeCompare(String(y)))*st.dir;});rows.forEach(r=>body.appendChild(r));pinned.forEach(r=>body.appendChild(r));}
