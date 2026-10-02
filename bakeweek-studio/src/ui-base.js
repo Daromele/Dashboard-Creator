@@ -132,14 +132,18 @@ function restoreFrom(b){if(demo)toggleSample(true);storageProblem='';storageRelo
 const folderSupported=()=>!!globalThis.showDirectoryPicker;
 let folder=null,folderStatus='Not connected',folderTimer=null,folderChain=Promise.resolve(),bannerHidden=false;
 const handleStore=(mode,v)=>kv(CONFIG.storageKey+'-backup','handles','folder',mode,v);
-function setFolderStatus(t){folderStatus=t;const el=$('#folder-status');if(el)el.textContent=t;renderStatus();}
+// the pill says when the folder copy was last written, with date and time: "Backed up Oct 2, 3:42 PM"
+const backupStamp=ms=>{const d=new Date(ms);return d.toLocaleDateString(undefined,{month:'short',day:'numeric',...(d.getFullYear()!==new Date().getFullYear()?{year:'numeric'}:{})})+', '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});};
+const FOLDER_TIME_KEY=CONFIG.storageKey+'-folder-backup';
+const folderLabel=()=>{const last=+ls.get(FOLDER_TIME_KEY)||0;return folderStatus==='Connected'&&last?'Backed up '+backupStamp(last):folderStatus;};
+function setFolderStatus(t){folderStatus=t;const el=$('#folder-status');if(el)el.textContent=folderLabel();renderStatus();}
 async function chooseFolder(){if(!folderSupported())return toast('Folder backup needs Chrome or Edge on a computer. Use Download backup here.');
  try{folder=await showDirectoryPicker({mode:'readwrite',id:CONFIG.storageKey+'-backups'});await handleStore('put',folder);await writeFolder();toast('A backup is now saved to that folder after every change.');render();}catch(e){if(e.name!=='AbortError')toast('That folder could not be used.');}}
 async function reconnectFolder(){if(!folder)return chooseFolder();try{if(await folder.requestPermission({mode:'readwrite'})==='granted'){await writeFolder();render();}}catch{setFolderStatus('Reconnect needed');}}
 function queueFolderBackup(){if(!folder||demo)return;clearTimeout(folderTimer);folderTimer=setTimeout(()=>writeFolder().catch(()=>setFolderStatus('Backup needs attention')),1200);}
 function writeFolder(){const f=folder;folderChain=folderChain.catch(()=>{}).then(async()=>{if(!f||f!==folder||demo)return;
  if(await f.queryPermission({mode:'readwrite'})!=='granted')return setFolderStatus('Reconnect needed');
- const h=await f.getFileHandle(`${CONFIG.file}-backup-${today()}.json`,{create:true}),w=await h.createWritable();await w.write(backupJSON(demo?real:state));await w.close();setFolderStatus('Connected');});return folderChain;}
+ const h=await f.getFileHandle(`${CONFIG.file}-backup-${today()}.json`,{create:true}),w=await h.createWritable();await w.write(backupJSON(demo?real:state));await w.close();ls.set(FOLDER_TIME_KEY,String(Date.now()));setFolderStatus('Connected');});return folderChain;}
 async function initFolder(){if(!folderSupported()){folderStatus='Not available here';return;}try{folder=await handleStore('get')||null;if(folder){const p=await folder.queryPermission({mode:'readwrite'});setFolderStatus(p==='granted'?'Connected':'Reconnect needed');}}catch{folderStatus='Not available here';}}
 const hasData=()=>!!(state.orders.length||state.recipes.length||state.ingredients.length||state.standing?.length);
 const protectedNow=()=>(folder&&folderStatus==='Connected')||Date.now()-(+ls.get(MANUAL_BACKUP_KEY)||0)<7*864e5;

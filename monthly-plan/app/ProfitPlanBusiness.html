@@ -2778,6 +2778,8 @@ function guideView(){
 
 function openBackupDB(){return new Promise((resolve,reject)=>{if(!globalThis.indexedDB)return reject(Error('Folder access storage is unavailable in this browser.'));const req=indexedDB.open(P.storage.key+'-files',1);req.onupgradeneeded=()=>req.result.createObjectStore('handles');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
 async function folderStore(mode='get',value){const db=await openBackupDB();return new Promise((resolve,reject)=>{const tx=db.transaction('handles',mode==='get'?'readonly':'readwrite'),store=tx.objectStore('handles'),req=mode==='get'?store.get('backup'):mode==='set'?store.put(value,'backup'):store.delete('backup');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+// date and time of a backup, e.g. "Oct 2, 3:42 PM" (the year only when it isn't this year)
+const backupStamp=ms=>{const d=new Date(ms);return d.toLocaleDateString(undefined,{month:'short',day:'numeric',...(d.getFullYear()!==new Date().getFullYear()?{year:'numeric'}:{})})+', '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});};
 function setBackupStatus(text){autoBackupStatus=text;const el=$('#auto-backup-status');if(el)el.textContent=text;renderBackupBanner();}
 const MANUAL_BACKUP_KEY=P.storage.key+'-manual-backup';
 let backupBannerHidden=false;
@@ -2815,7 +2817,7 @@ function writeFolderBackup(force=false){
   const writer=await file.createWritable();
   try{await writer.write(JSON.stringify(state,null,2));}finally{await writer.close();}
   localStorage.setItem(DAILY_BACKUP_KEY,String(Date.now()));
-  setBackupStatus('Backed up '+new Date().toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}));
+  setBackupStatus('Backed up '+backupStamp(Date.now()));
   return true;
  });
  return backupWriteChain;
@@ -2833,7 +2835,7 @@ function startupPrompt(){
   openWelcome(true);
  },450);
 }
-async function initFolderBackup(){try{backupFolder=await folderStore('get');if(backupFolder){const p=await backupFolder.queryPermission({mode:'readwrite'});setBackupStatus(p==='granted'?'Connected':'Reconnect needed');if(p==='granted')queueFolderBackup();}}catch{autoBackupStatus='Not supported';}finally{startupPrompt();}}
+async function initFolderBackup(){try{backupFolder=await folderStore('get');if(backupFolder){const p=await backupFolder.queryPermission({mode:'readwrite'});let last=0;try{last=+localStorage.getItem(DAILY_BACKUP_KEY)||0;}catch{}setBackupStatus(p!=='granted'?'Reconnect needed':last?'Backed up '+backupStamp(last):'Connected');if(p==='granted')queueFolderBackup();}}catch{autoBackupStatus='Not supported';}finally{startupPrompt();}}
 
 const BACKUP_SLIDE={icon:'shield',step:'BACK UP',title:'Protect your progress automatically',text:'<p>In Chrome or Edge, choose a cloud-synced folder for automatic backups. In other browsers, download backups from Settings.</p>'};
 // the pack supplies the tour; 'backup' marks where the shared backup slide goes

@@ -267,8 +267,10 @@ Page head: eyebrow "MAKE IT YOURS", title "Settings & backup". Then:
    - **Keep your progress safe** (shield icon on top): one paragraph saying data is in this browser,
      the file holds no entries, and clearing browser data erases it. Sub-heads:
      - *Automatic backups*: "Folder backup: keeps today's dated backup current after every
-       change", with a status pill (Not connected / Connected / Reconnect needed / Backup needs
-       attention / Not available here) and a Choose, Change or Reconnect button. Browsers without
+       change", with a status pill (Not connected / Backed up Oct 2, 3:42 PM / Reconnect needed /
+       Backup needs attention / Not available here). The "Backed up" text always has the **date and
+       the time** (`backupStamp()`, the year only when it isn't this year), never the time alone: a
+       bare "3:42 PM" can't tell today's backup from last week's (user feedback) and a Choose, Change or Reconnect button. Browsers without
        it say "Available in Chrome and Edge on a computer".
      - *Manual backup*: "Download backup" (primary) and "Restore backup".
      - *Move your data*: CSV export (and CSV import where the app has it).
@@ -299,7 +301,8 @@ Page head: eyebrow "MAKE IT YOURS", title "Settings & backup". Then:
 - **Folder backup**:
   - `showDirectoryPicker({mode:'readwrite', id:<key>-backups})`;
   - the directory handle is stored in IndexedDB (a handle can't go in localStorage);
-  - on start, `queryPermission` gives Connected or Reconnect needed;
+  - on start, `queryPermission` gives Reconnect needed, or "Backed up <date, time>" from the last
+    write time kept in localStorage (Connected when there's none yet);
   - after each save, debounce 1.2 s, then write `<key>-backup-YYYY-MM-DD.json` (core uses
     `storage.file` for the stem), one file per day, overwritten through the day;
   - writes are serialized through a promise chain, so an older write can't land after a newer one;
