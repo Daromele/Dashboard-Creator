@@ -150,4 +150,13 @@ Pending Activity,,,,,,$-50.00
 2026-03-22,09:00:00,-10.00,Withdrawal,ATM fee`;
   const al=A.read(ALLY,'ally-transactions.csv',CSV);
   eq('deposits stay money in when a Type column says so', [al.flip,al.rows.map(r=>r.amount)], [false,[4400,2500,-1000]]);
+  // alerts after an import (amounts in cents, money out positive)
+  const AR=(id,date,amount,key,o={})=>({id,date,amount,key,name:key,acct:'a',cat:'food',raw:key,fresh:false,...o});
+  const kinds=l=>l.map(a=>a.kind).sort();
+  eq('a double charge is flagged', kinds(A.alerts([AR('1','2026-09-10',4200,'gym'),AR('2','2026-09-11',4200,'gym',{fresh:true})])), ['double']);
+  eq('fees and interest are flagged', A.alerts([AR('1','2026-09-10',3500,'x',{raw:'MONTHLY SERVICE FEE',fresh:true})]).map(a=>[a.kind,a.amount]), [['fees',3500]]);
+  eq('a charge repeating a month later is a new subscription', kinds(A.alerts([AR('1','2026-08-05',999,'tv',{cat:'s'}),AR('2','2026-09-05',999,'tv',{cat:'s',fresh:true})])), ['new-sub']);
+  eq('a steady charge going up is a price rise', A.alerts([AR('1','2026-07-05',999,'tv',{cat:'s'}),AR('2','2026-08-05',999,'tv',{cat:'s'}),AR('3','2026-09-05',1299,'tv',{cat:'s',fresh:true})]).map(a=>[a.kind,a.before,a.amount]), [['price',999,1299]]);
+  eq('a category well above its usual months is flagged', kinds(A.alerts([AR('1','2026-06-10',20000,'a'),AR('2','2026-07-10',20000,'b'),AR('3','2026-08-10',20000,'c'),AR('4','2026-09-10',60000,'d',{fresh:true})])), ['spike']);
+  eq('old transactions alone raise nothing', A.alerts([AR('1','2026-09-10',4200,'gym'),AR('2','2026-09-11',4200,'gym')]), []);
 };

@@ -1419,6 +1419,7 @@ table.ap-look select{min-width:190px}table.ap-look td small{display:block}.num.p
 .ap-side{display:grid;gap:var(--s4);align-content:start}.ap-side .card{margin:0}
 .ap-acct-name{min-width:150px}
 .ap-report{margin-bottom:var(--s4)}
+.ap-alerts .ap-alert{border-top:1px solid var(--rule);padding:10px 0}.ap-alert summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}.ap-alert summary span{color:var(--ink-2);font-size:.92em}.ap-alert .table-wrap{margin-top:8px}
 .merge-box{display:flex;align-items:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}.merge-box label{flex:1}
 .ap-bulk-rename{display:inline-flex;gap:6px;align-items:center}.ap-bulk-rename input{width:180px}
 .ap-rec+.pager,.table-wrap+.pager{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:12px 20px}
@@ -2819,7 +2820,26 @@ const Autopilot = (()=>{
  function context(P,s,B,kind){const live=s.categories.filter(c=>!c.archived),cats=new Set(live.map(c=>c.id)),A=P.autopilot||{},H=P.importHints||{};
   const isIncome=id=>{const c=live.find(x=>x.id===id);return !!c&&B.type(c)==='income';};
   return {kind,cats,dict:kind==='invest'||kind==='retire'?[]:P.merchantDict||[],rule:name=>B.ruleFor(s,name),hint:v=>(s.importMap||{})[norm(v)]||H[norm(v)]||H[norm(String(v).split(/[-/]/)[0])]||'',isIncome,...A};}
- return {norm,mask,merchant,keyOf,fileKey,accountName,read,holdings,kindFrom,balanceAt,classify,context,pairs,recurring,STUB_LINES,stubNet,paycheck,stubTotals,PAYMENT_IN,CARD_PAY_OUT,OWN_TRANSFER,dayNum};
+ // what deserves a look after an import. rows: spending only, amount in cents > 0 = money out; fresh = from this import
+ function alerts(rows){const out=[],fresh=rows.filter(r=>r.fresh&&r.amount>0);if(!fresh.length)return out;
+  const twins=new Set();
+  fresh.forEach(r=>{if(!r.key||twins.has(r.id))return;const o=rows.find(o=>o.id!==r.id&&o.key===r.key&&o.acct===r.acct&&o.amount===r.amount&&Math.abs(dayNum(o.date)-dayNum(r.date))<=3);
+   if(o){twins.add(o.id);twins.add(r.id);out.push({kind:'double',name:r.name,amount:r.amount,ids:[o.id,r.id]});}});
+  const fees=fresh.filter(r=>/\b(fees?|interest charge|finance charge|overdraft|late (fee|charge)|nsf|returned item|atm surcharge)\b/i.test(r.raw||''));
+  if(fees.length)out.push({kind:'fees',amount:fees.reduce((n,r)=>n+r.amount,0),ids:fees.map(r=>r.id)});
+  const by=new Map();rows.forEach(r=>{if(r.key&&r.amount>0)(by.get(r.key)||by.set(r.key,[]).get(r.key)).push(r);});
+  for(const list of by.values()){list.sort((a,b)=>a.date.localeCompare(b.date));const last=list.at(-1),prev=list.at(-2);if(!last.fresh||!prev)continue;
+   const gap=dayNum(last.date)-dayNum(prev.date);if(gap<26||gap>35)continue;
+   const steady=list.length>=3&&Math.abs(prev.amount-list.at(-3).amount)<=prev.amount*0.02;
+   if(list.length===2&&Math.abs(last.amount-prev.amount)<=prev.amount*0.2)out.push({kind:'new-sub',name:last.name,amount:last.amount,ids:[prev.id,last.id]});
+   else if(steady&&last.amount>=prev.amount*1.05&&last.amount-prev.amount>=100)out.push({kind:'price',name:last.name,amount:last.amount,before:prev.amount,ids:[prev.id,last.id]});}
+  const month=fresh.map(r=>r.date.slice(0,7)).sort().at(-1),cats=new Map();
+  rows.forEach(r=>{if(!r.cat)return;const m=r.date.slice(0,7);const c=cats.get(r.cat)||cats.set(r.cat,new Map()).get(r.cat);c.set(m,(c.get(m)||0)+r.amount);});
+  const prior=[1,2,3].map(i=>{const d=new Date(Date.UTC(+month.slice(0,4),+month.slice(5)-1-i,1));return d.toISOString().slice(0,7);});
+  for(const [cat,m] of cats){const cur=m.get(month)||0,past=prior.filter(p=>m.has(p)).map(p=>m.get(p));if(past.length<2)continue;
+   const avg=past.reduce((a,b)=>a+b,0)/past.length;if(cur>avg*1.5&&cur-avg>=10000)out.push({kind:'spike',cat,month,amount:cur,before:avg,ids:rows.filter(r=>r.cat===cat&&r.date.startsWith(month)).map(r=>r.id)});}
+  return out;}
+ return {alerts,norm,mask,merchant,keyOf,fileKey,accountName,read,holdings,kindFrom,balanceAt,classify,context,pairs,recurring,STUB_LINES,stubNet,paycheck,stubTotals,PAYMENT_IN,CARD_PAY_OUT,OWN_TRANSFER,dayNum};
 })();
 if(typeof module!=='undefined')module.exports=Autopilot;
 
@@ -4013,7 +4033,7 @@ function guideView(){
 
 
 function openBackupDB(){return new Promise((resolve,reject)=>{if(!globalThis.indexedDB)return reject(Error('Folder access storage is unavailable in this browser.'));const req=indexedDB.open(P.storage.key+'-files',1);req.onupgradeneeded=()=>req.result.createObjectStore('handles');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
-async function folderStore(mode='get',value){const db=await openBackupDB();return new Promise((resolve,reject)=>{const tx=db.transaction('handles',mode==='get'?'readonly':'readwrite'),store=tx.objectStore('handles'),req=mode==='get'?store.get('backup'):mode==='set'?store.put(value,'backup'):store.delete('backup');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+async function folderStore(mode='get',value,key='backup'){const db=await openBackupDB();return new Promise((resolve,reject)=>{const tx=db.transaction('handles',mode==='get'?'readonly':'readwrite'),store=tx.objectStore('handles'),req=mode==='get'?store.get(key):mode==='set'?store.put(value,key):store.delete(key);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
 function setBackupStatus(text){autoBackupStatus=text;const el=$('#auto-backup-status');if(el)el.textContent=text;renderBackupBanner();}
 const MANUAL_BACKUP_KEY=P.storage.key+'-manual-backup';
 let backupBannerHidden=false;
@@ -5724,13 +5744,45 @@ const Auto=(()=>{
     mine.forEach(t=>{const k=rowKey(acct,t.date,flow(t),t.raw);have.set(k,(have.get(k)||0)+1);});
     fresh.push(...mine);const dates=f.rows.map(r=>r.date).sort();
     Object.assign(F,{account:account(acct)?.name||f.account,kind:f.kind,added:mine.length,dup,from:dates[0],to:dates.at(-1),bad:f.bad});res.dup+=dup;});
-   state.transactions.push(...fresh);res.paired=pairUp(fresh);res.added=fresh.length;res.look=fresh.filter(t=>t.auto?.look).length;
+   state.transactions.push(...fresh);res.paired=pairUp(fresh);res.added=fresh.length;res.look=fresh.filter(t=>t.auto?.look).length;res.alerts=fresh.length?alertsFor(new Set(fresh.map(t=>t.id))):[];
    if(fresh.length){res.last=fresh.map(t=>t.date).sort().at(-1);selected=res.last.slice(0,7);}
    ready.filter(F=>F.balances||F.added).forEach(F=>state.importLog.unshift({id:F.id,date:Budget.today(),files:[F.name.slice(0,80)],count:F.added||0}));state.importLog=state.importLog.slice(0,200);
    report=res;msg=res.added?`${plural(res.added,'transaction')} added${res.look?` · ${res.look} need${res.look===1?'s':''} a look`:''}${res.balances?` · ${plural(res.balances,'balance')} updated`:''}`:res.balances?`${plural(res.balances,'balance')} updated`:'Nothing new: every transaction is already here';},
    // the message is only known once the import has run
    {toString:()=>msg});
  }
+ // ---------- alerts: what deserves a look after an import ----------
+ const HIDDEN_ALERTS=P.storage.key+'-alerts-hidden',alertKey=a=>a.kind+':'+a.ids.join(',');
+ const hiddenAlerts=()=>{try{return JSON.parse(localStorage.getItem(HIDDEN_ALERTS)||'[]');}catch{return [];}};
+ function alertsFor(freshIds){return A.alerts(state.transactions.filter(t=>t.acct&&typeOf(t.category)==='expense').map(t=>({id:t.id,date:t.date,amount:t.amount,key:A.keyOf(t.note),acct:t.acct,cat:t.category,raw:t.raw||t.note,name:t.note,fresh:freshIds.has(t.id)})));}
+ // the latest import day's files
+ function latestAlerts(){const log=state.importLog||[];if(!log.length)return [];const ids=new Set(log.filter(l=>l.date===log[0].date).map(l=>l.id)),hid=hiddenAlerts();
+  return alertsFor(new Set(state.transactions.filter(t=>ids.has(t.auto?.batch)).map(t=>t.id))).filter(a=>!hid.includes(alertKey(a)));}
+ function alertText(a){const n=a.name?esc(a.name):'';
+  return a.kind==='double'?['Possible double charge',`${n}: ${fmt(a.amount)} twice within a few days`]:a.kind==='fees'?['Fees and interest',`${fmt(a.amount)} across ${plural(a.ids.length,'charge')}`]
+   :a.kind==='new-sub'?['New repeating charge',`${n}: ${fmt(a.amount)} a month, started recently`]:a.kind==='price'?['Price went up',`${n}: ${fmt(a.before)} → ${fmt(a.amount)}`]
+   :[`${esc(category(a.cat)?.name||'A category')} is higher than usual`,`${fmt(a.amount)} in ${monthName(a.month)}, against about ${fmt(Math.round(a.before))} a month`];}
+ function alertsCard(list){if(!list.length)return '';const byId=new Map(state.transactions.map(t=>[t.id,t]));
+  return `<section class="card ap-alerts"><div class="cardhead"><div><h2>Worth a look</h2><p>Found in your latest statements. Open one to see the transactions behind it.</p></div><span class="pill">${list.length}</span></div>${list.map(a=>{const [h,p]=alertText(a),tx=a.ids.map(i=>byId.get(i)).filter(Boolean).sort((x,y)=>y.date.localeCompare(x.date));
+   return `<details class="ap-alert ap-alert-${a.kind}"><summary><b>${h}</b><span>${p}</span></summary><div class="table-wrap"><table class="no-tools"><tbody>${tx.slice(0,40).map(t=>`<tr><td class="nw">${dateName(t.date)}</td><td>${esc(t.note)}<small class="dim">${esc(account(t.acct)?.name||'')}</small></td><td class="num">${fmt(t.amount)}</td></tr>`).join('')}</tbody></table></div><div class="actions">${button('Hide this','ap-alert-hide','small quiet',`data-k="${esc(alertKey(a))}"`)}</div></details>`;}).join('')}</section>`;}
+ // ---------- statements folder: new CSV files saved there are added whenever the app opens ----------
+ const SEEN=P.storage.key+'-seen-files',canFolder=()=>typeof globalThis.showDirectoryPicker==='function';
+ let stmtFolder=null,stmtStatus='';
+ const seenFiles=()=>{try{return JSON.parse(localStorage.getItem(SEEN)||'[]');}catch{return [];}};
+ const fileSig=f=>[f.name,f.size,f.lastModified].join('|');
+ async function scanFolder(ask){if(!stmtFolder)return;
+  try{let p=await stmtFolder.queryPermission({mode:'read'});if(p!=='granted'&&ask)p=await stmtFolder.requestPermission({mode:'read'});
+   if(p!=='granted'){stmtStatus='needs';render();return;}stmtStatus='ok';
+   const seen=new Set(seenFiles()),files=[];
+   for await(const h of stmtFolder.values()){if(h.kind!=='file'||!/\.(csv|tsv|txt)$/i.test(h.name))continue;const file=await h.getFile();if(!seen.has(fileSig(file)))files.push(file);}
+   if(!files.length){if(ask)toast('No new statements in the folder.');render();return;}
+   await importFiles(files);
+   try{localStorage.setItem(SEEN,JSON.stringify([...seen,...files.map(fileSig)].slice(-2000)));}catch{}
+  }catch{stmtStatus='needs';render();if(ask)toast('The folder couldn’t be read. Choose it again.');}}
+ async function pickFolder(){try{stmtFolder=await showDirectoryPicker({mode:'read',id:P.storage.file+'-statements'});}catch{return;}
+  try{await folderStore('set',stmtFolder,'statements');}catch{}await scanFolder(true);}
+ function folderCard(){if(!canFolder())return '';const name=stmtFolder?`<b>${esc(stmtFolder.name)}</b>`:'';
+  return `<section class="card ap-folder"><div class="cardhead"><div><h2>Statements folder</h2><p>${!stmtFolder?'Pick the folder your downloads go to. New statement files saved there are added by themselves each time you open the app.':stmtStatus==='needs'?`Connected to ${name}. Your browser asks before reading it: press Check folder.`:`Connected to ${name}. New CSV files there are added each time you open the app.`}</p></div><div class="actions">${stmtFolder?button('Check folder','ap-folder-scan','small primary')+button('Disconnect','ap-folder-off','small quiet'):button('Choose folder','ap-folder-pick','small')}</div></div></section>`;}
  // ---------- screens ----------
  const KINDS=[['bank','Checking'],['card','Card'],['savings','Savings'],['invest','Brokerage'],['retire','Retirement'],['loan','Loan or mortgage']],kindName=k=>(KINDS.find(x=>x[0]===k)||KINDS[0])[1];
  function dropCard(big){return `<section class="card ap-drop${big?' is-big':''}" id="ap-drop" tabindex="0" aria-label="Drop statement files here"><div class="ap-drop-icon">${ico('up')}</div><h2>${big?'Drop all your statements here':'Drop more statements'}</h2><p>CSV downloads from your cards and bank accounts, as many as you like at once. They’re read on this computer and sorted by themselves.</p><div class="actions">${button('Choose files','ap-pick','primary')}${big?button('Explore sample data','demo','quiet'):''}</div><input type="file" id="ap-files" multiple accept=".csv,.tsv,.txt,text/csv,text/plain" hidden><p class="small muted ap-privacy">${ico('shield')} Nothing is uploaded. Long card and account numbers are hidden as soon as a file is read.</p></section>`;}
@@ -5752,7 +5804,7 @@ const Auto=(()=>{
    return `<tr><td>${l.split?`<b>${esc(accs[0]||'')} statement</b><small class="dim">Added together with: ${l.files.map(esc).join(', ')}</small>`:`<b>${l.files.map(esc).join('<br>')}</b>`}</td><td>${accs.map(esc).join('<br>')||'—'}</td><td class="nw">${dateName(l.date)}</td><td class="num">${[l.n?plural(l.n,'transaction'):'',l.bals?plural(l.bals,'balance'):''].filter(Boolean).join(' · ')}</td><td class="nw">${button('Delete','ap-batch-del','small quiet',`data-id="${l.id}" data-acct="${esc(l.acct)}"`)}</td></tr>`;}).join('')}</tbody></table></div>${pages>1?`<div class="pager no-print">${button('Previous','ap-log-prev','small quiet',logPage?'':'disabled')}<span class="small muted">Page ${logPage+1} of ${pages}</span>${button('Next','ap-log-next','small quiet',logPage<pages-1?'':'disabled')}</div>`:''}</section>`;}
  function importScreen(){if(csvSession)return importView();
   const tips=`<section class="card"><h2>Where to find the files</h2><div class="ap-steps"><div><b>1</b><span>Sign in to your bank or card website and open the account.</span></div><div><b>2</b><span>Find <b>Download</b> or <b>Export</b> on the transactions list (often a small arrow icon).</span></div><div><b>3</b><span>Choose <b>CSV</b> and a date range, then drop the file here.</span></div></div><p class="small muted">Works with Chase, Bank of America, Wells Fargo, Citi, Capital One, Amex, Discover, US Bank, Ally and most credit unions. Savings accounts too, and from Fidelity, Vanguard, Schwab and other brokerages: the activity download and the positions (holdings) download, which gives the balance. Overlapping dates are fine: repeats are skipped. ${button('Map a file by hand','ap-manual','link')}</p></section>`;
-  return pagehead('Autopilot','Add statements','Every card and bank account, as many files as you like. Each one is read, sorted and paired by itself.')+reportCard()+dropCard(!state.transactions.length)+logCard()+accountsCard()+tips;}
+  return pagehead('Autopilot','Add statements','Every card and bank account, as many files as you like. Each one is read, sorted and paired by itself.')+reportCard()+(report?.alerts?.length?alertsCard(report.alerts):'')+dropCard(!state.transactions.length)+folderCard()+logCard()+accountsCard()+tips;}
  // ---------- needs a look ----------
  const looking=()=>state.transactions.filter(t=>t.auto?.look);
  const PEOPLE=/^(venmo|zelle|cash app|apple cash|check|cash withdrawal)$/i;
@@ -5828,7 +5880,7 @@ const Auto=(()=>{
   const hero=`<section class="hero"><div><div class="eyebrow">${kept<0?'Spent more than came in':'Kept this month'}</div><h2 class="hero-big number${kept<0?' alert':''}" data-count="${kept}" data-split style="--n:${fmt(kept).length}" aria-label="${esc(fmt(kept))}">${splitCents(fmt(kept))}</h2><p>${verdict}</p><small class="hero-note">Money in − spending · card payments and your own transfers are left out</small><div class="hero-foot">${button('See transactions →','go-activity','pop small')}${looking().length?button(`${looking().length} need a look`,'go-inbox','quiet small'):''}</div></div>`+
    `<div class="hero-side"><div class="hero-fact hero-total"><span>${esc(L.income)}</span><strong>${fmt(inc)}</strong></div><div class="hero-bar" role="img" aria-label="Spending ${fmt(out)} against money in ${fmt(inc)}"><i class="hb-bills" style="width:${Math.min(100,out/scale*100)}%"></i>${kept>0?`<i class="hb-free" style="width:${kept/scale*100}%"></i>`:''}</div><div class="hero-fact"><span><i class="hero-dot hb-bills"></i>${esc(L.expense)}</span><strong>−${fmt(out)}</strong></div><div class="hero-fact"><span><i class="hero-dot hb-save"></i>${esc(L.savedInvested)}</span><strong>${fmt(t.saving.actual)}</strong></div><div class="hero-fact"><span><i class="hero-dot hb-free"></i>Kept</span><strong>${fmt(kept)}</strong></div></div></section>`;
   const kp=`<div class="kpis kpis-lead">${kpiLink('income',L.income,inc,'This month')}${kpiLink('expense',L.expense,out,inc?`${Math.round(out/inc*100)}% of money in`:'This month')}${kpiLink('all','Kept',kept,rate===null?'Money in − spending':`${rate}% of money in`,kept<0?'warn':'')}${kpiLink('annual','Avg. monthly cash flow',Av.avg,Av.n?`${plural(Av.n,'month')} · ${selected.slice(0,4)}`:'No months yet',Av.avg<0?'warn':'')}</div>`;
-  return head+hero+kp+`<div class="grid2">${spendingCard(t,'Where it went')}${topMerchants(selected)}</div>`+trend()+`<div class="grid2 equal">${subsCard()}${statusCard()}</div>`;}
+  return head+hero+kp+alertsCard(latestAlerts())+`<div class="grid2">${spendingCard(t,'Where it went')}${topMerchants(selected)}</div>`+trend()+`<div class="grid2 equal">${subsCard()}${statusCard()}</div>`;}
 
  // ---------- paychecks: gross pay, taxes and retirement behind each deposit ----------
  // The bank only sees take-home pay. Your usual stub, entered once per employer, breaks every
@@ -5910,6 +5962,10 @@ const Auto=(()=>{
   switch(a){
   case 'ap-pick':$('#ap-files')?.click();break;
   case 'ap-report-close':report=null;render();break;
+  case 'ap-alert-hide':{const k=b.dataset.k;try{localStorage.setItem(HIDDEN_ALERTS,JSON.stringify([...hiddenAlerts(),k].slice(-300)));}catch{}if(report?.alerts)report.alerts=report.alerts.filter(x=>alertKey(x)!==k);render();break;}
+  case 'ap-folder-pick':pickFolder();break;
+  case 'ap-folder-scan':scanFolder(true);break;
+  case 'ap-folder-off':folderStore('delete',null,'statements').catch(()=>{});stmtFolder=null;stmtStatus='';try{localStorage.removeItem(SEEN);}catch{}render();toast('Folder disconnected.');break;
   case 'ap-manual':manualPick();break;
   case 'ap-map':{const F=report?.files[+b.dataset.i];if(F?.text){startCSV(F.text,F.name);report=null;render();}break;}
   case 'ap-look-sort':lookSort=b.dataset.k==='amount'?'amount':'count';render();break;
@@ -5950,6 +6006,7 @@ const Auto=(()=>{
   commit(()=>{all.forEach(t=>{t.note=name;});state.nameRules??={};olds.forEach(o=>{state.nameRules[A.keyOf(o)]=name;});
    // a category rule for the old name follows the new one
    const R=state.categoryRules||{};keys.forEach(k=>{if(R[k]&&nk&&!R[nk])R[nk]=R[k];});},`${plural(all.length,'transaction')} renamed to ${name} · future statements follow`);});
+ if(canFolder())setTimeout(()=>folderStore('get',null,'statements').then(h=>{if(h){stmtFolder=h;if(!demo)scanFolder(false);}}).catch(()=>{}),300);
  return {bulkTools,views:{import:importScreen,inbox:inboxScreen,recurring:recurringScreen,paychecks:paychecksScreen,invest:netWorthScreen,dashboard},txChip,dashboard,importFiles,looking};
 })();
 // ---------- every table: sort by any column, search, filter ----------

@@ -153,6 +153,16 @@ await p.evaluate(()=>go('annual',true));await p.waitForTimeout(200);
 ok('the year shows monthly averages',await p.evaluate(()=>/Money in \/ month/i.test(document.querySelector('.kpis').innerText)&&/Cash flow \/ month/i.test(document.querySelector('.kpis').innerText)));
 await p.evaluate(()=>document.querySelector('[data-action="kpi-year"][data-type="saving"]').click());await p.waitForTimeout(200);
 ok('the saved tile opens the year’s saving transactions',await p.evaluate(()=>screen==='activity'&&filterType==='saving'&&txFrom.endsWith('-01-01')&&txTo.endsWith('-12-31')));
+// alerts after an import: a double charge and a fee show in the report and on the dashboard
+await p.evaluate(()=>go('import',true));await p.setInputFiles('#ap-files',[file('Citi_9090.csv',`Date,Description,Amount
+09/14/2026,CORNER GYM MEMBERSHIP,-42.00
+09/15/2026,CORNER GYM MEMBERSHIP,-42.00
+09/16/2026,MONTHLY SERVICE FEE,-12.00`)]);await p.waitForTimeout(400);
+ok('the import report lists what deserves a look',await p.evaluate(()=>{const c=document.querySelector('.ap-alerts');return !!c&&/double charge/i.test(c.innerText)&&/Fees and interest/i.test(c.innerText);}));
+await p.evaluate(()=>go('dashboard',true));await p.waitForTimeout(200);
+ok('the dashboard shows the alerts too',await p.evaluate(()=>/double charge/i.test(document.querySelector('.ap-alerts')?.innerText||'')),await p.evaluate(()=>screen+' '+demo+' '+document.querySelector('main')?.innerText.slice(0,200)));
+await p.evaluate(()=>document.querySelector('.ap-alert-fees summary').click());await p.evaluate(()=>document.querySelector('.ap-alert-fees [data-action="ap-alert-hide"]').click());await p.waitForTimeout(150);
+ok('an alert can be hidden',await p.evaluate(()=>!document.querySelector('.ap-alert-fees')&&!!document.querySelector('.ap-alert-double')));
 ok('the app made no network requests',net===0,net);
 ok('no page errors',!errs.length,errs.join('|'));
 await b.close();console.log(fails?`${fails} failed`:'autopilot flow: all checks passed');process.exit(fails?1:0);})();
