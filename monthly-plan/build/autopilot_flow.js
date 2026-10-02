@@ -114,6 +114,33 @@ await p.click('#ap-stub-form button[type=submit]');await p.waitForTimeout(200);
 ok('the paycheck is broken down from the usual stub',await p.evaluate(()=>{const r=document.querySelector('table.ap-rec tbody tr');return /Usual stub/.test(r.innerText)&&/\$4,470\.00/.test(r.innerText)&&+document.querySelector('.hero .hero-big').dataset.count===447000;}));
 // the sample fills every screen
 await p.evaluate(()=>document.querySelector('[data-action="demo"]')?.click()||Promise.resolve());
+// statement categories you don't have become suggestions; bulk rename, move, select-same; merge categories
+await p.evaluate(()=>{if(demo)document.querySelector('[data-action="demo-exit"],[data-action="exit-demo"]')?.click();go('import',true);});await p.waitForTimeout(200);
+await p.setInputFiles('#ap-files',[file('Wells_3333.csv',`Date,Description,Category,Amount
+09/02/2026,BRIGHT KIDS ACADEMY,Tuition,-120.00
+09/09/2026,BRIGHT KIDS ACADEMY,Tuition,-120.00
+09/16/2026,TUTOR TIME LLC,Tuition,-60.00
+09/20/2026,ZQX HOLDINGS 4411,Misc,-15.00`)]);await p.waitForTimeout(400);
+await p.evaluate(()=>go('inbox',true));await p.waitForTimeout(200);
+ok('needs a look suggests the bank’s own category',await p.evaluate(()=>/Categories from your statements/.test(document.querySelector('#content').innerText)&&/Tuition/.test(document.querySelector('.ap-suggest').innerText)));
+await p.evaluate(()=>document.querySelector('[data-action="ap-sug-new"]').click());await p.waitForTimeout(200);
+ok('creating it files those transactions and remembers it',await p.evaluate(()=>{const c=state.categories.find(x=>x.name==='Tuition');return !!c&&state.transactions.filter(t=>/Bright Kids|Tutor Time/.test(t.note)).every(t=>t.category===c.id&&!t.auto.look&&t.amount>0)&&state.importMap.tuition===c.id;}));
+await p.evaluate(()=>{go('activity',true);});await p.waitForTimeout(200);
+await p.evaluate(()=>{const id=state.transactions.find(t=>t.note==='Bright Kids Academy').id;txSel.clear();txSel.add(id);render();});await p.waitForTimeout(100);
+await p.evaluate(()=>document.querySelector('[data-action="ap-bulk-same"]').click());await p.waitForTimeout(100);
+ok('select all from the same place',await p.evaluate(()=>txSel.size===2));
+await p.fill('#bulk-rename','Bright Kids');await p.evaluate(()=>document.querySelector('[data-action="ap-bulk-rename"]').click());await p.waitForTimeout(200);
+ok('rename a place everywhere, remembered for next time',await p.evaluate(()=>state.transactions.filter(t=>t.note==='Bright Kids').length===2&&state.nameRules['bright kids academy']==='Bright Kids'));
+await p.evaluate(()=>go('import',true));await p.setInputFiles('#ap-files',[file('Wells_3333.csv',`Date,Description,Category,Amount
+09/23/2026,BRIGHT KIDS ACADEMY,Tuition,-120.00`)]);await p.waitForTimeout(400);
+ok('the next statement uses the new name and the remembered category',await p.evaluate(()=>{const t=state.transactions.find(x=>x.date==='2026-09-23'&&/Bright/.test(x.note));return t?.note==='Bright Kids'&&state.categories.find(c=>c.id===t.category)?.name==='Tuition';}));
+await p.evaluate(()=>{go('activity',true);txSel.clear();state.transactions.filter(t=>t.note==='Bright Kids').forEach(t=>txSel.add(t.id));render();});await p.waitForTimeout(100);
+const target=await p.evaluate(()=>state.accounts.find(a=>a.kind==='bank').id);
+await p.selectOption('#bulk-acct',target);await p.waitForTimeout(200);
+ok('move the selected to another account',await p.evaluate(id=>state.transactions.filter(t=>t.note==='Bright Kids').every(t=>t.acct===id),target));
+await p.evaluate(()=>{txSel.clear();categoryForm(state.categories.find(c=>c.name==='Tuition').id);});await p.waitForTimeout(100);
+await p.selectOption('#cat-merge-into','kids-pets');await p.evaluate(()=>document.querySelector('[data-action="cat-merge"]').click());await p.waitForTimeout(200);
+ok('merge a category into another',await p.evaluate(()=>{const c=state.categories.find(x=>x.name==='Tuition');return c.archived&&state.transactions.filter(t=>t.note==='Bright Kids').every(t=>t.category==='kids-pets')&&state.importMap.tuition==='kids-pets';}));
 // every table sorts and searches; the year tiles open their transactions
 await p.evaluate(()=>{document.querySelector('[data-action="demo"]')?.click();});await p.waitForTimeout(300);
 await p.evaluate(()=>go('annual',true));await p.waitForTimeout(200);

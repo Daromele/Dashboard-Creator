@@ -1419,6 +1419,8 @@ table.ap-look select{min-width:190px}table.ap-look td small{display:block}.num.p
 .ap-side{display:grid;gap:var(--s4);align-content:start}.ap-side .card{margin:0}
 .ap-acct-name{min-width:150px}
 .ap-report{margin-bottom:var(--s4)}
+.merge-box{display:flex;align-items:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}.merge-box label{flex:1}
+.ap-bulk-rename{display:inline-flex;gap:6px;align-items:center}.ap-bulk-rename input{width:180px}
 .ap-rec+.pager,.table-wrap+.pager{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:12px 20px}
 table.ap-rec td small,.ap-report td small{display:block}
 .ap-stub-net{margin:14px 0 4px;font-size:15px}.ap-stub-net.warn{color:var(--over)}
@@ -2043,12 +2045,13 @@ const Budget = ((P) => {
      s.accounts=s.accounts.filter(a=>object(a)&&id(a.id)&&!seenA.has(a.id)&&str(a.name,40)&&a.name.trim()&&['card','bank','savings','invest','retire','loan'].includes(a.kind)&&seenA.add(a.id)).slice(0,40);
      if(!object(s.importFiles))s.importFiles={};Object.entries(s.importFiles).forEach(([k,v])=>{if(!str(k,40)||!object(v)||!seenA.has(v.acct)||typeof v.flip!=='boolean')delete s.importFiles[k];});}
     {const accIds=new Set((s.accounts||[]).map(a=>a.id));s.transactions.forEach(t=>{if(t.acct!==undefined&&!accIds.has(t.acct))delete t.acct;if(t.raw!==undefined&&!str(t.raw,200))delete t.raw;
-     if(t.auto!==undefined){if(!object(t.auto)||!str(t.auto.why,30))delete t.auto;else{if(t.auto.look!==undefined&&t.auto.look!==true)delete t.auto.look;Object.keys(t.auto).forEach(k=>{if(!['why','look','pair','batch'].includes(k))delete t.auto[k];});['pair','batch'].forEach(k=>{if(t.auto[k]!==undefined&&!id(t.auto[k]))delete t.auto[k];});}}});
+     if(t.auto!==undefined){if(!object(t.auto)||!str(t.auto.why,30))delete t.auto;else{if(t.auto.look!==undefined&&t.auto.look!==true)delete t.auto.look;Object.keys(t.auto).forEach(k=>{if(!['why','look','pair','batch','bc'].includes(k))delete t.auto[k];});if(t.auto.bc!==undefined&&!str(t.auto.bc,40))delete t.auto.bc;['pair','batch'].forEach(k=>{if(t.auto[k]!==undefined&&!id(t.auto[k]))delete t.auto[k];});}}});
      if(s.balances!==undefined){if(!object(s.balances))s.balances={};Object.keys(s.balances).forEach(k=>{const l=s.balances[k];if(!accIds.has(k)||!Array.isArray(l)){delete s.balances[k];return;}
       s.balances[k]=l.filter(b=>object(b)&&validDate(b.date)&&Number.isSafeInteger(b.value)&&Math.abs(b.value)<=1e12&&['file','manual'].includes(b.how)&&(b.src===undefined||id(b.src))).sort((a,b)=>a.date.localeCompare(b.date)).slice(-400);});}
      if(s.payStubs!==undefined){const P0=s.payStubs,ok=x=>object(x)&&Number.isSafeInteger(x.gross)&&x.gross>0&&x.gross<=1e10&&object(x.lines)&&Object.entries(x.lines).every(([k,v])=>['fed','state','local','ss','medicare','k401','roth','health','hsa','fsa','other'].includes(k)&&Number.isSafeInteger(v)&&v>=0&&v<=x.gross);
       if(!object(P0)){s.payStubs={usual:{},exact:{}};}else{if(!object(P0.usual))P0.usual={};if(!object(P0.exact))P0.exact={};const tx=new Set(s.transactions.map(t=>t.id));
        Object.entries(P0.usual).forEach(([k,v])=>{if(!str(k,80)||!ok(v)||!str(v.name||'',40))delete P0.usual[k];});Object.entries(P0.exact).forEach(([k,v])=>{if(!tx.has(k)||!ok(v))delete P0.exact[k];});Object.keys(P0).forEach(k=>{if(!['usual','exact'].includes(k))delete P0[k];});}}
+     if(s.nameRules!==undefined){if(!object(s.nameRules))s.nameRules={};Object.entries(s.nameRules).forEach(([k,v])=>{if(!str(k,80)||!k||!str(v,40)||!String(v).trim())delete s.nameRules[k];});}
      if(s.importLog!==undefined){if(!Array.isArray(s.importLog))s.importLog=[];s.importLog=s.importLog.filter(l=>object(l)&&id(l.id)&&validDate(l.date)&&Array.isArray(l.files)&&l.files.every(f=>str(f,80))&&Number.isInteger(l.count)).slice(0,200);}}
     // money in another currency keeps its original amount; rates and platforms you import are remembered.
     // A bad value is dropped, never fatal, so an older or hand-edited backup always restores.
@@ -2691,7 +2694,9 @@ const Autopilot = (()=>{
   const all0=(parsed.slice(0,hi+1).map(r=>r.cells.join(' ')).join(' ')+' '+name),wealthy=['savings','invest','retire'].includes(kindFrom(all0,H));
   const bals=rows.filter(x=>x.bal!==undefined);let byBal=null;
   if(bals.length>=2){let same=0,opp=0;for(let i=1;i<bals.length;i++){const a=bals[i-1],b=bals[i],d=b.bal-a.bal;if(d===b.v)same++;else if(d===-b.v)opp++;else if(-d===a.v)same++;else if(d===a.v)opp++;}if(same!==opp)byBal=opp>same;}
-  let flip=mem?.flip??byBal??(wealthy?false:single&&pos>rows.length*0.6);
+  // a Type column that says deposit or withdrawal (Ally, many credit unions) settles it too
+  let byType=null;{let same=0,opp=0;rows.forEach(x=>{const ty=String(x.type||'').toLowerCase(),inn=/\b(deposit|credit|interest|refund|transfer in|incoming)\b/.test(ty),out=/\b(withdrawal|debit|purchase|payment|fee|transfer out|outgoing)\b/.test(ty);if(inn===out)return;if((x.v>0)===inn)same++;else opp++;});if(same+opp>=2&&same!==opp)byType=opp>same;}
+  let flip=mem?.flip??byBal??byType??(wealthy?false:single&&pos>rows.length*0.6);
   // a card statement: an issuer in the name, a card column, or "payment thank you" lines
   const payLines=rows.filter(x=>PAYMENT_IN.test(x.desc)||/^payment$/i.test(x.type)).length;
   // a running balance or check numbers mean a bank account, whoever the bank is
@@ -2813,7 +2818,7 @@ const Autopilot = (()=>{
  // what classify needs from the edition and the planner: categories, your rules, the bank-category words
  function context(P,s,B,kind){const live=s.categories.filter(c=>!c.archived),cats=new Set(live.map(c=>c.id)),A=P.autopilot||{},H=P.importHints||{};
   const isIncome=id=>{const c=live.find(x=>x.id===id);return !!c&&B.type(c)==='income';};
-  return {kind,cats,dict:kind==='invest'||kind==='retire'?[]:P.merchantDict||[],rule:name=>B.ruleFor(s,name),hint:v=>H[norm(v)]||H[norm(String(v).split(/[-/]/)[0])]||'',isIncome,...A};}
+  return {kind,cats,dict:kind==='invest'||kind==='retire'?[]:P.merchantDict||[],rule:name=>B.ruleFor(s,name),hint:v=>(s.importMap||{})[norm(v)]||H[norm(v)]||H[norm(String(v).split(/[-/]/)[0])]||'',isIncome,...A};}
  return {norm,mask,merchant,keyOf,fileKey,accountName,read,holdings,kindFrom,balanceAt,classify,context,pairs,recurring,STUB_LINES,stubNet,paycheck,stubTotals,PAYMENT_IN,CARD_PAY_OUT,OWN_TRANSFER,dayNum};
 })();
 if(typeof module!=='undefined')module.exports=Autopilot;
@@ -3198,7 +3203,7 @@ function bulkBar(filtered,pageRows){if(!txSel.size)return '';const n=txSel.size,
   (ch&&Biz.channels().length?`<select id="bulk-channel" aria-label="Set ${esc(L.channelOne||'channel')} of the selected"><option value="">Set ${esc(L.channelShort||'channel')}…</option><option value="__none">No ${esc(L.channelShort||'channel')} (shared)</option>${Biz.channels().map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>`:'')+
   (ch?`<select id="bulk-tag" aria-label="Set tag of the selected"><option value="">Set tag…</option><option value="__inherit">Use the ${esc(L.channelShort||'channel')}’s tag</option>${Biz.tags().map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}<option value="__new">New tag…</option></select>`:'')+
   (VAT?`<select id="bulk-vat" aria-label="Set IVA of the selected"><option value="">Set IVA…</option>${Budget.VAT_RATES.map(x=>`<option value="${x}">${x?pctBp(x):'0% · none or exempt'}</option>`).join('')}</select>`:'')+
-  `${button('Delete','bulk-delete','small danger')}</div></div>`;}
+  (P.features.autopilot?Auto.bulkTools():'')+`${button('Delete','bulk-delete','small danger')}</div></div>`;}
 // After a category, channel or tag change on some entries: offer the same for look-alike
 // transactions (same merchant), and to remember it for future imports and Quick Log.
 const SIMILAR={
@@ -3233,7 +3238,7 @@ document.addEventListener('change',e=>{const el=e.target;
  if(el.id==='tx-range'){txRange=TX_RANGES.some(r=>r[0]===el.value)?el.value:'all';if(txRange==='custom'&&!txFrom&&!txTo){txFrom=selected+'-01';txTo=Budget.endOf(selected);}activityPage=0;render();return;}
  if(el.id==='tx-from'||el.id==='tx-to'){const v=el.value;if(v&&!Budget.validDate(v))return;if(el.id==='tx-from')txFrom=v;else txTo=v;if(txFrom&&txTo&&txTo<txFrom)[txFrom,txTo]=[txTo,txFrom];activityPage=0;render();return;}
  if(el.id==='bulk-vat'){if(el.value==='')return;const v=+el.value;if(!Budget.VAT_RATES.includes(v))return;bulkApply(t=>{if(v)t.vat=v;else delete t.vat;},`IVA set to ${pctBp(v)}`);return;}
- if(el.id==='bulk-category'){const c=category(el.value);if(!c)return;bulkApply(t=>{t.category=c.id;if(t.scheduleKey)delete t.scheduleKey;},`Moved to ${c.name}`,['category',c.id]);return;}
+ if(el.id==='bulk-category'){const c=category(el.value);if(!c)return;bulkApply(t=>{const keep=P.features.autopilot&&t.acct&&(Budget.type(category(t.category))==='income')!==(Budget.type(c)==='income');t.category=c.id;if(keep)t.amount=-t.amount;if(t.auto?.look)delete t.auto.look;if(t.scheduleKey)delete t.scheduleKey;},`Moved to ${c.name}`,['category',c.id]);return;}
  if(el.id==='bulk-channel'){const v=el.value;if(!v)return;if(v!=='__none'&&!Biz.channelName(v))return;bulkApply(t=>{if(v==='__none')delete t.channel;else t.channel=v;},v==='__none'?`${cap(W.ch)} cleared`:`Set to ${Biz.channelName(v)}`,v==='__none'?null:['channel',v]);return;}
  if(el.id==='bulk-tag'){const v=el.value;if(!v)return;
   if(v==='__new'){el.value='';modal('New tag for the selected',`${txSel.size} transaction${txSel.size===1?'':'s'} will carry it.`,`<form id="bulk-tag-form"><div class="fields"><label class="full">Tag name<input name="name" maxlength="40" required placeholder="e.g. Digital products" list="bulk-tag-options"><datalist id="bulk-tag-options">${Biz.tags().map(g=>`<option value="${esc(g.name)}">`).join('')}</datalist></label></div>${formFoot('Apply tag')}</form>`);return;}
@@ -3356,7 +3361,21 @@ function transactionForm(id='',cat='',date=''){if(screen==='budget'&&budgetDirty
        <input id="inline-cat-name" maxlength="80" placeholder="Category name" aria-label="New category name">
        <select id="inline-cat-group" aria-label="Group for the new category">${Object.entries(Budget.GROUPS).map(([g,l])=>`<option value="${g}">${l}</option>`).join('')}</select>
        <button type="button" class="btn small primary" data-action="save-category-inline">Add</button></div></div>${P.features.channels?Biz.channelField(t?.channel)+Biz.tagField(t):''}<label class="full">Entry direction<select name="direction"><option value="normal">${L.directionNormal}</option><option value="reverse" ${t?.amount<0?'selected':''}>Refund / withdrawal / reversal</option></select><small>A reversal reduces the actual amount in this category.</small></label><label class="full">Description or note<input name="note" maxlength="500" value="${esc(t?.note||'')}" placeholder="${L.notePlaceholder}"></label>${fxFields(t)}</div>${formFoot(t?'Save changes':'Add transaction',t?`<button type="button" class="btn danger" data-action="delete-transaction" data-id="${id}">Delete</button>`:'')}</form>`);}
-function categoryForm(id='',presetGroup=''){const c=category(id),used=c&&(state.transactions.some(t=>t.category===id)||Object.values(state.months).some(m=>m.plan[id])||state.goals.some(g=>g.category===id)||(state.schedules||[]).some(r=>r.category===id));modal(c?'Edit category':'Add a category',L.categorySub,`<form id="category-form" data-id="${id}"><div class="fields"><label class="full">Category name<input name="name" maxlength="80" required value="${esc(c?.name||'')}" placeholder="${L.categoryPlaceholder}"></label><label class="full">Group<select name="group" ${used?'disabled':''}>${Object.entries(Budget.GROUPS).map(([g,l])=>`<option value="${g}" ${(c?.group||presetGroup)===g?'selected':''}>${l}</option>`).join('')}</select>${used?'<small>The group stays fixed once used, so historical totals remain consistent. Create a new category to use another group.</small>':''}</label>${P.features.taxLines?Biz.taxLineField(c):''}${VAT?`<label class="full">Usual IVA<select name="vat">${vatOptions(c?.vat||0)}</select><small>New entries in this category start with this rate.</small></label>`:''}${c?`<label class="checkline full"><input name="archived" type="checkbox" ${c.archived?'checked':''}><span>Archive this category. Existing plans and history remain available.</span></label>`:''}</div>${formFoot()}</form>`);}
+function categoryForm(id='',presetGroup=''){const c=category(id),used=c&&(state.transactions.some(t=>t.category===id)||Object.values(state.months).some(m=>m.plan[id])||state.goals.some(g=>g.category===id)||(state.schedules||[]).some(r=>r.category===id));modal(c?'Edit category':'Add a category',L.categorySub,`<form id="category-form" data-id="${id}"><div class="fields"><label class="full">Category name<input name="name" maxlength="80" required value="${esc(c?.name||'')}" placeholder="${L.categoryPlaceholder}"></label><label class="full">Group<select name="group" ${used?'disabled':''}>${Object.entries(Budget.GROUPS).map(([g,l])=>`<option value="${g}" ${(c?.group||presetGroup)===g?'selected':''}>${l}</option>`).join('')}</select>${used?'<small>The group stays fixed once used, so historical totals remain consistent. Create a new category to use another group.</small>':''}</label>${P.features.taxLines?Biz.taxLineField(c):''}${VAT?`<label class="full">Usual IVA<select name="vat">${vatOptions(c?.vat||0)}</select><small>New entries in this category start with this rate.</small></label>`:''}${c?`<label class="checkline full"><input name="archived" type="checkbox" ${c.archived?'checked':''}><span>Archive this category. Existing plans and history remain available.</span></label>`:''}</div>${c?mergeBox(c):''}${formFoot()}</form>`);}
+// Two categories that mean the same: move everything from one into the other (same type only, so no
+// amount changes sign), then archive the empty one
+function mergeBox(c){const same=state.categories.filter(x=>x.id!==c.id&&!x.archived&&Budget.type(x)===Budget.type(c));if(!same.length)return '';
+ return `<div class="merge-box"><label>Merge into<select id="cat-merge-into"><option value="">Choose a category…</option>${same.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><small>Moves its transactions, plans, goals, reminders and rules there, then archives ${esc(c.name)}.</small></label>${button('Merge','cat-merge','small',`type="button" data-id="${c.id}"`)}</div>`;}
+document.addEventListener('click',e=>{const b=e.target.closest('button[data-action="cat-merge"]');if(!b)return;const from=category(b.dataset.id),into=category($('#cat-merge-into')?.value||'');if(!from)return;if(!into)return toast('Choose the category to merge into.');
+ if(Budget.type(from)!==Budget.type(into))return toast('Merge into a category of the same type.');
+ const n=state.transactions.filter(t=>t.category===from.id).length,closed=state.transactions.some(t=>t.category===from.id&&!editable(t));if(closed)return toast('Some of its months are closed. Reopen them first.');
+ closeModal();commit(()=>{state.transactions.forEach(t=>{if(t.category===from.id){t.category=into.id;if(t.scheduleKey)delete t.scheduleKey;}});
+  const movePlan=p=>{if(!p||!p[from.id])return;const a=p[from.id],b=p[into.id];p[into.id]={...(b||a),amount:(b?.amount||0)+(a.amount||0)};delete p[from.id];};
+  Object.values(state.months).forEach(m=>movePlan(m.plan));movePlan(state.baseline);
+  state.goals.forEach(g=>{if(g.category===from.id)g.category=into.id;});(state.schedules||[]).forEach(r=>{if(r.category===from.id)r.category=into.id;});
+  ['categoryRules','importMap','quickMemory'].forEach(k=>{const m=state[k];if(m)Object.keys(m).forEach(x=>{if(m[x]===from.id)m[x]=into.id;});});
+  if(state.catTags?.[from.id]){if(!state.catTags[into.id])state.catTags[into.id]=state.catTags[from.id];delete state.catTags[from.id];}
+  from.archived=true;},`${from.name} merged into ${into.name} · ${n} transaction${n===1?'':'s'} moved`);});
 function goalStall(g,p,debt){
  if(!debt||p.counted||selected+'-01'<g.start)return '';
  const name=esc(category(g.category).name);
@@ -5644,7 +5663,7 @@ const Biz=(()=>{
 // Dropped files are read, sorted, paired and added in one step (with Undo); only what the
 // Autopilot can't place waits in Needs a look, and each answer becomes a rule for next time.
 const Auto=(()=>{
- if(!P.features.autopilot)return {views:{},txChip:()=>'',dashboard:null};
+ if(!P.features.autopilot)return {views:{},txChip:()=>'',dashboard:null,bulkTools:()=>''};
  const A=Autopilot,AP=P.autopilot||{};
  let report=null,lookSort='count',recSort={k:'perMonth',dir:'desc'};
  const accounts=()=>state.accounts||[];
@@ -5700,8 +5719,8 @@ const Auto=(()=>{
     state.importFiles[F.key]={acct,flip:f.flip};if(f.balance)addBal(acct,f.balance.date,f.kind==='card'?Math.abs(f.balance.value):f.balance.value,F.id);
     const ctx=A.context(P,state,Budget,f.kind),here=new Map(),mine=[];let dup=0;
     f.rows.forEach(r=>{const k=rowKey(acct,r.date,r.amount,r.desc),n=(here.get(k)||0)+1;here.set(k,n);if(n<=(have.get(k)||0)){dup++;return;}
-     const name=A.merchant(r.desc,ctx.dict),c=A.classify({...r,name},ctx);
-     mine.push({id:Budget.uid(),date:r.date,category:c.category,amount:stored(c.category,r.amount),note:name,acct,raw:r.desc,auto:{why:c.why,batch:F.id,...(c.look?{look:true}:{})}});});
+     const m0=A.merchant(r.desc,ctx.dict),name=(state.nameRules||{})[A.keyOf(m0)]||m0,c=A.classify({...r,name},ctx);
+     mine.push({id:Budget.uid(),date:r.date,category:c.category,amount:stored(c.category,r.amount),note:name,acct,raw:r.desc,auto:{why:c.why,batch:F.id,...(c.look?{look:true}:{}),...(r.bankCat&&c.look?{bc:r.bankCat.slice(0,40)}:{})}});});
     mine.forEach(t=>{const k=rowKey(acct,t.date,flow(t),t.raw);have.set(k,(have.get(k)||0)+1);});
     fresh.push(...mine);const dates=f.rows.map(r=>r.date).sort();
     Object.assign(F,{account:account(acct)?.name||f.account,kind:f.kind,added:mine.length,dup,from:dates[0],to:dates.at(-1),bad:f.bad});res.dup+=dup;});
@@ -5720,7 +5739,7 @@ const Auto=(()=>{
    `<div class="table-wrap"><table><thead><tr><th>File</th><th>Account</th><th>Dates</th><th class="num">Added</th><th class="num">Already here</th></tr></thead><tbody>${ok.filter(F=>F.balances).map(F=>`<tr><td><b>${esc(F.name)}</b><small class="dim">Balances</small></td><td>${F.balances.map(x=>esc(x.account)).join('<br>')}</td><td class="nw">${dateName(F.balances[0].date)}</td><td class="num" colspan="2">${F.balances.map(x=>fmt(x.value)).join('<br>')}</td></tr>`).join('')}${ok.filter(F=>!F.balances).map(F=>`<tr><td><b>${esc(F.name)}</b>${F.bad?`<small class="warn">${F.bad} line${F.bad===1?'':'s'} couldn’t be read</small>`:''}</td><td>${esc(F.account)}<small class="dim">${kindName(F.kind)}</small></td><td class="nw">${F.from?dateName(F.from)+(F.to!==F.from?' – '+dateName(F.to):''):'—'}</td><td class="num">${F.added}</td><td class="num">${F.dup||'—'}</td></tr>`).join('')}${bad.map((F,i)=>`<tr><td><b>${esc(F.name)}</b><small class="warn">${esc(F.error)}</small></td><td colspan="3"></td><td class="num">${F.text?button('Map by hand','ap-map','small quiet',`data-i="${r.files.indexOf(F)}"`):''}</td></tr>`).join('')}</tbody></table></div></section>`;}
  function accountsCard(){const list=accounts();if(!list.length)return '';const now=Budget.today();
   return `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Your accounts</h2><p>Found from your files. Rename one to make it yours.</p></div></div><div class="table-wrap"><table><thead><tr><th>Account</th><th>Type</th><th>Latest transaction</th><th class="num">Transactions</th><th></th></tr></thead><tbody>${list.map(a=>{const tx=state.transactions.filter(t=>t.acct===a.id),last=tx.map(t=>t.date).sort().at(-1),stale=last&&Budget.plusDays(last,35)<now;
-   return `<tr><td><input class="ap-acct-name" data-acct="${a.id}" value="${esc(a.name)}" maxlength="30" aria-label="Account name"></td><td><select data-acct-kind="${a.id}" aria-label="Account type">${KINDS.map(([k,l])=>`<option value="${k}" ${a.kind===k?'selected':''}>${l}</option>`).join('')}</select></td><td class="nw">${last?dateName(last):'—'}${stale?'<small class="warn">Add a newer statement</small>':''}</td><td class="num">${tx.length}</td><td class="nw">${button('Remove','ap-acct-del','small quiet',`data-id="${a.id}"`)}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
+   return `<tr><td><input class="ap-acct-name" data-acct="${a.id}" value="${esc(a.name)}" maxlength="30" aria-label="Account name"></td><td><select data-acct-kind="${a.id}" aria-label="Account type">${KINDS.map(([k,l])=>`<option value="${k}" ${a.kind===k?'selected':''}>${l}</option>`).join('')}</select></td><td class="nw">${last?dateName(last):'—'}${stale?'<small class="warn">Add a newer statement</small>':''}</td><td class="num">${tx.length}</td><td class="nw"><div class="imp-acts">${button('Swap in/out','ap-acct-flip','small quiet',`data-id="${a.id}" title="Use when money in shows as money out"`)}${button('Remove','ap-acct-del','small quiet',`data-id="${a.id}"`)}</div></td></tr>`;}).join('')}</tbody></table></div></section>`;}
  // one line per imported file; an older import of several files at once splits by account (one file per account)
  const balSrc=id=>Object.entries(state.balances||{}).flatMap(([acct,l])=>l.filter(b=>b.src===id).map(b=>({acct,...b})));
  function importLines(){const lines=[];(state.importLog||[]).forEach(l=>{const tx=state.transactions.filter(t=>t.auto?.batch===l.id),bals=balSrc(l.id);
@@ -5740,11 +5759,23 @@ const Auto=(()=>{
  function lookGroups(){const by=new Map();looking().forEach(t=>{const k=PEOPLE.test(t.note)?'#'+t.id:A.keyOf(t.note)||'#'+t.id;(by.get(k)||by.set(k,[]).get(k)).push(t);});
   return [...by.entries()].map(([k,l])=>({k,list:l.sort((a,b)=>b.date.localeCompare(a.date)),name:l[0].note,total:l.reduce((n,t)=>n+flow(t),0),person:k.startsWith('#')}))
    .sort((a,b)=>lookSort==='amount'?Math.abs(b.total)-Math.abs(a.total):b.list.length-a.list.length||Math.abs(b.total)-Math.abs(a.total));}
+ // statement categories you don't have yet: the bank's own words, behind transactions still unsorted
+ function suggestions(){const by=new Map(),unsure=new Set([AP.unsorted,AP.otherIncome,AP.people]);
+  state.transactions.forEach(t=>{const bc=t.auto?.bc;if(!bc||!(t.auto.look||unsure.has(t.category)))return;const k=A.norm(bc);if((state.importMap||{})[k])return;
+   const x=by.get(k)||{k,name:bc.replace(/\b[a-z]/g,c=>c.toUpperCase()),ids:[],flow:0};x.ids.push(t.id);x.flow+=flow(t);by.set(k,x);});
+  return [...by.values()].filter(x=>x.ids.length>=2).sort((a,b)=>b.ids.length-a.ids.length).slice(0,8);}
+ function suggestCard(){const list=suggestions();if(!list.length)return '';
+  return `<section class="card table-card ap-suggest"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Categories from your statements</h2><p>Your bank sorted these into categories you don’t have. Create one, or file them under one you have; future statements follow.</p></div></div><div class="table-wrap"><table class="no-tools"><thead><tr><th>The bank calls it</th><th class="num">Transactions</th><th class="num">Amount</th><th></th></tr></thead><tbody>${list.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td class="num">${x.ids.length}</td><td class="num">${fmt(Math.abs(x.flow))}</td><td class="nw"><div class="imp-acts">${button(`Create “${esc(x.name)}”`,'ap-sug-new','small primary',`data-k="${esc(x.k)}"`)}<select data-sug="${esc(x.k)}" aria-label="File under an existing category"><option value="">Or file under…</option>${categoryOptions()}</select></div></td></tr>`).join('')}</tbody></table></div></section>`;}
+ function fileSuggestion(k,catId,make){const x=suggestions().find(y=>y.k===k);if(!x)return;
+  commit(()=>{let id=catId;if(make){const g=x.flow>=0?'income':'variable';id=x.k.replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)||'category';while(state.categories.some(c=>c.id===id))id+='-2';state.categories.push({id,name:x.name.slice(0,80),group:g,archived:false});}
+   state.importMap??={};state.importMap[x.k]=id;const ids=new Set(x.ids);
+   state.transactions.forEach(t=>{if(!ids.has(t.id))return;const f=flow(t);t.category=id;t.amount=stored(id,f);delete t.auto.look;t.auto.why='bank category';});},
+   `${plural(x.ids.length,'transaction')} filed under ${make?x.name:category(catId)?.name} · future statements follow`);}
  function inboxScreen(){const groups=lookGroups(),n=looking().length;
   const head=pagehead('Autopilot','Needs a look',n?`${plural(n,'transaction')} the Autopilot couldn’t place for sure. Pick a category once: everything else from the same place follows, now and in future statements.`:'');
-  if(!n)return head+`<section class="card">${empty('All sorted','Nothing is waiting. New statements land here only when something is unclear.','go-import','Add statements')}</section>`;
+  if(!n)return head+suggestCard()+`<section class="card">${empty('All sorted','Nothing is waiting. New statements land here only when something is unclear.','go-import','Add statements')}</section>`;
   const opts=sel=>categoryOptions().replace(`value="${sel}"`,`value="${sel}" selected`);
-  return head+`<div class="ap-look-bar">${`<div class="segment" aria-label="Sort"><button data-action="ap-look-sort" data-k="count" aria-pressed="${lookSort==='count'}">Most often</button><button data-action="ap-look-sort" data-k="amount" aria-pressed="${lookSort==='amount'}">Largest</button></div>`}${button('Keep every suggestion','ap-look-all','small quiet')}</div>`+
+  return head+suggestCard()+`<div class="ap-look-bar">${`<div class="segment" aria-label="Sort"><button data-action="ap-look-sort" data-k="count" aria-pressed="${lookSort==='count'}">Most often</button><button data-action="ap-look-sort" data-k="amount" aria-pressed="${lookSort==='amount'}">Largest</button></div>`}${button('Keep every suggestion','ap-look-all','small quiet')}</div>`+
    `<section class="card table-card"><div class="table-wrap"><table class="ap-look"><thead><tr><th>From</th><th>Dates</th><th class="num">Amount</th><th>Category</th><th></th></tr></thead><tbody>${groups.map(g=>{const t=g.list[0],acc=account(t.acct);
     return `<tr><td><b>${esc(g.name)}</b><small class="dim">${g.list.length>1?plural(g.list.length,'transaction')+' · ':''}${esc(acc?.name||'')}${t.raw&&t.raw.toLowerCase()!==t.note.toLowerCase()?' · '+esc(t.raw.slice(0,60)):''}</small></td><td class="nw">${dateName(g.list.at(-1).date)}${g.list.length>1?' – '+dateName(t.date):''}</td><td class="num ${g.total>0?'pos':''}">${g.total>0?'+':''}${fmt(Math.abs(g.total))}</td>`+
      `<td><select data-look="${esc(g.k)}" aria-label="Category for ${esc(g.name)}">${opts(t.category)}</select>${g.person?'<small class="dim">Just this one (people and cash vary)</small>':'<small class="dim">Remembered for next time</small>'}</td><td class="nw">${button('Keep','ap-look-keep','small',`data-k="${esc(g.k)}"`)}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
@@ -5870,6 +5901,7 @@ const Auto=(()=>{
  document.addEventListener('change',e=>{const el=e.target;
   if(el.id==='ap-files'){const f=[...el.files];el.value='';if(f.length)importFiles(f);return;}
   if(el.dataset.look!==undefined){settle(el.dataset.look,el.value);return;}
+  if(el.dataset.sug!==undefined){if(el.value)fileSuggestion(el.dataset.sug,el.value,false);return;}
   if(el.dataset.acct!==undefined){const a=account(el.dataset.acct),v=el.value.trim().slice(0,30);if(a&&v&&v!==a.name)commit(()=>{a.name=v;},'Account renamed');return;}
   if(el.dataset.acctKind!==undefined){const a=account(el.dataset.acctKind);if(a&&KINDS.some(([k])=>k===el.value))commit(()=>{a.kind=el.value;},'Account updated');}});
  const onDrop=e=>{const z=e.target.closest?.('#ap-drop');if(!z)return;e.preventDefault();if(e.type==='dragover'){z.classList.add('is-over');return;}z.classList.remove('is-over');if(e.type==='drop'){const f=[...(e.dataTransfer?.files||[])];if(f.length)importFiles(f);}};
@@ -5884,6 +5916,8 @@ const Auto=(()=>{
   case 'ap-look-keep':settle(b.dataset.k,'');break;
   case 'ap-look-all':{const n=looking().length;commit(()=>looking().forEach(t=>delete t.auto.look),`${plural(n,'suggestion')} kept`);break;}
   case 'ap-rec-sort':{const k=b.dataset.k;recSort=recSort.k===k?{k,dir:recSort.dir==='asc'?'desc':'asc'}:{k,dir:['name','category','cadence','last','next'].includes(k)?'asc':'desc'};render();break;}
+  case 'ap-acct-flip':{const x=account(b.dataset.id);if(!x)break;confirmation(`Swap money in and out for ${esc(x.name)}?`,'Every transaction in this account changes direction (money in becomes money out and back), and its next statements are read the same way. Check their categories afterwards. You can undo this right after.','ap-acct-flip-ok','Swap',`data-id="${x.id}"`);break;}
+  case 'ap-acct-flip-ok':{const id=b.dataset.id,x=account(id);closeModal();if(!x)break;let n=0;commit(()=>{state.transactions.forEach(t=>{if(t.acct!==id)return;t.amount=-t.amount;if(t.auto?.pair)delete t.auto.pair;n++;});Object.values(state.importFiles||{}).forEach(f=>{if(f.acct===id)f.flip=!f.flip;});},`${x.name}: ${n} transactions swapped`);break;}
   case 'ap-acct-del':{const x=account(b.dataset.id);if(!x)break;const n=state.transactions.filter(t=>t.acct===x.id).length;confirmation(`Remove ${esc(x.name)}?`,`Its ${plural(n,'transaction')} are deleted too. You can undo this right after.`,'ap-acct-del-ok','Remove',`data-id="${x.id}"`);break;}
   case 'ap-acct-del-ok':{const id=b.dataset.id,x=account(id);closeModal();if(!x)break;commit(()=>{state.transactions=state.transactions.filter(t=>t.acct!==id);state.accounts=accounts().filter(a=>a.id!==id);if(state.balances)delete state.balances[id];Object.keys(state.importFiles||{}).forEach(k=>{if(state.importFiles[k].acct===id)delete state.importFiles[k];});},`${x.name} removed`);break;}
   case 'ap-stub-usual':{const k=b.dataset.key,t=state.transactions.find(x=>x.category===AP.salary&&payKey(x)===k),u=stubs().usual[k],name=u?.name||t?.note||'';stubForm(`Your usual paycheck · ${esc(name)}`,'Copy the amounts from one recent pay stub. Leave a line empty if it isn’t on yours.',u,`data-key="${esc(k)}" data-name="${esc(name)}"`,t?.amount);break;}
@@ -5893,6 +5927,7 @@ const Auto=(()=>{
   case 'ap-bal-new':balForm(null);break;
   case 'ap-log-prev':logPage=Math.max(0,logPage-1);render();break;
   case 'ap-log-next':logPage++;render();break;
+  case 'ap-sug-new':fileSuggestion(b.dataset.k,'',true);break;
   case 'ap-batch-del':{const id=b.dataset.id,acct=b.dataset.acct||'',l=importLines().find(x=>x.id===id&&x.acct===acct);if(!l)break;const what=[l.n?plural(l.n,'transaction'):'',l.bals?plural(l.bals,'balance'):''].filter(Boolean).join(' and ');
    confirmation(`Delete ${esc(l.split?account(acct)?.name||'this import':l.files[0])}?`,`Its ${what} ${l.n+l.bals===1?'is':'are'} removed, including any changes you made to them. Other files stay as they are. You can add the file again, or undo right after.`,'ap-batch-del-ok','Delete',`data-id="${id}" data-acct="${esc(acct)}"`);break;}
   case 'ap-batch-del-ok':{const id=b.dataset.id,acct=b.dataset.acct||'';closeModal();const hit=t=>t.auto?.batch===id&&(!acct||t.acct===acct),gone=new Set(state.transactions.filter(hit).map(t=>t.id));let nb=0;
@@ -5902,7 +5937,20 @@ const Auto=(()=>{
     [gone.size?plural(gone.size,'transaction'):'',nb?plural(nb,'balance'):''].filter(Boolean).join(' and ')+' removed');break;}
   }});
  function manualPick(){const i=document.createElement('input');i.type='file';i.accept='.csv,.tsv,.txt,text/csv,text/plain';i.onchange=()=>{if(i.files[0])readCSVFile(i.files[0]);};i.click();}
- return {views:{import:importScreen,inbox:inboxScreen,recurring:recurringScreen,paychecks:paychecksScreen,invest:netWorthScreen,dashboard},txChip,dashboard,importFiles,looking};
+ // ---------- bulk: rename a place everywhere, move to another account, select every entry from the same places ----------
+ function bulkTools(){const accs=accounts();return `${button('Select all from the same places','ap-bulk-same','small quiet')}<span class="ap-bulk-rename"><input id="bulk-rename" maxlength="40" placeholder="Rename the place to…" aria-label="Rename the place of the selected">${button('Rename','ap-bulk-rename','small')}</span>`+
+  (accs.length>1?`<select id="bulk-acct" aria-label="Move the selected to another account"><option value="">Move to account…</option>${accs.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')}</select>`:'');}
+ document.addEventListener('change',e=>{if(e.target.id!=='bulk-acct'||!e.target.value)return;const a=account(e.target.value);if(a)bulkApply(t=>{t.acct=a.id;if(t.auto?.pair)delete t.auto.pair;},`Moved to ${a.name}`);});
+ document.addEventListener('click',e=>{const b=e.target.closest('button[data-action="ap-bulk-same"],button[data-action="ap-bulk-rename"]');if(!b)return;
+  const sel=selectedRows();if(!sel.length)return toast('Select a transaction first.');
+  if(b.dataset.action==='ap-bulk-same'){const keys=new Set(sel.map(t=>Budget.matchKey(t.note)).filter(Boolean));let n=0;activityList.filter(t=>editable(t)&&keys.has(Budget.matchKey(t.note))).forEach(t=>{if(!txSel.has(t.id)){txSel.add(t.id);n++;}});render();toast(n?`${n} more from the same place${keys.size>1?'s':''} selected`:'Everything from these places is already selected');return;}
+  const name=String($('#bulk-rename')?.value||'').trim().slice(0,40);if(!name)return toast('Type the new name first.');
+  // every entry from the same places, not only the selected, and the name is remembered for future statements
+  const keys=new Set(sel.map(t=>Budget.matchKey(t.note)).filter(Boolean)),olds=[...new Set(sel.map(t=>t.note))],all=state.transactions.filter(t=>txSel.has(t.id)||keys.has(Budget.matchKey(t.note))).filter(editable),nk=Budget.matchKey(name);
+  commit(()=>{all.forEach(t=>{t.note=name;});state.nameRules??={};olds.forEach(o=>{state.nameRules[A.keyOf(o)]=name;});
+   // a category rule for the old name follows the new one
+   const R=state.categoryRules||{};keys.forEach(k=>{if(R[k]&&nk&&!R[nk])R[nk]=R[k];});},`${plural(all.length,'transaction')} renamed to ${name} · future statements follow`);});
+ return {bulkTools,views:{import:importScreen,inbox:inboxScreen,recurring:recurringScreen,paychecks:paychecksScreen,invest:netWorthScreen,dashboard},txChip,dashboard,importFiles,looking};
 })();
 // ---------- every table: sort by any column, search, filter ----------
 // Runs after each render on the tables of the screen. A heading click sorts (numbers, money and dates by

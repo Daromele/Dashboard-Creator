@@ -142,4 +142,12 @@ Pending Activity,,,,,,$-50.00
   // short merchant words only match whole words: “pharmacy” is not Macy’s, “current” is not rent
   const hit=x=>(P.merchantDict.find(([re])=>re.test(x.toLowerCase()))||[])[1]||'';
   eq('merchant words match whole words only', ['CVS PHARMACY 123','CURRENT ACCOUNT FEE','PARENT TEACHER ASSN','PROMOTION CREDIT','HUBER DRUGS','AVAIL RENT 3304','MACYS #22'].map(hit), ['health','','','','','housing','shopping']);
+
+  // a Type column (Ally) decides the direction even when most lines are deposits
+  const ALLY=`Date,Time,Amount,Type,Description
+2026-03-20,10:01:00,44.00,Deposit,Zelle payment from J SMITH
+2026-03-21,10:01:00,25.00,Deposit,Zelle payment from K LEE
+2026-03-22,09:00:00,-10.00,Withdrawal,ATM fee`;
+  const al=A.read(ALLY,'ally-transactions.csv',CSV);
+  eq('deposits stay money in when a Type column says so', [al.flip,al.rows.map(r=>r.amount)], [false,[4400,2500,-1000]]);
 };
