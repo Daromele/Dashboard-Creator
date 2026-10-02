@@ -1,0 +1,224 @@
+{
+ "product": "Monthly Plan",
+ "footer": "Monthly Plan · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Monthly_Plan_Etsy_Mockups.html",
+ "storage_prefix": "mp-kit-img:",
+ "brand": {
+  "ink": "#241A33",
+  "bold": "#2E2040",
+  "pop": "#F0B98F",
+  "paper": "#FAF9FC",
+  "calm": "#5C3F8F"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Monthly &amp; annual budget planner",
+   "headline": "Set it once.<br>Follow it all year.",
+   "pills": [
+    "No subscription",
+    "Works offline",
+    "Mac &amp; PC"
+   ],
+   "image": "tab-dashboard.jpg",
+   "alt": "Monthly Plan dashboard"
+  },
+  {
+   "dark": false,
+   "label": "Monthly dashboard",
+   "eyebrow": "Monthly dashboard",
+   "headline": "What is really left.",
+   "sub": "One honest number, after every commitment you have already made.",
+   "image": "tab-dashboard.jpg",
+   "foot": "Fictional sample figures shown"
+  },
+  {
+   "dark": true,
+   "label": "Monthly budget",
+   "eyebrow": "Monthly budget",
+   "headline": "Plan it once.",
+   "sub": "Save it as your repeating plan and every month opens already filled in.",
+   "image": "tab-budget.jpg",
+   "foot": "Change one month without touching the rest"
+  },
+  {
+   "dark": false,
+   "label": "Annual dashboard",
+   "eyebrow": "Annual dashboard",
+   "headline": "The whole year, at once.",
+   "sub": "Planned against actual, month by month, for the entire year.",
+   "image": "tab-annual.jpg",
+   "foot": "Fictional sample figures shown"
+  },
+  {
+   "dark": true,
+   "label": "Year-wide category table",
+   "eyebrow": "Every category",
+   "headline": "Twelve months. One table.",
+   "sub": "Shaded by how far actual ran from plan, so the month that slipped is obvious.",
+   "image": "tab-heat.jpg",
+   "foot": "Green within plan · red over plan"
+  },
+  {
+   "dark": false,
+   "label": "Transactions",
+   "eyebrow": "Transactions",
+   "headline": "Every entry, with charts.",
+   "sub": "Filter by category or type and the charts follow along.",
+   "image": "tab-activity.jpg",
+   "foot": "Where it went · by type · largest expense"
+  },
+  {
+   "dark": true,
+   "label": "CSV import",
+   "eyebrow": "Bank import",
+   "headline": "Import. It learns.",
+   "sub": "Map the columns once. It remembers your categories and blocks duplicates.",
+   "image": "tab-import.jpg",
+   "foot": "Any date format · duplicate protection"
+  },
+  {
+   "dark": false,
+   "label": "Savings & goals",
+   "eyebrow": "Savings &amp; goals",
+   "headline": "Saving up. Paying off.",
+   "sub": "Add a photo of what you are saving for. Debt payoff goals sit alongside.",
+   "image": "tab-goals.jpg",
+   "foot": "Cards or table · search, sort and filter"
+  },
+  {
+   "dark": true,
+   "label": "Recurring payments",
+   "eyebrow": "Recurring payments",
+   "headline": "Set the rhythm once.",
+   "sub": "Rent, subscriptions, loans — on the dates they actually land.",
+   "image": "tab-scheduled.jpg",
+   "foot": "Weekly · monthly · quarterly · yearly"
+  },
+  {
+   "dark": false,
+   "label": "Calendar",
+   "eyebrow": "Calendar",
+   "headline": "Your month, day by day.",
+   "sub": "What is planned and what you have recorded, side by side.",
+   "image": "tab-calendar.jpg",
+   "foot": "Select any day for its detail"
+  },
+  {
+   "dark": true,
+   "label": "Wealth snapshots",
+   "eyebrow": "Wealth snapshots",
+   "headline": "Watch net worth move.",
+   "sub": "Month-end balances, tracked apart from your budget.",
+   "image": "tab-wealth.jpg",
+   "foot": "Assets · debts · net worth"
+  },
+  {
+   "dark": false,
+   "label": "Insights",
+   "eyebrow": "Insights",
+   "headline": "What stands out.",
+   "sub": "Plain observations drawn only from the entries you made.",
+   "image": "tab-insights.jpg",
+   "foot": "Nothing estimated, nothing invented"
+  },
+  {
+   "dark": true,
+   "label": "Weekly review",
+   "eyebrow": "Weekly review",
+   "headline": "Two minutes on a Sunday.",
+   "sub": "A short check-in that keeps the whole thing honest.",
+   "image": "tab-review.jpg",
+   "foot": "The habit that makes a budget work"
+  },
+  {
+   "dark": false,
+   "label": "Settings & backup",
+   "eyebrow": "Settings &amp; backup",
+   "headline": "Yours, and safe.",
+   "sub": "Your currency, your categories, your sidebar — and a full backup any time.",
+   "image": "tab-settings.jpg",
+   "foot": "Your data never leaves your computer"
+  },
+  {
+   "dark": true,
+   "label": "How to use",
+   "eyebrow": "How to use",
+   "headline": "Guided from the start.",
+   "sub": "A welcome tour, a full guide inside, and a sample year to explore first.",
+   "image": "tab-guide.jpg",
+   "foot": "Sample mode keeps your own budget separate"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks. One clear plan.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Lavender",
+     "image": "theme-lavender.jpg",
+     "swatch": "#2E2040"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Blush",
+     "image": "theme-blush.jpg",
+     "swatch": "#63304A"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#C3A9E8"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#9DB8F5"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Monthly Budget Planner Spreadsheet Alternative (Editable HTML Budget Tracker Instant Download, Offline)",
+  "tags": [
+   "budget planner",
+   "monthly budget",
+   "budget tracker",
+   "digital planner",
+   "debt payoff tracker",
+   "savings tracker",
+   "expense tracker",
+   "budget template",
+   "finance planner",
+   "money tracker",
+   "annual budget",
+   "sinking funds",
+   "paycheck budget"
+  ],
+  "description_file": "description.txt"
+ }
+}
