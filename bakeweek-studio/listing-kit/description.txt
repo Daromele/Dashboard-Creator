@@ -1,32 +1,39 @@
-Plan your home bakery week in minutes. Bakeweek Studio turns your customer orders into a day-by-day bake plan, one combined shopping list, scaled batch sheets and packing tickets, and tells you before you say yes whether a new order fits your week.
+Run your microbakery or home bakery from one calm weekly plan. Bakeweek Studio brings custom orders, pre-orders, bread-club subscriptions, café accounts and market days together into one bake plan, one shopping list, scaled batch sheets and packing tickets. It also tells you whether a new order fits your week before you say yes.
 
-Try the built-in sample bakery first: a made-up bakery with a year of orders, one click away and separate from your own data.
+Try the built-in sample bakery first: Sunday Crumb, a made-up microbakery with a bread club, a café account, a Saturday farmers market and nine months of history. It's one click away and kept separate from your own data.
 
 Works on Mac and PC in any modern browser (Chrome, Edge, Safari, Firefox). Everything stays on your computer. No logins, no server, no subscription.
 
 HOW IT WORKS
-1. Add your recipes: yield, hands-on time and ingredients
-2. Enter your orders (or import them from a spreadsheet)
-3. Open This week: what to buy, bake and pack is already worked out
+1. Add your pantry and recipes: yield, hands-on time, ingredients and any prep the day before
+2. Add orders, set up standing orders, post a pre-order menu or plan a market day
+3. Open This week: what to buy, bake, prep and pack is already worked out
 
 WHAT YOU GET
-• This week: your hands-on time per day against the hours you have, with days that run over flagged
-• Try an order: see the extra work, extra shopping and a suggested minimum quote before you promise it
-• Shopping: shared ingredients totaled, pantry stock subtracted, rounded up to whole packs, with the cost
-• Batch sheets: the same recipe on the same day becomes one run, with every ingredient scaled
-• Pack & collect: every customer, their items and the balance still due
-• Orders: one order book with bake, finish and pickup dates, payments and status
-• Year at a glance: sales by month and product, your best sellers and every month side by side
-• Recipes: cost per piece from your latest pantry prices, and what each piece keeps
-• Pantry: pack sizes, pack prices, stock and suppliers
-• Printable kitchen packet, batch sheets, packing tickets and quotes
+• This week: hands-on time per day (baking, dough prep, routines and packing) against the hours you have, with days that run over flagged
+• Calendar: the whole month at a glance, with pickups, drops, market days, menu cutoffs and prep
+• Pre-order menu: items, limits, pickup days and a cutoff, plus menu text to copy into your posts and messages
+• Standing orders: bread-club subscriptions, cafés and regulars, every 1 to 4 weeks, with prepaid drops and one-click skips
+• Market days: plan what to bring, record what sold and where the leftovers went, and get suggested amounts from your own history
+• Shopping: shared ingredients totaled, pantry stock subtracted, rounded up to whole packs, with a restock list for your minimums
+• Batch sheets: one run per recipe per day, every ingredient scaled, dough prep scheduled the day before
+• Labels: ingredients by weight, allergens, net weight, baked and best-by dates on Avery 5163, 5164 or L7163 sheets
+• Customers: contacts, notes and order history, with allergies flagged on their orders and packing tickets
+• Profit & expenses: profit after ingredients, packaging, fees and expenses, what you earn per hands-on hour, and a CSV for tax time
+• Try an order: the extra work, extra shopping and a suggested minimum quote before you promise it
+• Calculators: scale a recipe, baker's percentages, levain build, water temperature, pan sizes, conversions and price checks
+• Recipes with pictures and color-coded categories; cost per piece from your pantry prices
+• Routines: feed the starter, deep clean and order flour, ticked off on the right days
+• Ready-to-send messages: order confirmation, ready for pickup and payment reminder
+• Printable kitchen packet, batch sheets, packing tickets, quotes, menus, labels and calendar
 • Backups: download a file anytime, or save one to a folder you choose after every change (Chrome and Edge)
 • 8 color themes, light and dark
 
 GOOD TO KNOW
 • Digital download: you receive one HTML file. Nothing is shipped.
 • Best on a computer or tablet.
+• Customers can't order through the app; you add each order as it comes in.
 • Choose a backup folder, or download a backup now and then, from Settings & backup.
 • Screenshots show a fictional sample bakery. Sample recipes are examples, not tested recipes.
-• Estimates use your own inputs. It does not calculate taxes or produce food labels.
+• Labels print what you enter. Check them against your state or local cottage-food rules. The app doesn't check legal requirements or calculate taxes.
 • For personal or internal business use by the purchaser.

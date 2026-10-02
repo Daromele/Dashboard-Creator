@@ -16,8 +16,8 @@
    "kind": "hero",
    "dark": true,
    "label": "Hero",
-   "eyebrow": "Home bakery planner",
-   "headline": "Orders in.<br>A baking plan out.",
+   "eyebrow": "Microbakery planner",
+   "headline": "Orders, regulars, markets.<br>One calm week.",
    "pills": [
     "No subscription",
     "Works offline",
@@ -31,12 +31,93 @@
    "label": "Week plan",
    "eyebrow": "Your week",
    "headline": "Every day, with room to breathe.",
-   "sub": "Hands-on time per day against the hours you actually have.",
+   "sub": "Baking, dough prep, routines and packing per day, against the hours you have.",
    "image": "tab-plan.jpg",
    "foot": "Fictional sample bakery shown"
   },
   {
    "dark": true,
+   "label": "Calendar",
+   "eyebrow": "Your month",
+   "headline": "The whole month at a glance.",
+   "sub": "Pickups, drops, market days, menu cutoffs and prep, day by day.",
+   "image": "tab-calendar.jpg",
+   "foot": "Print it for the fridge"
+  },
+  {
+   "dark": false,
+   "label": "Pre-order menu",
+   "eyebrow": "Pre-order menu",
+   "headline": "Post the menu. Bake what’s ordered.",
+   "sub": "Limits, a cutoff and menu text ready for Instagram, Facebook or WhatsApp.",
+   "image": "tab-menu.jpg",
+   "foot": "Pre-orders go straight into the bake plan"
+  },
+  {
+   "dark": true,
+   "label": "Standing orders",
+   "eyebrow": "Standing orders",
+   "headline": "Bread club and cafés, on repeat.",
+   "sub": "Set it once: every drop lands in your plan, shopping and packing.",
+   "image": "tab-standing.jpg",
+   "foot": "Skip a week in one click"
+  },
+  {
+   "dark": false,
+   "label": "Market days",
+   "eyebrow": "Market days",
+   "headline": "Know how much to bring.",
+   "sub": "Sell-through, leftovers and suggested amounts from your own market days.",
+   "image": "tab-markets.jpg",
+   "foot": "Fictional sample bakery shown"
+  },
+  {
+   "dark": true,
+   "label": "Shopping",
+   "eyebrow": "Shopping list",
+   "headline": "One list, already combined.",
+   "sub": "Pantry subtracted, whole packs, plus a restock list for your minimums.",
+   "image": "tab-shopping.jpg",
+   "foot": "Download it or print it for the store"
+  },
+  {
+   "dark": false,
+   "label": "Batch sheets",
+   "eyebrow": "Batch sheets",
+   "headline": "Every recipe, scaled.",
+   "sub": "One run per recipe per day, with the dough prep the day before.",
+   "image": "tab-batches.jpg",
+   "foot": "Print them for the kitchen"
+  },
+  {
+   "dark": true,
+   "label": "Labels",
+   "eyebrow": "Product labels",
+   "headline": "Labels in minutes.",
+   "sub": "Ingredients by weight, allergens, baked and best-by dates on Avery sheets.",
+   "image": "tab-labels.jpg",
+   "foot": "Check wording against your local rules"
+  },
+  {
+   "dark": false,
+   "label": "Customers",
+   "eyebrow": "Customers",
+   "headline": "Remember every customer.",
+   "sub": "Contacts, notes and order history, with allergies flagged on their tickets.",
+   "image": "tab-customers.jpg",
+   "foot": "Fictional customers shown"
+  },
+  {
+   "dark": true,
+   "label": "Profit and expenses",
+   "eyebrow": "Profit &amp; expenses",
+   "headline": "See what you really earn.",
+   "sub": "Profit after ingredients, fees and expenses, and what you make per hour.",
+   "image": "tab-money.jpg",
+   "foot": "CSV export for tax time"
+  },
+  {
+   "dark": false,
    "label": "Try an order",
    "eyebrow": "Try an order",
    "headline": "Should you say yes?",
@@ -45,74 +126,29 @@
    "foot": "Nothing is saved until you accept"
   },
   {
-   "dark": false,
-   "label": "Shopping",
-   "eyebrow": "Shopping list",
-   "headline": "One list, already combined.",
-   "sub": "Pantry subtracted, rounded up to whole packs, with the cost.",
-   "image": "tab-shopping.jpg",
-   "foot": "Download it or print it for the store"
-  },
-  {
    "dark": true,
-   "label": "Batch sheets",
-   "eyebrow": "Batch sheets",
-   "headline": "Every recipe, scaled.",
-   "sub": "Same recipe, same day: one production run for all your orders.",
-   "image": "tab-batches.jpg",
-   "foot": "Print them for the kitchen"
+   "label": "Calculators",
+   "eyebrow": "Calculators",
+   "headline": "Kitchen math, done.",
+   "sub": "Scale recipes, baker’s percentages, levain, water temperature, pans and pricing.",
+   "image": "tab-tools.jpg",
+   "foot": "Never changes your recipes"
   },
   {
    "dark": false,
-   "label": "Pack and collect",
-   "eyebrow": "Pack &amp; collect",
-   "headline": "Every customer, accounted for.",
-   "sub": "What goes in each box and the balance still due.",
-   "image": "tab-packing.jpg",
-   "foot": "Printable packing tickets and quotes"
-  },
-  {
-   "dark": true,
-   "label": "Orders",
-   "eyebrow": "Order book",
-   "headline": "Take the order once.",
-   "sub": "Pickups, payments and status, filtered and sorted your way.",
-   "image": "tab-orders.jpg",
-   "foot": "Import orders from a spreadsheet"
-  },
-  {
-   "dark": false,
-   "label": "Year at a glance",
-   "eyebrow": "Year at a glance",
-   "headline": "Your year, month by month.",
-   "sub": "Sales by product, your best sellers and every month side by side.",
-   "image": "tab-year.jpg",
-   "foot": "Fictional sample bakery shown"
-  },
-  {
-   "dark": true,
    "label": "Recipes",
    "eyebrow": "Recipes",
    "headline": "Know what each piece costs.",
-   "sub": "Cost per piece from your pantry prices, and what each one keeps.",
+   "sub": "Cost per piece from your pantry prices, with pictures and color-coded categories.",
    "image": "tab-recipes.jpg",
    "foot": "Fictional example recipes shown"
-  },
-  {
-   "dark": false,
-   "label": "Pantry",
-   "eyebrow": "Pantry",
-   "headline": "Buy what you actually need.",
-   "sub": "Pack sizes, prices, stock and suppliers, kept up to date.",
-   "image": "tab-pantry.jpg",
-   "foot": "Grams, milliliters or each"
   },
   {
    "dark": true,
    "label": "Backup and settings",
    "eyebrow": "Private &amp; yours",
    "headline": "Your bakery, your rules.",
-   "sub": "Your hours, margin and prices. Backups to a folder you choose.",
+   "sub": "Hours, margins, routines and label details. Backups to a folder you choose.",
    "image": "tab-settings.jpg",
    "foot": "Everything stays on your computer"
   },
@@ -121,7 +157,7 @@
    "dark": false,
    "label": "Themes",
    "eyebrow": "Make it yours",
-   "headline": "Eight looks. One calm week.",
+   "headline": "Eight looks. One calm kitchen.",
    "columns": 4,
    "themes": [
     {
@@ -168,20 +204,20 @@
   }
  ],
  "listing": {
-  "title": "Home Bakery Planner, Bakery Order Tracker, Baking Schedule, Recipe Cost Calculator, Cake Business Shopping List, Offline HTML App",
+  "title": "Microbakery Planner, Home Bakery Order Tracker, Pre-Order Menu, Bakery Labels, Recipe Cost Calculator, Cottage Bakery Business App",
   "tags": [
-   "bakery planner",
+   "microbakery",
    "home bakery",
+   "cottage bakery",
+   "bakery planner",
+   "bakery labels",
+   "sourdough business",
+   "bread subscription",
+   "farmers market",
+   "pre order form",
+   "recipe costing",
    "bakery order form",
    "baking schedule",
-   "recipe costing",
-   "cake business",
-   "cottage bakery",
-   "order tracker",
-   "baker gift",
-   "bakery business",
-   "batch planner",
-   "pricing calculator",
    "small business app"
   ],
   "description_file": "description.txt"
