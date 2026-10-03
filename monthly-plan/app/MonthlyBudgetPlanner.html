@@ -5245,7 +5245,7 @@ const Biz=(()=>{
    S.mileage?.amount&&fuel.length&&`<b>Standard mileage and car costs are both on line ${Budget.TAX_LINES[P.mileageLine].line}.</b> The standard mileage rate replaces fuel and most running costs; parking and tolls can still be added. Check ${fuel.map(i=>esc(i.name)).join(', ')} with your accountant.`,
   ].filter(Boolean);
   const mapRows=state.categories.filter(c=>Budget.counted(c)&&(!c.archived||S.pl&&[...S.unmapped,...S.excluded].some(l=>l.id===c.id))).map(c=>`<tr><td><b>${esc(c.name)}</b><small class="dim"> · ${esc(Budget.GROUPS[c.group])}</small></td><td><select data-taxline="${c.id}" aria-label="${esc(form.name)} line for ${esc(c.name)}">${lineOptions(c.taxLine||'',Budget.taxLineFor(c))}</select></td></tr>`).join('');
-  return pagehead(`${form.name} · ${y}`,'A summary your accountant can work from',`${esc(form.long)}. ${thisYear?'Recorded through '+fullDate(today())+'.':'Recorded for the full year.'} Cash basis.`,button('Summary CSV','biz-sc-csv','quiet')+button('Transactions by line CSV','biz-sc-detail','quiet')+button('Print','print','primary'))+
+  return pagehead(`${form.name} · ${y}`,'A summary your accountant can work from',`${esc(form.long)}. ${thisYear?'Recorded through '+fullDate(today())+'.':'Recorded for the full year.'} Cash basis.`,(P.features.pl?button('Profit &amp; loss for '+y+' →','biz-pl-year','quiet','title="The full profit and loss statement for the same year"'):'')+button('Summary CSV','biz-sc-csv','quiet')+button('Transactions by line CSV','biz-sc-detail','quiet')+button('Print','print','primary'))+
    taxNote(`. The line numbers follow the US ${esc(form.long.split(' · ')[0])}; outside the US, use the category totals as a starting point for your own return`)+
    (warnings.length?`<div class="notice warning no-print"><span>${warnings.join('<br><br>')}</span></div>`:'')+
    `<div class="kpis">${kpi('Gross receipts',T.gross,`Line 1 · ${y}`,'down')}${kpi('Gross profit',T.grossProfit,`Line 5 · after ${fmt(T.cogs)} cost of goods`,'insights')}${kpi('Total expenses',T.expenses,'Line 28','up')}${kpi(T.net<0?'Tentative loss':'Tentative profit',T.net,'Line 29 · before home office','wallet',T.net<0?'warn':'')}</div>`+
@@ -5434,6 +5434,7 @@ const Biz=(()=>{
  // ---------- events ----------
  const guarded=()=>screen==='budget'&&budgetDirty;
  document.addEventListener('click',e=>{const b=e.target.closest('button[data-action^="biz-"]');if(!b||guarded())return;const a=b.dataset.action,id=b.dataset.id;try{switch(a){
+  case 'biz-pl-year':period={...period,kind:'year'};go('pl');break;
   case 'biz-period':period={...period,kind:b.dataset.kind};if(period.kind==='custom'&&!period.from){const r=range('ytd');period.from=r.from;period.to=r.to;}render();break;
   case 'biz-pl-csv':plCSV();break;
   case 'biz-log-tax':transactionForm('',id);break;
