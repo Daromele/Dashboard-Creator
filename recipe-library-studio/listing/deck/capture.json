@@ -1,0 +1,87 @@
+{
+ "app": "../../site/index.html",
+ "out": "shots",
+ "setup": "document.querySelector('#welcome')?.close?.();state=sampleData();state.recipes.forEach(r=>r.sample=false);localStorage.setItem(CONFIG.storageKey+'-welcome-v1','1');localStorage.setItem(CONFIG.storageKey+'-manual-backup',String(Date.now()));shopAdd(recipeById('s1').ingredients.concat(recipeById('s4').ingredients),{});const st=document.createElement('style');st.textContent='.banner,#toast{display:none!important}';document.head.appendChild(st);lib.view='grid';go('dashboard');",
+ "content": "#content",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "before": "go('dashboard')"
+  },
+  {
+   "name": "import",
+   "before": "lastLink='https://www.recipetineats.com/one-pot-chicken-risoni/';bulk.items=[];bulk.running=false;go('import')"
+  },
+  {
+   "name": "bulk",
+   "before": "go('import');lastLink='';bulk.items=[{url:'https://www.recipetineats.com/one-pot-chicken-risoni/',status:'saved',id:'s1',title:'One pot chicken risoni'},{url:'https://www.loveandlemons.com/banana-bread/',status:'saved',id:'s5',title:'Healthy banana bread'},{url:'https://www.bbcgoodfood.com/recipes/easy-pancakes',status:'saved',id:'s9',title:'Easy pancakes'},{url:'https://www.tasteofhome.com/recipes/best-lasagna/',status:'working'},{url:'https://www.kingarthurbaking.com/recipes/buttermilk-pancakes-recipe',status:'waiting'},{url:'https://www.allrecipes.com/recipe/12345/',status:'failed',msg:'This website blocks automatic access. Copy the page and use Paste the page text.'}];bulk.running=true;render();",
+   "scrollTo": "section.card:has(#bulk-text)",
+   "ratio": 1.6
+  },
+  {
+   "name": "sites",
+   "before": "bulk.items=[];bulk.running=false;go('import')",
+   "scrollTo": "#sites"
+  },
+  {
+   "name": "recipe",
+   "before": "openRecipe('s1')"
+  },
+  {
+   "name": "scale",
+   "before": "openRecipe('s4')",
+   "scrollTo": ".recipe-cols"
+  },
+  {
+   "name": "cook",
+   "before": "openRecipe('s1');setTimeout(()=>document.querySelector('[data-action=\"cook\"]').click(),50)"
+  },
+  {
+   "name": "library",
+   "before": "lib.view='grid';go('library')"
+  },
+  {
+   "name": "collections",
+   "before": "go('collections')"
+  },
+  {
+   "name": "plan",
+   "before": "go('plan')"
+  },
+  {
+   "name": "shopping",
+   "before": "go('shopping')"
+  },
+  {
+   "name": "pantry",
+   "before": "go('pantry')"
+  },
+  {
+   "name": "log",
+   "before": "openRecipe('s1')",
+   "scrollTo": "section.card:has(.cooklog)"
+  },
+  {
+   "name": "insights",
+   "before": "go('dashboard')",
+   "scrollTo": "section.card:has(.kit-pie)"
+  },
+  {
+   "name": "settings",
+   "before": "go('settings')"
+  }
+ ],
+ "themes": {
+  "list": [
+   "kiln",
+   "ledger",
+   "sage",
+   "linen",
+   "fjord",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('dashboard');render();"
+ }
+}
