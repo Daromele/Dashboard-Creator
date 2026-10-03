@@ -1,0 +1,91 @@
+# Etsy listing: Debt Free Plan (Debt Payoff Tracker)
+
+## Title (129 of 140 characters)
+
+Debt Payoff Tracker App, Debt Snowball and Avalanche Calculator, Credit Card Payoff Planner, Debt Free Countdown, No Subscription
+
+## Tags (13, each 20 characters or fewer)
+
+1. debt payoff tracker
+2. debt snowball
+3. debt avalanche
+4. debt free plan
+5. credit card payoff
+6. debt tracker
+7. loan payoff tracker
+8. debt calculator
+9. debt planner
+10. pay off debt
+11. debt free chart
+12. student loan payoff
+13. budget debt tracker
+
+## Description
+
+See the exact month you'll be debt free, and the fastest, cheapest way to get there. No spreadsheet formulas, no subscription, no bank login.
+
+Debt Free Plan is a debt payoff tracker in a single file. Add your debts once, choose how much you can pay each month, and the app builds your full payoff plan: what to pay on each debt this month, when each one is gone, and how much interest you save. Log payments as you go and watch every balance fall.
+
+━━━━━━━━━━━━━━━━━━━━
+EVERYTHING A DEBT SPREADSHEET DOES
+━━━━━━━━━━━━━━━━━━━━
+✔ Debt list: balance, interest rate, minimum payment, due day and lender for every debt
+✔ Snowball and avalanche: switch with one click and compare them side by side
+✔ Month-by-month payoff schedule with interest and payment on each debt
+✔ Payment log and progress charts
+✔ Coloring chart: fill in a bubble for every chunk you pay off
+✔ Debt-free date and total interest
+
+━━━━━━━━━━━━━━━━━━━━
+AND MUCH MORE
+━━━━━━━━━━━━━━━━━━━━
+✔ 5 strategies compared at once: avalanche, snowball, cash flow first, credit score first, or your own order
+✔ "Why not just the minimums?": the months and money your plan saves you
+✔ What-if lab: an extra payment each month, a one-off payment (tax refund, bonus), a lower rate, a balance transfer with its fee, a consolidation loan, or "debt free by" a date you choose
+✔ Pay this month: every payment, its due date, and a one-click "Log all as paid"
+✔ Credit card minimums calculated the way card issuers do, and 0% promo periods that end on time
+✔ Warnings when a balance is growing, a promo rate is ending, or a card is maxed out
+✔ Card utilization, with the credit score strategy to bring it down
+✔ Payoff timeline, balance-over-time chart, milestones and due-date calendar
+✔ Update a balance from your statement any time; the plan recalculates
+✔ Find extra money: an optional budget and cut-back ideas to grow your monthly payment
+✔ Every table sorts, searches and filters
+✔ 8 color themes, light and dark
+
+━━━━━━━━━━━━━━━━━━━━
+WHY IT BEATS A SPREADSHEET
+━━━━━━━━━━━━━━━━━━━━
+• No formulas to break and no copying rows each month.
+• No subscription, ever. Pay once, use it for years.
+• Private: no login, no bank connection, nothing uploaded. Your numbers never leave your computer.
+• Works offline in Chrome, Edge, Safari and Firefox, on Mac and Windows.
+• A fictional sample to explore before you add your own debts.
+• A welcome tour and built-in help in plain words.
+• One-click backups, plus an automatic daily folder backup in Chrome and Edge.
+
+━━━━━━━━━━━━━━━━━━━━
+PERFECT FOR
+━━━━━━━━━━━━━━━━━━━━
+Credit cards · store cards · car loans · student loans · personal loans · medical bills · buy now pay later · money owed to family · tax payment plans · mortgages
+
+━━━━━━━━━━━━━━━━━━━━
+WHAT YOU RECEIVE
+━━━━━━━━━━━━━━━━━━━━
+• 1 HTML app file (Debt Free Plan · Debt Payoff Tracker)
+• A built-in "How it works" guide inside the app
+
+Download, double-click, and add your first debt. Nothing to install.
+
+━━━━━━━━━━━━━━━━━━━━
+GOOD TO KNOW
+━━━━━━━━━━━━━━━━━━━━
+• This is a digital download. Nothing will be shipped.
+• Your data saves in the browser you use. Download a backup regularly and keep it safe; the app reminds you.
+• Works best on a computer. Phones and tablets can view and log payments.
+• Interest is estimated monthly from the rate you enter; your lender's statement may differ by a few cents. Update the balance any time.
+• This is not financial advice.
+• For personal use. Please don't share or resell the file.
+
+Questions? I'm happy to help: hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+
+Made by JPS Digital Pages.
