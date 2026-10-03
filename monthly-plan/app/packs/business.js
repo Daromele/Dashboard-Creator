@@ -1,5 +1,5 @@
 /* ===================================================================================
-   NICHE PACK · Profit Plan (freelancer & small-business edition)
+   NICHE PACK · Small Business Income & Expense Tracker, “Profit Plan” (freelancer & small-business edition)
    Everything that makes this edition a set of business books lives in this block:
    product identity, category groups and their flags (revenue, cost of goods sold,
    overheads, tax set-aside), default categories and their Schedule C lines, the
@@ -9,16 +9,16 @@
 const NICHE = {
   id: 'business',
   product: {
-    name: 'Profit Plan', mark: 'P', publisher: 'JPS DIGITAL PAGES', version: '1.3',
-    tagline: 'Freelance & small-business books', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
-    title: 'Profit Plan · Sales, Expenses, P&amp;L &amp; Quarterly Tax', themeColor: '#182635',
-    description: 'Profit Plan by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',
+    name: 'Small Business Income & Expense Tracker', mark: 'P', publisher: 'PROFIT PLAN · JPS DIGITAL PAGES', version: '1.3',
+    tagline: 'Profit Plan · income, expenses & profit', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
+    title: 'Small Business Income &amp; Expense Tracker · Profit Plan', themeColor: '#182635',
+    description: 'Small Business Income & Expense Tracker (Profit Plan) by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',
     icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%23182635"/><path d="M22 48V16h12a9 9 0 0 1 0 18H22" fill="none" stroke="%23E3A73B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    notice: 'Profit Plan. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
+    notice: 'Small Business Income & Expense Tracker (Profit Plan). Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
     railNote: '<b>Know what you really made.</b>Log sales and costs. Watch profit. Put tax money aside before it is due.',
-    printTitle: 'Profit Plan · JPS Digital Pages',
+    printTitle: 'Small Business Income & Expense Tracker · Profit Plan',
   },
-  build: { file: 'ProfitPlanBusiness.html' },
+  build: { file: 'SmallBusinessIncomeExpenseTracker.html' },
   storage: { key: 'jps-profit-plan', file: 'profit-plan' },
   editions: { budget: 'Monthly Plan, the household budget edition', creator: 'Creator Plan, the creator edition', autonomo: 'Autónomo Plan, the Spain edition' },
   themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
@@ -181,7 +181,7 @@ const NICHE = {
       ['Dig into any number', 'Click a card at the top of the dashboard to see the transactions behind it; <b>Avg. monthly cash flow</b> opens the Annual overview. Click a slice of any donut to list its transactions. On Transactions, pick a group and then a category, sort any column, and read the total of what is shown at the bottom.'],
       ['Business health', 'Shows your <b>cash runway</b> (how many months your tracked cash would cover costs if sales stopped), your <b>break-even revenue</b> (what you need to sell each month to cover running costs at your gross margin), margins month by month, costs against their usual level, and whether one client or channel carries too much of the business. Averages use up to three recent complete months. It reads only what you record and is not financial advice.'],
       ['Chasing late invoices', 'On Invoices, overdue ones get a <b>Reminder</b> button. It writes a polite reminder with the invoice number, amount and dates; edit it if you like, copy it, and paste it into an email.'],
-      ['Not tax, legal or financial advice', 'Profit Plan organises your own records. Every tax figure it shows, from the set-aside to the mileage value and the form lines, comes from the rates, categories and rules you enter. It does not know your tax position, and tax rules differ by country and change every year. Check with a qualified tax professional or accountant before you file, claim or pay tax.'],
+      ['Not tax, legal or financial advice', 'This tracker organises your own records. Every tax figure it shows, from the set-aside to the mileage value and the form lines, comes from the rates, categories and rules you enter. It does not know your tax position, and tax rules differ by country and change every year. Check with a qualified tax professional or accountant before you file, claim or pay tax.'],
       ['Outside the US', 'Profit, cash flow, transactions, invoices and the mileage log work anywhere: set your currency in Settings, and choose miles or kilometres. The <b>Schedule C summary</b> uses US line numbers and the <b>Quarterly tax</b> due dates follow the US estimated-tax calendar. Elsewhere, treat the category totals and set-aside figures as a starting point for your own return and your own payment dates.'],
       ['Mileage rate', 'The mileage rate starts at zero because every country sets its own, and it changes most years (for example the IRS rate in the US, or HMRC’s in the UK). Enter the rate that applies to you in <b>Settings → Tax &amp; mileage</b>. Trips logged before you set it are valued at the new rate.'],
       ['Statements from Etsy, Shopify, PayPal and Stripe', 'Import the platform’s own statement on the Import screen: an Etsy monthly statement, a Shopify Payments or Stripe balance export, a PayPal activity download, a YouTube (AdSense) transactions file, or any file with gross and fee columns such as Patreon, Gumroad or Ko-fi. Profit Plan recognises it and splits every sale into the full price and the platform’s fees, ads and shipping labels, each in a category you choose. Payouts to your bank are skipped. After that, when you import your bank statement, deposits from that platform go to <b>Platform payouts &amp; top-ups (already imported)</b>, a transfer, so nothing is counted twice.'],

@@ -16,7 +16,7 @@ const PAYPAL=`"Date","Time","TimeZone","Name","Type","Status","Currency","Gross"
 "09/02/2026","10:00:00","PDT","Jane Client","Invoice Payment","Completed","USD","500.00","-14.80","485.20","1"
 "09/04/2026","10:00:00","PDT","","General Withdrawal","Completed","USD","-400.00","0.00","-400.00","3"`;
 (async()=>{const b=await chromium.launch(),p=await b.newPage({viewport:{width:1360,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-const F=APP('ProfitPlanBusiness.html');
+const F=APP('SmallBusinessIncomeExpenseTracker.html');
 await p.goto(F);await p.evaluate(()=>{localStorage.setItem('jps-profit-plan-welcome-v1','1');localStorage.setItem('jps-profit-plan-manual-backup',String(Date.now()));});await p.goto(F);await p.waitForTimeout(300);
 // 1. Etsy statement into a USD planner
 await p.evaluate(t=>startCSV(t,'etsy_statement_2026_9.csv'),ETSY);await p.waitForTimeout(200);

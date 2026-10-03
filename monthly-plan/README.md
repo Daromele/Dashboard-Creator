@@ -24,7 +24,7 @@ The planner is built, not hand-edited. Edit the source, then rebuild:
 
 - `app/src/core.html` — the shared engine and UI. Never shipped as-is.
 - `app/packs/budget.js` → `app/MonthlyBudgetPlanner.html` (Monthly Plan v1.9, household budget)
-- `app/packs/business.js` → `app/ProfitPlanBusiness.html` (Profit Plan v1.0, freelancer / small business)
+- `app/packs/business.js` → `app/SmallBusinessIncomeExpenseTracker.html` (Profit Plan v1.0, freelancer / small business)
 - `app/packs/creator.js` → `app/CreatorPlan.html` (Creator Plan, online creators)
 - `app/packs/autonomo.js` → `app/AutonomoPlan.html` (Autónomo Plan, records for a Spanish autónomo and their gestor)
 - `app/packs/tracker.js` → `app/MoneyAutopilot.html` (Money Autopilot v1.0, private income & expense tracker)

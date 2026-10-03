@@ -1,7 +1,7 @@
-// Business edition checks, run from test.js. B = the calculation module of ProfitPlanBusiness.html.
+// Business edition checks, run from test.js. B = the calculation module of SmallBusinessIncomeExpenseTracker.html.
 const path=require('path'),{extractTo}=require('./extract.js');
 module.exports=({eq,ok})=>{
-  const B=require(extractTo(path.join(__dirname,'../app/ProfitPlanBusiness.html'),path.join(__dirname,'budget.business.js')));
+  const B=require(extractTo(path.join(__dirname,'../app/SmallBusinessIncomeExpenseTracker.html'),path.join(__dirname,'budget.business.js')));
   const N=require('./budget.new.js');
   const throws=(f,re)=>{try{f();return false;}catch(e){return re?re.test(e.message):true;}};
 
