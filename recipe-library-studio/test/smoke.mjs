@@ -207,8 +207,8 @@ try {
   await page.evaluate(() => { window.print = () => { window.__printed = (window.__printed || 0) + 1; }; window.__printed = 0; });
   await page.click('[data-action="print"]'); await page.waitForFunction(() => window.__printed === 1);
   ok(await page.evaluate(() => !!document.querySelector('#print-root .pd-recipe .pd-steps li')), 'recipe prints as a recipe card');
-  ok(await page.evaluate(() => { const t = document.querySelector('#print-root .pd-contact')?.textContent || ''; return t.includes(CONFIG.email) && t.includes('jpsdigitalpages.com'); }), 'printouts end with the website and email');
   ok(await page.evaluate(() => { const t = document.querySelector('.footer')?.textContent || ''; return t.includes(CONFIG.email) && t.includes('jpsdigitalpages.com'); }), 'every screen ends with the website and email');
+  ok(await page.evaluate(() => !(document.querySelector('#print-root')?.textContent || '').includes(CONFIG.email)), 'printouts carry no contact line');
   await page.evaluate(() => dispatchEvent(new Event('afterprint')));
   await page.click('[data-action="copy-ing"]'); await page.waitForTimeout(100);
   ok((await page.evaluate(() => navigator.clipboard.readText())).split('\n').length >= 4, 'ingredients copy');

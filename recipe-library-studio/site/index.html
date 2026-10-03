@@ -302,8 +302,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .custom-range label{display:flex;flex-direction:column;font-size:11px;color:var(--ink-3)}
 .custom-range input{height:30px;min-height:30px}
 .print-title{display:none}
-.footer{display:flex;justify-content:space-between;gap:var(--s4);font-size:10.5px;color:var(--ink-3);margin-top:var(--s7);border-top:1px solid var(--rule);padding-top:var(--s4)}
 .footer a{color:inherit;text-decoration:underline;text-underline-offset:2px}.footer a:hover{color:var(--accent)}
+.footer{display:flex;justify-content:space-between;gap:var(--s4);font-size:10.5px;color:var(--ink-3);margin-top:var(--s7);border-top:1px solid var(--rule);padding-top:var(--s4)}
 
 /* ---------- pulse strip: one insight at a time, above the hero ---------- */
 .pulse{display:flex;align-items:center;gap:var(--s4);background:var(--accent-soft);border-radius:var(--r-md);padding:var(--s3) var(--s4);margin-bottom:var(--s4)}
@@ -872,7 +872,6 @@ dialog .subtitle{margin:0 0 var(--s5)}
 .pd-toc div i{font:700 8pt var(--num);color:var(--p-faint);font-style:normal;width:18pt;flex:none}
 .pd-toc div span{flex:1;min-width:0;border-bottom:.75pt dotted #cfc6bd;padding-bottom:1pt}
 .pd-toc div em{font-style:normal;font-size:8pt;color:var(--p-faint);white-space:nowrap}
-.pd-contact{margin-top:18pt;padding-top:6pt;border-top:.5pt solid var(--p-soft2,#ddd);font-size:7.5pt;color:var(--p-faint);text-align:center;break-inside:avoid}
 .pd-made{margin-top:20pt;font-size:7.5pt;color:var(--p-faint);text-align:center}
 .pd-divider{height:calc(100vh - 1.75in);display:flex;flex-direction:column;justify-content:center;break-inside:avoid;page-break-inside:avoid}
 .pd-divider .num{font:600 96pt/1 "Playfair Display",Georgia,serif;color:var(--p-soft2)}
@@ -1755,7 +1754,7 @@ function render(){const f=captureFocus();
  const hub=hubOf(screen),r=recipeById(openId);
  $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.name||CONFIG.name)}</b></span><b>${esc(screen==='dashboard'?monthName(selected):screen==='plan'?'Week of '+new Date(week+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'}):screen==='recipe'&&r?r.sourceName||'':'')}</b></div>`+
   (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${hub[3].map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
-  (VIEWS[screen]||VIEWS.dashboard)()+`<footer class="footer"><span>${esc(CONFIG.name)} · ${contactLine(true)}</span><span>${demo?'Sample recipes':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
+  (VIEWS[screen]||VIEWS.dashboard)()+`<footer class="footer"><span>${esc(CONFIG.name)} · ${contactLine()}</span><span>${demo?'Sample recipes':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
  afterRender();restoreFocus(f);}
 function afterRender(){
  document.querySelectorAll('#content .kpi').forEach(k=>{const tone=k.dataset.tone||'neutral';k.classList.add('tone-'+tone);
@@ -1900,13 +1899,13 @@ function bookDoc(rs,o){const year=new Date().getFullYear(),groups=new Map();
   list.map(([i,r])=>`<div class="pd-break">${recipeDoc(r,{photo:o.photos,notes:o.notes,nutrition:o.nutrition,num:'No. '+pad(i),book:true})}</div>`).join('')).join('');
  // the cover goes outside the document wrapper: Chrome only gives it its own edge-to-edge page there
  return {lead:cover,html:`<div class="pd-book">${toc}${body}</div>`};}
-// the publisher's name, website and email: at the foot of every screen and every printout
-const contactLine=(links=false)=>{const host=CONFIG.site.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'');
- return links?`${esc(CONFIG.publisher)} · <a href="${esc(CONFIG.site)}" target="_blank" rel="noopener">${esc(host)}</a> · <a href="mailto:${esc(CONFIG.email)}">${esc(CONFIG.email)}</a>`:`${esc(CONFIG.publisher)} · ${esc(host)} · ${esc(CONFIG.email)}`;};
+// the publisher's name, website and email at the foot of every screen, so buyers can reach us quickly
+const contactLine=()=>{const host=CONFIG.site.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'');
+ return `${esc(CONFIG.publisher)} · <a href="${esc(CONFIG.site)}" target="_blank" rel="noopener">${esc(host)}</a> · <a href="mailto:${esc(CONFIG.email)}">${esc(CONFIG.email)}</a>`;};
 async function printDoc(doc,title){const {lead='',html=''}=typeof doc==='string'?{html:doc}:doc,cover=!!lead;
  closeModal();const p=printPalette(),root=$('#print-root');
  root.style.cssText=`--p-accent:${p.accent};--p-deep:${p.deep};--p-pop:${p.pop};--p-soft:${p.soft};--p-soft2:${p.line}`;
- root.innerHTML=`${lead}<div class="pd">${html}<p class="pd-contact">${contactLine()}</p></div>`;
+ root.innerHTML=`${lead}<div class="pd">${html}</div>`;
  let st=$('#page-style');if(!st){st=document.createElement('style');st.id='page-style';document.head.appendChild(st);}
  // no fixed paper size: the print window offers Letter, A4 and the rest; the cover and chapter pages size themselves to it
  st.textContent=`@page{margin:.7in .75in .8in;@bottom-center{content:counter(page);font:8pt "DM Sans",sans-serif;color:#9a918a}}${cover?'@page :first{margin:0;@bottom-center{content:none}}':''}@page land{size:landscape;margin:.5in .6in .55in;@bottom-center{content:none}}`;
