@@ -44,6 +44,6 @@ module.exports=({eq,ok})=>{
   eq('a promotion ending soon is warned about', D.warnings([{id:'p',balance:100000,apr:2499,min:5000,promo:{apr:0,until:'2026-12'}}],'2026-10')[0].kind, 'promo-ending');
   // the edition's blank and sample keep debts
   ok('a blank Debt Free Plan has debts, a log and a plan', Array.isArray(B.blank().debts)&&B.blank().debtPlan.strategy==='avalanche');
-  const S=B.sample('2026-09');ok('the sample has four debts and payments', S.debts.length===4&&S.debtLog.length>10);
-  eq('saved debts survive a round trip through validation', B.validate(JSON.parse(JSON.stringify(S))).debts.length, 4);
+  const S=B.sample('2026-09');ok('the sample has six debts and payments', S.debts.length===6&&S.debtLog.length>10);
+  eq('saved debts survive a round trip through validation', B.validate(JSON.parse(JSON.stringify(S))).debts.length, 6);
 };

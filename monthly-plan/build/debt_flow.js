@@ -31,12 +31,22 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('the dashboard shows a debt-free month',/20\d\d/.test(s1.h||''),s1.h);
  // the plan: budget, strategies
  await p.evaluate(()=>go('plan',true));await p.waitForTimeout(150);
- const minTxt=await p.evaluate(()=>document.querySelector('.plan-budget p').innerText);
+ const minTxt=await p.evaluate(()=>document.querySelector('#plan-extra-note').innerText);
  await p.fill('#plan-budget-form [name=budget]','900');await p.evaluate(()=>document.querySelector('#plan-budget-form').requestSubmit());await p.waitForTimeout(150);
  ok('the monthly budget is saved',await p.evaluate(()=>state.debtPlan.budget===90000),minTxt);
  const strat=await p.evaluate(()=>{const before=Debts.model().sim;document.querySelector('[data-action="plan-strategy"][data-s="snowball"]').click();const after=Debts.model().sim;return {s:state.debtPlan.strategy,first:Object.entries(after.payoff).sort((a,b)=>a[1].localeCompare(b[1]))[0][0],store:state.debts.find(d=>d.name==='Store card').id,bi:before.totalInterest,ai:after.totalInterest};});
  ok('switching to snowball clears the smallest debt first',strat.s==='snowball'&&strat.first===strat.store,JSON.stringify(strat));
  ok('avalanche cost no more interest than snowball',strat.bi<=strat.ai,JSON.stringify(strat));
+ // the strategy deck: big numbers roll to the new strategy, cards and chart lines follow
+ const deck=await p.evaluate(()=>({kpis:document.querySelectorAll('#plan-live .big-kpis .kpi').length,cards:document.querySelectorAll('.strat-card').length,cur:document.querySelector('.strat-card.is-current')?.dataset.s,pressed:document.querySelector('.strat-switch [aria-pressed=true]')?.dataset.s,lines:document.querySelectorAll('#plan-live .dl-line').length,hl:document.querySelector('#plan-live .dl-line.hl')?.dataset.sid}));
+ ok('the plan shows four big numbers, six strategy cards and a line per strategy',deck.kpis===4&&deck.cards===6&&deck.lines===6&&deck.cur==='snowball'&&deck.pressed==='snowball'&&deck.hl==='snowball',JSON.stringify(deck));
+ const chip=await p.evaluate(()=>{const c=document.querySelector('#plan-live .dl-chip[data-sid="cashflow"]');c.click();const off=document.querySelector('#plan-live .dl-line[data-sid="cashflow"]').classList.contains('off');c.click();return [off,document.querySelector('#plan-live .dl-line[data-sid="cashflow"]').classList.contains('off'),state.debtPlan.strategy];});
+ ok('a chip hides and shows its line without changing the plan',chip[0]===true&&chip[1]===false&&chip[2]==='snowball',JSON.stringify(chip));
+ const slide=await p.evaluate(()=>{const s=document.querySelector('#plan-slider'),before=document.querySelector('#plan-live .big-kpis').dataset.x||document.querySelector('#plan-live .big-kpis .tw-num').dataset.v;s.value=String(+s.max);s.dispatchEvent(new Event('input',{bubbles:true}));return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r({before,after:document.querySelector('#plan-live .big-kpis .tw-num').dataset.v,saved:state.debtPlan.budget,max:+s.max}))));});
+ ok('dragging the budget slider previews a sooner date before saving',+slide.after<+slide.before&&slide.saved===90000,JSON.stringify(slide));
+ await p.evaluate(()=>document.querySelector('#plan-slider').dispatchEvent(new Event('change',{bubbles:true})));await p.waitForTimeout(100);
+ ok('letting go of the slider saves the budget',await p.evaluate(m=>state.debtPlan.budget===m,slide.max));
+ await p.evaluate(()=>{const s=document.querySelector('#plan-slider');s.value='90000';s.dispatchEvent(new Event('change',{bubbles:true}));});await p.waitForTimeout(100);
  await p.evaluate(()=>document.querySelector('[data-action="plan-strategy"][data-s="custom"]').click());await p.waitForTimeout(100);
  await p.evaluate(()=>document.querySelector('[data-action="plan-down"]').click());await p.waitForTimeout(100);
  ok('your own order can be rearranged',await p.evaluate(()=>state.debtPlan.strategy==='custom'&&state.debtPlan.custom.length===3));
@@ -72,7 +82,7 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
   ok(`every screen opens at ${w}px`,!errs.length,errs.join('|'));
   ok(`no sideways scroll at ${w}px on the dashboard`,await p.evaluate(()=>{go('dashboard',true);return document.documentElement.scrollWidth<=innerWidth+1;}));}
  await p.setViewportSize({width:1300,height:900});
- ok('the sample fills the dashboard',await p.evaluate(()=>{go('dashboard',true);return /Debt free in/i.test(document.querySelector('.debt-hero').innerText)&&document.querySelectorAll('.pay-row').length===4;}));
+ ok('the sample fills the dashboard',await p.evaluate(()=>{go('dashboard',true);return /Debt free in/i.test(document.querySelector('.debt-hero').innerText)&&document.querySelectorAll('.pay-row').length===6;}));
  await p.emulateMedia({media:'print'});await p.evaluate(()=>go('plan',true));await p.waitForTimeout(100);
  ok('the plan prints without the sidebar',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail')).display==='none'));
  ok('the app made no network requests',net===0);ok('no page errors',!errs.length,errs.join('|'));

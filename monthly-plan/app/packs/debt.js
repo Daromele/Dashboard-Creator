@@ -2,7 +2,7 @@
    NICHE PACK · Debt Free Plan (debt payoff tracker edition)
    One goal: debt freedom. The debts, payments, payoff strategies, what-if tools and progress
    screens live in the core's Debts module (features.debt). This block gives the edition its
-   identity, its sidebar, its words and the fictional sample household with four debts. The
+   identity, its sidebar, its words and the fictional sample household with six debts. The
    budget screens stay available, switched off by default, to help find extra money.
    =================================================================================== */
 const NICHE = {
@@ -128,7 +128,7 @@ const NICHE = {
     ],
   },
 
-  // the fictional household behind "Explore sample data": a budget and four debts
+  // the fictional household behind "Explore sample data": a budget and six debts
   sample: {
     name: 'Alex', opening: 50000, settings: {},
     note: 'Keep dining within plan: every dollar saved goes to the card.',
@@ -138,23 +138,25 @@ const NICHE = {
     undated: ['groceries', 'transport', 'dining', 'personal'],
     spread: { groups: ['variable'], days: [3, 9, 16, 23, 28], notes: ['Weekly shop', 'Top-up', 'Weekend', 'Weekly shop', 'Month end'], share: { dining: .24, default: .17 } },
     goals: [],
-    // four debts, entered last January, with a year of payments logged against them
+    // six debts, entered last January, with a year of payments logged against them
     extras: (s, { m, year, uid }) => {
       const since = (+year) + '-01-05', D = [
         { id: 'd-visa', name: 'Visa card', kind: 'card', balance: 640000, apr: 2449, min: 3500, minMode: 'card', due: 22, limit: 800000, lender: 'Harbor Bank', color: 1 },
-        { id: 'd-store', name: 'Store card', kind: 'card', balance: 118000, apr: 2899, min: 4000, minMode: 'fixed', due: 9, limit: 150000, color: 2 },
+        { id: 'd-store', name: 'Store card', kind: 'card', balance: 260000, apr: 2899, min: 7500, minMode: 'fixed', due: 9, limit: 300000, color: 2 },
         { id: 'd-car', name: 'Car loan', kind: 'auto', balance: 1420000, apr: 649, min: 34000, minMode: 'fixed', due: 18, lender: 'Credit union', color: 3 },
         { id: 'd-student', name: 'Student loan', kind: 'student', balance: 2280000, apr: 499, min: 21000, minMode: 'fixed', due: 12, color: 4 },
+        { id: 'd-personal', name: 'Personal loan', kind: 'personal', balance: 420000, apr: 1199, min: 16000, minMode: 'fixed', due: 3, color: 5 },
+        { id: 'd-medical', name: 'Medical bill', kind: 'medical', balance: 140000, apr: 0, min: 5000, minMode: 'fixed', due: 27, note: 'Interest-free payment plan', color: 6 },
       ];
       s.debts = D.map(d => ({ ...d, since, start: d.balance }));
-      s.debtPlan = { budget: 120000, strategy: 'avalanche', custom: ['d-store', 'd-visa', 'd-car', 'd-student'], extras: [{ id: 'x-tax', month: (+year + 1) + '-04', amount: 150000, note: 'Tax refund' }] };
+      s.debtPlan = { budget: 150000, strategy: 'avalanche', custom: ['d-store', 'd-medical', 'd-visa', 'd-personal', 'd-car', 'd-student'], extras: [{ id: 'x-tax', month: (+year + 1) + '-04', amount: 150000, note: 'Tax refund' }] };
       // a payment on each due day so far: the plan amounts, as if the household followed it
       const months = []; for (let i = 1; i <= +m.slice(5, 7); i++) months.push(year + '-' + String(i).padStart(2, '0'));
       s.debtLog = [];
       months.forEach((mo, i) => D.forEach(d => {
         const day = String(d.due).padStart(2, '0'), date = mo + '-' + day;
         if (date <= since || date > new Date().toISOString().slice(0, 10)) return;
-        const amt = d.id === 'd-visa' ? 52000 : d.id === 'd-store' ? (i < 4 ? 13000 : 4000) : d.min;
+        const amt = d.id === 'd-visa' ? 52000 : d.id === 'd-store' ? (i < 4 ? 13000 : 7500) : d.min;
         s.debtLog.push({ id: uid(), debt: d.id, date, amount: amt, kind: 'payment' });
       }));
       // a statement balance for the Visa in the spring, and one new charge
