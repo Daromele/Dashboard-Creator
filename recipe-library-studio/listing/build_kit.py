@@ -9,6 +9,9 @@ IMG = {p.stem: 'data:image/jpeg;base64,' + base64.b64encode(p.read_bytes()).deco
 APP = 'Recipe Library Studio'
 SHOP = 'JPS Digital Pages'
 EMAIL = 'hello@jpsdigitalpages.com'
+SITE = 'jpsdigitalpages.com'
+CONTACT = f'{SHOP} · {SITE} · {EMAIL}'
+CONTACT_HTML = f'{SHOP} · <a href="https://www.{SITE}">{SITE}</a> · <a href="mailto:{EMAIL}">{EMAIL}</a>'
 
 THEMES = [  # name, paper, accent, sidebar, highlight
     ('Kiln', '#FBF8F5', '#A4471F', '#2D1B12', '#F2B441'), ('Ledger', '#F6F7F5', '#1F7A5C', '#111C28', '#E3A73B'),
@@ -123,7 +126,7 @@ section{{padding:8px 0 24px}}
 .themes{{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px}}
 .notes{{display:grid;gap:12px;margin-top:14px}}
 .tips{{display:grid;gap:8px;padding-left:18px;color:var(--ink-2);font-size:14px}}
-.foot{{margin-top:28px;font-size:12px;color:var(--ink-3);text-align:center}}
+.foot{{margin-top:28px;font-size:12px;color:var(--ink-3);text-align:center}}.foot a{{color:inherit}}
 @media print {{
   * {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }}
   body {{ background: white !important; }}
@@ -158,7 +161,7 @@ section{{padding:8px 0 24px}}
 <div class="notes">{notices()}</div></section>
 
 <section class="pb"><div class="eyebrow">Page 6</div><h2 class="section-title">Questions</h2>{faq}
-<p class="foot">{APP} by {SHOP} · {EMAIL} · Personal use by the purchaser.</p></section>
+<p class="foot">{APP} by {CONTACT_HTML}<br>Personal use by the purchaser.</p></section>
 </div></body></html>"""
 
 
@@ -172,7 +175,7 @@ def dynamic_guide():
     pages.append(f'<h2>8 color themes</h2><p class="lead">Choose one in Settings &amp; backup. Night and Midnight are dark modes.</p><div class="themes">{theme_cards()}</div>')
     pages.append('<h2>Your toolbox</h2><div class="grid2">' + ''.join(f'<div class="card"><h3>{t}</h3><p>{d}</p></div>' for t, d in TOOLBOX) + f'</div><div class="grid2" style="margin-top:16px"><img class="shot" src="{IMG["shopping"]}" alt=""><img class="shot" src="{IMG["pantry"]}" alt=""></div>')
     pages.append(f'<h2>Printing and important notes</h2><ul class="tips"><li>Press Print / PDF on any recipe, your meal plan or your shopping list, then choose Letter or A4, or Save as PDF.</li><li>For a recipe book: Recipes → Collections → Book. Pick a cover and the recipes.</li><li>No color on the cover? Turn on Background graphics in the print window.</li></ul><div class="notes">{notices()}</div>')
-    pages.append('<h2>Questions</h2>' + ''.join(f'<div class="faq-item"><b>{q}</b><span>{a}</span></div>' for q, a in FAQ) + f'<p class="foot">{APP} by {SHOP} · <a href="mailto:{EMAIL}">{EMAIL}</a></p>')
+    pages.append('<h2>Questions</h2>' + ''.join(f'<div class="faq-item"><b>{q}</b><span>{a}</span></div>' for q, a in FAQ) )
     body = ''.join(f'<section class="page{" active" if i == 0 else ""}" id="p{i+1}">{p}</section>' for i, p in enumerate(pages))
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{APP} · Guide</title>{FONTS}<style>{BASE_CSS}
@@ -196,12 +199,13 @@ h2{{font-size:30px;margin:6px 0 14px}}.lead{{color:var(--ink-2);margin-bottom:16
 .foot{{margin-top:22px;color:var(--ink-3);font-size:13px}}.foot a{{color:var(--accent)}}
 nav{{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px}}
 nav button{{font:inherit;font-weight:700;border-radius:12px;padding:11px 18px;border:1px solid var(--rule);background:#fff;cursor:pointer;color:var(--ink)}}nav button.next{{background:var(--accent);border-color:var(--accent);color:#fff}}nav button:disabled{{opacity:.4;cursor:default}}
+.contact{{margin-top:28px;padding-top:14px;border-top:1px solid var(--rule);text-align:center;font-size:13px;color:var(--ink-3)}}.contact a{{color:inherit}}
 #nav-label{{font-weight:700;color:var(--ink-2);font-size:14px;text-align:center}}
 @media(max-width:700px){{.cards3,.grid2,.themes{{grid-template-columns:1fr 1fr}}.cards3{{grid-template-columns:1fr}}.logo span{{display:none}}.hero h1{{font-size:34px}}h2{{font-size:24px}}}}
 @media(prefers-reduced-motion:reduce){{.page.active{{animation:none}}}}
 </style></head><body>
 <header><div class="logo"><i>R</i><span>{APP}</span></div><div class="dots" id="dots"></div><div class="count" id="count">1 of 7</div></header>
-<main>{body}</main>
+<main>{body}<p class="contact">{CONTACT_HTML}</p></main>
 <nav><button id="prev" onclick="navigate(-1)">← Previous</button><span id="nav-label">Welcome</span><button class="next" id="next" onclick="navigate(1)">Next →</button></nav>
 <script>
 const pages = ['p1','p2','p3','p4','p5','p6','p7'];
@@ -246,7 +250,7 @@ def mockups():
  <p class="sub" {E}>Your recipes, your week and your shopping list, in one calm place.</p></div>
  <div class="hero-shots">{browser('dashboard', '1040px')}{phone('phone-recipe', 250)}</div>
  <div class="pills">{''.join(pill(t) for t in ['Link import', 'Meal planner', 'Shopping list', 'Pantry', 'Cook mode', 'Recipe book PDF'])}</div>
- <div class="foot" {E}>Instant access · Works on computer, tablet and phone · Install it like an app</div></section>'''
+ <div class="foot" {E}>Instant access · Works on computer, tablet and phone · {SITE}</div></section>'''
     s2 = f'''<section class="slide light" id="s2">
  <div class="top"><div class="kicker" {E}>Import</div><h1 class="title" {E}>Paste a link. Get just the recipe.</h1>
  <p class="sub" {E}>Ingredients, steps, times, servings, nutrition and photo, without the ads or the life story.</p></div>
@@ -269,7 +273,7 @@ def mockups():
  <p class="sub" {E}>Recipe cards, meal plans and shopping lists in Letter or A4, and a recipe book with a designer cover.</p></div>
  <div class="books"><img class="paper" src="{IMG['book-cover']}" alt=""><img class="paper p2" src="{IMG['book-page']}" alt="">
  <div class="themes-box"><h3 {E}>8 color themes</h3><div class="sw">{''.join(f'<div><span style="background:{s}"></span><span style="background:{a}"></span><span style="background:{h}"></span><b {E}>{n}</b></div>' for n, p, a, s, h in THEMES)}</div><p {E}>Including two dark modes.</p></div></div>
- <div class="foot" {E}>{SHOP} · {APP}</div></section>'''
+ <div class="foot" {E}>{CONTACT}</div></section>'''
     navbtns = ''.join(f'<button onclick="document.getElementById(&quot;s{i}&quot;).scrollIntoView()">{i}</button>' for i in range(1, 6))
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><title>{APP} · Etsy mockups</title>{FONTS}<style>{BASE_CSS}
 body{{background:#d9d4cf;padding:80px 0 60px}}

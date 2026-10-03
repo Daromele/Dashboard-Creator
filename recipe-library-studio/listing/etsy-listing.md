@@ -56,4 +56,4 @@ https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-I
 
 Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order!
 
-JPS Digital Pages · hello@jpsdigitalpages.com
+JPS Digital Pages · jpsdigitalpages.com · hello@jpsdigitalpages.com
