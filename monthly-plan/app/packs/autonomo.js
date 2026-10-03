@@ -20,7 +20,7 @@ const NICHE = {
   },
   build: { file: 'AutonomoPlan.html' },
   storage: { key: 'jps-autonomo-plan', file: 'autonomo-plan' },
-  editions: { budget: 'Monthly Plan, the household budget edition', business: 'Small Business Income & Expense Tracker (Profit Plan), the business edition', creator: 'Creator Plan, the creator edition' },
+  editions: { budget: 'Monthly Plan, the household budget edition', business: 'Small Business Profit Plan, the business edition', creator: 'Creator Plan, the creator edition' },
   themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
   // records: every income and expense is one record with its evidence; vat: the IVA & IRPF
   // estimate screens, shown only when switched on in Settings

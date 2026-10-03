@@ -4,7 +4,7 @@
 //   node biz_smoke.js [out-dir-for-screenshots]
 const {chromium}=require(require.resolve('playwright',{paths:['/opt/node22/lib/node_modules',__dirname]}));
 const path=require('path'),fs=require('fs');
-const FILE='file://'+path.resolve(__dirname,'../app/SmallBusinessIncomeExpenseTracker.html'),OUT=process.argv[2];
+const FILE='file://'+path.resolve(__dirname,'../app/SmallBusinessProfitPlan.html'),OUT=process.argv[2];
 const SCREENS=['dashboard','pl','budget','activity','invoices','tax','taxlines','mileage','annual','goals','scheduled','calendar','insights','review','settings','guide','import'];
 let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL:',name,extra);}};
 (async()=>{
@@ -19,7 +19,7 @@ let fail=0;const check=(name,cond,extra='')=>{if(!cond){fail++;console.log('FAIL
   await p.goto(FILE);await p.waitForTimeout(300);
   const shot=async name=>{if(OUT){fs.mkdirSync(OUT,{recursive:true});await p.screenshot({path:path.join(OUT,name+'.png'),fullPage:true});}};
   const text=()=>p.locator('#content').innerText();
-  check('title',(await p.title()).startsWith('Small Business Income & Expense Tracker')&&(await p.title()).includes('Profit Plan'));
+  check('title',(await p.title()).startsWith('Small Business Profit Plan'));
   check('nav has business screens',(await p.locator('#nav').innerText()).includes('Schedule C summary'));
   check('no wealth screen',!(await p.locator('#nav').innerText()).includes('Wealth'));
   for(const s of SCREENS){await p.evaluate(s=>go(s),s);await shot('blank-'+s);}

@@ -3,7 +3,7 @@
 // each platform's export format; no real customer data lives in the repository.
 const path=require('path'),{extractImportTo}=require('./extract.js');
 module.exports=({eq,ok})=>{
-  const {Budget:B,CSV,Platforms}=require(extractImportTo(path.join(__dirname,'../app/SmallBusinessIncomeExpenseTracker.html'),path.join(__dirname,'import.business.js')));
+  const {Budget:B,CSV,Platforms}=require(extractImportTo(path.join(__dirname,'../app/SmallBusinessProfitPlan.html'),path.join(__dirname,'import.business.js')));
   const read=(text,file='')=>{const rows=CSV.parse(text,CSV.detect(text).delimiter),h=rows[0].cells,body=rows.slice(1),p=Platforms.detect(h,body,file);
     return {p,conv:p&&Platforms.convert(p,h,body)};};
   const totals=conv=>{const t={};conv.rows.forEach(r=>{t[r.cells[3]]=(t[r.cells[3]]||0)+Math.round(Number(r.cells[2])*100);});return t;};

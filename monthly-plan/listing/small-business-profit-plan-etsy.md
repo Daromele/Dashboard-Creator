@@ -1,4 +1,4 @@
-# Etsy listing: Small Business Income & Expense Tracker (Profit Plan)
+# Etsy listing: Small Business Profit Plan (Income & Expense Tracker)
 
 ## Title (134 of 140 characters)
 
@@ -24,7 +24,7 @@ Small Business Income and Expense Tracker, Profit and Loss, Schedule C, Mileage 
 
 Know exactly what your small business earns, spends and keeps, without a subscription, an account or a spreadsheet.
 
-The Small Business Income & Expense Tracker (Profit Plan) is a complete bookkeeping app in a single file. Open it in your browser, log a sale or an expense in seconds, and see your profit by month, quarter and year. Everything stays private on your own computer.
+Small Business Profit Plan is an income & expense tracker and a complete bookkeeping app in a single file. Open it in your browser, log a sale or an expense in seconds, and see your profit by month, quarter and year. Everything stays private on your own computer.
 
 ━━━━━━━━━━━━━━━━━━━━
 WHAT IT DOES
@@ -61,7 +61,7 @@ Etsy and Shopify sellers · freelancers · side hustles · consultants · makers
 ━━━━━━━━━━━━━━━━━━━━
 WHAT YOU RECEIVE
 ━━━━━━━━━━━━━━━━━━━━
-• 1 HTML app file (Small Business Income & Expense Tracker)
+• 1 HTML app file (Small Business Profit Plan · Income & Expense Tracker)
 • A built-in "How to use" guide inside the app
 
 Download, double-click, and start tracking. Nothing to install.

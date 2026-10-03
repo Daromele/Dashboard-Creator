@@ -2,7 +2,7 @@
 // takes its channel's tag unless it has its own. Synthetic data only.
 const path=require('path'),{extractTo}=require('./extract.js');
 module.exports=({eq,ok})=>{
-  const B=require(extractTo(path.join(__dirname,'../app/SmallBusinessIncomeExpenseTracker.html'),path.join(__dirname,'budget.business.js')));
+  const B=require(extractTo(path.join(__dirname,'../app/SmallBusinessProfitPlan.html'),path.join(__dirname,'budget.business.js')));
   eq('blank business planner has no tags yet', B.blank().tags, []);
   const s=B.blank(),tx=(id,category,amount,extra={})=>({id,date:'2026-09-10',category,amount,note:id,...extra});
   s.tags=[{id:'tg-dig',name:'Digital products'},{id:'tg-don',name:'Donations'}];

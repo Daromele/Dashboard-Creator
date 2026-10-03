@@ -7,7 +7,7 @@ const path=require('path'),fs=require('fs'),{pathToFileURL}=require('url');
 const OUT=process.argv[2];
 const EDITIONS=[
   {file:'MonthlyBudgetPlanner.html',key:'jps-monthly-plan',screens:['dashboard','annual','budget','activity','goals','scheduled','calendar','wealth','insights','review','settings','guide']},
-  {file:'SmallBusinessIncomeExpenseTracker.html',key:'jps-profit-plan',screens:['dashboard','pl','pl:quarter','pl:ytd','pl:year','budget','activity','invoices','tax','taxlines','mileage','annual','goals','scheduled','calendar','insights','review','settings','guide']},
+  {file:'SmallBusinessProfitPlan.html',key:'jps-profit-plan',screens:['dashboard','pl','pl:quarter','pl:ytd','pl:year','budget','activity','invoices','tax','taxlines','mileage','annual','goals','scheduled','calendar','insights','review','settings','guide']},
   {file:'CreatorPlan.html',key:'jps-creator-plan',screens:['dashboard','pl','pl:ytd','budget','activity','invoices','tax','taxlines','annual','goals','scheduled','calendar','insights','review','settings','guide']},
 ];
 const FORMATS=['Letter','A4'],MIN_FILL=0.45;   // page 1 must be at least this full when there is a page 2

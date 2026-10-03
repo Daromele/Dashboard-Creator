@@ -5,7 +5,7 @@ const ok=(n,c,x='')=>{console.log((c?'ok   ':'FAIL ')+n+(c?'':' '+x));if(!c)proc
 // the samples fill the current month up to today; on the 1st it is nearly empty, so run on the 20th
 const MID=new Date(); MID.setDate(20); MID.setHours(12,0,0,0);
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1360,height:900}});await p.clock.setFixedTime(MID);const errs=[];p.on('pageerror',e=>errs.push(e.message));
-const F='file:///home/user/Dashboard-Creator/monthly-plan/app/SmallBusinessIncomeExpenseTracker.html',k='jps-profit-plan';
+const F='file:///home/user/Dashboard-Creator/monthly-plan/app/SmallBusinessProfitPlan.html',k='jps-profit-plan';
 await p.goto(F);await p.evaluate(k=>{localStorage.setItem(k+'-welcome-v1','1');localStorage.setItem(k+'-manual-backup',String(Date.now()));},k);await p.goto(F);await p.waitForTimeout(300);
 await p.evaluate(()=>document.querySelector('[data-action="demo"]').click());await p.waitForTimeout(400);
 await p.evaluate(()=>go('activity'));

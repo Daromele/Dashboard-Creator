@@ -1,5 +1,5 @@
 /* ===================================================================================
-   NICHE PACK · Small Business Income & Expense Tracker, “Profit Plan” (freelancer & small-business edition)
+   NICHE PACK · Small Business Profit Plan, “Income & Expense Tracker” (freelancer & small-business edition)
    Everything that makes this edition a set of business books lives in this block:
    product identity, category groups and their flags (revenue, cost of goods sold,
    overheads, tax set-aside), default categories and their Schedule C lines, the
@@ -9,16 +9,16 @@
 const NICHE = {
   id: 'business',
   product: {
-    name: 'Small Business Income & Expense Tracker', mark: 'P', publisher: 'PROFIT PLAN · JPS DIGITAL PAGES', version: '1.3',
-    tagline: 'Profit Plan · income, expenses & profit', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
-    title: 'Small Business Income &amp; Expense Tracker · Profit Plan', themeColor: '#182635',
-    description: 'Small Business Income & Expense Tracker (Profit Plan) by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%23182635"/><path d="M22 48V16h12a9 9 0 0 1 0 18H22" fill="none" stroke="%23E3A73B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    notice: 'Small Business Income & Expense Tracker (Profit Plan). Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
+    name: 'Small Business Profit Plan', mark: 'B', publisher: 'INCOME & EXPENSE TRACKER', version: '1.3',
+    tagline: 'Income & Expense Tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
+    title: 'Small Business Profit Plan · Income &amp; Expense Tracker', themeColor: '#182635',
+    description: 'Small Business Profit Plan, an income & expense tracker by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%23182635"/><path d="M22 16v32M22 16h11a8 8 0 0 1 0 16H22M22 32h13a8 8 0 0 1 0 16H22" fill="none" stroke="%23E3A73B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    notice: 'Small Business Profit Plan (Income & Expense Tracker). Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
     railNote: '<b>Know what you really made.</b>Log sales and costs. Watch profit. Put tax money aside before it is due.',
-    printTitle: 'Small Business Income & Expense Tracker · Profit Plan',
+    printTitle: 'Small Business Profit Plan · Income & Expense Tracker',
   },
-  build: { file: 'SmallBusinessIncomeExpenseTracker.html' },
+  build: { file: 'SmallBusinessProfitPlan.html' },
   storage: { key: 'jps-profit-plan', file: 'profit-plan' },
   editions: { budget: 'Monthly Plan, the household budget edition', creator: 'Creator Plan, the creator edition', autonomo: 'Autónomo Plan, the Spain edition' },
   themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
