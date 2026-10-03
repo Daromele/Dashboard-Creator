@@ -1,0 +1,29 @@
+BAKEWEEK STUDIO | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open Bakeweek_Studio.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find. It works offline once open.
+
+THREE STEPS
+1. Pantry: add your ingredients with pack sizes, prices and what you have on the shelf. Tick the allergens each one contains.
+2. Recipes: save your tested recipes with yield, hands-on minutes, ingredients and any dough prep the day before.
+3. Orders: try a custom order before you accept it (press N), post a pre-order menu, set up standing orders, or plan a market day.
+Then open This week: what to buy, prep, bake and pack is worked out for you.
+
+SAMPLE
+Explore the sample bakery in the sidebar opens Sunday Crumb, a made-up microbakery with a bread club, a café account and a Saturday market. It is kept separate from your own data and never saved. Return to my bakery brings your own data back.
+
+MORE VIEWS
+Every view can be switched on or off in Settings & backup > Simplify your sidebar, so the app only shows what you use.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one file. Keep it outside the app. To move to another computer, copy the HTML file and your backup across and use Restore backup. Chrome and Edge can also write a dated backup to a folder you choose after every change.
+
+LABELS
+Labels print what you enter. Check the wording against your state or local cottage-food rules before you sell.
+
+HELP
+The How to use screen inside the app answers the common questions. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+
+JPS DIGITAL PAGES
+Website: https://www.jpsdigitalpages.com
+Email: hello@jpsdigitalpages.com

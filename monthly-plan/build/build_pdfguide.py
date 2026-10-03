@@ -49,6 +49,7 @@ td:first-child{font-weight:700;color:var(--plum);white-space:nowrap;width:1.75in
 .foot{position:absolute;left:.7in;right:.7in;bottom:.42in;border-top:1px solid var(--rule);padding-top:.1in;
  display:flex;justify-content:space-between;font-size:7pt;letter-spacing:.03em;color:var(--ink3);text-transform:uppercase}
 .foot .n{color:var(--pop);font-size:8pt}
+.foot .c{text-transform:none;letter-spacing:.01em}
 /* cover */
 .cover{background:var(--plum);color:#fff;padding:.72in .7in}
 .cover .mark{width:.62in;height:.62in;font-size:22pt;background:var(--pop);color:var(--plum)}
@@ -68,7 +69,7 @@ td:first-child{font-weight:700;color:var(--plum);white-space:nowrap;width:1.75in
 PAGES=[]
 def page(label,inner,n):
     PAGES.append(f'<section class="page"><div class="top"><div class="mark">M</div><div class="label">{label}</div></div>{inner}'
-      f'<div class="foot"><span>Monthly Plan | JPS Digital Pages</span><span class="n">{n}</span></div></section>')
+      f'<div class="foot"><span>Monthly Plan | JPS Digital Pages · <span class="c">jpsdigitalpages.com · hello@jpsdigitalpages.com</span></span><span class="n">{n}</span></div></section>')
 
 COVER=f'''<section class="page cover"><div class="mark">M</div>
 <div class="kicker">Your set-it-once guide</div>
@@ -77,7 +78,7 @@ COVER=f'''<section class="page cover"><div class="mark">M</div>
 <div class="intro">A monthly and annual budget in one file. Plan once, let it carry forward, and see the whole year clearly.</div>
 <div class="shot">{img("shot-hero.jpg","pdf-cover","Monthly Plan dashboard")}</div>
 <div class="strap">One file · Works offline · Your own backups</div>
-<div class="ver">JPS DIGITAL PAGES | v1.8</div></section>'''
+<div class="ver">JPS DIGITAL PAGES | v1.8 · jpsdigitalpages.com · hello@jpsdigitalpages.com</div></section>'''
 
 page('Start here',f'''<h1>What you downloaded.</h1>
 <p class="lede">Read this page first. The rest is here whenever you need it.</p>

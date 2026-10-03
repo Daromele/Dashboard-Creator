@@ -59,6 +59,9 @@ Also export one still for the deck.
   with the platform; not tax/financial advice.
 - A buyer guide (PDF, 10-12 pages, from the app's own screenshots) and an up-to-date in-app guide.
 - Download ZIP: the app, START_HERE, LICENSE (and the guide).
+- START_HERE.txt and LICENSE.txt end with the contact block: "JPS DIGITAL PAGES / Website:
+  https://www.jpsdigitalpages.com / Email: hello@jpsdigitalpages.com". The PDF guide has them on the
+  cover and in every page footer (see `monthly-plan/build/build_si_guide.py`).
 
 ## 6. Listing copy and packet
 

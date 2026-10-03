@@ -296,7 +296,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .custom-range label{display:flex;flex-direction:column;font-size:11px;color:var(--ink-3)}
 .custom-range input{height:30px;min-height:30px}
 .print-title{display:none}
-.footer{display:flex;justify-content:space-between;gap:var(--s4);font-size:10.5px;color:var(--ink-3);margin-top:var(--s7);border-top:1px solid var(--rule);padding-top:var(--s4)}
+.footer a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s2) var(--s4);font-size:10.5px;color:var(--ink-3);margin-top:var(--s7);border-top:1px solid var(--rule);padding-top:var(--s4)}
 
 /* ---------- pulse strip: one insight at a time, above the hero ---------- */
 .pulse{display:flex;align-items:center;gap:var(--s4);background:var(--accent-soft);border-radius:var(--r-md);padding:var(--s3) var(--s4);margin-bottom:var(--s4)}
@@ -821,7 +822,7 @@ function render(){const f=captureFocus();
  const hub=hubOf(screen),r=range();
  $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.name||CONFIG.name)}</b>${state.settings.entity?' · '+esc(entityName(state.settings.entity)):''}</span><b>${esc(r.label)}</b></div>`+
   (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${hub[3].map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
-  (VIEWS[screen]||VIEWS.dashboard)()+`<footer class="footer"><span>${esc(CONFIG.name)} · JPS Digital Pages</span><span>${demo?'Sample data':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
+  (VIEWS[screen]||VIEWS.dashboard)()+`<footer class="footer"><span>${esc(CONFIG.name)} · JPS Digital Pages · <a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">jpsdigitalpages.com</a> · <a href="mailto:hello@jpsdigitalpages.com">hello@jpsdigitalpages.com</a></span><span>${demo?'Sample data':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
  afterRender();restoreFocus(f);}
 function afterRender(){
  // KPI tone from the label: money in and good things green, costs red, net/profit in the accent

@@ -156,11 +156,13 @@ P  storage keys and state conventions
 - **Hub tabs** above the page head when the screen belongs to a hub.
 - **Print title**: hidden on screen; in print, the business name (and entity) at the left and the
   period big and bold at the top right.
-- **Footer**: a hairline, then a 10.5px `--ink-3` line: "Product · JPS Digital Pages" left, and
-  "Saved on this device · v1.0" right.
-
-## F. Dashboard building blocks
-
+- **Footer** (every screen): a hairline, then a 10.5px `--ink-3` line: "Product · JPS Digital Pages ·
+  jpsdigitalpages.com · hello@jpsdigitalpages.com" left (website and email as links, underlined, colored
+  like the text), and the save status and version right. It wraps on narrow screens. **Every app and
+  every buyer file carries the website and the email at the bottom** (user rule): the footer, the
+  Settings support line, the last lines of START_HERE.txt and LICENSE.txt, every guide page's footer and
+  the guide's cover. Customer-facing printouts the buyer hands to *their* customers (quotes, labels,
+  menus) never carry JPS contact details.
 - **Pulse strip** (above the hero):
   - Layout: a pale accent bar, a pulsing live dot (`ring` keyframe), one insight at a time (bold
     lead-in, then the fact), and a nav of ‹ arrow · dots (the active dot is an 18 px pill) · › arrow.

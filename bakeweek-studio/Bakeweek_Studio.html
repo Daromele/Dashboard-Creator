@@ -293,7 +293,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .custom-range label{display:flex;flex-direction:column;font-size:11px;color:var(--ink-3)}
 .custom-range input{height:30px;min-height:30px}
 .print-title{display:none}
-.footer{display:flex;justify-content:space-between;gap:var(--s4);font-size:10.5px;color:var(--ink-3);margin-top:var(--s7);border-top:1px solid var(--rule);padding-top:var(--s4)}
+.footer a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s2) var(--s4);font-size:10.5px;color:var(--ink-3);margin-top:var(--s7);border-top:1px solid var(--rule);padding-top:var(--s4)}
 
 /* ---------- pulse strip: one insight at a time, above the hero ---------- */
 .pulse{display:flex;align-items:center;gap:var(--s4);background:var(--accent-soft);border-radius:var(--r-md);padding:var(--s3) var(--s4);margin-bottom:var(--s4)}
@@ -951,7 +952,7 @@ tr.dim td{opacity:.65}
 const C=globalThis.BakeCore;
 const CONFIG={
  name:'Bakeweek Studio', version:'2.1', publisher:'JPS Digital Pages', tagline:'Microbakery planner',
- support:'https://www.etsy.com/shop/JPSDigitalPages',
+ support:'https://www.etsy.com/shop/JPSDigitalPages', website:'https://www.jpsdigitalpages.com', email:'hello@jpsdigitalpages.com',
  storageKey:'jps-bakeweek',       // KEY below is the same key the first (Codex) version saved under
  file:'bakeweek-studio', idb:true, defaultTheme:'fjord',
  themes:['fjord','kiln','linen','sage','ledger','slate','night','midnight'],
@@ -1175,7 +1176,7 @@ function render(){const f=captureFocus();if(typeof autoSync==='function')autoSyn
  const hub=hubOf(screen);
  $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.business)}</b> · Bakeweek Studio</span><b>${esc(['year','markets','money'].includes(screen)?week.slice(0,4):screen==='calendar'?monthName(calMonth()):['orders','standing','customers','labels','recipes','pantry','tools','settings','guide'].includes(screen)?'Printed '+date(today()):'Week of '+weekLabel(week))}</b></div>`+
   (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${tabsOf(hub).map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
-  (VIEWS[screen]||VIEWS.week)()+`<footer class="footer"><span>Bakeweek Studio · JPS Digital Pages</span><span>${demo?'Sample bakery · nothing saved':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
+  (VIEWS[screen]||VIEWS.week)()+`<footer class="footer"><span>Bakeweek Studio · JPS Digital Pages · <a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">jpsdigitalpages.com</a> · <a href="mailto:hello@jpsdigitalpages.com">hello@jpsdigitalpages.com</a></span><span>${demo?'Sample bakery · nothing saved':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
  sortTables();countUp();restoreFocus(f);}
 // every table sorts by its headings (click, Enter or Space); totals rows stay at the bottom; the choice survives re-renders
 const sorts=new Map();
@@ -1496,7 +1497,7 @@ const VIEWS={
    <form id="cat-add-form" class="actions" style="margin-top:12px;flex-wrap:nowrap"><input type="color" class="cat-swatch" name="color" value="${CAT_PALETTE[catList().length%CAT_PALETTE.length]}" aria-label="Color for the new category" title="Color"><input name="name" placeholder="New category, e.g. Breads" maxlength="80" required style="flex:1"><button class="btn primary">Add category</button></form></section>
   <section class="card"><div class="cardhead"><div><h2>Simplify your sidebar</h2><p>Switch extra views on or off. Changes appear immediately.</p></div><span class="pill">${optional.filter(([id])=>!hidden.has(id)).length} of ${optional.length} shown</span></div><div class="toggle-grid">${optional.map(([id,name,icon])=>`<label class="nav-toggle"><input type="checkbox" data-nav-toggle="${id}" ${hidden.has(id)?'':'checked'}><span>${ico(icon)}<b>${name}</b><i aria-hidden="true"></i></span></label>`).join('')}</div></section>
   <section class="card"><div class="cardhead"><div><h2>Getting started</h2><p>A short tour, and a made-up bakery to explore.</p></div>${button(demo?'Return to my bakery':'Open the sample bakery','sample')}</div><div class="row"><div><strong>Show the welcome tour again</strong><small>${CONFIG.welcome.length} short slides, including backups.</small></div>${button('Show tour','tour','small')}</div>
-   <p class="small muted" style="margin-top:12px">Bakeweek Studio ${CONFIG.version} by JPS Digital Pages · support through <a href="${CONFIG.support}" target="_blank" rel="noopener">JPSDigitalPages on Etsy</a> · personal or internal business use by the purchaser. Estimates use your own inputs; it doesn’t take payments or calculate taxes. Labels follow what you enter: check them against your local rules.</p></section>`;},
+   <p class="small muted" style="margin-top:12px">Bakeweek Studio ${CONFIG.version} by JPS Digital Pages · support through <a href="${CONFIG.support}" target="_blank" rel="noopener">JPSDigitalPages on Etsy</a>, <a href="${CONFIG.website}" target="_blank" rel="noopener">jpsdigitalpages.com</a> or <a href="mailto:${CONFIG.email}">${CONFIG.email}</a> · personal or internal business use by the purchaser. Estimates use your own inputs; it doesn’t take payments or calculate taxes. Labels follow what you enter: check them against your local rules.</p></section>`;},
 
  guide(){return pagehead('Help','How to use Bakeweek Studio','From custom orders, regulars and market stalls to one calm week in the kitchen.')+
   `<div class="steps" style="margin-bottom:16px">${[['01 / LIBRARY','Build your library','Add pantry pack prices and stock. Save your tested recipes: yield, hands-on minutes per batch and finishing minutes per piece.',button('Open pantry','go','small','data-go="pantry"')],

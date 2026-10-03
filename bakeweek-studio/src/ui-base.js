@@ -7,7 +7,7 @@
 const C=globalThis.BakeCore;
 const CONFIG={
  name:'Bakeweek Studio', version:'2.1', publisher:'JPS Digital Pages', tagline:'Microbakery planner',
- support:'https://www.etsy.com/shop/JPSDigitalPages',
+ support:'https://www.etsy.com/shop/JPSDigitalPages', website:'https://www.jpsdigitalpages.com', email:'hello@jpsdigitalpages.com',
  storageKey:'jps-bakeweek',       // KEY below is the same key the first (Codex) version saved under
  file:'bakeweek-studio', idb:true, defaultTheme:'fjord',
  themes:['fjord','kiln','linen','sage','ledger','slate','night','midnight'],
@@ -231,7 +231,7 @@ function render(){const f=captureFocus();if(typeof autoSync==='function')autoSyn
  const hub=hubOf(screen);
  $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.business)}</b> · Bakeweek Studio</span><b>${esc(['year','markets','money'].includes(screen)?week.slice(0,4):screen==='calendar'?monthName(calMonth()):['orders','standing','customers','labels','recipes','pantry','tools','settings','guide'].includes(screen)?'Printed '+date(today()):'Week of '+weekLabel(week))}</b></div>`+
   (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${tabsOf(hub).map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
-  (VIEWS[screen]||VIEWS.week)()+`<footer class="footer"><span>Bakeweek Studio · JPS Digital Pages</span><span>${demo?'Sample bakery · nothing saved':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
+  (VIEWS[screen]||VIEWS.week)()+`<footer class="footer"><span>Bakeweek Studio · JPS Digital Pages · <a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">jpsdigitalpages.com</a> · <a href="mailto:hello@jpsdigitalpages.com">hello@jpsdigitalpages.com</a></span><span>${demo?'Sample bakery · nothing saved':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
  sortTables();countUp();restoreFocus(f);}
 // every table sorts by its headings (click, Enter or Space); totals rows stay at the bottom; the choice survives re-renders
 const sorts=new Map();
