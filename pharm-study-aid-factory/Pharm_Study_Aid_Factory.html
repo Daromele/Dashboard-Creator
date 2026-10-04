@@ -1293,7 +1293,8 @@ function addWorksheetCover(P, tDef, pages, brandText) {
     const bx = W / 2 - 3, by = midY + 2.1;
     s.addShape(P.ShapeType.rect, { x: bx, y: by, w: 6, h: 2.1, fill: { color: 'FFFFFF' }, line: { color: C.PR, pt: 1.5 } });
     s.addText('HOW TO USE', { x: bx, y: by + 0.15, w: 6, h: 0.35, fontSize: 13, bold: true, color: C.PR, align: 'center', fontFace: 'Montserrat' });
-    s.addText('• Print at 100% / "Actual Size" on ' + (PAPER_SIZES[P.paper] || PAPER_SIZES.letter).label + ' paper.\n• Work from memory first, then check your notes and textbook.\n• Reprint blank copies for each drug class or exam unit.',
+    const howTo = tDef.howTo || ['Work from memory first, then check your notes and textbook.', 'Reprint blank copies for each drug class or exam unit.'];
+    s.addText(['Print at 100% / "Actual Size" on ' + (PAPER_SIZES[P.paper] || PAPER_SIZES.letter).label + ' paper.', ...howTo].map(t => '• ' + t).join('\n'),
         { x: bx + 0.3, y: by + 0.55, w: 5.4, h: 1.4, fontSize: 11, color: C.TX, fontFace: 'Montserrat', valign: 'top', lineSpacing: 20 });
     if (brandText) s.addText(brandText, { x: 0.5, y: H - 0.8, w: W - 1, h: 0.4, fontSize: 12, color: '999999', align: 'center', fontFace: 'Montserrat' });
 }
@@ -2686,7 +2687,7 @@ function drawDrugProfile(s, d, mode, brandText) {
 }
 
 // ---------- Cheat sheets (landscape) ----------
-const CHEAT_ROWS = 7;
+const CHEAT_ROWS = 9;
 function cheatPages(ds) {
   const fams = [];
   ds.forEach(d => { const f = d.cat || d.class; let g = fams.find(x => x.name === f); if (!g) fams.push(g = { name: f, drugs: [] }); g.drugs.push(d); });
@@ -2794,14 +2795,20 @@ const WORKSHEETS = {
     qty: () => { const n = cheatPages(wsSource().data).pages.length; return `<option value="${n}" selected>${n} pages (all drug families)</option>`; },
     render: async (P, c) => {
       const src = wsSource(); const { fams, pages } = cheatPages(src.data);
-      if (c.productPages) addWorksheetCover(P, { ...c.tDef, title: `${c.tDef.title}: ${src.title.replace(/^\d+ - /, '')}` }, pages.length, c.brandText);
+      // the source deck's name without "Flashcards", since this product is tables
+      const name = src.title.replace(/^\d+ - /, '').replace(/\s*Flashcards$/i, '');
+      const bySystem = src.key.startsWith('top200');
+      if (c.productPages) addWorksheetCover(P, { ...c.tDef, title: `${c.tDef.title}:\n${name}`,
+        tags: [bySystem ? 'By Body System' : 'By Drug Family', 'Landscape Tables'],
+        howTo: ['Grouped by ' + (bySystem ? 'body system' : 'drug family') + ': class, uses, MOA, side effects and nursing notes.',
+                'Cover a column with paper and quiz yourself, then check.'] }, pages.length, c.brandText);
       const first = (c.productPages ? 1 : 0) + 2; // cover + contents come first
       const pageOf = {}; pages.forEach((pg, i) => { if (!(pg.family in pageOf)) pageOf[pg.family] = first + i; });
       fams.forEach(f => getDarkClassColor(f.name)); // stable colours in family order
-      const toc = P.addSlide(); toc.background = { color: 'FFFFFF' }; drawCheatContents(toc, fams, pageOf, src.title);
+      const toc = P.addSlide(); toc.background = { color: 'FFFFFF' }; drawCheatContents(toc, fams, pageOf, name);
       for (let i = 0; i < pages.length; i++) {
         sp(10 + (i / pages.length) * 85, `Cheat sheet ${i + 1} of ${pages.length}…`); await tick();
-        const s = P.addSlide(); s.background = { color: 'FFFFFF' }; drawCheatPage(s, pages[i], src.title, c.brandText);
+        const s = P.addSlide(); s.background = { color: 'FFFFFF' }; drawCheatPage(s, pages[i], name, c.brandText);
       }
     }
   },
