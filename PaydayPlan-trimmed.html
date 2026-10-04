@@ -605,6 +605,11 @@ table{border-collapse:collapse;width:100%}
 .catlimit span,.catnote span{display:block;font-size:.75rem;color:var(--ink-3);margin-top:5px}
 
 /* ---- Projection ---- */
+.tour-bill>*:first-child{flex:1.5 1 0}.tour-bill .field{margin-bottom:8px}
+.hero-start .figure-q{font-size:clamp(1.9rem,4vw,2.6rem);line-height:1.1;color:#fff}
+.btn-gold{background:var(--pop);color:var(--bold);border-color:transparent;font-weight:650}
+.empty-preview svg{width:100%;height:110px;display:block;color:var(--ink-3);opacity:.35;margin-bottom:14px}
+.tile-tap{font:inherit;text-align:left;cursor:pointer;border:1px solid var(--rule)}.tile-tap:hover{border-color:var(--ink-3)}
 .proj{width:100%;height:220px;display:block;overflow:visible}
 .pc{display:grid;grid-template-columns:52px 1fr;grid-template-rows:auto 26px;margin:6px 4px 0 0}
 .pc-y{position:relative;grid-row:1}
@@ -857,7 +862,7 @@ dialog.tour:not([open]){display:none!important}
   letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;
   background:var(--paper);color:var(--ink-3);border:1px solid var(--rule)}
 .setcard.toggle.on .toggle-state{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.setcard.toggle:not(.on){opacity:.62}
+.setcard.toggle:not(.on) .rowico{opacity:.55}
 .setcard.toggle:not(.on):hover{opacity:1}
 
 a.setcard{text-decoration:none;color:inherit}
@@ -894,6 +899,9 @@ a.setcard span{color:var(--ink-3)}
   .topbar-right .chip{display:none}
   .page{padding:20px 16px 60px}
   .cols-2,.cols-even,.cols-3{grid-template-columns:minmax(0,1fr)}
+  /* On one column, Today reads number, then bills before payday, then the log */
+  #s-today .cols-2>.stack{display:contents}
+  #s-today .today-feed{order:9}
   .hero{padding:24px 20px 26px;border-radius:var(--r-md)}
   .pagehead h1{font-size:1.3rem}
   .cal-day{min-height:76px;padding:6px}
@@ -1029,7 +1037,7 @@ a.setcard span{color:var(--ink-3)}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <form class="qa" id="qa-form" autocomplete="off">
-        <input id="qa-input" placeholder="Log spending or income — coffee 4.50, or +250 bonus" aria-label="Add spending or income"
+        <input id="qa-input" placeholder="Spent something? e.g. coffee 4.50  ·  +250 for money in" aria-label="Add spending or income"
                enterkeyhint="done" maxlength="90">
         <button class="qa-go" type="submit" id="qa-go" aria-label="Add" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -1340,8 +1348,11 @@ function hasAnything(){
 /* The reminder stands until a file is actually chosen. We cannot tell
    whether the folder they picked syncs to the cloud — only that a file
    is linked — so the copy asks for a synced one rather than claiming it. */
+/* Settled in: past setup and actually using it. Backup talk waits until
+   then, so day one is about the number, not about files. */
+function settledIn(){ return state.log.length >= 5 && state.income.length > 0; }
 function needsBackupSetup(){
-  return canPick() && linked.state === "off" && hasAnything();
+  return canPick() && linked.state === "off" && settledIn();
 }
 function backupIsStale(){
   /* Only a *working* link counts. One that needs reconnecting is
@@ -1379,7 +1390,7 @@ function blankState(){
     catOrder: [],        /* the order slots are tested in, so you decide ties */
     catCount: 6,         /* how many of the twelve slots are switched on */
     calTabs: "side",     /* month dividers: "side" | "bottom" | "off" */
-    off: {calendar:true, insights:true, review:true, sink:true},  /* sections switched off (extras start hidden) — id -> true */
+    off: {calendar:true, insights:true, review:true, sink:true, goals:true, debts:true},  /* sections switched off (extras start hidden) — id -> true */
     log:    [],          /* {id,ts,date,name,amount,dir:"out"|"in",goal?} */
     cats:   {},          /* lowercased name -> category id, user overrides only */
     touched: null        /* last day the user logged anything */
@@ -1721,7 +1732,9 @@ function missedBills(){
   const today = day.today();
   const out = [];
   for (const b of outgoings()){
-    for (const d of occurrencesIn(b, day.add(today, -60), day.add(today, -1))){
+    /* Nothing is "missed" from before the bill was added to the app */
+    const since = b.added && b.added > day.add(today, -60) ? b.added : day.add(today, -60);
+    for (const d of occurrencesIn(b, since, day.add(today, -1))){
       if ((b.paid || []).includes(d)) continue;
       if ((b.skipped || []).includes(d)) continue;
       out.push({ id:b.id, name:b.name, amount:expectedAmount(b), date:d, varies:!!b.varies });
@@ -2386,6 +2399,7 @@ function drawBackupChip(){
     el.innerHTML = `<span class="chip-dot warn"></span>Backup paused`;
     el.title = L.name + " needs reconnecting";
   } else {
+    if (!settledIn()){ el.hidden = true; return; }
     el.innerHTML = `<span class="chip-dot off"></span>No backup`;
     el.title = "Choose a file and every change is written to it automatically";
   }
@@ -2448,6 +2462,9 @@ function drawToday(r){
      screen. So the panel falls back to the last few entries whenever
      today is empty: still useful, and the column keeps its weight. */
   const feed = todayRows.length ? todayRows : state.log.slice(0, 6);
+  const weekFrom = day.add(r.today, -6);
+  const week = state.log.filter(e => e.dir === "out" && e.date >= weekFrom && e.date <= r.today)
+    .reduce((s, e) => s + e.amount, 0);
 
   let sub;
   if (!r.hasPlan) sub = "Add your pay and your bills and this becomes a real number.";
@@ -2506,6 +2523,16 @@ function drawToday(r){
 
     <div class="cols cols-2">
       <div class="stack">
+        ${!r.hasPlan ? `
+        <div class="hero hero-start">
+          <span class="eyebrow">Safe to spend until payday</span>
+          <span class="figure figure-q">Let's find your number</span>
+          <p class="sub">Your balance, your next payday, and the bills before it. About a minute.</p>
+          <div class="facts" style="margin-top:16px">
+            <button class="btn btn-gold" data-act="tour">Set up my number</button>
+            <button class="fact tap" data-act="demo">See an example</button>
+          </div>
+        </div>` : `
         <div class="hero">
           <span class="eyebrow">Safe to spend until payday</span>
           <span class="figure ${low ? "is-low" : ""}" data-count="${Math.max(0, r.safe)}" data-fmt="big">${esc(money.fmtBig(Math.max(0, r.safe)))}</span>
@@ -2520,16 +2547,16 @@ function drawToday(r){
           ${r.hasPlan ? `<div class="facts" style="margin-top:12px">
             <button class="fact tap pop" data-sheet="afford">${ICON.help}Can I afford this?</button>
           </div>` : ""}
-        </div>
+        </div>`}
 
-        <div class="kpis">
-          ${kpi("Money in, this month", money.fmtBig(now.in),
-                delta(now.in, before.in, true) + " vs last month")}
-          ${kpi("Money out, this month", money.fmtBig(now.out),
-                delta(now.out, before.out, false) + " vs last month")}
-          ${kpi("Net", (now.in - now.out >= 0 ? "+" : "") + money.fmtBig(now.in - now.out),
-                now.moved ? esc(money.fmt(now.moved)) + " of it put aside" : "across " + now.count + " entries")}
-        </div>
+        ${r.hasPlan ? `<div class="kpis">
+          ${kpi("Days until payday", r.payday ? String(Math.max(0, day.diff(r.today, r.payday))) : "—",
+                r.payday ? esc(day.long(r.payday)) : "add your pay to see this")}
+          ${kpi("Bills before then", money.fmtBig(r.owing || 0),
+                upcoming.length ? upcoming.length + (upcoming.length === 1 ? " bill" : " bills") + " still to go" : "all clear")}
+          ${kpi("Spent this week", money.fmtBig(week),
+                week ? "logged in the last 7 days" : "nothing logged yet")}
+        </div>` : ""}
 
         ${missed.length ? `
         <div class="panel">
@@ -2560,7 +2587,7 @@ function drawToday(r){
           </li></ul>
         </div>` : ""}
 
-        <div class="panel">
+        <div class="panel today-feed">
           <div class="panel-head">
             <h2>${todayRows.length ? "Logged today" : "Recently"}</h2>
             <button class="linkish" data-go="log">All activity</button></div>
@@ -2591,7 +2618,7 @@ function drawToday(r){
               <span class="row-amt">${esc(money.fmt(d.amount))}</span>
               <button class="tick" data-pay="${esc(d.id)}" data-date="${esc(d.date)}" aria-label="Mark ${esc(d.name)} paid">${ICON.check}</button>
             </li>`).join("")}</ul>`
-            : `<div class="empty"><p>Nothing due before payday.</p></div>`}
+            : `<div class="empty"><p>${r.hasPlan ? "Nothing due before payday." : "Your bills before payday will show here."}</p></div>`}
         </div>
 
         ${shown("sink") && r.funds && r.funds.length ? `
@@ -2626,12 +2653,6 @@ function drawToday(r){
           }).join("")}</ul>
         </div>` : ""}
 
-        ${!r.hasPlan ? `
-        <div class="empty">
-          <h3>Two things and you're set up</h3>
-          <p>When you get paid, and what goes out on its own. Everything else is optional.</p>
-          <button class="btn btn-primary" data-go="plan">Set that up</button>
-        </div>` : ""}
       </div>
     </div>`;
 }
@@ -2642,9 +2663,15 @@ function drawToday(r){
 function drawOutlook(r){
   if (!r.hasPlan){
     $("#s-outlook").innerHTML = head("Next 90 days", "Until payday", "") +
-      `<div class="empty"><h3>Nothing to project yet</h3>
-       <p>Add your pay and your bills and this draws the road ahead — including the day it gets tightest.</p>
-       <button class="btn btn-primary" data-go="plan">Set that up</button></div>`;
+      `<div class="empty empty-preview">
+         <svg viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true">
+           <path d="M0 70 L60 76 L90 40 L150 52 L200 60 L230 90 L260 95 L290 45 L360 58 L420 66 L450 30 L520 44 L600 52"
+                 fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"/>
+</svg>
+         <h3>See your balance day by day until payday, and beyond</h3>
+         <p>Add your balance, pay and bills, and this draws every payday and bill ahead of you,
+            and flags the tightest day before it happens.</p>
+         <button class="btn btn-primary" data-act="tour">Set up my number</button></div>`;
     return;
   }
   const P = project(90);
@@ -2659,7 +2686,7 @@ function drawOutlook(r){
   const rw = runway(), trend = runwayTrend(6);
 
   $("#s-outlook").innerHTML = `
-    ${head("Next 90 days", "Until payday",
+    ${head(r.payday ? "Next payday · " + day.long(r.payday) : "Next 90 days", "Until payday",
       "Your balance walked forward one day at a time — every payday, every bill in the plan, and what your own day-to-day living has actually been costing.",
       `<button class="btn" data-sheet="afford">${ICON.help}Can I afford this?</button>`)}
 
@@ -2870,15 +2897,13 @@ function drawPlan(r){
   const monthlyOut = outgoings().reduce((s,b) => s + perMonth(b), 0);
 
   $("#s-plan").innerHTML = `
-    ${head("Your plan", "Bills & pay", "Set this once. The number on Today looks after itself from here.",
-      `<button class="btn" data-sheet="income">${ICON.plus}Add pay</button>
-       <button class="btn" data-sheet="bill">${ICON.plus}Add bill</button>`)}
+    ${head("Your plan", "Bills & pay", "Set this once. The number on Today looks after itself from here.", "")}
 
     <div class="tiles" style="margin-bottom:22px">
       <div class="tile"><span>Coming in, a month</span><b>${esc(money.fmt(monthlyIn))}</b></div>
       <div class="tile"><span>Going out, a month</span><b>${esc(money.fmt(monthlyOut))}</b></div>
       <div class="tile"><span>Left over</span><b>${esc(money.fmt(monthlyIn - monthlyOut))}</b></div>
-      <div class="tile"><span>Cushion held back</span><b>${esc(money.fmt(state.buffer))}</b></div>
+      <button class="tile tile-tap" data-sheet="buffer" title="Change your cushion"><span>Cushion held back · edit</span><b>${esc(money.fmt(state.buffer))}</b></button>
     </div>
 
     <div class="cols cols-even">
@@ -3564,24 +3589,15 @@ function drawSettings(){
   $("#s-settings").innerHTML = `
     ${head("Settings", "Settings & data", "")}
 
-    <div class="cols cols-even" style="margin-bottom:22px">
-      <div class="panel">
-        <div class="panel-head">${secHead("compass","Getting started")}</div>
-        <div class="setgrid">
-          ${setCard('data-act="tour"', "help", "How this works",
-            "The six-step guide, any time you want it")}
-          ${setCard('data-sheet="cats"', "tags", "Categories",
-            "Rename them, set the words that fill them, run up to " + CAT_MAX)}
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head">${secHead("wallet","Your money")}</div>
-        <div class="setgrid">
-          ${setCard('data-sheet="balance"', "coins", "Money in hand", money.fmt(state.balance))}
-          ${setCard('data-sheet="buffer"', "umbrella", "Cushion",
-            state.buffer ? money.fmt(state.buffer) + " held back" : "Not set")}
-          ${setCard('data-sheet="currency"', "globe", "Currency", state.symbol || state.currency)}
-        </div>
+    <div class="panel" style="margin-bottom:22px">
+      <div class="panel-head">${secHead("wallet","Your money")}</div>
+      <div class="setgrid">
+        ${setCard('data-sheet="balance"', "coins", "Money in hand", money.fmt(state.balance))}
+        ${setCard('data-sheet="buffer"', "umbrella", "Cushion",
+          state.buffer ? money.fmt(state.buffer) + " held back" : "Not set")}
+        ${setCard('data-sheet="currency"', "globe", "Currency", state.symbol || state.currency)}
+        ${setCard('data-act="tour"', "help", "Run setup again",
+          "Balance, pay and bills in about a minute")}
       </div>
     </div>
 
@@ -3593,13 +3609,15 @@ function drawSettings(){
         ${setCard('data-act="csv"', "table", "Import a bank statement",
           "A CSV of past transactions — your balance won't change")}
         ${setCard('data-act="print"', "print", "Print a statement",
-          "A one-page summary of the period on Insights")}
+          "This month on one page, to print or save as PDF")}
         ${setCard('data-act="link"', "link", "Keep a file up to date", linked.status())}
         ${setCard('data-act="restore"', "history", "Go back a day",
           snaps ? snaps + " earlier " + (snaps === 1 ? "copy" : "copies") + " on this device"
                 : "Nothing earlier yet")}
         ${setCard('data-act="demo"', "spark", "Load example data",
           state.demo ? "Currently showing the example" : "Nine months of a made-up plan")}
+        ${setCard('data-sheet="cats"', "tags", "Categories",
+          "Rename them, or set the words that sort your spending")}
         ${setCard('data-sheet="wipe"', "trash", "Start again", "Clear everything", true)}
       </div>
       <p class="field-note" style="margin-top:14px">${storageOK
@@ -3627,7 +3645,7 @@ function drawSettings(){
               : o.id === "sink" ? "umbrella" : o.id]}</span>
             <b>${esc(o.label)}</b>
             <span>${esc(o.note)}</span>
-            <span class="toggle-state">${shown(o.id) ? "On" : "Off"}</span>
+            <span class="toggle-state">${shown(o.id) ? "On" : "Off · tap to turn on"}</span>
           </button>`).join("")}
       </div>
     </div>
@@ -3915,6 +3933,7 @@ const SHEETS = {
           next: d.next || day.today(),
           cycle: d.cycle || "monthly",
           varies: d.varies === "varies",
+          added: it ? it.added : day.today(),
           history: it ? (it.history || []) : [],
           skipped: it ? (it.skipped || []) : [],
           paid: it ? (it.paid || []) : []
@@ -3990,7 +4009,7 @@ const SHEETS = {
         but the balance goes down as you pay it.</p>`,
       d => {
         const rec = {
-          id: it ? it.id : uid(),
+          id: it ? it.id : uid(), added: it ? it.added : day.today(),
           name: (d.name || "").trim() || "Debt",
           owed: Math.max(0, money.parse(d.owed || "0")),
           amount: money.parse(d.amount),
@@ -4763,72 +4782,80 @@ document.addEventListener("change", e => {
    ============================================================ */
 const TOUR = [
   {
-    art: () => `<span class="figure">${esc(money.fmtBig(Math.max(0, reckon().safe)))}</span>`,
-    title: "One number, not a spreadsheet",
-    text: `<p>Payday Plan answers a single question: <b>how much can I spend before I next get paid?</b></p>
-           <p>It takes what you have, subtracts the bills still to come and the cushion you hold back,
-              and shows what's left. Everything else in here feeds that number.</p>
-           <p>Six short steps. You can leave at any point and finish later from Settings.</p>`,
+    art: () => `<span class="figure">Safe to spend</span>`,
+    title: "Know what's safe to spend until payday",
+    text: `<p>Payday Plan answers one question: <b>how much can I spend before I next get paid,
+              without missing a bill?</b></p>
+           <p>Three quick questions and you'll see your number. About a minute.</p>`,
     action: () => ({
-      label: "Show me an example",
+      label: "Show me an example first",
       run: () => { loadDemo(); closeTour(); }
     })
   },
   {
     icon: "today",
-    title: "How much have you got?",
-    text: `<p>The total across the accounts you actually spend from. One number is enough —
-              there are no accounts to set up.</p>`,
-    form: () => fMoney("balance", "Money in hand right now", state.balance),
-    save: d => { const c = money.parse(d.balance || "0"); state.balance = c; }
+    title: "How much do you have right now?",
+    text: `<p>The total in the accounts you spend from. One number is enough.</p>`,
+    form: () => `
+      ${fMoney("balance", "Money in hand right now", state.balance || null)}
+      ${fMoney("buffer", "Cushion to keep untouched (optional)", state.buffer || null,
+               "Money the app keeps back so you never hit zero. e.g. 50.00")}`,
+    save: d => {
+      if ((d.balance || "").trim()) state.balance = money.parse(d.balance);
+      if ((d.buffer || "").trim()) state.buffer = Math.max(0, money.parse(d.buffer));
+    }
   },
   {
     icon: "plan",
-    title: "When do you get paid, and what goes out?",
-    text: `<p>Add your pay and the bills that leave on their own. That's the whole setup —
-              you can do it now or from <b>Plan</b> later.</p>
-           <p>Bills that move around, like electricity, can be marked <b>“it varies”</b> and the
-              forecast follows what they actually cost.</p>`,
-    form: () => `
+    title: "When do you next get paid?",
+    text: `<p>Your usual take-home pay and the date it lands.</p>`,
+    form: () => {
+      const had = state.income.find(i => i.fromTour);
+      return `
       <div class="field-row">
-        ${fMoney("pay", "Your usual pay", null)}
-        ${fDate("paynext", "Next payday", day.add(day.today(), 7))}
+        ${fMoney("pay", "Take-home pay", had ? had.amount : null)}
+        ${fDate("paynext", "Next payday", had ? had.next : day.add(day.today(), 7))}
       </div>
-      ${fCycle("monthly")}
-      <p class="field-note">Leave the amount blank to skip this.</p>`,
+      ${fCycle(had ? had.cycle : "biweekly")}`;
+    },
     save: d => {
       let cents = 0;
       try { cents = money.parse(d.pay || "0"); } catch { cents = 0; }
+      state.income = state.income.filter(i => !i.fromTour);
       if (cents > 0) state.income.push({
-        id: uid(), name: "Pay", amount: cents,
-        next: d.paynext || day.today(), cycle: d.cycle || "monthly", history: []
+        id: uid(), name: "Pay", amount: cents, fromTour: true,
+        next: d.paynext || day.today(), cycle: d.cycle || "biweekly", history: []
       });
     }
   },
   {
     icon: "log",
-    title: "Logging takes one line",
-    text: `<p>Type it in the box at the top: <code>coffee 4.50</code>. That's the whole job —
-              the name and the amount.</p>
-           <p>Add <code>+</code> for money coming in (<code>+120 refund</code>), or a day word
-              to put it in the past: <code>lunch 12 yesterday</code>, <code>petrol 40 friday</code>.</p>
-           <p>Categories are guessed from the name. You never have to file anything.</p>`
-  },
-  {
-    icon: "outlook",
-    title: "The cushion, and the road ahead",
-    text: `<p>A <b>cushion</b> is money the app pretends you don't have, so you never scrape zero.
-              Set it in Settings; it comes straight off the headline number.</p>
-           <p><b>Outlook</b> walks your balance forward 90 days through every payday and bill,
-              including what your day-to-day living actually costs, and marks the tightest day.</p>`
-  },
-  {
-    icon: "check",
-    title: "Keep it somewhere safe",
-    text: `<p>Your plan lives in this browser. Clearing site data would take it with it.</p>
-           <p>Pick a file in a folder that syncs — Dropbox, Drive, OneDrive — and every change is
-              written to it automatically. The bar at the top of Today tells you it's working.</p>`,
-    action: () => canPick() ? { label: "Choose a backup file", run: () => linked.choose() } : null
+    title: "Which bills come out before then?",
+    text: `<p>Rent, phone, car, subscriptions: anything that leaves on its own.
+              Add the main ones now; you can add more any time in <b>Bills &amp; pay</b>.</p>`,
+    form: () => {
+      const had = state.bills.filter(b => b.fromTour);
+      const row = i => {
+        const b = had[i];
+        return `<div class="field-row tour-bill">
+          ${fText("bn" + i, i ? "" : "Bill", b ? b.name : "", ["Rent", "Phone", "Car payment"][i])}
+          ${fMoney("ba" + i, i ? "" : "Amount", b ? b.amount : null)}
+          ${fDate("bd" + i, i ? "" : "Due", b ? b.next : day.add(day.today(), 3 + i * 2))}
+        </div>`;
+      };
+      return [0, 1, 2].map(row).join("");
+    },
+    save: d => {
+      state.bills = state.bills.filter(b => !b.fromTour);
+      for (const i of [0, 1, 2]){
+        let cents = 0;
+        try { cents = money.parse(d["ba" + i] || "0"); } catch { cents = 0; }
+        if (cents <= 0) continue;
+        state.bills.push({ id: uid(), name: (d["bn" + i] || "").trim() || "Bill", amount: cents,
+          next: d["bd" + i] || day.today(), cycle: "monthly", varies: false, fromTour: true, added: day.today(),
+          history: [], skipped: [], paid: [] });
+      }
+    }
   }
 ];
 
@@ -4862,7 +4889,7 @@ function drawTour(){
   $("#tour-form").innerHTML = s.form ? `<form id="tour-inner" autocomplete="off" novalidate>${s.form()}</form>` : "";
   $("#tour-dots").innerHTML = TOUR.map((_, i) => `<i class="${i === tourAt ? "on" : ""}"></i>`).join("");
   $("#tour-back").hidden = tourAt === 0;
-  $("#tour-next").textContent = last ? "Start using it" : "Next";
+  $("#tour-next").textContent = last ? "See my number" : "Next";
 
   /* The backup slide offers the real action inline */
   const act = s.action && s.action();
