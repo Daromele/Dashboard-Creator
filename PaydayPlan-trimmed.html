@@ -2641,7 +2641,7 @@ function drawToday(r){
    this screen is a stat tile or a table row, not a second scale. */
 function drawOutlook(r){
   if (!r.hasPlan){
-    $("#s-outlook").innerHTML = head("Outlook", "The next 90 days", "") +
+    $("#s-outlook").innerHTML = head("Next 90 days", "Until payday", "") +
       `<div class="empty"><h3>Nothing to project yet</h3>
        <p>Add your pay and your bills and this draws the road ahead — including the day it gets tightest.</p>
        <button class="btn btn-primary" data-go="plan">Set that up</button></div>`;
@@ -2659,7 +2659,7 @@ function drawOutlook(r){
   const rw = runway(), trend = runwayTrend(6);
 
   $("#s-outlook").innerHTML = `
-    ${head("Outlook", "The next 90 days",
+    ${head("Next 90 days", "Until payday",
       "Your balance walked forward one day at a time — every payday, every bill in the plan, and what your own day-to-day living has actually been costing.",
       `<button class="btn" data-sheet="afford">${ICON.help}Can I afford this?</button>`)}
 
@@ -2870,7 +2870,7 @@ function drawPlan(r){
   const monthlyOut = outgoings().reduce((s,b) => s + perMonth(b), 0);
 
   $("#s-plan").innerHTML = `
-    ${head("Your plan", "Plan", "Set this once. The number on Today looks after itself from here.",
+    ${head("Your plan", "Bills & pay", "Set this once. The number on Today looks after itself from here.",
       `<button class="btn" data-sheet="income">${ICON.plus}Add pay</button>
        <button class="btn" data-sheet="bill">${ICON.plus}Add bill</button>`)}
 
