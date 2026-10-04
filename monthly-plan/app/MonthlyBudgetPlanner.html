@@ -1412,6 +1412,7 @@ table.tbl-edit td small{display:block}table.tbl-edit select.ap-acct-cur{width:84
 @media(max-width:620px){.strat-grid{grid-template-columns:1fr}.strat-switch{grid-template-columns:1fr 1fr}.strat-switch button:last-child{grid-column:span 2}.gantt-row{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.gantt-row .gantt-track{grid-column:1/-1;order:3}.gantt-total .gantt-track{display:none}.deck-amt input{width:110px}.dl-chip{padding:4px 10px 4px 8px}}
 @media(prefers-reduced-motion:reduce){.dl-draw{animation:none;stroke-dasharray:none}.strat-card{transition:none}}
 @media print{.dl-draw{animation:none;stroke-dasharray:none}.strat-card{break-inside:avoid}.plan-deck input[type=range]{display:none}}
+.debt-hero.hero-stack{grid-template-columns:1fr;gap:var(--s5)}.hero-stack .hero-side{border-left:0;border-top:1px solid #ffffff1f;padding:var(--s5) 0 0}.hero-stack .hero-donut{max-width:440px;margin:0 auto}.debt-hero:not(.hero-stack){grid-template-columns:minmax(0,1fr) minmax(380px,440px)}
 .hero-donut{width:100%;min-width:0}.hero-donut svg{display:block;width:100%;height:auto;overflow:visible}
 .hd-track{fill:none;stroke:color-mix(in srgb,var(--on-bold) 10%,transparent);stroke-width:24}
 .hd-seg{fill:none;stroke-width:24;cursor:pointer;outline:none;transition:stroke-width .15s ease,opacity .15s ease;animation:hd-in .9s cubic-bezier(.3,.7,.2,1) both}
@@ -5970,14 +5971,14 @@ const Debts=(()=>{
   const S=M.sim,free=S.freeMonth,left=S.count,pct=M.startTotal?Math.round(M.paidOff/M.startTotal*100):0;
   const next=M.rows.filter(r=>r.d.due&&r.now>0).map(r=>{const t=today(),day=String(Math.min(r.d.due,Budget.days(thisMonth()))).padStart(2,'0');let date=thisMonth()+'-'+day;if(date<t||r.paidMonth>=planned(M,r.d.id)&&planned(M,r.d.id)>0)date=Debt.addMonths(thisMonth(),1)+'-'+String(Math.min(r.d.due,28)).padStart(2,'0');return {r,date};}).sort((a,b)=>a.date.localeCompare(b.date))[0];
   const freeTxt=S.never?'Not yet':monthName(free);
-  const hero=`<section class="hero debt-hero"><div><div class="eyebrow">${S.never?'Your plan doesn’t clear the debt yet':'Debt free in'}</div><h2 class="hero-big" style="--n:${freeTxt.length+1}">${esc(freeTxt)}</h2><p>${S.never?'At this budget the balances grow faster than they fall. Raise the monthly budget on the Payoff plan.':`${span(left)} from now, paying ${fmt(M.plan.budget)} a month with the ${esc(Debt.STRATEGIES.find(s=>s[0]===M.plan.strategy)?.[1]||'')} method.`}</p>
+  const hero=`<section class="hero debt-hero${chartWidth<900?' hero-stack':''}"><div><div class="eyebrow">${S.never?'Your plan doesn’t clear the debt yet':'Debt free in'}</div><h2 class="hero-big" style="--n:${freeTxt.length+1}">${esc(freeTxt)}</h2><p>${S.never?'At this budget the balances grow faster than they fall. Raise the monthly budget on the Payoff plan.':`${span(left)} from now, paying ${fmt(M.plan.budget)} a month with the ${esc(Debt.STRATEGIES.find(s=>s[0]===M.plan.strategy)?.[1]||'')} method.`}</p>
    <div class="debt-progress" role="img" aria-label="${pct}% of your debt paid off"><i style="width:${pct}%"></i></div><small class="hero-note">${pct}% paid off since you started · ${fmt(M.paidOff)} of ${fmt(M.startTotal)}</small><div class="hero-foot">${button('See the plan →','go-plan','pop small')}${button('Log a payment','debt-pay','quiet small')}</div></div>`+
    `<div class="hero-side">${heroDonut(M)}</div></section>`;
   const saved=M.minOnly.never?null:M.minOnly.totalInterest-S.totalInterest;
   const kp=`<div class="kpis kpis-lead">${kpi('Total owed',M.total,`${plural(M.rows.filter(r=>r.now>0).length,'debt')} · ${pctTxt(avgApr(M))} average rate`,'tags')}${kpi('Paid off so far',M.paidOff,`${pct}% of what you owed`,'check','pos')}${kpi('Interest this month',M.interestNow,'What your debt costs you now','spark','warn')}${kpi('Interest left to pay',S.totalInterest,saved!==null&&saved>0?`${fmt(saved)} less than minimums only`:'On this plan','coins')}</div>`;
   return head+hero+kp+warningsCard(M)+`<div class="grid2 equal">${thisMonthCard(M)}${glanceCard(M)}</div>`+balanceChart(M)+`<div class="grid2 equal">${minimumsCard(M)}${milestonesCard(M)}</div>`+(next?'':'');}
  // who you owe, as a ring: one slice per debt, each named around the outside, the total in the middle
- function heroDonut(M){const list=M.rows.filter(r=>r.now>0).sort((a,b)=>b.now-a.now),small=chartWidth<600,W=small?356:440,H=small?300:280,cx=W/2,cy=H/2,R=small?58:72,SW=small?20:24,OUT=small?20:40,CIRC=2*Math.PI*R,gap=list.length>1?2:0;
+ function heroDonut(M){const list=M.rows.filter(r=>r.now>0).sort((a,b)=>b.now-a.now),small=chartWidth<560,W=small?356:440,H=small?300:280,cx=W/2,cy=H/2,R=small?58:72,SW=small?20:24,OUT=small?20:40,CIRC=2*Math.PI*R,gap=list.length>1?2:0;
   if(!list.length)return '';let off=0,acc=0;
   const segs=[],labels=[];
   list.forEach((r,i)=>{const share=r.now/M.total,len=share*CIRC,pct=Math.round(share*100),mid=(acc+share/2)*2*Math.PI;acc+=share;
