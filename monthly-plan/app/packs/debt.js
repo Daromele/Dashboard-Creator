@@ -79,10 +79,10 @@ const NICHE = {
   defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', payout: 'platform-payout', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
 
   // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
-  nav: [['dashboard', 'Debt freedom', 'today'], ['debts', 'My debts', 'wallet'], ['plan', 'Payoff plan', 'plan'], ['payments', 'Payments', 'log'], ['debtimport', 'Import statements', 'up'], ['whatif', 'What if', 'spark'], ['progress', 'Progress', 'outlook'], ['duedates', 'Due dates', 'calendar'],
+  nav: [['dashboard', 'Debt freedom', 'today'], ['debts', 'My debts', 'wallet'], ['debtimport', 'Import statements', 'up'], ['plan', 'Payoff plan', 'plan'], ['payments', 'Payments', 'log'], ['whatif', 'What if', 'spark'], ['progress', 'Progress', 'outlook'], ['duedates', 'Due dates', 'calendar'],
     ['budget', 'Monthly budget', 'plan'], ['activity', 'Transactions', 'log'], ['cuts', 'Find extra money', 'scissors'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
   optionalNav: ['debtimport', 'whatif', 'progress', 'duedates', 'budget', 'activity', 'cuts', 'guide'],
-  navGroups: [['Debt freedom', ['dashboard', 'debts', 'plan', 'payments', 'debtimport', 'whatif', 'progress', 'duedates']], ['Find extra money', ['budget', 'activity', 'cuts']]],
+  navGroups: [['Debt freedom', ['dashboard', 'debts', 'debtimport', 'plan', 'payments', 'whatif', 'progress', 'duedates']], ['Find extra money', ['budget', 'activity', 'cuts']]],
   navGroupRest: 'Make it yours',
 
   // words used across the screens
@@ -101,21 +101,22 @@ const NICHE = {
   },
   quickLog: { placeholder: 'coffee 4.50', help: 'Try “coffee 4.50”, “rent 1200”, or “salary 2400”.', demo: ['coffee', '4.50', 'Dining & coffee'] },
 
+  tourTopics: 'your debts, the plan, payments and backups',
   // first-run tour; 'backup' is the shared backup slide
   welcome: [
     { icon: 'today', step: 'WELCOME', title: 'One goal: debt free', text: '<p>List what you owe, choose how to pay it down, and see the exact month you will be debt free.</p><p>Everything stays on this computer. No bank login, no account.</p>' },
     { icon: 'plan', step: 'PLAN', title: 'Pick the plan that fits you', text: '<p><b>Snowball</b> clears small debts first for quick wins. <b>Avalanche</b> pays the least interest. Compare five strategies side by side, then pick one.</p>' },
-    { icon: 'spark', step: 'TRACK', title: 'Log payments, watch the balances fall', text: '<p>Each month the plan says what to pay on every debt. Log it in one click, and the progress tracker fills in as you go.</p>' },
+    { icon: 'spark', step: 'TRACK', title: 'Log payments, watch the balances fall', text: '<p>Each month the plan says what to pay on every debt. Log it in one click, or drop in the activity download from your card, loan or bank: payments and interest land on the right debt.</p>' },
     'backup',
-    { icon: 'check', step: 'START', title: 'Start with one debt', text: '<p>Add your first debt: its balance, interest rate and minimum payment. Your debt-free date appears straight away.</p>', cta: { label: 'Add my first debt', action: 'debt-add' } },
+    { icon: 'check', step: 'START', title: 'Start with one debt', text: '<p>Add your first debt: its balance, interest rate and minimum payment. Your debt-free date appears straight away.</p>', cta: { label: 'Add my first debt', action: 'debt-add' }, finish: 'Look around first' },
   ],
   guide: {
     title: 'Four moves to debt freedom.',
     // [icon, step, what to do, screen label, screen id]
     cards: [
-      ['wallet', '1. List', 'Add every debt: balance, interest rate, minimum payment and due day.', 'My debts', 'debts'],
+      ['wallet', '1. List', 'Add every debt: balance, interest rate, minimum payment and due day. Card and loan downloads can be imported too.', 'My debts', 'debts'],
       ['plan', '2. Plan', 'Set what you can pay each month in total and pick a strategy. The plan shows what to pay on each debt.', 'Payoff plan', 'plan'],
-      ['log', '3. Pay', 'Log each payment, or mark the month as paid in one click. Update a balance from a statement any time.', 'Payments', 'payments'],
+      ['log', '3. Pay', 'Log each payment, mark the month as paid in one click, or import your card, loan and bank downloads.', 'Payments', 'payments'],
       ['outlook', '4. Watch', 'See balances fall, color in the tracker, and test what an extra $50 or a balance transfer would do.', 'Progress', 'progress'],
     ],
     meanings: [['Minimum', 'What each lender requires'], ['Extra', 'Your budget above the minimums'], ['Rollover', 'A cleared debt’s payment moves to the next'], ['Debt-free date', 'The month the last debt reaches zero']],

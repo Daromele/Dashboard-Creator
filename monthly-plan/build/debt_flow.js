@@ -17,7 +17,7 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  await p.evaluate(()=>document.querySelector('.welcome-folder').click());await p.waitForTimeout(200);
  ok('it opens the debt form',await p.evaluate(()=>!$('#welcome-tour').open&&!!document.querySelector('#debt-form')));
  const add=async(v)=>{await p.evaluate(()=>{if(!$('#modal').open||!document.querySelector('#debt-form'))document.querySelector('.pagehead [data-action="debt-add"]').click();});for(const [k,x] of Object.entries(v)){const el=await p.$(`#debt-form [name="${k}"]`);if((await el.evaluate(e=>e.tagName))==='SELECT')await el.selectOption(x);else await el.fill(String(x));}
-  await p.evaluate(()=>document.querySelector('#debt-form').requestSubmit());await p.waitForTimeout(150);};
+  await p.evaluate(()=>document.querySelector('#debt-form').requestSubmit());await p.waitForTimeout(450);asked.push(await p.evaluate(()=>{const b=document.querySelector('#budget-prompt');if(b)b.querySelector('[data-action="dismiss"]').click();return !!b;}));};const asked=[];
  // an empty name is refused, with the reason in the form
  await p.evaluate(()=>document.querySelector('#debt-form').requestSubmit());await p.waitForTimeout(100);
  ok('a debt without a name is not saved',await p.evaluate(()=>!(state.debts||[]).length&&$('#modal').open));
@@ -27,6 +27,7 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  await add({name:'Car loan',kind:'auto',balance:'12000',apr:'6.5',min:'320',minMode:'fixed',due:'20'});
  await add({name:'Store card',kind:'card',balance:'800',apr:'29.99',min:'35',minMode:'fixed',due:'5'});
  const s1=await p.evaluate(()=>({n:state.debts.length,apr:state.debts[0].apr,bal:state.debts[0].balance,since:state.debts[0].since,h:document.querySelector('.debt-hero h2')?.innerText}));
+ ok('the monthly budget is asked for after the first debt only',JSON.stringify(asked)==='[true,false,false]',JSON.stringify(asked));
  ok('three debts are saved, in cents and hundredths of a percent',s1.n===3&&s1.apr===2499&&s1.bal===500000&&s1.since==='2026-10-03',JSON.stringify(s1));
  ok('the dashboard shows a debt-free month',/20\d\d/.test(s1.h||''),s1.h);
  // the plan: budget, strategies

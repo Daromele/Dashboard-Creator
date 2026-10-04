@@ -47,6 +47,14 @@ const pdf=put('statement.pdf','%PDF-1.4\n%fake\n');
  await p.setInputFiles('#debt-files',[card,bank,ofx]);await p.waitForTimeout(400);
  const r4=await p.evaluate(()=>({on:Debts.importState().entries.filter(e=>e.on).length,toy:Debts.importState().entries.find(e=>e.amount===34000)?.debt,dis:document.querySelector('[data-action="imp-go"]')?.disabled}));
  ok('importing the same files again finds nothing new, and remembers Toyota',r4.on===0&&r4.toy==='k'&&r4.dis===true,JSON.stringify(r4));
+ // a file whose debt isn't listed yet becomes a new debt from the import screen
+ await p.click('[data-action="imp-clear"]');await p.setInputFiles('#debt-files',[put('Lakeview_Card_7788.qfx',fs.readFileSync(ofx,'utf8').replace('Maple Store Card','Lakeview Card').replace('6011000000009012','5500000000007788'))]);await p.waitForTimeout(400);
+ await p.selectOption('[data-imp-file^="lakeview"]','__new');await p.waitForTimeout(200);
+ const pre=await p.evaluate(()=>({name:document.querySelector('#debt-form [name=name]')?.value,bal:document.querySelector('#debt-form [name=balance]')?.value}));
+ ok('“A new debt” opens the form filled from the file',/Lakeview/.test(pre.name)&&pre.bal==='1180.40',JSON.stringify(pre));
+ await p.fill('#debt-form [name=apr]','19.99');await p.fill('#debt-form [name=min]','35');await p.evaluate(()=>document.querySelector('#debt-form').requestSubmit());await p.waitForTimeout(400);
+ const nd=await p.evaluate(()=>{const d=state.debts.find(x=>/Lakeview/.test(x.name));return {d:!!d,assigned:Debts.importState().entries.every(e=>e.debt===d?.id),screen:document.body.dataset.screen,prompt:!!document.querySelector('#budget-prompt')};});
+ ok('the new debt takes the file’s lines, without the first-debt budget question',nd.d&&nd.assigned&&nd.screen==='debtimport'&&!nd.prompt,JSON.stringify(nd));
  await p.click('[data-action="imp-clear"]');await p.waitForTimeout(600);await p.reload();await p.waitForTimeout(600);
  ok('imported entries survive a reload',await p.evaluate(n=>state.debtLog.length===n&&Object.keys(state.debtImport.payees).length===2,n));
  ok('payments show the new kinds in words',await p.evaluate(()=>{go('payments');const t=document.querySelector('#content table').innerText;return /Interest charged/.test(t)&&/Refund or credit/.test(t)&&/Statement balance/.test(t);}));
