@@ -1260,6 +1260,18 @@ table.tbl-edit td small{display:block}table.tbl-edit select.ap-acct-cur{width:84
 @media(max-width:620px){.strat-grid{grid-template-columns:1fr}.strat-switch{grid-template-columns:1fr 1fr}.strat-switch button:last-child{grid-column:span 2}.gantt-row{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.gantt-row .gantt-track{grid-column:1/-1;order:3}.gantt-total .gantt-track{display:none}.deck-amt input{width:110px}.dl-chip{padding:4px 10px 4px 8px}}
 @media(prefers-reduced-motion:reduce){.dl-draw{animation:none;stroke-dasharray:none}.strat-card{transition:none}}
 @media print{.dl-draw{animation:none;stroke-dasharray:none}.strat-card{break-inside:avoid}.plan-deck input[type=range]{display:none}}
+.hero-donut{display:grid;grid-template-columns:150px minmax(0,1fr);gap:var(--s5);align-items:center}
+.hd-ring{position:relative;width:150px;height:150px}.hd-ring svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.hd-track{fill:none;stroke:color-mix(in srgb,var(--on-bold) 10%,transparent);stroke-width:20}
+.hd-seg{fill:none;stroke-width:20;cursor:pointer;outline:none;transition:stroke-width .15s ease,opacity .15s ease;animation:hd-in .9s cubic-bezier(.3,.7,.2,1) both}
+.hd-seg:hover,.hd-seg:focus-visible{stroke-width:26}.hd-ring svg:hover .hd-seg:not(:hover){opacity:.55}
+@keyframes hd-in{from{stroke-dasharray:0 400}}
+.hd-mid{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}.hd-mid strong{font:700 30px/1 var(--num)}.hd-mid span{font-size:11px;color:var(--on-bold-dim);margin-top:3px}
+.hd-key{display:grid;gap:9px;min-width:0}.hd-key .hero-fact span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hd-key .hero-fact strong{font-size:15px;white-space:nowrap}.hd-key .hero-total strong{font-size:19px}.hd-key .hero-fact span small{font-size:10.5px;opacity:.7;margin-left:6px}
+.hd-key .hero-total{border-bottom:1px solid #ffffff1f;padding-bottom:9px;margin-bottom:2px}
+@media(max-width:1150px){.hero-donut{grid-template-columns:120px minmax(0,1fr)}.hd-ring{width:120px;height:120px}.hd-mid strong{font-size:24px}}@media(max-width:620px){.hero-donut{grid-template-columns:1fr;justify-items:center}.hd-ring{width:150px;height:150px}.hd-key{width:100%}}
+@media(prefers-reduced-motion:reduce){.hd-seg{animation:none;transition:none}}
+@media print{.hd-seg{animation:none}}
 .kpi-mode{display:flex;justify-content:flex-end;margin:-8px 0 10px}
 .merge-box{display:flex;align-items:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}.merge-box label{flex:1}
 .ap-bulk-rename{display:inline-flex;gap:6px;align-items:center}.ap-bulk-rename input{width:180px}
@@ -5809,10 +5821,17 @@ const Debts=(()=>{
   const freeTxt=S.never?'Not yet':monthName(free);
   const hero=`<section class="hero debt-hero"><div><div class="eyebrow">${S.never?'Your plan doesn’t clear the debt yet':'Debt free in'}</div><h2 class="hero-big" style="--n:${freeTxt.length+1}">${esc(freeTxt)}</h2><p>${S.never?'At this budget the balances grow faster than they fall. Raise the monthly budget on the Payoff plan.':`${span(left)} from now, paying ${fmt(M.plan.budget)} a month with the ${esc(Debt.STRATEGIES.find(s=>s[0]===M.plan.strategy)?.[1]||'')} method.`}</p>
    <div class="debt-progress" role="img" aria-label="${pct}% of your debt paid off"><i style="width:${pct}%"></i></div><small class="hero-note">${pct}% paid off since you started · ${fmt(M.paidOff)} of ${fmt(M.startTotal)}</small><div class="hero-foot">${button('See the plan →','go-plan','pop small')}${button('Log a payment','debt-pay','quiet small')}</div></div>`+
-   `<div class="hero-side"><div class="hero-fact hero-total"><span>Total owed today</span><strong>${fmt(M.total)}</strong></div>${M.rows.slice().sort((a,b)=>b.now-a.now).slice(0,5).map(r=>`<div class="hero-fact"><span><i class="hero-dot" style="background:${colorOf(r.d)}"></i>${esc(r.d.name)}</span><strong>${fmt(r.now)}</strong></div>`).join('')}</div></section>`;
+   `<div class="hero-side">${heroDonut(M)}</div></section>`;
   const saved=M.minOnly.never?null:M.minOnly.totalInterest-S.totalInterest;
   const kp=`<div class="kpis kpis-lead">${kpi('Total owed',M.total,`${plural(M.rows.filter(r=>r.now>0).length,'debt')} · ${pctTxt(avgApr(M))} average rate`,'tags')}${kpi('Paid off so far',M.paidOff,`${pct}% of what you owed`,'check','pos')}${kpi('Interest this month',M.interestNow,'What your debt costs you now','spark','warn')}${kpi('Interest left to pay',S.totalInterest,saved!==null&&saved>0?`${fmt(saved)} less than minimums only`:'On this plan','coins')}</div>`;
   return head+hero+kp+warningsCard(M)+`<div class="grid2 equal">${thisMonthCard(M)}${glanceCard(M)}</div>`+balanceChart(M)+`<div class="grid2 equal">${minimumsCard(M)}${milestonesCard(M)}</div>`+(next?'':'');}
+ // who you owe, as a ring: one slice per debt, the share of what's left
+ function heroDonut(M){const list=M.rows.filter(r=>r.now>0).sort((a,b)=>b.now-a.now),R=56,CIRC=2*Math.PI*R,gap=list.length>1?2:0;let off=0;
+  const segs=list.map((r,i)=>{const len=r.now/M.total*CIRC,pct=Math.round(r.now/M.total*100),tip=esc(JSON.stringify({t:r.d.name,r:[{name:'Owed',value:fmt(r.now),color:colorOf(r.d)},{name:'Share of your debt',value:(pct||'<1')+'%'},{name:'Rate',value:pctTxt(Debt.aprIn(r.d,M.month))}]}));
+   const c=`<circle class="hd-seg" cx="70" cy="70" r="${R}" stroke="${colorOf(r.d)}" stroke-dasharray="${Math.max(.5,len-gap).toFixed(2)} ${CIRC.toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" style="animation-delay:${i*70}ms" data-tip="${tip}" tabindex="0" aria-label="${esc(r.d.name)}: ${fmt(r.now)}, ${pct}%"/>`;off+=len;return c;}).join('');
+  const rows=list.slice(0,6).map(r=>`<div class="hero-fact"><span><i class="hero-dot" style="background:${colorOf(r.d)}"></i>${esc(r.d.name)}<small>${Math.round(r.now/M.total*100)||'<1'}%</small></span><strong>${fmt(r.now)}</strong></div>`).join('')+(list.length>6?`<div class="hero-fact"><span>+ ${list.length-6} more</span><strong>${fmt(list.slice(6).reduce((n,r)=>n+r.now,0))}</strong></div>`:'');
+  return `<div class="hero-donut"><div class="hd-ring"><svg viewBox="0 0 140 140" role="img" aria-label="What you owe, by debt"><circle class="hd-track" cx="70" cy="70" r="${R}"/>${segs}</svg><div class="hd-mid"><strong>${list.length}</strong><span>${list.length===1?'debt':'debts'}</span></div></div>`+
+   `<div class="hd-key"><div class="hero-fact hero-total"><span>Total owed today</span><strong>${fmt(M.total)}</strong></div>${rows}</div></div>`;}
  const avgApr=M=>{const t=M.rows.reduce((n,r)=>n+r.now,0);return t?Math.round(M.rows.reduce((n,r)=>n+r.now*Debt.aprIn(r.d,M.month),0)/t):0;};
 
  function warningsCard(M){const W=Debt.warnings(M.forSim,M.month);if(M.sim.shortfall)W.unshift({kind:'short',amount:M.sim.shortfall});if(!W.length)return '';
