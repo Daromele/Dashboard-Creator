@@ -78,4 +78,6 @@ module.exports=({eq,ok})=>{
   eq('lines from before a debt was tracked are left out', F.check([{id:'z',date:'2025-12-01',amount:100,kind:'payment',debt:'v',ref:'r'}],debts2,[])[0].status, 'before');
   const v2=B.validate({...B.blank(),debts:[{id:'v',name:'Visa',balance:100}],debtLog:[{id:'e1',debt:'v',date:'2026-09-01',amount:50,kind:'interest',ref:'abc'},{id:'e2',debt:'v',date:'2026-09-02',amount:50,kind:'bogus'}],debtImport:{files:{'harbor 5471':'v','gone':'zz'},payees:{toyota:''},kinds:{x:'loan',y:'boat'}}});
   eq('imported entries and what was learned survive validation', [v2.debtLog.map(e=>e.kind),v2.debtImport.files,v2.debtImport.payees,v2.debtImport.kinds], [['interest'],{'harbor 5471':'v'},{toyota:''},{x:'loan'}]);
+  const vk=B.validate({...B.blank(),debtKinds:[{id:'kback',name:'Back taxes'},{id:'card',name:'Credit cards',hidden:true},{id:'BAD ID',name:'x'},{id:'kback',name:'dup'}],debts:[{id:'t',name:'IRS plan',balance:100,kind:'kback'},{id:'u',name:'Mystery',balance:100,kind:'gone'}]});
+  eq('own debt categories are kept, and a debt can use one', [vk.debtKinds.map(k=>k.id+':'+k.name+(k.hidden?':hidden':'')),vk.debts.map(d=>d.kind)], [['kback:Back taxes','card:Credit cards:hidden'],['kback','other']]);
 };

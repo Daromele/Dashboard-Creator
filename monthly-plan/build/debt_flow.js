@@ -68,7 +68,7 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('what if: six tools, and an extra amount can be added to the plan',wi[2]===6&&wi[1]===wi[0]+10000,JSON.stringify(wi));
  // delete with undo
  await p.evaluate(()=>go('debts',true));await p.waitForTimeout(100);
- await p.evaluate(()=>{document.querySelector('.debt-table [data-action="debt-edit"]').click();});await p.waitForTimeout(100);
+ await p.evaluate(()=>{document.querySelector('#content [data-action="debt-edit"]').click();});await p.waitForTimeout(100);
  await p.evaluate(()=>document.querySelector('#debt-form [data-action="debt-del"]').click());await p.evaluate(()=>document.querySelector('[data-action="debt-del-ok"]').click());await p.waitForTimeout(100);
  const afterDel=await p.evaluate(()=>state.debts.length);await p.evaluate(()=>document.querySelector('#toast [data-action="undo"]').click());await p.waitForTimeout(100);
  ok('a debt can be deleted and brought back with Undo',afterDel===2&&await p.evaluate(()=>state.debts.length===3));
@@ -83,6 +83,8 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
   ok(`no sideways scroll at ${w}px on the dashboard`,await p.evaluate(()=>{go('dashboard',true);return document.documentElement.scrollWidth<=innerWidth+1;}));}
  await p.setViewportSize({width:1300,height:900});
  ok('the sample fills the dashboard',await p.evaluate(()=>{go('dashboard',true);return /Debt free in/i.test(document.querySelector('.debt-hero').innerText)&&document.querySelectorAll('.pay-row').length===6;}));
+ ok('My debts opens as a grid with category chips',await p.evaluate(()=>{go('debts',true);return document.querySelectorAll('.debt-card').length===6&&document.querySelectorAll('.dg-chips .dl-chip').length===6;}));
+ ok('settings show debt categories, not budget categories, while the budget screens are off',await p.evaluate(()=>{go('settings',true);const h=[...document.querySelectorAll('h2')].map(x=>x.innerText);return h.includes('Debt categories')&&!h.includes('Your categories');}));
  await p.emulateMedia({media:'print'});await p.evaluate(()=>go('plan',true));await p.waitForTimeout(100);
  ok('the plan prints without the sidebar',await p.evaluate(()=>getComputedStyle(document.querySelector('.rail')).display==='none'));
  ok('the app made no network requests',net===0);ok('no page errors',!errs.length,errs.join('|'));
