@@ -1549,18 +1549,17 @@ table.tbl-edit td small{display:block}table.tbl-edit select.ap-acct-cur{width:84
 @media(max-width:620px){.strat-grid{grid-template-columns:1fr}.strat-switch{grid-template-columns:1fr 1fr}.strat-switch button:last-child{grid-column:span 2}.gantt-row{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.gantt-row .gantt-track{grid-column:1/-1;order:3}.gantt-total .gantt-track{display:none}.deck-amt input{width:110px}.dl-chip{padding:4px 10px 4px 8px}}
 @media(prefers-reduced-motion:reduce){.dl-draw{animation:none;stroke-dasharray:none}.strat-card{transition:none}}
 @media print{.dl-draw{animation:none;stroke-dasharray:none}.strat-card{break-inside:avoid}.plan-deck input[type=range]{display:none}}
-.hero-donut{display:grid;grid-template-columns:150px minmax(0,1fr);gap:var(--s5);align-items:center}
-.hd-ring{position:relative;width:150px;height:150px}.hd-ring svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
-.hd-track{fill:none;stroke:color-mix(in srgb,var(--on-bold) 10%,transparent);stroke-width:20}
-.hd-seg{fill:none;stroke-width:20;cursor:pointer;outline:none;transition:stroke-width .15s ease,opacity .15s ease;animation:hd-in .9s cubic-bezier(.3,.7,.2,1) both}
-.hd-seg:hover,.hd-seg:focus-visible{stroke-width:26}.hd-ring svg:hover .hd-seg:not(:hover){opacity:.55}
-@keyframes hd-in{from{stroke-dasharray:0 400}}
-.hd-mid{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}.hd-mid strong{font:700 30px/1 var(--num)}.hd-mid span{font-size:11px;color:var(--on-bold-dim);margin-top:3px}
-.hd-key{display:grid;gap:9px;min-width:0}.hd-key .hero-fact span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hd-key .hero-fact strong{font-size:15px;white-space:nowrap}.hd-key .hero-total strong{font-size:19px}.hd-key .hero-fact span small{font-size:10.5px;opacity:.7;margin-left:6px}
-.hd-key .hero-total{border-bottom:1px solid #ffffff1f;padding-bottom:9px;margin-bottom:2px}
-@media(max-width:1150px){.hero-donut{grid-template-columns:120px minmax(0,1fr)}.hd-ring{width:120px;height:120px}.hd-mid strong{font-size:24px}}@media(max-width:620px){.hero-donut{grid-template-columns:1fr;justify-items:center}.hd-ring{width:150px;height:150px}.hd-key{width:100%}}
-@media(prefers-reduced-motion:reduce){.hd-seg{animation:none;transition:none}}
-@media print{.hd-seg{animation:none}}
+.hero-donut{width:100%;min-width:0}.hero-donut svg{display:block;width:100%;height:auto;overflow:visible}
+.hd-track{fill:none;stroke:color-mix(in srgb,var(--on-bold) 10%,transparent);stroke-width:24}
+.hd-seg{fill:none;stroke-width:24;cursor:pointer;outline:none;transition:stroke-width .15s ease,opacity .15s ease;animation:hd-in .9s cubic-bezier(.3,.7,.2,1) both}
+.hd-seg:hover,.hd-seg:focus-visible{stroke-width:30}.hero-donut svg:has(.hd-seg:hover) .hd-seg:not(:hover){opacity:.55}
+@keyframes hd-in{from{stroke-dasharray:0 500}}
+.hd-lab{animation:fade-in .5s both}.hd-lab polyline{fill:none;stroke-width:1.2;opacity:.75}
+.hd-name{font:600 14px var(--sans,inherit);fill:var(--on-bold)}.hd-amt{font:700 13px var(--num);fill:var(--on-bold)}.hd-amt tspan{font-weight:500;fill:var(--on-bold-dim)}
+.hd-mid-l{font:500 11px var(--sans,inherit);fill:var(--on-bold-dim)}.hd-mid-v{font:700 20px var(--num);fill:var(--on-bold);letter-spacing:-.02em}
+
+@media(prefers-reduced-motion:reduce){.hd-seg,.hd-lab{animation:none;transition:none}}
+@media print{.hd-seg,.hd-lab{animation:none}}
 .kpi-mode{display:flex;justify-content:flex-end;margin:-8px 0 10px}
 .merge-box{display:flex;align-items:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}.merge-box label{flex:1}
 .ap-bulk-rename{display:inline-flex;gap:6px;align-items:center}.ap-bulk-rename input{width:180px}
@@ -6114,13 +6113,26 @@ const Debts=(()=>{
   const saved=M.minOnly.never?null:M.minOnly.totalInterest-S.totalInterest;
   const kp=`<div class="kpis kpis-lead">${kpi('Total owed',M.total,`${plural(M.rows.filter(r=>r.now>0).length,'debt')} · ${pctTxt(avgApr(M))} average rate`,'tags')}${kpi('Paid off so far',M.paidOff,`${pct}% of what you owed`,'check','pos')}${kpi('Interest this month',M.interestNow,'What your debt costs you now','spark','warn')}${kpi('Interest left to pay',S.totalInterest,saved!==null&&saved>0?`${fmt(saved)} less than minimums only`:'On this plan','coins')}</div>`;
   return head+hero+kp+warningsCard(M)+`<div class="grid2 equal">${thisMonthCard(M)}${glanceCard(M)}</div>`+balanceChart(M)+`<div class="grid2 equal">${minimumsCard(M)}${milestonesCard(M)}</div>`+(next?'':'');}
- // who you owe, as a ring: one slice per debt, the share of what's left
- function heroDonut(M){const list=M.rows.filter(r=>r.now>0).sort((a,b)=>b.now-a.now),R=56,CIRC=2*Math.PI*R,gap=list.length>1?2:0;let off=0;
-  const segs=list.map((r,i)=>{const len=r.now/M.total*CIRC,pct=Math.round(r.now/M.total*100),tip=esc(JSON.stringify({t:r.d.name,r:[{name:'Owed',value:fmt(r.now),color:colorOf(r.d)},{name:'Share of your debt',value:(pct||'<1')+'%'},{name:'Rate',value:pctTxt(Debt.aprIn(r.d,M.month))}]}));
-   const c=`<circle class="hd-seg" cx="70" cy="70" r="${R}" stroke="${colorOf(r.d)}" stroke-dasharray="${Math.max(.5,len-gap).toFixed(2)} ${CIRC.toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" style="animation-delay:${i*70}ms" data-tip="${tip}" tabindex="0" aria-label="${esc(r.d.name)}: ${fmt(r.now)}, ${pct}%"/>`;off+=len;return c;}).join('');
-  const rows=list.slice(0,6).map(r=>`<div class="hero-fact"><span><i class="hero-dot" style="background:${colorOf(r.d)}"></i>${esc(r.d.name)}<small>${Math.round(r.now/M.total*100)||'<1'}%</small></span><strong>${fmt(r.now)}</strong></div>`).join('')+(list.length>6?`<div class="hero-fact"><span>+ ${list.length-6} more</span><strong>${fmt(list.slice(6).reduce((n,r)=>n+r.now,0))}</strong></div>`:'');
-  return `<div class="hero-donut"><div class="hd-ring"><svg viewBox="0 0 140 140" role="img" aria-label="What you owe, by debt"><circle class="hd-track" cx="70" cy="70" r="${R}"/>${segs}</svg><div class="hd-mid"><strong>${list.length}</strong><span>${list.length===1?'debt':'debts'}</span></div></div>`+
-   `<div class="hd-key"><div class="hero-fact hero-total"><span>Total owed today</span><strong>${fmt(M.total)}</strong></div>${rows}</div></div>`;}
+ // who you owe, as a ring: one slice per debt, each named around the outside, the total in the middle
+ function heroDonut(M){const list=M.rows.filter(r=>r.now>0).sort((a,b)=>b.now-a.now),small=chartWidth<600,W=small?356:440,H=small?300:280,cx=W/2,cy=H/2,R=small?58:72,SW=small?20:24,OUT=small?20:40,CIRC=2*Math.PI*R,gap=list.length>1?2:0;
+  if(!list.length)return '';let off=0,acc=0;
+  const segs=[],labels=[];
+  list.forEach((r,i)=>{const share=r.now/M.total,len=share*CIRC,pct=Math.round(share*100),mid=(acc+share/2)*2*Math.PI;acc+=share;
+   const tip=esc(JSON.stringify({t:r.d.name,r:[{name:'Owed',value:fmt(r.now),color:colorOf(r.d)},{name:'Share of your debt',value:(pct||'<1')+'%'},{name:'Rate',value:pctTxt(Debt.aprIn(r.d,M.month))}]}));
+   segs.push(`<circle class="hd-seg" cx="${cx}" cy="${cy}" r="${R}" stroke="${colorOf(r.d)}" stroke-dasharray="${Math.max(.5,len-gap).toFixed(2)} ${CIRC.toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})" style="animation-delay:${i*70}ms" data-tip="${tip}" tabindex="0" aria-label="${esc(r.d.name)}: ${fmt(r.now)}, ${pct}%"/>`);off+=len;
+   const e=R+SW/2+3,ex=cx+e*Math.sin(mid),ey=cy-e*Math.cos(mid),right=Math.sin(mid)>=0||list.length===1;
+   labels.push({r,pct,ex,ey,right,y:cy-(R+SW/2+22)*Math.cos(mid),i});});const name=n=>n.length>(small?13:17)?n.slice(0,small?12:16)+'…':n;
+  // spread the labels on each side so none overlap, then draw an elbowed leader to each
+  const GAPY=36,top=16,bot=H-22;
+  for(const side of [true,false]){const L=labels.filter(l=>l.right===side).sort((a,b)=>a.y-b.y);
+   for(let k=0;k<L.length;k++)L[k].y=Math.max(L[k].y,k?L[k-1].y+GAPY:top);
+   for(let k=L.length-1;k>=0;k--)L[k].y=Math.min(L[k].y,k<L.length-1?L[k+1].y-GAPY:bot);
+   for(let k=0;k<L.length;k++)L[k].y=Math.max(L[k].y,k?L[k-1].y+GAPY:top);}
+  const lab=labels.map(l=>{const tx=l.right?cx+R+SW/2+OUT:cx-R-SW/2-OUT,kx=l.right?tx-6:tx+6,anchor=l.right?'start':'end',c=colorOf(l.r.d);
+   return `<g class="hd-lab" style="animation-delay:${300+l.i*70}ms"><polyline points="${l.ex.toFixed(1)},${l.ey.toFixed(1)} ${(l.right?Math.max(l.ex+8,kx-14):Math.min(l.ex-8,kx+14)).toFixed(1)},${(l.y-4).toFixed(1)} ${kx},${(l.y-4).toFixed(1)}" style="stroke:${c}"/><circle cx="${l.ex.toFixed(1)}" cy="${l.ey.toFixed(1)}" r="2.2" style="fill:${c}"/>`+
+    `<text x="${tx}" y="${l.y}" text-anchor="${anchor}" class="hd-name">${esc(name(l.r.d.name))}</text><text x="${tx}" y="${l.y+16}" text-anchor="${anchor}" class="hd-amt">${esc(fmt(l.r.now))} <tspan>· ${l.pct||'<1'}%</tspan></text></g>`;}).join('');
+  return `<div class="hero-donut"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="What you owe, by debt: ${esc(list.map(r=>r.d.name+' '+fmt(r.now)).join(', '))}"><circle class="hd-track" cx="${cx}" cy="${cy}" r="${R}"/>${segs.join('')}${lab}`+
+   `<text x="${cx}" y="${cy-8}" text-anchor="middle" class="hd-mid-l">Total owed</text><text x="${cx}" y="${cy+14}" text-anchor="middle" class="hd-mid-v" ${small?'style="font-size:16px"':''}>${esc(fmt(M.total))}</text><text x="${cx}" y="${cy+31}" text-anchor="middle" class="hd-mid-l">${list.length} ${list.length===1?'debt':'debts'}</text></svg></div>`;}
  const avgApr=M=>{const t=M.rows.reduce((n,r)=>n+r.now,0);return t?Math.round(M.rows.reduce((n,r)=>n+r.now*Debt.aprIn(r.d,M.month),0)/t):0;};
 
  function warningsCard(M){const W=Debt.warnings(M.forSim,M.month);if(M.sim.shortfall)W.unshift({kind:'short',amount:M.sim.shortfall});if(!W.length)return '';
