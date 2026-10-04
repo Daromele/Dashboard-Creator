@@ -1589,6 +1589,14 @@ table.tbl-edit td small{display:block}table.tbl-edit select.ap-acct-cur{width:84
 
 @media(prefers-reduced-motion:reduce){.hd-seg,.hd-lab{animation:none;transition:none}}
 @media print{.hd-seg,.hd-lab{animation:none}}
+.imp-files{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--s4);margin-bottom:var(--s4)}.imp-files>.card{margin:0}
+.imp-file{display:grid;gap:8px;align-content:start}.imp-file p{margin:0}.imp-file-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.imp-file-top>span{display:grid;gap:2px;min-width:0}.imp-file-top small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imp-file.is-error{border:1px solid color-mix(in srgb,var(--neg) 35%,transparent)}.imp-kind{font-size:12px;padding:5px 8px;max-width:140px}
+.imp-which{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}.imp-which select{flex:1;min-width:0}
+.imp-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--card);border-radius:var(--r-md);padding:14px 20px;margin-bottom:var(--s4);box-shadow:var(--shadow-sm);position:sticky;top:72px;z-index:3}
+.imp-table select{font-size:12.5px;padding:5px 8px;max-width:190px}.imp-table tr.is-off td{color:var(--ink-3)}.imp-table tr.is-off .imp-desc{text-decoration:none}.imp-desc{max-width:300px;overflow-wrap:anywhere}.imp-table input[type=checkbox]{width:18px;height:18px}
+.imp-how .card{margin:0}.imp-done{margin-bottom:var(--s4)}
+@media(max-width:620px){.imp-bar{position:static}.imp-bar .btn{flex:1}}
 .kpi-mode{display:flex;justify-content:flex-end;margin:-8px 0 10px}
 .merge-box{display:flex;align-items:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}.merge-box label{flex:1}
 .ap-bulk-rename{display:inline-flex;gap:6px;align-items:center}.ap-bulk-rename input{width:180px}
@@ -1749,7 +1757,7 @@ const Budget = ((P) => {
   const validDate = x => typeof x==='string' && /^\d{4}-\d{2}-\d{2}$/.test(x) && validMonth(x.slice(0,7)) && +x.slice(8)>=1 && +x.slice(8)<=days(x.slice(0,7));
   const shift = (m,n) => {const d=new Date(+m.slice(0,4),+m.slice(5)-1+n,1,12);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;};
   const cents = s => {if(!/^\d{1,8}(\.\d{1,2})?$/.test(String(s).trim())) throw Error('Use a positive amount with up to two decimal places.');return Math.round(Number(s)*100);};
-  const blank = () => ({version:1,...(P.id!=='budget'?{niche:P.id}:{}),...(P.features.debt?{debts:[],debtLog:[],debtPlan:{budget:0,strategy:'avalanche',custom:[],extras:[]}}:{}),...(P.features.autopilot?{accounts:[],importFiles:{}}:{}),settings:{name:'',currency:'USD',symbol:'',dateFormat:'auto',theme:THEMES[0],hiddenNav:[],...JSON.parse(JSON.stringify(P.settings||{}))},baseline:{},
+  const blank = () => ({version:1,...(P.id!=='budget'?{niche:P.id}:{}),...(P.features.debt?{debts:[],debtLog:[],debtPlan:{budget:0,strategy:'avalanche',custom:[],extras:[]},debtImport:{files:{},payees:{},kinds:{}}}:{}),...(P.features.autopilot?{accounts:[],importFiles:{}}:{}),settings:{name:'',currency:'USD',symbol:'',dateFormat:'auto',theme:THEMES[0],hiddenNav:[],...JSON.parse(JSON.stringify(P.settings||{}))},baseline:{},
     categories:P.categories.map(([id,name,group,taxLine,vat])=>({id,name,group,archived:false,...(taxLine?{taxLine}:{}),...(P.features.vat&&vat!==undefined?{vat}:{})})),
     months:{},transactions:[],goals:[],reviews:{},schedules:[],snapshots:{},quickMemory:{},importMap:{},...(P.features.mileage?{mileage:[]}:{}),...(P.features.invoices?{invoices:[]}:{}),...(P.features.channels?(()=>{const tags=[],tagId=n=>{if(!n)return '';let g=tags.find(x=>x.name===n);if(!g){g={id:'tg-'+(tags.length+1),name:n,color:tags.length%TAG_COLORS+1};tags.push(g);}return g.id;};
       return {channels:(P.seedPayers||[]).map(([id,name,act,cur])=>{const tag=tagId(usualTagFor(name));return {id,name,...(act?{act}:{}),...(cur?{cur}:{}),...(tag?{tag}:{})};}),channelRules:{},tags,tagRules:{}};})():{})});
@@ -2205,7 +2213,8 @@ const Budget = ((P) => {
       if(d.promo!==undefined&&!(object(d.promo)&&n(d.promo.apr,0,20000)&&M(d.promo.until)))delete d.promo;['lender','note'].forEach(k=>{if(d[k]!==undefined&&!str(d[k],200))delete d[k];});if(d.archived!==undefined&&d.archived!==true)delete d.archived;
       if(d.color!==undefined&&!(Number.isInteger(d.color)&&d.color>=0&&d.color<20))delete d.color;});
      const dids=new Set(s.debts.map(d=>d.id)),lseen=new Set();
-     s.debtLog=(Array.isArray(s.debtLog)?s.debtLog:[]).filter(e=>object(e)&&id(e.id)&&!lseen.has(e.id)&&dids.has(e.debt)&&validDate(e.date)&&amount(e.amount)&&e.amount>=0&&['payment','charge','balance'].includes(e.kind)&&(e.note===undefined||str(e.note,200))&&lseen.add(e.id)).slice(0,20000);
+     s.debtLog=(Array.isArray(s.debtLog)?s.debtLog:[]).filter(e=>object(e)&&id(e.id)&&!lseen.has(e.id)&&dids.has(e.debt)&&validDate(e.date)&&amount(e.amount)&&e.amount>=0&&['payment','charge','balance','interest','credit'].includes(e.kind)&&(e.note===undefined||str(e.note,200))&&(e.ref===undefined||str(e.ref,24))&&lseen.add(e.id)).slice(0,20000);
+     {const I=object(s.debtImport)?s.debtImport:{},keep=(o,ok)=>Object.fromEntries(Object.entries(object(o)?o:{}).filter(([k,v])=>str(k,60)&&ok(v)).slice(0,500));s.debtImport={files:keep(I.files,v=>dids.has(v)),payees:keep(I.payees,v=>v===''||dids.has(v)),kinds:keep(I.kinds,v=>['card','loan','bank'].includes(v))};}
      const P0=object(s.debtPlan)?s.debtPlan:{};s.debtPlan={budget:amount(P0.budget)&&P0.budget>=0?P0.budget:0,strategy:['avalanche','snowball','cashflow','utilization','custom'].includes(P0.strategy)?P0.strategy:'avalanche',
       custom:(Array.isArray(P0.custom)?P0.custom:[]).filter(x=>dids.has(x)),extras:(Array.isArray(P0.extras)?P0.extras:[]).filter(e=>object(e)&&id(e.id)&&M(e.month)&&amount(e.amount)&&e.amount>0&&(e.debt===undefined||dids.has(e.debt))&&(e.note===undefined||str(e.note,100))).slice(0,240),
       ...(Number.isInteger(P0.income)&&P0.income>=0?{income:P0.income}:{})};}
@@ -3099,11 +3108,12 @@ const Debt = (()=>{
  // statement replaces the estimate.
  function balanceNow(d,log,asOf){let bal=+d.balance||0,m=ym(d.since||asOf),paid=0,charged=0,interest=0;
   const own=(log||[]).filter(e=>e.debt===d.id&&e.date>=(d.since||'')&&e.date<=asOf).map((e,i)=>[e,i]).sort((a,b)=>a[0].date.localeCompare(b[0].date)||a[1]-b[1]).map(x=>x[0]);
-  let i=0;const end=ym(asOf);
+  // a month with the lender's own interest line uses it instead of the estimate
+  let i=0;const end=ym(asOf),real=new Set(own.filter(e=>e.kind==='interest').map(e=>ym(e.date)));
   for(;;){
-   while(i<own.length&&ym(own[i].date)===m){const e=own[i++];if(e.kind==='balance')bal=+e.amount;else if(e.kind==='charge'){bal+=+e.amount;charged+=+e.amount;}else{bal-=+e.amount;paid+=+e.amount;}}
+   while(i<own.length&&ym(own[i].date)===m){const e=own[i++],n=+e.amount;if(e.kind==='balance')bal=n;else if(e.kind==='charge'){bal+=n;charged+=n;}else if(e.kind==='interest'){bal+=n;interest+=n;}else if(e.kind==='credit')bal-=n;else{bal-=n;paid+=n;}}
    if(m>=end)break;
-   m=addMonths(m,1);if(bal>0){const it=interestOn(bal,aprIn(d,m));bal+=it;interest+=it;}}
+   m=addMonths(m,1);if(bal>0&&!real.has(m)){const it=interestOn(bal,aprIn(d,m));bal+=it;interest+=it;}}
   return {balance:Math.max(0,bal),paid,charged,interest,credit:bal<0?-bal:0};}
 
  // the order debts get extra money in, for a strategy, given this month's balances
@@ -3182,6 +3192,82 @@ const Debt = (()=>{
  return {KINDS,STRATEGIES,ym,addMonths,monthsBetween,aprIn,interestOn,minimumDue,balanceNow,order,simulate,compare,whatIf,loanPayment,amortize,paymentToFinishBy,warnings};
 })();
 if(typeof module!=='undefined')module.exports=Debt;
+/* DebtFiles: statement downloads in, debt entries out. A card or loan file becomes payments, new
+   charges, refunds and the interest the lender really charged; a bank file gives up the payments it
+   sent to your debts. Reads CSV (through Autopilot's reader), OFX and QFX. Pure: no DOM, no state;
+   what it learned about files and payees comes in as `mem` and goes back as plain keys. */
+const DebtFiles = (()=>{
+ const norm=s=>String(s??'').toLowerCase().replace(/\s+/g,' ').trim();
+ const INTEREST=/(interest charge|interest charged|finance charge|purchase interest|cash advance interest|balance transfer interest|^interest\b|\binterest (on|for) (purchases|cash|balance)|int chg|periodic rate)/i;
+ const CREDIT=/\b(refund|return|returned|reversal|statement credit|credit adj|adjustment|cash ?back|rewards?|rebate|dispute credit|merchandise credit)\b/i;
+ const PAYMENT=/(payment|pymt|\bpmt\b|autopay|thank you|epay|e-payment|ach credit|online transfer from)/i;
+ const LOAN_PAY=/\b(loan|mortgage|mtg|navient|nelnet|mohela|sallie ?mae|great lakes|aidvantage|edfinancial|fedloan|dept ?of ?ed|sofi|upstart|lending ?club|lendingclub|prosper|avant|best ?egg|marcus|affirm|klarna|afterpay|sezzle|ally (auto|financial)|toyota (financial|motor credit)|honda (financial|fin)|american honda|ford (credit|motor credit)|gm ?financial|santander|carmax|westlake|exeter|credit acceptance|capital one auto|chase auto|synchrony|care ?credit|rocket mortgage|mr\.? cooper|freedom mortgage|pennymac|loancare|newrez|lakeview|car ?payment|student ?loan|auto ?pay(ment)?)\b/i;
+ const LOAN_FILE=/\b(loan|mortgage|student|auto ?loan|principal|escrow|installment|lending)\b/i;
+ // words that say nothing about which debt a line belongs to
+ const STOP=new Set(['card','cards','loan','loans','credit','bank','the','and','payment','payments','account','union','my','auto','car','student','personal','debt','bill','plan','new','old','store','medical','one','of','for','to','a','fund','financial','services','inc','llc','co']);
+ const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=(h*33+s.charCodeAt(i))>>>0;return h.toString(36);};
+ const tokens=d=>[...new Set(norm([d.name,d.lender].filter(Boolean).join(' ')).replace(/[^a-z0-9 ]+/g,' ').split(' ').filter(w=>w.length>=3&&!STOP.has(w)))];
+ // the debt a piece of text names: the one with the most of its own words in it, if only one wins
+ // "HarborBank_Activity" still names Harbor Bank: longer words are also found inside run-together names
+ function matchDebt(text,debts){const t=' '+norm(text).replace(/[^a-z0-9 ]+/g,' ')+' ';let best=null,score=0,tie=false;
+  const sq=t.replace(/ /g,'');for(const d of debts){const n=tokens(d).filter(w=>t.includes(' '+w+' ')||w.length>=5&&sq.includes(w)).length;if(n>score){best=d;score=n;tie=false;}else if(n&&n===score)tie=true;}
+  return score&&!tie?best.id:'';}
+
+ // ---------- OFX / QFX: the format banks call "Quicken" or "Money" ----------
+ function ofx(text,name,A){const s=String(text);if(!/<OFX>|OFXHEADER/i.test(s))return null;
+  const tag=(blk,t)=>{const m=blk.match(new RegExp('<'+t+'>([^<\\r\\n]*)','i'));return m?m[1].trim():'';};
+  const day=v=>{const m=String(v).match(/^(\d{4})(\d{2})(\d{2})/);return m?`${m[1]}-${m[2]}-${m[3]}`:'';};
+  const cents=v=>{const n=Number(String(v).replace(/,/g,''));return Number.isFinite(n)?Math.round(n*100):null;};
+  const card=/<CREDITCARDMSGSRSV1>|<CCSTMTRS>/i.test(s),acct=tag(s,'ACCTID'),acctType=tag(s,'ACCTTYPE'),org=tag(s,'ORG');
+  const rows=[...s.matchAll(/<STMTTRN>([\s\S]*?)(?=<\/STMTTRN>|<STMTTRN>|<\/BANKTRANLIST>)/gi)].map(m=>{const b=m[1],date=day(tag(b,'DTPOSTED')),amount=cents(tag(b,'TRNAMT'));
+   const desc=A.mask([tag(b,'NAME'),tag(b,'MEMO')].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).join(' · ')).slice(0,200);
+   return date&&amount?{date,desc:desc||tag(b,'TRNTYPE'),amount,type:tag(b,'TRNTYPE')}:null;}).filter(Boolean);
+  if(!rows.length)throw Error('This OFX file has no transactions.');
+  const lb=s.match(/<LEDGERBAL>([\s\S]*?)(?:<\/LEDGERBAL>|<AVAILBAL>|<\/STMTRS>|<\/CCSTMTRS>)/i),bal=lb?cents(tag(lb[1],'BALAMT')):null,bd=lb?day(tag(lb[1],'DTASOF')):'';
+  const last4=acct.replace(/\D/g,'').slice(-4),label=(org||A.accountName(name).replace(/\s*••\d{4}$/,''))+(last4?' ••'+last4:'');
+  const kind=card?'card':/LINEOFCREDIT|CREDITLINE/i.test(acctType)||LOAN_FILE.test(name)?'loan':'bank';
+  return {rows,kind,account:label.slice(0,30),key:A.fileKey((org||name)+(last4?' '+last4:'')),balance:bal!==null&&bd?{date:bd,value:bal}:null};}
+
+ // ---------- one file, read ----------
+ function read(text,name,A,C,mem){const o=ofx(text,name,A);if(o)return o;
+  const known=mem?.kinds?.[A.fileKey(name)];
+  const r=A.read(text,name,C,known?{kind:known==='bank'?'bank':'card'}:undefined);
+  const loan=known==='loan'||!known&&(LOAN_FILE.test(name)||r.headers.some(h=>/principal|escrow|interest paid/i.test(h)));
+  return {rows:r.rows,kind:loan?'loan':r.kind==='card'?'card':'bank',account:r.account,key:r.key,balance:r.balance};}
+
+ // ---------- what each line becomes ----------
+ const isDebtFile=f=>f.kind==='card'||f.kind==='loan';
+ function propose(file,debts,mem={},A){const out=[],live=debts.filter(d=>!d.archived);
+  const ref=(date,amount,desc)=>hash([file.key,date,amount,norm(desc).slice(0,40)].join('|'));
+  if(isDebtFile(file)){const debt=(mem.files||{})[file.key]??matchDebt(file.account,live);
+   file.rows.forEach(r=>{const a=Math.abs(r.amount),t=r.desc;
+    // the words decide first (some loan downloads show every line as positive), then the sign
+    const kind=INTEREST.test(t)?'interest':PAYMENT.test(t)&&/(returned|reversal|reversed|\bnsf\b)/i.test(t)?'charge':PAYMENT.test(t)?'payment':r.amount>0?(CREDIT.test(t)?'credit':'payment'):'charge';
+    out.push({date:r.date,desc:r.desc,amount:a,kind,debt,file:file.key,ref:ref(r.date,r.amount,r.desc)});});
+   // a running balance or the OFX ledger balance: where the lender says the debt stands
+   if(file.balance)out.push({date:file.balance.date,desc:'Balance on the statement',amount:Math.abs(file.balance.value),kind:'balance',debt,file:file.key,ref:ref(file.balance.date,'bal',String(file.balance.value))});}
+  else file.rows.forEach(r=>{if(r.amount>=0)return;const mk=A.keyOf(A.merchant(r.desc)),learned=(mem.payees||{})[mk];
+   if(learned==='')return;
+   const debt=learned??matchDebt(r.desc,live);
+   if(!debt&&!(A.CARD_PAY_OUT.test(r.desc)||LOAN_PAY.test(r.desc)))return;
+   out.push({date:r.date,desc:r.desc,amount:-r.amount,kind:'payment',debt,file:file.key,payee:mk,ref:ref(r.date,r.amount,r.desc)});});
+  return out;}
+
+ // ---------- is it new? ----------
+ const days=(a,b)=>Math.abs((Date.parse(a+'T12:00:00Z')-Date.parse(b+'T12:00:00Z'))/864e5);
+ // sets status and on for every entry; a box the person ticked or unticked stays as they left it
+ function check(entries,debts,log){const byId=new Map(debts.map(d=>[d.id,d])),refs=new Set((log||[]).map(e=>e.ref).filter(Boolean));
+  entries.forEach(e=>{const d=byId.get(e.debt);
+   e.status=!d?(e.notDebt?'skip':'pick'):refs.has(e.ref)?'dup':d.since&&e.date<d.since?'before'
+    :(log||[]).some(x=>x.debt===e.debt&&x.kind===e.kind&&x.amount===e.amount&&days(x.date,e.date)<=(e.kind==='balance'?0:3))?'dup':'new';});
+  // the same payment in the card's file and the bank's file: the card's line is kept
+  entries.forEach(e=>{if(e.status!=='new'||e.kind!=='payment'||!e.payee)return;
+   if(entries.some(x=>x!==e&&!x.payee&&x.kind==='payment'&&x.debt===e.debt&&x.amount===e.amount&&days(x.date,e.date)<=5&&x.status==='new'))e.status='both';});
+  entries.forEach(e=>{if(!e.touched)e.on=e.status==='new';});
+  return entries;}
+ return {read,ofx,propose,check,matchDebt,isDebtFile,INTEREST,LOAN_PAY};
+})();
+if(typeof module!=='undefined')module.exports=DebtFiles;
 
 const SVG = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
 const ICON = {
@@ -6388,13 +6474,61 @@ const Debts=(()=>{
 
  // ---------- payments ----------
  function paymentsView(){const M=model(),log=[...(state.debtLog||[])].sort((a,b)=>b.date.localeCompare(a.date)),y=today().slice(0,4);
-  const head=pagehead('Every payment','Payments','Payments, statement balances and new charges, newest first.',button('Update a balance','debt-bal','quiet')+button('Log a payment','debt-pay','primary'));
+  const head=pagehead('Every payment','Payments','Payments, statement balances, charges and interest, newest first.',button('Import statements','go-import','quiet')+button('Update a balance','debt-bal','quiet')+button('Log a payment','debt-pay','primary'));
   const pays=log.filter(e=>e.kind==='payment'),sum=f=>pays.filter(f).reduce((n,e)=>n+e.amount,0);
   const kp=`<div class="kpis">${kpi('Paid this month',sum(e=>e.date.startsWith(thisMonth())),plural(pays.filter(e=>e.date.startsWith(thisMonth())).length,'payment'),'check','pos')}${kpi('Paid this year',sum(e=>e.date.startsWith(y)),y,'calendar')}${kpi('Paid in total',sum(()=>true),plural(pays.length,'payment'),'coins')}${kpi('Interest charged so far',M.rows.reduce((n,r)=>n+r.interestSoFar,0),'Estimated since you started','spark','warn')}</div>`;
   if(!log.length)return head+kp+`<section class="card">${empty('No payments logged yet','Log a payment when you make one, or use “Log all as paid” on the dashboard at the end of the month.','debt-pay','Log a payment')}</section>`;
-  const K={payment:'Payment',balance:'Statement balance',charge:'New charge'};
-  return head+kp+`<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Debt</th><th>Kind</th><th class="num">Amount</th><th>Note</th><th class="num">Actions</th></tr></thead><tbody>${log.map(e=>{const d=debt(e.debt);return `<tr><td class="nw">${dateName(e.date)}, ${e.date.slice(0,4)}</td><td>${d?dot(d)+esc(d.name):''}</td><td>${K[e.kind]}</td><td class="num ${e.kind==='payment'?'pos':e.kind==='charge'?'warn':''}">${e.kind==='payment'?'−':e.kind==='charge'?'+':''}${fmt(e.amount)}</td><td>${esc(e.note||'')}</td><td class="num"><button class="icon-action danger" data-action="debt-log-del" data-id="${e.id}" aria-label="Delete this entry">${ico('trash')}</button></td></tr>`;}).join('')}</tbody></table></div></section>`;}
+  const K=KIND_WORD;
+  return head+kp+`<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Debt</th><th>Kind</th><th class="num">Amount</th><th>Note</th><th class="num">Actions</th></tr></thead><tbody>${log.map(e=>{const d=debt(e.debt);return `<tr><td class="nw">${dateName(e.date)}, ${e.date.slice(0,4)}</td><td>${d?dot(d)+esc(d.name):''}</td><td>${K[e.kind]}</td><td class="num ${e.kind==='payment'||e.kind==='credit'?'pos':e.kind==='balance'?'':'warn'}">${e.kind==='payment'||e.kind==='credit'?'−':e.kind==='balance'?'':'+'}${fmt(e.amount)}</td><td>${esc(e.note||'')}</td><td class="num"><button class="icon-action danger" data-action="debt-log-del" data-id="${e.id}" aria-label="Delete this entry">${ico('trash')}</button></td></tr>`;}).join('')}</tbody></table></div></section>`;}
 
+ // ---------- import statements: card, loan and bank downloads in, entries out ----------
+ const KIND_WORD={payment:'Payment',charge:'New charge',interest:'Interest charged',credit:'Refund or credit',balance:'Statement balance'};
+ const FILE_WORD={card:'Credit card',loan:'Loan',bank:'Bank account'};
+ let imp={files:[],entries:[],show:'all',done:null};
+ const mem=()=>state.debtImport||(state.debtImport={files:{},payees:{},kinds:{}});
+ const recheck=()=>DebtFiles.check(imp.entries,live(),state.debtLog||[]);
+ async function importDebtFiles(list){const files=[...list].filter(f=>f&&f.size<15e6);if(!files.length)return;imp.done=null;
+  for(const f of files){let text='';try{text=await f.text();}catch{imp.files.push({name:f.name,error:'This file couldn’t be opened.'});continue;}
+   if(/^%PDF/.test(text.slice(0,5))){imp.files.push({name:f.name,error:'This is a PDF. Download the CSV, OFX or QFX version from your lender or bank instead (usually under “Download activity”).'});continue;}
+   try{const r=DebtFiles.read(text,f.name,Autopilot,CSV,mem());if(imp.files.some(x=>x.key===r.key&&x.rows?.length===r.rows.length)){continue;}
+    const file={name:f.name,...r};imp.files.push(file);imp.entries.push(...DebtFiles.propose(file,live(),mem(),Autopilot).map(e=>({...e,id:Budget.uid()})));}
+   catch(err){imp.files.push({name:f.name,error:err.message||'This file couldn’t be read.'});}}
+  recheck();if(screen!=='debtimport')go('debtimport');else render();}
+ function importView(){const head=pagehead('Statements in','Import statements','Drop the CSV, OFX or QFX downloads from a credit card, a loan or your bank account. Payments, new charges and interest are matched to your debts, and you check them before anything is saved.',imp.files.length?button('Start over','imp-clear','quiet'):'');
+  if(!live().length)return head+`<section class="card">${empty('Add your debts first','Imported payments and charges are matched to the debts you’ve listed.','debt-add','Add a debt')}</section>`;
+  const drop=big=>`<section class="card ap-drop${big?' is-big':''}" id="debt-drop" tabindex="0" aria-label="Drop statement files here"><div class="ap-drop-icon">${ico('up')}</div><h2>${big?'Drop your statements here':'Drop more statements'}</h2><p>From a card or loan: its payments, charges and interest. From your checking account: the payments it sent to your debts.</p><div class="actions">${button('Choose files','imp-pick','primary')}</div><input type="file" id="debt-files" multiple accept=".csv,.tsv,.txt,.ofx,.qfx,text/csv,text/plain" hidden><p class="small muted ap-privacy">${ico('shield')} Nothing is uploaded. Files are read on this computer and only what you import is kept.</p></section>`;
+  const done=imp.done?`<section class="notice imp-done"><span><b>${plural(imp.done.n,'entry','entries')} imported.</b> ${imp.done.paid?fmt(imp.done.paid)+' of payments. ':''}Your balances and plan are up to date.</span>${button('See payments','go-payments','small')}</section>`:'';
+  if(!imp.files.length)return head+done+drop(true)+`<div class="cards imp-how">${[['wallet','A card or loan download','Every payment, purchase, fee and refund, plus the interest your lender really charged. That interest replaces the app’s estimate, so balances match your statement.'],['log','A bank account download','The payments you sent to your cards and loans are found among everything else and logged against the right debt. Groceries and the rest are left out.'],['check','Next time, by itself','Tell it once which debt a file or a payee belongs to. Later downloads are matched without asking, and anything already logged is skipped.']].map(([i,h,p])=>`<section class="card"><div class="goal-icon">${ico(i)}</div><h2>${h}</h2><p class="muted">${p}</p></section>`).join('')}</div>`;
+  const D=live(),opts=(sel,none)=>`<option value="" ${sel?'':'selected'}>${none}</option>`+D.map(d=>`<option value="${d.id}" ${d.id===sel?'selected':''}>${esc(d.name)}</option>`).join('');
+  const fileCards=imp.files.map(f=>{if(f.error)return `<section class="card imp-file is-error"><div class="imp-file-top"><b>${esc(f.name)}</b><span class="pill warn">Not read</span></div><p class="small">${esc(f.error)}</p></section>`;
+   const mine=imp.entries.filter(e=>e.file===f.key),first=f.rows.reduce((a,r)=>r.date<a?r.date:a,'9999'),last=f.rows.reduce((a,r)=>r.date>a?r.date:a,'');
+   const debtSel=DebtFiles.isDebtFile(f)?`<label class="imp-which">This is<select data-imp-file="${esc(f.key)}">${opts(mine[0]?.debt||'','Pick the debt…')}</select></label>`:`<p class="small muted">${plural(mine.length,'payment')} to your debts found among ${plural(f.rows.length,'line')}.</p>`;
+   return `<section class="card imp-file"><div class="imp-file-top"><span><b>${esc(f.account)}</b><small class="dim">${esc(f.name)}</small></span><select class="imp-kind" data-imp-fkind="${esc(f.key)}" aria-label="What kind of account this file is from">${Object.entries(FILE_WORD).map(([k,l])=>`<option value="${k}" ${k===f.kind?'selected':''}>${l}</option>`).join('')}</select></div><p class="small muted">${plural(f.rows.length,'line')} · ${dateName(first)} to ${dateName(last)}, ${last.slice(0,4)}</p>${debtSel}</section>`;}).join('');
+  const E=imp.entries,on=E.filter(e=>e.on&&e.debt),sum=k=>on.filter(e=>e.kind===k).reduce((n,e)=>n+e.amount,0),cnt=k=>on.filter(e=>e.kind===k).length;
+  const kp=`<div class="kpis">${kpi('Payments',sum('payment'),plural(cnt('payment'),'payment'),'check','pos')}${kpi('New charges',sum('charge'),plural(cnt('charge'),'charge'),'tags','warn')}${kpi('Interest charged',sum('interest'),cnt('interest')?'Replaces the estimate for those months':'None in these files','spark','warn')}<div class="kpi"><div class="label">${kpiIco('review')}To check</div><b>${E.filter(e=>e.status==='pick').length}</b><small>${E.filter(e=>e.status==='dup'||e.status==='both').length} already logged · skipped</small></div></div>`;
+  const ST={new:['New','pos'],skip:['Not a debt — remembered',''],dup:['Already logged',''],both:['Also in the card’s file',''],before:['Before you started tracking',''],pick:['Pick a debt','warn']};
+  const shown=E.filter(e=>imp.show==='all'||(imp.show==='on'?e.on&&e.debt:!(e.on&&e.debt))).sort((a,b)=>b.date.localeCompare(a.date));
+  const filter=`<div class="segment" aria-label="Show">${[['all','All',E.length],['on','To import',on.length],['off','Skipped',E.length-on.length]].map(([k,l,n])=>`<button data-action="imp-show" data-k="${k}" aria-pressed="${imp.show===k}">${l} <span class="count">${n}</span></button>`).join('')}</div>`;
+  const table=`<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Check what comes in</h2><p>Ticked lines are imported. Change the debt or what a line is if it’s wrong.</p></div>${filter}</div><div class="table-wrap"><table class="no-tools imp-table"><thead><tr><th aria-label="Import">✓</th><th>Date</th><th>Description</th><th>Debt</th><th>What it is</th><th class="num">Amount</th><th>Status</th></tr></thead><tbody>${shown.map(e=>{const [st,tone]=ST[e.status]||['',''];
+   return `<tr class="${e.on&&e.debt?'':'is-off'}"><td><input type="checkbox" data-imp-on="${e.id}" ${e.on&&e.debt?'checked':''} ${e.debt?'':'disabled'} aria-label="Import this line"></td><td class="nw">${dateName(e.date)}, ${e.date.slice(0,4)}</td><td class="imp-desc">${esc(e.desc)}</td><td><select data-imp-debt="${e.id}" aria-label="Debt">${opts(e.debt,'Pick a debt…')}${e.payee!==undefined?`<option value="__no" ${e.notDebt?'selected':''}>Not a debt payment</option>`:''}</select></td><td><select data-imp-what="${e.id}" aria-label="What it is">${Object.entries(KIND_WORD).map(([k,l])=>`<option value="${k}" ${k===e.kind?'selected':''}>${l}</option>`).join('')}</select></td><td class="num ${e.kind==='payment'||e.kind==='credit'?'pos':e.kind==='balance'?'':'warn'}">${e.kind==='payment'||e.kind==='credit'?'−':e.kind==='balance'?'':'+'}${fmt(e.amount)}</td><td><span class="pill ${tone}">${st}</span></td></tr>`;}).join('')}</tbody></table></div>${shown.length?'':`<p class="muted small" style="padding:0 20px 20px">Nothing here.</p>`}</section>`;
+  const bar=`<div class="imp-bar"><span>${on.length?`<b>${plural(on.length,'entry','entries')}</b> ready for ${plural(new Set(on.map(e=>e.debt)).size,'debt')}`:'Nothing ticked yet'}</span>${button(`Import ${plural(on.length,'entry','entries')}`,'imp-go','primary',on.length?'':'disabled')}</div>`;
+  return head+`<div class="imp-files">${fileCards}</div>`+(E.length?kp+bar+table:`<section class="card">${empty('Nothing to bring in from these files','No payments, charges or interest for your debts were found. A bank file only gives the payments it sent to cards and loans.','imp-pick','Choose other files')}</section>`)+drop(false);}
+ function importGo(){const on=imp.entries.filter(e=>e.on&&e.debt).sort((a,b)=>a.date.localeCompare(b.date)||(a.kind==='balance')-(b.kind==='balance'));if(!on.length)return;
+  const paid=on.filter(e=>e.kind==='payment').reduce((n,e)=>n+e.amount,0),M0=mem();
+  commit(()=>{const I=state.debtImport||(state.debtImport={files:{},payees:{},kinds:{}});
+   on.forEach(e=>state.debtLog.push({id:Budget.uid(),debt:e.debt,date:e.date,amount:e.amount,kind:e.kind,note:e.desc.slice(0,200),ref:e.ref}));
+   imp.files.filter(f=>!f.error).forEach(f=>{I.kinds[f.key]=f.kind;const d=imp.entries.find(e=>e.file===f.key&&e.debt)?.debt;if(DebtFiles.isDebtFile(f)&&d)I.files[f.key]=d;});
+   imp.entries.filter(e=>e.payee!==undefined&&(e.touchedDebt||e.on)).forEach(e=>{I.payees[e.payee]=e.debt||'';});},`${plural(on.length,'entry','entries')} imported`);
+  imp={files:[],entries:[],show:'all',done:{n:on.length,paid}};render();}
+ document.addEventListener('change',e=>{const el=e.target;if(el.id==='debt-files'){importDebtFiles(el.files);el.value='';return;}
+  const E=id=>imp.entries.find(x=>x.id===id);
+  if(el.dataset?.impOn){const x=E(el.dataset.impOn);if(x){x.on=el.checked;x.touched=true;}render();return;}
+  if(el.dataset?.impDebt){const x=E(el.dataset.impDebt);if(x){x.notDebt=el.value==='__no';x.debt=x.notDebt?'':el.value;x.touchedDebt=true;delete x.touched;}recheck();render();return;}
+  if(el.dataset?.impWhat){const x=E(el.dataset.impWhat);if(x)x.kind=el.value;recheck();render();return;}
+  if(el.dataset?.impFile!==undefined){const k=el.dataset.impFile;imp.entries.filter(x=>x.file===k).forEach(x=>{x.debt=el.value;delete x.touched;});recheck();render();return;}
+  if(el.dataset?.impFkind!==undefined){const f=imp.files.find(x=>x.key===el.dataset.impFkind);if(!f)return;f.kind=el.value;imp.entries=imp.entries.filter(x=>x.file!==f.key).concat(DebtFiles.propose(f,live(),{...mem(),files:{}},Autopilot).map(x=>({...x,id:Budget.uid()})));recheck();render();}});
+ {const onDrop=e=>{const z=e.target.closest?.('#debt-drop');if(!z)return;e.preventDefault();if(e.type==='dragover'){z.classList.add('is-over');return;}z.classList.remove('is-over');if(e.type==='drop'){const f=[...(e.dataTransfer?.files||[])];if(f.length)importDebtFiles(f);}};
+  ['dragover','dragleave','drop'].forEach(n=>document.addEventListener(n,onDrop));}
  // ---------- what if ----------
  const W={extra:10000,lump:100000,lumpMonth:'',lumpDebt:'',rateDebt:'',rateApr:'',btDebt:'',btFee:3,btMonths:15,btApr:0,clDebts:[],clApr:11,clMonths:36,clFee:5,by:''};
  function whatifView(){const M=model(),head=pagehead('Try it before you do it','What if…','Change one thing and see your debt-free date and interest move. Nothing here changes your plan until you apply it.');
@@ -6465,6 +6599,12 @@ const Debts=(()=>{
    case 'plan-bump':{const n=+b.dataset.n;commit(()=>{state.debtPlan.budget=(M().plan.budget||0)+n;},`Plan: ${fmt(M().plan.budget+n)} a month`);break;}
    case 'plan-up':case 'plan-down':{const ids=customOrder().map(d=>d.id),i=ids.indexOf(id),j=a==='plan-up'?i-1:i+1;if(i<0||j<0||j>=ids.length)break;[ids[i],ids[j]]=[ids[j],ids[i]];commit(()=>{state.debtPlan.custom=ids;},'Order updated');break;}
    case 'dl-toggle':dlToggle(b);break;
+   case 'imp-pick':$('#debt-files')?.click();break;
+   case 'imp-clear':imp={files:[],entries:[],show:'all',done:null};render();break;
+   case 'imp-show':imp.show=b.dataset.k;render();break;
+   case 'imp-go':importGo();break;
+   case 'go-payments':go('payments');break;
+   case 'go-import':go('debtimport');break;
    case 'plan-all':showAll=!showAll;render();break;
    case 'plan-extra-add':{const D=live();modal('Plan a one-off payment','A bonus, a tax refund or money from a sale. It goes on top of your monthly budget that month.',`<form id="debt-extra-form"><div class="fields"><label>Month<input type="month" name="month" required value="${Debt.addMonths(thisMonth(),1)}" min="${thisMonth()}"></label><label>Amount<input name="amount" inputmode="decimal" required placeholder="0.00"></label><label class="full">To<select name="debt"><option value="">Your target debt (follows the strategy)</option>${D.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('')}</select></label><label class="full">Note<input name="note" maxlength="100" placeholder="e.g. Tax refund"></label></div>${formFoot('Add')}</form>`);break;}
    case 'plan-extra-del':commit(()=>{state.debtPlan.extras=state.debtPlan.extras.filter(x=>x.id!==id);},'One-off payment removed');break;
@@ -6479,7 +6619,7 @@ const Debts=(()=>{
   if(add){add.dataset.action='debt-pay';add.setAttribute('aria-label','Log a payment');add.innerHTML='<span class="add-full">＋ Log a payment</span><span class="add-short">＋ Pay</span>';}
   if(dem)dem.innerHTML='<b>Sample mode</b> · Fictional debts. Your own stay separate.';}
 
- return {views:{dashboard,debts:debtsView,plan:planView,payments:paymentsView,whatif:whatifView,progress:progressView,duedates:dueView},model};
+ return {views:{dashboard,debts:debtsView,plan:planView,payments:paymentsView,debtimport:importView,whatif:whatifView,progress:progressView,duedates:dueView},model,importState:()=>imp};
 })();
 const Auto=(()=>{
  if(!P.features.autopilot)return {views:{},txChip:()=>'',dashboard:null,bulkTools:()=>''};

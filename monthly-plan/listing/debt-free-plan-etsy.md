@@ -47,6 +47,7 @@ AND MUCH MORE
 ✔ Warnings when a balance is growing, a promo rate is ending, or a card is maxed out
 ✔ Card utilization, with the credit score strategy to bring it down
 ✔ Payoff timeline, balance-over-time chart, milestones and due-date calendar
+✔ Import your card, loan and bank downloads (CSV, OFX, QFX): payments, charges and real interest are matched to each debt, duplicates skipped
 ✔ Update a balance from your statement any time; the plan recalculates
 ✔ Find extra money: an optional budget and cut-back ideas to grow your monthly payment
 ✔ Every table sorts, searches and filters

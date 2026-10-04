@@ -28,7 +28,8 @@ function extractImport(html){
     +cut('const Platforms = (()=>{',"if(typeof module!=='undefined')module.exports=Platforms;")
     +cut('const Autopilot = (()=>{',"if(typeof module!=='undefined')module.exports=Autopilot;")
     +cut('const Debt = (()=>{',"if(typeof module!=='undefined')module.exports=Debt;")
-    +'\nmodule.exports={Budget,CSV,Platforms,Autopilot,Debt};\n';
+    +cut('const DebtFiles = (()=>{',"if(typeof module!=='undefined')module.exports=DebtFiles;")
+    +'\nmodule.exports={Budget,CSV,Platforms,Autopilot,Debt,DebtFiles};\n';
 }
 function extractImportTo(htmlFile,outFile){fs.writeFileSync(outFile,extractImport(fs.readFileSync(htmlFile,'utf8')));return outFile;}
 

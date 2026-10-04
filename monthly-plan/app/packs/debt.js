@@ -79,10 +79,10 @@ const NICHE = {
   defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', payout: 'platform-payout', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
 
   // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
-  nav: [['dashboard', 'Debt freedom', 'today'], ['debts', 'My debts', 'wallet'], ['plan', 'Payoff plan', 'plan'], ['payments', 'Payments', 'log'], ['whatif', 'What if', 'spark'], ['progress', 'Progress', 'outlook'], ['duedates', 'Due dates', 'calendar'],
+  nav: [['dashboard', 'Debt freedom', 'today'], ['debts', 'My debts', 'wallet'], ['plan', 'Payoff plan', 'plan'], ['payments', 'Payments', 'log'], ['debtimport', 'Import statements', 'up'], ['whatif', 'What if', 'spark'], ['progress', 'Progress', 'outlook'], ['duedates', 'Due dates', 'calendar'],
     ['budget', 'Monthly budget', 'plan'], ['activity', 'Transactions', 'log'], ['cuts', 'Find extra money', 'scissors'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
-  optionalNav: ['whatif', 'progress', 'duedates', 'budget', 'activity', 'cuts', 'guide'],
-  navGroups: [['Debt freedom', ['dashboard', 'debts', 'plan', 'payments', 'whatif', 'progress', 'duedates']], ['Find extra money', ['budget', 'activity', 'cuts']]],
+  optionalNav: ['debtimport', 'whatif', 'progress', 'duedates', 'budget', 'activity', 'cuts', 'guide'],
+  navGroups: [['Debt freedom', ['dashboard', 'debts', 'plan', 'payments', 'debtimport', 'whatif', 'progress', 'duedates']], ['Find extra money', ['budget', 'activity', 'cuts']]],
   navGroupRest: 'Make it yours',
 
   // words used across the screens
@@ -120,6 +120,7 @@ const NICHE = {
     ],
     meanings: [['Minimum', 'What each lender requires'], ['Extra', 'Your budget above the minimums'], ['Rollover', 'A cleared debt’s payment moves to the next'], ['Debt-free date', 'The month the last debt reaches zero']],
     details: [
+      ['Importing statement downloads', 'On <b>Import statements</b>, drop the CSV, OFX or QFX files you download from a card, a loan or your checking account (look for “Download activity” or “Export”). A card or loan file brings its payments, purchases, fees, refunds and the interest the lender charged; that interest replaces the app’s estimate for the month. A checking file gives only the payments it sent to your debts. You check every line before it’s saved, lines already logged are skipped, and the app remembers which debt each file and payee belongs to. PDF statements can’t be read: use <b>Update a balance</b> for those.'],
       ['Snowball, avalanche and the rest', '<b>Avalanche</b> sends every extra dollar to the highest interest rate: it costs the least. <b>Snowball</b> clears the smallest balance first: you see debts disappear sooner. <b>Cash flow</b> clears the debt that frees the most monthly minimum for its size. <b>Credit score</b> pays down the cards closest to their limit first. <b>Your order</b> follows the order you set. Whatever you pick, a cleared debt’s payment rolls over to the next one.'],
       ['How interest is worked out', 'Each month a debt is charged its APR ÷ 12 on the balance, before that month’s payments, like a card statement. A promotional rate (0% balance transfer, for example) applies until its end month, then the standard rate. Real lenders charge daily, so a statement can differ by a few cents or dollars: update the balance from your statement whenever you like.'],
       ['Keeping balances right', 'The app estimates each balance from the one you entered: interest each month, minus the payments you log, plus new charges. When a statement arrives, use <b>Update balance</b> to enter the real number; the estimate restarts from there.'],
