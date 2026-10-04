@@ -1260,11 +1260,11 @@ table.tbl-edit td small{display:block}table.tbl-edit select.ap-acct-cur{width:84
 @media(max-width:620px){.strat-grid{grid-template-columns:1fr}.strat-switch{grid-template-columns:1fr 1fr}.strat-switch button:last-child{grid-column:span 2}.gantt-row{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.gantt-row .gantt-track{grid-column:1/-1;order:3}.gantt-total .gantt-track{display:none}.deck-amt input{width:110px}.dl-chip{padding:4px 10px 4px 8px}}
 @media(prefers-reduced-motion:reduce){.dl-draw{animation:none;stroke-dasharray:none}.strat-card{transition:none}}
 @media print{.dl-draw{animation:none;stroke-dasharray:none}.strat-card{break-inside:avoid}.plan-deck input[type=range]{display:none}}
-.debt-hero.hero-stack{grid-template-columns:1fr;gap:var(--s5)}.hero-stack .hero-side{border-left:0;border-top:1px solid #ffffff1f;padding:var(--s5) 0 0}.hero-stack .hero-donut{max-width:440px;margin:0 auto}.debt-hero:not(.hero-stack){grid-template-columns:minmax(0,1fr) minmax(380px,440px)}
+.debt-hero.hero-stack{grid-template-columns:1fr;gap:var(--s5)}.hero-stack .hero-side{border-left:0;border-top:1px solid #ffffff1f;padding:var(--s5) 0 0}.hero-stack .hero-donut{max-width:500px;margin:0 auto}.debt-hero:not(.hero-stack){grid-template-columns:minmax(0,1fr) minmax(400px,480px)}
 .hero-donut{width:100%;min-width:0}.hero-donut svg{display:block;width:100%;height:auto;overflow:visible}
-.hd-track{fill:none;stroke:color-mix(in srgb,var(--on-bold) 10%,transparent);stroke-width:24}
-.hd-seg{fill:none;stroke-width:24;cursor:pointer;outline:none;transition:stroke-width .15s ease,opacity .15s ease;animation:hd-in .9s cubic-bezier(.3,.7,.2,1) both}
-.hd-seg:hover,.hd-seg:focus-visible{stroke-width:30}.hero-donut svg:has(.hd-seg:hover) .hd-seg:not(:hover){opacity:.55}
+.hd-track{fill:none;stroke:color-mix(in srgb,var(--on-bold) 10%,transparent);stroke-width:14}
+.hd-seg{fill:none;stroke-width:14;cursor:pointer;outline:none;transition:stroke-width .15s ease,opacity .15s ease;animation:hd-in .9s cubic-bezier(.3,.7,.2,1) both}
+.hd-seg:hover,.hd-seg:focus-visible{stroke-width:19}.hero-donut svg:has(.hd-seg:hover) .hd-seg:not(:hover){opacity:.55}
 @keyframes hd-in{from{stroke-dasharray:0 500}}
 .hd-lab{animation:fade-in .5s both}.hd-lab polyline{fill:none;stroke-width:1.2;opacity:.75}
 .hd-name{font:600 14px var(--sans,inherit);fill:var(--on-bold)}.hd-amt{font:700 13px var(--num);fill:var(--on-bold)}.hd-amt tspan{font-weight:500;fill:var(--on-bold-dim)}
@@ -5951,7 +5951,7 @@ const Debts=(()=>{
   const kp=`<div class="kpis kpis-lead">${kpi('Total owed',M.total,`${plural(M.rows.filter(r=>r.now>0).length,'debt')} · ${pctTxt(avgApr(M))} average rate`,'tags')}${kpi('Paid off so far',M.paidOff,`${pct}% of what you owed`,'check','pos')}${kpi('Interest this month',M.interestNow,'What your debt costs you now','spark','warn')}${kpi('Interest left to pay',S.totalInterest,saved!==null&&saved>0?`${fmt(saved)} saved vs minimums`:'On this plan','coins')}</div>`;
   return head+hero+kp+warningsCard(M)+`<div class="grid2 equal">${thisMonthCard(M)}${nextUpCard(M)}</div>`+balanceChart(M)+`<div class="grid2 equal">${minimumsCard(M)}${milestonesCard(M)}</div>`+(next?'':'');}
  // who you owe, as a ring: one slice per debt, each named around the outside, the total in the middle
- function heroDonut(M){const list=M.rows.filter(r=>r.now>0).sort((a,b)=>b.now-a.now),small=chartWidth<560,W=small?356:440,H=small?300:280,cx=W/2,cy=H/2,R=small?58:72,SW=small?20:24,OUT=small?20:40,CIRC=2*Math.PI*R,gap=list.length>1?2:0;
+ function heroDonut(M){const list=M.rows.filter(r=>r.now>0).sort((a,b)=>b.now-a.now),small=chartWidth<560,W=small?356:500,H=small?300:280,cx=W/2,cy=H/2,R=small?60:76,SW=small?12:14,OUT=small?24:58,CIRC=2*Math.PI*R,gap=list.length>1?2:0;
   if(!list.length)return '';let off=0,acc=0;
   if(list.length===1){const r=list[0];return `<div class="hero-donut hd-one"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(r.d.name)}: ${fmt(r.now)}, all of your debt"><circle class="hd-seg" cx="${cx}" cy="${cy}" r="${R+8}" stroke="${colorOf(r.d)}" stroke-dasharray="${(2*Math.PI*(R+8)).toFixed(2)} 999" transform="rotate(-90 ${cx} ${cy})"/><text x="${cx}" y="${cy-14}" text-anchor="middle" class="hd-mid-l">${esc(r.d.name)}</text><text x="${cx}" y="${cy+10}" text-anchor="middle" class="hd-mid-v">${esc(fmt(r.now))}</text><text x="${cx}" y="${cy+28}" text-anchor="middle" class="hd-mid-l">${pctTxt(Debt.aprIn(r.d,M.month))} APR</text></svg></div>`;}
   const segs=[],labels=[];
