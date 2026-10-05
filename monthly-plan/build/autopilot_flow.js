@@ -231,5 +231,7 @@ ${mo(0)}-10,${mo(0)}-10,Test Employer SL,,Income,NOMINA,"Main Account",1500.00,,
 {const r=await p.evaluate(()=>{showTransactions('all');txRange='all';render();const t=activityList.find(t=>t.acct&&editable(t));const before=t.amount;txSel.clear();txSel.add(t.id);render();const btn=document.querySelector('[data-action="ap-bulk-swap"]');if(!btn)return ['nobtn',screen,!!document.querySelector('.bulk-bar'),document.querySelector('.bulk-bar')?.innerText.slice(0,200)];btn.click();return [before,state.transactions.find(x=>x.id===t.id).amount];});
  ok('swap in/out flips only the selected rows',r[1]===-r[0],JSON.stringify(r));await p.evaluate(()=>{txSel.clear();});}
 ok('the app made no network requests',net===0,net);
+{const ins=await p.evaluate(()=>{go('insights',true);return document.querySelector('#content').innerText;});
+ ok('insights compare the month with your usual one, with no budget-plan wording',/What stands out/.test(ins)&&/usual/.test(ins)&&!/over plan|Planned income|Contribution gap/i.test(ins),ins.slice(0,200));}
 ok('no page errors',!errs.length,errs.join('|'));
 await b.close();console.log(fails?`${fails} failed`:'autopilot flow: all checks passed');process.exit(fails?1:0);})();

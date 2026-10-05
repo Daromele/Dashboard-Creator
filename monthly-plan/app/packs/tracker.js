@@ -9,7 +9,7 @@
 const NICHE = {
   id: 'tracker',
   product: {
-    name: 'Money Autopilot', mark: 'A', publisher: 'JPS DIGITAL PAGES', version: '1.0',
+    name: 'Money Autopilot', mark: 'A', publisher: 'MONEY TRACKER', version: '1.0',
     tagline: 'Income & expense tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Money Autopilot · Private Income & Expense Tracker', themeColor: '#1f3b36',
     description: 'Money Autopilot by JPS Digital Pages. Drop in your card and bank statements and see where your money goes, sorted automatically. No bank login. Works offline; your data never leaves your computer.',
@@ -140,6 +140,7 @@ const NICHE = {
   navGroupRest: 'Make it yours',
 
   labels: {
+    demoNote: 'Fictional household. Your own money stays separate.',
     income: 'Money in', expense: 'Spending', saving: 'Saved & invested', savingShort: 'Saved', savingOne: 'Saving',
     incomePlanned: 'Expected money in', incomeReceived: 'Money in', expensesPaid: 'Spent', savedInvested: 'Saved & invested',
     plannedContributions: 'Planned saving', savingsFilter: 'Savings & investing',
@@ -161,7 +162,7 @@ const NICHE = {
     { icon: 'up', step: 'AUTOMATIC', title: 'Statements in, picture out', text: '<p>Download CSV statements from each card and bank (most have a <b>Download</b> or <b>Export</b> button) and drop them all in at once. Card payments and transfers between your accounts are paired, so nothing counts twice.</p>' },
     { icon: 'check', step: 'LEARNS', title: 'It asks only when it’s unsure', text: '<p>The few transactions it can’t place wait in <b>Needs a look</b>. Pick a category once and every future one from the same place follows.</p>' },
     'backup',
-    { icon: 'up', step: 'START', title: 'Add your first statements', text: '<p>Start with last month from every card and bank account. You can add older months any time; repeats are skipped.</p>', cta: { label: 'Add statements', action: 'import' } },
+    { icon: 'up', step: 'START', title: 'Add your first statements', text: '<p>Start with last month from every card and bank account. You can add older months any time; repeats are skipped.</p>', cta: { label: 'Add statements', action: 'import' }, finish: 'Look around first' },
   ],
   guide: {
     title: 'Three steps. Then it runs itself.',

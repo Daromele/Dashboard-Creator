@@ -1606,6 +1606,7 @@ td .btn+.btn{margin-left:6px}
 @media(max-width:620px){.topbar .actions{gap:6px}}
 .debt-card.is-hold .dg-head{filter:saturate(.35)}.debt-card.is-hold .dg-arc{opacity:.5}
 .debt-table td small .pill{margin-top:4px;display:inline-block}
+.insight h3 svg{width:15px;height:15px;vertical-align:-2px;margin-right:7px;color:var(--accent)}.ins-up h3 svg,.ins-price h3 svg,.ins-fee h3 svg{color:var(--neg)}.ins-down h3 svg{color:var(--pos)}
 .kpi-mode{display:flex;justify-content:flex-end;margin:-8px 0 10px}
 .merge-box{display:flex;align-items:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}.merge-box label{flex:1}
 .ap-bulk-rename{display:inline-flex;gap:6px;align-items:center}.ap-bulk-rename input{width:180px}
@@ -3434,7 +3435,7 @@ function restoreFocus(f){
 }
 function render(){
  const _focus=captureFocus();measureChartWidth();
- document.documentElement.dataset.theme=state.settings.theme;document.body.dataset.screen=screen;document.body.classList.toggle('records',!!P.features.records);document.body.classList.toggle('debt-ed',!!P.features.debt);if(P.features.records){const ab=$('.topbar [data-action="add"]');if(ab){ab.dataset.action='add-record';ab.setAttribute('aria-label','Add a record');ab.querySelector('.add-full').textContent='＋ Add record';}}$('#month-picker').value=selected;$('#month-label').textContent=monthName(selected);$('#demo-banner').hidden=!demo;{const dt=$('#demo-toggle');if(dt){dt.textContent=demo?L.exitDemo:'Explore sample data';dt.dataset.action=demo?'exit-demo':'demo';}}
+ document.documentElement.dataset.theme=state.settings.theme;document.body.dataset.screen=screen;document.body.classList.toggle('records',!!P.features.records);document.body.classList.toggle('debt-ed',!!P.features.debt);if(P.labels?.demoNote){const dn=$('#demo-banner span');if(dn)dn.innerHTML='<b>Sample mode</b> · '+esc(P.labels.demoNote);}if(P.features.records){const ab=$('.topbar [data-action="add"]');if(ab){ab.dataset.action='add-record';ab.setAttribute('aria-label','Add a record');ab.querySelector('.add-full').textContent='＋ Add record';}}$('#month-picker').value=selected;$('#month-label').textContent=monthName(selected);$('#demo-banner').hidden=!demo;{const dt=$('#demo-toggle');if(dt){dt.textContent=demo?L.exitDemo:'Explore sample data';dt.dataset.action=demo?'exit-demo':'demo';}}
  const hidden=new Set([...(state.settings.hiddenNav||[]),...(P.estimateNav&&!state.settings.es?.estimates?P.estimateNav:[])]);let lastGroup='';
  $('#nav').innerHTML=navItems.filter(([id])=>!hidden.has(id)).map(([id,name,icon])=>{const group=navGroup(id),heading=group!==lastGroup?`<div class="navgroup">${group}</div>`:'';lastGroup=group;return `${heading}<button class="navlink" data-go="${id}" ${screen===id?'aria-current="page"':''}>${ico(icon)}<span>${name}</span></button>`;}).join('');
  const views={dashboard:dashboardView,annual:annualView,years:yearsView,cuts:cutsView,budget:budgetView,activity:activityView,goals:goalsView,calendar:calendarView,insights:insightsView,review:reviewView,settings:settingsView,guide:guideView,import:importView,scheduled:scheduledView,wealth:wealthView,...Biz.views,...Auto.views,...Debts.views};
@@ -7174,7 +7175,40 @@ const Auto=(()=>{
    // a category rule for the old name follows the new one
    const R=state.categoryRules||{};keys.forEach(k=>{if(R[k]&&nk&&!R[nk])R[nk]=R[k];});},`${plural(all.length,'transaction')} renamed to ${name} · future statements follow`);});
  if(canFolder())setTimeout(()=>folderStore('get',null,'statements').then(h=>{if(h){stmtFolder=h;if(!demo)scanFolder(false);}}).catch(()=>{}),300);
- return {rehome,bulkTools,views:{import:importScreen,accounts:accountsScreen,inbox:inboxScreen,recurring:recurringScreen,paychecks:paychecksScreen,invest:netWorthScreen,dashboard},txChip,dashboard,importFiles,looking};
+ // ---------- insights: this month against your usual, from the statements themselves ----------
+ function insightsScreen(){const m=selected,ago=n=>{const d=new Date(Date.UTC(+m.slice(0,4),+m.slice(5,7)-1-n,1));return d.toISOString().slice(0,7);},prev=[1,2,3].map(ago);
+  const inMonth=mm=>state.transactions.filter(t=>t.date.startsWith(mm)),skip=new Set([AP.people,'cash',AP.unsorted]);
+  const spendBy=mm=>{const by=new Map();inMonth(mm).forEach(t=>{if(typeOf(t.category)!=='expense')return;by.set(t.category,(by.get(t.category)||0)+t.amount);});return by;};
+  const sum=(mm,ty)=>inMonth(mm).filter(t=>typeOf(t.category)===ty).reduce((n,t)=>n+t.amount,0);
+  const now=spendBy(m),had=prev.filter(mm=>inMonth(mm).length),avgBy=new Map();had.forEach(mm=>spendBy(mm).forEach((v,k)=>avgBy.set(k,(avgBy.get(k)||0)+v/had.length)));
+  const T=Budget.totals(state,m),spend=T.expense.actual,usual=had.length?Math.round(had.reduce((n,mm)=>n+Budget.totals(state,mm).expense.actual,0)/had.length):0,inc=T.income.actual,kept=inc-spend;
+  const head=pagehead('A little perspective','Notice the patterns',`${monthName(m)} against your usual month${had.length?` (the ${had.length===1?'month':had.length+' months'} before)`:''}.`,'<button class="btn quiet" data-go="activity">See transactions</button>');
+  if(!inMonth(m).length)return head+`<section class="card">${empty(`Nothing for ${monthName(m)} yet`,'Add statements that cover this month, or pick another month at the top.','import','Add statements')}</section>`;
+  const subs=found().filter(r=>r.active),subMonth=subs.reduce((n,r)=>n+r.perMonth,0);
+  const FEES=/\b(fees?|interest charge|finance charge|overdraft|late (fee|charge)|nsf|returned item|atm surcharge|foreign transaction)\b/i,fees=inMonth(m).filter(t=>t.amount>0&&FEES.test(t.note||'')&&typeOf(t.category)==='expense');
+  const pct=(a,b)=>b?Math.round((a-b)/b*100):0;
+  const kp=`<div class="kpis">${kpi('Spending',spend,had.length?`${spend>=usual?'+':''}${pct(spend,usual)}% vs your usual ${fmt(usual)}`:'Your first month here','up',had.length&&spend>usual*1.1?'warn':'')}${kpi('Kept',kept,inc?`${Math.round(kept/inc*100)}% of ${fmt(inc)} money in`:'No money in recorded','wallet',kept<0?'warn':'pos')}${kpi('Subscriptions & bills',subMonth,`${plural(subs.length,'charge')} that repeat, a month`,'calendar')}${kpi('Fees & interest',fees.reduce((n,t)=>n+t.amount,0),fees.length?plural(fees.length,'charge'):'None this month','spark',fees.length?'warn':'')}</div>`;
+  const notes=[],nm=id=>esc(category(id)?.name||'Other');
+  if(had.length){const rows=[...new Set([...now.keys(),...avgBy.keys()])].filter(k=>!skip.has(k)).map(k=>({k,now:now.get(k)||0,avg:Math.round(avgBy.get(k)||0)}));
+   rows.filter(r=>r.now>r.avg*1.25&&r.now-r.avg>=2500).sort((a,b)=>(b.now-b.avg)-(a.now-a.avg)).slice(0,3).forEach(r=>notes.push(['up',`${nm(r.k)} ran higher`,`${fmt(r.now)} this month, ${fmt(r.now-r.avg)} more than your usual ${fmt(r.avg)}.`]));
+   rows.filter(r=>r.avg>=2500&&r.now<r.avg*0.75&&r.avg-r.now>=2500).sort((a,b)=>(b.avg-b.now)-(a.avg-a.now)).slice(0,2).forEach(r=>notes.push(['down',`${nm(r.k)} came in lower`,`${fmt(r.now)} this month, ${fmt(r.avg-r.now)} less than your usual ${fmt(r.avg)}.`]));}
+  subs.filter(r=>r.up>0&&r.last.startsWith(m)).forEach(r=>notes.push(['price',`${esc(r.name)} went up`,`Now ${fmt(r.lastAmount)}, ${fmt(r.up)} more than last time: ${fmt(r.up*12)} a year if it stays.`]));
+  const before=new Set(state.transactions.filter(t=>t.date<m+'-01').map(t=>A.keyOf(t.note))),fresh=new Map();
+  if(before.size)inMonth(m).forEach(t=>{if(typeOf(t.category)!=='expense'||t.amount<=0||skip.has(t.category))return;const k=A.keyOf(t.note);if(!k||before.has(k))return;const x=fresh.get(k)||{name:t.note,n:0,sum:0};x.n++;x.sum+=t.amount;fresh.set(k,x);});
+  const newOnes=[...fresh.values()].filter(x=>x.sum>=2000).sort((a,b)=>b.sum-a.sum);
+  if(newOnes.length)notes.push(['new',`${plural(newOnes.length,'new place')} this month`,newOnes.slice(0,4).map(x=>`${esc(x.name)} (${fmt(x.sum)})`).join(', ')+(newOnes.length>4?` and ${newOnes.length-4} more`:'')+'.']);
+  const big=inMonth(m).filter(t=>typeOf(t.category)==='expense'&&t.amount>0).sort((a,b)=>b.amount-a.amount).slice(0,3);
+  if(big.length)notes.push(['big','Biggest purchases',big.map(t=>`${esc(t.note)} ${fmt(t.amount)} on ${dateName(t.date)}`).join(' · ')]);
+  if(fees.length)notes.push(['fee','Fees and interest',`${fmt(fees.reduce((n,t)=>n+t.amount,0))}: ${fees.slice(0,3).map(t=>esc(t.note)).join(', ')}. Often one call or an autopay away from zero.`]);
+  if(had.length&&inc){const ui=had.reduce((n,mm)=>n+Budget.totals(state,mm).income.actual,0)/had.length,uk=ui?Math.round((ui-usual)/ui*100):0,k=Math.round(kept/inc*100);notes.push([k>=uk?'down':'up',`You kept ${k}% of what came in`,`Your usual month keeps ${uk}%. ${k>=uk?`That’s ${fmt(kept-Math.round(ui-usual))} more than usual.`:`That’s ${fmt(Math.round(ui-usual)-kept)} less than usual.`}`]);}
+  {const t0=Budget.today(),soon=subs.filter(r=>r.next&&r.next>=t0&&r.next<=Budget.plusDays(t0,21)).sort((a,b)=>a.next.localeCompare(b.next));if(soon.length&&[t0.slice(0,7),Debt.addMonths(t0.slice(0,7),-1)].includes(m))notes.push(['soon',`${plural(soon.length,'charge')} coming in the next 3 weeks`,soon.slice(0,5).map(r=>`${esc(r.name)} ${fmt(r.lastAmount)} on ${dateName(r.next)}`).join(' · ')+(soon.length>5?` and ${soon.length-5} more`:'')+` · ${fmt(soon.reduce((n,r)=>n+r.lastAmount,0))} in all.`]);}
+  if(!notes.length)notes.push(['ok','A steady month','Nothing unusual: every category stayed close to your usual month.']);
+  const ICONS={up:'up',down:'down',price:'spark',new:'plus',big:'coins',fee:'tags',ok:'check',soon:'calendar'};
+  const list=`<section class="card"><div class="cardhead"><div><h2>What stands out</h2><p>${monthName(m)}</p></div></div>${notes.map(([k,t,b])=>`<div class="insight ins-${k}"><h3>${ico(ICONS[k]||'spark')}${t}</h3><p>${b}</p></div>`).join('')}</section>`;
+  const top=[...now.entries()].filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]),tot=top.reduce((n,[,v])=>n+v,0);
+  const mix=`<section class="card"><div class="cardhead"><div><h2>Your spending mix</h2><p>${monthName(m)} · ${fmt(tot)} across ${plural(top.length,'category','categories')}</p></div></div>${(top.length>10?[...top.slice(0,9),['__other',top.slice(9).reduce((n,[,v])=>n+v,0)]]:top).map(([k,v])=>{if(k==='__other')return `<div class="budget-row"><div class="row"><strong>${plural(top.length-9,'other category','other categories')}</strong><span class="number"><b>${Math.round(v/tot*100)||'<1'}%</b> · ${fmt(v)}</span></div><div class="meter"><i style="width:${(v/top[0][1]*100).toFixed(1)}%"></i></div></div>`;const a=Math.round(avgBy.get(k)||0);return `<div class="budget-row"><div class="row"><strong>${nm(k)}</strong><span class="number"><b>${Math.round(v/tot*100)||'<1'}%</b> · ${fmt(v)}${had.length&&a?` <small class="dim">usual ${fmt(a)}</small>`:''}</span></div><div class="meter"><i style="width:${(v/top[0][1]*100).toFixed(1)}%"></i></div></div>`;}).join('')}</section>`;
+  return head+kp+`<div class="grid2 equal">${list}${mix}</div>`;}
+ return {rehome,bulkTools,views:{import:importScreen,accounts:accountsScreen,inbox:inboxScreen,recurring:recurringScreen,paychecks:paychecksScreen,invest:netWorthScreen,insights:insightsScreen,dashboard},txChip,dashboard,importFiles,looking};
 })();
 // ---------- every table: sort by any column, search, filter ----------
 // Runs after each render on the tables of the screen. A heading click sorts (numbers, money and dates by
