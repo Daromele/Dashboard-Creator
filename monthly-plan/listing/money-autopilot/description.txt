@@ -1,27 +1,3 @@
-# Etsy listing: Money Autopilot (Money Tracker)
-
-## Title (133 of 140 characters)
-
-Money Tracker App, Automatic Expense Tracker from Bank Statements, Subscription Tracker, Net Worth, Spending Tracker, No Subscription
-
-## Tags (13, each 20 characters or fewer)
-
-1. expense tracker
-2. money tracker
-3. spending tracker
-4. budget tracker app
-5. finance tracker
-6. bank statement
-7. subscription track
-8. net worth tracker
-9. personal finance
-10. income expense log
-11. monthly spending
-12. money planner
-13. finance dashboard
-
-## Description
-
 Stop typing transactions. Drop in your bank and card statements and see exactly where your money goes, sorted for you.
 
 Money Autopilot is a money tracker in a single file. Download the CSV from each bank and card, drop them all in at once, and it reads every line, cleans up the merchant names, sorts each one into a category and shows your month: money in, spending, what you kept, and where it all went. No bank login, no account linking, no subscription.
