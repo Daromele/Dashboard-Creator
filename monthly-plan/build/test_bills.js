@@ -42,6 +42,13 @@ module.exports=({eq,ok})=>{
   const Y=C.yearSpread([rent,{id:'y',name:'Prime',amount:13900,freq:'yearly',start:'2025-06-20',kind:'sub'}],'2026');
   eq('a yearly bill lands in its month', [Y[5].sub,Y[4].sub,Y[5].bill], [13900,0,145000]);
   eq('the year adds up', Y.reduce((s,m)=>s+m.total,0), 145000*12+13900);
+  // the next 12 months, across a year end
+  const N=C.spread([rent,{id:'y',name:'Prime',amount:13900,freq:'yearly',start:'2025-06-20',kind:'sub'}],'2026-10',12);
+  eq('12 months from October run to September', [N[0].month,N[3].month,N[11].month], ['2026-10','2027-01','2027-09']);
+  eq('the yearly bill lands once in the next 12 months', N.reduce((s,m)=>s+m.sub,0), 13900);
+  // a category from the name
+  eq('categories guessed from names', ['Car insurance','Rent','Electric','Verizon','Netflix','iCloud','Gym','Student loan','Daycare','Zorblat'].map(n=>C.guessCat(n,'bill')), ['insurance','housing','utilities','phone','streaming','software','memberships','loans','kids','other']);
+  eq('an unknown subscription is streaming', C.guessCat('Zorblat','sub'), 'streaming');
   // renewals, trials and reminders in a window
   const ev=C.upcomingEvents([{id:'y',name:'Prime',amount:13900,freq:'yearly',start:'2025-11-02',kind:'sub'},t,{...rent,cancelBy:'2026-10-20'}],'2026-10-10',30);
   eq('upcoming events in order', ev.map(e=>e.b.id+':'+e.type), ['r:cancel','t:trial','y:renewal']);

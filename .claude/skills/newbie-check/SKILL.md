@@ -72,6 +72,7 @@ Every rule came from a real finding.
 - Recording a late item: is the date stored as today or as the due date? Does that wreck an on-time rate?
 - Dialog titles match the action ("Edit payment" is not titled "Mark paid").
 - Every button does something in every state: empty, first data, sample mode.
+- Tick every checkbox in every form: a checked label must not render struck through (a checklist style leaking into forms).
 
 **Numbers**
 - Zero data must not show 100%, red, "Lightest month $0" or a full ring. Show "—" and a hint instead.

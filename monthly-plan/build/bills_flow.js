@@ -24,9 +24,11 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('a preset fills the form',await p.evaluate(()=>document.querySelector('#bt-form [name=name]').value==='Rent'&&document.querySelector('#bt-form [name=cat]').value==='housing'));
  await p.evaluate(()=>document.querySelector('#bt-form').requestSubmit());await p.waitForTimeout(150);
  ok('a bill without an amount is not saved (the form asks for it)',await p.evaluate(()=>$('#modal').open&&!document.querySelector('#bt-form').checkValidity()&&!(state.btBills||[]).length));
- await p.fill('#bt-form [name=amount]','abc');await p.evaluate(()=>document.querySelector('#bt-form').requestSubmit());await p.waitForTimeout(150);
+ await fill({amount:'abc',start:'2026-10-01'});await p.evaluate(()=>document.querySelector('#bt-form').requestSubmit());await p.waitForTimeout(150);
  ok('an amount that isn’t a number is explained in the form',await p.evaluate(()=>$('#modal').open&&!document.querySelector('#form-error').hidden&&/amount/i.test(document.querySelector('#form-error').innerText)&&!(state.btBills||[]).length));
- await fill({amount:'$1,450',start:'2026-10-01'});await p.evaluate(()=>document.querySelector('#bt-form').requestSubmit());await p.waitForTimeout(350);
+ ok('a date that has passed asks “Already paid?”, ticked',await p.evaluate(()=>{const l=document.querySelector('#bt-form .bt-paidpast');return l&&!l.hidden&&l.querySelector('input').checked;}));
+ await fill({amount:'$1,450'});await p.evaluate(()=>document.querySelector('#bt-form').requestSubmit());await p.waitForTimeout(350);
+ ok('…and records it paid on its due date, not overdue',await p.evaluate(()=>state.btLog.length===1&&state.btLog[0].date==='2026-10-01'&&state.btLog[0].due==='2026-10-01'),await p.evaluate(()=>JSON.stringify(state.btLog)));
  ok('“$1,450” is read as 1,450.00',await p.evaluate(()=>state.btBills[0]?.amount===145000),await p.evaluate(()=>JSON.stringify(state.btBills)));
  await add({name:'Electric',amount:'120',freq:'monthly',start:'2026-10-08',cat:'utilities',varies:true});
  await add({name:'Phone',amount:'85',freq:'monthly',start:'2026-10-02',cat:'phone',autopay:true});
@@ -42,7 +44,11 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  await p.evaluate(()=>go('dashboard'));await p.waitForTimeout(200);
  const tick=async(name)=>{await p.evaluate(n=>{const i=BillsUI.model().month.items.find(x=>x.b.name===n);document.querySelector(`.bt-check[data-id="${i.b.id}"][data-due="${i.due}"]`).click();},name);await p.waitForTimeout(250);};
  await tick('Rent');
- ok('ticking rent records it as paid, for the bill amount, today',await p.evaluate(()=>{const e=state.btLog.find(x=>x.bill===state.btBills[0].id);return e&&e.amount===145000&&e.date==='2026-10-03'&&e.due==='2026-10-01';}));
+ ok('unticking rent makes it overdue',await p.evaluate(()=>!state.btLog.length&&BillsUI.model().overdue.length===1));
+ await tick('Rent');
+ ok('ticking an overdue bill asks when it was paid, starting at its due date',await p.evaluate(()=>!!document.querySelector('#bt-pay-form')&&document.querySelector('#bt-pay-form [name=date]').value==='2026-10-01'&&/mark paid/.test(document.querySelector('#modal-title').innerText)));
+ await p.evaluate(()=>document.querySelector('#bt-pay-form').requestSubmit());await p.waitForTimeout(250);
+ ok('rent is recorded as paid on time, for the bill amount',await p.evaluate(()=>{const e=state.btLog.find(x=>x.bill===state.btBills[0].id);return e&&e.amount===145000&&e.date==='2026-10-01'&&e.due==='2026-10-01';}));
  ok('left to pay drops by the rent',await p.evaluate(()=>BillsUI.model().month.left===12000+1799+4999));
  await tick('Rent');
  ok('ticking again takes it back',await p.evaluate(()=>!state.btLog.length));
@@ -111,6 +117,52 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('start fresh offers to keep the bills',await p.evaluate(()=>/Keep my bills/.test(document.querySelector('#fresh-form').innerText)));
  await p.check('#fresh-form [name=sure]');await p.evaluate(()=>document.querySelector('#fresh-form').requestSubmit());await p.waitForTimeout(500);
  ok('payments cleared, bills kept',await p.evaluate(()=>state.btBills.length===7&&!state.btLog.length));
+ // ---- a newcomer's first minutes (from the newbie check): a fresh page, fresh data ----
+ {const q=await b.newPage({viewport:{width:1300,height:900}});q.on('pageerror',e=>errs.push(e.message));await q.clock.setFixedTime(new Date('2026-10-03T12:00:00'));
+  await q.goto(F);await q.evaluate(()=>{localStorage.clear();});await q.goto(F);await q.waitForTimeout(400);await q.evaluate(()=>{try{closeWelcome()}catch{}});
+  const v=(js,a)=>q.evaluate(js,a);
+  ok('empty app: no year or month arrows to click',await v(()=>{go('yearcost');const a=!document.querySelector('#content .due-nav');go('billcal');return a&&!document.querySelector('#content .due-nav');}));
+  await v(()=>{go('dashboard');document.querySelector('.topbar [data-action="bt-add"]').click();});await q.waitForTimeout(150);
+  ok('a new bill’s due date starts empty (no accidental “due today”)',await v(()=>document.querySelector('#bt-form [name=start]').value===''));
+  const typed=async(name)=>{await q.fill('#bt-form [name=name]',name);return v(()=>document.querySelector('#bt-form [name=cat]').value);};
+  ok('the category follows the name: Car insurance → insurance',await typed('Car insurance')==='insurance');
+  ok('Electric → utilities',await typed('Electric')==='utilities');
+  ok('an unknown bill → Other, not Utilities',await typed('Zorblat')==='other');
+  await q.click('#bt-form label:has(input[name=kind][value=sub])');
+  ok('switching to Subscription moves an unknown one to Streaming',await v(()=>document.querySelector('#bt-form [name=cat]').value)==='streaming');
+  await q.selectOption('#bt-form [name=cat]','health');
+  ok('a category you pick yourself stays put',await typed('Netflix')==='health');
+  await v(()=>closeModal());
+  // one bill: the usual ones stay one click away; four overdue fixed bills and one that varies
+  await v(()=>{state.btBills=[{id:'r',name:'Rent',amount:145000,kind:'bill',cat:'housing',freq:'monthly',start:'2026-11-01',color:0}];commit(()=>{},'');go('dashboard');});await q.waitForTimeout(150);
+  ok('with one bill, “Add the rest of your bills” offers the usual ones (Rent already gone)',await v(()=>{const c=document.querySelector('.bt-more-card');return !!c&&!c.querySelector('[data-preset="0"]')&&!!c.querySelector('[data-preset="2"]');}));
+  ok('Subscriptions at $0 is not tinted as a warning',await v(()=>![...document.querySelectorAll('.kpi')].find(k=>/Subscriptions/.test(k.innerText)).querySelector('b').classList.contains('warn')));
+  ok('the year chart starts counting at the first bill (no “$0” months before it)',await v(()=>/from Nov/.test(document.querySelector('.bt-chart').closest('.card').innerText)));
+  await v(()=>go('yearcost'));
+  ok('Yearly cost defaults to the next 12 months',await v(()=>/next 12 months/.test(document.querySelector('#content').innerText)&&document.querySelector('[data-action="bt-year-next12"]').getAttribute('aria-pressed')==='true'));
+  ok('…and its lightest month isn’t a month before the first bill',await v(()=>!/Lightest month\s*\$0/.test(document.querySelector('#content').innerText)));
+  await v(()=>document.querySelector('[data-action="bt-year-cal"]').click());
+  ok('Calendar year shows the year with arrows',await v(()=>!!document.querySelector('[data-action="bt-year-prev"]')&&/Your bills in 2026/i.test(document.querySelector('#content').innerText)));
+  await v(()=>{state.btBills=['Water','Phone','Internet'].map((n,i)=>({id:'b'+i,name:n,amount:5000,kind:'bill',cat:'utilities',freq:'monthly',start:'2026-10-0'+(i+1),color:i})).concat([{id:'e',name:'Electric',amount:9000,kind:'bill',cat:'utilities',freq:'monthly',start:'2026-10-02',varies:true,color:4},{id:'n',name:'Netflix',amount:1799,kind:'sub',cat:'streaming',freq:'monthly',start:'2026-10-20',color:5}]);state.btLog=[];commit(()=>{},'');go('dashboard');});await q.waitForTimeout(150);
+  ok('five bills: the quick-add card steps aside',await v(()=>!document.querySelector('.bt-more-card')));
+  ok('the bulk button counts only what it pays (3, not 4 with Electric)',await v(()=>/Mark 3 as paid/.test(document.querySelector('[data-action="bt-paid-due"]')?.innerText||'')));
+  await v(()=>document.querySelector('[data-action="bt-paid-due"]').click());await q.waitForTimeout(150);
+  ok('bills paid late ask: on their due dates, or today',await v(()=>!!document.querySelector('#bt-bulk-form [name=when][value=due]')));
+  await v(()=>document.querySelector('#bt-bulk-form').requestSubmit());await q.waitForTimeout(200);
+  ok('…on their due dates by default, so they count as on time',await v(()=>state.btLog.length===3&&state.btLog.every(e=>e.date===e.due)));
+  await v(()=>go('billcal'));
+  ok('Busiest week says which week',await v(()=>/Busiest week[\s\S]*Oct 1–7/.test(document.querySelector('.kpis').innerText)));
+  await v(()=>{go('billpay');document.querySelector('[data-action="bt-log-edit"]').click();});await q.waitForTimeout(150);
+  ok('editing a payment is titled “edit payment”, saved with Save',await v(()=>/edit payment/.test(document.querySelector('#modal-title').innerText)&&/Save/.test(document.querySelector('#bt-pay-form .formfoot').innerText)));
+  await v(()=>{closeModal();state.btLog=[];commit(()=>{},'');go('billpay');});await q.waitForTimeout(150);
+  ok('On time with no payments shows “—”, not 100%',await v(()=>{const k=[...document.querySelectorAll('.kpi')].find(k=>/On time/.test(k.innerText));return /—/.test(k.innerText)&&!/100%/.test(k.innerText);}));
+  await v(()=>{go('mybills');document.querySelector('[data-action="bt-edit"][data-id="b0"]').click();});await q.waitForTimeout(150);
+  ok('edit form: “New price starts” and “Since” stay hidden until they matter',await v(()=>document.querySelector('.bt-pricefrom').hidden&&document.querySelector('.bt-since').hidden));
+  await q.fill('#bt-form [name=amount]','55');await q.selectOption('#bt-form [name=status]','paused');
+  ok('…and show when the amount or status changes',await v(()=>!document.querySelector('.bt-pricefrom').hidden&&!document.querySelector('.bt-since').hidden));
+  await v(()=>{closeModal();document.querySelector('[data-action="demo"]').click();go('guide');});await q.waitForTimeout(300);
+  ok('in sample mode the guide offers the way back, not “Explore sample mode”',await v(()=>!!document.querySelector('#content [data-action="exit-demo"]')&&!document.querySelector('#content [data-action="demo"]')));
+  await q.close();}
  // phone width: nothing spills sideways
  await p.setViewportSize({width:390,height:844});
  for(const v of ['dashboard','mybills','billcal','renewals','yearcost','billpay','settings']){await p.evaluate(x=>go(x),v);await p.waitForTimeout(150);const w=await p.evaluate(()=>document.documentElement.scrollWidth);ok(`${v} fits a phone`,w<=392,w);}
