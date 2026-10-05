@@ -1,0 +1,70 @@
+{
+ "app": "../../app/NetWorthFireTracker.html",
+ "out": "shots",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "view": "dashboard",
+   "offset": 6
+  },
+  {
+   "name": "growth",
+   "view": "dashboard",
+   "scrollTo": "#content section:has(> .nw-chart)",
+   "before": "const e=document.querySelector('#content section:has(> .nw-chart)');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);"
+  },
+  {
+   "name": "accounts",
+   "view": "nwaccounts",
+   "offset": 6
+  },
+  {
+   "name": "checkin",
+   "view": "checkin",
+   "offset": 6,
+   "before": "const f=document.querySelector('#nw-ci-form'),set=(id,v)=>{const i=f.querySelector('[name=\"b-'+id+'\"]');i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));};set('a-401k','196210.40');set('a-idx','129140.25');set('a-roth','63120.00');set('a-check','6240.00');set('a-mort','284800.00');set('a-visa','980.00');"
+  },
+  {
+   "name": "fire",
+   "view": "fire",
+   "offset": 6
+  },
+  {
+   "name": "road",
+   "view": "fire",
+   "scrollTo": "#content section:has(> .nw-chart)",
+   "before": "const r=document.querySelector('#content section:has(> .nw-chart)');document.querySelector('#content .kpis').after(r);window.scrollTo(0,r.getBoundingClientRect().top+scrollY-96);"
+  },
+  {
+   "name": "milestones",
+   "view": "milestones",
+   "offset": 6
+  },
+  {
+   "name": "history",
+   "view": "nwhistory",
+   "offset": 6
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  }
+ ],
+ "themes": {
+  "list": [
+   "ledger",
+   "sage",
+   "fjord",
+   "linen",
+   "slate",
+   "lavender",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('dashboard',true);render();document.querySelector('#toast').hidden=true;"
+ }
+}

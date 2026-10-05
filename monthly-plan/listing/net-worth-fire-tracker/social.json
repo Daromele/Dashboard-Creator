@@ -1,0 +1,272 @@
+{
+ "app": "../../app/NetWorthFireTracker.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#10241F",
+  "bold": "#16362F",
+  "pop": "#E8B04B",
+  "paper": "#F7F8F6",
+  "calm": "#1F6F5C"
+ },
+ "fps": 30,
+ "shots_dir": "sshots",
+ "bpm": 104,
+ "music": 0.5,
+ "output": "Net_Worth_FIRE_Tracker_Social.mp4",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "hero": "#content .debt-hero",
+    "heroL": "#content .debt-hero > div:first-child"
+   }
+  },
+  {
+   "name": "ci0",
+   "view": "checkin",
+   "scrollTo": "#content .nw-ci-sum",
+   "targets": {
+    "net": "#content .nw-ci-sum .kpi >> nth=0",
+    "sum": "#content .nw-ci-sum",
+    "a": "#content input[name=\"b-a-401k\"]",
+    "b": "#content input[name=\"b-a-idx\"]",
+    "rows": "#content #nw-ci-form"
+   }
+  },
+  {
+   "name": "ci1",
+   "before": "const f=document.querySelector('#nw-ci-form'),set=(id,v)=>{const i=f.querySelector('[name=\"b-'+id+'\"]');i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));};set('a-401k','201450.00');",
+   "clipFrom": "ci0"
+  },
+  {
+   "name": "ci2",
+   "before": "const f=document.querySelector('#nw-ci-form'),set=(id,v)=>{const i=f.querySelector('[name=\"b-'+id+'\"]');i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));};set('a-401k','201450.00');set('a-idx','133980.00');",
+   "clipFrom": "ci0"
+  },
+  {
+   "name": "fire",
+   "view": "fire",
+   "targets": {
+    "hero": "#content .debt-hero",
+    "heroL": "#content .debt-hero > div:first-child",
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "road",
+   "view": "fire",
+   "before": "const r=document.querySelector('#content section:has(> .nw-chart)');document.querySelector('#content .kpis').after(r);window.scrollTo(0,r.getBoundingClientRect().top+scrollY-96);",
+   "scrollTo": "#content section:has(> .nw-chart)",
+   "targets": {
+    "chart": "#content .nw-chart",
+    "card": "#content section:has(> .nw-chart)"
+   }
+  },
+  {
+   "name": "miles",
+   "view": "milestones",
+   "targets": {
+    "grid": "#content .nw-miles",
+    "card": "#content .grid2.equal > :first-child"
+   }
+  },
+  {
+   "name": "accts",
+   "view": "nwaccounts",
+   "targets": {
+    "c1": "#content .bt-card >> nth=0",
+    "c2": "#content .bt-card >> nth=1",
+    "c3": "#content .bt-card >> nth=2",
+    "c4": "#content .bt-card >> nth=3"
+   }
+  }
+ ],
+ "scenes": [
+  {
+   "type": "hook",
+   "dur": 2.0,
+   "text": "When could you<br>*stop working?*",
+   "image": "dash"
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Everything you *own and owe*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "accts",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": [
+      "accts.c1",
+      "accts.c2"
+     ],
+     "pad": 0.012
+    },
+    {
+     "t": 2.2,
+     "target": [
+      "accts.c3",
+      "accts.c4"
+     ],
+     "pad": 0.012,
+     "move": 1.2
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 3.8,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "A *two-minute* check-in"
+    },
+    {
+     "t": 2.6,
+     "text": "Watch it *grow*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "ci0",
+     "at": 0
+    },
+    {
+     "img": "ci1",
+     "at": 1.15
+    },
+    {
+     "img": "ci2",
+     "at": 2.25
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "ci0.net",
+     "pad": 0.01
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.25,
+     "text": "+$7,591",
+     "x": 300,
+     "y": 1450,
+     "rot": -5,
+     "until": 2.15,
+     "sound": "cash"
+    },
+    {
+     "t": 2.35,
+     "text": "+$6,896",
+     "x": 760,
+     "y": 1450,
+     "rot": 5,
+     "sound": "cash"
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.8,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Your *FIRE number*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "fire",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "fire.heroL",
+     "pad": 0.015
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.0,
+     "text": "34% there",
+     "x": 560,
+     "y": 1470,
+     "rot": -4,
+     "style": "white"
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.8,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Free in *2039*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "road",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "road.chart",
+     "sub": [
+      0.7,
+      0,
+      1,
+      1
+     ],
+     "pad": 0.012
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.0,
+     "text": "Age 46 🎉",
+     "x": 640,
+     "y": 1080,
+     "rot": 4,
+     "sound": "cash"
+    }
+   ]
+  },
+  {
+   "type": "end",
+   "dur": 3.0,
+   "headline": "Net Worth &amp; FIRE Tracker",
+   "sub": "Watch your money grow.<br>No subscription, no bank login.",
+   "cta": "Instant download on Etsy",
+   "by": "JPS Digital Pages",
+   "themes": [
+    "shots/theme-ledger.jpg",
+    "shots/theme-midnight.jpg",
+    "shots/theme-fjord.jpg",
+    "shots/theme-night.jpg"
+   ]
+  }
+ ]
+}

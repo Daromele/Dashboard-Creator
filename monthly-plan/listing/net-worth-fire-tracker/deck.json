@@ -1,0 +1,171 @@
+{
+ "product": "Net Worth & FIRE Tracker",
+ "footer": "Net Worth &amp; FIRE Tracker · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Net_Worth_FIRE_Tracker_Etsy_Mockups.html",
+ "storage_prefix": "nwf-kit-img:",
+ "brand": {
+  "ink": "#10241F",
+  "bold": "#16362F",
+  "pop": "#E8B04B",
+  "paper": "#F7F8F6",
+  "calm": "#1F6F5C"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Net worth &amp; FIRE tracker",
+   "headline": "Watch your money<br>grow.",
+   "pills": [
+    "Net worth tracker",
+    "FIRE calculator",
+    "Private &amp; offline",
+    "One-time purchase"
+   ],
+   "image": "tab-dashboard.jpg",
+   "alt": "Net Worth & FIRE Tracker dashboard"
+  },
+  {
+   "dark": false,
+   "label": "Growth",
+   "eyebrow": "Net worth over time",
+   "headline": "See it climb.",
+   "sub": "Every check-in adds a point. Toggle own &amp; owe, or money toward FI.",
+   "image": "tab-growth.jpg",
+   "foot": "Fictional sample household shown"
+  },
+  {
+   "dark": true,
+   "label": "Accounts",
+   "eyebrow": "Accounts",
+   "headline": "Everything you own and owe.",
+   "sub": "Checking, investments, retirement, home, mortgage, cards.",
+   "image": "tab-accounts.jpg",
+   "foot": "Cards or a table · filter by type"
+  },
+  {
+   "dark": false,
+   "label": "Check-in",
+   "eyebrow": "Monthly check-in",
+   "headline": "A two-minute check-in.",
+   "sub": "Type each balance once a month. The totals move as you type.",
+   "image": "tab-checkin.jpg",
+   "foot": "See what changed, account by account"
+  },
+  {
+   "dark": true,
+   "label": "FIRE number",
+   "eyebrow": "FIRE plan",
+   "headline": "Your FIRE number.",
+   "sub": "What you need invested, how far along you are, and when.",
+   "image": "tab-fire.jpg",
+   "foot": "Lean, regular and Fat FIRE, plus Coast FI"
+  },
+  {
+   "dark": false,
+   "label": "Road there",
+   "eyebrow": "The road there",
+   "headline": "When could you stop working?",
+   "sub": "Your invested money against your number, year by year.",
+   "image": "tab-road.jpg",
+   "foot": "Plus what moves the date, and a what-if slider"
+  },
+  {
+   "dark": true,
+   "label": "Milestones",
+   "eyebrow": "Milestones",
+   "headline": "Celebrate every milestone.",
+   "sub": "$100k, halfway, Coast FI: when you passed each, when the next comes.",
+   "image": "tab-milestones.jpg",
+   "foot": "At your own pace, from your own numbers"
+  },
+  {
+   "dark": false,
+   "label": "History",
+   "eyebrow": "History",
+   "headline": "Every month, on record.",
+   "sub": "Each year’s change, any account’s history, and a CSV export.",
+   "image": "tab-history.jpg",
+   "foot": "Sort, search and filter every table"
+  },
+  {
+   "dark": true,
+   "label": "Private & offline",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Yours, and safe.",
+   "sub": "No login, no bank connection, nothing uploaded. One-click backups.",
+   "image": "tab-settings.jpg",
+   "foot": "Your data never leaves your computer"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks. One number to watch.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Ledger",
+     "image": "theme-ledger.jpg",
+     "swatch": "#16362F"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Lavender",
+     "image": "theme-lavender.jpg",
+     "swatch": "#2E2040"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Net Worth Tracker, FIRE Calculator, Financial Independence Planner, Early Retirement, Coast FI, Wealth Tracker App, No Subscription",
+  "tags": [
+   "net worth tracker",
+   "fire calculator",
+   "financial freedom",
+   "early retirement",
+   "fire planner",
+   "wealth tracker",
+   "coast fi",
+   "retirement planner",
+   "investment tracker",
+   "asset tracker",
+   "net worth planner",
+   "finance dashboard",
+   "fire spreadsheet"
+  ],
+  "description_file": "description.txt"
+ }
+}

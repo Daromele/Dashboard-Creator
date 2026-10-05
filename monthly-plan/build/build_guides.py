@@ -376,11 +376,86 @@ def bills_pages(shot):
 <tr><td>Last month’s numbers changed</td><td>A new price needs a start date; otherwise it applies from the first due date.</td></tr>''')),
     ]
 
+
+NETWORTH = dict(
+    dir='net-worth-fire-tracker', file='Net_Worth_FIRE_Tracker', name='Net Worth & FIRE Tracker', html='NetWorthFireTracker.html', mark='N', version='1.0',
+    storage='nwf-guide-img:', tour='adding accounts, the monthly check-in, your FIRE number and backups', safe_page=9,
+    colors=dict(bold='#16362F', accent='#1F6F5C', pop='#E8B04B', page='#F7F8F6', ink='#10241F', ink2='#4C5E58', ink3='#86948F',
+                rule='#DCE3E0', soft='#E8EFEC', warm='#FBF1E3', warmline='#EED7B5', green='#E6F1EA', greenline='#BFDCCB'),
+    cover=dict(kicker='Your road-to-FI guide', tag='Watch your money grow.', image='tab-dashboard.jpg',
+               intro='Everything you own and owe in one number, a two-minute check-in each month, and the year you could be financially independent.'),
+)
+
+
+def networth_pages(shot):
+    P = NETWORTH
+    return [
+        ('Start here', start_here(P, '<li><b>Add your accounts</b> with today’s balance: checking, savings, investments, retirement, your home, and what you owe. The usual ones are one click away on an empty app.</li><li><b>Set your FIRE number</b> on the FIRE plan: enter what you spend in a year.</li>',
+                                  'Choose <b>Explore sample data</b> on the welcome screen or in Settings &amp; backup. A fictional household’s 13 accounts and two and a half years of check-ins fill every screen, in a separate session. <b>Return to my accounts</b> brings back your own, untouched.')),
+        ('The idea', f'''<h1>One number that counts.</h1>
+<p class="lede">Net worth is everything you own minus everything you owe. Watch it once a month and it tells you if you’re moving in the right direction.</p>
+{shot("tab-dashboard.jpg", "guide-dashboard", "Net worth")}
+<p class="cap">Net worth. The big number, what moved since last month, and how far along you are to your FIRE number; the ring shows where what you own sits.</p>
+<table><tr><th>Word</th><th>What it means</th></tr>
+<tr><td>Net worth</td><td>What you own minus what you owe.</td></tr>
+<tr><td>Toward FI</td><td>Invested money that can pay for your life one day: investments, retirement accounts, an HSA, crypto.</td></tr>
+<tr><td>FIRE number</td><td>A year of spending ÷ your withdrawal rate. At 4% that’s 25 years of spending.</td></tr>
+<tr><td>Coast FI</td><td>Enough invested that, with no more saving, it grows into your FIRE number by retirement age.</td></tr></table>'''),
+        ('Adding accounts', '''<h1>Add each account once.</h1>
+<p class="lede">Accounts → <b>Add an account</b>. Typing a name picks the type for you; a name like “Visa” or “Mortgage” switches to something you owe.</p>
+<table><tr><th>Field</th><th>What to enter</th></tr>
+<tr><td>Name</td><td>“Checking”, “401(k)”, “Mortgage”. Anything you’ll recognize.</td></tr>
+<tr><td>Own or owe</td><td>Something you own (an asset) or something you owe (a debt).</td></tr>
+<tr><td>Balance today</td><td>What it’s worth, or what you owe, as a positive number. $35,000 or 1,250.50 are fine.</td></tr>
+<tr><td>Type</td><td>Cash, savings, investments, retirement, HSA, crypto, home, vehicle, mortgage, cards, loans. Add your own in Settings.</td></tr>
+<tr><td>Counts toward FI</td><td>Ticked for investments and retirement accounts. Change it per account.</td></tr>
+<tr><td>Bank, note</td><td>Optional: where it’s held, a reminder like “employer matches 4%”.</td></tr></table>
+<div class="box"><h3>Your home and car</h3><p>Add them at a fair estimate if you like: they count in your net worth, but not toward FI, because you can’t live off them without selling.</p></div>
+<div class="box"><h3>Closing or paying off</h3><p>Edit the account and set it to <b>Closed or paid off</b> with the month. It counts as 0 from then, and keeps its history.</p></div>'''),
+        ('Each month', f'''<h1>A two-minute check-in.</h1>
+<p class="lede">Once a month, open <b>Monthly check-in</b>, type each balance as it is today, and save.</p>
+{shot("tab-checkin.jpg", "guide-checkin", "Monthly check-in")}
+<div class="two"><div class="box"><h3>Watch it as you type</h3><p>The totals at the top and each row’s change update as you type, so you see the month before you save.</p></div>
+<div class="box"><h3>Missed a month?</h3><p>No problem: a month without a check-in keeps the last balances. Use the arrows to fill in an earlier month whenever you like.</p></div></div>
+<p>Only one account changed? Use <b>Update balance</b> on its card instead.</p>'''),
+        ('Your FIRE number', f'''<h1>How much is enough?</h1>
+<p class="lede">FIRE plan → enter <b>a year of spending</b>. Everything else has a sensible default you can change.</p>
+{shot("tab-fire.jpg", "guide-fire", "FIRE plan")}
+<table>
+<tr><td>Withdrawal rate</td><td>How much of your invested money you’d spend each year. 4% is the classic rule; 3.5% is more cautious.</td></tr>
+<tr><td>Return after inflation</td><td>A steady average growth rate in today’s money. 5% is a middle-of-the-road guess.</td></tr>
+<tr><td>Invested each month</td><td>Everything going into accounts that count toward FI, employer match included.</td></tr>
+<tr><td>Lean, FIRE, Fat</td><td>75%, 100% and 150% of your spending, each with its own date.</td></tr></table>'''),
+        ('The road there', f'''<h1>When could you stop working?</h1>
+<p class="lede">The road there draws your invested money growing year by year against your FIRE number.</p>
+{shot("tab-road.jpg", "guide-road", "The road there")}
+<div class="two"><div class="box"><h3>What moves the date</h3><p>Spend 10% less, invest more, lower returns, a safer withdrawal rate: each one shows how much sooner or later.</p></div>
+<div class="box"><h3>What if?</h3><p>Slide <b>What if you invested more each month?</b> and a second line shows the difference.</p></div></div>
+<p>It’s a smooth average, not a promise: real markets go up and down. Your check-ins keep it honest.</p>'''),
+        ('Getting around', '''<h1>The screens.</h1>
+<p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
+<table><tr><th>Screen</th><th>What it is for</th></tr>
+<tr><td>Net worth</td><td>The number, what moved, your chart, and your road to FI.</td></tr>
+<tr><td>Accounts</td><td>Every account as a card or a table; filter by type and own or owe; update one balance.</td></tr>
+<tr><td>Monthly check-in</td><td>Every balance on one screen, and every past check-in.</td></tr>
+<tr><td>FIRE plan</td><td>Your number, Lean and Fat FIRE, Coast FI, what moves the date, the road there.</td></tr>
+<tr><td>Milestones</td><td>$10k to $1M+, a quarter of the way, halfway, Coast FI: when you passed each, when the next comes.</td></tr>
+<tr><td>History</td><td>Every month and every year’s change; one account’s history. Export as CSV.</td></tr>
+<tr><td>Settings &amp; backup</td><td>Name, currency, 8 themes, account types, your sidebar, backups.</td></tr></table>
+<p>Every table sorts, searches and filters. Every screen prints.</p>'''),
+        ('Read this one', SAFE('numbers', 'every account, check-in, account type and your FIRE plan')),
+        ('When you need help', help_page(P, '''<tr><td>My net worth jumped</td><td>Check the newest check-in for a typo: History → open the month, or the account’s own history.</td></tr>
+<tr><td>Toward FI is $0</td><td>Edit your investment and retirement accounts and tick <b>Counts toward financial independence</b>.</td></tr>
+<tr><td>Years to FI says “not at this rate”</td><td>Nothing is going in and nothing grows: add what you invest each month, or a return above 0%.</td></tr>
+<tr><td>A debt shows as negative</td><td>Enter what you owe as a positive number on a “Something I owe” account.</td></tr>''')),
+    ]
+
 BILLS['pages'] = bills_pages
 AUTOPILOT['pages'] = autopilot_pages
 DEBT['pages'] = debt_pages
+NETWORTH['pages'] = networth_pages
 
 if __name__ == '__main__':
-    which = sys.argv[1:] or ['tracker', 'debt', 'bills']
+    which = sys.argv[1:] or ['tracker', 'debt', 'bills', 'networth']
     for w in which:
-        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS}[w])
+        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH}[w])

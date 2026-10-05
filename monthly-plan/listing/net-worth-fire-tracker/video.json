@@ -1,0 +1,228 @@
+{
+ "app": "../../app/NetWorthFireTracker.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#10241F",
+  "bold": "#16362F",
+  "pop": "#E8B04B",
+  "paper": "#F7F8F6",
+  "calm": "#1F6F5C"
+ },
+ "fps": 30,
+ "shots_dir": "vshots",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "hero": "#content .debt-hero",
+    "heroL": "#content .debt-hero > div:first-child"
+   }
+  },
+  {
+   "name": "ci0",
+   "view": "checkin",
+   "scrollTo": "#content .nw-ci-sum",
+   "targets": {
+    "net": "#content .nw-ci-sum .kpi >> nth=0",
+    "sum": "#content .nw-ci-sum",
+    "a": "#content input[name=\"b-a-401k\"]",
+    "b": "#content input[name=\"b-a-idx\"]",
+    "rows": "#content #nw-ci-form"
+   }
+  },
+  {
+   "name": "ci1",
+   "before": "const f=document.querySelector('#nw-ci-form'),set=(id,v)=>{const i=f.querySelector('[name=\"b-'+id+'\"]');i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));};set('a-401k','201450.00');",
+   "clipFrom": "ci0"
+  },
+  {
+   "name": "ci2",
+   "before": "const f=document.querySelector('#nw-ci-form'),set=(id,v)=>{const i=f.querySelector('[name=\"b-'+id+'\"]');i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));};set('a-401k','201450.00');set('a-idx','133980.00');",
+   "clipFrom": "ci0"
+  },
+  {
+   "name": "fire",
+   "view": "fire",
+   "targets": {
+    "hero": "#content .debt-hero",
+    "heroL": "#content .debt-hero > div:first-child",
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "road",
+   "view": "fire",
+   "before": "const r=document.querySelector('#content section:has(> .nw-chart)');document.querySelector('#content .kpis').after(r);window.scrollTo(0,r.getBoundingClientRect().top+scrollY-96);",
+   "scrollTo": "#content section:has(> .nw-chart)",
+   "targets": {
+    "chart": "#content .nw-chart",
+    "card": "#content section:has(> .nw-chart)"
+   }
+  },
+  {
+   "name": "miles",
+   "view": "milestones",
+   "targets": {
+    "grid": "#content .nw-miles",
+    "card": "#content .grid2.equal > :first-child"
+   }
+  },
+  {
+   "name": "accts",
+   "view": "nwaccounts",
+   "targets": {
+    "c1": "#content .bt-card >> nth=0",
+    "c2": "#content .bt-card >> nth=1",
+    "c3": "#content .bt-card >> nth=2",
+    "c4": "#content .bt-card >> nth=3"
+   }
+  }
+ ],
+ "product": "Net Worth & FIRE Tracker",
+ "output": "Net_Worth_FIRE_Tracker_Etsy_Video.mp4",
+ "size": [
+  1440,
+  1080
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "dur": 2.0,
+   "eyebrow": "Net worth &amp; FIRE tracker",
+   "headline": "Watch your money<br>grow.",
+   "pills": [
+    "Net worth",
+    "FIRE number",
+    "No subscription"
+   ],
+   "image": "dash"
+  },
+  {
+   "type": "shot",
+   "dur": 2.2,
+   "dark": true,
+   "eyebrow": "Net worth",
+   "headline": "Everything, in one number.",
+   "shots": [
+    {
+     "img": "dash",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.2,
+    "target": "dash.hero",
+    "origin": [
+     0.02,
+     0.2
+    ],
+    "scale": 1.22
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 3.6,
+   "dark": false,
+   "eyebrow": "Monthly check-in",
+   "headline": "Two minutes a month.",
+   "shots": [
+    {
+     "img": "ci0",
+     "at": 0
+    },
+    {
+     "img": "ci1",
+     "at": 1.15
+    },
+    {
+     "img": "ci2",
+     "at": 2.35
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.05,
+     "target": "ci0.a",
+     "click": true
+    },
+    {
+     "t": 2.25,
+     "target": "ci0.b",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 2.0,
+   "dark": true,
+   "eyebrow": "FIRE plan",
+   "headline": "Your FIRE number.",
+   "shots": [
+    {
+     "img": "fire",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.0,
+    "target": "fire.hero",
+    "origin": [
+     0.02,
+     0.2
+    ],
+    "scale": 1.18
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 2.6,
+   "dark": false,
+   "eyebrow": "The road there",
+   "headline": "When could you stop working?",
+   "shots": [
+    {
+     "img": "road",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.6,
+    "target": "road.chart",
+    "origin": [
+     0.0,
+     0.3
+    ],
+    "scale": 1.1
+   }
+  },
+  {
+   "type": "end",
+   "dur": 2.2,
+   "eyebrow": "Instant download",
+   "headline": "Net Worth &amp; FIRE Tracker",
+   "sub": "One file · works offline · Mac &amp; PC",
+   "pills": [
+    "No subscription",
+    "Private",
+    "8 themes"
+   ],
+   "themes": [
+    "shots/theme-ledger.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-fjord.jpg",
+    "shots/theme-linen.jpg",
+    "shots/theme-slate.jpg",
+    "shots/theme-lavender.jpg",
+    "shots/theme-night.jpg",
+    "shots/theme-midnight.jpg"
+   ]
+  }
+ ]
+}

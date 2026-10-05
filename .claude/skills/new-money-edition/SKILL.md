@@ -50,6 +50,14 @@ Everything here is a correction the user already made once. Apply it up front.
 - Import (if any) says where data goes and explains "nothing new" (older lines, duplicates).
 - Settings: sidebar switches grid `auto-fill minmax(190px)`, `min-width:0`; no overflow at 390 px.
 - Print: a dark theme prints in the first light theme.
+- Forms that save as you go: never re-render on `change` while the buyer is still in the form (tabbing to
+  the next field loses what they type). Save on `focusout` of the whole form, on slider release, or on Save.
+- Line charts scale to the data with 2–3 labeled gridlines (not from $0, which flattens growth); tick
+  labels are spaced by their width, the first anchored start and the last end. Reuse `lineChart` /
+  `Live` (tweens, ring) from the net worth and bills modules rather than writing new ones.
+- Defaults a newbie won't change are guessed from what they type (category or type from the name; a
+  debt-sounding name flips own/owe) and stop following once they pick one themselves.
+- Hide controls that can't do anything yet (Print, Export, arrows) on an empty app.
 - Sample data: fictional names only (never the user's banks: "Harbor Bank", not Chase); rich enough
   that every screen and every toggle shows a difference.
 
@@ -59,6 +67,9 @@ Everything here is a correction the user already made once. Apply it up front.
   the handler (that's correct). A closed dialog keeps its form in the DOM: check `$('#modal').open`.
 - Hidden radio inputs inside styled labels: click the label. Fields inside a closed `<details>`: open it.
 - KPI numbers count up from 0: wait or read `state`, not a mid-animation screenshot.
+- `el.click()` returns undefined: never chain `a?.click()||b.click()`.
+- Playwright `fill()` fires `input`, not `change`; `change` comes on blur, so test both the typing path and
+  leaving the field (click elsewhere).
 
 ## 3. Check like a first-time user
 
@@ -76,8 +87,12 @@ Look at screenshots of every screen.
 3. PNGs: every slide at 1500×1125 into `png/NN-name.png` (committed) + zip (git-ignored).
 4. Etsy video: `video.json` → `video_capture.js` + `render_video.js` — 1440×1080, ≤ 15 s (14.8),
    no sound, a click that visibly moves a big number. Check stills before the full render.
+4b. A card at the bottom of a page can't fill a 1.6 capture: in `before`, move it up the page
+   (`document.querySelector('.kpis').after(card)`), then scroll to it. For typed values, set the input and
+   dispatch `input` in `before`, with `clipFrom` for the before/after frames.
 5. Social video: `social.json` (own captures, `shots_dir:"sshots"`) → `render_social.js` —
-   1080×1920, ~17 s, sound from `make_audio.py`; hook, 4 crop scenes, end card.
+   1080×1920, ~17 s, sound from `make_audio.py`; hook, 4 crop scenes, end card. Camera `sub` is `[x0,y0,x1,y1]`
+   (fractions of the target), not x,y,w,h. Zoom on one KPI tile to make a number readable in portrait.
 6. Copy in `description.txt` (plain text) in the **standard format** (see Monthly Plan's):
    one-line promise · (Free Demo link if hosted) · what-it-is paragraph · `How It Works:` 5 steps ·
    `WHAT YOU'LL GET:` bullets · `PERFECT FOR:` · `Please note:` (digital, data in browser, backups,
@@ -95,4 +110,5 @@ Look at screenshots of every screen.
 ## 5. Privacy
 
 The user's uploads are personal statements: read them in the session only, never commit, scan diffs
-for names, IBANs, card digits and IDs before every commit. Tests and samples are synthetic.
+for names, IBANs, card digits and IDs before every commit. Tests and samples are synthetic, and use fictional banks
+(Harbor Bank) in test strings too.

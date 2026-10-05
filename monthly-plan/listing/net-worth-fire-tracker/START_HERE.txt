@@ -1,0 +1,21 @@
+NET WORTH & FIRE TRACKER | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open NetWorthFireTracker.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find, ideally a synced folder such as iCloud Drive, Dropbox, OneDrive or Google Drive. It works offline once open.
+
+FIRST STEPS
+A short welcome tour opens the first time. Then add your accounts on Accounts (or pick the usual ones on the empty Net worth screen): what you own (checking, savings, investments, retirement, your home) and what you owe (mortgage, cards, loans), each with today's balance. Then open FIRE plan and enter what you spend in a year.
+
+SAMPLE
+Explore sample data, on the welcome screen or in Settings & backup, fills every screen with a fictional household's 13 accounts and two and a half years of check-ins, in a separate session. Return to my accounts restores your own.
+
+EACH MONTH
+Open Monthly check-in, type each balance as it is today, and save. Your net worth chart grows a point, What moved shows what changed, and the FIRE plan and Milestones update.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one JSON file. Keep that file outside the app. To restore or move to another computer, copy the HTML file and your backup across and use Restore backup. Data does not sync automatically. Download a backup before clearing browser data or switching browsers.
+Chrome and Edge can also write a dated backup to a folder you choose each day. Safari and Firefox do not support this; use Download backup instead.
+
+HELP
+Read Net_Worth_FIRE_Tracker_Guide.pdf, included with your download. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+Website: https://www.jpsdigitalpages.com

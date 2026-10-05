@@ -125,7 +125,7 @@ function seek(t){
    const push=1+0.05*cl(lt/s.dur);const cw=r.w/push,ch=r.h/push;r={x:r.x+(r.w-cw)/2,y:r.y+(r.h-ch)/2,w:cw,h:ch};
    const sc=PW/r.w,F=(fx,fy)=>[(fx*IW-r.x)*sc,(fy*IH-r.y)*sc];
    s.imgs.forEach((e,k)=>{e.style.transform='translate('+(-r.x*sc)+'px,'+(-r.y*sc)+'px) scale('+sc+')';e.style.opacity=k===0?1:cl((lt-s.shots[k].at)/0.18);});
-   if(s.cur){const Kc=s.cursor,P=c=>F(c.box.x+c.box.w/2,c.box.y+c.box.h/2);let [x,y]=P(Kc[0]);const enter=Kc[0].t-0.6;
+   if(s.cur&&s.cursor?.length){const Kc=s.cursor,P=c=>F(c.box.x+c.box.w/2,c.box.y+c.box.h/2);let [x,y]=P(Kc[0]);const enter=Kc[0].t-0.6;
     if(lt<Kc[0].t){const p=ease(cl((lt-enter)/0.6));x+=(1-p)*260;y+=(1-p)*220;}
     for(let k=1;k<Kc.length;k++){const a=P(Kc[k-1]),bb=P(Kc[k]),st=Math.max(Kc[k-1].t+0.15,Kc[k].t-0.5),p=ease(cl((lt-st)/(Kc[k].t-st)));if(lt>=st){x=a[0]+(bb[0]-a[0])*p;y=a[1]+(bb[1]-a[1])*p;}}
     s.cur.style.opacity=cl((lt-enter)/0.2);let press=1,rp=-1;for(const c of Kc)if(c.click){const d=lt-c.t;if(d>=0&&d<0.14)press=0.8;if(d>=0&&d<0.45)rp=d/0.45;}

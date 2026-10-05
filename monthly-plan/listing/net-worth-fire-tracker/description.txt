@@ -1,0 +1,56 @@
+A net worth tracker and FIRE calculator that shows everything you own and owe in one number, how close you are to financial independence, and the year you could get there. It opens in any browser and never asks you to sign up for anything.
+
+Net Worth & FIRE Tracker is one HTML file. You download it, double-click it, and it opens like a web page. Add each account once: checking, savings, investments, retirement, your home, and what you owe on your mortgage, cards and loans. Once a month, a two-minute check-in updates each balance. Your net worth grows a point on the chart, you see what moved, and the FIRE plan works out your number, how far along you are, Coast FI, and the month you could stop working. No bank login, no subscription. Your figures stay on your own computer.
+
+How It Works:
+1. Download the file and save it somewhere you will find it again.
+2. Double-click to open it in your browser. Take the two-minute tour, or open Sample Mode to explore a fictional household's accounts first.
+3. Add your accounts with today's balance. The usual ones (checking, savings, 401(k), IRA, brokerage, home, mortgage, credit card) are one click away.
+4. Enter what you spend in a year. See your FIRE number, how far along you are, and when you could be financially independent.
+5. Once a month, do the check-in: type each balance and watch your net worth and your progress move.
+
+WHAT YOU'LL GET:
+• One HTML net worth and FIRE tracker file
+• Net worth dashboard: one big number, what you own and owe, change since last month and this year, and a ring of where your money is
+• Net worth over time chart, with toggles for own & owe and money toward FI
+• "What moved": which accounts went up or down since your last check-in
+• Accounts as cards or a table, filtered by type and own or owe, with an Update balance button on each
+• Monthly check-in: every balance on one screen, totals that update as you type
+• FIRE plan: your FIRE number from a year of spending and your withdrawal rate (the 4% rule, or any rate you choose)
+• Years to financial independence, the month you get there, and your age then
+• Lean FIRE, FIRE and Fat FIRE side by side, plus Coast FI
+• "What moves the date": spend 10% less, invest more, lower returns, a safer withdrawal rate
+• What-if slider: invest more each month and watch the date move
+• Projection chart of your invested money against your FIRE number
+• Savings rate from your take-home pay
+• Milestones: $10k to $1M+, 10% of the way to FI, halfway, Coast FI, with the date you passed each and when the next could come
+• History: every month, every year's change, and each account's own balance history
+• Close or pay off an account and keep its history
+• Your own account types, renamed, archived or added
+• CSV exports of your history and balances
+• Every table sorts, searches and filters
+• 8 color themes, light and dark; every screen prints
+• Built-in how-to guide included
+
+PERFECT FOR:
+Anyone pursuing FIRE (financial independence, retire early), tracking net worth month by month, working out a FIRE number or Coast FI, seeing how much sooner saving more gets you there, couples watching their combined finances grow, anyone paying down a mortgage or student loans while investing, people replacing a net worth spreadsheet, and anyone who wants their finances to stay private on their own computer.
+
+Please note: this is a digital file, not a physical product. Nothing will be posted to you. You type in your balances; it doesn't connect to your bank or brokerage. Your data is stored in your own browser on your own device, and this tracker never uploads anything anywhere. Download a backup regularly; the app reminds you, and Chrome and Edge can back up to a folder automatically every day. Projections use a steady average return in today's money; real markets go up and down. Works best on a computer; phones and tablets can view and check in. This is not financial advice.
+
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
+
+👍 You Can
+✔ Use this tracker for your own household's finances, for as long as you like
+✔ Use it on your own computers, and print your own copies
+✔ Back up your own file and your own data as often as you want
+
+👎 You Cannot
+❌ Resell, redistribute, or share this file with others
+❌ Use it commercially, or include it in any product, bundle or service of your own
+❌ Claim it as your own work, or alter it for resale
+❌ Return it — digital files cannot be returned once downloaded
+
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order! hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+
+Net Worth & FIRE Tracker by JPS Digital Pages
