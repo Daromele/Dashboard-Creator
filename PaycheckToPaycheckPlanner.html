@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   ============================================================================
-  PAYDAY PLAN
+  PAYCHECK TO PAYCHECK PLANNER
   Copyright (c) 2026 JPS Digital Pages.  All rights reserved.
 
   https://jpsdigitalpages.com/
@@ -22,8 +22,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#183B31">
-<meta name="description" content="Paycheck to Paycheck Planner: see what is safe to spend until your next payday.">
-<title>Paycheck to Paycheck Planner</title>
+<meta name="description" content="Paycheck to Paycheck Planner: see what is safe to spend until your next payday, with every bill accounted for. Works offline. Your data stays on this device.">
+<title>Paycheck to Paycheck Planner · Safe to spend until payday</title>
 
 <!-- The tab icon is the brand mark drawn inline, so the app is still a
      single file with nothing to fetch and nothing to lose. -->
@@ -98,10 +98,47 @@
 :root[data-theme="blush"]{ --paper:#FAF5F7; --card:#FFFFFF; --rule:#EFE1E8; --rule-2:#DFC9D5;
   --accent:#7C3560; --accent-soft:#F6EAF0; --calm:#96617E; --ink-3:#6F626A;
   --bold:#63304A; --bold-2:#4F2639; --on-bold:#FBF0F5; --on-bold-dim:#DCB6C8; --pop:#E9A85C; --pop-ink:#2B1707; }
+:root[data-theme="ledger"]{ --paper:#F6F7F5; --card:#FFFFFF; --rule:#E2E6E1; --rule-2:#D0D6CF;
+  --accent:#1F7A5C; --accent-soft:#E4F1EB; --calm:#2F6E5A; --ink-3:#66706A;
+  --bold:#182635; --bold-2:#111C28; --on-bold:#EEF3F7; --on-bold-dim:#AEBDCB; --pop:#E3A73B; --pop-ink:#2A1B04; }
+:root[data-theme="midnight"]{
+  --paper:#0C1720; --card:#13212C; --ink:#E8EEF3; --ink-2:#B0BEC9; --ink-3:#8797A4;
+  --rule:#1F3140; --rule-2:#2C4252;
+  --accent:#9DB8F5; --accent-ink:#0B1626; --accent-soft:#1C2C40;
+  --calm:#8FD3C4; --flag:#E9B072; --flag-soft:#2E261C;
+  --bold:#0B303D; --bold-2:#08242E; --on-bold:#E6F2F5; --on-bold-dim:#9DBFC9;
+  --pop:#F5C382; --pop-ink:#241603;
+  --ch-in:#67C99B; --ch-out:#E0A055;
+  --cat-1:#3FB58A; --cat-2:#D09A3A; --cat-3:#6E9BEA; --cat-4:#E07A70; --cat-5:#30B3AD; --cat-6:#B07ED8; --cat-0:#7F8E99;
+  color-scheme:dark;
+}
 :root[data-theme="slate"]{ --paper:#F7F8F9; --card:#FFFFFF; --rule:#E4E7EA; --rule-2:#D2D7DC;
   --accent:#3F4A55; --accent-soft:#EAEDF0; --calm:#4A6070; --ink-3:#67707A;
   --bold:#2E3841; --bold-2:#242C34; --on-bold:#F1F3F5; --on-bold-dim:#B4BEC7; --pop:#EFA93F; --pop-ink:#2A1B04; }
 
+
+/* ---- House-standard extras -------------------------------- */
+.skip{position:absolute;left:-9999px;top:8px;z-index:99;background:var(--card);color:var(--ink);padding:10px 14px;border-radius:8px}
+.skip:focus{left:12px}
+.samplebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--accent-soft);border-bottom:1px solid var(--rule);padding:10px 32px;font-size:.875rem;color:var(--ink-2)}
+.samplebar p{margin:0;flex:1 1 300px}.samplebar .linkish{white-space:nowrap}
+.rail-sample{display:block;width:100%;margin-top:12px;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--on-bold);font:inherit;font-size:.8125rem;cursor:pointer;text-align:left}
+.rail-sample:hover{border-color:var(--pop);color:var(--pop)}
+.savestat{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:.75rem;color:var(--on-bold-dim)}
+.savestat .dot{width:7px;height:7px;border-radius:50%;background:#5BC08F;display:inline-block}
+.savestat .dot.warn{background:var(--pop)}.savestat .dot.bad{background:#E5675A}
+.app.rail-min .rail-sample,.app.rail-min .savestat{display:none}
+.pill{margin-left:auto;font-size:.72rem;font-weight:650;color:var(--ink-2);background:var(--accent-soft);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.appfoot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:40px;padding-top:14px;border-top:1px solid var(--rule);font-size:.6875rem;color:var(--ink-3)}
+/* KPI tiles tinted by meaning: green money in/good, red money out, accent net */
+.kpi.t-pos{background:color-mix(in srgb,#1F7A52 8%,var(--card));border-color:color-mix(in srgb,#1F7A52 22%,var(--card))}
+.kpi.t-neg{background:color-mix(in srgb,#D23B2B 7%,var(--card));border-color:color-mix(in srgb,#D23B2B 20%,var(--card))}
+.kpi.t-net{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 25%,var(--card))}
+.kpi .kico{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;margin-right:8px;vertical-align:middle;background:color-mix(in srgb,currentColor 12%,transparent)}
+.kpi .kico svg{width:14px;height:14px;stroke-width:2}
+.kpi > span:first-child{display:flex;align-items:center}
+.kpi.t-pos > span:first-child{color:#1F7A52}.kpi.t-neg > span:first-child{color:#B7352A}.kpi.t-net > span:first-child{color:var(--accent)}
+@media print{.samplebar,.rail-sample,.savestat,.skip{display:none!important}}
 /* ---- Reset --------------------------------------------- */
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%}
@@ -501,8 +538,8 @@ table{border-collapse:collapse;width:100%}
 .vbar.zero i{background:var(--rule)}
 /* --bold is nearly the dark surface itself, so the highlight has to
    invert in night mode or the peak bar disappears. */
-:root[data-theme="night"] .vbar.peak i{background:var(--calm)}
-:root[data-theme="night"] .meter i{background:var(--calm)}
+:root[data-theme="night"] .vbar.peak i,:root[data-theme="midnight"] .vbar.peak i{background:var(--calm)}
+:root[data-theme="night"] .meter i,:root[data-theme="midnight"] .meter i{background:var(--calm)}
 .vbar:hover i{filter:brightness(1.1)}
 .vaxis{display:flex;justify-content:space-between;font-size:.75rem;color:var(--ink-3)}
 
@@ -563,7 +600,7 @@ table{border-collapse:collapse;width:100%}
   box-shadow:-1px 0 0 var(--card)}
 /* The limit, marked on the track it belongs to */
 .budget-cap{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.55}
-:root[data-theme="night"] .budget-cap{background:var(--on-bold);opacity:.75}
+:root[data-theme="night"] .budget-cap,:root[data-theme="midnight"] .budget-cap{background:var(--on-bold);opacity:.75}
 
 .budget-note{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8125rem;color:var(--ink-3)}
 .budget-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
@@ -635,14 +672,14 @@ table{border-collapse:collapse;width:100%}
 .pc-legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:14px 0 4px 52px;font-size:.75rem;color:var(--ink-2,var(--ink-3))}
 .pc-legend span{display:inline-flex;align-items:center;gap:7px}
 .pc-legend i{display:inline-block;width:18px;height:0;border-top:2px solid var(--bold)}
-:root[data-theme="night"] .pc-legend .lg-line{border-color:var(--calm)}
+:root[data-theme="night"] .pc-legend .lg-line,:root[data-theme="midnight"] .pc-legend .lg-line{border-color:var(--calm)}
 .pc-legend .lg-ghost{border-top:2px dashed var(--flag)}
 .pc-legend .lg-pay{width:8px;height:8px;border:0;border-radius:50%;background:var(--calm,#2f7d6b)}
 .pc-legend .lg-cush{border-top:1.5px dashed var(--flag);opacity:.7}
 .pc-legend .lg-low{width:9px;height:9px;border:0;border-radius:50%;background:var(--flag)}
 @media (max-width:600px){.pc{grid-template-columns:42px 1fr}.pc-legend{margin-left:0}.pc-x span:nth-child(even){display:none}}
 .proj-line{fill:none;stroke:var(--bold);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
-:root[data-theme="night"] .proj-line{stroke:var(--calm)}
+:root[data-theme="night"] .proj-line,:root[data-theme="midnight"] .proj-line{stroke:var(--calm)}
 .proj-fill{fill:var(--accent-soft)}
 .proj-zero{stroke:var(--rule-2);stroke-width:1;stroke-dasharray:3 3}
 .proj-low{fill:var(--flag)}
@@ -670,8 +707,8 @@ table{border-collapse:collapse;width:100%}
   background:var(--bold);border:2px solid var(--card)}
 .dials input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.15)}
 .dials input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--accent);outline-offset:2px}
-:root[data-theme="night"] .dials input[type=range]::-webkit-slider-thumb{background:var(--calm)}
-:root[data-theme="night"] .dials input[type=range]::-moz-range-thumb{background:var(--calm)}
+:root[data-theme="night"] .dials input[type=range]::-webkit-slider-thumb,:root[data-theme="midnight"] .dials input[type=range]::-webkit-slider-thumb{background:var(--calm)}
+:root[data-theme="night"] .dials input[type=range]::-moz-range-thumb,:root[data-theme="midnight"] .dials input[type=range]::-moz-range-thumb{background:var(--calm)}
 .whatif-say{margin-top:14px;font-size:.875rem;color:var(--ink-2)}
 .whatif-say b{color:var(--ink);font-weight:650}
 
@@ -744,7 +781,7 @@ table{border-collapse:collapse;width:100%}
   content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
   background:var(--ink);color:var(--paper);font-size:.75rem;font-family:var(--num);white-space:nowrap;
   padding:5px 9px;border-radius:6px;margin-bottom:7px;z-index:40;pointer-events:none}
-:root[data-theme="night"] [data-tip]:hover::after{background:#E9EBE7;color:#15171A}
+:root[data-theme="night"] [data-tip]:hover::after,:root[data-theme="midnight"] [data-tip]:hover::after{background:#E9EBE7;color:#15171A}
 
 /* ---- Table ---- */
 .tbl th{text-align:left;font-size:.6875rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);
@@ -793,7 +830,7 @@ dialog.sheet:not([open]){display:none!important}
   display:inline-grid;place-items:center;flex:0 0 28px}
 .sec-ico svg{width:15px;height:15px;stroke-width:1.85}
 /* --bold is close to the dark surface at night, so lift the glyph instead */
-:root[data-theme="night"] .sec-ico{background:var(--accent-soft);color:var(--calm)}
+:root[data-theme="night"] .sec-ico,:root[data-theme="midnight"] .sec-ico{background:var(--accent-soft);color:var(--calm)}
 
 /* ---- Settings items ----
    auto-fill rather than auto-fit: a section with two cards keeps them
@@ -877,7 +914,7 @@ a.setcard span{color:var(--ink-3)}
 .toast.up{transform:translateX(-50%) translateY(0)}
 .toast button{background:var(--pop);color:var(--pop-ink);border-radius:999px;padding:7px 14px;
   font-weight:650;font-size:.8125rem;min-height:34px}
-:root[data-theme="night"] .toast{background:#E9EBE7;color:#15171A}
+:root[data-theme="night"] .toast,:root[data-theme="midnight"] .toast{background:#E9EBE7;color:#15171A}
 
 /* ---- Scrim for the mobile drawer ---- */
 .scrim{display:none;position:fixed;inset:0;background:rgba(20,20,18,.4);z-index:25}
@@ -980,8 +1017,19 @@ a.setcard span{color:var(--ink-3)}
    #printout and it is the only thing the printer ever sees. */
 #printout{display:none}
 @media print{
-  .app,.toast,.scrim,dialog.sheet{display:none!important}
-  #printout{display:block;padding:0;color:#000;background:#fff}
+  /* Statement print (the Print button): only the one-page summary */
+  body.printing-statement .app,.toast,.scrim,dialog.sheet{display:none!important}
+  body:not(.printing-statement) #printout{display:none!important}
+  body.printing-statement #printout{display:block;padding:0;color:#000;background:#fff}
+  /* Any other print (Ctrl+P): the screen you are on, without the app chrome */
+  body:not(.printing-statement) .rail,body:not(.printing-statement) .topbar,
+  body:not(.printing-statement) .samplebar,body:not(.printing-statement) .whatif,
+  body:not(.printing-statement) .btn,body:not(.printing-statement) .linkish,
+  body:not(.printing-statement) .tick,body:not(.printing-statement) .setupbar,body:not(.printing-statement) .banner,body:not(.printing-statement) .fact.tap.pop,body:not(.printing-statement) .row-acts{display:none!important}
+  body:not(.printing-statement) .app{display:block}
+  body:not(.printing-statement) .page{padding:0;max-width:none}
+  .hero,.kpi,.panel{break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{animation:none!important;transition:none!important}
   body{background:#fff;color:#000;font-size:11pt}
   @page{margin:16mm}
   .pr-head{display:flex;justify-content:space-between;align-items:flex-end;
@@ -1006,6 +1054,8 @@ a.setcard span{color:var(--ink-3)}
 </style>
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
+<noscript><p style="padding:24px;font:16px sans-serif">Enable JavaScript to use Paycheck to Paycheck Planner. Your data stays in this browser.</p></noscript>
 
 <div class="app" id="app">
   <aside class="rail" id="rail" aria-label="Sections">
@@ -1021,11 +1071,13 @@ a.setcard span{color:var(--ink-3)}
     <p class="navgroup">Look back</p>
     <nav id="nav-back"></nav>
     <div class="rail-foot">
-      <button class="navlink" data-go="settings" title="Settings &amp; data">
+      <button class="navlink" data-go="settings" title="Settings &amp; backup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
-        <span class="label">Settings &amp; data</span>
+        <span class="label">Settings &amp; backup</span>
       </button>
-      <p style="margin-top:10px">Paycheck to Paycheck Planner <span id="ver"></span></p>
+      <button class="rail-sample" id="rail-sample" data-act="demo">Explore sample data</button>
+      <p class="savestat" id="savestat"></p>
+      <p style="margin-top:6px">Paycheck to Paycheck Planner <span id="ver"></span></p>
       <p class="rail-brand" id="rail-brand"></p>
     </div>
   </aside>
@@ -1051,7 +1103,8 @@ a.setcard span{color:var(--ink-3)}
      </div>
     </header>
 
-    <div class="page">
+    <div class="samplebar" id="samplebar" hidden><p><b>Sample mode.</b> Made-up data to explore. Nothing here is saved, and your own data is untouched.</p><button class="linkish" data-act="demo">Return to my data</button></div>
+    <div class="page" id="content" tabindex="-1">
       <section class="screen" id="s-today"></section>
       <section class="screen" id="s-outlook" hidden></section>
       <section class="screen" id="s-plan" hidden></section>
@@ -1060,6 +1113,7 @@ a.setcard span{color:var(--ink-3)}
       <section class="screen" id="s-insights" hidden></section>
       <section class="screen" id="s-review" hidden></section>
       <section class="screen" id="s-settings" hidden></section>
+      <footer class="appfoot"><span>Paycheck to Paycheck Planner · JPS Digital Pages</span><span id="foot-r">Saved on this device</span></footer>
     </div>
   </div>
 </div>
@@ -1350,7 +1404,7 @@ function hasAnything(){
    is linked — so the copy asks for a synced one rather than claiming it. */
 /* Settled in: past setup and actually using it. Backup talk waits until
    then, so day one is about the number, not about files. */
-function settledIn(){ return state.log.length >= 5 && state.income.length > 0; }
+function settledIn(){ return !sampleMode && state.log.length >= 5 && state.income.length > 0; }
 function needsBackupSetup(){
   return canPick() && linked.state === "off" && settledIn();
 }
@@ -1404,7 +1458,11 @@ function uid(){
   catch { return Math.random().toString(36).slice(2, 10); }
 }
 
+/* Sample mode: made-up data in memory only. The buyer's own plan is put
+   aside untouched and nothing is written while it's showing. */
+let sampleMode = false, realState = null;
 function save(){
+  if (sampleMode) return;
   lsSet(KEY, JSON.stringify(state));
   linked.queueWrite();
 }
@@ -2330,9 +2388,13 @@ function delta(now, before, goodWhenUp){
   const cls = pct === 0 ? "flat" : (pct > 0) === !!goodWhenUp ? "good" : "bad";
   return `<span class="delta ${cls}">${pct > 0 ? "+" : ""}${pct}%</span>`;
 }
+const KPI_TONE = l => /in\b|coming|pay\b|income|days until/i.test(l) ? "t-pos"
+  : /bill|out|spent|spend|owe|debt/i.test(l) ? "t-neg" : /net|left|safe|balance|tightest/i.test(l) ? "t-net" : "";
+const KPI_ICO = l => /days|payday/i.test(l) ? "calendar" : /bill/i.test(l) ? "plan" : /spent|spend/i.test(l) ? "log"
+  : /runway|balance/i.test(l) ? "outlook" : "";
 const kpi = (label, value, note, opts) => `
-  <div class="kpi ${opts && opts.dark ? "dark" : ""}">
-    <span>${esc(label)}</span>
+  <div class="kpi ${opts && opts.dark ? "dark" : KPI_TONE(label)}">
+    <span>${!(opts && opts.dark) && KPI_ICO(label) && ICON[KPI_ICO(label)] ? `<i class="kico">${ICON[KPI_ICO(label)]}</i>` : ""}${esc(label)}</span>
     <b${opts && opts.count != null ? ` data-count="${opts.count}" data-fmt="${opts.fmt || "big"}"` : ""}>${esc(value)}</b>
     ${note ? `<span class="kpi-note">${note}</span>` : ""}
   </div>`;
@@ -2375,6 +2437,14 @@ function render(){
   drawBackupChip();
   $("#chip-balance").innerHTML = "In hand <b>" + esc(money.fmt(state.balance)) + "</b>";
   $("#ver").textContent = VERSION;
+  $("#samplebar").hidden = !sampleMode;
+  $("#foot-r").textContent = (sampleMode ? "Sample mode" : "Saved on this device") + " · v" + VERSION;
+  const st = $("#savestat");
+  if (st){
+    st.innerHTML = sampleMode ? '<i class="dot warn"></i>Sample mode'
+      : storageOK ? '<i class="dot"></i>Saved on this device' : '<i class="dot bad"></i>Not saved';
+  }
+  const sb = $("#rail-sample"); if (sb) sb.textContent = sampleMode ? "Return to my data" : "Explore sample data";
   drawBrand();
   if (tab === "calendar") centreMonthTab();
   animateIn();
@@ -3561,7 +3631,9 @@ const THEMES = [
   { id:"fjord", label:"Fjord", dot:"#1C3C52" },
   { id:"blush", label:"Blush", dot:"#63304A" },
   { id:"slate", label:"Slate", dot:"#2E3841" },
-  { id:"night", label:"Night", dot:"#8FD3B8" }
+  { id:"ledger", label:"Ledger", dot:"#182635" },
+  { id:"night", label:"Night", dot:"#8FD3B8" },
+  { id:"midnight", label:"Midnight", dot:"#0B303D" }
 ];
 function exportStatus(){
   const d = daysSinceExport();
@@ -3587,7 +3659,7 @@ const setCard = (attrs, icon, title, sub, danger) => `
 function drawSettings(){
   const snaps = snapshots().length;
   $("#s-settings").innerHTML = `
-    ${head("Settings", "Settings & data", "")}
+    ${head("Make it yours", "Settings & backup", "")}
 
     <div class="panel" style="margin-bottom:22px">
       <div class="panel-head">${secHead("wallet","Your money")}</div>
@@ -3614,8 +3686,8 @@ function drawSettings(){
         ${setCard('data-act="restore"', "history", "Go back a day",
           snaps ? snaps + " earlier " + (snaps === 1 ? "copy" : "copies") + " on this device"
                 : "Nothing earlier yet")}
-        ${setCard('data-act="demo"', "spark", "Load example data",
-          state.demo ? "Currently showing the example" : "Nine months of a made-up plan")}
+        ${setCard('data-act="demo"', "spark", sampleMode ? "Return to my data" : "Explore sample data",
+          sampleMode ? "Leave sample mode" : "Made-up data to explore. Yours stays untouched")}
         ${setCard('data-sheet="cats"', "tags", "Categories",
           "Rename them, or set the words that sort your spending")}
         ${setCard('data-sheet="wipe"', "trash", "Start again", "Clear everything", true)}
@@ -3633,10 +3705,10 @@ function drawSettings(){
     </div>
 
     <div class="panel" style="margin-bottom:22px">
-      <div class="panel-head">${secHead("compass","Sections")}</div>
-      <p class="field-note" style="margin:0 0 14px">Switch off anything you don't use — it leaves the
-        sidebar and the screens it appears on. Nothing is deleted, and turning it back on brings it
-        all back exactly as it was.</p>
+      <div class="panel-head">${secHead("compass","Simplify your sidebar")}
+        <span class="pill">${OPTIONAL.filter(o => shown(o.id)).length} of ${OPTIONAL.length} shown</span></div>
+      <p class="field-note" style="margin:0 0 14px">Switch off anything you don't use. Nothing is deleted,
+        and turning it back on brings it all back exactly as it was.</p>
       <div class="setgrid">
         ${OPTIONAL.map(o => `
           <button class="setcard toggle${shown(o.id) ? " on" : ""}" data-section="${o.id}"
@@ -5227,12 +5299,27 @@ function demoState(){
 }
 
 function loadDemo(){
-  commit(() => { state = demoState(); }, "Example data loaded");
+  if (sampleMode) return exitSample();
+  if (DEMO_BUILD){ commit(() => { state = demoState(); }, "Example data loaded"); }
+  else {
+    realState = JSON.stringify(state);
+    sampleMode = true;
+    state = demoState(); state.demo = true;
+    toast("Sample mode. Your own data is untouched.");
+  }
   document.documentElement.setAttribute("data-theme", state.theme || "paper");
   tab = "today";
   closeSheet();
   render();
   window.scrollTo(0, 0);
+}
+function exitSample(){
+  if (!sampleMode) return;
+  state = JSON.parse(realState);
+  sampleMode = false; realState = null;
+  document.documentElement.setAttribute("data-theme", state.theme || "paper");
+  tab = "today"; closeSheet(); render(); window.scrollTo(0, 0);
+  toast("Back to your data");
 }
 </script>
 
@@ -5526,7 +5613,9 @@ const ACTS = {
         ${t.count} entries in this period<br>
         Paycheck to Paycheck Planner ${esc(VERSION)} · ${esc(BRAND.name)} · ${esc(BRAND.siteLabel)}
       </div>`;
+    document.body.classList.add("printing-statement");
     window.print();
+    document.body.classList.remove("printing-statement");
   },
   reconnect(){ reconnectAsked = false; SHEETS.reconnect(); },
   tour(){ openTour(); },
@@ -5574,12 +5663,7 @@ const ACTS = {
     }
     linked.choose();
   },
-  demo(){
-    if (state.demo || (!state.income.length && !state.bills.length && !state.log.length)) return loadDemo();
-    openSheet("Load example data", `
-      <p class="figure-sub" style="margin:0 0 18px">This replaces your own plan with a made-up one. Save a copy first if you want to keep what's here.</p>`,
-      () => loadDemo(), { cta:"Replace with the example", noFocus:true });
-  }
+  demo(){ loadDemo(); }
 };
 
 /* ============================================================
