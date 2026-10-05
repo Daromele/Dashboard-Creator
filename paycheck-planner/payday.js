@@ -141,7 +141,7 @@ const Payday = (() => {
     const today = Budget.today(), freq = pay?.frequency || 'biweekly';
     modal('Set up my number', 'Three quick questions. You can change any of it later.', `<form id="pp-setup-form" novalidate><div id="form-error" class="form-error" role="alert" hidden></div>
       <h3 class="sub-head">1 · What you have</h3><div class="fields">${field('balance', 'Money in hand right now', money2(p.asOf ? balanceNow() : 0), 'The total in the accounts you spend from', 'text', 'placeholder="0.00" required')}${field('buffer', 'Cushion to keep untouched', money2(p.buffer), 'Optional. e.g. 50.00, so you never hit zero', 'text', 'placeholder="0.00"')}</div>
-      <h3 class="sub-head">2 · Your pay</h3><div class="fields">${field('pay', 'Take-home pay', money2(pay?.amount), '', 'text', 'placeholder="0.00"')}${field('next', 'Next payday', pay ? reckon().payday || today : Budget.plusDays(today, 7), '', 'date')}<label class="full">How often<select name="freq">${[['weekly', 'Weekly'], ['biweekly', 'Every two weeks'], ['monthly', 'Monthly']].map(([v, l]) => `<option value="${v}" ${v === freq ? 'selected' : ''}>${l}</option>`).join('')}</select></label></div>
+      <h3 class="sub-head">2 · Your pay</h3><div class="fields">${field('pay', 'Take-home pay', money2(pay?.amount), '', 'text', 'placeholder="0.00"')}${field('next', 'Next payday', pay ? reckon().payday || today : Budget.plusDays(today, 7), '', 'date')}<label>How often<select name="freq" data-pp-freq>${[['weekly', 'Weekly'], ['biweekly', 'Every two weeks'], ['semimonthly', 'Twice a month (e.g. 15th and last day)'], ['fourweekly', 'Every four weeks'], ['monthly', 'Monthly'], ['custom', 'Every … days (custom)']].map(([v, l]) => `<option value="${v}" ${v === freq ? 'selected' : ''}>${l}</option>`).join('')}</select></label><label class="pp-every" ${freq === 'custom' ? '' : 'hidden'}>Every how many days?<input name="every" type="number" min="1" max="365" value="${pay?.every || ''}" placeholder="e.g. 10"></label></div>
       <h3 class="sub-head">3 · Bills before then</h3><p class="small muted">The main ones that leave on their own. Add more any time in Bills & pay.</p>
       ${[0, 1, 2].map(i => { const b = bills[i]; return `<div class="fields pp-billrow">${field('bn' + i, i ? '' : 'Bill', b?.name || '', '', 'text', `placeholder="${['Rent', 'Phone', 'Car payment'][i]}" inputmode="text"`)}${field('ba' + i, i ? '' : 'Amount', money2(b?.amount), '', 'text', 'placeholder="0.00"')}${field('bd' + i, i ? '' : 'Next due', b ? Budget.occurrences(state, today.slice(0, 7)).find(o => o.id === b.id)?.date || b.start : Budget.plusDays(today, 3 + i * 2), '', 'date')}</div>`; }).join('')}
       ${formFoot('See my number')}</form>`);
@@ -156,13 +156,15 @@ const Payday = (() => {
     if (bal === null) throw Error('Enter your money in hand, even if it is 0.');
     if (!pay || pay <= 0) throw Error('Enter your take-home pay.');
     const next = f.get('next'); if (!Budget.validDate(next)) throw Error('Pick your next payday.');
+    const every = parseInt(f.get('every'), 10);
+    if (f.get('freq') === 'custom' && !(every >= 1 && every <= 365)) throw Error('Enter how many days apart your paychecks are (1 to 365).');
     const bills = [0, 1, 2].map(i => ({ name: String(f.get('bn' + i) || '').trim(), amount: parse(f.get('ba' + i)), date: f.get('bd' + i) })).filter(b => b.amount > 0);
     if (bills.some(b => !Budget.validDate(b.date))) throw Error('Pick a due date for each bill.');
     commit(() => {
       const keep = (state.schedules || []).filter(r => !r.setup);
       const kept = new Set(keep.map(r => r.id));
       state.transactions.forEach(t => { if (t.scheduleKey && !kept.has(t.scheduleKey.split('@')[0])) delete t.scheduleKey; });
-      state.schedules = [...keep, { id: 'pp-pay-' + Budget.uid(), name: 'Paycheck', category: 'salary', amount: pay, frequency: f.get('freq'), start: next, end: '2099-12-31', setup: true },
+      state.schedules = [...keep, { id: 'pp-pay-' + Budget.uid(), name: 'Paycheck', category: 'salary', amount: pay, frequency: f.get('freq'), start: next, end: '2099-12-31', setup: true, ...(f.get('freq') === 'custom' ? { every: every } : {}) },
         ...bills.map(b => ({ id: 'pp-bill-' + Budget.uid(), name: b.name || 'Bill', category: guessCat(b.name), amount: b.amount, frequency: 'monthly', start: b.date, end: '2099-12-31', setup: true }))];
       setBalance(bal); state.payday.buffer = Math.max(0, buf);
     }, 'Your number is ready');
@@ -202,6 +204,7 @@ const Payday = (() => {
     }
   });
   document.addEventListener('change', e => {
+    if (e.target.matches?.('[data-pp-freq]')) { const box = $('.pp-every'); if (box) box.hidden = e.target.value !== 'custom'; return; }
     const k = e.target.dataset?.ppWi; if (!k) return;
     whatIf[k] = Number(e.target.value) || 0; render();
   });

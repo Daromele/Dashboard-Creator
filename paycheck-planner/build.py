@@ -61,6 +61,22 @@ for x, y in [('Repeat the plan. Record the reality.', 'Your pay and bills'),
     s = one(x, y, s)
 s = one('...Biz.views,...Auto.views}', '...Biz.views,...Auto.views,...Payday.views}', s)
 
+# More pay frequencies: twice a month, every four weeks, and a custom "every N days"
+s = one("const FREQUENCIES={once:'Once',weekly:'Weekly',biweekly:'Every two weeks',monthly:'Monthly',quarterly:'Every three months',annual:'Yearly'};",
+        "const FREQUENCIES={once:'Once',weekly:'Weekly',biweekly:'Every two weeks',semimonthly:'Twice a month',fourweekly:'Every four weeks',monthly:'Monthly',quarterly:'Every three months',annual:'Yearly',custom:'Every … days (custom)'};", s)
+s = one("""      else if(['weekly','biweekly'].includes(r.frequency)){
+        const step=r.frequency==='weekly'?7:14;""",
+        """      else if(r.frequency==='semimonthly'){const d1=+r.start.slice(8),last=days(m),a=d1<=15?d1:d1-15,b=d1<=15?(d1+15>=28?last:d1+15):Math.min(d1,last);dates=[...new Set([a,b])].map(x=>m+'-'+String(Math.min(x,last)).padStart(2,'0'));}
+      else if(['weekly','biweekly','fourweekly','custom'].includes(r.frequency)){
+        const step={weekly:7,biweekly:14,fourweekly:28}[r.frequency]||Math.max(1,Math.min(365,(r.every|0)||14));""", s)
+s = one("const PER_MONTH={once:0,weekly:52/12,biweekly:26/12,monthly:1,quarterly:1/3,annual:1/12};",
+        "const PER_MONTH={once:0,weekly:52/12,biweekly:26/12,semimonthly:2,fourweekly:13/12,monthly:1,quarterly:1/3,annual:1/12};", s)
+s = one("r.amount*(PER_MONTH[r.frequency]??0)", "r.amount*(r.frequency==='custom'?365/12/Math.max(1,r.every||14):(PER_MONTH[r.frequency]??0))", s)
+s = one("""${(r?.frequency||'monthly')===v?'selected':''}>${l}</option>`).join('')}</select></label>""",
+        """${(r?.frequency||'monthly')===v?'selected':''}>${l}</option>`).join('')}</select></label><label>Every how many days?<input name="every" type="number" min="1" max="365" value="${r?.every||''}" placeholder="e.g. 10"><small>Only for “Every … days (custom)”</small></label>""", s)
+s = one("frequency:f.get('frequency'),start:f.get('start'),end:f.get('end')}",
+        "frequency:f.get('frequency'),start:f.get('start'),end:f.get('end'),...(f.get('frequency')==='custom'?{every:Math.max(1,Math.min(365,parseInt(f.get('every'),10)||14))}:{})}", s)
+
 out = here.parent / 'PaycheckToPaycheckPlanner.html'
 out.write_text(s)
 print('built', out, len(s))
