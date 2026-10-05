@@ -27,9 +27,9 @@ The planner is built, not hand-edited. Edit the source, then rebuild:
 - `app/packs/business.js` → `app/SmallBusinessProfitPlan.html` (Profit Plan v1.0, freelancer / small business)
 - `app/packs/creator.js` → `app/CreatorPlan.html` (Creator Plan, online creators)
 - `app/packs/autonomo.js` → `app/AutonomoPlan.html` (Autónomo Plan, records for a Spanish autónomo and their gestor)
-- `app/packs/tracker.js` → `app/MoneyAutopilot.html` (Money Autopilot v1.0, private income & expense tracker)
+- `app/packs/tracker.js` → `app/IncomeExpenseTracker.html` (Income and Expense Tracker v1.0, private, from your statements)
 
-**Money Autopilot** (`features.autopilot`, `features.offline`) turns card and bank CSVs into the
+**Income and Expense Tracker** (`features.autopilot`, `features.offline`) turns card and bank CSVs into the
 whole picture with no typing. `Autopilot` in core is the pure engine: `read` (columns, which way
 money runs, card or bank, the account's name from the file), `merchant` (clean names, long numbers
 masked), `classify` (card payments and own transfers, your rules, the pack's `merchantDict`, the
@@ -70,7 +70,7 @@ node build/build_app.js          # rebuild every edition from core + packs
 node build/test.js               # module tests: budget vs frozen v1.8, business maths, build is current
 node build/ui_parity.js          # budget edition renders exactly like v1.8 (needs git history)
 node build/biz_smoke.js [shots]  # drives every business screen and flow in Chromium
-node build/autopilot_flow.js     # Money Autopilot: drop statements, pairs, needs a look, re-import, delete import
+node build/autopilot_flow.js     # Income and Expense Tracker: drop statements, pairs, needs a look, re-import, delete import
 node build/print_audit.js [pdfs]  # prints every screen (Letter + A4); fails on near-empty pages (needs pdfjs-dist)
 ```
 

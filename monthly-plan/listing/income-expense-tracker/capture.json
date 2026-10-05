@@ -1,0 +1,78 @@
+{
+ "app": "../../app/IncomeExpenseTracker.html",
+ "out": "shots",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "view": "dashboard",
+   "offset": 6
+  },
+  {
+   "name": "import",
+   "view": "import",
+   "offset": 6
+  },
+  {
+   "name": "activity",
+   "view": "activity",
+   "offset": 6
+  },
+  {
+   "name": "recurring",
+   "view": "recurring",
+   "offset": 6
+  },
+  {
+   "name": "insights",
+   "view": "insights",
+   "offset": 6
+  },
+  {
+   "name": "annual",
+   "view": "annual",
+   "offset": 6
+  },
+  {
+   "name": "cuts",
+   "view": "cuts",
+   "offset": 6,
+   "before": "for(let i=0;i<3;i++){const b=document.querySelector('.cut-idea .actions button:not(.quiet)');if(b)b.click();}document.querySelector('#toast').hidden=true;window.scrollTo(0,0);"
+  },
+  {
+   "name": "invest",
+   "view": "invest",
+   "offset": 6
+  },
+  {
+   "name": "paychecks",
+   "view": "paychecks",
+   "offset": 6
+  },
+  {
+   "name": "accounts",
+   "view": "accounts",
+   "offset": 6
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  }
+ ],
+ "themes": {
+  "list": [
+   "fjord",
+   "sage",
+   "lavender",
+   "linen",
+   "blush",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('dashboard',true);render();document.querySelector('#toast').hidden=true;"
+ }
+}

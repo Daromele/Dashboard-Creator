@@ -1,5 +1,5 @@
 /* ===================================================================================
-   NICHE PACK · Money Autopilot (income & expense tracker edition)
+   NICHE PACK · Income and Expense Tracker
    For people who want the picture without the bookkeeping: drop in card and bank
    statements, and the app sorts, pairs and sums them by itself. Everything stays on
    the buyer's computer: no bank login, no account linking, no network at all.
@@ -9,17 +9,18 @@
 const NICHE = {
   id: 'tracker',
   product: {
-    name: 'Money Autopilot', mark: 'A', publisher: 'MONEY TRACKER', version: '1.0',
+    name: 'Income and Expense Tracker', mark: 'I', publisher: 'FROM YOUR STATEMENTS', version: '1.0',
     tagline: 'Income & expense tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
-    title: 'Money Autopilot · Private Income & Expense Tracker', themeColor: '#1f3b36',
-    description: 'Money Autopilot by JPS Digital Pages. Drop in your card and bank statements and see where your money goes, sorted automatically. No bank login. Works offline; your data never leaves your computer.',
+    title: 'Income and Expense Tracker · Private, from your statements', themeColor: '#1f3b36',
+    description: 'Income and Expense Tracker by JPS Digital Pages. Drop in your card and bank statements and see where your money goes, sorted automatically. No bank login. Works offline; your data never leaves your computer.',
     icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%231f3b36"/><path d="M16 46 32 16l16 30M22 36h20" fill="none" stroke="%23f2c879" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    notice: 'Money Autopilot. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Personal-use customer edition.',
+    notice: 'Income and Expense Tracker. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Personal-use customer edition.',
     railNote: '<b>Your money, sorted for you.</b>Statements in, the whole picture out. Nothing leaves this computer.',
-    printTitle: 'Money Autopilot · JPS Digital Pages',
+    printTitle: 'Income and Expense Tracker · JPS Digital Pages',
   },
-  build: { file: 'MoneyAutopilot.html' },
-  storage: { key: 'jps-money-autopilot', file: 'money-autopilot' },
+  build: { file: 'IncomeExpenseTracker.html' },
+  // storage key kept from the first name so existing data still loads
+  storage: { key: 'jps-money-autopilot', file: 'income-expense-tracker' },
   themes: ['fjord', 'sage', 'lavender', 'linen', 'blush', 'slate', 'night', 'midnight'],
   // autopilot: statements import themselves · offline: the app never goes online, except to look up
   // exchange rates (currencies and dates only) once you switch that on
@@ -50,7 +51,7 @@ const NICHE = {
     ['emergency', 'Savings', 'savings'], ['investing', 'Investing & retirement', 'investment'],
     ['card-payoff', 'Credit card payments', 'transfer'], ['own-transfer', 'Transfers between my accounts', 'transfer'], ['platform-payout', 'PayPal & app transfers', 'transfer'], ['inside-investing', 'Inside investment accounts', 'transfer'],
   ],
-  // the categories the Autopilot falls back on
+  // the categories the importer falls back on
   // savings: money moved to savings · investing: money moved to brokerage or retirement · invested: what happens inside those accounts
   autopilot: { savings: 'emergency', investing: 'investing', invested: 'inside-investing', payoff: 'card-payoff', transfer: 'own-transfer', salary: 'salary', interest: 'interest', otherIncome: 'other-income', unsorted: 'unsorted', people: 'people', rent: 'housing' },
   // known merchants: [pattern on the lower-case description, category, the name shown]. First match wins,
@@ -136,7 +137,7 @@ const NICHE = {
     ['annual', 'Year at a glance', 'insights'], ['years', 'Year over year', 'years'], ['cuts', 'Cut back', 'scissors'], ['invest', 'Net worth', 'umbrella'], ['paychecks', 'Paychecks', 'coins'], ['insights', 'Insights', 'spark'], ['import', 'Add statements', 'up'], ['inbox', 'Needs a look', 'check'], ['accounts', 'Accounts', 'wallet'], ['budget', 'Spending limits', 'plan'], ['goals', 'Savings & goals', 'umbrella'], ['scheduled', 'Reminders', 'history'],
     ['calendar', 'Calendar', 'calendar'], ['wealth', 'Monthly snapshots', 'outlook'], ['review', 'Weekly review', 'review'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
   optionalNav: ['cuts', 'recurring', 'annual', 'years', 'invest', 'paychecks', 'insights', 'budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review', 'guide'],
-  navGroups: [['Your money', ['dashboard', 'activity', 'recurring', 'annual', 'years', 'cuts', 'invest', 'paychecks', 'insights']], ['Autopilot', ['import', 'inbox', 'accounts']], ['Plan (optional)', ['budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review']]],
+  navGroups: [['Your money', ['dashboard', 'activity', 'recurring', 'annual', 'years', 'cuts', 'invest', 'paychecks', 'insights']], ['Statements', ['import', 'inbox', 'accounts']], ['Plan (optional)', ['budget', 'goals', 'scheduled', 'calendar', 'wealth', 'review']]],
   navGroupRest: 'Make it yours',
 
   labels: {
@@ -146,7 +147,7 @@ const NICHE = {
     plannedContributions: 'Planned saving', savingsFilter: 'Savings & investing',
     plannedIncome: 'EXPECTED MONEY IN', subscriptionKpi: 'Subscriptions', yourName: 'Your name (optional)', yourNameHint: 'What should we call you?',
     greeting: '’s money picture', greetingPlain: 'Your money picture', planTitle: 'Spending limits (optional)', categoryPlaceholder: 'e.g. Childcare',
-    categorySub: 'Rename, add or hide categories. The Autopilot uses what you set here.', directionNormal: 'Money in / money out / saving',
+    categorySub: 'Rename, add or hide categories. Imports use what you set here.', directionNormal: 'Money in / money out / saving',
     statementKinds: 'card and bank statements',
     importNote: 'Card and bank statements are read automatically. For anything else, map the columns by hand.',
     exitDemo: 'Return to my money', demoOnly: 'Your data only', notePlaceholder: 'e.g. Whole Foods',
@@ -157,7 +158,7 @@ const NICHE = {
   quickLog: { placeholder: 'cash lunch 12', help: 'For cash you spent: “lunch 12”, “farmers market 30”.', demo: ['coffee', '4.50', 'Restaurants & coffee'] },
 
   welcome: [
-    { icon: 'today', step: 'WELCOME', title: 'Your money, sorted for you', text: '<p>Drop in your card and bank statements. Money Autopilot reads them, sorts every transaction and shows where your money goes.</p><p>No bank login, no account linking, no typing.</p>' },
+    { icon: 'today', step: 'WELCOME', title: 'Your money, sorted for you', text: '<p>Drop in your card and bank statements. It reads them, sorts every transaction and shows where your money goes.</p><p>No bank login, no account linking, no typing.</p>' },
     { icon: 'shield', step: 'PRIVATE', title: 'Nothing leaves this computer', text: '<p>Your statements are read right here, in this file. There is no server, no account and no internet connection. Long card and account numbers are hidden as soon as a file is read.</p>' },
     { icon: 'up', step: 'AUTOMATIC', title: 'Statements in, picture out', text: '<p>Download CSV statements from each card and bank (most have a <b>Download</b> or <b>Export</b> button) and drop them all in at once. Card payments and transfers between your accounts are paired, so nothing counts twice.</p>' },
     { icon: 'check', step: 'LEARNS', title: 'It asks only when it’s unsure', text: '<p>The few transactions it can’t place wait in <b>Needs a look</b>. Pick a category once and every future one from the same place follows.</p>' },
@@ -174,7 +175,7 @@ const NICHE = {
     meanings: [['Money in', 'Paychecks and other income'], ['Spending', 'Everything that left, less refunds'], ['Kept', 'Money in − spending'], ['Not counted', 'Card payments and your own transfers']],
     details: [
       ['Where do I get the CSV files?', 'Sign in to your bank or card website, open the account, and look for <b>Download</b>, <b>Export</b> or the download icon on the transactions list. Choose <b>CSV</b> (sometimes called “Spreadsheet” or “Comma delimited”) and a date range. Chase, Bank of America, Wells Fargo, Citi, Capital One, Amex, Discover, US Bank, Ally and most credit unions offer it.'],
-      ['Why aren’t card payments counted?', 'Your card purchases are already counted as spending. The payment from checking to the card is the same money moving between your own accounts, so counting it again would double your spending. The Autopilot pairs the payment on both sides and leaves it out of every total.'],
+      ['Why aren’t card payments counted?', 'Your card purchases are already counted as spending. The payment from checking to the card is the same money moving between your own accounts, so counting it again would double your spending. The app pairs the payment on both sides and leaves it out of every total.'],
       ['What if it sorts something wrong?', 'Change the category on the transaction. You’re asked whether to change the others from the same place and remember it for next time. Your choice always wins over the built-in list.'],
       ['What if I add the same month twice?', 'Transactions already in the app are skipped, even when two statements overlap by a few days. Two identical purchases on the same day in one file are both kept.'],
       ['Savings, brokerage and retirement accounts', 'Drop their files in with the rest. A savings account’s transactions CSV works like checking: money moved there from checking counts as <b>saved</b>, not spent. From a brokerage or IRA (Fidelity, Vanguard, Schwab…), the <b>positions</b> or <b>holdings</b> download gives each account’s balance, and the <b>activity</b> download adds contributions, dividends and fees; nothing inside those accounts counts as spending. A 401(k) that only offers PDFs: open <b>Savings & investments</b> and type its balance with <b>Update balance</b> each quarter.'],

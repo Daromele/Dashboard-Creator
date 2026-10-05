@@ -4,7 +4,7 @@
 const {chromium}=require(require.resolve('playwright',{paths:['/opt/node22/lib/node_modules',__dirname]}));
 const path=require('path');
 let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${name}${cond?'':' '+info}`);if(!cond)fails++;};
-const APPS=['MonthlyBudgetPlanner','SmallBusinessProfitPlan','CreatorPlan','AutonomoPlan','MoneyAutopilot'];
+const APPS=['MonthlyBudgetPlanner','SmallBusinessProfitPlan','CreatorPlan','AutonomoPlan','IncomeExpenseTracker'];
 (async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});
 for(const app of APPS){const p=await b.newPage({viewport:{width:1400,height:1000}}),errs=[];p.on('pageerror',e=>errs.push(e.message));
  await p.clock.setFixedTime(new Date('2026-09-15T12:00:00'));

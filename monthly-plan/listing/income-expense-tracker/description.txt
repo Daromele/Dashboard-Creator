@@ -1,0 +1,51 @@
+A money tracker that reads your bank statements for you, opens in any browser, and never asks you to sign up for anything.
+
+Income and Expense Tracker is one HTML file. You download it, double-click it, and it opens like a web page. Drop in the CSV downloads from your bank and card accounts and it reads every line, cleans up the merchant names, sorts each one into a category and shows your month: money in, spending, what you kept, and where it all went. No typing, no bank login, no subscription. Your figures stay on your own computer.
+
+How It Works:
+1. Download the file and save it somewhere you will find it again.
+2. Double-click to open it in your browser. Take the two-minute tour, or open Sample Mode to explore a fictional household first.
+3. Download the CSV from each bank and card (usually "Download" or "Export" on the transactions page) and drop them all in at once.
+4. Check the few it isn't sure about in "Needs a look". It learns from every change you make, so next month needs even less.
+5. Watch the dashboard. It shows where your money went, what repeats every month, and what you could keep.
+
+WHAT YOU'LL GET:
+• One HTML money tracker file
+• Money picture dashboard: money in, spending, saved and kept, where it went and where it came from
+• Statement import for Chase, Bank of America, Wells Fargo, Citi, Capital One, Amex, Discover, US Bank, Ally, most credit unions, PayPal, Venmo and more
+• Automatic categories that learn from your changes
+• Card payments and transfers between your own accounts paired, so nothing counts twice
+• Overlapping statements and repeat uploads skipped automatically
+• Subscriptions & bills: every repeating charge, what it costs a month and a year, and the next date
+• Insights: categories above your usual, price increases, new places, biggest purchases, fees and upcoming charges
+• Cut back: pick what to cancel or trim and see what it adds up to in a year
+• Year at a glance and year over year
+• Net worth: checking, savings, brokerage and retirement, less cards and loans
+• Optional: paychecks broken down from your pay stub, spending limits, savings goals, reminders, a calendar and a weekly review
+• Statements folder: new files come in by themselves (Chrome and Edge)
+• Every table sorts, searches and filters
+• 8 color themes, light and dark; every screen prints
+• Built-in how-to guide included
+
+PERFECT FOR:
+Knowing where your money goes without typing every purchase, finding and cutting forgotten subscriptions, couples sharing expenses, freelancers watching cash flow, anyone whose budgeting app shut down, and anyone who wants their finances to stay private on their own computer.
+
+Please note: this is a digital file, not a physical product. Nothing will be posted to you. It reads CSV downloads; PDF statements can't be read. Your data is stored in your own browser on your own device, and long card and account numbers are hidden as soon as a file is read. This tracker never uploads anything anywhere. Download a backup regularly; the app reminds you, and Chrome and Edge can back up to a folder automatically every day. Works best on a computer; phones and tablets can view and add transactions. This is not financial advice.
+
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
+
+👍 You Can
+✔ Use this tracker for your own personal finances, for as long as you like
+✔ Use it on your own computers, and print your own copies
+✔ Back up your own file and your own data as often as you want
+
+👎 You Cannot
+❌ Resell, redistribute, or share this file with others
+❌ Use it commercially, or include it in any product, bundle or service of your own
+❌ Claim it as your own work, or alter it for resale
+❌ Return it — digital files cannot be returned once downloaded
+
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order! hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+
+Income and Expense Tracker by JPS Digital Pages

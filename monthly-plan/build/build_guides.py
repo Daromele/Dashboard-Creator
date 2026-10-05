@@ -1,6 +1,6 @@
 """Buyer guides (US Letter, print to PDF) for the app editions, in the Monthly Plan guide's style.
 
-usage: python3 build/build_guides.py [autopilot|debt ...]     (from monthly-plan/)
+usage: python3 build/build_guides.py [tracker|debt ...]     (from monthly-plan/)
 Writes listing/<dir>/<Product>_Guide.html; build/guide_pdf.js turns each into a PDF.
 Screenshots come from listing/<dir>/shots (the deck captures).
 """
@@ -142,8 +142,8 @@ def help_page(P, rows):
 
 
 AUTOPILOT = dict(
-    dir='money-autopilot', file='Money_Autopilot', name='Money Autopilot', html='MoneyAutopilot.html', mark='A', version='1.0',
-    storage='ma-guide-img:', tour='adding statements, what gets counted, and backups', safe_page=9,
+    dir='income-expense-tracker', file='Income_Expense_Tracker', name='Income and Expense Tracker', html='IncomeExpenseTracker.html', mark='I', version='1.0',
+    storage='iet-guide-img:', tour='adding statements, what gets counted, and backups', safe_page=9,
     colors=dict(bold='#1C3C52', accent='#2C5470', pop='#F0A93C', page='#F6F8FA', ink='#1D2733', ink2='#55606B', ink3='#88929C',
                 rule='#D9E0E6', soft='#E8EEF3', warm='#FBF1E3', warmline='#EED7B5', green='#E6F1EA', greenline='#BFDCCB'),
     cover=dict(kicker='Your hands-off guide', tag='Statements in. Money sorted.', image='tab-dashboard.jpg',
@@ -157,7 +157,7 @@ def autopilot_pages(shot):
         ('Start here', start_here(P, '<li><b>Add your first statements</b> on Add statements: last month from every card and bank, all at once.</li>',
                                   'Choose <b>Explore sample data</b> on the welcome screen or in Settings &amp; backup. A fictional household fills every screen, in a separate session. <b>Return to my money</b> brings back your own figures, untouched.')),
         ('The idea', f'''<h1>Where it went, without typing.</h1>
-<p class="lede">Money Autopilot answers one question first: how much did you keep this month?</p>
+<p class="lede">Income and Expense Tracker answers one question first: how much did you keep this month?</p>
 {shot("tab-dashboard.jpg", "guide-dashboard", "Money picture")}
 <p class="cap">The Money picture. <b>Kept</b> is money in less spending, for the month you choose at the top.</p>
 <table><tr><th>Word</th><th>What it means</th></tr>
@@ -194,7 +194,7 @@ def autopilot_pages(shot):
 <tr><td>Net worth</td><td>Checking, savings, brokerage and retirement, less cards and loans.</td></tr>
 <tr><td>Insights</td><td>What changed: categories above your usual, price increases, new places, fees.</td></tr>
 <tr><td>Paychecks</td><td>Gross pay, taxes and 401(k) from your pay stub (optional).</td></tr>
-<tr><td>Add statements · Needs a look · Accounts</td><td>The Autopilot: files in, the few it's unsure of, and your accounts.</td></tr>
+<tr><td>Add statements · Needs a look · Accounts</td><td>Statements: files in, the few it's unsure of, and your accounts.</td></tr>
 <tr><td>Plan (optional)</td><td>Spending limits, savings goals, reminders, a calendar, monthly snapshots and a weekly review.</td></tr>
 <tr><td>Settings &amp; backup</td><td>Name, currency, date format, 8 themes, your sidebar, backups.</td></tr></table>
 <p>Every screen prints cleanly. Every table sorts, searches and filters.</p>'''),
@@ -303,6 +303,6 @@ AUTOPILOT['pages'] = autopilot_pages
 DEBT['pages'] = debt_pages
 
 if __name__ == '__main__':
-    which = sys.argv[1:] or ['autopilot', 'debt']
+    which = sys.argv[1:] or ['tracker', 'debt']
     for w in which:
-        build({'autopilot': AUTOPILOT, 'debt': DEBT}[w])
+        build({'tracker': AUTOPILOT, 'debt': DEBT}[w])

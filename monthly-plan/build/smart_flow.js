@@ -2,7 +2,7 @@
 //   node build/smart_flow.js
 const {chromium}=require(require.resolve('playwright',{paths:['/opt/node22/lib/node_modules',__dirname]}));
 const path=require('path');
-const F='file://'+path.resolve(__dirname,'../app/MoneyAutopilot.html');
+const F='file://'+path.resolve(__dirname,'../app/IncomeExpenseTracker.html');
 let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${name}${cond?'':' '+info}`);if(!cond)fails++;};
 const file=(name,text)=>({name,mimeType:'text/csv',buffer:Buffer.from(text)});
 const months=['04','05','06','07','08','09'];

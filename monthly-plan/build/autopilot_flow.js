@@ -1,9 +1,9 @@
-// Money Autopilot in the browser: drop statements, see them sorted and paired, settle what needs a
+// Income and Expense Tracker in the browser: drop statements, see them sorted and paired, settle what needs a
 // look, import again without duplicates, delete an import. Synthetic statements only.
 //   node build/autopilot_flow.js
 const {chromium}=require(require.resolve('playwright',{paths:['/opt/node22/lib/node_modules',__dirname]}));
 const path=require('path');
-const F='file://'+path.resolve(__dirname,'../app/MoneyAutopilot.html');
+const F='file://'+path.resolve(__dirname,'../app/IncomeExpenseTracker.html');
 let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${name}${cond?'':' '+info}`);if(!cond)fails++;};
 const file=(name,text)=>({name,mimeType:'text/csv',buffer:Buffer.from(text)});
 const CARD=`Transaction Date,Post Date,Description,Category,Type,Amount,Memo

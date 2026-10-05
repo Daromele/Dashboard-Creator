@@ -1,8 +1,8 @@
-// Money Autopilot: statements read, sorted and paired by themselves. Run from test.js.
+// Income and Expense Tracker: statements read, sorted and paired by themselves. Run from test.js.
 // Every statement below is a small synthetic copy of a bank's CSV layout; no real data.
 const path=require('path'),{extractImportTo}=require('./extract.js');
 module.exports=({eq,ok})=>{
-  const {Budget:B,CSV,Autopilot:A}=require(extractImportTo(path.join(__dirname,'../app/MoneyAutopilot.html'),path.join(__dirname,'import.tracker.js')));
+  const {Budget:B,CSV,Autopilot:A}=require(extractImportTo(path.join(__dirname,'../app/IncomeExpenseTracker.html'),path.join(__dirname,'import.tracker.js')));
   const P=B.P,s=B.blank();
   const sort=(f,rows)=>{const c=A.context(P,s,B,f.kind);return rows.map(r=>({...r,name:A.merchant(r.desc,c.dict),...A.classify({...r,name:A.merchant(r.desc,c.dict)},c)}));};
 
