@@ -46,6 +46,17 @@ s = one('Enable JavaScript to use Money Autopilot.', 'Enable JavaScript to use P
 marker = '<div id="toast" class="toast"'
 j = s.index('<script>', s.index(marker))
 s = s[:j] + '<script>\n' + mod + '\n</script>\n' + s[j:]
+# Bills & pay: plain words for this edition (the engine's schedule screen)
+for x, y in [('Repeat the plan. Record the reality.', 'Your pay and bills'),
+             ('Set a repeat once, then match each payment when it happens.', 'Add each paycheck and bill once. They repeat on their own.'),
+             ("'Add schedule'", "'Add pay or bill'"),
+             ('Your schedules', 'Your pay and bills'),
+             ('To change future amounts, end the old schedule and add a new one.', 'To change an amount from now on, edit it, or end the old one and add a new one.'),
+             ("button('Use recurring amounts','schedule-plan','quiet')", "''"),
+             ('scheduled items.</b> Expected amounts are not actual transactions. Record an item or match an existing entry to avoid double counting.', 'due this month.</b> Mark each one when it actually leaves or lands, here or with the check on Today.'),
+             ('Add a recurring schedule', 'Add pay or a bill'),
+             ('This creates reminders. Nothing is paid, imported or added to actuals automatically.', 'It repeats on its own. Bills due before payday come off your safe-to-spend.')]:
+    s = one(x, y, s)
 s = one('...Biz.views,...Auto.views}', '...Biz.views,...Auto.views,...Payday.views}', s)
 
 out = here.parent / 'PaycheckToPaycheckPlanner.html'

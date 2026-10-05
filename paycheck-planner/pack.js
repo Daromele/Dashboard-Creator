@@ -20,23 +20,36 @@ Object.assign(NICHE, {
   build: { file: 'PaycheckToPaycheckPlanner.html' },
   storage: { key: 'jps-paycheck-planner', file: 'paycheck-planner' },
   themes: ['sage', 'ledger', 'linen', 'fjord', 'blush', 'slate', 'night', 'midnight'],
-  features: { goals: true, wealth: false, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, autopilot: false, offline: true },
-  settings: { hiddenNav: ['calendar', 'insights', 'annual', 'budget', 'goals', 'review', 'import'] },
-  defaults: { ...NICHE.defaults, schedule: 'housing', quickSetup: ['salary', 'housing', 'groceries', 'dining'] },
+  features: { goals: false, wealth: false, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, autopilot: false, offline: true },
+  settings: { hiddenNav: ['calendar', 'insights', 'annual', 'budget'] },
 
   nav: [['dashboard', 'Today', 'today'], ['outlook', 'Until payday', 'outlook'], ['scheduled', 'Bills & pay', 'plan'], ['activity', 'Spending', 'log'],
     ['calendar', 'Calendar', 'calendar'], ['insights', 'Insights', 'spark'], ['annual', 'Year at a glance', 'insights'], ['budget', 'Spending limits', 'plan'],
-    ['goals', 'Savings goals', 'umbrella'], ['review', 'Weekly review', 'review'], ['import', 'Import a statement', 'up'],
     ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
-  optionalNav: ['calendar', 'insights', 'annual', 'budget', 'goals', 'review', 'import', 'guide'],
-  navGroups: [['Day to day', ['dashboard', 'outlook', 'scheduled', 'activity']], ['Look back (optional)', ['calendar', 'insights', 'annual', 'budget', 'goals', 'review', 'import']]],
+  optionalNav: ['calendar', 'insights', 'annual', 'budget', 'guide'],
+  navGroups: [['Day to day', ['dashboard', 'outlook', 'scheduled', 'activity']], ['Look back (optional)', ['calendar', 'insights', 'annual', 'budget']]],
   navGroupRest: 'Make it yours',
 
+  categories: [
+    ['salary', 'Paychecks', 'income'], ['side', 'Side income', 'income'], ['other-income', 'Other money in', 'income'],
+    ['housing', 'Rent / mortgage', 'bills'], ['utilities', 'Utilities', 'bills'], ['internet', 'Phone & internet', 'bills'], ['insurance', 'Insurance', 'bills'],
+    ['streaming', 'Subscriptions', 'subscriptions'], ['memberships', 'Gym & memberships', 'subscriptions'],
+    ['loan', 'Loans & car payment', 'debt'],
+    ['groceries', 'Groceries', 'variable'], ['dining', 'Eating out & coffee', 'variable'], ['transport', 'Gas & transport', 'variable'], ['shopping', 'Shopping', 'variable'],
+    ['health', 'Health & pharmacy', 'variable'], ['personal', 'Personal care', 'variable'], ['entertainment', 'Fun', 'variable'], ['kids-pets', 'Kids & pets', 'variable'],
+    ['unsorted', 'Other spending', 'variable'],
+    ['emergency', 'Savings', 'savings'],
+    ['own-transfer', 'Between my accounts', 'transfer'],
+  ],
   labels: {
     ...NICHE.labels,
     greeting: '’s safe-to-spend', greetingPlain: 'Safe to spend until payday', exitDemo: 'Return to my data',
     importNote: 'Map the columns of a bank or card CSV once. It fills your spending history; your balance does not change.',
   },
+  ...(() => { const keep = new Set(['salary', 'side', 'other-income', 'housing', 'utilities', 'internet', 'insurance', 'streaming', 'memberships', 'loan', 'groceries', 'dining', 'transport', 'shopping', 'health', 'personal', 'entertainment', 'kids-pets', 'unsorted', 'emergency', 'own-transfer']);
+    const fix = c => keep.has(c) ? c : ({ software: 'streaming', interest: 'other-income', taxes: 'unsorted', travel: 'entertainment', gifts: 'shopping', home: 'shopping', fees: 'unsorted', cash: 'unsorted', people: 'unsorted', investing: 'emergency', 'card-payoff': 'own-transfer', 'platform-payout': 'own-transfer', 'inside-investing': 'own-transfer' }[c] || 'unsorted');
+    return { merchantDict: NICHE.merchantDict.map(([p, c, n]) => [p, fix(c), n]), aliases: Object.fromEntries(Object.entries(NICHE.aliases).map(([k, c]) => [k, fix(c)])),
+      autopilot: Object.fromEntries(Object.entries(NICHE.autopilot).map(([k, c]) => [k, typeof c === 'string' ? fix(c) : c])), defaults: { ...NICHE.defaults, schedule: 'housing', payout: 'own-transfer', quickSetup: ['salary', 'housing', 'groceries', 'dining'] } }; })(),
   quickLog: { placeholder: 'coffee 4.50', help: 'Spent something? “coffee 4.50”, “gas 40”. It comes off your safe-to-spend at once.', demo: ['coffee', '4.50', 'Restaurants & coffee'] },
   tourTopics: 'your number, bills, logging and backups',
 
@@ -67,7 +80,7 @@ Object.assign(NICHE, {
   sample: {
     name: 'Jordan', opening: 0, settings: {}, note: '',
     amounts: {}, days: {}, undated: [], spread: { groups: [], days: [], notes: [], share: { default: 0 } },
-    goals: [{ category: 'emergency', kind: 'saving', name: 'A $1,000 cushion', target: 100000, opening: 22000, due: [0, '12-31'] }],
+    goals: [],
     extras(s, { now, uid, plusDays }) {
       const far = '2099-12-31', month = now.slice(0, 7), prev = m => { const d = new Date(+m.slice(0, 4), +m.slice(5) - 2, 1, 12); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
       const start = prev(prev(prev(month)));
