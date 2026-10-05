@@ -1,0 +1,47 @@
+{
+ "product": "Paycheck to Paycheck Planner",
+ "footer": "Paycheck to Paycheck Planner · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Paycheck_Planner_Etsy_Mockups.html",
+ "storage_prefix": "p2p-kit-img:",
+ "brand": {"ink": "#1B1B19", "bold": "#1F4A3E", "pop": "#F2B441", "paper": "#FAFAF8", "calm": "#3F7A66"},
+ "slides": [
+  {"kind": "hero", "dark": true, "label": "Hero", "eyebrow": "Paycheck to paycheck planner",
+   "headline": "Know what’s safe to spend<br>until payday.",
+   "pills": ["One clear number", "No subscription", "Works offline", "Mac &amp; PC"],
+   "image": "tab-today.jpg", "alt": "Safe to spend until payday"},
+  {"dark": false, "label": "Today", "eyebrow": "Every morning", "headline": "One number. No spreadsheets.",
+   "sub": "Your balance, less the bills due before payday and a small cushion. That’s it.",
+   "image": "tab-today.jpg", "foot": "Fictional sample figures shown"},
+  {"dark": true, "label": "Can I afford this?", "eyebrow": "Before you buy", "headline": "Can I afford this?",
+   "sub": "Type the price. It checks every payday and bill for 90 days, not just today.",
+   "image": "tab-afford.jpg", "foot": "A straight yes, a careful yes, or not yet"},
+  {"dark": false, "label": "Until payday", "eyebrow": "Look ahead", "headline": "See the tight days coming.",
+   "sub": "Your balance day by day for 90 days, with the tightest day flagged early.",
+   "image": "tab-chart.jpg", "foot": "What if… try a bigger expense first"},
+  {"dark": true, "label": "Bills & pay", "eyebrow": "Bills &amp; pay", "headline": "Set your bills once.",
+   "sub": "Rent, phone, car, subscriptions. They repeat on their own, on the right dates.",
+   "image": "tab-bills.jpg", "foot": "Weekly · every 2 weeks · twice a month · every 4 weeks · monthly · custom"},
+  {"dark": false, "label": "Spending", "eyebrow": "Logging", "headline": "Log it in one line.",
+   "sub": "Type “coffee 4.50”. It comes off your number straight away.",
+   "image": "tab-spending.jpg", "foot": "Search, sort and filter every entry"},
+  {"dark": true, "label": "Private", "eyebrow": "Private by design", "headline": "Your money stays yours.",
+   "sub": "No bank login, no account, no internet. Saved on your computer, with one-click backups.",
+   "image": "tab-settings.jpg", "foot": "Your data never leaves your computer"},
+  {"kind": "themes", "label": "Themes", "eyebrow": "Make it yours", "headline": "Eight looks. One clear number.", "columns": 4,
+   "themes": [
+    {"name": "Sage", "image": "theme-sage.jpg", "swatch": "#1F4A3E"},
+    {"name": "Ledger", "image": "theme-ledger.jpg", "swatch": "#182635"},
+    {"name": "Linen", "image": "theme-linen.jpg", "swatch": "#45392A"},
+    {"name": "Fjord", "image": "theme-fjord.jpg", "swatch": "#1C3C52"},
+    {"name": "Blush", "image": "theme-blush.jpg", "swatch": "#63304A"},
+    {"name": "Slate", "image": "theme-slate.jpg", "swatch": "#2E3841"},
+    {"name": "Night", "image": "theme-night.jpg", "swatch": "#C3A9E8"},
+    {"name": "Midnight", "image": "theme-midnight.jpg", "swatch": "#9DB8F5"}]}
+ ],
+ "listing": {
+  "title": "Paycheck to Paycheck Planner, Safe to Spend Until Payday, Budget by Paycheck App, Bill Tracker, Works Offline, No Subscription",
+  "tags": ["paycheck budget", "paycheck planner", "budget by paycheck", "safe to spend", "bill tracker", "paycheck to paycheck", "budget planner", "biweekly budget", "money tracker", "spending tracker", "budget app", "bill planner", "payday planner"],
+  "description_file": "description.txt"
+ }
+}

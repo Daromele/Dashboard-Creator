@@ -1,0 +1,55 @@
+{
+ "app": "../../PaycheckToPaycheckPlanner.html",
+ "out": "shots",
+ "setup": "document.querySelectorAll('dialog[open]').forEach(d=>d.close());document.querySelector('#demo-toggle').click();document.querySelectorAll('dialog[open]').forEach(d=>d.close());document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "today",
+   "view": "dashboard",
+   "before": "document.querySelector('#toast').hidden=true;"
+  },
+  {
+   "name": "outlook",
+   "view": "outlook",
+   "offset": 0
+  },
+  {
+   "name": "chart",
+   "view": "outlook",
+   "scrollTo": "#content .card"
+  },
+  {
+   "name": "bills",
+   "view": "scheduled"
+  },
+  {
+   "name": "spending",
+   "view": "activity"
+  },
+  {
+   "name": "settings",
+   "view": "settings"
+  },
+  {
+   "name": "afford",
+   "view": "dashboard",
+   "before": "document.querySelector('[data-action=pp-afford]').click();setTimeout(()=>{const i=document.querySelector('#pp-afford-form input');i.value='120';document.querySelector('#pp-afford-form button[type=submit]').click();},200);",
+   "ratio": 1.6
+  }
+ ],
+ "themes": {
+  "list": [
+   "sage",
+   "ledger",
+   "linen",
+   "fjord",
+   "blush",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;render();document.querySelector('#toast').hidden=true;"
+ }
+}
