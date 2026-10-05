@@ -179,19 +179,19 @@
  "listing": {
   "title": "Money Tracker App, Automatic Expense Tracker from Bank Statements, Subscription Tracker, Net Worth, Spending Tracker, No Subscription",
   "tags": [
-   "expense tracker",
-   "money tracker",
+   "expense tracker app",
    "spending tracker",
-   "budget tracker app",
-   "finance tracker",
-   "bank statement",
-   "subscription track",
+   "subscription tracker",
+   "money tracker",
+   "personal finance app",
+   "budget spreadsheet",
    "net worth tracker",
-   "personal finance",
-   "income expense log",
-   "monthly spending",
-   "money planner",
-   "finance dashboard"
+   "cash flow tracker",
+   "household budget",
+   "monthly expenses",
+   "finance dashboard",
+   "automatic budget",
+   "digital budget app"
   ],
   "description_file": "description.txt"
  }
