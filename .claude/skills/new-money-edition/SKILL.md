@@ -42,7 +42,7 @@ Everything here is a correction the user already made once. Apply it up front.
   icons (not "hide"); the budget "Your categories" card is not reused.
 - Statuses where life has them (active, paused, cancelled…), with on-hold items kept in totals but
   out of plans.
-- Amount inputs accept `$5,000`, `5000.50`, `€`, spaces.
+- Amount inputs accept a dollar sign, commas (5,000), decimals (5000.50), `€` and spaces.
 - One basis for a number everywhere (form hint, grid, table, dashboard).
 - Ask for the one setting the app needs (budget) after the first item, and again if new data makes it
   wrong.
@@ -52,7 +52,7 @@ Everything here is a correction the user already made once. Apply it up front.
 - Print: a dark theme prints in the first light theme.
 - Forms that save as you go: never re-render on `change` while the buyer is still in the form (tabbing to
   the next field loses what they type). Save on `focusout` of the whole form, on slider release, or on Save.
-- Line charts scale to the data with 2–3 labeled gridlines (not from $0, which flattens growth); tick
+- Line charts scale to the data with 2–3 labeled gridlines (not from zero, which flattens growth); tick
   labels are spaced by their width, the first anchored start and the last end. Reuse `lineChart` /
   `Live` (tweens, ring) from the net worth and bills modules rather than writing new ones.
 - Defaults a newbie won't change are guessed from what they type (category or type from the name; a

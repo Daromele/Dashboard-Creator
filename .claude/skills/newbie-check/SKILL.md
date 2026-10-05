@@ -76,7 +76,7 @@ Every rule came from a real finding.
 - Tick every checkbox in every form: a checked label must not render struck through (a checklist style leaking into forms).
 
 **Numbers**
-- Zero data must not show 100%, red, "Lightest month $0" or a full ring. Show "—" and a hint instead.
+- Zero data must not show 100%, red, "Lightest month: zero dollars" or a full ring. Show "—" and a hint instead.
 - Charts and averages must not count the months before the first item existed, or blame the wrong thing for them.
 - One basis per number across screens. A calendar year on one screen next to the next 12 months on
   another reads as a bug. Pick one, and label it.
