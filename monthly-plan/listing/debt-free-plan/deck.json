@@ -1,0 +1,180 @@
+{
+ "product": "Debt Free Plan",
+ "footer": "Debt Free Plan · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Debt_Free_Plan_Etsy_Mockups.html",
+ "storage_prefix": "dfp-kit-img:",
+ "brand": {
+  "ink": "#17302A",
+  "bold": "#1F4A3E",
+  "pop": "#F2B441",
+  "paper": "#FAFAF8",
+  "calm": "#2F5D50"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Debt payoff tracker",
+   "headline": "See the month<br>you're debt free.",
+   "pills": [
+    "5 strategies",
+    "Private &amp; offline",
+    "One-time purchase",
+    "Mac &amp; PC"
+   ],
+   "image": "tab-dashboard.jpg",
+   "alt": "Debt Free Plan dashboard"
+  },
+  {
+   "dark": false,
+   "label": "My debts",
+   "eyebrow": "My debts",
+   "headline": "Every debt, one place.",
+   "sub": "Balance, rate and minimum for each, with a ring that fills as you pay it down.",
+   "image": "tab-debts.jpg",
+   "foot": "Cards or table · filter by category"
+  },
+  {
+   "dark": true,
+   "label": "Payoff plan",
+   "eyebrow": "Payoff plan",
+   "headline": "Pick a strategy. Watch it move.",
+   "sub": "Five strategies, one budget slider. Every number follows along.",
+   "image": "tab-plan.jpg",
+   "foot": "Fictional sample debts shown"
+  },
+  {
+   "dark": false,
+   "label": "What if",
+   "eyebrow": "What if",
+   "headline": "Try it before you do it.",
+   "sub": "Extra payments, a tax refund, a lower rate or a balance transfer, side by side.",
+   "image": "tab-whatif.jpg",
+   "foot": "Nothing changes until you apply it"
+  },
+  {
+   "dark": true,
+   "label": "Import statements",
+   "eyebrow": "Import statements",
+   "headline": "Statements in. Balances right.",
+   "sub": "Card, loan and bank downloads matched to each debt, with the real interest.",
+   "image": "tab-debtimport.jpg",
+   "foot": "CSV · OFX · QFX · duplicates skipped"
+  },
+  {
+   "dark": false,
+   "label": "Payments",
+   "eyebrow": "Payments",
+   "headline": "Every payment, logged.",
+   "sub": "Payments, charges and interest for each debt, newest first.",
+   "image": "tab-payments.jpg",
+   "foot": "Every table sorts, searches and filters"
+  },
+  {
+   "dark": true,
+   "label": "Progress",
+   "eyebrow": "Progress",
+   "headline": "Color in your way out.",
+   "sub": "One bubble for every step paid off. Print it and stick it on the fridge.",
+   "image": "tab-progress.jpg",
+   "foot": "Milestones at 10%, 25%, half and more"
+  },
+  {
+   "dark": false,
+   "label": "Due dates",
+   "eyebrow": "Due dates",
+   "headline": "Never miss a due date.",
+   "sub": "Each payment on the day it lands, with what your plan sends.",
+   "image": "tab-duedates.jpg",
+   "foot": "Logged in full shows a check"
+  },
+  {
+   "dark": true,
+   "label": "Find extra money",
+   "eyebrow": "Find extra money",
+   "headline": "Grow your monthly payment.",
+   "sub": "Cut-back ideas from your own spending, added straight to your debt budget.",
+   "image": "tab-cuts.jpg",
+   "foot": "Optional budget included"
+  },
+  {
+   "dark": false,
+   "label": "Private & offline",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Yours, and safe.",
+   "sub": "No login, no bank connection, nothing uploaded. One-click backups any time.",
+   "image": "tab-settings.jpg",
+   "foot": "Your data never leaves your computer"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks. One way out.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Lavender",
+     "image": "theme-lavender.jpg",
+     "swatch": "#2E2040"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Blush",
+     "image": "theme-blush.jpg",
+     "swatch": "#63304A"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Debt Payoff Tracker App, Debt Snowball and Avalanche Calculator, Credit Card Payoff Planner, Debt Free Countdown, No Subscription",
+  "tags": [
+   "debt payoff tracker",
+   "debt snowball",
+   "debt avalanche",
+   "debt free plan",
+   "credit card payoff",
+   "debt tracker",
+   "loan payoff tracker",
+   "debt calculator",
+   "debt planner",
+   "pay off debt",
+   "debt free chart",
+   "student loan payoff",
+   "budget debt tracker"
+  ],
+  "description_file": "description.txt"
+ }
+}

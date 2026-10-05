@@ -1,0 +1,73 @@
+{
+ "app": "../../app/DebtFreePlan.html",
+ "out": "shots",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "view": "dashboard",
+   "offset": 6
+  },
+  {
+   "name": "debts",
+   "view": "debts",
+   "offset": 6
+  },
+  {
+   "name": "debtimport",
+   "view": "debtimport",
+   "offset": 6
+  },
+  {
+   "name": "plan",
+   "view": "plan",
+   "offset": 6
+  },
+  {
+   "name": "payments",
+   "view": "payments",
+   "offset": 6
+  },
+  {
+   "name": "whatif",
+   "view": "whatif",
+   "offset": 6
+  },
+  {
+   "name": "progress",
+   "view": "progress",
+   "offset": 6
+  },
+  {
+   "name": "duedates",
+   "view": "duedates",
+   "offset": 6
+  },
+  {
+   "name": "cuts",
+   "view": "cuts",
+   "offset": 6,
+   "before": "for(let i=0;i<3;i++){const b=document.querySelector('.cut-idea .actions button:not(.quiet)');if(b)b.click();}document.querySelector('#toast').hidden=true;window.scrollTo(0,0);"
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  }
+ ],
+ "themes": {
+  "list": [
+   "sage",
+   "fjord",
+   "lavender",
+   "linen",
+   "blush",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('dashboard',true);render();document.querySelector('#toast').hidden=true;"
+ }
+}
