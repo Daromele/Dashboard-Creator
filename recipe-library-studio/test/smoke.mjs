@@ -231,6 +231,9 @@ try {
   ok((await page.$$('.rcard.picked')).length === 2, 'select all of them');
   await page.click('[data-action="bulk-cat"]'); await page.fill('#bulk-cat-form [name=v]', 'Dinner'); await page.click('#bulk-cat-form button[type=submit]');
   ok(await page.evaluate(() => state.recipes.filter(r => !r.categories.length).length === 0 && state.recipes.find(r => r.id === 's7').categories[0] === 'Dinner'), 'bulk category set');
+  await page.evaluate(() => { lib.cat = ''; render(); }); await page.click('[data-action="sel-all"]');
+  await page.click('[data-action="bulk-col"]'); await page.selectOption('#bulk-col-form [name=v]', 'c2'); await page.click('#bulk-col-form button[type=submit]');
+  ok(await page.evaluate(() => state.recipes.every(r => r.collections.includes('c2'))), 'bulk add to a collection');
   await page.click('[data-action="sel-mode"]');
   // tags on a recipe page: add with Enter, remove with ×
   await page.evaluate(() => openRecipe('s3')); await page.fill('.chip-add[data-chip="tags"]', 'weeknight, sheet pan'); await page.press('.chip-add[data-chip="tags"]', 'Enter');
