@@ -1,0 +1,21 @@
+BILL & SUBSCRIPTION TRACKER | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open BillSubscriptionTracker.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find, ideally a synced folder such as iCloud Drive, Dropbox, OneDrive or Google Drive. It works offline once open.
+
+FIRST STEPS
+A short welcome tour opens the first time. Then add your bills on Bills & subscriptions (or pick the usual ones on the empty This month screen): the amount, how often it comes, the next due date, and whether it's on autopay.
+
+SAMPLE
+Explore sample data, on the welcome screen or in Settings & backup, fills every screen with a fictional household's 19 bills in a separate session. Return to my bills restores your own.
+
+EACH MONTH
+Tick bills off on This month or the Calendar as you pay them. Autopay ones tick themselves on their due day. Check Renewals & trials for free trials ending, yearly renewals and price rises.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one JSON file. Keep that file outside the app. To restore or move to another computer, copy the HTML file and your backup across and use Restore backup. Data does not sync automatically. Download a backup before clearing browser data or switching browsers.
+Chrome and Edge can also write a dated backup to a folder you choose each day. Safari and Firefox do not support this; use Download backup instead.
+
+HELP
+Read Bill_Subscription_Tracker_Guide.pdf, included with your download. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+Website: https://www.jpsdigitalpages.com

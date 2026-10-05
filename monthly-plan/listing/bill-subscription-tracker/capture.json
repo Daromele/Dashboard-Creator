@@ -1,0 +1,63 @@
+{
+ "app": "../../app/BillSubscriptionTracker.html",
+ "out": "shots",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "view": "dashboard",
+   "offset": 6
+  },
+  {
+   "name": "checklist",
+   "view": "dashboard",
+   "scrollTo": "#content .debt-warn + .grid2",
+   "before": "const e=document.querySelector('#content .debt-warn + .grid2');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);"
+  },
+  {
+   "name": "mybills",
+   "view": "mybills",
+   "offset": 6
+  },
+  {
+   "name": "billcal",
+   "view": "billcal",
+   "offset": 6
+  },
+  {
+   "name": "renewals",
+   "view": "renewals",
+   "offset": 6
+  },
+  {
+   "name": "yearcost",
+   "view": "yearcost",
+   "offset": 6
+  },
+  {
+   "name": "billpay",
+   "view": "billpay",
+   "offset": 6
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  }
+ ],
+ "themes": {
+  "list": [
+   "blush",
+   "lavender",
+   "sage",
+   "fjord",
+   "linen",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('dashboard',true);render();document.querySelector('#toast').hidden=true;"
+ }
+}

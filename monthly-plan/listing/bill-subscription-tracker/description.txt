@@ -1,0 +1,53 @@
+A bill and subscription tracker that tells you what's due, what's paid and what renews next, opens in any browser, and never asks you to sign up for anything.
+
+Bill & Subscription Tracker is one HTML file. You download it, double-click it, and it opens like a web page. Add each bill and subscription once: the amount, how often it comes and the next due date. From then on it lists what's due each month, lets you tick each one off as you pay it, warns you before free trials and yearly renewals charge, and adds up what it all costs a month and a year. No bank login, no subscription. Your figures stay on your own computer.
+
+How It Works:
+1. Download the file and save it somewhere you will find it again.
+2. Double-click to open it in your browser. Take the two-minute tour, or open Sample Mode to explore a fictional household's bills first.
+3. Add your bills and subscriptions. Common ones (rent, electric, internet, phone, Netflix, Spotify, gym) are one click away.
+4. Each month, tick bills off as you pay them. Bills on autopay tick themselves on their due day.
+5. Check Renewals & trials now and then: cancel what you don't use, and see what it saves you.
+
+WHAT YOU'LL GET:
+• One HTML bill and subscription tracker file
+• This month: what's left to pay, a checklist to tick off, and the next two weeks at a glance
+• "Needs your attention": overdue bills, bills due today, trials ending, cancel-by reminders and price rises
+• Bills & subscriptions as cards or a table, filtered by category, type and status
+• Every frequency: weekly, every 2 weeks, monthly, every 2 months, quarterly, twice a year, yearly or once
+• Due-date calendar: click any bill to mark it paid
+• Free trials: nothing due until the trial ends, with a warning a week before
+• Cancel-by reminders on any bill
+• Price rises: enter the new price and the date, past months stay right
+• Bills whose amount changes (electric, water): record what you really paid
+• Skip a month, pause a bill, or cancel it and see what you've saved since
+• Yearly cost: the whole year month by month, the heavy months, and every bill's share
+• "Set aside for the big ones": what to save each month for yearly and quarterly bills
+• Payment history with on-time rate, late payments and CSV export
+• Your own bill categories, renamed, archived or added
+• Every table sorts, searches and filters
+• 8 color themes, light and dark; every screen prints
+• Built-in how-to guide included
+
+PERFECT FOR:
+Never missing a due date again, finding and cutting forgotten subscriptions, catching free trials before they charge, planning for yearly bills like insurance and car registration, households juggling autopay and manual payments, anyone replacing a paper bill checklist or a spreadsheet, and anyone who wants their finances to stay private on their own computer.
+
+Please note: this is a digital file, not a physical product. Nothing will be posted to you. You add your bills by hand; it doesn't connect to your bank or pay bills for you. Your data is stored in your own browser on your own device, and this tracker never uploads anything anywhere. Download a backup regularly; the app reminds you, and Chrome and Edge can back up to a folder automatically every day. Works best on a computer; phones and tablets can view and tick off bills. This is not financial advice.
+
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
+
+👍 You Can
+✔ Use this tracker for your own household's bills, for as long as you like
+✔ Use it on your own computers, and print your own copies
+✔ Back up your own file and your own data as often as you want
+
+👎 You Cannot
+❌ Resell, redistribute, or share this file with others
+❌ Use it commercially, or include it in any product, bundle or service of your own
+❌ Claim it as your own work, or alter it for resale
+❌ Return it — digital files cannot be returned once downloaded
+
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order! hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+
+Bill & Subscription Tracker by JPS Digital Pages

@@ -299,10 +299,88 @@ def debt_pages(shot):
     ]
 
 
+
+BILLS = dict(
+    dir='bill-subscription-tracker', file='Bill_Subscription_Tracker', name='Bill & Subscription Tracker', html='BillSubscriptionTracker.html', mark='B', version='1.0',
+    storage='bst-guide-img:', tour='adding bills, ticking them off, renewals and backups', safe_page=9,
+    colors=dict(bold='#63304A', accent='#7C3560', pop='#E9A85C', page='#FBF6F8', ink='#2A1622', ink2='#5E4A57', ink3='#94818D',
+                rule='#EADBE2', soft='#F4E8EE', warm='#FBF1E3', warmline='#EED7B5', green='#E6F1EA', greenline='#BFDCCB'),
+    cover=dict(kicker='Your never-late guide', tag='Never miss a due date.', image='tab-dashboard.jpg',
+               intro='Every bill and subscription in one file: what’s due, what’s paid, what renews next, and what it all costs a year.'),
+)
+
+
+def bills_pages(shot):
+    P = BILLS
+    return [
+        ('Start here', start_here(P, '<li><b>Add your bills</b>: rent, utilities, insurance, phone, streaming. The usual ones are one click away on an empty app.</li>',
+                                  'Choose <b>Explore sample data</b> on the welcome screen or in Settings &amp; backup. A fictional household’s 19 bills fill every screen, in a separate session. <b>Return to my bills</b> brings back your own, untouched.')),
+        ('The idea', f'''<h1>What’s left to pay, at a glance.</h1>
+<p class="lede">Bill &amp; Subscription Tracker answers one question first: how much is still to pay this month?</p>
+{shot("tab-dashboard.jpg", "guide-dashboard", "This month")}
+<p class="cap">This month. The big number is what you haven’t ticked off yet; the ring shows what your bills cost a month, by category.</p>
+<table><tr><th>Word</th><th>What it means</th></tr>
+<tr><td>Every month</td><td>All your bills averaged to one month: a yearly $120 bill counts as $10.</td></tr>
+<tr><td>Left to pay</td><td>This month’s bills not ticked off yet.</td></tr>
+<tr><td>Autopay</td><td>Counts as paid on its due day, without a tick.</td></tr>
+<tr><td>Set aside</td><td>Your yearly and quarterly bills ÷ 12: save this each month and they never surprise you.</td></tr></table>'''),
+        ('Adding bills', '''<h1>Add each bill once.</h1>
+<p class="lede">Bills &amp; subscriptions → <b>Add a bill</b>. Every later due date follows from the one you enter.</p>
+<table><tr><th>Field</th><th>What to enter</th></tr>
+<tr><td>Name and amount</td><td>“Electric”, “Netflix”. Amounts like $1,450 or 15.49 are fine.</td></tr>
+<tr><td>Bill or subscription</td><td>Subscriptions are counted apart, so you can see what they add up to.</td></tr>
+<tr><td>How often</td><td>Every week, 2 weeks, month, 2 months, 3 months, 6 months, year, or once. A bill on the 31st falls on the last day of shorter months.</td></tr>
+<tr><td>Next due date</td><td>The next time it’s due. The calendar fills in from there.</td></tr>
+<tr><td>On autopay</td><td>It ticks itself on its due day.</td></tr>
+<tr><td>The amount changes</td><td>For electric or water: you’re asked what you really paid when you tick it.</td></tr>
+<tr><td>Free trial ends</td><td>Nothing is due until then; the first charge is that day. You’re warned a week before.</td></tr>
+<tr><td>Remind me to cancel by</td><td>Any bill can have a reminder date.</td></tr>
+<tr><td>Pays from, website, notes</td><td>Optional: which card or account, the login page, an account number ending.</td></tr></table>
+<div class="box"><h3>Price went up?</h3><p>Edit the bill, type the new amount and the date it starts. Past months keep the old price, and the rise shows on Renewals &amp; trials.</p></div>'''),
+        ('Each month', f'''<h1>Tick them off.</h1>
+<p class="lede">This month lists every bill due, oldest first. Tick each one as you pay it.</p>
+{shot("tab-checklist.jpg", "guide-checklist", "Tick-off list")}
+<div class="two"><div class="box"><h3>Needs your attention</h3><p>Overdue bills, bills due today, trials ending, cancel-by reminders and price rises appear at the top of This month, each with its button.</p></div>
+<div class="box"><h3>Skip, pause, cancel</h3><p>Open a bill’s payment to <b>Skip this one</b> (a waived fee). Set a bill to Paused or Cancelled with a date: nothing is due after it, and cancelled ones count what you save.</p></div></div>
+<p>Ticked something by mistake? Tick it again to take it back, or use Undo on the message at the bottom.</p>'''),
+        ('Looking ahead', f'''<h1>Every due date, and the year.</h1>
+<p class="lede">The Calendar shows the month; Yearly cost shows the whole year.</p>
+{shot("tab-billcal.jpg", "guide-calendar", "Calendar")}
+<table>
+<tr><td>Calendar</td><td>Each bill on its due day: ○ to pay, ✓ paid, ! overdue, ★ a trial ending or a reminder. Click a bill to tick it.</td></tr>
+<tr><td>Yearly cost</td><td>What each month of the year costs, the heavier months (when yearly bills land), and every bill’s share of the year.</td></tr>
+<tr><td>Set aside for the big ones</td><td>On This month: what to save each month for yearly and quarterly bills.</td></tr></table>'''),
+        ('Keep or cancel', f'''<h1>Catch it before it charges.</h1>
+<p class="lede">Renewals &amp; trials: free trials, yearly renewals and price rises, before they hit your account.</p>
+{shot("tab-renewals.jpg", "guide-renewals", "Renewals & trials")}
+<table>
+<tr><td>Free trials</td><td>Days left, and the price after. <b>Keep</b> silences the warning; <b>Cancel</b> marks it cancelled.</td></tr>
+<tr><td>Review your subscriptions</td><td>Most expensive first, with each one’s share and last price change. <b>Remind me</b> sets a cancel-by date.</td></tr>
+<tr><td>Cancelled, and what it’s saved</td><td>Every payment you no longer make, added up.</td></tr></table>
+<p>Cancelling here only updates the app. Remember to cancel with the company too: the bill’s website link is one click away.</p>'''),
+        ('Getting around', '''<h1>The screens.</h1>
+<p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
+<table><tr><th>Screen</th><th>What it is for</th></tr>
+<tr><td>This month</td><td>What’s left to pay, what needs attention, the tick-off list and the next two weeks.</td></tr>
+<tr><td>Bills &amp; subscriptions</td><td>Every bill as a card or a table; filter by status, type and category.</td></tr>
+<tr><td>Calendar</td><td>The month’s due dates; click to tick.</td></tr>
+<tr><td>Renewals &amp; trials</td><td>Trials, reminders, renewals, price rises, and what cancelling saved.</td></tr>
+<tr><td>Yearly cost</td><td>The year month by month, and every bill’s share. Export as CSV.</td></tr>
+<tr><td>Payment history</td><td>What you paid and when, on time or late. Export as CSV.</td></tr>
+<tr><td>Settings &amp; backup</td><td>Name, currency, 8 themes, bill categories, your sidebar, backups.</td></tr></table>
+<p>Every table sorts, searches and filters. Every screen prints.</p>'''),
+        ('Read this one', SAFE('bills', 'every bill, subscription, payment and category')),
+        ('When you need help', help_page(P, '''<tr><td>A bill shows on the wrong day</td><td>Edit it and set the first due date; every later date follows from it.</td></tr>
+<tr><td>An autopay bill didn’t go through</td><td>Click its tick to take it back, then mark it paid when it does.</td></tr>
+<tr><td>A trial shows a charge</td><td>Check the trial end date on the bill. The first charge is due that day.</td></tr>
+<tr><td>Last month’s numbers changed</td><td>A new price needs a start date; otherwise it applies from the first due date.</td></tr>''')),
+    ]
+
+BILLS['pages'] = bills_pages
 AUTOPILOT['pages'] = autopilot_pages
 DEBT['pages'] = debt_pages
 
 if __name__ == '__main__':
-    which = sys.argv[1:] or ['tracker', 'debt']
+    which = sys.argv[1:] or ['tracker', 'debt', 'bills']
     for w in which:
-        build({'tracker': AUTOPILOT, 'debt': DEBT}[w])
+        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS}[w])

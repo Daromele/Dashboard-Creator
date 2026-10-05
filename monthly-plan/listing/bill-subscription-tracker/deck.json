@@ -1,0 +1,162 @@
+{
+ "product": "Bill & Subscription Tracker",
+ "footer": "Bill &amp; Subscription Tracker · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Bill_Subscription_Tracker_Etsy_Mockups.html",
+ "storage_prefix": "bst-kit-img:",
+ "brand": {
+  "ink": "#2A1622",
+  "bold": "#63304A",
+  "pop": "#E9A85C",
+  "paper": "#FBF6F8",
+  "calm": "#7C3560"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Bill &amp; subscription tracker",
+   "headline": "Never miss<br>a due date.",
+   "pills": [
+    "Bills &amp; subscriptions",
+    "Private &amp; offline",
+    "One-time purchase",
+    "Mac &amp; PC"
+   ],
+   "image": "tab-dashboard.jpg",
+   "alt": "Bill & Subscription Tracker dashboard"
+  },
+  {
+   "dark": false,
+   "label": "Checklist",
+   "eyebrow": "This month",
+   "headline": "Tick them off.",
+   "sub": "A check for every bill this month. Autopay ones tick themselves.",
+   "image": "tab-checklist.jpg",
+   "foot": "Fictional sample household shown"
+  },
+  {
+   "dark": true,
+   "label": "Bills & subscriptions",
+   "eyebrow": "Bills &amp; subscriptions",
+   "headline": "Every bill, one place.",
+   "sub": "Amount, how often, next due and autopay. Cards or a table.",
+   "image": "tab-mybills.jpg",
+   "foot": "Filter by category, type and status"
+  },
+  {
+   "dark": false,
+   "label": "Calendar",
+   "eyebrow": "Calendar",
+   "headline": "Every due date, at a glance.",
+   "sub": "Click a bill on the calendar to mark it paid.",
+   "image": "tab-billcal.jpg",
+   "foot": "○ to pay · ✓ paid · ! overdue"
+  },
+  {
+   "dark": true,
+   "label": "Renewals & trials",
+   "eyebrow": "Renewals &amp; trials",
+   "headline": "Catch it before it charges.",
+   "sub": "Free trials, yearly renewals and price rises, with reminders.",
+   "image": "tab-renewals.jpg",
+   "foot": "Cancel what you don’t use, see what it saves"
+  },
+  {
+   "dark": false,
+   "label": "Yearly cost",
+   "eyebrow": "Yearly cost",
+   "headline": "What a year really costs.",
+   "sub": "Month by month, the heavy months, and every bill’s share.",
+   "image": "tab-yearcost.jpg",
+   "foot": "Plus what to set aside for the big ones"
+  },
+  {
+   "dark": true,
+   "label": "Payment history",
+   "eyebrow": "Payment history",
+   "headline": "Paid on time, on record.",
+   "sub": "Every payment, how early or late, and a CSV export.",
+   "image": "tab-billpay.jpg",
+   "foot": "On-time rate and late payments"
+  },
+  {
+   "dark": false,
+   "label": "Private & offline",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Yours, and safe.",
+   "sub": "No login, no bank connection, nothing uploaded. One-click backups.",
+   "image": "tab-settings.jpg",
+   "foot": "Your data never leaves your computer"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks. Zero late fees.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Blush",
+     "image": "theme-blush.jpg",
+     "swatch": "#63304A"
+    },
+    {
+     "name": "Lavender",
+     "image": "theme-lavender.jpg",
+     "swatch": "#2E2040"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Bill Tracker App, Subscription Tracker, Monthly Bill Organizer, Due Date Calendar, Bill Payment Checklist, Printable, No Subscription",
+  "tags": [
+   "bill tracker",
+   "subscription tracker",
+   "bill organizer",
+   "bill payment log",
+   "monthly bills",
+   "bill calendar",
+   "due date tracker",
+   "bill checklist",
+   "recurring expenses",
+   "household bills",
+   "bill planner",
+   "bill spreadsheet",
+   "finance organizer"
+  ],
+  "description_file": "description.txt"
+ }
+}

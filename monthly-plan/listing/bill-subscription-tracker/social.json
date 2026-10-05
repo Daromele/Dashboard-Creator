@@ -1,0 +1,278 @@
+{
+ "app": "../../app/BillSubscriptionTracker.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#2A1622",
+  "bold": "#63304A",
+  "pop": "#E9A85C",
+  "paper": "#FBF6F8",
+  "calm": "#7C3560"
+ },
+ "fps": 30,
+ "shots_dir": "sshots",
+ "bpm": 104,
+ "music": 0.5,
+ "output": "Bill_Subscription_Tracker_Social.mp4",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "heroL": "#content .bt-hero > div:first-child"
+   }
+  },
+  {
+   "name": "bills",
+   "view": "mybills",
+   "targets": {
+    "c1": "#content .bt-card >> nth=0",
+    "c2": "#content .bt-card >> nth=1",
+    "c3": "#content .bt-card >> nth=2",
+    "c4": "#content .bt-card >> nth=3"
+   }
+  },
+  {
+   "name": "chk0",
+   "before": "const e=document.querySelector('#content .debt-warn + .grid2');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);",
+   "scrollTo": "#content .debt-warn + .grid2",
+   "view": "dashboard",
+   "targets": {
+    "a": "#content .bt-check[data-id=\"b-daycare\"]",
+    "w": "#content .bt-check[data-id=\"b-water\"]",
+    "list": "#content .bt-list"
+   }
+  },
+  {
+   "name": "chk1",
+   "click": [
+    "#content .bt-check[data-id=\"b-daycare\"]"
+   ],
+   "clipFrom": "chk0"
+  },
+  {
+   "name": "chk2",
+   "click": [
+    "#content .bt-check[data-id=\"b-water\"]"
+   ],
+   "clipFrom": "chk0"
+  },
+  {
+   "name": "ren",
+   "view": "renewals",
+   "targets": {
+    "trial": "#content .bt-trial",
+    "card": "#content .grid2.equal > :first-child"
+   }
+  },
+  {
+   "name": "year",
+   "view": "yearcost",
+   "targets": {
+    "heroL": "#content .debt-hero > div:first-child"
+   }
+  }
+ ],
+ "scenes": [
+  {
+   "type": "hook",
+   "dur": 2.0,
+   "text": "How many bills<br>did you *forget?*",
+   "image": "dash"
+  },
+  {
+   "type": "crop",
+   "dur": 2.8,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Every bill, *one place*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "bills",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": [
+      "bills.c1",
+      "bills.c2"
+     ],
+     "pad": 0.012
+    },
+    {
+     "t": 2.4,
+     "target": [
+      "bills.c3",
+      "bills.c4"
+     ],
+     "pad": 0.012,
+     "move": 1.2
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 4.0,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Tick them off *as you pay*"
+    },
+    {
+     "t": 2.9,
+     "text": "Nothing *slips through*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "chk0",
+     "at": 0
+    },
+    {
+     "img": "chk1",
+     "at": 1.15
+    },
+    {
+     "img": "chk2",
+     "at": 2.25
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "chk0.list",
+     "sub": [
+      0,
+      0,
+      1,
+      0.7
+     ],
+     "pad": 0.012
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.05,
+     "target": "chk0.a",
+     "click": true
+    },
+    {
+     "t": 2.15,
+     "target": "chk0.w",
+     "click": true
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.2,
+     "text": "Paid ✓",
+     "x": 300,
+     "y": 1450,
+     "rot": -5,
+     "until": 2.1
+    },
+    {
+     "t": 2.3,
+     "text": "Paid ✓",
+     "x": 760,
+     "y": 1450,
+     "rot": 5
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.8,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Free trial ends in *5 days*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "ren",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "ren.card",
+     "sub": [
+      0,
+      0,
+      1,
+      0.6
+     ],
+     "pad": 0.012
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.0,
+     "text": "Cancel it in time",
+     "x": 560,
+     "y": 1470,
+     "rot": -4,
+     "style": "white"
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "What a year *really costs*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "year",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "year.heroL",
+     "pad": 0.015
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.0,
+     "text": "$32,560 a year?!",
+     "x": 560,
+     "y": 1470,
+     "rot": 4,
+     "sound": "cash"
+    }
+   ]
+  },
+  {
+   "type": "end",
+   "dur": 3.0,
+   "headline": "Bill &amp; Subscription Tracker",
+   "sub": "Never miss a due date.<br>No subscription, no bank login.",
+   "cta": "Instant download on Etsy",
+   "by": "JPS Digital Pages",
+   "themes": [
+    "shots/theme-blush.jpg",
+    "shots/theme-midnight.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-night.jpg"
+   ]
+  }
+ ]
+}

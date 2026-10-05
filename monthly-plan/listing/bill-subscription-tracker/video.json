@@ -1,0 +1,207 @@
+{
+ "app": "../../app/BillSubscriptionTracker.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#2A1622",
+  "bold": "#63304A",
+  "pop": "#E9A85C",
+  "paper": "#FBF6F8",
+  "calm": "#7C3560"
+ },
+ "fps": 30,
+ "shots_dir": "vshots",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "hero": "#content .bt-hero"
+   }
+  },
+  {
+   "name": "chk0",
+   "before": "const e=document.querySelector('#content .debt-warn + .grid2');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);",
+   "scrollTo": "#content .debt-warn + .grid2",
+   "view": "dashboard",
+   "targets": {
+    "a": "#content .bt-check[data-id=\"b-daycare\"]",
+    "w": "#content .bt-check[data-id=\"b-water\"]",
+    "list": "#content .bt-list"
+   }
+  },
+  {
+   "name": "chk1",
+   "click": [
+    "#content .bt-check[data-id=\"b-daycare\"]"
+   ],
+   "clipFrom": "chk0"
+  },
+  {
+   "name": "chk2",
+   "click": [
+    "#content .bt-check[data-id=\"b-water\"]"
+   ],
+   "clipFrom": "chk0"
+  },
+  {
+   "name": "ren",
+   "view": "renewals",
+   "targets": {
+    "trial": "#content .bt-trial"
+   }
+  },
+  {
+   "name": "cal",
+   "view": "billcal",
+   "targets": {
+    "cal": "#content .calendar"
+   }
+  }
+ ],
+ "product": "Bill & Subscription Tracker",
+ "output": "Bill_Subscription_Tracker_Etsy_Video.mp4",
+ "size": [
+  1440,
+  1080
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "dur": 2.2,
+   "eyebrow": "Bill &amp; subscription tracker",
+   "headline": "Never miss<br>a due date.",
+   "pills": [
+    "Bills &amp; subscriptions",
+    "Private &amp; offline",
+    "No subscription"
+   ],
+   "image": "dash"
+  },
+  {
+   "type": "shot",
+   "dur": 2.6,
+   "dark": true,
+   "eyebrow": "This month",
+   "headline": "See what’s left to pay.",
+   "shots": [
+    {
+     "img": "dash",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.4,
+    "t1": 2.6,
+    "target": "dash.hero",
+    "origin": [
+     0.02,
+     0.2
+    ],
+    "scale": 1.25
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 3.6,
+   "dark": false,
+   "eyebrow": "Each month",
+   "headline": "Tick them off as you pay.",
+   "shots": [
+    {
+     "img": "chk0",
+     "at": 0
+    },
+    {
+     "img": "chk1",
+     "at": 1.15
+    },
+    {
+     "img": "chk2",
+     "at": 2.35
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.05,
+     "target": "chk0.a",
+     "click": true
+    },
+    {
+     "t": 2.25,
+     "target": "chk0.w",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 2.2,
+   "dark": true,
+   "eyebrow": "Renewals &amp; trials",
+   "headline": "Catch it before it charges.",
+   "shots": [
+    {
+     "img": "ren",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.2,
+    "target": "ren.trial",
+    "origin": [
+     0.0,
+     0.25
+    ],
+    "scale": 1.12
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 2.0,
+   "dark": false,
+   "eyebrow": "Calendar",
+   "headline": "Every due date, at a glance.",
+   "shots": [
+    {
+     "img": "cal",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.0,
+    "target": "cal.cal",
+    "origin": [
+     0.0,
+     0.3
+    ],
+    "scale": 1.1
+   }
+  },
+  {
+   "type": "end",
+   "dur": 2.2,
+   "eyebrow": "Instant download",
+   "headline": "Bill &amp; Subscription Tracker",
+   "sub": "One file · works offline · Mac &amp; PC",
+   "pills": [
+    "No subscription",
+    "Private",
+    "8 themes"
+   ],
+   "themes": [
+    "shots/theme-blush.jpg",
+    "shots/theme-lavender.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-fjord.jpg",
+    "shots/theme-linen.jpg",
+    "shots/theme-slate.jpg",
+    "shots/theme-night.jpg",
+    "shots/theme-midnight.jpg"
+   ]
+  }
+ ]
+}
