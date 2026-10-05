@@ -78,6 +78,10 @@ Every rule came from a real finding.
 **Numbers**
 - Zero data must not show 100%, red, "Lightest month: zero dollars" or a full ring. Show "—" and a hint instead.
 - Charts and averages must not count the months before the first item existed, or blame the wrong thing for them.
+- Come back next month and add something you forgot: it must not count as growth, a best month or a
+  milestone. Ask whether it existed before.
+- A month with no entry yet must not be drawn or averaged as real data (a flat made-up last point).
+- Fields that take a year (or a month) catch the other one typed by mistake: show the converted amount.
 - One basis per number across screens. A calendar year on one screen next to the next 12 months on
   another reads as a bug. Pick one, and label it.
 - Every KPI says what it covers. "Busiest week" needs the week it means.

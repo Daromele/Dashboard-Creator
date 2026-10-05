@@ -116,6 +116,44 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('start fresh offers to keep the accounts and plan',await v(()=>/Keep my accounts and FIRE plan/.test(document.querySelector('#fresh-form').innerText)));
  await p.check('#fresh-form [name=sure]');await v(()=>document.querySelector('#fresh-form').requestSubmit());await p.waitForTimeout(500);
  ok('history cleared to one check-in with the latest balances; accounts and plan kept',await v(()=>state.nwAccounts.length===4&&state.nwSnaps.length===1&&state.nwPlan.spend===4000000&&NetWorthUI.model().now.net>0));
+ // ---- from the newbie check: two months as a new buyer, on a fresh page ----
+ {const q=await b.newPage({viewport:{width:1300,height:900}});q.on('pageerror',e=>errs.push(e.message));const w=(js,a)=>q.evaluate(js,a);
+  await q.clock.setFixedTime(new Date('2026-10-05T12:00:00'));await q.goto(F);await w(()=>localStorage.clear());await q.goto(F);await q.waitForTimeout(400);await w(()=>{try{closeWelcome()}catch{}});
+  const add=async(name,bal)=>{await w(()=>document.querySelector('.topbar [data-action="nw-add"]').click());await q.waitForTimeout(100);await q.fill('#nw-form [name=name]',name);await q.fill('#nw-form [name=balance]',bal);};
+  const save=async()=>{await w(()=>document.querySelector('#nw-form').requestSubmit());await q.waitForTimeout(300);};
+  await add('Checking','2500');ok('first month: no “I already had it” box (nothing earlier)',await w(()=>!document.querySelector('#nw-form [name=had]')));await save();
+  await add('Index fund','40000');await save();
+  ok('first check-in: no “this year” in the hero',await w(()=>{go('dashboard');return !/this year/.test(document.querySelector('.debt-hero').innerText);}));
+  // November: a forgotten account
+  await q.clock.setFixedTime(new Date('2026-11-06T12:00:00'));await q.reload();await q.waitForTimeout(400);await w(()=>{try{closeWelcome()}catch{}});
+  await add('Old 401k from last job','30000');
+  ok('a later account offers “I already had this account”, ticked',await w(()=>document.querySelector('#nw-form [name=had]')?.checked));
+  await save();
+  const m=await w(()=>{const x=NetWorthUI.model();return {moved:x.moved,months:x.months,oct:NetWorth.totals(x.A,x.S,'2026-10').net,pace:x.pace};});
+  ok('…so it doesn’t count as growth: October includes it, nothing “moved”',m.oct===7250000&&m.moved===0&&m.pace===0,JSON.stringify(m));
+  ok('no “You passed $50,000” for an account you already had',await w(()=>{go('dashboard');return !/You passed/.test(document.querySelector('#content').innerText);}));
+  // December, not checked in yet: the chart and averages stop at November
+  await q.clock.setFixedTime(new Date('2026-12-03T12:00:00'));await q.reload();await q.waitForTimeout(400);await w(()=>{try{closeWelcome()}catch{}});
+  ok('the chart stops at the last check-in (no flat December point)',await w(()=>{const x=NetWorthUI.model();return x.series.at(-1).month==='2026-11'&&!x.checked;}));
+  ok('History labels the first year “2026 (from Oct)”',await w(()=>{go('nwhistory');return /2026 \(from Oct\)/.test(document.querySelector('.kpis').innerText);}));
+  // FIRE: a monthly number typed by mistake
+  await w(()=>go('fire'));await q.fill('#nw-f-spend','4000');
+  ok('a year of spending under $12,000 asks “Is that a month?”',await w(()=>/Is that a month\?/.test(document.querySelector('[data-out="spend-month"]').innerText)));
+  await q.fill('#nw-f-spend','48,000');
+  ok('…and a real year shows its monthly amount',await w(()=>/\$4,000\.00 a month/.test(document.querySelector('[data-out="spend-month"]').innerText)));
+  // edit: a new type brings its own “Counts toward FI”
+  await w(()=>{go('nwaccounts');const a=state.nwAccounts.find(x=>x.name==='Checking');document.querySelector(`[data-action="nw-edit"][data-id="${a.id}"]`).click();});await q.waitForTimeout(150);
+  await q.selectOption('#nw-form [name=type]','invest');
+  ok('edit: switching Checking to Investments ticks “Counts toward FI”',await w(()=>document.querySelector('#nw-form [name=fi]').checked));
+  await q.fill('#nw-form [name=name]','Checking 2');
+  ok('…and typing the name afterwards leaves it alone',await w(()=>document.querySelector('#nw-form [name=fi]').checked));
+  await w(()=>closeModal());
+  // hero wording and print
+  await w(()=>go('dashboard'));
+  ok('the hero says “at your Nov check-in”',await w(()=>/at your Nov check-in/.test(document.querySelector('.debt-hero').innerText)));
+  await q.emulateMedia({media:'print'});
+  ok('print: the ring labels on the hero are dark',await w(()=>{const t=document.querySelector('.hero .hd-name');return !t||getComputedStyle(t).fill==='rgb(34, 34, 34)';}));
+  await q.close();}
  // phone width, print
  await p.setViewportSize({width:390,height:844});
  for(const s of ['dashboard','nwaccounts','checkin','fire','milestones','nwhistory','settings']){await v(x=>go(x),s);await p.waitForTimeout(150);const w=await v(()=>document.documentElement.scrollWidth);ok(`${s} fits a phone`,w<=392,w);}

@@ -836,7 +836,7 @@ th.num .th-sort{flex-direction:row}
 @media print{.kpi-go,.th-sort span{display:none}}
 .hero-pill{display:inline-flex;gap:8px;align-items:baseline;font-size:12px;padding:5px 12px;border-radius:999px;background:#ffffff14;color:var(--on-bold-dim)}
 .hero-pill b{color:var(--on-bold);font:650 13px var(--num)}.hero-pill.over b{color:var(--on-bold-alert)}
-@media print{.hero-bar{border:1px solid #999}.hero-dot{border:1px solid #999}}
+@media print{.hero-bar{border:1px solid #999}.hero-dot{border:1px solid #999}.hero .hd-name,.hero .hd-amt,.hero .hd-mid-v{fill:#222!important}.hero .hd-amt tspan,.hero .hd-mid-l{fill:#555!important}.hero .hero-note,.hero small{color:#555!important}}
 
 /* collapsible budget groups */
 .budget-group{padding:0;overflow:hidden}
@@ -7353,9 +7353,10 @@ const NetWorthUI=(()=>{
  let memo={key:'',v:null};
  function model(){const key=JSON.stringify([state.nwAccounts,state.nwSnaps,state.nwPlan,state.nwTypes,today()]);if(memo.key===key)return memo.v;
   const t=today(),m=thisMonth(),A=accts(),S=snaps(),months=N.months(S),last=months.at(-1)||null,prev=months.at(-2)||null;
-  const series=N.series(A,S,m),now=N.totals(A,S,m),lastT=last?N.totals(A,S,last):null,prevT=prev?N.totals(A,S,prev):null;
+  // charts and averages stop at the last check-in: a month not checked in yet would add a flat, made-up point
+  const series=N.series(A,S),now=N.totals(A,S,m),lastT=last?N.totals(A,S,last):null,prevT=prev?N.totals(A,S,prev):null;
   const moved=lastT&&prevT?lastT.net-prevT.net:0,yearAgo=series.length>12?series[series.length-13]:series[0]||null;
-  const jan=series.find(x=>x.month===m.slice(0,4)+'-01')||series[0]||null,ytd=jan?now.net-(series.find(x=>x.month===N.addMonths(m.slice(0,4)+'-01',-1))||jan).net:0;
+  const before=series.filter(x=>x.month<m.slice(0,4)+'-01').at(-1),ytd=before?now.net-before.net:null;
   const p=plan(),fire=N.fireNumber(p.spend,p.rate),progress=fire?now.fi/fire:null,toFI=fire?N.monthsTo(now.fi,p.monthly,p.growth,fire):null;
   const yearsLeft=p.age?Math.max(0,(p.retireAge||65)-p.age):null,coast=fire&&yearsLeft!==null?N.coast(fire,p.growth,yearsLeft):null;
   memo={key,v:{t,m,A,S,months,last,prev,series,now,lastT,prevT,moved,yearAgo,ytd,p,fire,progress,toFI,coast,yearsLeft,pace:N.pace(series),checked:last===m,open:A.filter(a=>isOpen(a,m))}};return memo.v;}
@@ -7389,7 +7390,7 @@ const NetWorthUI=(()=>{
   if(!M.A.length)return head+starter();
   const n=M.now,fiPct=M.progress!==null?Math.min(100,Math.round(M.progress*100)):null;
   const hero=`<section class="hero debt-hero${chartWidth<900?' hero-stack':''}"><div><div class="eyebrow">Net worth</div><h2 class="hero-big" style="--n:${fmt(n.net).length+1}">${twNum('nw-net',n.net)}</h2>`+
-   `<p>${fmt(n.assets)} you own − ${fmt(n.debts)} you owe${M.prev?` · <b>${signed(M.moved)}</b> since ${monthShort(M.prev)}`:''}${M.series.length>1&&M.m.slice(5)!=='01'?` · ${signed(M.ytd)} this year`:''}</p>`+
+   `<p>${fmt(n.assets)} you own − ${fmt(n.debts)} you owe${M.prev?` · <b>${signed(M.moved)}</b> at your ${monthShort(M.last)} check-in`:''}${M.ytd!==null?` · ${signed(M.ytd)} this year`:''}</p>`+
    (fiPct!==null?`<div class="debt-progress" role="img" aria-label="${fiPct}% of the way to your FIRE number"><i data-tww="nw-fi" style="width:${fiPct}%"></i></div><small class="hero-note">${fiPct}% of the way to your FIRE number, ${fmt(M.fire)}${M.toFI?` · about ${yearsMonths(M.toFI)} to go`:M.toFI===0?' · you’re there':''}</small>`:`<small class="hero-note">Set your FIRE number to see how far along you are.</small>`)+
    `<div class="hero-foot">${M.checked?button('All accounts →','nw-go','quiet small','data-to="nwaccounts"'):button(`Check in for ${monthShort(M.m)}`,'nw-checkin','pop small')}${button(M.fire?'FIRE plan →':'Set my FIRE number','nw-go','quiet small','data-to="fire"')}</div></div>`+
    `<div class="hero-side">${ownRing(M)}</div></section>`;
@@ -7481,13 +7482,14 @@ const NetWorthUI=(()=>{
  // ---------- FIRE plan ----------
  let fireTarget='fire',extra=0;
  const FLAVORS=[['lean','Lean FIRE',.75,'A frugal version of your life: 75% of your spending'],['fire','FIRE',1,'Your spending as it is'],['fat','Fat FIRE',1.5,'Room to spare: 150% of your spending']];
+ const spendNote=v=>!v?'':v<1200000?`That’s ${fmt(Math.round(v/12))} a month. Is that a month? Enter a whole year.`:`That’s ${fmt(Math.round(v/12))} a month.`;
  function fireView(){const M=model(),p=M.p;
   const head=pagehead('Financial independence','FIRE plan','How much invested money would pay for your life, and when you could get there.',M.fire?button('Print','print','quiet'):'');
   const pctTxt=bp=>(bp/100).toFixed(2).replace(/\.?0+$/,'');
   const field=(name,label,v,hint,extraAttrs='')=>`<label>${label}<input name="${name}" id="nw-f-${name}" inputmode="decimal" value="${v}" ${extraAttrs}>${hint?`<small>${hint}</small>`:''}</label>`;
   const slider=(name,label,v,min,max,step,hint)=>`<label class="nw-slider">${label} <b data-out="${name}">${pctTxt(v)}%</b><input type="range" name="${name}" id="nw-f-${name}" min="${min}" max="${max}" step="${step}" value="${v}"><small>${hint}</small></label>`;
   const formCard=`<section class="card"><div class="cardhead"><div><h2>Your numbers</h2><p>Change any of them; everything updates when you leave the form or press Save</p></div></div><form id="nw-fire-form"><div class="fields">`+
-   field('spend','A year of spending',p.spend?num(p.spend):'','What your life costs a year today: housing, food, travel, everything. Not what you earn.','placeholder="e.g. 48,000" required')+
+   field('spend','A year of spending',p.spend?num(p.spend):'',`What your life costs a year today: housing, food, travel, everything. Not what you earn. <b data-out="spend-month">${spendNote(p.spend)}</b>`,'placeholder="e.g. 48,000" required')+
    field('monthly','Invested each month',num(p.monthly),'Everything going into accounts that count toward FI, including employer match.')+
    slider('rate','Withdrawal rate',p.rate,300,500,25,'4% is the classic “4% rule”. Lower is safer.')+
    slider('growth','Return after inflation',p.growth,0,1000,50,'5% is a middle-of-the-road guess for stocks and bonds.')+
@@ -7548,7 +7550,7 @@ const NetWorthUI=(()=>{
   const chips=`<div class="dg-chips no-print" role="group" aria-label="Show one account"><button class="dl-chip" data-action="nw-hist-all" aria-pressed="${!histAcct}" style="--c:var(--accent)"><span>Net worth<small>${plural(M.months.length,'check-in')}</small></span></button>${M.A.map(a=>`<button class="dl-chip" data-action="nw-history" data-id="${a.id}" aria-pressed="${histAcct===a.id}" style="--c:${colorOf(a)}"><span>${esc(a.name)}<small>${esc(typeName(a.type))}</small></span></button>`).join('')}</div>`;
   if(one){const rows=M.series.filter(x=>x.each.has(one.id)).map(x=>({month:x.month,v:x.each.get(one.id)}));const debt=one.side==='debt';
    return head+chips+`<section class="card">${rows.length?lineChart(rows,[{key:'v',name:one.name,color:debt?C_OWE:colorOf(one)}],{aria:`${one.name} over time`,h:200}):''}</section><section class="card table-card bt-scroll"><div class="table-wrap"><table class="bt-table"><thead><tr><th>Month</th><th class="num">${debt?'Owed':'Balance'}</th><th class="num">Change</th><th>Recorded</th></tr></thead><tbody>${[...rows].reverse().map((r,i,arr)=>{const pv=arr[i+1],rec=M.S.some(s=>s.month===r.month&&Object.hasOwn(s.values,one.id));return `<tr><td data-sort="${r.month}">${monthName(r.month)}</td><td class="num">${fmt(r.v)}</td><td class="num"><span class="${pv?tone((r.v-pv.v)*(debt?-1:1)):'dim'}">${pv?signed(r.v-pv.v):'—'}</span></td><td>${rec?'Check-in':'<span class="dim">Carried over</span>'}</td></tr>`;}).join('')}</tbody></table></div></section>`;}
-  const years=[...new Set(M.series.map(x=>x.month.slice(0,4)))].slice(-4).map(y=>{const R=M.series.filter(x=>x.month.startsWith(y)),before=M.series.filter(x=>x.month<y+'-01').at(-1)||R[0],end=R.at(-1);return {y,start:before.net,end:end.net,ch:end.net-before.net};});
+  const years=[...new Set(M.series.map(x=>x.month.slice(0,4)))].slice(-4).map(y=>{const R=M.series.filter(x=>x.month.startsWith(y)),prior=M.series.filter(x=>x.month<y+'-01').at(-1),before=prior||R[0],end=R.at(-1);return {y:prior||R[0].month.endsWith('-01')?y:`${y} (from ${monthShort(R[0].month)})`,start:before.net,end:end.net,ch:end.net-before.net};});
   const yc=`<div class="kpis">${years.map(x=>kpi(x.y,x.ch,`${fmt(x.start)} → ${fmt(x.end)}`,'years',x.ch>0?'pos':x.ch<0?'neg':'')).join('')}</div>`;
   const table=`<section class="card table-card bt-scroll"><div class="table-wrap"><table class="bt-table"><thead><tr><th>Month</th><th class="num">You own</th><th class="num">You owe</th><th class="num">Net worth</th><th class="num">Change</th><th class="num">Change %</th><th class="num">Toward FI</th></tr></thead><tbody>${[...M.series].reverse().map((r,i,arr)=>{const pv=arr[i+1],d=pv?r.net-pv.net:0;return `<tr><td data-sort="${r.month}">${monthName(r.month)}${M.months.includes(r.month)?'':' <small class="dim">carried over</small>'}</td><td class="num">${fmt(r.assets)}</td><td class="num">${fmt(r.debts)}</td><td class="num"><b>${fmt(r.net)}</b></td><td class="num"><span class="${pv?tone(d):'dim'}">${pv?signed(d):'—'}</span></td><td class="num">${pv&&pv.net>0?`${(d/pv.net*100).toFixed(1)}%`:'—'}</td><td class="num">${fmt(r.fi)}</td></tr>`;}).join('')}</tbody></table></div></section>`;
   return head+chips+yc+table;}
@@ -7569,11 +7571,14 @@ const NetWorthUI=(()=>{
    <div class="full segment bt-kind-pick" role="radiogroup" aria-label="Own or owe" ${editing?'':'data-auto="1"'}>${[['asset','Something I own'],['debt','Something I owe']].map(([k,l])=>`<label><input type="radio" name="side" value="${k}" ${a.side===k?'checked':''}><span>${l}</span></label>`).join('')}</div>
    ${editing?'':`<label>Balance today<input name="balance" inputmode="decimal" required placeholder="0.00" value="${a.balance!==undefined?num(a.balance):''}"><small class="nw-bal-hint">${a.side==='debt'?'What you owe today, as a positive number.':'What it’s worth today.'}</small></label>`}
    <label>Type<select name="type" ${autoType?'data-auto="1"':''}>${opt('asset')}${opt('debt')}</select></label>
-   <label class="checkline full nw-fi-line" ${a.side==='debt'?'hidden':''}><input type="checkbox" name="fi" ${a.fi?'checked':''} ${editing?'':'data-auto="1"'}><span>Counts toward financial independence<br><small>Invested money that can pay for your life one day. Usually investments and retirement accounts, not your home or checking.</small></span></label>
+   ${!editing&&firstEarlier()?`<label class="checkline full nw-had"><input type="checkbox" name="had" checked><span>I already had this account<br><small>Uses this balance from your first check-in (${monthName(firstEarlier())}) too, so adding it doesn’t count as growth. Untick it if it’s new this month.</small></span></label>`:''}
+   <label class="checkline full nw-fi-line" ${a.side==='debt'?'hidden':''}><input type="checkbox" name="fi" ${a.fi?'checked':''} data-auto="1"><span>Counts toward financial independence<br><small>Invested money that can pay for your life one day. Usually investments and retirement accounts, not your home or checking.</small></span></label>
    <label>Bank or provider <span class="dim">(optional)</span><input name="inst" maxlength="60" value="${esc(a.inst||'')}" placeholder="e.g. Harbor Bank"></label>
    <label>Note <span class="dim">(optional)</span><input name="notes" maxlength="200" value="${esc(a.notes||'')}" placeholder="e.g. Employer matches 4%"></label>
    ${editing?`<label>Status<select name="status"><option value="open" ${isOpen(a)?'selected':''}>Open</option><option value="closed" ${!isOpen(a)?'selected':''}>Closed or paid off</option></select></label><label class="nw-closed" ${isOpen(a)?'hidden':''}>Closed in<input type="month" name="closed" value="${a.closed||thisMonth()}"><small>It counts as 0 from this month on.</small></label>`:''}
    </div>${formFoot(editing?'Save':a.side==='debt'?'Add it':'Add account',editing?button('Delete','nw-del','danger quiet',`data-id="${id}"`):'')}</form>`);}
+ // the first check-in before this month, if any: where an account you already had starts
+ const firstEarlier=()=>{const f=N.months(snaps())[0];return f&&f<thisMonth()?f:null;};
  function balanceForm(id,m=thisMonth()){const a=acct(id);if(!a)return;const M=model(),cur=N.balanceAt(a,M.S,m);
   modal(`Update ${esc(a.name)}`,`${a.side==='debt'?'What you owe':'Its balance'} in ${monthName(m)}. Last recorded: ${cur===null?'none yet':fmt(cur)}.`,`<form id="nw-bal-form" data-id="${id}"><div class="fields"><label>${a.side==='debt'?'Owed':'Balance'}<input name="balance" inputmode="decimal" required value="${num(cur)}" autofocus></label><label>Month<input type="month" name="month" required value="${m}" max="${thisMonth()}"></label></div>${formFoot('Save balance')}</form>`);}
 
@@ -7589,7 +7594,7 @@ const NetWorthUI=(()=>{
   const errs=N.validate(a);if(errs.length)throw Error(errs[0]);
   let bal=null;if(!old){bal=cents(F.get('balance'));if(bal===null)throw Error('Enter today’s balance (0 is fine).');}
   closeModal();
-  commit(()=>{if(old)state.nwAccounts[state.nwAccounts.indexOf(old)]=a;else{accts().push(a);putBalances(thisMonth(),{[a.id]:bal});}},old?`${a.name} saved`:`${a.name} added · ${fmt(bal)}${side==='debt'?' owed':''}`);}
+  commit(()=>{if(old)state.nwAccounts[state.nwAccounts.indexOf(old)]=a;else{accts().push(a);putBalances(thisMonth(),{[a.id]:bal});const f=firstEarlier();if(f&&F.get('had')==='on')putBalances(f,{[a.id]:bal});}},old?`${a.name} saved`:`${a.name} added · ${fmt(bal)}${side==='debt'?' owed':''}`);}
  document.addEventListener('submit',e=>{const f=e.target;if(!['nw-form','nw-bal-form','nw-ci-form','nw-fire-form','nwt-form'].includes(f.id))return;e.preventDefault();
   try{const F=new FormData(f),id=f.dataset.id;switch(f.id){
    case 'nw-form':saveAccount(f);break;
@@ -7610,16 +7615,16 @@ const NetWorthUI=(()=>{
  ['input','change'].forEach(t=>document.addEventListener(t,e=>{const el=e.target;
   if(el.closest?.('#nw-ci-form')&&t==='input')return ciLive(el.closest('#nw-ci-form'));
   if(el.id==='nw-extra'){extra=+el.value||0;const o=document.querySelector('[data-out="extra"]');if(o)o.textContent='+'+fmt(extra);if(t==='change')render();else{const M=model(),x=extra?N.monthsTo(M.now.fi,M.p.monthly+extra,M.p.growth,M.fire):M.toFI,r=document.querySelector('[data-out="extra-res"]');if(r)r.innerHTML=extra?(x===null?'never':M.toFI===null?yearsMonths(x):M.toFI-x>0?`<span class="pos">${yearsMonths(M.toFI-x)} sooner</span>`:'no change'):'Slide to see';}return;}
-  const ff=el.closest?.('#nw-fire-form');if(ff){if(el.type==='range'){const o=ff.querySelector(`[data-out="${el.name}"]`);if(o)o.textContent=(+el.value/100).toFixed(2).replace(/\.?0+$/,'')+'%';}if(t==='change'&&el.type==='range')try{saveFire(ff,false);}catch{}return;}
+  const ff=el.closest?.('#nw-fire-form');if(ff){if(el.name==='spend'){const o=ff.querySelector('[data-out="spend-month"]');if(o){let v=null;try{v=cents(el.value);}catch{}o.textContent=spendNote(v);o.className=v&&v<1200000?'warn':'';}}if(el.type==='range'){const o=ff.querySelector(`[data-out="${el.name}"]`);if(o)o.textContent=(+el.value/100).toFixed(2).replace(/\.?0+$/,'')+'%';}if(t==='change'&&el.type==='range')try{saveFire(ff,false);}catch{}return;}
   const f=el.closest?.('#nw-form');if(f){const name=f.elements.name,side=f.querySelector('[name=side]:checked')?.value||'asset',sel=f.elements.type,fi=f.elements.fi,seg=f.querySelector('.bt-kind-pick[data-auto]');
    if(el.name==='side'&&seg)delete seg.dataset.auto;if(el===sel)delete sel.dataset.auto;if(el===fi)delete fi.dataset.auto;
    // a debt-sounding name flips the side, if you haven't picked one
    if(el===name&&seg){const g=N.guessAny(name.value);if(g){const s2=N.typeOf(g)[2];if(s2!==side){const r=f.querySelector(`[name=side][value=${s2}]`);if(r)r.checked=true;}}}
-   const sd=f.querySelector('[name=side]:checked')?.value||'asset';
+   const sd=f.querySelector('[name=side]:checked')?.value||'asset',typeWas=sel.value;
    [...sel.options].forEach(o=>{const off=o.dataset.side!==sd;o.hidden=off;o.disabled=off;});
    if(sel.dataset.auto&&(el===name||el.name==='side'))sel.value=N.guessType(name.value,sd);
    if(sel.selectedOptions[0]?.disabled)sel.value=[...sel.options].find(o=>!o.disabled)?.value||'';
-   if(fi?.dataset.auto)fi.checked=sel.selectedOptions[0]?.dataset.fi==='1';
+   if(fi?.dataset.auto&&(el===sel||sel.value!==typeWas||!f.dataset.id))fi.checked=sel.selectedOptions[0]?.dataset.fi==='1';
    const fl=f.querySelector('.nw-fi-line');if(fl)fl.hidden=sd==='debt';const h=f.querySelector('.nw-bal-hint');if(h)h.textContent=sd==='debt'?'What you owe today, as a positive number.':'What it’s worth today.';
    const cl=f.querySelector('.nw-closed');if(cl)cl.hidden=f.elements.status?.value!=='closed';
    const t2=$('#modal-title');if(t2&&!f.dataset.id)t2.textContent=sd==='debt'?'Add something you owe':'Add an account';

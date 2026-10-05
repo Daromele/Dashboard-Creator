@@ -411,6 +411,7 @@ def networth_pages(shot):
 <tr><td>Counts toward FI</td><td>Ticked for investments and retirement accounts. Change it per account.</td></tr>
 <tr><td>Bank, note</td><td>Optional: where it’s held, a reminder like “employer matches 4%”.</td></tr></table>
 <div class="box"><h3>Your home and car</h3><p>Add them at a fair estimate if you like: they count in your net worth, but not toward FI, because you can’t live off them without selling.</p></div>
+<div class="box"><h3>Found an account later?</h3><p>Leave <b>I already had this account</b> ticked and its balance counts from your first check-in, so it doesn’t show up as growth.</p></div>
 <div class="box"><h3>Closing or paying off</h3><p>Edit the account and set it to <b>Closed or paid off</b> with the month. It counts as 0 from then, and keeps its history.</p></div>'''),
         ('Each month', f'''<h1>A two-minute check-in.</h1>
 <p class="lede">Once a month, open <b>Monthly check-in</b>, type each balance as it is today, and save.</p>
