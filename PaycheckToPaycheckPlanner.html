@@ -2391,7 +2391,7 @@ function drawBackupChip(){
   el.hidden = false;
   if (L.state === "linked"){
     const t = L.lastSaved
-      ? new Date(L.lastSaved).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" })
+      ? new Date(L.lastSaved).toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" })
       : "";
     el.innerHTML = `<span class="chip-dot"></span>Backed up${t ? " <b>" + esc(t) + "</b>" : ""}`;
     el.title = "Every change is written to " + L.name + (t ? " — last written " + t : "");
