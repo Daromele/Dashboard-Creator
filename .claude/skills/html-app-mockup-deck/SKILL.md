@@ -30,6 +30,22 @@ This skill produces `<Product>_Etsy_Mockups.html`: one scrollable page of 1500×
 
 6. Deliver the HTML. Remind the user to click text to edit and to click or drop an image to replace it.
 
+7. **Export the PNGs** (every slide at 1500×1125, named `01-hero.png` …) into `png/`, plus a zip for the user.
+
+8. **Make the listing video** (Etsy: 5–15 s, MP4, no sound, at least 1080 px; this renders 1440×1080 at 30 fps):
+   - Write `video.json` (see the header comments of both scripts; `monthly-plan/listing/*/video.json` are real examples).
+     `captures` are app states taken in order on one page, so `{"click":[...]}` after a capture gives an after-state.
+     `targets` record where buttons sit so the cursor can click them.
+   - Scenes: `title` (dark, headline + pills, dashboard rising), 4 `shot` scenes alternating light/dark, `end` (product
+     name, pills, 8 theme thumbnails). Total ≤ 15 s; 14.8 s is a good fit.
+   - Show the product doing something: files flying into the import drop zone, a click that changes the numbers
+     (budget +$250 moving the debt-free date, Apply raising the monthly cuts). Pick clicks that visibly change a
+     big number; check the before/after captures actually differ.
+   - Zoom anchors at the target's top-left by default. Keep scales ≤ 1.3 and don't zoom a scene the cursor uses
+     near the edge (the button leaves the frame).
+   - `node scripts/video_capture.js video.json`, then `node scripts/render_video.js video.json --frames 30,120,…`
+     to look at stills, then without `--frames` for the MP4 (needs `pip install imageio-ffmpeg` if no ffmpeg).
+
 ## Tweaking the layout
 
 All styling is in `assets/deck.css`. Key knobs: `.slide` padding `54px 50px 26px`, `.sub` `max-width:60ch`, `.shot` `flex:1 1 0` / radius 4px / `z-index:1` over the absolute `.foot`, and `.looks` grid `margin:30px 0 44px`. When changing the layout, re-run geom and swaptest, and update the swaptest expectations if you deliberately change the gutters or radius.

@@ -1,0 +1,218 @@
+{
+ "app": "../../app/DebtFreePlan.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "shots_dir": "vshots",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "hero": "#content .debt-hero"
+   }
+  },
+  {
+   "name": "plan0",
+   "view": "plan",
+   "targets": {
+    "plus": "#content button[data-action=\"plan-bump\"]:has-text(\"+$250\")",
+    "snow": "#content .plan-deck button[data-action=\"plan-strategy\"]:has-text(\"Snowball\")",
+    "kpis": "#content .big-kpis"
+   }
+  },
+  {
+   "name": "plan1",
+   "click": [
+    "#content button[data-action=\"plan-bump\"]:has-text(\"+$250\")"
+   ]
+  },
+  {
+   "name": "plan2",
+   "click": [
+    "#content button[data-action=\"plan-bump\"]:has-text(\"+$250\")"
+   ]
+  },
+  {
+   "name": "plan3",
+   "click": [
+    "#content button[data-action=\"plan-bump\"]:has-text(\"+$250\")"
+   ]
+  },
+  {
+   "name": "debts",
+   "view": "debts",
+   "targets": {
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "progress",
+   "view": "progress",
+   "targets": {
+    "chart": "#content .color-card"
+   }
+  }
+ ],
+ "product": "Debt Free Plan",
+ "output": "Debt_Free_Plan_Etsy_Video.mp4",
+ "size": [
+  1440,
+  1080
+ ],
+ "fps": 30,
+ "brand": {
+  "ink": "#17302A",
+  "bold": "#1F4A3E",
+  "pop": "#F2B441",
+  "paper": "#FAFAF8",
+  "calm": "#2F5D50"
+ },
+ "scenes": [
+  {
+   "type": "title",
+   "dur": 2.2,
+   "eyebrow": "Debt payoff tracker",
+   "headline": "See the month<br>you're debt free.",
+   "pills": [
+    "5 strategies",
+    "Private &amp; offline",
+    "No subscription"
+   ],
+   "image": "dash"
+  },
+  {
+   "type": "shot",
+   "dur": 2.6,
+   "dark": true,
+   "eyebrow": "Debt freedom",
+   "headline": "Your debt-free date.",
+   "shots": [
+    {
+     "img": "dash",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.4,
+    "t1": 2.6,
+    "target": "dash.hero",
+    "origin": [
+     0.02,
+     0.32
+    ],
+    "scale": 1.28
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 3.6,
+   "dark": false,
+   "eyebrow": "Payoff plan",
+   "headline": "Pay more. Watch it move.",
+   "shots": [
+    {
+     "img": "plan0",
+     "at": 0
+    },
+    {
+     "img": "plan1",
+     "at": 1.05
+    },
+    {
+     "img": "plan2",
+     "at": 1.95
+    },
+    {
+     "img": "plan3",
+     "at": 2.95
+    }
+   ],
+   "cursor": [
+    {
+     "t": 0.95,
+     "target": "plan0.plus",
+     "click": true
+    },
+    {
+     "t": 1.85,
+     "target": "plan0.plus",
+     "click": true
+    },
+    {
+     "t": 2.85,
+     "target": "plan0.plus",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 2.2,
+   "dark": true,
+   "eyebrow": "My debts",
+   "headline": "Every debt, one place.",
+   "shots": [
+    {
+     "img": "debts",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.2,
+    "target": "debts.kpis",
+    "origin": [
+     0.0,
+     0.3
+    ],
+    "scale": 1.1
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 2.0,
+   "dark": false,
+   "eyebrow": "Progress",
+   "headline": "Color in your way out.",
+   "shots": [
+    {
+     "img": "progress",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.0,
+    "target": "progress.chart",
+    "origin": [
+     0.0,
+     0.2
+    ],
+    "scale": 1.12
+   }
+  },
+  {
+   "type": "end",
+   "dur": 2.2,
+   "eyebrow": "Instant download",
+   "headline": "Debt Free Plan",
+   "sub": "One file \u00b7 works offline \u00b7 Mac &amp; PC",
+   "pills": [
+    "No subscription",
+    "Private",
+    "8 themes"
+   ],
+   "themes": [
+    "shots/theme-sage.jpg",
+    "shots/theme-fjord.jpg",
+    "shots/theme-lavender.jpg",
+    "shots/theme-linen.jpg",
+    "shots/theme-blush.jpg",
+    "shots/theme-slate.jpg",
+    "shots/theme-night.jpg",
+    "shots/theme-midnight.jpg"
+   ]
+  }
+ ]
+}
