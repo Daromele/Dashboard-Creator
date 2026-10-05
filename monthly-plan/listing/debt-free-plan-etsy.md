@@ -39,7 +39,7 @@ EVERYTHING A DEBT SPREADSHEET DOES
 ━━━━━━━━━━━━━━━━━━━━
 AND MUCH MORE
 ━━━━━━━━━━━━━━━━━━━━
-✔ 5 strategies compared at once: avalanche, snowball, cash flow first, credit score first, or your own order
+✔ 5 strategies compared at once: avalanche, snowball, cash flow first, credit score first, or your own order. Slide your monthly budget and watch the debt-free date move
 ✔ "Why not just the minimums?": the months and money your plan saves you
 ✔ What-if lab: an extra payment each month, a one-off payment (tax refund, bonus), a lower rate, a balance transfer with its fee, a consolidation loan, or "debt free by" a date you choose
 ✔ Pay this month: every payment, its due date, and a one-click "Log all as paid"
@@ -47,7 +47,10 @@ AND MUCH MORE
 ✔ Warnings when a balance is growing, a promo rate is ending, or a card is maxed out
 ✔ Card utilization, with the credit score strategy to bring it down
 ✔ Payoff timeline, balance-over-time chart, milestones and due-date calendar
-✔ Import your card, loan and bank downloads (CSV, OFX, QFX): payments, charges and real interest are matched to each debt, duplicates skipped
+✔ Import your card, loan and bank downloads (CSV, OFX, QFX): payments, charges and real interest are matched to each debt, duplicates skipped, and it remembers which file is which debt
+✔ My debts as cards with a paid-off ring for each debt, or as a table; filter by category
+✔ Debt status: active, hardship plan, paused, in collections or in dispute. On-hold debts stay in your total but out of the plan
+✔ Each debt's own history: every payment, charge and interest line, logged or imported
 ✔ Update a balance from your statement any time; the plan recalculates
 ✔ Find extra money: an optional budget and cut-back ideas to grow your monthly payment
 ✔ Every table sorts, searches and filters
@@ -83,7 +86,8 @@ GOOD TO KNOW
 • This is a digital download. Nothing will be shipped.
 • Your data saves in the browser you use. Download a backup regularly and keep it safe; the app reminds you.
 • Works best on a computer. Phones and tablets can view and log payments.
-• Interest is estimated monthly from the rate you enter; your lender's statement may differ by a few cents. Update the balance any time.
+• Interest is estimated monthly from the rate you enter; your lender's statement may differ by a few cents. Importing your card or loan download brings in the real interest, or update the balance from your statement any time.
+• Statement imports need the CSV, OFX or QFX download from your bank or lender (usually under "Download activity"). PDF statements can't be read.
 • This is not financial advice.
 • For personal use. Please don't share or resell the file.
 
