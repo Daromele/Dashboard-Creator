@@ -67,6 +67,13 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  await p.evaluate(()=>go('whatif',true));await p.waitForTimeout(150);
  const wi=await p.evaluate(()=>{const before=state.debtPlan.budget;document.querySelector('[data-action="wi-apply-extra"]').click();return [before,state.debtPlan.budget,document.querySelectorAll('.wi-card').length];});
  ok('what if: six tools, and an extra amount can be added to the plan',wi[2]===6&&wi[1]===wi[0]+10000,JSON.stringify(wi));
+ // a debt set to "In collections" leaves the plan but stays in the total
+ const before=await p.evaluate(()=>{const M=Debts.model();return {total:M.total,n:M.forSim.length};});
+ await p.evaluate(()=>{go('debts',true);document.querySelector('.debt-card [data-action="debt-edit"]').click();});await p.waitForTimeout(150);
+ await p.selectOption('#debt-form [name=status]','collections');await p.evaluate(()=>document.querySelector('#debt-form').requestSubmit());await p.waitForTimeout(200);
+ const coll=await p.evaluate(()=>{const M=Debts.model(),d=state.debts.find(x=>x.status==='collections');go('dashboard',true);return {d:!!d,total:M.total,n:M.forSim.length,inPlan:!!M.sim.months[0]?.debts[d?.id],warn:/in collections/i.test(document.querySelector('.debt-warn')?.innerText||''),pay:[...document.querySelectorAll('.pay-row b')].some(b=>b.innerText===d.name)};});
+ ok('a debt in collections stays in the total but leaves the plan, with a reminder',coll.d&&coll.total===before.total&&coll.n===before.n-1&&!coll.inPlan&&coll.warn&&!coll.pay,JSON.stringify({before,coll}));
+ await p.evaluate(()=>{const d=state.debts.find(x=>x.status==='collections');commit(()=>{delete d.status;},'back');});
  // a debt's own history, from its card
  const hist=await p.evaluate(()=>{go('debts',true);const id=state.debts[0].id;document.querySelector(`.debt-card [data-action="debt-history"][data-id="${id}"]`).click();const rows=[...document.querySelectorAll('#content table tbody tr')].length,want=state.debtLog.filter(e=>e.debt===id).length;return {screen:document.body.dataset.screen,rows,want};});
  ok('a debt’s history icon opens its payments and entries only',hist.screen==='payments'&&hist.rows===hist.want&&hist.want>0,JSON.stringify(hist));

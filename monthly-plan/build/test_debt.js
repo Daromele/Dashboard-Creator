@@ -80,4 +80,6 @@ module.exports=({eq,ok})=>{
   eq('imported entries and what was learned survive validation', [v2.debtLog.map(e=>e.kind),v2.debtImport.files,v2.debtImport.payees,v2.debtImport.kinds], [['interest'],{'harbor 5471':'v'},{toyota:''},{x:'loan'}]);
   const vk=B.validate({...B.blank(),debtKinds:[{id:'kback',name:'Back taxes'},{id:'card',name:'Credit cards',hidden:true},{id:'BAD ID',name:'x'},{id:'kback',name:'dup'}],debts:[{id:'t',name:'IRS plan',balance:100,kind:'kback'},{id:'u',name:'Mystery',balance:100,kind:'gone'}]});
   eq('own debt categories are kept, and a debt can use one', [vk.debtKinds.map(k=>k.id+':'+k.name+(k.hidden?':hidden':'')),vk.debts.map(d=>d.kind)], [['kback:Back taxes','card:Credit cards:hidden'],['kback','other']]);
+  const vs=B.validate({...B.blank(),debts:[{id:'a',name:'A',balance:100,status:'collections'},{id:'b',name:'B',balance:100,status:'gone'},{id:'c',name:'C',balance:100,status:'active'}]});
+  eq('a debt status survives validation; unknown ones are dropped', vs.debts.map(d=>d.status||'active'), ['collections','active','active']);
 };

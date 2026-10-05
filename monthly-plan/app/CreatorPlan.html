@@ -1584,6 +1584,8 @@ td .btn+.btn{margin-left:6px}
 .dg-actions{justify-content:space-between!important;align-items:center}
 .pay-focus{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}.pay-focus>div:first-child{display:grid;gap:2px}
 @media(max-width:620px){.topbar .actions{gap:6px}}
+.debt-card.is-hold .dg-head{filter:saturate(.35)}.debt-card.is-hold .dg-arc{opacity:.5}
+.debt-table td small .pill{margin-top:4px;display:inline-block}
 .kpi-mode{display:flex;justify-content:flex-end;margin:-8px 0 10px}
 .merge-box{display:flex;align-items:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}.merge-box label{flex:1}
 .ap-bulk-rename{display:inline-flex;gap:6px;align-items:center}.ap-bulk-rename input{width:180px}
@@ -2198,7 +2200,7 @@ const Budget = ((P) => {
      s.debts=(Array.isArray(s.debts)?s.debts:[]).filter(d=>object(d)&&id(d.id)&&!seen.has(d.id)&&str(d.name,60)&&d.name.trim()&&amount(d.balance)&&d.balance>=0&&seen.add(d.id)).slice(0,60);
      s.debts.forEach(d=>{if(!kinds.includes(d.kind))d.kind='other';const n=(v,lo,hi)=>Number.isInteger(v)&&v>=lo&&v<=hi;if(!n(d.apr,0,20000))d.apr=0;if(!amount(d.min)||d.min<0)d.min=0;if(!['fixed','card'].includes(d.minMode))d.minMode='fixed';
       if(!validDate(d.since))delete d.since;if(d.start!==undefined&&!(amount(d.start)&&d.start>=0))delete d.start;if(d.limit!==undefined&&!(amount(d.limit)&&d.limit>0))delete d.limit;if(d.due!==undefined&&!n(d.due,1,31))delete d.due;
-      if(d.promo!==undefined&&!(object(d.promo)&&n(d.promo.apr,0,20000)&&M(d.promo.until)))delete d.promo;['lender','note'].forEach(k=>{if(d[k]!==undefined&&!str(d[k],200))delete d[k];});if(d.archived!==undefined&&d.archived!==true)delete d.archived;
+      if(d.promo!==undefined&&!(object(d.promo)&&n(d.promo.apr,0,20000)&&M(d.promo.until)))delete d.promo;['lender','note'].forEach(k=>{if(d[k]!==undefined&&!str(d[k],200))delete d[k];});if(d.archived!==undefined&&d.archived!==true)delete d.archived;if(d.status!==undefined&&!['hardship','paused','collections','disputed'].includes(d.status))delete d.status;
       if(d.color!==undefined&&!(Number.isInteger(d.color)&&d.color>=0&&d.color<20))delete d.color;});
      const dids=new Set(s.debts.map(d=>d.id)),lseen=new Set();
      s.debtLog=(Array.isArray(s.debtLog)?s.debtLog:[]).filter(e=>object(e)&&id(e.id)&&!lseen.has(e.id)&&dids.has(e.debt)&&validDate(e.date)&&amount(e.amount)&&e.amount>=0&&['payment','charge','balance','interest','credit'].includes(e.kind)&&(e.note===undefined||str(e.note,200))&&(e.ref===undefined||str(e.ref,24))&&lseen.add(e.id)).slice(0,20000);
@@ -6185,6 +6187,10 @@ const Debts=(()=>{
  const pctTxt=apr=>(apr/100).toFixed(2).replace(/\.?0+$/,'')+'%';
  const live=()=>(state.debts||[]).filter(d=>!d.archived);
  const debt=id=>(state.debts||[]).find(d=>d.id===id);
+ // a debt's status: on hold ones stay in your totals but out of the payoff plan
+ const STATUS=[['active','Active','In your payoff plan'],['hardship','Hardship plan','In your plan, on the terms you agreed (set the rate and minimum to match)'],['paused','Paused or deferred','Out of the plan for now; interest keeps adding up'],['collections','In collections','Out of the plan until you settle it or set up payments'],['disputed','In dispute','Out of the plan while it’s being resolved']],HOLD=new Set(['paused','collections','disputed']);
+ const statusOf=d=>STATUS.find(x=>x[0]===(d.status||'active'))||STATUS[0],onHold=d=>HOLD.has(d.status);
+ const statusPill=d=>d.status&&d.status!=='active'?`<span class="pill ${d.status==='collections'||d.status==='disputed'?'warn':d.status==='hardship'?'accent':''}">${statusOf(d)[1]}</span>`:'';
  // debt categories: the built-in kinds (renamed or hidden if the person wants) plus their own, before "Other"
  function kinds(){const own=Array.isArray(state.debtKinds)?state.debtKinds:[],by=new Map(own.map(k=>[k.id,k])),built=Debt.KINDS.map(([id,name])=>({id,name:by.get(id)?.name||name,hidden:!!by.get(id)?.hidden,deleted:!!by.get(id)?.deleted&&id!=='other',builtIn:true}));
   const extra=own.filter(k=>!Debt.KINDS.some(x=>x[0]===k.id)).map(k=>({id:k.id,name:k.name,hidden:!!k.hidden,builtIn:false}));return [...built.slice(0,-1),...extra,built.at(-1)].filter(k=>!k.deleted);}
@@ -6202,14 +6208,14 @@ const Debts=(()=>{
   const D=live(),log=state.debtLog||[],m=thisMonth(),startOf=lastDayBefore(m);
   const rows=D.map(d=>{const nowB=Debt.balanceNow(d,log,today()),som=d.since&&d.since>startOf?{balance:+d.balance}:Debt.balanceNow(d,log,startOf);
    const paidMonth=log.filter(e=>e.debt===d.id&&e.kind==='payment'&&e.date.startsWith(m)).reduce((n,e)=>n+e.amount,0);
-   return {d,now:nowB.balance,interestSoFar:nowB.interest,paidAll:nowB.paid,startMonth:som.balance,paidMonth,start:d.start??d.balance,util:d.limit?Math.round(nowB.balance/d.limit*100):null};});
-  const forSim=rows.map(r=>({...r.d,balance:r.startMonth}));
+   return {d,now:nowB.balance,interestSoFar:nowB.interest,paidAll:nowB.paid,startMonth:som.balance,paidMonth,start:d.start??d.balance,util:d.limit?Math.round(nowB.balance/d.limit*100):null,hold:HOLD.has(d.status)};});
+  const forSim=rows.filter(r=>!r.hold).map(r=>({...r.d,balance:r.startMonth})),held=rows.filter(r=>r.hold&&r.now>0);
   const mins=forSim.reduce((n,d)=>{const it=Debt.interestOn(d.balance,Debt.aprIn(d,m));return n+Debt.minimumDue(d,d.balance+it,it);},0);
   const plan={...(state.debtPlan||{}),start:m,budget:(state.debtPlan?.budget||0)||mins};
   const sim=Debt.simulate(forSim,plan),minOnly=Debt.simulate(forSim,plan,{minimumsOnly:true,start:m});
   const total=rows.reduce((n,r)=>n+r.now,0),startTotal=rows.reduce((n,r)=>n+Math.max(r.start,r.now),0);
-  const interestNow=forSim.reduce((n,d)=>n+Debt.interestOn(d.balance,Debt.aprIn(d,m)),0);
-  memo={key,v:{rows,forSim,plan,sim,minOnly,mins,total,startTotal,paidOff:Math.max(0,startTotal-total),interestNow,month:m}};return memo.v;}
+  const interestNow=rows.reduce((n,r)=>n+Debt.interestOn(r.startMonth,Debt.aprIn(r.d,m)),0),planTotal=rows.filter(r=>!r.hold).reduce((n,r)=>n+r.now,0);
+  memo={key,v:{rows,forSim,held,planTotal,plan,sim,minOnly,mins,total,startTotal,paidOff:Math.max(0,startTotal-total),interestNow,month:m}};return memo.v;}
  const planned=(M,id)=>M.sim.months[0]?.debts[id]?.paid||0;
 
  // ---------- dashboard ----------
@@ -6219,7 +6225,7 @@ const Debts=(()=>{
   const next=M.rows.filter(r=>r.d.due&&r.now>0).map(r=>{const t=today(),day=String(Math.min(r.d.due,Budget.days(thisMonth()))).padStart(2,'0');let date=thisMonth()+'-'+day;if(date<t||r.paidMonth>=planned(M,r.d.id)&&planned(M,r.d.id)>0)date=Debt.addMonths(thisMonth(),1)+'-'+String(Math.min(r.d.due,28)).padStart(2,'0');return {r,date};}).sort((a,b)=>a.date.localeCompare(b.date))[0];
   const freeTxt=S.never?'Not yet':monthName(free);
   const hero=`<section class="hero debt-hero${chartWidth<900?' hero-stack':''}"><div><div class="eyebrow">${S.never?'Your plan doesn’t clear the debt yet':'Debt free in'}</div><h2 class="hero-big" style="--n:${freeTxt.length+1}">${esc(freeTxt)}</h2><p>${S.never?'At this budget the balances grow faster than they fall. Raise the monthly budget on the Payoff plan.':`${span(left)} from now, ${state.debtPlan.budget?`paying ${fmt(M.plan.budget)} a month with the ${esc(Debt.STRATEGIES.find(s=>s[0]===M.plan.strategy)?.[1]||'')} method`:`paying only the minimums (${fmt(M.mins)} a month)`}.`}</p>
-   <div class="debt-progress" role="img" aria-label="${pct}% of your debt paid off"><i style="width:${pct}%"></i></div><small class="hero-note">${pct}% paid off since you started · ${fmt(M.paidOff)} of ${fmt(M.startTotal)}</small><div class="hero-foot">${state.debtPlan.budget?button('See the plan →','go-plan','pop small'):button('Set my monthly budget','budget-prompt','pop small')}${button('Log a payment','debt-pay','quiet small')}</div></div>`+
+   <div class="debt-progress" role="img" aria-label="${pct}% of your debt paid off"><i style="width:${pct}%"></i></div><small class="hero-note">${pct}% paid off since you started · ${fmt(M.paidOff)} of ${fmt(M.startTotal)}${M.held.length?` · ${fmt(M.held.reduce((n,r)=>n+r.now,0))} on hold, not in this date`:''}</small><div class="hero-foot">${state.debtPlan.budget?button('See the plan →','go-plan','pop small'):button('Set my monthly budget','budget-prompt','pop small')}${button('Log a payment','debt-pay','quiet small')}</div></div>`+
    `<div class="hero-side">${heroDonut(M)}</div></section>`;
   const saved=M.minOnly.never?null:M.minOnly.totalInterest-S.totalInterest;
   const kp=`<div class="kpis kpis-lead">${kpi('Total owed',M.total,`${plural(M.rows.filter(r=>r.now>0).length,'debt')} · ${pctTxt(avgApr(M))} average rate`,'tags')}${kpi('Paid off so far',M.paidOff,`${pct}% of what you owed`,'check','pos')}${kpi('Interest this month',M.interestNow,'What your debt costs you now','spark','warn')}${kpi('Interest left to pay',S.totalInterest,saved!==null&&saved>0?`${fmt(saved)} saved vs minimums`:'On this plan','coins')}</div>`;
@@ -6247,19 +6253,19 @@ const Debts=(()=>{
    `<text x="${cx}" y="${cy-8}" text-anchor="middle" class="hd-mid-l">Total owed</text><text x="${cx}" y="${cy+14}" text-anchor="middle" class="hd-mid-v" ${small?'style="font-size:16px"':''}>${esc(fmt(M.total))}</text><text x="${cx}" y="${cy+31}" text-anchor="middle" class="hd-mid-l">${list.length} ${list.length===1?'debt':'debts'}</text></svg></div>`;}
  const avgApr=M=>{const t=M.rows.reduce((n,r)=>n+r.now,0);return t?Math.round(M.rows.reduce((n,r)=>n+r.now*Debt.aprIn(r.d,M.month),0)/t):0;};
 
- function warningsCard(M){const W=Debt.warnings(M.forSim,M.month);if(M.sim.shortfall)W.unshift({kind:'short',amount:M.sim.shortfall});if(!W.length)return '';
-  const line=w=>{const d=debt(w.debt);return w.kind==='short'?['Your budget is below the minimums',`The minimums add up to ${fmt(M.mins)} this month: ${fmt(w.amount)} more than your plan. Missing a minimum brings fees and can hurt your credit.`]
+ function warningsCard(M){const W=Debt.warnings(M.forSim,M.month);if(M.sim.shortfall)W.unshift({kind:'short',amount:M.sim.shortfall});M.held.forEach(r=>W.push({kind:'hold',debt:r.d.id,interest:Debt.interestOn(r.now,Debt.aprIn(r.d,M.month))}));if(!W.length)return '';
+  const line=w=>{const d=debt(w.debt);return w.kind==='hold'?[`${esc(d.name)} is ${statusOf(d)[1].toLowerCase()}`,`${fmt(Debt.balanceNow(d,state.debtLog||[],today()).balance)} isn’t in your payoff plan or your debt-free date.${w.interest?` It still adds about ${fmt(w.interest)} of interest a month.`:''} Set it back to Active when you start paying it.`]:w.kind==='short'?['Your budget is below the minimums',`The minimums add up to ${fmt(M.mins)} this month: ${fmt(w.amount)} more than your plan. Missing a minimum brings fees and can hurt your credit.`]
    :w.kind==='growing'?[`${esc(d.name)} is growing`,`Its minimum (${fmt(w.min)}) doesn’t cover the ${fmt(w.interest)} of interest it gains each month. Pay more on it, or ask the lender about a hardship plan.`]
    :w.kind==='promo-ending'?[`${esc(d.name)}: promotional rate ends ${monthName(w.until)}`,`After that it charges ${pctTxt(w.after)}. Clearing it first, or moving it, saves that interest.`]
    :[`${esc(d.name)} is ${w.util}% used`,'Cards close to their limit weigh on a credit score. The <b>Credit score</b> strategy pays these down first.'];};
   return `<section class="card debt-warn"><div class="cardhead"><div><h2>Worth knowing</h2><p>From your debts and your plan.</p></div></div>${W.map(w=>{const [h,p]=line(w);return `<div class="row warn-row"><span><b>${h}</b><small>${p}</small></span></div>`;}).join('')}</section>`;}
 
- function thisMonthCard(M){const rows=M.rows.filter(r=>r.startMonth>0||r.paidMonth>0);const due=rows.reduce((n,r)=>n+Math.max(0,planned(M,r.d.id)-r.paidMonth),0);
+ function thisMonthCard(M){const rows=M.rows.filter(r=>!r.hold&&(r.startMonth>0||r.paidMonth>0));const due=rows.reduce((n,r)=>n+Math.max(0,planned(M,r.d.id)-r.paidMonth),0);
   return `<section class="card"><div class="cardhead"><div><h2>Pay this month</h2><p>${monthName(M.month)} · what your plan sends to each debt</p></div>${due?button('Log all as paid','debt-pay-all','small primary'):`<span class="pill pos">All paid ✓</span>`}</div>${rows.map(r=>{const p=planned(M,r.d.id),done=p>0&&r.paidMonth>=p,left=Math.max(0,p-r.paidMonth),extra=p-(M.sim.months[0]?.debts[r.d.id]?.min||0);
    return `<div class="row pay-row"><span>${dot(r.d)}<b>${esc(r.d.name)}</b><small>${r.d.due?`Due on the ${ordinal(r.d.due)} · `:''}${extra>0?`minimum + ${fmt(extra)} extra`:'minimum'}${r.paidMonth?` · ${fmt(r.paidMonth)} logged`:''}</small></span><span class="pay-amt"><strong class="number">${fmt(p)}</strong>${done?'<span class="pill pos">Paid ✓</span>':button(r.paidMonth?`Log ${fmt(left)}`:'Log','debt-pay','small',`data-id="${r.d.id}" data-amount="${left}"`)}</span></div>`;}).join('')}<div class="row total-row"><span><b>Total this month</b></span><strong class="number">${fmt(rows.reduce((n,r)=>n+planned(M,r.d.id),0))}</strong></div></section>`;}
  const ordinal=n=>n+(n%10===1&&n!==11?'st':n%10===2&&n!==12?'nd':n%10===3&&n!==13?'rd':'th');
 
- function nextUpCard(M){const first=M.sim.months[0]?.debts||{},rows=M.rows.filter(r=>r.now>0),order=[...rows].sort((a,b)=>(M.sim.payoff[a.d.id]||'9999').localeCompare(M.sim.payoff[b.d.id]||'9999'));
+ function nextUpCard(M){const first=M.sim.months[0]?.debts||{},rows=M.rows.filter(r=>r.now>0&&!r.hold),order=[...rows].sort((a,b)=>(M.sim.payoff[a.d.id]||'9999').localeCompare(M.sim.payoff[b.d.id]||'9999'));
   const r=rows.find(x=>first[x.d.id]&&first[x.d.id].paid>first[x.d.id].min)||order[0];
   if(!r)return `<section class="card">${empty('Every debt is paid off','Nothing left to aim at. Well done.')}</section>`;
   const p=r.start?Math.min(100,Math.max(0,Math.round((r.start-r.now)/r.start*100))):0,off=M.sim.payoff[r.d.id],pay=first[r.d.id]?.paid||0,extra=pay-(first[r.d.id]?.min||0),after=order.filter(x=>x!==r).slice(0,3),c=colorOf(r.d);
@@ -6273,7 +6279,7 @@ const Debts=(()=>{
    return `<div class="budget-row"><div class="row"><span>${dot(r.d)}<b>${esc(r.d.name)}</b> <small class="dim">${pctTxt(Debt.aprIn(r.d,M.month))}</small></span><span class="number"><b>${fmt(r.now)}</b> <span class="dim">· ${r.now<=0?'paid off 🎉':off?'clear by '+monthShort(off):'not cleared'}</span></span></div><div class="meter"><i style="width:${p}%;background:${colorOf(r.d)}"></i></div><small class="dim">${p}% paid off</small></div>`;}).join('')}</section>`;}
 
  // balance over time: what happened (your logged payments) and what's ahead (the plan, and minimums only)
- function history(M,months){return months.map(m=>{const end=m===M.month?today():Budget.endOf(m);return M.rows.reduce((n,r)=>n+(r.d.since&&r.d.since.slice(0,7)>m?0:Debt.balanceNow(r.d,state.debtLog||[],end).balance),0);});}
+ function history(M,months,rows=M.rows){return months.map(m=>{const end=m===M.month?today():Budget.endOf(m);return rows.reduce((n,r)=>n+(r.d.since&&r.d.since.slice(0,7)>m?0:Debt.balanceNow(r.d,state.debtLog||[],end).balance),0);});}
  function minimumsCard(M){const P=M.sim,Mo=M.minOnly;
   return `<section class="card"><div class="cardhead"><div><h2>Why not just the minimums?</h2><p>The same debts, paying only what each lender asks</p></div></div>
    <div class="row"><span>Minimums only</span><b class="number warn">${Mo.never?'Never paid off':`${monthShort(Mo.freeMonth)} · ${span(Mo.count)}`}</b></div><div class="row"><span>Interest on minimums only</span><b class="number warn">${Mo.never?'Keeps growing':fmt(Mo.totalInterest)}</b></div>
@@ -6294,7 +6300,7 @@ const Debts=(()=>{
   const cards=M.rows.filter(r=>r.d.kind==='card'&&r.d.limit),lim=cards.reduce((n,r)=>n+r.d.limit,0),cardBal=cards.reduce((n,r)=>n+r.now,0);
   const kp=`<div class="kpis">${kpi('Total owed',M.total,plural(M.rows.length,'debt'),'tags')}${kpi('Minimums this month',M.mins,'What lenders require','calendar')}${kpi('Interest this month',M.interestNow,`${pctTxt(avgApr(M))} average rate`,'spark','warn')}${lim?`<div class="kpi"><div class="label">${kpiIco('shield')}Card utilization</div><b class="${cardBal/lim>0.3?'warn':''}">${Math.round(cardBal/lim*100)}%</b><small>${fmt(cardBal)} of ${fmt(lim)} limits · under 30% is best</small></div>`:kpi('Paid off so far',M.paidOff,'Since you started','check','pos')}</div>`;
   const table=`<section class="card table-card"><div class="table-wrap"><table class="debt-table"><thead><tr><th>Debt</th><th>Category</th><th class="num">Balance</th><th class="num">Rate</th><th class="num">Minimum</th><th class="num">Due</th><th>Cleared by</th><th class="num">Paid off</th><th class="num">Actions</th></tr></thead><tbody>${M.rows.map(r=>{const p=r.start?Math.max(0,Math.round((r.start-r.now)/r.start*100)):0,off=M.sim.payoff[r.d.id];
-   return `<tr><td><button class="link" data-action="debt-edit" data-id="${r.d.id}">${dot(r.d)}${esc(r.d.name)}</button>${r.d.lender?`<small class="dim">${esc(r.d.lender)}</small>`:''}</td><td>${kindName(r.d.kind)}</td><td class="num">${fmt(r.now)}${r.util!==null?`<small class="${r.util>=90?'warn':'dim'}">${r.util}% of limit</small>`:''}</td><td class="num">${pctTxt(r.d.apr)}${r.d.promo?`<small class="dim">${pctTxt(r.d.promo.apr)} until ${monthShort(r.d.promo.until)}</small>`:''}</td><td class="num">${fmt(r.d.min)}${r.d.minMode==='card'?'<small class="dim">or 1% + interest</small>':''}</td><td class="num">${r.d.due?ordinal(r.d.due):'—'}</td><td>${r.now<=0?'Paid off 🎉':off?monthShort(off):'—'}</td><td class="num">${p}%</td><td class="num nw"><div class="row-acts">${debtIcons(r.d)}${button('Balance','debt-bal','small quiet',`data-id="${r.d.id}"`)}${button('Pay','debt-pay','small',`data-id="${r.d.id}"`)}</div></td></tr>`;}).join('')}<tr class="tx-total"><td><b>Total</b></td><td></td><td class="num"><b>${fmt(M.total)}</b></td><td class="num">${pctTxt(avgApr(M))}</td><td class="num"><b>${fmt(M.mins)}</b></td><td></td><td></td><td class="num">${M.startTotal?Math.round(M.paidOff/M.startTotal*100):0}%</td><td></td></tr></tbody></table></div></section>`;
+   return `<tr><td><button class="link" data-action="debt-edit" data-id="${r.d.id}">${dot(r.d)}${esc(r.d.name)}</button>${r.d.lender?`<small class="dim">${esc(r.d.lender)}</small>`:''}${statusPill(r.d)?`<small>${statusPill(r.d)}</small>`:''}</td><td>${kindName(r.d.kind)}</td><td class="num">${fmt(r.now)}${r.util!==null?`<small class="${r.util>=90?'warn':'dim'}">${r.util}% of limit</small>`:''}</td><td class="num">${pctTxt(r.d.apr)}${r.d.promo?`<small class="dim">${pctTxt(r.d.promo.apr)} until ${monthShort(r.d.promo.until)}</small>`:''}</td><td class="num">${fmt(r.d.min)}${r.d.minMode==='card'?'<small class="dim">or 1% + interest</small>':''}</td><td class="num">${r.d.due?ordinal(r.d.due):'—'}</td><td>${r.now<=0?'Paid off 🎉':r.hold?'On hold':off?monthShort(off):'—'}</td><td class="num">${p}%</td><td class="num nw"><div class="row-acts">${debtIcons(r.d)}${button('Balance','debt-bal','small quiet',`data-id="${r.d.id}"`)}${button('Pay','debt-pay','small',`data-id="${r.d.id}"`)}</div></td></tr>`;}).join('')}<tr class="tx-total"><td><b>Total</b></td><td></td><td class="num"><b>${fmt(M.total)}</b></td><td class="num">${pctTxt(avgApr(M))}</td><td class="num"><b>${fmt(M.mins)}</b></td><td></td><td></td><td class="num">${M.startTotal?Math.round(M.paidOff/M.startTotal*100):0}%</td><td></td></tr></tbody></table></div></section>`;
   const view=grid?debtGrid(M):table;
   const parts=(f,lab)=>M.rows.filter(r=>f(r)>0).sort((a,b)=>f(b)-f(a)).map(r=>[r.d.name,f(r),colorOf(r.d),'',null]);
   const owe=parts(r=>r.now),cost=M.forSim.filter(d=>d.balance>0).map(d=>[d.name,Debt.interestOn(d.balance,Debt.aprIn(d,M.month)),colorOf(debt(d.id)),'',null]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
@@ -6313,17 +6319,18 @@ const Debts=(()=>{
   const order=[...list].sort((a,b)=>(a.now<=0)-(b.now<=0)||(M.sim.payoff[a.d.id]||'9999').localeCompare(M.sim.payoff[b.d.id]||'9999'));
   return `<div class="debt-grid">${order.map((r,i)=>{const d=r.d,start=Math.max(r.start,r.now),down=Math.max(0,start-r.now),p=start?Math.min(100,Math.round(down/start*100)):0,off=M.sim.payoff[d.id],c=colorOf(d),w=W.find(x=>x.debt===d.id);
    const focus=first[d.id]&&first[d.id].paid>first[d.id].min;
-   const status=r.now<=0?['Paid off 🎉','pos']:w?.kind==='growing'?['Growing','warn']:w?.kind==='promo-ending'?['Promo ending','warn']:focus?['Focus: extra goes here','accent']:['In progress',''];
+   const status=r.now<=0?['Paid off 🎉','pos']:d.status&&d.status!=='active'?[statusOf(d)[1],d.status==='collections'||d.status==='disputed'?'warn':d.status==='hardship'?'accent':'']:w?.kind==='growing'?['Growing','warn']:w?.kind==='promo-ending'?['Promo ending','warn']:focus?['Focus: extra goes here','accent']:['In progress',''];
    const row=(l,v,cls='')=>`<div class="dg-row ${cls}"><span>${l}</span><b>${v}</b></div>`;
-   return `<section class="debt-card" style="--c:${c}"><header class="dg-head"><button class="dg-name" data-action="debt-edit" data-id="${d.id}" title="Edit ${esc(d.name)}">${esc(d.name)}</button><small>${esc(d.lender||kindName(d.kind))}</small></header>`+
+   return `<section class="debt-card${r.hold?' is-hold':''}" style="--c:${c}"><header class="dg-head"><button class="dg-name" data-action="debt-edit" data-id="${d.id}" title="Edit ${esc(d.name)}">${esc(d.name)}</button><small>${esc(d.lender||kindName(d.kind))}</small></header>`+
     `<div class="dg-ring" role="img" aria-label="${p}% of ${esc(d.name)} paid off"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" class="dg-track"/><circle cx="60" cy="60" r="${R}" class="dg-arc" stroke-dasharray="${(p/100*C).toFixed(1)} ${C.toFixed(1)}" style="animation-delay:${i*60}ms"/></svg><div class="dg-mid"><strong>${p}%</strong><span>paid off</span></div></div>`+
-    `<div class="dg-rows">${row('Starting balance',fmt(start))}${row('Interest rate',pctTxt(Debt.aprIn(d,M.month))+(d.promo&&Debt.aprIn(d,M.month)!==d.apr?` <small>then ${pctTxt(d.apr)}</small>`:''))}${row(d.minMode==='card'?'Minimum this month':'Minimum payment',fmt(first[d.id]?.min??d.min)+(d.minMode==='card'?' <small>1% + interest</small>':''))}${row('Paid down',fmt(down),'dg-hi')}${row('Remaining balance',fmt(r.now))}${row('Cleared by',r.now<=0?'Done':off?monthShort(off):'Not on this plan')}${row('Status',`<span class="pill ${status[1]}">${status[0]}</span>`)}</div>`+
+    `<div class="dg-rows">${row('Starting balance',fmt(start))}${row('Interest rate',pctTxt(Debt.aprIn(d,M.month))+(d.promo&&Debt.aprIn(d,M.month)!==d.apr?` <small>then ${pctTxt(d.apr)}</small>`:''))}${row(d.minMode==='card'?'Minimum this month':'Minimum payment',fmt(first[d.id]?.min??d.min)+(d.minMode==='card'?' <small>1% + interest</small>':''))}${row('Paid down',fmt(down),'dg-hi')}${row('Remaining balance',fmt(r.now))}${row('Cleared by',r.now<=0?'Done':r.hold?'On hold: not in the plan':off?monthShort(off):'Not on this plan')}${row('Status',`<span class="pill ${status[1]}">${status[0]}</span>`)}</div>`+
     `<div class="dg-actions no-print"><div class="row-acts">${debtIcons(d)}</div><div class="row-acts">${button('Balance','debt-bal','small quiet',`data-id="${d.id}"`)}${button('Pay','debt-pay','small',`data-id="${d.id}"`)}</div></div></section>`;}).join('')}</div>`;}
  function debtForm(id='',pre={}){const d=debt(id)||{kind:'card',minMode:'card',...pre},num=v=>v!==undefined&&v!==null&&v!==''?(v/100).toFixed(2):'';
   modal(id?`Edit ${esc(d.name)}`:'Add a debt','Use your latest statement. You can change anything later.',`<form id="debt-form" data-id="${id}"><div class="fields">
    <label class="full">Name<input name="name" required maxlength="60" value="${esc(d.name||'')}" placeholder="e.g. Visa card, Car loan"></label>
    <label>Category<select name="kind">${kinds().filter(k=>!k.hidden||k.id===d.kind).map(k=>`<option value="${k.id}" ${d.kind===k.id?'selected':''}>${esc(k.name)}</option>`).join('')}</select></label>
    <label>Lender (optional)<input name="lender" maxlength="60" value="${esc(d.lender||'')}" placeholder="e.g. Chase"></label>
+   <label class="full">Status<select name="status">${STATUS.map(([k,l,why])=>`<option value="${k}" ${(d.status||'active')===k?'selected':''}>${l} · ${why}</option>`).join('')}</select><small>Paused, collections and dispute stay in your totals but come out of the payoff plan and the monthly payments.</small></label>
    <label>Balance today<input name="balance" inputmode="decimal" required value="${id?num(Debt.balanceNow(d,state.debtLog||[],today()).balance):pre.balance?num(pre.balance):''}" placeholder="0.00"></label>
    <label>Interest rate (APR %)<input name="apr" inputmode="decimal" required value="${d.apr!==undefined?(d.apr/100):''}" placeholder="e.g. 24.99"></label>
    <label class="full">Original balance (optional)<input name="start" inputmode="decimal" value="${num(d.start)}" placeholder="What you owed when you took it on"><small>Your progress counts from here. Leave empty to count from today’s balance.</small></label>
@@ -6356,7 +6363,7 @@ const Debts=(()=>{
     const balance=cents(F.get('balance'));if(balance===null)throw Error('Enter the balance from your latest statement.');const apr=aprOf(F.get('apr'));if(apr===null)throw Error('Enter the interest rate. Use 0 for an interest-free debt.');
     const min=cents(F.get('min'))??0,limit=cents(F.get('limit')),start=cents(F.get('start')),due=+F.get('due')||0,pApr=aprOf(F.get('promoApr')),pUntil=String(F.get('promoUntil')||'');
     if(due&&(due<1||due>31))throw Error('The due day is a day of the month, 1 to 31.');
-    const old=debt(id),v={name,kind:F.get('kind'),lender:String(F.get('lender')||'').trim().slice(0,60)||undefined,apr,min,minMode:F.get('minMode')==='card'?'card':'fixed',...(due?{due}:{}),...(limit?{limit}:{}),...(pApr!==null&&/^\d{4}-\d{2}$/.test(pUntil)?{promo:{apr:pApr,until:pUntil}}:{}),note:String(F.get('note')||'').trim().slice(0,200)||undefined};
+    const old=debt(id),st=String(F.get('status')||'active'),v={name,kind:F.get('kind'),status:STATUS.some(x=>x[0]===st)&&st!=='active'?st:undefined,lender:String(F.get('lender')||'').trim().slice(0,60)||undefined,apr,min,minMode:F.get('minMode')==='card'?'card':'fixed',...(due?{due}:{}),...(limit?{limit}:{}),...(pApr!==null&&/^\d{4}-\d{2}$/.test(pUntil)?{promo:{apr:pApr,until:pUntil}}:{}),note:String(F.get('note')||'').trim().slice(0,200)||undefined};
     closeModal();let newId='';
     commit(()=>{state.debts??=[];state.debtLog??=[];
      if(old){const nowB=Debt.balanceNow(old,state.debtLog,today()).balance;Object.keys(v).forEach(k=>{if(v[k]===undefined)delete old[k];});['due','limit','promo'].forEach(k=>{if(!(k in v))delete old[k];});Object.assign(old,Object.fromEntries(Object.entries(v).filter(([,x])=>x!==undefined)));
@@ -6422,7 +6429,7 @@ const Debts=(()=>{
   const labels=[...past,...Array.from({length:n},(_,i)=>Debt.addMonths(M.month,i))],P0=past.length,N=labels.length;
   const line=r=>{const by=new Map(r.months.map(x=>[x.month,x.balance]));let last=startBal;return labels.map((m,i)=>{if(i<P0-1)return null;if(i===P0-1)return startBal;if(by.has(m)){last=by.get(m);return last;}return r.never?last:0;});};
   const series=ids.map(id=>({id,name:single&&id===cur?'Your plan':sName(id),color:SC[id],values:line(C[id]),r:C[id]}));
-  if(hasPast){const h=history(M,past);series.unshift({id:'past',name:'So far',color:SC.past,values:labels.map((m,i)=>i<P0?h[i]:i===P0?M.total:null)});}
+  if(hasPast){const h=history(M,past,M.rows.filter(r=>!r.hold));series.unshift({id:'past',name:'So far',color:SC.past,values:labels.map((m,i)=>i<P0?h[i]:i===P0?M.planTotal:null)});}
   // which lines show: remembered per chart; a newly picked strategy always shows
   const st=dlShow[o.key]||(dlShow[o.key]={on:new Set(o.show),cur});if(st.cur!==cur){st.on.add(cur);st.cur=cur;}
   const all=series.flatMap(s=>s.values.filter(Number.isFinite)),{max,ticks}=niceScale(0,Math.max(1,...all));
@@ -6628,7 +6635,7 @@ const Debts=(()=>{
   return head+grid+`<div class="grid2 equal">${per}${milestonesCard(M)}</div>`+chart;}
 
  // ---------- due dates: a month of due days ----------
- function dueView(){const M=model(),m=selected,days=Budget.days(m),off=(new Date(m+'-01T12:00:00').getDay()+6)%7,rows=M.rows.filter(r=>r.d.due&&(r.now>0||r.paidMonth));
+ function dueView(){const M=model(),m=selected,days=Budget.days(m),off=(new Date(m+'-01T12:00:00').getDay()+6)%7,rows=M.rows.filter(r=>!r.hold&&r.d.due&&(r.now>0||r.paidMonth));
   const head=pagehead(monthName(m),'Due dates','When each payment is due, what the plan sends, and what you’ve logged.',`<div class="due-nav">${button('‹','due-prev','quiet',`aria-label="Previous month"`)}<b>${monthName(m)}</b>${button('›','due-next','quiet',`aria-label="Next month"`)}${m!==thisMonth()?button('This month','due-now','small'):''}</div>`);
   if(!rows.length)return head+`<section class="card">${empty('No due days yet','Add a due day to each debt (edit it on My debts) to see them here.','go-debts','My debts')}</section>`;
   const planM=M.sim.months.find(x=>x.month===m),paid=id=>(state.debtLog||[]).filter(e=>e.debt===id&&e.kind==='payment'&&e.date.startsWith(m)).reduce((n,e)=>n+e.amount,0);
