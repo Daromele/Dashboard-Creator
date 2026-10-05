@@ -1,7 +1,7 @@
 {
  "product": "Recipe Library Studio",
  "footer": "Recipe Library Studio · JPS Digital Pages",
- "images_dir": "shots-user",
+ "images_dir": "shots-photos",
  "output": "Recipe_Library_Studio_Etsy_Mockups_Your_Recipes.html",
  "storage_prefix": "rls-user-img:",
  "brand": {
@@ -23,8 +23,8 @@
     "Plan the week",
     "Print a recipe book"
    ],
-   "image": "tab-dashboard.jpg",
-   "alt": "Recipe Library Studio kitchen dashboard"
+   "image": "tab-library.jpg",
+   "alt": "Recipe library full of saved recipes"
   },
   {
    "dark": false,
@@ -148,9 +148,9 @@
    "label": "Kitchen insights",
    "eyebrow": "Your kitchen",
    "headline": "See what you really cook.",
-   "sub": "Most-made recipes, meals cooked by month and what’s in your library.",
-   "image": "tab-insights.jpg",
-   "foot": "Click a category to open those recipes"
+   "sub": "Most-made recipes, what’s still to try and meals planned this week.",
+   "image": "tab-dashboard.jpg",
+   "foot": "Your kitchen at a glance"
   },
   {
    "dark": false,
