@@ -1,0 +1,24 @@
+/* Payday edition extras: only what the engine's kit doesn't already draw */
+.pp-start .pp-start-title{font-family:var(--num);font-size:clamp(34px,5vw,58px);line-height:1.02;letter-spacing:-.035em;margin:var(--s3) 0 var(--s3);color:var(--on-bold)}
+.pp-step{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #ffffff1f}
+.pp-step:last-child{border-bottom:0}
+.pp-step-n{font:700 11px var(--num);letter-spacing:.14em;color:var(--pop)}
+.pp-step b{display:block;color:var(--on-bold);font-size:14px}.pp-step small{color:var(--on-bold-dim);font-size:12px}
+.pp-step svg{width:20px;height:20px;color:var(--on-bold-dim)}
+.pp-inline{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.pp-inline:hover{color:var(--pop)}
+.pp-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--rule)}
+.pp-row:last-child{border-bottom:0}
+.pp-row strong{display:block}.pp-row small{display:block;font-size:12px}
+.pp-row small.warn{color:var(--over)}
+.pp-whatif{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-top:var(--s4);padding-top:var(--s4);border-top:1px solid var(--rule);font-size:13px}
+.pp-whatif label{display:inline-flex;gap:8px;align-items:center;color:var(--ink-2)}
+.pp-whatif select{width:auto}
+.pp-billrow{grid-template-columns:1.4fr 1fr 1fr}
+.pp-billrow label{margin-bottom:0}
+.pp-answer{min-height:22px;margin:var(--s3) 0 0;font-size:14px;line-height:1.5}
+.pp-answer .good{color:var(--ok)}.pp-answer .bad{color:var(--over)}.pp-answer .warn{color:var(--flag)}
+@media(max-width:700px){.pp-billrow{grid-template-columns:1fr 1fr}.pp-billrow label:first-child{grid-column:1/-1}}
+
+/* paydays, not months: the month switch only matters on the month screens */
+body[data-screen=dashboard] .month-control,body[data-screen=dashboard] .month-tabs,body[data-screen=outlook] .month-control,body[data-screen=outlook] .month-tabs{display:none!important}
