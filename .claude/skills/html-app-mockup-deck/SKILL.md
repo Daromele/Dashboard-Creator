@@ -46,6 +46,19 @@ This skill produces `<Product>_Etsy_Mockups.html`: one scrollable page of 1500×
    - `node scripts/video_capture.js video.json`, then `node scripts/render_video.js video.json --frames 30,120,…`
      to look at stills, then without `--frames` for the MP4 (needs `pip install imageio-ffmpeg` if no ffmpeg).
 
+9. **Make the vertical social video** (TikTok, Reels, Shorts, Pinterest: 1080×1920, about 17 s, with sound):
+   - `social.json` (examples in `monthly-plan/listing/*/social.json`): its own `captures` with `shots_dir: "sshots"`,
+     adding targets for small regions, because a phone shows a crop, not the whole screen. Scenes: `hook` (a question or
+     "stop doing X" in 2–5 words), 4 `crop` scenes, `end` (product, one line, "Instant download on Etsy").
+   - `crop` scenes: a `camera` that frames one card or number (union several targets with an array, take part of one
+     with `sub`), panning to a second region near the end; captions with `*highlight*`; stickers announcing what
+     changed ("May 2028!"); cursor clicks on real buttons. Alternate `light` scenes for rhythm.
+   - Keep text out of the bottom 380 px and the right 120 px (the apps' buttons and captions cover them).
+   - Sound comes from `make_audio.py`: a synthesized beat plus click, whoosh, pop, ding, sparkle, thud, riser and
+     cash sounds placed from the scene events. Nothing to license. Loudness lands near −16 dB mean, −1 dB peak.
+   - `node scripts/video_capture.js social.json`, `node scripts/render_social.js social.json --frames …` to check
+     stills, then without `--frames`. Needs `pip install numpy imageio-ffmpeg`.
+
 ## Tweaking the layout
 
 All styling is in `assets/deck.css`. Key knobs: `.slide` padding `54px 50px 26px`, `.sub` `max-width:60ch`, `.shot` `flex:1 1 0` / radius 4px / `z-index:1` over the absolute `.foot`, and `.looks` grid `margin:30px 0 44px`. When changing the layout, re-run geom and swaptest, and update the swaptest expectations if you deliberately change the gutters or radius.

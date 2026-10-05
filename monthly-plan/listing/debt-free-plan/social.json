@@ -1,0 +1,307 @@
+{
+ "app": "../../app/DebtFreePlan.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "shots_dir": "sshots",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "hero": "#content .debt-hero",
+    "date": "#content .debt-hero > div:first-child"
+   }
+  },
+  {
+   "name": "plan0",
+   "view": "plan",
+   "targets": {
+    "plus": "#content button[data-action=\"plan-bump\"]:has-text(\"+$250\")",
+    "snow": "#content .plan-deck button[data-action=\"plan-strategy\"]:has-text(\"Snowball\")",
+    "kpis": "#content .big-kpis",
+    "num": "#content .plan-deck input >> nth=1",
+    "k1": "#content .big-kpis > :first-child",
+    "k2": "#content .big-kpis > :nth-child(2)"
+   }
+  },
+  {
+   "name": "plan1",
+   "click": [
+    "#content button[data-action=\"plan-bump\"]:has-text(\"+$250\")"
+   ]
+  },
+  {
+   "name": "plan2",
+   "click": [
+    "#content button[data-action=\"plan-bump\"]:has-text(\"+$250\")"
+   ]
+  },
+  {
+   "name": "plan3",
+   "click": [
+    "#content button[data-action=\"plan-bump\"]:has-text(\"+$250\")"
+   ]
+  },
+  {
+   "name": "debts",
+   "view": "debts",
+   "targets": {
+    "kpis": "#content .kpis",
+    "c1": "#content .debt-grid > :nth-child(1)",
+    "c2": "#content .debt-grid > :nth-child(2)",
+    "c3": "#content .debt-grid > :nth-child(3)",
+    "c4": "#content .debt-grid > :nth-child(4)"
+   }
+  },
+  {
+   "name": "progress",
+   "view": "progress",
+   "targets": {
+    "chart": "#content .color-card",
+    "each": "#content .grid2.equal > :first-child"
+   }
+  }
+ ],
+ "output": "Debt_Free_Plan_Social.mp4",
+ "fps": 30,
+ "bpm": 104,
+ "music": 0.5,
+ "brand": {
+  "ink": "#17302A",
+  "bold": "#1F4A3E",
+  "pop": "#F2B441",
+  "paper": "#FAFAF8",
+  "calm": "#2F5D50"
+ },
+ "scenes": [
+  {
+   "type": "hook",
+   "dur": 2.0,
+   "text": "When will I be<br>*debt free?*",
+   "image": "dash"
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "captions": [
+    {
+     "t": 0,
+     "text": "It shows the *exact month*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "dash",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "dash.date",
+     "pad": 0.02
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.2,
+     "text": "No spreadsheet",
+     "x": 760,
+     "y": 1470,
+     "rot": 6,
+     "style": "white"
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 4.8,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Pay *$250 more* a month\u2026"
+    },
+    {
+     "t": 3.1,
+     "text": "\u2026debt free *10 months sooner*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "plan0",
+     "at": 0
+    },
+    {
+     "img": "plan1",
+     "at": 1.15
+    },
+    {
+     "img": "plan2",
+     "at": 1.95
+    },
+    {
+     "img": "plan3",
+     "at": 2.75
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": [
+      "plan0.num",
+      "plan0.plus"
+     ],
+     "pad": 0.02
+    },
+    {
+     "t": 3.4,
+     "target": [
+      "plan0.k1",
+      "plan0.k2"
+     ],
+     "pad": 0.015,
+     "move": 0.5
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.05,
+     "target": "plan0.plus",
+     "click": true
+    },
+    {
+     "t": 1.85,
+     "target": "plan0.plus",
+     "click": true
+    },
+    {
+     "t": 2.65,
+     "target": "plan0.plus",
+     "click": true
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.2,
+     "text": "Oct 2028",
+     "x": 330,
+     "y": 1440,
+     "rot": -5,
+     "until": 1.75
+    },
+    {
+     "t": 2.0,
+     "text": "Jul 2028",
+     "x": 720,
+     "y": 1450,
+     "rot": 5,
+     "until": 2.55
+    },
+    {
+     "t": 2.8,
+     "text": "May 2028!",
+     "x": 540,
+     "y": 1450,
+     "rot": -3
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Every debt *in one place*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "debts",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": [
+      "debts.c1",
+      "debts.c2"
+     ],
+     "pad": 0.012
+    },
+    {
+     "t": 2.1,
+     "target": [
+      "debts.c3",
+      "debts.c4"
+     ],
+     "pad": 0.012,
+     "move": 1.2
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Color in your *way out*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "progress",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "progress.chart",
+     "sub": [
+      0,
+      0,
+      0.5,
+      1
+     ],
+     "pad": 0.012
+    },
+    {
+     "t": 2.2,
+     "target": "progress.each",
+     "pad": 0.012,
+     "move": 1.0
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.0,
+     "text": "Print it for the fridge",
+     "x": 560,
+     "y": 1470,
+     "rot": -4,
+     "style": "white"
+    }
+   ]
+  },
+  {
+   "type": "end",
+   "dur": 3.0,
+   "headline": "Debt Free Plan",
+   "sub": "Your debt-free date, in one file.<br>No subscription.",
+   "cta": "Instant download on Etsy",
+   "by": "JPS Digital Pages",
+   "themes": [
+    "shots/theme-sage.jpg",
+    "shots/theme-midnight.jpg",
+    "shots/theme-lavender.jpg",
+    "shots/theme-night.jpg"
+   ]
+  }
+ ]
+}
