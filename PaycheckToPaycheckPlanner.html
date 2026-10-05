@@ -22,8 +22,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#183B31">
-<meta name="description" content="Payday Plan — for living paycheck to paycheck: see what is safe to spend until your next payday.">
-<title>Payday Plan</title>
+<meta name="description" content="Paycheck to Paycheck Planner: see what is safe to spend until your next payday.">
+<title>Paycheck to Paycheck Planner</title>
 
 <!-- The tab icon is the brand mark drawn inline, so the app is still a
      single file with nothing to fetch and nothing to lose. -->
@@ -34,10 +34,10 @@
      shared link. Harmless offline. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JPS Digital Pages">
-<meta property="og:title" content="Payday Plan — know what's safe to spend">
+<meta property="og:title" content="Paycheck to Paycheck Planner — know what's safe to spend until payday">
 <meta property="og:description" content="An offline budgeting app in a single file. One calm number, sinking funds for the bills that ambush you, and a forecast that knows what your life actually costs.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Payday Plan — know what's safe to spend">
+<meta name="twitter:title" content="Paycheck to Paycheck Planner — know what's safe to spend until payday">
 <meta name="twitter:description" content="An offline budgeting app in a single file. One calm number, sinking funds, and a forecast that knows what your life actually costs.">
 <meta name="author" content="JPS Digital Pages">
 <style>
@@ -134,7 +134,7 @@ table{border-collapse:collapse;width:100%}
   display:grid;place-items:center;font-family:var(--num);font-weight:800;font-size:.9rem;
 }
 .brand-txt{min-width:0}
-.brand-txt b{display:block;font-family:var(--num);font-weight:700;font-size:.9375rem;letter-spacing:-.01em;color:var(--on-bold)}
+.brand-txt b{display:block;font-family:var(--num);font-weight:700;font-size:.875rem;line-height:1.2;letter-spacing:-.01em;color:var(--on-bold)}
 .brand-txt small{display:block;font-size:.625rem;letter-spacing:.14em;text-transform:uppercase;color:var(--on-bold-dim);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
@@ -1011,7 +1011,7 @@ a.setcard span{color:var(--ink-3)}
   <aside class="rail" id="rail" aria-label="Sections">
     <div class="brand">
       <span class="brand-mark">P</span>
-      <span class="brand-txt"><b>Payday Plan</b><small>JPS Digital Pages</small></span>
+      <span class="brand-txt"><b>Paycheck to Paycheck Planner</b><small>JPS Digital Pages</small></span>
       <button class="ibtn railtoggle" id="railtoggle" aria-label="Collapse sections" aria-expanded="true" aria-controls="rail">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
       </button>
@@ -1025,7 +1025,7 @@ a.setcard span{color:var(--ink-3)}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
         <span class="label">Settings &amp; data</span>
       </button>
-      <p style="margin-top:10px">Payday Plan <span id="ver"></span></p>
+      <p style="margin-top:10px">Paycheck to Paycheck Planner <span id="ver"></span></p>
       <p class="rail-brand" id="rail-brand"></p>
     </div>
   </aside>
@@ -3665,7 +3665,7 @@ function drawSettings(){
         </a>
       </div>
       <p class="field-note" style="margin-top:14px">
-        Payday Plan ${esc(VERSION)} · &copy; ${new Date().getFullYear()} ${esc(BRAND.name)}.
+        Paycheck to Paycheck Planner ${esc(VERSION)} · &copy; ${new Date().getFullYear()} ${esc(BRAND.name)}.
         Licensed for personal use by one buyer. Reselling, redistributing or republishing
         the file is not permitted — the full terms are on the website.</p>
     </div>`;
@@ -4327,7 +4327,7 @@ const SHEETS = {
     openSheet("Your saved plan wouldn't open", `
       <p class="field-note" style="margin:0 0 16px;font-size:.9375rem;color:var(--ink-2)">
         ${loadIssue === "version"
-          ? "It was saved by a different version of Payday Plan."
+          ? "It was saved by a different version of Paycheck to Paycheck Planner."
           : "The saved data on this device is damaged."}
         Nothing has been deleted — the original is still on this device, untouched.</p>
       ${list.length ? `
@@ -4364,7 +4364,7 @@ const SHEETS = {
     if (!canPick()) return;          /* nothing to offer, so don't raise it */
     openSheet("Where should this be kept?", `
       <p class="field-note" style="margin:0 0 14px;font-size:.9375rem;color:var(--ink-2)">
-        Payday Plan keeps your plan in this browser. That disappears if you clear site data,
+        Paycheck to Paycheck Planner keeps your plan in this browser. That disappears if you clear site data,
         switch browser, or lose the device.</p>
       <p class="field-note" style="margin:0 0 16px;font-size:.9375rem;color:var(--ink-2)">
         Pick a file in a folder that syncs — <b>Dropbox, Google Drive, OneDrive, iCloud</b> —
@@ -4404,7 +4404,7 @@ const SHEETS = {
     const list = snapshots().slice().reverse();
     if (!list.length){
       return openSheet("Go back a day", `
-        <p class="field-note" style="margin:0 0 16px">There are no earlier copies yet. Payday Plan keeps one
+        <p class="field-note" style="margin:0 0 16px">There are no earlier copies yet. Paycheck to Paycheck Planner keeps one
           for each of the last four days you opened it.</p>`, () => closeSheet(), { cta:"Close", noFocus:true });
     }
     openSheet("Go back a day", `
@@ -4784,7 +4784,7 @@ const TOUR = [
   {
     art: () => `<span class="figure">Safe to spend</span>`,
     title: "Know what's safe to spend until payday",
-    text: `<p>Payday Plan answers one question: <b>how much can I spend before I next get paid,
+    text: `<p>Paycheck to Paycheck Planner answers one question: <b>how much can I spend before I next get paid,
               without missing a bill?</b></p>
            <p>Three quick questions and you'll see your number. About a minute.</p>`,
     action: () => ({
@@ -5261,7 +5261,7 @@ async function saveAs(text, filename, mime){
     try {
       handle = await window.showSaveFilePicker({
         suggestedName: filename,
-        types: [{ description:"Payday Plan file", accept: { [mime]: [filename.slice(filename.lastIndexOf("."))] } }]
+        types: [{ description:"Paycheck to Paycheck Planner file", accept: { [mime]: [filename.slice(filename.lastIndexOf("."))] } }]
       });
     } catch (err){
       if (err && err.name === "AbortError") return false;          /* user cancelled: do nothing */
@@ -5357,7 +5357,7 @@ const linked = {
     const h = await handleStore.get();
     if (!h) return;
     this.handle = h;
-    this.name = h.name || "payday-plan.json";
+    this.name = h.name || "paycheck-planner.json";
     const perm = await this.permission(false);
     this.state = perm === "granted" ? "linked" : "needs-permission";
     if (tab === "settings") drawSettings();
@@ -5393,8 +5393,8 @@ const linked = {
     let h;
     try {
       h = await window.showSaveFilePicker({
-        suggestedName: "payday-plan.json",
-        types: [{ description:"Payday Plan file", accept: { "application/json":[".json"] } }]
+        suggestedName: "paycheck-planner.json",
+        types: [{ description:"Paycheck to Paycheck Planner file", accept: { "application/json":[".json"] } }]
       });
     } catch (err){ if (!err || err.name !== "AbortError") toast("Couldn't link that file."); return; }
     this.handle = h;
@@ -5448,7 +5448,7 @@ const linked = {
 
 const ACTS = {
   async export(){
-    const ok = await saveAs(snapshot(), "payday-plan-" + stamp() + ".json", "application/json");
+    const ok = await saveAs(snapshot(), "paycheck-planner-" + stamp() + ".json", "application/json");
     if (ok){
       commit(() => { state.lastExport = Date.now(); }, null);
       toast("Copy saved");
@@ -5475,7 +5475,7 @@ const ACTS = {
 
     $("#printout").innerHTML = `
       <div class="pr-head">
-        <div><h1>Payday Plan</h1><span>${esc(title)}</span></div>
+        <div><h1>Paycheck to Paycheck Planner</h1><span>${esc(title)}</span></div>
         <span>Printed ${esc(day.long(day.today()))}</span>
       </div>
 
@@ -5524,7 +5524,7 @@ const ACTS = {
       <div class="pr-foot">
         In hand ${esc(money.fmt(state.balance))} · cushion ${esc(money.fmt(state.buffer))} ·
         ${t.count} entries in this period<br>
-        Payday Plan ${esc(VERSION)} · ${esc(BRAND.name)} · ${esc(BRAND.siteLabel)}
+        Paycheck to Paycheck Planner ${esc(VERSION)} · ${esc(BRAND.name)} · ${esc(BRAND.siteLabel)}
       </div>`;
     window.print();
   },
@@ -5546,10 +5546,10 @@ const ACTS = {
       rd.onload = () => {
         let data;
         try { data = JSON.parse(rd.result); }
-        catch { toast("That file isn't a Payday Plan copy."); return; }
+        catch { toast("That file isn't a Paycheck to Paycheck Planner copy."); return; }
         const incoming = data && data.state ? data.state : data;
         if (!incoming || typeof incoming !== "object" || !("balance" in incoming)){
-          toast("That file isn't a Payday Plan copy."); return;
+          toast("That file isn't a Paycheck to Paycheck Planner copy."); return;
         }
         commit(() => { state = Object.assign(blankState(), incoming, { v:3 }); }, "Copy opened");
         document.documentElement.setAttribute("data-theme", state.theme || "paper");
