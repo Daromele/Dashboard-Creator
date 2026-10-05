@@ -1,72 +1,54 @@
-See the exact month you'll be debt free, and the fastest, cheapest way to get there. No spreadsheet formulas, no subscription, no bank login.
+A debt payoff tracker that shows the exact month you'll be debt free, opens in any browser, and never asks you to sign up for anything.
 
-Debt Free Plan is a debt payoff tracker in a single file. Add your debts once, choose how much you can pay each month, and the app builds your full payoff plan: what to pay on each debt this month, when each one is gone, and how much interest you save. Log payments as you go and watch every balance fall.
+Debt Free Plan is one HTML file. You download it, double-click it, and it opens like a web page. Add your debts once, choose how much you can pay each month, and it builds your full payoff plan: what to pay on each debt this month, when each one is gone, and how much interest you save. Log payments as you go and watch every balance fall. No spreadsheet formulas, no bank login, no subscription. Your figures stay on your own computer.
 
-━━━━━━━━━━━━━━━━━━━━
-EVERYTHING A DEBT SPREADSHEET DOES
-━━━━━━━━━━━━━━━━━━━━
-✔ Debt list: balance, interest rate, minimum payment, due day and lender for every debt
-✔ Snowball and avalanche: switch with one click and compare them side by side
-✔ Month-by-month payoff schedule with interest and payment on each debt
-✔ Payment log and progress charts
-✔ Coloring chart: fill in a bubble for every chunk you pay off
-✔ Debt-free date and total interest
+How It Works:
+1. Download the file and save it somewhere you will find it again.
+2. Double-click to open it in your browser. Take the two-minute tour, or open Sample Mode to explore a set of fictional debts first.
+3. Add each debt once: balance, interest rate, minimum payment and due day. Or import your card and loan downloads.
+4. Choose your monthly budget and a strategy. Avalanche, snowball and three more are compared side by side.
+5. Log payments as you go, or import your statements, and watch your debt-free date move closer.
 
-━━━━━━━━━━━━━━━━━━━━
-AND MUCH MORE
-━━━━━━━━━━━━━━━━━━━━
-✔ 5 strategies compared at once: avalanche, snowball, cash flow first, credit score first, or your own order. Slide your monthly budget and watch the debt-free date move
-✔ "Why not just the minimums?": the months and money your plan saves you
-✔ What-if lab: an extra payment each month, a one-off payment (tax refund, bonus), a lower rate, a balance transfer with its fee, a consolidation loan, or "debt free by" a date you choose
-✔ Pay this month: every payment, its due date, and a one-click "Log all as paid"
-✔ Credit card minimums calculated the way card issuers do, and 0% promo periods that end on time
-✔ Warnings when a balance is growing, a promo rate is ending, or a card is maxed out
-✔ Card utilization, with the credit score strategy to bring it down
-✔ Payoff timeline, balance-over-time chart, milestones and due-date calendar
-✔ Import your card, loan and bank downloads (CSV, OFX, QFX): payments, charges and real interest are matched to each debt, duplicates skipped, and it remembers which file is which debt
-✔ My debts as cards with a paid-off ring for each debt, or as a table; filter by category
-✔ Debt status: active, hardship plan, paused, in collections or in dispute. On-hold debts stay in your total but out of the plan
-✔ Each debt's own history: every payment, charge and interest line, logged or imported
-✔ Update a balance from your statement any time; the plan recalculates
-✔ Find extra money: an optional budget and cut-back ideas to grow your monthly payment
-✔ Every table sorts, searches and filters
-✔ 8 color themes, light and dark
+WHAT YOU'LL GET:
+• One HTML debt payoff tracker file
+• Debt freedom dashboard: your debt-free date, total owed, paid so far and interest left to pay
+• My debts as cards with a paid-off ring for each debt, or as a table; filter by category
+• 5 payoff strategies compared at once: avalanche, snowball, cash flow first, credit score first, or your own order
+• A monthly budget slider: watch the debt-free date and total interest move as you change it
+• Month-by-month payoff schedule with interest and payment on each debt
+• "Why not just the minimums?": the months and money your plan saves you
+• What-if lab: an extra payment each month, a one-off payment (tax refund, bonus), a lower rate, a balance transfer with its fee, a consolidation loan, or "debt free by" a date you choose
+• Pay this month: every payment, its due date, and a one-click "Log all as paid"
+• Statement import for card, loan and bank downloads (CSV, OFX, QFX): payments, charges and real interest matched to each debt, duplicates skipped
+• Each debt's own history, and balance updates from your statement any time
+• Debt status: active, hardship plan, paused, in collections or in dispute
+• Credit card minimums calculated the way card issuers do, and 0% promo periods that end on time
+• Warnings when a balance is growing, a promo rate is ending, or a card is maxed out
+• Progress coloring chart, milestones and a due-date calendar
+• Find extra money: an optional budget and cut-back ideas to grow your monthly payment
+• Every table sorts, searches and filters
+• 8 color themes, light and dark; every screen prints
+• Built-in how-to guide included
 
-━━━━━━━━━━━━━━━━━━━━
-WHY IT BEATS A SPREADSHEET
-━━━━━━━━━━━━━━━━━━━━
-• No formulas to break and no copying rows each month.
-• No subscription, ever. Pay once, use it for years.
-• Private: no login, no bank connection, nothing uploaded. Your numbers never leave your computer.
-• Works offline in Chrome, Edge, Safari and Firefox, on Mac and Windows.
-• A fictional sample to explore before you add your own debts.
-• A welcome tour and built-in help in plain words.
-• One-click backups, plus an automatic daily folder backup in Chrome and Edge.
+PERFECT FOR:
+Paying off credit cards, store cards, car loans, student loans, personal loans, medical bills, buy now pay later, money owed to family, tax payment plans and mortgages. Anyone choosing between snowball and avalanche, couples paying off debt together, anyone leaving a messy debt spreadsheet behind, and anyone who wants their finances to stay private on their own computer.
 
-━━━━━━━━━━━━━━━━━━━━
-PERFECT FOR
-━━━━━━━━━━━━━━━━━━━━
-Credit cards · store cards · car loans · student loans · personal loans · medical bills · buy now pay later · money owed to family · tax payment plans · mortgages
+Please note: this is a digital file, not a physical product. Nothing will be posted to you. Your data is stored in your own browser on your own device. This tracker never uploads anything anywhere. Download a backup regularly; the app reminds you, and Chrome and Edge can back up to a folder automatically every day. Interest is estimated monthly from the rate you enter, so your lender's statement may differ by a few cents; importing your statement brings in the real interest. Statement imports need the CSV, OFX or QFX download from your lender; PDF statements can't be read. Works best on a computer; phones and tablets can view and log payments. This is not financial advice.
 
-━━━━━━━━━━━━━━━━━━━━
-WHAT YOU RECEIVE
-━━━━━━━━━━━━━━━━━━━━
-• 1 HTML app file (Debt Free Plan · Debt Payoff Tracker)
-• A built-in "How it works" guide inside the app
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
 
-Download, double-click, and add your first debt. Nothing to install.
+👍 You Can
+✔ Use this tracker for your own personal debt payoff, for as long as you like
+✔ Use it on your own computers, and print your own copies
+✔ Back up your own file and your own data as often as you want
 
-━━━━━━━━━━━━━━━━━━━━
-GOOD TO KNOW
-━━━━━━━━━━━━━━━━━━━━
-• This is a digital download. Nothing will be shipped.
-• Your data saves in the browser you use. Download a backup regularly and keep it safe; the app reminds you.
-• Works best on a computer. Phones and tablets can view and log payments.
-• Interest is estimated monthly from the rate you enter; your lender's statement may differ by a few cents. Importing your card or loan download brings in the real interest, or update the balance from your statement any time.
-• Statement imports need the CSV, OFX or QFX download from your bank or lender (usually under "Download activity"). PDF statements can't be read.
-• This is not financial advice.
-• For personal use. Please don't share or resell the file.
+👎 You Cannot
+❌ Resell, redistribute, or share this file with others
+❌ Use it commercially, or include it in any product, bundle or service of your own
+❌ Claim it as your own work, or alter it for resale
+❌ Return it — digital files cannot be returned once downloaded
 
-Questions? I'm happy to help: hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order! hello@jpsdigitalpages.com · www.jpsdigitalpages.com
 
-Made by JPS Digital Pages.
+Debt Free Plan by JPS Digital Pages
