@@ -55,6 +55,8 @@ for x, y in [('Repeat the plan. Record the reality.', 'Your pay and bills'),
              ("button('Use recurring amounts','schedule-plan','quiet')", "''"),
              ('scheduled items.</b> Expected amounts are not actual transactions. Record an item or match an existing entry to avoid double counting.', 'due this month.</b> Mark each one when it actually leaves or lands, here or with the check on Today.'),
              ('Add a recurring schedule', 'Add pay or a bill'),
+             ("<small>Includes every ${(a=>a.slice(0,-1).join(', ')+' and '+a.at(-1))(['month','category','goal','review','schedule',P.features.wealth&&'wealth snapshot',P.features.invoices&&'invoice',P.features.mileage&&'mileage trip'].filter(Boolean))}.</small>",
+              '<small>Includes your balance, cushion, pay, bills, spending and categories.</small>'),
              ('This creates reminders. Nothing is paid, imported or added to actuals automatically.', 'It repeats on its own. Bills due before payday come off your safe-to-spend.')]:
     s = one(x, y, s)
 s = one('...Biz.views,...Auto.views}', '...Biz.views,...Auto.views,...Payday.views}', s)
