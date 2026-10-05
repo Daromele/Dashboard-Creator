@@ -1,0 +1,21 @@
+{
+ "app": "../../PaycheckToPaycheckPlanner.html",
+ "out": "shots",
+ "setup": "document.querySelectorAll('dialog[open]').forEach(d=>d.close());document.querySelector('#demo-toggle').click();document.querySelectorAll('dialog[open]').forEach(d=>d.close());document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "button[data-go=\"{view}\"]",
+ "tabs": [],
+ "themes": {
+  "list": [
+   "sage",
+   "ledger",
+   "linen",
+   "fjord",
+   "blush",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;render();document.querySelector('#toast').hidden=true;return new Promise(r=>setTimeout(r,1200));"
+ }
+}
