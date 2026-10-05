@@ -2,18 +2,79 @@
  "_about": "Per edition (the pack's id): how to reach a 'first data' state (JS run in the page after Budget.blank()), and words that must not appear because they belong to other editions. Add a block when a new edition is made.",
  "bills": {
   "first": "state.btBills=[{id:'x1',name:'Rent',amount:145000,kind:'bill',cat:'housing',freq:'monthly',start:'2026-10-01',color:0},{id:'x2',name:'Netflix',amount:1799,kind:'sub',cat:'streaming',freq:'monthly',start:'2026-10-14',autopay:true,color:1}];",
-  "forbid": ["planner", "budget", "debts?", "books", "Autopilot", "Quick Log", "transactions?"]
+  "forbid": [
+   "planner",
+   "budget",
+   "debts?",
+   "books",
+   "Autopilot",
+   "Quick Log",
+   "transactions?"
+  ]
  },
  "debt": {
   "first": "state.debts=[{id:'d1',name:'Visa',kind:'card',balance:500000,apr:2499,min:5000,minMode:'card',due:15,since:'2026-09-01',start:500000}];state.debtPlan.budget=30000;",
-  "forbid": ["planner", "books", "Autopilot", "subscriptions? tracker"]
+  "forbid": [
+   "planner",
+   "books",
+   "Autopilot",
+   "subscriptions? tracker"
+  ]
  },
  "tracker": {
   "first": "",
-  "forbid": ["planner", "books", "debt-free", "Autopilot"]
+  "forbid": [
+   "planner",
+   "books",
+   "debt-free",
+   "Autopilot"
+  ]
  },
- "budget": { "first": "", "forbid": ["books", "Autopilot", "debt-free", "invoices?"] },
- "business": { "first": "", "forbid": ["planner", "Autopilot", "debt-free", "household"] },
- "creator": { "first": "", "forbid": ["planner", "Autopilot", "debt-free", "household"] },
- "autonomo": { "first": "", "forbid": ["Autopilot", "debt-free"] }
+ "budget": {
+  "first": "",
+  "forbid": [
+   "books",
+   "Autopilot",
+   "debt-free",
+   "invoices?"
+  ]
+ },
+ "business": {
+  "first": "",
+  "forbid": [
+   "planner",
+   "Autopilot",
+   "debt-free",
+   "household"
+  ]
+ },
+ "creator": {
+  "first": "",
+  "forbid": [
+   "planner",
+   "Autopilot",
+   "debt-free",
+   "household"
+  ]
+ },
+ "autonomo": {
+  "first": "",
+  "forbid": [
+   "Autopilot",
+   "debt-free"
+  ]
+ },
+ "networth": {
+  "first": "state.nwAccounts=[{id:'a1',name:'Checking',side:'asset',type:'cash',color:0},{id:'a2',name:'401(k)',side:'asset',type:'retire',fi:true,color:1}];state.nwSnaps=[{id:'s1',month:'2026-10',date:'2026-10-05',values:{a1:420000,a2:3500000}}];",
+  "forbid": [
+   "planner",
+   "budget",
+   "books",
+   "Autopilot",
+   "Quick Log",
+   "transactions?",
+   "bills? tracker",
+   "debt-free"
+  ]
+ }
 }

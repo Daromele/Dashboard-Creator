@@ -30,6 +30,7 @@ The planner is built, not hand-edited. Edit the source, then rebuild:
 - `app/packs/tracker.js` → `app/IncomeExpenseTracker.html` (Income and Expense Tracker v1.0, private, from your statements)
 - `app/packs/debt.js` → `app/DebtFreePlan.html` (Debt Free Plan v1.0, debt payoff tracker)
 - `app/packs/bills.js` → `app/BillSubscriptionTracker.html` (Bill & Subscription Tracker v1.0)
+- `app/packs/networth.js` → `app/NetWorthFireTracker.html` (Net Worth & FIRE Tracker v1.0)
 
 **Income and Expense Tracker** (`features.autopilot`, `features.offline`) turns card and bank CSVs into the
 whole picture with no typing. `Autopilot` in core is the pure engine: `read` (columns, which way
@@ -51,6 +52,17 @@ history and trial price), `perMonth`/`perYear`, `month` (paid, autopay, overdue,
 fund), Bills & subscriptions (grid/table, chips), Calendar, Renewals & trials, Yearly cost, Payment
 history, plus bill categories in Settings. State adds `btBills`, `btLog` (one entry per bill + due date,
 `skip` for skipped) and `btCats`.
+
+**Net Worth & FIRE Tracker** (`features.netWorth`) tracks everything owned and owed, one check-in a month,
+and the road to financial independence. `NetWorth` in core is the pure engine (tested in
+`build/test_networth.js`): `balanceAt` (a month without a check-in carries the last balance forward; closed
+accounts count 0), `totals`, `series`, `pace`, `fireNumber`, `project`, `monthsTo`, `coast`, `reached` and
+`guessType`. `NetWorthUI` holds the screens: Net worth (hero, ring, chart with toggles, what moved, road to
+FI), Accounts (grid/table, chips, Update balance), Monthly check-in (live totals), FIRE plan (Lean/FIRE/Fat,
+Coast FI, what moves the date, what-if slider, projection), Milestones and History, plus account types in
+Settings. State adds `nwAccounts`, `nwSnaps` (one per month: `{month, date, values:{accountId: cents}}`),
+`nwTypes` and `nwPlan` (`spend`, `rate` and `growth` in basis points, `monthly`, `age`, `retireAge`, `income`).
+`Live` (shared with the bills edition) holds the number tweens, row slides and the labeled ring.
 
 A niche pack is one `const NICHE = {...}` block, inlined as the first script at the top of the
 shipped file. It holds product identity, category **groups and their flags**, default categories,
@@ -84,6 +96,7 @@ node build/ui_parity.js          # budget edition renders exactly like v1.8 (nee
 node build/biz_smoke.js [shots]  # drives every business screen and flow in Chromium
 node build/autopilot_flow.js     # Income and Expense Tracker: drop statements, pairs, needs a look, re-import, delete import
 node build/bills_flow.js         # Bill & Subscription Tracker: add, tick off, varies, skip, price rise, trial, cancel, sample
+node build/networth_flow.js      # Net Worth & FIRE Tracker: add (guessed type/side), check-in, update, FIRE plan, close, delete, sample
 node build/print_audit.js [pdfs]  # prints every screen (Letter + A4); fails on near-empty pages (needs pdfjs-dist)
 ```
 

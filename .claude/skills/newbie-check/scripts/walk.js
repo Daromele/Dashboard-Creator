@@ -39,6 +39,6 @@ s.save('${path.join(OUT,name)}',quality=72)`]);files.forEach(f=>fs.unlinkSync(f)
  // 6. a dark theme and print
  await p.setViewportSize({width:1366,height:820});const D=[];
  await p.evaluate(()=>{state.settings.theme=Budget.THEMES.includes('midnight')?'midnight':'night';go(P.nav[0][0]);});await p.waitForTimeout(500);D.push(await shot('d-dark',{fullPage:true}));
- await p.emulateMedia({media:'print'});await p.waitForTimeout(300);D.push(await shot('d-print',{fullPage:true}));sheet(D,'sheet-6-dark-print.jpg',600,2);
+ await p.evaluate(()=>window.dispatchEvent(new Event('beforeprint')));await p.emulateMedia({media:'print'});await p.waitForTimeout(300);D.push(await shot('d-print',{fullPage:true}));sheet(D,'sheet-6-dark-print.jpg',600,2);
  console.log(`sheets in ${OUT} · ${SCREENS.length} screens · page errors: ${errs.length?errs.join(' | '):'none'}`);
  await b.close();})();
