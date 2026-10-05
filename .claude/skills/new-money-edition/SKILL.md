@@ -1,0 +1,98 @@
+---
+name: new-money-edition
+description: Checklist for adding a new edition (niche pack) to the monthly-plan core and shipping its full Etsy kit — app rules learned from the user's corrections on Debt Free Plan and Income and Expense Tracker, plus the listing pipeline (deck with copy, PNGs, Etsy video, social video, guide PDF, LICENCE, START_HERE, buyer ZIP). Use with the sellable-html-app skill whenever a new money app (bills, net worth, savings, couples, paycheck, rental…) is built or an existing edition is renamed or relisted.
+---
+
+# New money edition on the monthly-plan core
+
+Read with `sellable-html-app` (design system, catalog) and `html-app-mockup-deck` (deck, videos).
+Everything here is a correction the user already made once. Apply it up front.
+
+## 1. Build
+
+- Pack `monthly-plan/app/packs/<id>.js` (copy the closest: `debt.js` for one-goal apps, `tracker.js`
+  for statement apps) + a feature flag + one UI module in `app/src/core.html` (like `Debts`), with a pure,
+  exported logic module (like `Debt`) unit-tested from `build/test_<id>.js` via `build/test.js`.
+- Pack object: keep comments on their **own line**; the build joins lines, so a trailing `// …`
+  swallows the next property. No `,,`.
+- `product.publisher` is the sidebar subtitle: a product line ("DEBT PAYOFF TRACKER"), never "JPS
+  DIGITAL PAGES". `labels.demoNote` sets the sample banner. Last welcome slide: `finish:'Look around first'`.
+- Storage key is forever: if the product is renamed later, change names and file, **keep the key**.
+- Nav: the main action (add / import) is in the first group, early. Rarely used screens in
+  `optionalNav`. Hide the month bar (`body.<id>-ed`) if months don't drive the edition; give screens
+  that need a month their own arrows.
+- Wire the edition's branches in core alongside `P.features.debt` (blank state, validator block for its
+  keys, `debt-ed` body class, Settings column + wording + Move your data + categories card, Start fresh,
+  guide Quick Log section, the `q` key). Bills (`features.billsTracker`) is the smallest example.
+- Grep the core for words from other editions before shipping (closed `<details>` hide text from
+  innerText: scan `#content.innerHTML`): "planner", "budget", "books",
+  "Autopilot", "transactions" in Settings, Start fresh, backups, Getting started, guide, empty states.
+  Every edition gets its own wording (`P.features.x?…:…`). Insights must be rewritten for the edition.
+
+## 2. Screens the user expects without asking
+
+- **Alive, not tables.** Big numbers, charts and toggles first; tables second. Numbers tween when a
+  toggle/slider changes them ("magically see the numbers change"); charts have toggles.
+- Hero donut: labels around the ring with leader lines (no side legend), thin ring, stacks under the
+  hero text below 900 px.
+- Entity lists (debts, bills…): **grid default**, table toggle, category chips to filter, name column
+  left-aligned, each card with visible edit / history / delete, and an update action.
+- Row buttons never touch: `.row-acts` gap, `td .btn+.btn{margin-left:6px}`. Check every table.
+- Categories for the edition (debt kinds, bill categories) in Settings with **edit, archive, delete**
+  icons (not "hide"); the budget "Your categories" card is not reused.
+- Statuses where life has them (active, paused, cancelled…), with on-hold items kept in totals but
+  out of plans.
+- Amount inputs accept `$5,000`, `5000.50`, `€`, spaces.
+- One basis for a number everywhere (form hint, grid, table, dashboard).
+- Ask for the one setting the app needs (budget) after the first item, and again if new data makes it
+  wrong.
+- Per-item history (payments/charges) reachable from the item, and a filter on the log page.
+- Import (if any) says where data goes and explains "nothing new" (older lines, duplicates).
+- Settings: sidebar switches grid `auto-fill minmax(190px)`, `min-width:0`; no overflow at 390 px.
+- Print: a dark theme prints in the first light theme.
+- Sample data: fictional names only (never the user's banks: "Harbor Bank", not Chase); rich enough
+  that every screen and every toggle shows a difference.
+
+## 2b. Test-writing traps
+
+- `requestSubmit()` runs the browser's own `required` check first: an empty required field never reaches
+  the handler (that's correct). A closed dialog keeps its form in the DOM: check `$('#modal').open`.
+- Hidden radio inputs inside styled labels: click the label. Fields inside a closed `<details>`: open it.
+- KPI numbers count up from 0: wait or read `state`, not a mid-animation screenshot.
+
+## 3. Check like a first-time user
+
+Before calling it done: clean walk-through top to bottom as a new buyer (empty app → first item →
+sample mode), list UX issues, fix them. Then: unit tests, the edition's flow test, `ui_parity.js`,
+`views_flow.js` (only budget-like editions in its APPS list), phone 390 px, a dark theme, print.
+Look at screenshots of every screen.
+
+## 4. Listing kit — `monthly-plan/listing/<slug>/`, never a listing .md
+
+1. `capture.json` → `node .claude/skills/html-app-mockup-deck/scripts/capture.js` (drop shots with odd
+   ratios or near-empty screens; use `before` to show a meaningful state, e.g. cuts applied).
+2. `deck.json` (brand = the default theme's colors) → `build_deck.py`; validate, geom, swaptest (PNG).
+   No widow words in subs. ~11–13 slides; Etsy shows 10 images, say which to drop.
+3. PNGs: every slide at 1500×1125 into `png/NN-name.png` (committed) + zip (git-ignored).
+4. Etsy video: `video.json` → `video_capture.js` + `render_video.js` — 1440×1080, ≤ 15 s (14.8),
+   no sound, a click that visibly moves a big number. Check stills before the full render.
+5. Social video: `social.json` (own captures, `shots_dir:"sshots"`) → `render_social.js` —
+   1080×1920, ~17 s, sound from `make_audio.py`; hook, 4 crop scenes, end card.
+6. Copy in `description.txt` (plain text) in the **standard format** (see Monthly Plan's):
+   one-line promise · (Free Demo link if hosted) · what-it-is paragraph · `How It Works:` 5 steps ·
+   `WHAT YOU'LL GET:` bullets · `PERFECT FOR:` · `Please note:` (digital, data in browser, backups,
+   limits like "PDF can't be read", not financial advice) · Etsy download link · `👍 You Can` /
+   `👎 You Cannot` · returns note with email + website · `<Product> by JPS Digital Pages`.
+7. Title ≤ 140, opens with the phrase buyers search (often the product name). 13 tags, each ≤ 20
+   chars, buyer phrases, no competitor brand names, include "<thing> spreadsheet" where it fits.
+8. Guide: add the product to `monthly-plan/build/build_guides.py` (10 pages: cover, start here, the
+   idea, 3–4 how-to pages with screenshots, screens table, keep it safe, fixes) →
+   `node build/guide_pdf.js` (flags footer overflow). Check every button name against the app.
+9. `LICENCE.txt` and `START_HERE.txt` from the existing ones (product-specific paid-service line and
+   no-warranty paragraph). Buyer ZIP = app + guide PDF + START_HERE + LICENCE (git-ignored).
+10. Publish/refresh the app artifact; send the ZIP, deck, videos, guide.
+
+## 5. Privacy
+
+The user's uploads are personal statements: read them in the session only, never commit, scan diffs
+for names, IBANs, card digits and IDs before every commit. Tests and samples are synthetic.

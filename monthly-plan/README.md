@@ -28,6 +28,8 @@ The planner is built, not hand-edited. Edit the source, then rebuild:
 - `app/packs/creator.js` → `app/CreatorPlan.html` (Creator Plan, online creators)
 - `app/packs/autonomo.js` → `app/AutonomoPlan.html` (Autónomo Plan, records for a Spanish autónomo and their gestor)
 - `app/packs/tracker.js` → `app/IncomeExpenseTracker.html` (Income and Expense Tracker v1.0, private, from your statements)
+- `app/packs/debt.js` → `app/DebtFreePlan.html` (Debt Free Plan v1.0, debt payoff tracker)
+- `app/packs/bills.js` → `app/BillSubscriptionTracker.html` (Bill & Subscription Tracker v1.0)
 
 **Income and Expense Tracker** (`features.autopilot`, `features.offline`) turns card and bank CSVs into the
 whole picture with no typing. `Autopilot` in core is the pure engine: `read` (columns, which way
@@ -39,6 +41,16 @@ screens: Add statements (drop files, added at once with Undo, import log, accoun
 (one choice per place becomes a rule), Subscriptions & bills, and the Money picture dashboard.
 `offline` stops every network call. State adds `accounts`, `importFiles` (file → account and sign)
 and `importLog`; transactions carry `acct`, a masked `raw` description and `auto` (why, look, pair, batch).
+
+**Bill & Subscription Tracker** (`features.billsTracker`) lists every bill and subscription and when it's due.
+`BillCal` in core is the pure engine (tested in `build/test_bills.js`): `occurrences` (weekly to yearly,
+month-end dates kept, free trials anchoring the first charge, end/pause/cancel dates), `amountOn` (price
+history and trial price), `perMonth`/`perYear`, `month` (paid, autopay, overdue, soon, skipped, totals),
+`yearSpread`, `upcomingEvents` (renewals, trials, cancel-by reminders), `priceChanges`, `savedSince`,
+`setPrice`. `BillsUI` holds the screens: This month (hero, checklist, coming up, year chart, set-aside
+fund), Bills & subscriptions (grid/table, chips), Calendar, Renewals & trials, Yearly cost, Payment
+history, plus bill categories in Settings. State adds `btBills`, `btLog` (one entry per bill + due date,
+`skip` for skipped) and `btCats`.
 
 A niche pack is one `const NICHE = {...}` block, inlined as the first script at the top of the
 shipped file. It holds product identity, category **groups and their flags**, default categories,
@@ -71,6 +83,7 @@ node build/test.js               # module tests: budget vs frozen v1.8, business
 node build/ui_parity.js          # budget edition renders exactly like v1.8 (needs git history)
 node build/biz_smoke.js [shots]  # drives every business screen and flow in Chromium
 node build/autopilot_flow.js     # Income and Expense Tracker: drop statements, pairs, needs a look, re-import, delete import
+node build/bills_flow.js         # Bill & Subscription Tracker: add, tick off, varies, skip, price rise, trial, cancel, sample
 node build/print_audit.js [pdfs]  # prints every screen (Letter + A4); fails on near-empty pages (needs pdfjs-dist)
 ```
 
