@@ -79,7 +79,7 @@ const NICHE = {
   defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', payout: 'platform-payout', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
 
   // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
-  nav: [['dashboard', 'Portfolio', 'today'], ['rentroll', 'Rent roll', 'wallet'], ['props', 'Properties', 'grid'], ['tenants', 'Tenants & leases', 'tags'], ['expenses', 'Expenses', 'down'],
+  nav: [['dashboard', 'Home', 'today'], ['rentroll', 'Rent roll', 'wallet'], ['props', 'Properties', 'grid'], ['tenants', 'Tenants & leases', 'tags'], ['expenses', 'Finances', 'down'],
     ['rpcal', 'Calendar', 'calendar'], ['rpmaint', 'Repairs', 'edit'],
     ['rppl', 'Profit & loss', 'spark'], ['taxes', 'Schedule E', 'review'], ['rpledger', 'Rent ledger', 'history'], ['rpimport', 'Import bank CSV', 'log'],
     ['rpdocs', 'Letters & notices', 'archive'],
@@ -107,7 +107,7 @@ const NICHE = {
   tourTopics: 'adding properties and tenants, recording rent, expenses, repairs, letters, profit & loss, Schedule E and backups',
   // first-run tour; 'backup' is the shared backup slide
   welcome: [
-    { icon: 'today', step: 'WELCOME', title: 'Every rental, in one place', text: '<p>Your properties and units, who rents them, what’s come in and what’s gone out. The big number is this month’s cash flow.</p><p>Everything stays on your computer: no bank login, no subscription, no sharing tenant details with anyone.</p>' },
+    { icon: 'today', step: 'WELCOME', title: 'Every rental, in one place', text: '<p>Your properties and units, who rents them, what’s come in and what’s gone out. Home shows this month’s cash flow; Finances shows each property’s income, expenses and cash flow for any dates.</p><p>Everything stays on your computer: no bank login, no subscription, no sharing tenant details with anyone.</p>' },
     { icon: 'calendar', step: 'EACH MONTH', title: 'Who paid, who’s late', text: '<p>The rent roll lists every unit: rent due, what arrived and who’s late, with your late fee ready to add.</p>' },
     { icon: 'review', step: 'TAX TIME', title: 'Profit & loss and Schedule E, done as you go', text: '<p>Every expense goes on its Schedule E line, for one property or all of them. Pick any dates for a profit &amp; loss statement; print either for your accountant.</p>' },
     'backup',
@@ -133,9 +133,11 @@ const NICHE = {
       ['Profit & loss for any dates', 'Profit & loss shows income, running costs, NOI, interest and net income for the dates you pick, one column per property. Expenses do the same: pick the dates and a property to see where the money went.'],
       ['Costs for all your rentals', 'Bookkeeping software, a phone line, mileage to every property: add them as an expense with “General (not one property)”. They count in Profit & loss and Schedule E, but not against one property.'],
       ['Importing your bank’s CSV', 'Download a CSV from your bank and open Import bank CSV. Deposits that match a tenant become rent; withdrawals become expenses on their Schedule E line. You check every line first, mortgage payments are skipped, and lines you brought in before are skipped too.'],
-      ['Repairs and tenant requests', 'Log a repair, or a request a tenant phoned in, with how urgent it is. Mark it done with the cost and it goes into your expenses (Repairs, line 14) in one step. Urgent ones show on your Portfolio.'],
+      ['Repairs and tenant requests', 'Log a repair, or a request a tenant phoned in, with how urgent it is. Mark it done with the cost and it goes into your expenses (Repairs, line 14) in one step. Urgent ones show on Home.'],
       ['Letters & notices', 'Welcome letter, rent receipt, late rent, late fee, rent increase, renewal offer, notice of entry, lease violation, notice to vacate, move-out instructions and deposit return. Each fills in from your records; change any words, save your wording, print or copy. Notice rules differ by state: check yours.'],
-      ['The calendar', 'Rent due dates (green once paid, red when late), repeating bills and the mortgage, lease ends and move-outs, and scheduled repairs, on one month. Click a rent to record it.'],
+      ['Cash flow by property', 'Finances: pick the dates, and the Summary by property table shows each property’s income, running costs, NOI, interest, principal and cash flow side by side. Profit & loss has the full statement; the Home chart can show one property.'],
+      ['Letters for a group', 'In Letters & notices, “To” can be one tenant, every tenant at one building, every tenant, or nobody (a blank template).'],
+      ['The calendar', 'A week view by default (Month is one click away); filter by rent, bills, lease dates and repairs, or by property. Rent due dates (green once paid, red when late), repeating bills and the mortgage, lease ends and move-outs, and scheduled repairs, on one month. Click a rent to record it.'],
       ['Depreciation', 'Not worked out here: it depends on your purchase price, land value and the year you started renting. Your tax pro can add it.'],
       ['Is this tax advice?', 'No. It’s a worksheet of your own numbers, laid out like Schedule E, to make tax time easier.'],
     ],
