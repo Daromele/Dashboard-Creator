@@ -1570,13 +1570,17 @@ body.debt-ed .month-control,body.debt-ed #month-tabs{display:none}body.debt-ed .
 .bt-bar{fill:color-mix(in srgb,var(--accent) 70%,var(--card));cursor:pointer;transition:fill .2s}.bt-bar.heavy{fill:var(--accent)}.bt-bar.cur{fill:var(--pop)}.bt-bar:hover{fill:var(--accent-2,var(--accent))}
 .bt-val{font:650 11px var(--num);fill:var(--ink-2)}.bt-mon{font:600 11px var(--sans,inherit);fill:var(--ink-3)}.bt-mon.cur{fill:var(--ink);font-weight:800}.bt-mon.pre{opacity:.45}
 .bt-more-card .bt-presets{justify-content:flex-start;max-width:none;margin:4px 0 0}
-.sp-pies{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:6px 0 14px}.sp-pie h3{font-size:13px;font-weight:700;color:var(--ink-2);margin:0 0 10px;text-align:center}.sp-pie .donut-wrap{flex-direction:column;align-items:stretch;gap:14px}.sp-pie .donut{width:150px;height:150px;margin:0 auto}
-.sp-pick{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:650;color:var(--ink-3)}.sp-pick select{width:auto;min-width:130px;font-weight:700}
-.sp-how{display:flex;flex-wrap:wrap;gap:6px 20px;margin:0 0 14px;padding:10px 14px;list-style:none;counter-reset:sp;background:var(--sunk);border-radius:10px;font-size:12.5px;color:var(--ink-2)}.sp-how li{counter-increment:sp;display:flex;gap:7px;align-items:baseline}.sp-how li::before{content:counter(sp);display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--accent);color:var(--paper,#fff);font-size:11px;font-weight:700;flex-shrink:0}
-.sp-zero{display:flex;flex-direction:column;justify-content:center;gap:4px}.sp-zero .row-acts{margin-top:8px}.sp-fig b.pos{color:var(--pos)}.sp-fig b.warn{color:var(--neg)}.sp-fig{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.sp-pie .donut-key{display:block!important}.sp-pie .donut-key .row{padding:7px 4px}
-@media(max-width:620px){.sp-pies{grid-template-columns:1fr}.sp-card .cardhead{flex-direction:column;align-items:stretch}.sp-card .nw-segs{justify-content:space-between;flex-wrap:wrap}.sp-how{flex-direction:column}}
-.sp-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--rule)}.sp-row span:first-child small{display:block;margin-left:16px}.sp-fig{text-align:right}.sp-fig small{display:block}
-.sp-zero strong{display:block;font:700 34px/1.1 var(--num);margin:2px 0 6px}.sp-zero small{color:var(--ink-3);font-weight:650}
+.sp-pick{display:flex;align-items:center;gap:10px;margin:2px 0 14px;flex-wrap:wrap}.sp-pick>span{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}.sp-pick .segment button{padding:8px 16px;font-weight:700}
+.sp-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-radius:12px;margin-bottom:16px;background:var(--sunk);border-left:5px solid var(--ink-3)}.sp-banner small{display:block;color:var(--ink-3);font-weight:650;font-size:12px}.sp-banner strong{font:700 26px/1.15 var(--num)}.sp-banner p{margin:0;max-width:46ch;font-size:13px;color:var(--ink-2);text-align:right}
+.sp-banner.ok{border-left-color:var(--pos)}.sp-banner.ok strong{color:var(--pos)}.sp-banner.over{border-left-color:var(--neg)}.sp-banner.over strong{color:var(--neg)}.sp-banner.short{border-left-color:#C98A1B}
+.sp-buckets{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:14px}.sp-bucket{border:1px solid var(--rule);border-top:4px solid var(--c);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.sp-bucket.is-over{border-color:var(--neg);box-shadow:0 0 0 1px var(--neg)}.sp-bucket header{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.sp-bucket header small{color:var(--ink-3);font-weight:650}.sp-b-fig{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.sp-b-fig strong{font:700 22px var(--num)}
+.sp-status{font-weight:700;font-size:13px}.sp-status.ok{color:var(--pos)}.sp-status.over{color:var(--neg)}.sp-status.short{color:#C98A1B}
+.sp-meter{position:relative;display:flex;height:12px;border-radius:999px;background:var(--sunk);overflow:visible}.sp-fill{display:block;height:100%;background:var(--c);transition:width .35s ease}.sp-fill:first-child{border-radius:999px 0 0 999px}.sp-fill.ok{background:var(--pos)}.sp-fill.short{background:#C98A1B}.sp-fill.over-in{background:var(--pos)}.sp-fill.over{background:var(--neg);border-radius:0 999px 999px 0}
+.sp-tick{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);transform:translateX(-1px);border-radius:2px}
+.sp-lines{display:flex;flex-direction:column;margin-top:4px;border-top:1px solid var(--rule)}.sp-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:13px}.sp-line>span:first-child{min-width:0}.sp-line small{display:block;color:var(--ink-3);font-size:11.5px}
+.sp-in{text-align:right;flex-shrink:0}.sp-amt{width:92px;text-align:right;padding:4px 8px;min-height:0;height:32px;font:600 14px var(--num)}.sp-add{margin-top:auto;padding-top:6px}
+@media(max-width:900px){.sp-buckets{grid-template-columns:1fr}.sp-banner{flex-direction:column;align-items:flex-start}.sp-banner p{text-align:left}}
 .sp-tags{margin-top:12px;border-top:1px solid var(--rule);padding-top:10px}.sp-tags summary{cursor:pointer;font-weight:650;font-size:13px}.sp-tag-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px 16px;margin-top:8px}
 .sp-tag{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}.sp-tag select{width:auto;min-width:96px}#split-method-select{max-width:420px}
 .pp-steps .pp-step{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--rule)}.pp-step-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--accent-soft,var(--sunk));color:var(--accent)}
@@ -7800,19 +7804,15 @@ const PaycheckUI=(()=>{
   return head+hero+kp+stepsCard(M)+attentionCard(M)+splitCard(p)+`<div class="grid2 equal">${billsCard(M,p)}${envCard(M,p)}</div>`+aheadCard(M);}
  // the budget method for this paycheck: bills and spending tagged need, want, saving or debt
  const billTag=b=>b.cat==='loans'?'debt':b.kind==='sub'?'want':Split.guess(b.name,'need');
- let curP=null;
- function splitCard(p){curP=p;const by=new Map();
-  p.bills.filter(i=>i.state!=='skipped').forEach(i=>{const k='bill:'+i.b.id,x=by.get(k)||{key:k,name:i.b.name,amount:0,tag:SplitUI.tagOf(k,billTag(i.b))};x.amount+=i.amount;by.set(k,x);});
-  p.envs.forEach(x=>{const k='env:'+x.e.id;by.set(k,{key:k,name:x.e.name,amount:x.planned,tag:SplitUI.tagOf(k,x.e.kind==='save'?'save':Split.guess(x.e.name,'want'))});});
-  return SplitUI.card({items:[...by.values()],income:p.income+Math.max(0,p.carryIn||0),title:'Split this paycheck: {m}',sub:'',unit:'paycheck',empty:'Add your paycheck, and its split shows here.',
-   how:['Pick your method. It’s saved for every paycheck.','Your bills and spending fill <b>Your plan</b>.','Use the buttons to plan what’s missing.'],act:planButton});}
- // one click plans what a bucket is missing: raise a matching spending or saving line, or add one
+  function splitCard(p){const by=new Map(),main=Pay.mainOf(incomes()),hasMain=!main||p.pays.some(x=>x.id===main.id);
+  p.bills.filter(i=>i.state!=='skipped').forEach(i=>{const k='bill:'+i.b.id,x=by.get(k)||{key:k,name:i.b.name,amount:0,tag:SplitUI.tagOf(k,billTag(i.b)),note:`Bill · due ${dayName(i.due)}`};x.amount+=i.amount;by.set(k,x);});
+  envs().filter(e=>e.status!=='paused').forEach(e=>{const k='env:'+e.id,x=p.envs.find(z=>z.e.id===e.id),can=e.per==='month'||hasMain;
+   by.set(k,{key:k,name:e.name,amount:x?x.planned:0,tag:envTag(e),...(can?{edit:{amount:e.amount,unit:e.per==='month'?'a month':'a paycheck'}}:{note:`On ${esc(main.name)}’s paydays`})});});
+  return SplitUI.card({items:[...by.values()],income:p.income+Math.max(0,p.carryIn||0),title:'Plan this paycheck',sub:'Pick a method, then type your amounts. Each group turns green when it fits its share and red when it goes over.',unit:'paycheck',empty:'Add your paycheck, and its plan shows here.',
+   live:(key,v)=>{const e=env(key.slice(4));return e?Pay.envAmount({...e,amount:v},p,incomes()):v;},
+   save:out=>commit(()=>{Object.entries(out).forEach(([k,v])=>{const e=env(k.slice(4));if(e)e.amount=v;});},'Plan saved'),
+   add:b=>button('＋ Add a line','pp-env-add','small quiet',`data-tag="${b.key==='live'?'want':b.key}" data-kind="${b.key==='save'?'save':'spend'}"`)});}
  const envTag=e=>SplitUI.tagOf('env:'+e.id,e.kind==='save'?'save':Split.guess(e.name,'want'));
- function planButton(r,amount){const main=Pay.mainOf(incomes());if(main&&curP&&incomes().length>1&&!curP.pays.some(x=>x.id===main.id))return `<small class="dim">Per-paycheck saving follows ${esc(main.name)}’s paydays. Plan it there.</small>`;const want=r.tags.filter(t=>t!=='need'),order=['save','debt','want'].filter(t=>want.includes(t)),tag=order[0]||'want';
-  const have=envs().filter(e=>e.status!=='paused'&&e.per!=='month'&&want.includes(envTag(e))).sort((a,b)=>order.indexOf(envTag(a))-order.indexOf(envTag(b)))[0];
-  if(have)return button(`Add ${fmt(amount)} to ${esc(have.name)}`,'pp-env-edit','small',`data-id="${have.id}" data-add="${amount}"`);
-  const [name,kind]=tag==='save'?['Savings','save']:tag==='debt'?['Extra debt payment','spend']:['Fun money','spend'];
-  return button(`Plan ${fmt(amount)} for ${tag==='save'?'savings':tag==='debt'?'debt':'wants'}`,'pp-env-add','small',`data-name="${name}" data-kind="${kind}" data-amount="${amount}" data-tag="${tag}"`);}
  function whereRing(p){const list=[{name:'Bills',value:p.billTotal,color:'var(--accent)'},...p.envs.filter(x=>x.planned>0).map((x,i)=>({name:x.e.name,value:x.planned,color:x.e.kind==='save'?'var(--pos)':SLICE_COLORS[(i+2)%SLICE_COLORS.length]})),...(p.left>0?[{name:'Left over',value:p.left,color:'var(--pop)'}]:[])];
   return ring(list,{total:Math.max(1,p.income+Math.max(0,p.carryIn)),top:'This paycheck',bottom:dayName(p.start),aria:'Where this paycheck goes'})||'';}
  function attentionCard(M){const p=M.p,rows=[];
@@ -7970,7 +7970,7 @@ const PaycheckUI=(()=>{
    case 'pp-income-main':{const x=income(id);if(x)commit(()=>{state.ppIncome=[x,...incomes().filter(z=>z!==x)];},`${x.name} is now the main paycheck`);break;}
    case 'pp-income-del':{const x=income(id);if(!x)break;confirmation(`Delete ${esc(x.name)}?`,'Its paydays leave the plan, and paychecks you confirmed for it are forgotten. To keep its history, set it to Stopped instead. You can undo this right after.','pp-income-del-ok','Delete',`data-id="${id}"`);break;}
    case 'pp-income-del-ok':{const x=income(id);closeModal();if(x)commit(()=>{state.ppIncome=incomes().filter(z=>z.id!==id);const g=state.ppGot||{};Object.keys(g).forEach(k=>{if(k.startsWith(id+'|'))delete g[k];});at='';},`${x.name} deleted`);break;}
-   case 'pp-env-add':{const p=ENV_PRESETS[+b.dataset.preset],d=b.dataset;envForm('',p?{name:p[0],kind:p[1],amount:p[2],per:p[3]}:d.amount?{name:d.name,kind:d.kind,amount:+d.amount,per:'check',tag:d.tag}:{});break;}
+   case 'pp-env-add':{const p=ENV_PRESETS[+b.dataset.preset],d=b.dataset;envForm('',p?{name:p[0],kind:p[1],amount:p[2],per:p[3]}:d.tag?{name:d.name||'',kind:d.kind||'spend',per:'check',tag:d.tag,...(d.amount?{amount:+d.amount}:{})}:{});break;}
    case 'pp-env-edit':envForm(id,b.dataset.add&&env(id)?{amount:env(id).amount+(+b.dataset.add)}:{});break;
    case 'pp-env-del':{const x=env(id);if(!x)break;const n=spends().filter(z=>z.env===id).length;confirmation(`Delete ${esc(x.name)}?`,`${n?`Its ${plural(n,'entry','entries')} of spending go too. `:''}To keep them, pause it instead. You can undo this right after.`,'pp-env-del-ok','Delete',`data-id="${id}"`);break;}
    case 'pp-env-del-ok':{const x=env(id);closeModal();if(x)commit(()=>{state.ppEnv=envs().filter(z=>z.id!==id);state.ppSpend=spends().filter(z=>z.env!==id);},`${x.name} deleted`);break;}
@@ -8011,35 +8011,49 @@ const SplitUI=(()=>{
  const tagName=t=>(Split.TAGS.find(x=>x[0]===t)||Split.TAGS[0])[1];
  // a monthly-plan category's usual tag, from its group
  const catTag=c=>({bills:'need',subscriptions:'want',debt:'debt',sinking:'save',savings:'save',investment:'save'})[c.group]||(Budget.type(c)==='saving'?'save':Split.guess(c.name,'want'));
- const pick=id=>`<label class="sp-pick no-print"><span>Your method</span><select data-split-pick aria-label="Budget method">${Split.ORDER.map(k=>`<option value="${k}" ${id===k?'selected':''}>${Split.METHODS[k].name}</option>`).join('')}</select></label>`;
- const pie=(title,parts,total,label)=>`<div class="sp-pie"><h3>${title}</h3>${donutMarkup(parts.filter(x=>x[1]>0),total,label)}</div>`;
- // what a bucket still needs, in plain words: under on needs is good, under on wants is room, under on saving is a gap
- // room is what's actually not planned yet: a gap can't be filled with money that already has a job
- function status(r,sofar,room){const d=r.diff;if(Math.abs(d)<100)return ['On the goal ✓','pos'];
-  if(r.key==='save'||r.key==='debt')return d>0?[`${fmt(d)} ahead of the goal ✓`,'pos']:[`${fmt(-d)} more to reach ${r.target}%`,'warn',room<100?`Nothing is left ${sofar?'unspent':'unplanned'}: trim something first to make room.`:''];
-  if(d>0)return [`${fmt(d)} over the goal`,'warn',r.key==='need'?'Common when rent is high. Plan less for wants to balance it.':''];
-  if(r.key==='need')return [`${fmt(-d)} under the goal ✓`,'pos'];
-  const free=Math.min(-d,room);return free<100?['No room left right now','','Your savings goal and other lines already use the rest.']:[`${fmt(free)} still free to ${sofar?'spend':'plan'}`,''];}
- // items: [{key, name, amount, tag}] (tag already resolved); income in cents
- // act(bucket, amount): an optional button that plans the missing amount (the paycheck planner passes one)
- function card({items,income,title,sub,extra='',empty:emptyText,unit='income',how='',act,sofar=false}){const mine=sofar?'So far':'Your plan',notYet=sofar?'Not spent or saved yet':'Not planned yet',did=sofar?'so far':'planned';const id=method();if(!id)return '';
-  const R=Split.compute(items,income,id),M=Split.METHODS[R.id];
-  const nm=M.zero?'zero-based':M.name,head=`<div class="cardhead"><div><h2>${esc((title||'Your {m} budget').replace('{m}',nm))}</h2><p>${esc(sub||M.about)}</p></div><div class="nw-segs">${extra}${pick(R.id)}</div></div>`;
-  const steps=how?`<ol class="sp-how no-print">${how.map(x=>`<li><span>${x}</span></li>`).join('')}</ol>`:'';
-  if(!(income>0))return `<section class="card sp-card">${head}${steps}${empty('No income to split yet',emptyText||'Add your income, and the split shows here.')}</section>`;
-  const tagged=Split.TAGS.map(([k,l])=>[{need:'Needs',want:'Wants',save:'Saving',debt:'Debt'}[k],items.filter(x=>x.amount>0&&x.tag===k).reduce((a,x)=>a+x.amount,0),COLOR[k]]),over=R.unassigned<0,left=Math.max(0,R.unassigned);
-  let body;
-  if(R.zero){const done=R.unassigned===0;
-   const btns=act&&left>0?act({key:'save',label:'Saving',tags:['save']},left):'';
-   body=`<div class="sp-pies">${pie(mine,[...tagged,['Still to assign',left,COLOR.left]],over?R.assigned:income,over?'planned':unit)}<div class="sp-zero"><small>${over?'Planned more than comes in':done?'Every dollar has a job':'Still to assign'}</small><strong class="number ${over?'neg':done?'pos':''}">${twNum('sp-zero',Math.abs(R.unassigned))}</strong><p class="small">${over?`Trim ${fmt(-R.unassigned)} somewhere, or plan more income.`:done?'Nothing is left without a plan. ✓':`${fmt(R.assigned)} of ${fmt(income)} has a job. Give the rest one: savings, a goal, or paying down debt.`}</p>${btns?`<div class="row-acts">${btns}</div>`:''}</div></div>`;}
-  else{const goal=R.rows.map(r=>[r.label,r.goal,COLOR[r.key]]),yours=[...R.rows.map(r=>[r.label,r.actual,COLOR[r.key]]),[notYet,left,COLOR.left]];
-   body=`<div class="sp-pies">${pie(`The ${M.name} goal`,goal,income,unit)}${pie(mine,yours,over?R.assigned:income,over?'planned':unit)}</div>`+
-    `<div class="sp-todo">${R.rows.map(r=>{const owed=R.rows.filter(x=>(x.key==='save'||x.key==='debt')&&x.diff<0).reduce((n,x)=>n-x.diff,0),[txt,tone,note]=status(r,sofar,r.key==='save'||r.key==='debt'?left:Math.max(0,left-owed)),gap=Math.min(-r.diff,left),b=act&&r.diff<=-100&&gap>=100&&(r.key==='save'||r.key==='debt')?act(r,gap):'';
-     return `<div class="sp-row"><span><i class="dot" style="background:${COLOR[r.key]}"></i><b>${r.label}</b><small class="dim">Goal ${fmt(r.goal)} · ${did} ${fmt(r.actual)}</small></span><span class="sp-fig"><b class="${tone}">${txt}</b>${note?`<small class="dim">${note}</small>`:''}${b}</span></div>`;}).join('')}</div>`+
-    (over?`<p class="small warn">${sofar?'Spent and saved':'Planned'} ${fmt(-R.unassigned)} more than ${sofar?'came':'comes'} in.</p>`:'');}
-  const L=[...items].filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
-  const edit=`<details class="sp-tags no-print"><summary>Is each line a need, a want, saving or debt?</summary><p class="small muted">The app guesses from the name and type; change any that are wrong.</p><div class="sp-tag-list">${L.map(x=>`<label class="sp-tag"><span>${esc(x.name)} <small class="dim">${fmt(x.amount)}</small></span><select data-split-key="${esc(x.key)}" aria-label="${esc(x.name)} counts as">${Split.TAGS.map(([k,l])=>`<option value="${k}" ${x.tag===k?'selected':''}>${l}</option>`).join('')}</select></label>`).join('')}</div></details>`;
-  return `<section class="card sp-card">${head}${steps}${body}${L.length?edit:''}</section>`;}
+ // pick a method: labeled pills, saved the moment you click
+ const pick=id=>`<div class="sp-pick no-print"><span>Method</span><div class="segment" role="radiogroup" aria-label="Budget method">${Split.ORDER.map(k=>`<button data-action="split-method" data-k="${k}" role="radio" aria-checked="${id===k}" aria-pressed="${id===k}">${Split.METHODS[k].name}</button>`).join('')}</div></div>`;
+ const BUCKETS_ZERO=[['need','Needs',['need']],['want','Wants',['want']],['save','Savings',['save']],['debt','Debt',['debt']]];
+ // a group's bar: green up to its share, red past it; saving fills toward its goal
+ function meter(v,goal,save,income){if(goal==null){const w=income>0?Math.min(100,v/income*100):0;return `<div class="sp-meter"><i class="sp-fill" style="width:${w}%"></i></div>`;}
+  const scale=Math.max(goal,v,1),inn=Math.min(v,goal)/scale*100,over=Math.max(0,v-goal)/scale*100,cls=save?(v>=goal-99?'ok':'short'):(v>goal+99?'over-in':'ok');
+  return `<div class="sp-meter"><i class="sp-fill ${cls}" style="width:${inn}%"></i>${over>0&&!save?`<i class="sp-fill over" style="width:${over}%"></i>`:''}${save&&v>goal?`<i class="sp-fill ok" style="width:${over}%"></i>`:''}<b class="sp-tick" style="left:${goal/scale*100}%"></b></div>`;}
+ function status(v,goal,save,income,sofar){if(goal==null)return [`${income>0?Math.round(v/income*100):0}% of ${sofar?'what came in':'the total'}`,''];
+  const d=v-goal;if(save)return d>=-99?[d>99?`${fmt(d)} above goal ✓`:'Goal reached ✓','ok']:[`${fmt(-d)} to go`,'short'];
+  return d>99?[`${fmt(d)} over`,'over']:[`${fmt(-d)} left`,'ok'];}
+ function banner(un,sofar,typed){if(Math.abs(un)<100)return ['ok',sofar?'Every dollar accounted for ✓':'Every dollar has a job ✓',sofar?'Nothing left unspent or unsaved.':'Your plan uses all of it. Nice work.'];
+  if(un<0)return ['over',`Over by ${fmt(-un)}`,sofar?'You’ve spent and saved more than came in.':typed?'Lower an amount below until this is zero.':'Lower amounts in your plan below until this is zero.'];
+  return ['short',`${fmt(un)} ${sofar?'not spent or saved yet':'left to assign'}`,sofar?'What’s still in the account from this month.':typed?'Give it a job: type an amount below, or add a line. Each bar turns red if it goes over its share.':'Give it a job in your plan below. Each bar turns red if it goes over its share.'];}
+ let live=null,save=null;
+ const cents=v=>{const t=String(v??'').trim().replace(/^[$€£]\s*/,'').replace(/,(?=\d{3}(\D|$))/g,'').replace(/\s+/g,'');if(!t||/^-/.test(t))return null;try{const n=Budget.cents(t);return Number.isFinite(n)&&n>=0?n:null;}catch{return null;}};
+ // items: [{key, name, amount (this period, cents), tag, note?, edit?:{amount, unit}}]; income in cents
+ // opts.live(key,cents) → this period's amount for a typed value; opts.save({key:cents}); opts.add(bucket) → a button
+ function card({items,income,title,sub,extra='',empty:emptyText,sofar=false,unit='income',live:lv=null,save:sv=null,add=null}){const id=method();if(!id)return '';
+  live=lv;save=sv;const R=Split.compute(items,income,id),M=Split.METHODS[R.id];
+  const head=`<div class="cardhead"><div><h2>${esc((title||'Your {m} budget').replace('{m}',M.zero?'zero-based':M.name))}</h2><p>${esc(sub||M.about)}</p></div><div class="nw-segs">${extra}</div></div>${pick(R.id)}`;
+  if(!(income>0))return `<section class="card sp-card">${head}${empty('No income to split yet',emptyText||'Add your income, and the split shows here.')}</section>`;
+  const B=R.zero?BUCKETS_ZERO.map(([key,label,tags])=>({key,label,tags,goal:null,target:null})):R.rows,isSave=b=>b.key==='save'||b.key==='debt';
+  const L=items.filter(x=>x.amount>0||x.edit||x.note),of=x=>(B.find(b=>b.tags.includes(x.tag))||B[0]).key;
+  const typed=items.some(x=>x.edit),[bc,bt,bs]=banner(R.unassigned,sofar,typed);
+  const top=`<div class="sp-banner ${bc}" data-sp-banner><div><small>${sofar?'This month so far':unit==='paycheck'?'This paycheck':'This month'} · ${fmt(income)} in</small><strong class="number" data-sp-left>${bt}</strong></div><p data-sp-hint>${bs}</p></div>`;
+  const cols=B.map(b=>{const mine=L.filter(x=>of(x)===b.key).sort((x,y)=>y.amount-x.amount),v=mine.reduce((n,x)=>n+x.amount,0),[st,sc]=status(v,b.goal,isSave(b),income,sofar);
+   return `<section class="sp-bucket${sc==='over'?' is-over':''}" data-b="${b.key}" data-goal="${b.goal??''}" data-save="${isSave(b)?1:''}" style="--c:${COLOR[b.key]}"><header><b><i class="dot" style="background:${COLOR[b.key]}"></i>${b.label}</b>${b.goal!=null?`<small>${b.target}% · ${fmt(b.goal)}</small>`:''}</header>`+
+    `<div class="sp-b-fig"><strong class="number" data-sp-v>${fmt(v)}</strong><span class="sp-status ${sc}" data-sp-st>${st}</span></div><div data-sp-m>${meter(v,b.goal,isSave(b),income)}</div>`+
+    `<div class="sp-lines">${mine.map(x=>`<div class="sp-line" data-k="${esc(x.key)}" data-v="${x.amount}"><span><b>${esc(x.name)}</b>${x.note?`<small>${x.note}</small>`:''}</span>${x.edit?`<span class="sp-in"><input class="sp-amt" data-k="${esc(x.key)}" inputmode="decimal" value="${(x.edit.amount/100).toFixed(2)}" aria-label="${esc(x.name)} amount"><small>${x.edit.unit}${x.edit.unit==='a month'?` · <span data-sp-share>${fmt(x.amount)}</span> here`:''}</small></span>`:`<b class="number">${fmt(x.amount)}</b>`}</div>`).join('')||`<p class="small muted">Nothing here yet.</p>`}</div>`+
+    (add?`<div class="sp-add no-print">${add(b)}</div>`:'')+`</section>`;}).join('');
+  const T=[...items].filter(x=>x.amount>0||x.edit).sort((a,b)=>b.amount-a.amount);
+  const move=`<details class="sp-tags no-print"><summary>Move a line to another group</summary><p class="small muted">The app guesses need, want, saving or debt from the name; change any that are wrong.</p><div class="sp-tag-list">${T.map(x=>`<label class="sp-tag"><span>${esc(x.name)}</span><select data-split-key="${esc(x.key)}" aria-label="${esc(x.name)} counts as">${Split.TAGS.map(([k,l])=>`<option value="${k}" ${x.tag===k?'selected':''}>${l}</option>`).join('')}</select></label>`).join('')}</div></details>`;
+  return `<section class="card sp-card" data-income="${income}" data-sofar="${sofar?1:''}">${head}${top}<div class="sp-buckets" style="--n:${B.length}">${cols}</div>${T.length?move:''}</section>`;}
+ // typing an amount: every bar, status and the banner follow at once; saved when you leave the card
+ function refresh(c){const income=+c.dataset.income,sofar=!!c.dataset.sofar;let used=0;
+  c.querySelectorAll('.sp-bucket').forEach(el=>{const v=[...el.querySelectorAll('.sp-line')].reduce((n,l)=>n+(+l.dataset.v||0),0),goal=el.dataset.goal===''?null:+el.dataset.goal,sv=!!el.dataset.save;used+=v;
+   el.querySelector('[data-sp-v]').textContent=fmt(v);const [st,sc]=status(v,goal,sv,income,sofar),S=el.querySelector('[data-sp-st]');S.textContent=st;S.className='sp-status '+sc;el.classList.toggle('is-over',sc==='over');el.querySelector('[data-sp-m]').innerHTML=meter(v,goal,sv,income);});
+  const [bc,bt,bs]=banner(income-used,sofar,true),bn=c.querySelector('[data-sp-banner]');bn.className='sp-banner '+bc;bn.querySelector('[data-sp-left]').textContent=bt;bn.querySelector('[data-sp-hint]').textContent=bs;}
+ document.addEventListener('input',e=>{const el=e.target;if(!el.matches?.('.sp-amt'))return;const c=el.closest('.sp-card'),line=el.closest('.sp-line');let v=null;try{v=cents(el.value);}catch{}
+  el.dataset.dirty=1;if(v===null||v<0||!live)return;const per=live(el.dataset.k,v);line.dataset.v=per;const sh=line.querySelector('[data-sp-share]');if(sh)sh.textContent=fmt(per);refresh(c);});
+ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches?.('.sp-amt'))e.target.blur();});
+ document.addEventListener('focusout',e=>{const c=e.target.closest?.('.sp-card');if(!c||c.contains(e.relatedTarget)||!save)return;const out={};
+  c.querySelectorAll('.sp-amt[data-dirty]').forEach(i=>{let v=null;try{v=cents(i.value);}catch{}if(v!==null&&v>=0)out[i.dataset.k]=v;delete i.dataset.dirty;});if(Object.keys(out).length)save(out);});
  // the monthly plan: planned amounts, or what's been spent so far
  let basis='plan';
  function budgetCard(m){if(!method()||P.features.paycheck)return '';const rows=Budget.rows(state,m),t=Budget.totals(state,m),actual=basis==='actual';
@@ -8049,7 +8063,7 @@ const SplitUI=(()=>{
  function settingsCard(){const id=method();
   return `<section class="card"><div class="cardhead"><div><h2>Budget method</h2><p>${P.features.paycheck?'How each paycheck is split, compared with a rule of thumb.':'Optional: compare your monthly plan with a rule of thumb. Off by default.'}</p></div></div><label class="full">Method<select id="split-method-select" aria-label="Budget method">${P.features.paycheck?'':`<option value="" ${!id?'selected':''}>Off</option>`}${Split.ORDER.map(k=>`<option value="${k}" ${id===k?'selected':''}>${Split.METHODS[k].name}</option>`).join('')}${P.features.paycheck?`<option value="" ${!id?'selected':''}>Don’t show a method</option>`:''}</select><small>${id?esc(Split.METHODS[id].about):'Turn one on to see a 50/30/20, 70/20/10, 80/20 or zero-based check on your '+(P.features.paycheck?'paychecks':'monthly plan')+'.'}</small></label></section>`;}
  document.addEventListener('click',e=>{const b=e.target.closest('[data-action^="split-"]');if(!b)return;
-  if(b.dataset.action==='split-method'){const k=b.dataset.k;if(Split.METHODS[k]&&k!==method())commit(()=>{state.settings.splitMethod=k;},`${Split.METHODS[k].name} budget`);}
+  if(b.dataset.action==='split-method'){const k=b.dataset.k;if(Split.METHODS[k]&&k!==method())commit(()=>{state.settings.splitMethod=k;},`Method: ${Split.METHODS[k].name}`);}
   if(b.dataset.action==='split-basis'){basis=b.dataset.k==='actual'?'actual':'plan';render();}});
  document.addEventListener('change',e=>{const el=e.target;
   if(el.matches?.('select[data-split-pick]')){const k=el.value;if(Split.METHODS[k])commit(()=>{state.settings.splitMethod=k;},`Method saved: ${Split.METHODS[k].name}`);return;}

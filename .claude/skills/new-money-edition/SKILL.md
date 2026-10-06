@@ -68,10 +68,12 @@ Everything here is a correction the user already made once. Apply it up front.
   engine inside `sample.extras` and add what's needed (e.g. a one-off bill that leaves one paycheck short).
 - Sample data: fictional names only (never the user's banks: "Harbor Bank", not Chase); rich enough
   that every screen and every toggle shows a difference.
-- A comparison card must say what to do next, not only show numbers. Pick a method with one select (saved on
-  change, not tabs that look like views), show the goal and the buyer's plan as two pies, word each gap by what it
-  means (under on needs is good, under on wants is room, under on saving is a gap), and give the gap a one-click
-  button that changes the plan. Explain the flow in three numbered steps on the card.
+- A budgeting card is a tool, not a report. Research first (YNAB, 50/30/20 apps): one "left to assign" number on
+  top (green at zero, red when over); each group a bar toward its share with a goal tick, green while within,
+  red past it (saving fills amber toward its goal, green when reached); the lines inside each group with their
+  amounts **editable in place**, so bars and the banner move as you type; saved when focus leaves the card;
+  method picked with labeled pills; "+ Add a line" in each group. Pies and "gap" text with buttons were
+  rejected as confusing: the buyer couldn't see how to do the budgeting.
 
 ## 2c. Newbie-check rules: build them in, don't wait to be told
 

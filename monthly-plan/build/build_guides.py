@@ -502,7 +502,7 @@ def paycheck_pages(shot):
 <p class="lede">Past paychecks: what came in, went to bills, was spent and saved, and what was left at the end.</p>
 {shot("tab-history.jpg", "guide-history", "Past paychecks")}
 <p>“Ended with” uses what you actually spent, not what you planned, so it tells you which paychecks really ran short. Export it all as CSV.</p>
-<div class="box"><h3>50/30/20, 70/20/10, 80/20 or zero-based</h3><p>On This paycheck, pick a method in <b>Your method</b>. Two pies show the goal and your plan; each slice says what’s missing. A button like <b>Add $70.00 to Savings</b> fixes a gap in one click. Open <b>Is each line a need, a want, saving or debt?</b> to fix any line the app guessed wrong.</p></div>'''),
+<div class="box"><h3>50/30/20, 70/20/10, 80/20 or zero-based</h3><p>On This paycheck, <b>Plan this paycheck</b>: pick a method, then type amounts into your spending and saving lines. Each group’s bar turns green when it fits its share and red when it goes over, and the top shows what’s left to assign. Open <b>Move a line to another group</b> to fix any line the app guessed wrong.</p></div>'''),
         ('Getting around', '''<h1>The screens.</h1>
 <p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
 <table><tr><th>Screen</th><th>What it is for</th></tr>
@@ -552,7 +552,7 @@ def budget_pages(shot):
         ('Budget methods', f'''<h1>50/30/20, if you like.</h1>
 <p class="lede">Optional and off until you turn it on: Settings &amp; backup → <b>Budget method</b>. Pick 50/30/20, 70/20/10, 80/20 or zero-based.</p>
 {shot("tab-split.jpg", "guide-split", "Budget methods")}
-<p>Two pies sit on your monthly plan: the method’s goal and your plan. Each line says what the gap means: under the goal on needs is good, under on wants is room, under on savings is a gap. <b>So far</b> compares what you’ve actually spent and saved. Open <b>Is each line a need, a want, saving or debt?</b> to fix any category the app guessed wrong.</p>'''),
+<p>Your monthly plan gets a column per group with a bar toward its share: green within, red over, and the amount left to assign on top. Change category amounts in the plan below and the bars follow. <b>So far</b> compares what you’ve actually spent and saved. Open <b>Move a line to another group</b> to fix any category the app guessed wrong.</p>'''),
         ('Day to day', f'''<h1>Log it, or import it.</h1>
 <p class="lede"><b>Quick log</b> and <b>Add transaction</b> sit at the top of every screen. Or download a CSV from your bank and use <b>Import CSV</b> on Transactions.</p>
 {shot("tab-activity.jpg", "guide-activity", "Transactions")}
