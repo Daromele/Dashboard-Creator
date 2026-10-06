@@ -73,6 +73,60 @@ Everything here is a correction the user already made once. Apply it up front.
   means (under on needs is good, under on wants is room, under on saving is a gap), and give the gap a one-click
   button that changes the plan. Explain the flow in three numbered steps on the card.
 
+## 2c. Newbie-check rules: build them in, don't wait to be told
+
+Every line below was a finding from `/newbie-check` on an earlier edition (bills 15, net worth 8,
+paycheck + Monthly Plan 6). Build each one in from the first commit; the check should then find nothing new.
+
+**Entering data**
+- Dates: no "today" default for things that are due; leave it empty or guess. A past date on entry asks
+  "Already paid?" (ticked) instead of turning into overdue.
+- Category and type are guessed from the name (Rent → Housing, Netflix → Streaming, Amex → owe) and
+  stop following once the buyer picks. The edit form follows the same rules as the add form.
+- Fields that only apply sometimes ("New price starts", "Since", a status date) appear only then.
+- Something added later asks "I already had this": back-fill it so it never counts as growth, a best month
+  or a milestone.
+- A field that takes a year (or a month) shows the converted amount live and asks "Is that a month?" when
+  the number looks like the other one.
+- Quick-add chips and getting-started steps stay until about 5 items, not just the first.
+- A dialog opened from a button explains itself in that button's terms ("Log spending" with nothing to log
+  against: "First, add what you spend on…").
+
+**Actions**
+- Bulk labels count only what they will do. Dialog titles match the action ("Edit payment").
+- Recording a late item asks for the real date (pre-filled with the due date); never stamp "today".
+- A one-click fix must work on **every** period and state it is offered in (two incomes: a per-paycheck
+  line can't fix the partner's paycheck). Where it can't, explain instead of showing the button.
+- After a one-click fix, the gap it targeted reads "On the goal ✓". Test it in the flow.
+- Buttons that do nothing in the current mode change or hide ("Explore sample mode" in sample mode →
+  "Return to my …").
+
+**Numbers**
+- Zero data: "—" and a hint, never 100%, red, a full ring or "Lightest month: zero dollars".
+- Charts and averages start at the first real item and stop at the last real entry (no flat made-up month,
+  no blaming yearly bills for empty months). A partial first year is labeled "(from May)".
+- One basis per number across screens (next 12 months vs calendar year): pick one and label it.
+- Every KPI says what it covers ("Busiest week · Oct 1–7"; "at your September check-in", not "since Aug"
+  next to "As of September").
+- Room, gaps and suggested amounts never exceed what is actually free; reserve the higher-priority gap
+  (savings) before showing room for wants. Nothing free: say "trim something first".
+- A number over its target says what to do about it in one line, not just red.
+
+**Words and states**
+- Hide controls that can't act yet: year arrows, month switches, export, print, filter chips with
+  0 entries. Clicking something must never toast "updated" while nothing changes.
+- Wording from other editions: scan innerHTML including closed `<details>`.
+- Print: dark-header labels print dark; checked form checkboxes are never struck through.
+
+**The loop (this is how the skill improves itself)**
+1. Build with sections 2–2c.
+2. Run `/newbie-check <App>.html` before the listing kit; add the edition to its `editions.json` first.
+3. Fix what the user picks.
+4. Before committing the fixes, add each **new** finding as a one-line rule here (the right group above)
+   and as a check in `.claude/skills/newbie-check/SKILL.md`, phrased generally ("a one-click fix must work
+   on every period"), not about the one screen. Add a flow-test assertion for it. Commit the skill changes
+   with the fixes.
+
 ## 2b. Test-writing traps
 
 - `requestSubmit()` runs the browser's own `required` check first: an empty required field never reaches

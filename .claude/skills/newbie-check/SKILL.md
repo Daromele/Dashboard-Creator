@@ -74,6 +74,9 @@ Every rule came from a real finding.
 - Every button does something in every state: empty, first data, sample mode.
 - Tab from field to field in every form that saves as you go: nothing you typed may vanish.
 - Tick every checkbox in every form: a checked label must not render struck through (a checklist style leaking into forms).
+- Press every one-click fix ("Add 70 to Savings", "Move this bill") in every period it appears on, including
+  a second income's paycheck, then check the gap actually closed.
+- A dialog opened from a button must read in that button's terms, in every state (empty app included).
 
 **Numbers**
 - Zero data must not show 100%, red, "Lightest month: zero dollars" or a full ring. Show "—" and a hint instead.
@@ -85,14 +88,20 @@ Every rule came from a real finding.
 - One basis per number across screens. A calendar year on one screen next to the next 12 months on
   another reads as a bug. Pick one, and label it.
 - Every KPI says what it covers. "Busiest week" needs the week it means.
+- Suggested room or fix amounts never exceed what's actually free; a number over target says what to do.
 
 **Words and states**
 - Wording from other editions (the crawl's list, plus Settings, Start fresh, backups and the guide).
-- Empty states explain the next step. Controls that can't do anything yet (year arrows, filters,
-  export) are hidden or disabled.
+- Empty states explain the next step. Controls that can't do anything yet (year arrows, month switches,
+  filter chips with 0 entries, export) are hidden or disabled.
 - The welcome tour's last button and the guide's buttons go somewhere useful.
 - Phone: no overflow, dialogs scroll, the top bar button still reads. Dark: contrast. Print: no sidebar,
   no near-empty pages.
+
+## After the fixes: teach the skills
+
+Every new finding becomes a general rule in `new-money-edition` §2c and a check above, plus a flow-test
+assertion, committed with the fixes. Next edition, it's built in and this check finds nothing new.
 
 ## Report
 

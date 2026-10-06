@@ -39,6 +39,9 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('zero-based: what is still to assign, the same as left over',await w(()=>{const m=PaycheckUI.model();return /Still to assign/.test(document.querySelector('.sp-card').innerText)&&/Split this paycheck: zero-based/.test(document.querySelector('.sp-card').innerText)&&m.p.left>0;}));
  await p.selectOption('.sp-card select[data-split-pick]','80-20');await p.waitForTimeout(200);
  ok('80/20',await w(()=>document.querySelectorAll('.sp-card .sp-row').length===2));
+ await p.selectOption('.sp-card select[data-split-pick]','50-30-20');await p.waitForTimeout(200);
+ ok('a paycheck without the main payday explains instead of offering a button that can’t work',await w(()=>{let n=0;while(n++<6){const m=PaycheckUI.model(),main=Pay.mainOf(state.ppIncome);if(!m.p.pays.some(x=>x.id===main.id))break;document.querySelector('[data-action="pp-next"]').click();}const c=document.querySelector('.sp-card');return !c.querySelector('.sp-todo button')&&/follows .*paydays/.test(c.innerText);}));
+ ok('room for wants never exceeds what is not planned, after the savings gap',await w(()=>{const t=document.querySelector('.sp-card').innerText,m=t.match(/\$([\d,.]+) still free to plan/),u=t.match(/Not planned yet\s*\$([\d,.]+)/);return !m||!u||parseFloat(m[1].replace(/,/g,''))<=parseFloat(u[1].replace(/,/g,''));}));
  ok('Settings can hide the method in the paycheck planner',await w(()=>{go('settings');return [...document.querySelectorAll('#split-method-select option')].some(o=>o.value==='');}));
  await p.close();
  ok('no page errors',!errs.length,errs.join(' | '));
