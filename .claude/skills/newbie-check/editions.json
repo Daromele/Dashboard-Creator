@@ -106,5 +106,28 @@
    "Quick Log",
    "bills? tracker"
   ]
+ },
+ "bakeweek": {
+  "adapter": {
+   "setup": "try{closeTour()}catch{};prefs.hiddenNav=[];render();",
+   "empty": "state=C.createBlank();demo=false;real=null;",
+   "sample": "real=C.createBlank();state=sampleBakery();demo=true;",
+   "reset": "prefs.hiddenNav=[];",
+   "modal": "#dlg",
+   "title": "#dlg-title",
+   "welcome": "#welcome"
+  },
+  "first": "{const sb=sampleBakery();state.ingredients=sb.ingredients.slice(0,3);}",
+  "forbid": [
+   "planner(?! bakery)",
+   "budget",
+   "paycheck",
+   "net worth",
+   "tenant",
+   "rent roll",
+   "Schedule E",
+   "debt payoff",
+   "Autopilot"
+  ]
  }
 }

@@ -129,3 +129,12 @@ Add a block to `editions.json` keyed by the pack's `id`:
 - `forbid`: regexes for words that belong to other editions.
 
 With no block, the crawl still runs with only the empty and sample states.
+
+## Apps not on the monthly-plan core (Bakeweek Studio and other house-style apps)
+
+The crawl works on them through an `adapter` block in the app's `editions.json` entry (keyed by the first word of
+its `<title>`, lowercased): `setup` (close the tour, show every screen), `empty` and `sample` (JS that sets the
+state), `reset` (run before each click), and the ids of its dialog, dialog title and welcome tour. See `bakeweek`.
+The walk sheets are core-only; for these apps, screenshot every `#nav [data-go]` screen in empty and sample mode
+yourself and use the same checklist.
+
