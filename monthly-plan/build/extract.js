@@ -33,7 +33,8 @@ function extractImport(html){
     +cut('const NetWorth = (()=>{',"if(typeof module!=='undefined')module.exports=NetWorth;")
     +cut('const Pay = (()=>{',"if(typeof module!=='undefined')module.exports=Pay;")
     +cut('const Split = (()=>{',"if(typeof module!=='undefined')module.exports=Split;")
-    +'\nmodule.exports={Budget,CSV,Platforms,Autopilot,Debt,DebtFiles,BillCal,NetWorth,Pay,Split};\n';
+    +cut('const Rental = (()=>{',"if(typeof module!=='undefined')module.exports=Rental;")
+    +'\nmodule.exports={Budget,CSV,Platforms,Autopilot,Debt,DebtFiles,BillCal,NetWorth,Pay,Split,Rental};\n';
 }
 function extractImportTo(htmlFile,outFile){fs.writeFileSync(outFile,extractImport(fs.readFileSync(htmlFile,'utf8')));return outFile;}
 

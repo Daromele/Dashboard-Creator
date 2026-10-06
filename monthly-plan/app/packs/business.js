@@ -9,7 +9,7 @@
 const NICHE = {
   id: 'business',
   product: {
-    name: 'Small Business Profit Plan', mark: 'B', publisher: 'INCOME & EXPENSE TRACKER', version: '1.3',
+    name: 'Small Business Profit Plan', mark: 'B', publisher: 'INCOME & EXPENSE TRACKER', version: '1.4',
     tagline: 'Income & Expense Tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Small Business Profit Plan · Income &amp; Expense Tracker', themeColor: '#182635',
     description: 'Small Business Profit Plan, an income & expense tracker by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',

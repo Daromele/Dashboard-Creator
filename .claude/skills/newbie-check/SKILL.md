@@ -84,6 +84,8 @@ Every rule came from a real finding.
 - Come back next month and add something you forgot: it must not count as growth, a best month or a
   milestone. Ask whether it existed before.
 - A month with no entry yet must not be drawn or averaged as real data (a flat made-up last point).
+- Enter an item with a past start date (a lease from January): months before you started tracking must not show as empty or late.
+- Open the app mid-month: this month's chart bar must match the headline (no expenses dated later this month).
 - Fields that take a year (or a month) catch the other one typed by mistake: show the converted amount.
 - One basis per number across screens. A calendar year on one screen next to the next 12 months on
   another reads as a bug. Pick one, and label it.

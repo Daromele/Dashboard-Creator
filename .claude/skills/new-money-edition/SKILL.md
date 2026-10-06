@@ -111,6 +111,10 @@ paycheck + Monthly Plan 6). Build each one in from the first commit; the check s
 - Charts and averages start at the first real item and stop at the last real entry (no flat made-up month,
   no blaming yearly bills for empty months). A partial first year is labeled "(from May)".
 - One basis per number across screens (next 12 months vs calendar year): pick one and label it.
+- "When did tracking start" is the first money recorded or the day an item was added, never a start date the
+  buyer types (a lease from January doesn't make January–September empty months). Arrows don't go back before it.
+- The month under way stops at today: never count or draw expenses scheduled later in it. Yearly figures
+  annualize whole months only and say how many ("3 full months, as a year").
 - Every KPI says what it covers ("Busiest week · Oct 1–7"; "at your September check-in", not "since Aug"
   next to "As of September").
 - Room, gaps and suggested amounts never exceed what is actually free; reserve the higher-priority gap

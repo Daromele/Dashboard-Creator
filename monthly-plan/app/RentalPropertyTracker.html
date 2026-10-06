@@ -1,272 +1,199 @@
 <!doctype html>
-<!-- Creator Plan. Copyright (c) 2026 JPS Digital Pages. All rights reserved.
+<!-- Rental Property Tracker. Copyright (c) 2026 JPS Digital Pages. All rights reserved.
      Built on the Monthly Plan core. Personal-use customer edition. -->
-<html lang="en" data-theme="{{themes.0}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2A1F3D"><meta name="description" content="Creator Plan by JPS Digital Pages. Track ad revenue, brand deals, memberships, affiliates and product sales in one place, see profit for each income stream, chase late sponsor invoices and set money aside for tax. Works offline."><title>Creator Plan · Income Streams, Brand Deals, P&amp;L &amp; Tax Set-Aside</title><link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%232A1F3D"/><path d="M42 20a15 15 0 1 0 0 24" fill="none" stroke="%23F0A6B8" stroke-width="6" stroke-linecap="round"/><path d="M29 26l10 6-10 6z" fill="%23F0A6B8"/></svg>'>
+<html lang="en" data-theme="{{themes.0}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1C3C52"><meta name="description" content="Rental Property Tracker by JPS Digital Pages. Properties and units, tenants and leases, a rent roll that shows who paid and who is late, expenses on their Schedule E lines, and your cash flow, NOI, cap rate and cash-on-cash return. Works offline."><title>Rental Property Tracker · Rent roll, expenses & Schedule E</title><link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%231C3C52"/><path d="M14 32L32 17l18 15M20 28v19h24V28" fill="none" stroke="%23F2C46D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
 <script>
 /* ===================================================================================
-   NICHE PACK · Creator Plan (YouTubers, streamers, podcasters & online creators)
-   Built on the Profit Plan engine: the same P&L, tax set-aside, Schedule C summary,
-   invoices and business health, with creator income streams (ad revenue, brand deals,
-   memberships, affiliates, digital products), creator costs, income streams set up as
-   channels, creator wording and a fictional creator for the sample.
+   NICHE PACK · Rental Property Tracker
+   For small landlords: every property and unit, who rents it, the rent roll (who paid, who's late),
+   expenses on their Schedule E lines, and the landlord numbers: cash flow, NOI, cap rate, cash-on-cash.
+   Screens live in the core's RentalUI module (features.rental) on top of Rental (pure, tested). This block
+   gives the edition its identity, sidebar, words, welcome, guide and the fictional landlord behind sample mode.
    =================================================================================== */
 const NICHE = {
-  id: 'creator',
+  id: 'rental',
   product: {
-    name: 'Creator Plan', mark: 'C', publisher: 'JPS DIGITAL PAGES', version: '1.2',
-    tagline: 'Books for YouTubers, streamers & online creators', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
-    title: 'Creator Plan · Income Streams, Brand Deals, P&amp;L &amp; Tax Set-Aside', themeColor: '#2A1F3D',
-    description: 'Creator Plan by JPS Digital Pages. Track ad revenue, brand deals, memberships, affiliates and product sales in one place, see profit for each income stream, chase late sponsor invoices and set money aside for tax. Works offline.',
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%232A1F3D"/><path d="M42 20a15 15 0 1 0 0 24" fill="none" stroke="%23F0A6B8" stroke-width="6" stroke-linecap="round"/><path d="M29 26l10 6-10 6z" fill="%23F0A6B8"/></svg>',
-    notice: 'Creator Plan. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
-    railNote: '<b>Every stream, one clear picture.</b>See what each platform really pays. Chase brand deals. Put tax money aside.',
-    printTitle: 'Creator Plan · JPS Digital Pages',
+    name: 'Rental Property Tracker', mark: 'R', publisher: 'LANDLORD BOOKS', version: '1.0',
+    tagline: 'Rental property tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
+    title: 'Rental Property Tracker · Rent roll, expenses & Schedule E', themeColor: '#1C3C52',
+    description: 'Rental Property Tracker by JPS Digital Pages. Properties and units, tenants and leases, a rent roll that shows who paid and who is late, expenses on their Schedule E lines, and your cash flow, NOI, cap rate and cash-on-cash return. Works offline.',
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%231C3C52"/><path d="M14 32L32 17l18 15M20 28v19h24V28" fill="none" stroke="%23F2C46D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    notice: 'Rental Property Tracker. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
+    railNote: '<b>Know every door.</b>Who paid, who’s late, what each property really earns, and Schedule E ready at tax time.',
+    printTitle: 'Rental Property Tracker · JPS Digital Pages',
   },
-  build: { file: 'CreatorPlan.html' },
-  storage: { key: 'jps-creator-plan', file: 'creator-plan' },
-  editions: { budget: 'Monthly Plan, the household budget edition', business: 'Small Business Profit Plan, the business edition', autonomo: 'Autónomo Plan, the Spain edition' },
-  themes: ['blush', 'lavender', 'fjord', 'sage', 'slate', 'night', 'midnight'],
-  features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: false, invoices: true, channels: true },
-  // taxRate in basis points (2500 = 25%)
-  settings: { taxRate: 2500, mileageRate: 0, distanceUnit: 'mi' },
-  tourTopics: 'income streams, brand deals, tax set-asides and backups',
-  // offered as one-click income streams in Settings
-  suggestedChannels: ['YouTube', 'TikTok', 'Instagram', 'Twitch', 'Patreon', 'Buy Me a Coffee', 'Ko-fi', 'Substack', 'Podcast', 'Etsy', 'Payhip', 'Gumroad', 'Fourthwall', 'Shopify', 'Brand deals', 'Affiliates'],
-  // tags group streams (Etsy, Payhip → Digital products; Patreon, Buy Me a Coffee → Donations);
-  // a stream added by name picks up its usual tag
-  suggestedTags: ['Ad revenue', 'Sponsorships', 'Donations', 'Memberships', 'Digital products', 'Merch', 'Affiliate income'],
-  channelTags: { youtube: 'Ad revenue', tiktok: 'Ad revenue', podcast: 'Ad revenue', instagram: 'Sponsorships', 'brand deals': 'Sponsorships', twitch: 'Donations', patreon: 'Donations', 'buy me a coffee': 'Donations', 'ko-fi': 'Donations', substack: 'Memberships', etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', fourthwall: 'Merch', shopify: 'Merch', affiliates: 'Affiliate income' },
+  build: { file: 'RentalPropertyTracker.html' },
+  // browser storage keys, the backup-folder database and download names all start with these
+  storage: { key: 'jps-rental-tracker', file: 'rental-tracker' },
+  // first theme is the default
+  themes: ['fjord', 'slate', 'sage', 'linen', 'lavender', 'blush', 'night', 'midnight'],
+  features: { goals: false, wealth: false, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, rental: true },
+  settings: { hiddenNav: [] },
 
-  // type: income | expense | saving (money moved aside: not income, not an expense)
-  // cogs: cost of goods sold · other: income below operating profit · tax: counts as tax set aside
+  // type: income | expense | saving (money moved aside: neither income nor spending)
   // fixed: a commitment the dashboard reserves for · debt: can be a payoff goal
-  // taxLine: the Schedule C line a new category in this group starts on
+  // subscription: counted in the insights subscription total
   groups: [
-    { id: 'revenue', label: 'Creator income', type: 'income', taxLine: 'L1' },
-    { id: 'other-income', label: 'Other income', type: 'income', other: true, taxLine: 'L6' },
-    { id: 'cogs', label: 'Merch & product costs', type: 'expense', cogs: true, taxLine: 'L38' },
-    { id: 'production', label: 'Production & gear', type: 'expense', taxLine: 'L22' },
-    { id: 'tools', label: 'Tools & overheads', type: 'expense', fixed: true, subscription: true, taxLine: 'L27b' },
-    { id: 'growth', label: 'Growth & platform fees', type: 'expense', taxLine: 'L8' },
-    { id: 'team', label: 'Editors, team & agents', type: 'expense', taxLine: 'L11' },
-    { id: 'operations', label: 'Running the business', type: 'expense', taxLine: 'L27b' },
-    { id: 'travel', label: 'Travel & meals', type: 'expense', taxLine: 'L24a' },
-    { id: 'owner', label: 'Your pay & draws', type: 'saving' },
-    { id: 'tax', label: 'Tax set-aside & payments', type: 'saving', tax: true, icon: 'shield' },
-    { id: 'reserve', label: 'Business savings', type: 'saving', icon: 'umbrella' },
-    { id: 'loans', label: 'Loan repayments', type: 'saving', fixed: true, debt: true },
-    { id: 'transfer', label: 'Card payments & own transfers', type: 'transfer', debt: true },
+    { id: 'income', label: 'Income', type: 'income' },
+    { id: 'bills', label: 'Bills', type: 'expense', fixed: true },
+    { id: 'subscriptions', label: 'Subscriptions', type: 'expense', fixed: true, subscription: true },
+    { id: 'debt', label: 'Debt payments', type: 'expense', fixed: true, debt: true },
+    { id: 'variable', label: 'Variable expenses', type: 'expense' },
+    { id: 'sinking', label: 'Sinking funds', type: 'saving' },
+    { id: 'savings', label: 'Savings', type: 'saving' },
+    { id: 'investment', label: 'Investments', type: 'saving', icon: 'outlook' },
+    // money moving between your own accounts: never income, spending or saving. A card payoff from
+    // checking belongs here when the card's purchases are already logged as expenses.
+    { id: 'transfer', label: 'Transfers (not counted)', type: 'transfer', debt: true },
   ],
-  // [id, name, group, Schedule C line]
+  // [id, name, group]
   categories: [
-    ['ad-revenue', 'Ad revenue (AdSense, TikTok, Reels)', 'revenue', 'L1'], ['sponsorships', 'Sponsorships & brand deals', 'revenue', 'L1'], ['memberships', 'Memberships (Patreon, channel, Substack)', 'revenue', 'L1'],
-    ['affiliate', 'Affiliate income', 'revenue', 'L1'], ['digital-products', 'Digital products & courses', 'revenue', 'L1'], ['merch', 'Merch & physical products', 'revenue', 'L1'],
-    ['tips', 'Tips, donations & gifted subs', 'revenue', 'L1'], ['licensing', 'Licensing & usage fees', 'revenue', 'L1'],
-    ['other-biz-income', 'Other business income', 'other-income', 'L6'], ['interest', 'Bank interest', 'other-income', 'N'],
-    ['merch-production', 'Merch production (print on demand, runs)', 'cogs', 'L38'], ['postage', 'Shipping & packaging', 'cogs', 'L39'],
-    ['equipment', 'Cameras, mics & lighting', 'production', 'L13'], ['props', 'Props, sets & materials', 'production', 'L22'], ['music-stock', 'Music, stock footage & fonts', 'production', 'L27b'],
-    ['software', 'Editing software & apps', 'tools', 'L18'], ['phone-internet', 'Phone & internet', 'tools', 'L25'], ['website', 'Website, hosting & email', 'tools', 'L27b'], ['studio', 'Studio or workspace rent', 'tools', 'L20b'],
-    ['advertising', 'Ads & promotion', 'growth', 'L8'], ['platform-fees', 'Platform & payment fees', 'growth', 'L10'], ['giveaways', 'Giveaways & PR packages', 'growth', 'L27b'],
-    ['editors', 'Editors, designers & thumbnails', 'team', 'L11'], ['assistants', 'Assistants & moderators', 'team', 'L11'], ['agent-fees', 'Agent & management commission', 'team', 'L10'],
-    ['professional', 'Accountant & legal', 'operations', 'L17'], ['training', 'Courses & coaching', 'operations', 'L27b'], ['insurance', 'Insurance', 'operations', 'L15'], ['bank-fees', 'Bank charges', 'operations', 'L27b'], ['licences', 'Licences & business taxes', 'operations', 'L23'],
-    ['content-travel', 'Travel for content & events', 'travel', 'L24a'], ['meals', 'Business meals', 'travel', 'L24b'],
-    ['owner-draw', 'Pay yourself (owner’s draw)', 'owner'], ['owner-retirement', 'Your retirement (SEP-IRA / Solo 401k)', 'owner'],
-    ['tax-reserve', 'Tax savings transfer', 'tax'], ['est-tax', 'Income tax paid (estimated & year-end)', 'tax'],
-    ['biz-savings', 'Rainy-day fund', 'reserve'], ['gear-fund', 'Gear upgrade fund', 'reserve'],
-    ['loan-repay', 'Business loan repayment', 'loans'],
-    ['card-payoff', 'Business card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between business accounts', 'transfer'],
-    ['platform-payout', 'Platform payouts & top-ups (already imported)', 'transfer'],
+    ['salary', 'Salary', 'income'], ['side', 'Side hustle', 'income'], ['spouse', 'Spouse / partner', 'income'], ['other-income', 'Other income', 'income'],
+    ['housing', 'Rent / mortgage', 'bills'], ['utilities', 'Utilities', 'bills'], ['internet', 'Internet & phone', 'bills'], ['insurance', 'Insurance', 'bills'],
+    ['streaming', 'Streaming', 'subscriptions'], ['memberships', 'Memberships', 'subscriptions'], ['credit', 'Credit card payment', 'debt'], ['loan', 'Loan payment', 'debt'],
+    ['groceries', 'Groceries', 'variable'], ['transport', 'Transport', 'variable'], ['dining', 'Dining & coffee', 'variable'], ['personal', 'Personal & family', 'variable'],
+    ['travel', 'Travel fund', 'sinking'], ['annual-bills', 'Annual bills fund', 'sinking'], ['emergency', 'Emergency savings', 'savings'], ['investing', 'Investment contributions', 'investment'],
+    // added in v1.9
+    ['taxes', 'Taxes paid', 'bills'], ['retirement', 'Retirement contributions', 'investment'],
+    ['card-payoff', 'Credit card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between my accounts', 'transfer'],
+    // added in v2.2
+    ['platform-payout', 'PayPal & app transfers (already counted)', 'transfer'],
   ],
-  // US Schedule C (Form 1040). part: income | other | cogs (Part III) | expense (Part II)
-  taxForm: { name: 'Schedule C', long: 'Schedule C (Form 1040) · Profit or Loss From Business' },
-  taxLines: [
-    { id: 'L1', line: '1', label: 'Gross receipts or sales', part: 'income' },
-    { id: 'L6', line: '6', label: 'Other income', part: 'other' },
-    { id: 'L36', line: '36', label: 'Purchases less cost of items withdrawn for personal use', part: 'cogs' },
-    { id: 'L37', line: '37', label: 'Cost of labor', part: 'cogs' },
-    { id: 'L38', line: '38', label: 'Materials and supplies', part: 'cogs' },
-    { id: 'L39', line: '39', label: 'Other costs', part: 'cogs' },
-    { id: 'L8', line: '8', label: 'Advertising', part: 'expense' },
-    { id: 'L9', line: '9', label: 'Car and truck expenses', part: 'expense' },
-    { id: 'L10', line: '10', label: 'Commissions and fees', part: 'expense' },
-    { id: 'L11', line: '11', label: 'Contract labor', part: 'expense' },
-    { id: 'L13', line: '13', label: 'Depreciation and section 179 expense', part: 'expense', note: 'Your accountant decides what to expense now and what to depreciate.' },
-    { id: 'L14', line: '14', label: 'Employee benefit programs', part: 'expense' },
-    { id: 'L15', line: '15', label: 'Insurance (other than health)', part: 'expense' },
-    { id: 'L16a', line: '16a', label: 'Mortgage interest (paid to banks)', part: 'expense' },
-    { id: 'L16b', line: '16b', label: 'Other interest', part: 'expense' },
-    { id: 'L17', line: '17', label: 'Legal and professional services', part: 'expense' },
-    { id: 'L18', line: '18', label: 'Office expense', part: 'expense' },
-    { id: 'L19', line: '19', label: 'Pension and profit-sharing plans', part: 'expense' },
-    { id: 'L20a', line: '20a', label: 'Rent or lease: vehicles, machinery, equipment', part: 'expense' },
-    { id: 'L20b', line: '20b', label: 'Rent or lease: other business property', part: 'expense' },
-    { id: 'L21', line: '21', label: 'Repairs and maintenance', part: 'expense' },
-    { id: 'L22', line: '22', label: 'Supplies', part: 'expense' },
-    { id: 'L23', line: '23', label: 'Taxes and licenses', part: 'expense' },
-    { id: 'L24a', line: '24a', label: 'Travel', part: 'expense' },
-    { id: 'L24b', line: '24b', label: 'Deductible meals', part: 'expense', note: 'Shown at the full amount spent. Business meals are usually 50% deductible.' },
-    { id: 'L25', line: '25', label: 'Utilities', part: 'expense' },
-    { id: 'L26', line: '26', label: 'Wages (less employment credits)', part: 'expense' },
-    { id: 'L27b', line: '27b', label: 'Other expenses (itemised in Part V)', part: 'expense' },
-    { id: 'N', line: '—', label: 'Not on Schedule C (personal, or reported elsewhere)', part: 'none', exclude: true },
-  ],
-  mileageLine: 'L9',
-  // US estimated-tax periods (Form 1040-ES): months covered and the payment due date
-  taxQuarters: [
-    { label: 'Q1', months: [1, 3], due: '04-15' },
-    { label: 'Q2', months: [4, 5], due: '06-15' },
-    { label: 'Q3', months: [6, 8], due: '09-15' },
-    { label: 'Q4', months: [9, 12], due: '01-15', nextYear: true },
-  ],
-  // Quick Log: a word in the description → category id. Words match inside longer words and earlier
-  // ones win, so specific names (epidemic, adsense, fee) come before short ones (mic, ads).
-  aliases: { epidemic: 'music-stock', artlist: 'music-stock', envato: 'music-stock', printful: 'merch-production', printify: 'merch-production', capcut: 'software', descript: 'software', premiere: 'software', finalcut: 'software', squarespace: 'website', vidcon: 'content-travel', airbnb: 'content-travel', fees: 'platform-fees', fee: 'platform-fees', stripe: 'platform-fees', paypal: 'platform-fees', adsense: 'ad-revenue', creatorfund: 'ad-revenue', youtube: 'ad-revenue', tiktok: 'ad-revenue', reels: 'ad-revenue', patreon: 'memberships', substack: 'memberships', membership: 'memberships', members: 'memberships', sponsorship: 'sponsorships', sponsor: 'sponsorships', affiliate: 'affiliate', associates: 'affiliate', amazon: 'affiliate', gumroad: 'digital-products', ebook: 'digital-products', etsy: 'digital-products', superchat: 'tips', kofi: 'tips', donation: 'tips', licensing: 'licensing', license: 'licensing', lunch: 'meals', dinner: 'meals', coffee: 'meals', meal: 'meals', flight: 'content-travel', hotel: 'content-travel', uber: 'content-travel', shipping: 'postage', postage: 'postage', packaging: 'postage', camera: 'equipment', lens: 'equipment', mic: 'equipment', microphone: 'equipment', light: 'equipment', lighting: 'equipment', tripod: 'equipment', laptop: 'equipment', props: 'props', prop: 'props', materials: 'props', music: 'music-stock', stock: 'music-stock', font: 'music-stock', adobe: 'software', canva: 'software', notion: 'software', software: 'software', phone: 'phone-internet', internet: 'phone-internet', hosting: 'website', domain: 'website', studio: 'studio', ads: 'advertising', promo: 'advertising', boost: 'advertising', giveaway: 'giveaways', editor: 'editors', editing: 'editors', thumbnail: 'editors', designer: 'editors', moderator: 'assistants', assistant: 'assistants', manager: 'agent-fees', agent: 'agent-fees', commission: 'agent-fees', accountant: 'professional', lawyer: 'professional', course: 'training', coaching: 'training', insurance: 'insurance', draw: 'owner-draw', irs: 'est-tax', estimated: 'est-tax', taxpot: 'tax-reserve', setaside: 'tax-reserve', autopay: 'card-payoff', cardpayment: 'card-payoff', transfer: 'own-transfer', sep: 'owner-retirement', solo401k: 'owner-retirement', retirement: 'owner-retirement', brand: 'sponsorships', deal: 'sponsorships', tips: 'tips', bits: 'tips', preset: 'digital-products', merch: 'merch', interest: 'interest' },
+  // Quick Log: a word in the description → category id
+  aliases: { coffee: 'dining', cafe: 'dining', lunch: 'dining', dinner: 'dining', restaurant: 'dining', takeaway: 'dining', groceries: 'groceries', grocery: 'groceries', supermarket: 'groceries', food: 'groceries', rent: 'housing', mortgage: 'housing', electric: 'utilities', water: 'utilities', gas: 'utilities', utility: 'utilities', phone: 'internet', internet: 'internet', netflix: 'streaming', spotify: 'streaming', streaming: 'streaming', subscription: 'memberships', fuel: 'transport', petrol: 'transport', uber: 'transport', taxi: 'transport', bus: 'transport', train: 'transport', salary: 'salary', paycheck: 'salary', payday: 'salary', freelance: 'side', client: 'side', sidehustle: 'side', partner: 'spouse', spouse: 'spouse', creditcard: 'credit', loan: 'loan', travel: 'travel', holiday: 'travel', emergency: 'emergency', invest: 'investing', investment: 'investing', autopay: 'card-payoff', cardpayment: 'card-payoff', transfer: 'own-transfer', retirement: 'retirement', '401k': 'retirement', ira: 'retirement', pension: 'retirement', irs: 'taxes', taxes: 'taxes', propertytax: 'taxes' },
+  // import: words a bank statement's own category column uses → category id
   importHints: {
+    groceries: 'groceries', grocery: 'groceries', supermarket: 'groceries', 'food & drink': 'dining', food: 'dining',
+    dining: 'dining', restaurants: 'dining', restaurant: 'dining', coffee: 'dining', 'dining out': 'dining',
+    gas: 'transport', fuel: 'transport', automotive: 'transport', auto: 'transport', transport: 'transport',
+    transportation: 'transport', travel: 'transport', rideshare: 'transport', parking: 'transport',
+    'bills & utilities': 'utilities', utilities: 'utilities', bills: 'utilities', 'bills and utilities': 'utilities',
+    shopping: 'personal', personal: 'personal', entertainment: 'personal', 'health & wellness': 'personal',
+    health: 'personal', fees: 'personal', 'personal care': 'personal',
+    rent: 'housing', mortgage: 'housing', home: 'housing', housing: 'housing',
+    insurance: 'insurance', phone: 'internet', internet: 'internet',
+    salary: 'salary', payroll: 'salary', income: 'salary', paycheck: 'salary',
     'credit card payment': 'card-payoff', 'credit card payments': 'card-payoff', 'card payment': 'card-payoff', payment: 'card-payoff', payments: 'card-payoff',
     transfer: 'own-transfer', transfers: 'own-transfer', 'internal transfer': 'own-transfer',
-    taxes: 'est-tax', tax: 'est-tax', 'federal tax': 'est-tax', retirement: 'owner-retirement',
-    advertising: 'advertising', software: 'software', shipping: 'postage', postage: 'postage', electronics: 'equipment',
-    travel: 'content-travel', 'dining out': 'meals', restaurants: 'meals', insurance: 'insurance',
-    fees: 'bank-fees', 'bank fees': 'bank-fees', income: 'sponsorships', deposit: 'ad-revenue', sales: 'digital-products',
+    taxes: 'taxes', tax: 'taxes', 'federal tax': 'taxes', 'state tax': 'taxes',
+    retirement: 'retirement', '401k': 'retirement', ira: 'retirement', 'retirement contributions': 'retirement',
   },
-  // platform statements: where each kind of entry starts, per platform where it differs
-  platformDefaults: { sale: 'digital-products', refund: 'digital-products', fees: 'platform-fees', ads: 'advertising', shipping: 'postage', feeTax: 'platform-fees', payout: '__skip', conversion: '__skip', taxWithheld: 'est-tax', purchase: '', other: '',
-    platforms: { youtube: { sale: 'ad-revenue', refund: 'ad-revenue' }, tiktok: { sale: 'ad-revenue', refund: 'ad-revenue' }, patreon: { sale: 'memberships', refund: 'memberships' }, substack: { sale: 'memberships', refund: 'memberships' }, twitch: { sale: 'memberships', refund: 'memberships' },
-      kofi: { sale: 'tips', refund: 'tips' }, buymeacoffee: { sale: 'tips', refund: 'tips' }, shopify: { sale: 'merch', refund: 'merch' }, paypal: { sale: 'sponsorships', refund: 'sponsorships' } } },
-  defaults: { category: 'ad-revenue', schedule: 'software', annualCategory: 'ad-revenue', payout: 'platform-payout', quickSetup: ['ad-revenue', 'sponsorships', 'memberships', 'editors', 'software', 'tax-reserve'] },
+  // platform statements (Etsy, PayPal, Patreon…): sales and the platform's cut both land in side income,
+  // so it shows what actually reached you; payouts to your bank are skipped
+  platformDefaults: { sale: 'side', refund: 'side', fees: 'side', ads: 'side', shipping: 'side', feeTax: 'side', payout: '__skip', conversion: '__skip', taxWithheld: 'taxes', purchase: '', other: 'side' },
+  defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', payout: 'platform-payout', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
 
-  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['years', 'Year over year', 'years'], ['cuts', 'Cut costs', 'scissors'], ['insights', 'Creator health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Brand deals & invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['years', 'cuts', 'invoices', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
-  navGroups: [['Your creator business', ['dashboard', 'activity', 'pl', 'annual', 'years', 'insights', 'cuts', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Deals & tax', ['invoices', 'tax', 'taxlines', 'mileage']]],
-  navGroupRest: 'Settings & help',
+  // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
+  nav: [['dashboard', 'Portfolio', 'today'], ['rentroll', 'Rent roll', 'calendar'], ['props', 'Properties', 'grid'], ['tenants', 'Tenants & leases', 'tags'], ['expenses', 'Expenses', 'down'], ['taxes', 'Schedule E', 'review'], ['rpledger', 'Rent ledger', 'history'],
+    ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
+  optionalNav: ['rpledger', 'taxes', 'guide'],
+  navGroups: [['Your rentals', ['dashboard', 'rentroll', 'props', 'tenants', 'expenses']], ['Taxes & records', ['taxes', 'rpledger']]],
+  navGroupRest: 'Make it yours',
 
+  // words used across the screens
   labels: {
-    income: 'Income', expense: 'Expenses', saving: 'Transfers & draws', savingShort: 'Transfers', savingOne: 'Transfer',
-    incomePlanned: 'Expected income', incomeReceived: 'Income received', expensesPaid: 'Expenses paid', savedInvested: 'Transfers & draws',
-    plannedContributions: 'Planned transfers', savingsFilter: 'Transfers & draws',
-    plannedIncome: 'PLANNED INCOME', subscriptionKpi: 'Overheads plan', yourName: 'Creator or business name', yourNameHint: 'Shown on your statements and exports',
-    greeting: ' · the month at a glance', greetingPlain: 'Your creator business at a glance', planTitle: 'Your monthly targets', categoryPlaceholder: 'e.g. Twitch subs',
-    categorySub: 'Shape the categories around how you actually earn and spend.', directionNormal: 'Money in / cost paid / transfer',
-    budgetOver: 'over target by', budgetLeft: 'under target by', repeatNote: 'Copy this month’s targets into months that have none, then adjust the months that need something different.', repeatButton: 'Repeat these targets',
-    openingLabel: 'Opening cash balance', recurringButton: 'Recurring costs', planNoun: 'targets', txFormNote: 'Choose the matching category.',
-    quickSetupSave: 'Save starting targets', importSub: 'Map the columns, review the rows, then add them to your books.',
-    calendarTitle: 'Your creator calendar', scheduleEmpty: 'Add a subscription, a retainer or sponsorship you receive, or a regular transfer to your tax pot.',
-    quickSetupNote: 'You can add the rest of your categories, dates and transfers in Monthly targets. This sets targets; it does not record any income or costs.',
-    importFrom: 'Use a CSV export from your bank, PayPal, a creator platform or another bookkeeping app.',
-    saleWord: 'payout', salesWord: 'income', clientWord: 'brand or client', channelPlaceholder: 'e.g. YouTube, Patreon, Etsy',
-    exitDemo: 'Return to my books', demoOnly: 'Your books only', notePlaceholder: 'e.g. AdSense payout · August',
-    incomeOne: 'Income', savedCol: 'Transfers', netHint: 'Income − expenses − transfers',
-    savingRateEmpty: 'Log income to see the share moved aside', savingRate: '% of income received',
-    transfer: 'Card payments & own transfers', transferOne: 'Transfer',
-    noPlan: 'No monthly target set', editPlan: 'Edit targets',
-    rhythmPlan: 'Set this month’s income and cost targets', incomeWeek: 'Income this week', channelOne: 'Income stream', channelShort: 'stream', healthEyebrow: 'Creator health', healthTitle: 'How healthy is your creator business?', channelsTitle: 'Income streams', channelsIntro: 'Add a stream for each place you earn (YouTube, TikTok, Patreon, Etsy, brand deals…) and tag income, and the costs that belong to it, with that stream. Profit &amp; loss then shows profit for each stream. Leave shared costs like software untagged.', reviewDaysNote: 'Days with at least one payout or cost logged.',
-    reviewChecks: ['I matched this week’s payouts and costs to my bank and card statements.', 'I followed up on brand-deal invoices that are due or late.', 'I moved this week’s tax set-aside and checked the bills coming next.'],
-    goalsEyebrow: 'Build a cushion', goalsTitle: 'Reserves, goals & loan payoff', goalsPlanTitle: 'This month’s transfers', goalsPlanSub: 'Draws, tax pot and reserves planned for', heroBills: 'Unpaid bills & fixed costs', heroSave: 'Planned transfers to make', heroFree: 'Free to use',
-    heroLead: 'Free to use once unpaid fixed costs and planned transfers, like the tax pot and your own pay, are covered.',
+    income: 'Income', expense: 'Expenses', saving: 'Savings & investing', savingShort: 'Contributions', savingOne: 'Contribution',
+    incomePlanned: 'Expected income', incomeReceived: 'Income received', expensesPaid: 'Expenses paid', savedInvested: 'Saved & invested',
+    plannedContributions: 'Planned contributions', savingsFilter: 'Savings & investments',
+    plannedIncome: 'PLANNED INCOME', subscriptionKpi: 'Subscription plan', yourName: 'Your name (optional)', yourNameHint: 'What should we call you?',
+    greeting: '’s rentals', greetingPlain: 'Your rentals', planTitle: 'Your rentals', categoryPlaceholder: 'e.g. Pest control',
+    categorySub: 'Make it fit your rentals.', directionNormal: 'Paid',
+    statementKinds: 'a statement',
+    importNote: '',
+    exitDemo: 'Return to my rentals', demoOnly: 'Your rentals only', demoNote: 'Fictional landlord. Your own properties and tenants stay separate.', notePlaceholder: 'e.g. Check #1042',
+    incomeOne: 'Income', savedCol: 'Saved', transfer: 'Transfers (not counted)', transferOne: 'Transfer', netHint: 'Rent received − expenses',
+    savingRateEmpty: 'Add rent to see your cash flow', savingRate: '% of rent',
   },
-  quickLog: { placeholder: 'adsense payout 1840', help: 'Try “adsense payout 1840”, “patreon 1320”, “editor 450”, “epidemic sound 15” or “new mic 129”.', demo: ['editor', '450', 'Editors, designers & thumbnails'] },
+  quickLog: { placeholder: 'coffee 4.50', help: 'Try “coffee 4.50”.', demo: ['coffee', '4.50', 'Dining & coffee'] },
 
+  tourTopics: 'adding properties and tenants, recording rent, expenses, Schedule E and backups',
+  // first-run tour; 'backup' is the shared backup slide
   welcome: [
-    { icon: 'today', step: 'WELCOME', title: 'Every income stream, in one calm place', text: '<p>Ad revenue, brand deals, memberships, affiliates and product sales, next to what it costs to make the content. Profit, tax money and a year-end summary build themselves.</p><p>Everything stays in this browser. No logins to your platforms, no subscription.</p>' },
-    { icon: 'insights', step: 'STREAMS', title: 'See what each platform really pays', text: '<p>Tag income and its costs with a stream (YouTube, Patreon, TikTok, Etsy, brand deals…). <b>Profit &amp; loss</b> shows profit for each one, and <b>Creator health</b> warns you when one platform carries too much of your income.</p>' },
-    { icon: 'table', step: 'BRAND DEALS', title: 'Get paid for every sponsorship', text: '<p>Log each brand deal as an invoice. <b>Brand deals &amp; invoices</b> shows what is owed and how late it is, and writes a polite reminder when a sponsor pays late.</p>' },
-    { icon: 'umbrella', step: 'TAX', title: 'Put tax money aside as the payouts land', text: '<p>Choose a set-aside rate. <b>Quarterly tax</b> compares what you should have put aside with what you have.</p><p><b>Not tax, legal or financial advice.</b> The rates and form lines use the figures you enter. Tax rules differ by country and change every year, so confirm them with a tax professional.</p>' },
+    { icon: 'today', step: 'WELCOME', title: 'Every rental, in one place', text: '<p>Your properties and units, who rents them, what’s come in and what’s gone out. The big number is this month’s cash flow.</p><p>Everything stays on your computer: no bank login, no subscription, no sharing tenant details with anyone.</p>' },
+    { icon: 'calendar', step: 'EACH MONTH', title: 'Who paid, who’s late', text: '<p>The rent roll lists every unit: rent due, what arrived and who’s late, with your late fee ready to add.</p>' },
+    { icon: 'review', step: 'TAX TIME', title: 'Schedule E, done as you go', text: '<p>Every expense goes on its Schedule E line. At tax time, print it or export it for your accountant.</p>' },
     'backup',
-    { icon: 'check', step: 'START', title: 'Start with your last payout', text: '<p>Add your most recent AdSense, Patreon or sponsor payment, or import a platform statement or a month of bank transactions. Your dashboard fills in from there.</p>', cta: { label: 'Add a transaction', action: 'welcome-log' } },
+    { icon: 'grid', step: 'START', title: 'Start with one property', text: '<p>Its name and units now; the money details whenever you have them.</p>', cta: { label: 'Add my first property', action: 'rp-prop-add' }, finish: 'Look around first' },
   ],
   guide: {
-    title: 'Four moves. Every stream accounted for.',
+    title: 'Four steps to clear rental books.',
+    // [icon, step, what to do, screen label, screen id]
     cards: [
-      ['spark', '1. Log', 'Quick Log payouts and costs as they happen, or import a bank CSV each month and tag each payout with its income stream.', 'Transactions', 'activity'],
-      ['insights', '2. Compare streams', 'Read the P&L for the month, the quarter or the year, with profit for each income stream underneath.', 'Profit & loss', 'pl'],
-      ['shield', '3. Set tax aside', 'Move your set-aside each month and see it against each due date. A savings rule, not tax advice.', 'Quarterly tax', 'tax'],
-      ['tags', '4. Hand over', 'Download a line-by-line summary and every transaction for your accountant or tax preparer.', 'Schedule C summary', 'taxlines'],
+      ['grid', '1. Properties', 'Add each property with its units, what it’s worth and the mortgage payment.', 'Properties', 'props'],
+      ['tags', '2. Tenants', 'Add who rents each unit: rent, due day, lease dates and deposit.', 'Tenants & leases', 'tenants'],
+      ['calendar', '3. Rent & expenses', 'Record rent as it arrives; add expenses once, with repeats for monthly and yearly ones.', 'Rent roll', 'rentroll'],
+      ['review', '4. Tax time', 'Schedule E fills itself: rents and every expense line, by property. Print or export.', 'Schedule E', 'taxes'],
     ],
-    meanings: [['Income', 'Every payout, deal and sale'], ['Gross profit', 'Income − merch costs'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, your pay, card payoffs']],
+    meanings: [['Cash flow', 'Rent received minus every expense, mortgage included'], ['NOI', 'Net operating income: rent minus running costs, before the mortgage'], ['Cap rate', 'NOI for a year ÷ what the property is worth'], ['Cash-on-cash', 'A year of cash flow ÷ the cash you put in']],
     details: [
-      ['Tags: grouping income streams', 'A tag groups income streams by what they earn from, for example YouTube and TikTok under <b>Ad revenue</b>, Patreon and Buy Me a Coffee under <b>Donations</b>, Etsy and Payhip under <b>Digital products</b>. Set each income stream’s tag in <b>Settings</b>; its entries follow, and a well-known name picks up its usual tag when you add it. Any entry, a cost included, can also carry its own tag in <b>Edit transaction</b>, or tag many at once in Transactions. Either way, Creator Plan offers to tag look-alike transactions too and to remember the tag for future imports and Quick Log; the rules are listed under Tags in Settings. Each tag gets its own colour automatically. The dashboard and annual overview chart money in and out by tag, and the Transactions screen filters by it.'],
-      ['Combing through transactions', 'The Transactions screen keeps its own dates, apart from the month picker: all time, this or last month, the last 3 months, this or last year, or custom dates. Tick rows, or <b>Select all</b> matching, to change their category, stream or tag, or to delete them, in one step. Every bulk change can be undone. Rows in a closed month cannot be ticked. <b>Export CSV</b> saves exactly the rows shown.'],
-      ['Income streams', 'Add a stream for each place you earn in <b>Settings → Income streams</b> (one click for YouTube, TikTok, Patreon and more), or type a new one on a transaction. Tag payouts and the costs that clearly belong to a stream, such as Patreon fees or a shoot for one sponsor. Leave shared costs like software untagged. Profit &amp; loss shows profit for each stream, and you can view the statement for one stream at a time. On import, tag rows in bulk; Creator Plan offers to remember the stream for similar descriptions.'],
-      ['Platform statements: YouTube, Patreon, Etsy and more', 'Import each platform’s own statement on the Import screen: YouTube (AdSense) transactions, a Patreon earnings export, an Etsy monthly statement, a PayPal activity download, Stripe or Shopify Payments exports, or any file with gross and fee columns (Gumroad, Ko-fi, Substack and similar). Creator Plan recognises it, splits each payout into what you earned and the platform’s cut, and tags the entries with that platform’s stream if you have one. Tax a platform withholds, such as YouTube’s US withholding, lands in tax paid. After that, bank deposits from that platform go to <b>Platform payouts &amp; top-ups (already imported)</b>, a transfer, so nothing is counted twice.'],
-      ['Brand deals', 'Log each sponsorship as an invoice when you agree it, with the brand as the client. It becomes income on the day you mark it paid. Overdue deals get a <b>Reminder</b> button that writes a polite chase-up you can copy into an email.'],
-      ['Creator health', 'Shows your <b>cash runway</b> (how many months your tracked cash would cover costs if payouts stopped), your <b>break-even income</b>, margins month by month, costs against their usual level, and whether one platform, brand or client carries too much of your income. It reads only what you record and is not financial advice.'],
-      ['Dig into any number', 'Click a card at the top of the dashboard to see the transactions behind it; <b>Avg. monthly cash flow</b> opens the Annual overview. Click a slice of any donut to list its transactions. On Transactions, pick a group and then a category, sort any column, and read the total of what is shown at the bottom.'],
-      ['Gear, gifted products and big purchases', 'Log cameras, lenses and lighting under <b>Cameras, mics &amp; lighting</b>. Your accountant decides what is expensed now and what is depreciated. Products brands send you for free may count as income where you live; ask your tax professional and log them as <b>Other business income</b> if so.'],
-      ['Not tax, legal or financial advice', 'Creator Plan organises your own records. Every tax figure it shows, from the set-aside to the form lines, comes from the rates, categories and rules you enter. It does not know your tax position, and tax rules differ by country and change every year. Check with a qualified tax professional or accountant before you file, claim or pay tax.'],
-      ['Outside the US', 'Income, streams, profit, cash flow and brand deals work anywhere: set your currency in Settings. The <b>Schedule C summary</b> uses US line numbers and the <b>Quarterly tax</b> due dates follow the US estimated-tax calendar. Elsewhere, treat the category totals and set-aside figures as a starting point for your own return and your own payment dates. Money in other currencies is covered too: see below.'],
-      ['Money in other currencies', 'Record what reached or left your account in your own currency, and open <b>In another currency?</b> on the transaction to keep the original amount; the rate you enter works the amount out for you and is remembered. Imports convert rows in another currency at a rate you set on the review screen. Brand deals can be invoiced in any currency: when one is paid, enter what actually arrived. The rates you use are listed in <b>Settings → Other currencies</b>.'],
-      ['Importing from your bank', 'On the import screen, filter by status to see only the rows that are not ready, fix their category or stream, and import them from the button at the top or bottom. When you change a category or stream, Creator Plan offers to update similar rows and remember the choice for future imports.'],
-      ['Paying yourself, tax money and retirement', 'Paying yourself, moving money to your tax pot, income tax you pay and your own retirement contributions are not business expenses, so they never reduce profit. Your accountant will want the totals, which appear under Transfers.'],
-      ['Business credit cards and your own transfers', 'If you log or import the card’s purchases, those are the expenses. Paying the card from the business account is then a transfer: use <b>Business card payoff (purchases already logged)</b>, which is never counted.'],
-      ['Starting over', 'Settings → <b>Start fresh</b> clears the books in one step. Keep your categories, streams and settings, or erase everything. Download a backup first if you might want the data again.'],
+      ['Part payments and late rent', 'Record what arrived, when it arrived. The rent roll shows the rest as still due, and as late once the grace days pass. Add your late fee from the alert when you charge it.'],
+      ['The mortgage', 'Enter the monthly payment on the property, and roughly how much of it is interest (your mortgage statement shows it). The interest goes on Schedule E line 12; the principal counts in cash flow but isn’t deductible.'],
+      ['Repeating expenses', 'Insurance, property taxes, HOA fees: add them once as monthly or yearly and they appear on their own. Set an end date if one stops.'],
+      ['Security deposits', 'Deposits are held, not income. If you keep part of one, record it as a payment for that month.'],
+      ['A tenant moves out', 'Edit the lease and set the move-out date. Rent stops after it, the unit shows as vacant, and their history stays.'],
+      ['Selling a property', 'Edit it and tick Sold. It leaves your rent and returns, and stays in past Schedule E years.'],
+      ['Depreciation', 'Not worked out here: it depends on your purchase price, land value and the year you started renting. Your tax pro can add it.'],
+      ['Is this tax advice?', 'No. It’s a worksheet of your own numbers, laid out like Schedule E, to make tax time easier.'],
     ],
   },
 
-  // the fictional creator behind "Explore sample data": a DIY and crafts YouTuber with a Patreon,
-  // digital patterns on Etsy, affiliate links and regular brand deals
+  // the fictional landlord behind "Explore sample data": three properties, one late tenant, one lease ending, one vacancy
   sample: {
-    name: 'Maya Makes', opening: 380000, settings: { goalImages: true, goalsLayout: 'grid' },
-    note: 'Chase the two late sponsor invoices and top up the tax pot before the September payment.',
-    amounts: { 'ad-revenue': 2400, sponsorships: 3000, memberships: 1400, affiliate: 450, 'digital-products': 900, editors: 900, software: 85, 'music-stock': 30, props: 180, equipment: 120, 'phone-internet': 80, advertising: 60, 'platform-fees': 200, professional: 50, 'owner-draw': 2500, 'tax-reserve': 1200, 'biz-savings': 200 },
-    days: { memberships: 1, software: 3, 'music-stock': 5, 'phone-internet': 12, professional: 20, 'ad-revenue': 21, editors: 25, 'owner-draw': 28, 'tax-reserve': 28, 'biz-savings': 28 },
-    undated: ['sponsorships', 'affiliate', 'digital-products', 'props', 'equipment', 'advertising', 'platform-fees'],
-    unscheduled: ['ad-revenue', 'sponsorships', 'memberships', 'affiliate', 'digital-products', 'props', 'equipment', 'advertising', 'platform-fees'],
-    spread: { groups: [], days: [], notes: [], share: { default: 1 } },
-    // ad rates climb into the holidays; memberships grow a little each month;
-    // brand deals arrive as invoice payments (see extras); fees are worked out from payouts
-    actual: (id, month, planned) => {
-      if (id === 'ad-revenue') return Math.round(planned * [0.78, 0.72, 0.8, 0.84, 0.9, 0.88, 0.86, 0.92, 1.02, 1.15, 1.35, 1.55][month - 1]);
-      if (id === 'memberships') return Math.round(planned * (0.9 + 0.02 * month));
-      if (id === 'affiliate') return Math.round(planned * [0.7, 0.6, 0.8, 0.9, 1, 0.9, 1.3, 1.1, 1, 1.2, 1.8, 2.1][month - 1]);
-      if (id === 'digital-products') return Math.round(planned * [1.2, 1.1, 0.9, 0.8, 0.9, 0.8, 0.7, 1.1, 1.3, 1.1, 1.2, 1.6][month - 1]);
-      if (id === 'sponsorships' || id === 'platform-fees') return 0;
-      if (id === 'equipment') return month % 4 === 0 ? planned * 7 : 0;
-      if (id === 'props') return Math.round(planned * (month % 2 ? 1.15 : 0.8));
-      if (id === 'advertising') return month % 3 === 1 ? planned * 2 : 0;
-      return planned;
-    },
-    snapshots: false,
-    goals: [
-      { category: 'tax-reserve', kind: 'saving', name: 'Tax pot for this year', target: 1500000, opening: 0, due: [0, '12-31'], image: 'emergency' },
-      { category: 'biz-savings', kind: 'saving', name: 'Three slow months covered', target: 900000, opening: 300000, due: [1, '03-31'], image: 'investing' },
-    ],
-    extras: (s, { m, year, now, uid, totals }) => {
-      const monthNo = +m.slice(5, 7), key = i => `${year}-${String(i).padStart(2, '0')}`;
-      s.tags = [{ id: 'tg-ads', name: 'Ad revenue', color: 6 }, { id: 'tg-donations', name: 'Donations', color: 4 }, { id: 'tg-digital', name: 'Digital products', color: 1 }, { id: 'tg-sponsor', name: 'Sponsorships', color: 3 }, { id: 'tg-aff', name: 'Affiliate income', color: 5 }];
-      s.channels = [{ id: 'ch-yt', name: 'YouTube', tag: 'tg-ads' }, { id: 'ch-patreon', name: 'Patreon', tag: 'tg-donations' }, { id: 'ch-etsy', name: 'Etsy', tag: 'tg-digital' }, { id: 'ch-brands', name: 'Brand deals', tag: 'tg-sponsor' }, { id: 'ch-aff', name: 'Affiliates', tag: 'tg-aff' }];
-      s.channelRules = { adsense: 'ch-yt', youtube: 'ch-yt', patreon: 'ch-patreon', etsy: 'ch-etsy', sponsor: 'ch-brands', amazon: 'ch-aff' };
-      // brand deals as invoices: paid ones sit in income, the latest are still open, two of them late
-      const brands = ['Lumen Paints', 'Craftbox Co.', 'Brightside Tools', 'Hearth & Loom', 'Pixel Paper'], deals = ['60-second integration', 'Dedicated video', 'Shorts + Instagram package', 'Tutorial sponsorship'];
-      s.invoices = []; let n = 2200;
-      for (let i = Math.max(1, monthNo - 8); i <= monthNo; i++) {
-        [8, 22].forEach((d, j) => {
-          if (j && i % 2) return;   // one deal most months, two in even months
-          const issued = `${key(i)}-${String(d).padStart(2, '0')}`; if (issued > now) return;
-          const due = new Date(Date.UTC(+year, i - 1, d + 30)).toISOString().slice(0, 10);
-          const amount = [250000, 180000, 320000, 120000, 400000][(i + j * 2) % 5];
-          const inv = { id: uid(), number: 'BD-' + (++n), client: brands[(i + j * 3) % 5], issued, due, amount, category: 'sponsorships', note: deals[(i + j) % 4], channel: 'ch-brands' };
-          if (i < monthNo - 1) {
-            const paidOn = new Date(Date.UTC(+year, i - 1, d + 26)).toISOString().slice(0, 10);
-            if (paidOn <= now) { const t = { id: uid(), date: paidOn, category: 'sponsorships', amount, note: `${inv.client} · ${inv.note}`, channel: 'ch-brands' }; s.transactions.push(t); inv.paid = { date: paidOn, tx: t.id }; }
-          }
-          s.invoices.push(inv);
-        });
+    name: 'Morgan', opening: 0, settings: {},
+    note: 'Record rent as it arrives.',
+    extraCategories: [],
+    amounts: {},
+    days: {},
+    undated: [],
+    spread: { groups: [], days: [], notes: [], share: { default: .5 } },
+    goals: [],
+    extras: (s, { uid }) => {
+      const t = new Date().toISOString().slice(0, 10), now = t.slice(0, 7), day = +t.slice(8, 10), pad = n => String(n).padStart(2, '0');
+      const addM = (ym, n) => { const y = +ym.slice(0, 4), m = +ym.slice(5, 7) - 1 + n, Y = y + Math.floor(m / 12), M = ((m % 12) + 12) % 12 + 1; return `${Y}-${pad(M)}`; };
+      const addD = (d, n) => { const x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+      const start = addM(now, -17), first = start + '-01';
+      s.rpProps = [
+        { id: 'p-maple', name: 'Maple Street duplex', kind: 'multi', addr: '12 Maple St', units: [{ id: 'u-ma', name: 'Unit A' }, { id: 'u-mb', name: 'Unit B' }], value: 42000000, price: 36000000, invested: 8500000, loan: { payment: 185000, interest: 130000, start: first }, added: first, color: 0 },
+        { id: 'p-oak', name: 'Oak Lane house', kind: 'single', addr: '48 Oak Ln', units: [{ id: 'u-oak', name: 'Whole property' }], value: 38500000, price: 30000000, invested: 7000000, loan: { payment: 160000, interest: 105000, start: first }, added: first, color: 1 },
+        { id: 'p-harbor', name: 'Harbor View condo', kind: 'condo', addr: '7 Harbor View, #304', units: [{ id: 'u-hv', name: 'Condo' }], value: 24000000, price: 21500000, invested: 21500000, added: first, color: 2 },
+      ];
+      // Oak's rent is late on any day the sample opens (its grace is shorter early in the month)
+      const oakGrace = day >= 7 ? 5 : 0;
+      s.rpLeases = [
+        { id: 'l-sam', prop: 'p-maple', unit: 'u-ma', tenant: 'Sam Rivera', rent: 145000, due: 1, grace: 5, lateFee: 5000, deposit: 145000, start: addM(start, -4) + '-01', end: addM(now, 7) + '-30' },
+        { id: 'l-priya', prop: 'p-maple', unit: 'u-mb', tenant: 'Priya Shah', rent: 140000, due: 1, grace: 5, lateFee: 5000, deposit: 140000, start: addM(now, -11) + '-01', end: addD(t, 41) },
+        { id: 'l-ng', prop: 'p-oak', unit: 'u-oak', tenant: 'The Nguyen family', rent: 210000, due: 1, grace: oakGrace, lateFee: 7500, deposit: 210000, start: start + '-01' },
+        { id: 'l-lee', prop: 'p-harbor', unit: 'u-hv', tenant: 'Jordan Lee', rent: 175000, due: 3, grace: 5, lateFee: 5000, deposit: 175000, start: start + '-01', end: addM(now, -1) + '-28', out: addM(now, -1) + '-28' },
+      ];
+      s.rpPays = [];
+      for (let k = 0; k < 18; k++) {
+        const m = addM(start, k), cur = m === now;
+        const pay = (lease, rent, d, part) => s.rpPays.push({ id: uid(), lease, month: m, date: `${m}-${pad(d)}`, amount: part || rent });
+        if (!cur || day >= 1) pay('l-sam', 145000, k % 5 === 2 ? 4 : 1);
+        if (m >= addM(now, -11) && (!cur || day >= 2)) pay('l-priya', 140000, k % 4 === 1 ? 3 : 2);
+        if (!cur) pay('l-ng', 210000, k === 9 ? 9 : 1); else pay('l-ng', 210000, 1, 100000);
+        if (m < now) pay('l-lee', 175000, 3);
+        if (k === 9) s.rpPays.push({ id: uid(), lease: 'l-ng', month: m, date: `${m}-09`, amount: 7500, kind: 'fee' });
       }
-      // payouts get their platform's name and stream; platforms' cuts become fee entries
-      const extra = [];
-      s.transactions.forEach(t => {
-        if (t.category === 'ad-revenue') { t.channel = 'ch-yt'; t.note = 'AdSense payout'; }
-        else if (t.category === 'memberships') { t.channel = 'ch-patreon'; t.note = 'Patreon payout';
-          extra.push({ id: uid(), date: t.date, category: 'platform-fees', amount: Math.round(t.amount * 0.08), note: 'Patreon platform fee', channel: 'ch-patreon' }); }
-        else if (t.category === 'digital-products') { t.channel = 'ch-etsy'; t.note = 'Etsy payout · sewing patterns';
-          extra.push({ id: uid(), date: t.date, category: 'platform-fees', amount: Math.round(t.amount * 0.1), note: 'Etsy fees', channel: 'ch-etsy' }); }
-        else if (t.category === 'affiliate') { t.channel = 'ch-aff'; t.note = 'Amazon Associates'; }
-        else if (['editors', 'music-stock', 'props', 'equipment'].includes(t.category)) t.channel = 'ch-yt';
-        else if (t.category === 'advertising') t.channel = 'ch-etsy';
-      });
-      s.transactions.push(...extra);
-      // cash carries forward: each month opens with the month before's closing balance
-      for (let i = 2; i <= 12; i++) s.months[key(i)].opening = totals(s, key(i - 1)).cash;
+      const y0 = start, ins = addM(start, 1);
+      s.rpExps = [
+        { id: uid(), prop: 'p-maple', date: ins + '-15', amount: 138000, cat: 'insurance', note: 'Landlord insurance', repeat: 'yearly' },
+        { id: uid(), prop: 'p-maple', date: addM(y0, 2) + '-10', amount: 420000, cat: 'taxes', note: 'Property taxes', repeat: 'yearly' },
+        { id: uid(), prop: 'p-maple', date: first.slice(0, 8) + '20', amount: 14000, cat: 'utilities', note: 'Water & sewer', repeat: 'monthly' },
+        { id: uid(), prop: 'p-maple', date: first.slice(0, 8) + '12', amount: 8500, cat: 'cleaning', note: 'Lawn & snow', repeat: 'monthly' },
+        { id: uid(), prop: 'p-maple', date: addM(now, -5) + '-18', amount: 34000, cat: 'repairs', note: 'Plumber: kitchen leak', repeat: 'once' },
+        { id: uid(), prop: 'p-maple', date: addM(now, -2) + '-06', amount: 6400, cat: 'supplies', note: 'Smoke detectors', repeat: 'once' },
+        { id: uid(), prop: 'p-oak', date: addM(start, 4) + '-22', amount: 115000, cat: 'insurance', note: 'Landlord insurance', repeat: 'yearly' },
+        { id: uid(), prop: 'p-oak', date: addM(y0, 5) + '-10', amount: 360000, cat: 'taxes', note: 'Property taxes', repeat: 'yearly' },
+        { id: uid(), prop: 'p-oak', date: addM(now, -9) + '-14', amount: 125000, cat: 'repairs', note: 'Water heater replaced', repeat: 'once' },
+        { id: uid(), prop: 'p-oak', date: addM(now, -3) + '-02', amount: 18000, cat: 'repairs', note: 'Furnace service', repeat: 'once' },
+        { id: uid(), prop: 'p-harbor', date: first.slice(0, 8) + '05', amount: 32000, cat: 'hoa', note: 'HOA fees', repeat: 'monthly' },
+        { id: uid(), prop: 'p-harbor', date: addM(start, 10) + '-28', amount: 52000, cat: 'insurance', note: 'Condo insurance', repeat: 'yearly' },
+        { id: uid(), prop: 'p-harbor', date: addM(y0, 8) + '-10', amount: 230000, cat: 'taxes', note: 'Property taxes', repeat: 'yearly' },
+        { id: uid(), prop: 'p-harbor', date: addM(now, -1) + '-26', amount: 4500, cat: 'advertising', note: 'Rental listing', repeat: 'once' },
+        { id: uid(), prop: 'p-harbor', date: addM(now, -1) + '-29', amount: 22000, cat: 'cleaning', note: 'Turnover cleaning', repeat: 'once' },
+        { id: uid(), prop: 'p-harbor', date: addM(now, -6) + '-11', amount: 15000, cat: 'legal', note: 'Lease review', repeat: 'once' },
+      ];
     },
   },
 };
@@ -1781,14 +1708,14 @@ th.tbl-th{cursor:pointer;user-select:none;white-space:nowrap}th.tbl-th:hover,th.
 <a href="#content" style="position:absolute;left:-9999px" onfocus="this.style.left='10px'" onblur="this.style.left='-9999px'">Skip to content</a>
 <div class="app" id="app"><aside class="rail" id="rail" aria-label="Main navigation">
   <button class="mobile-close" aria-label="Close menu" data-action="menu">×</button>
-  <div class="brand"><div class="brand-mark">C</div><div class="brand-txt"><b>Creator Plan</b><small>JPS DIGITAL PAGES</small></div><button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
+  <div class="brand"><div class="brand-mark">R</div><div class="brand-txt"><b>Rental Property Tracker</b><small>LANDLORD BOOKS</small></div><button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
   <nav id="nav"></nav>
-  <div class="rail-foot"><div class="rail-note"><b>Every stream, one clear picture.</b>See what each platform really pays. Chase brand deals. Put tax money aside.</div><button class="btn small rail-demo" id="demo-toggle" data-action="demo">Explore sample data</button><a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages ↗</a><br><span>Books for YouTubers, streamers &amp; online creators · v1.2</span></div>
+  <div class="rail-foot"><div class="rail-note"><b>Know every door.</b>Who paid, who’s late, what each property really earns, and Schedule E ready at tax time.</div><button class="btn small rail-demo" id="demo-toggle" data-action="demo">Explore sample data</button><a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages ↗</a><br><span>Rental property tracker · v1.0</span></div>
 </aside><button class="scrim" data-action="menu" aria-label="Close navigation"></button>
-<div class="main"><header class="topbar"><div class="topbar-in"><div class="top-left"><button class="ibtn mobile-menu" data-action="menu" aria-label="Open navigation">☰</button><div class="month-control"><span class="month-control-label">Viewing month</span><div class="month-switch"><button class="ibtn" data-action="prev" aria-label="Previous month">‹</button><span class="month-label" id="month-label" aria-hidden="true"></span><input id="month-picker" type="month" aria-label="Selected month" min="1900-01" max="9998-12"><button class="ibtn" data-action="next" aria-label="Next month">›</button></div></div></div><div class="actions"><span id="save-status" class="status" role="status">Saved on this device</span><button class="btn" data-action="quick-log" aria-label="Quick log">Quick log</button><button class="btn primary" data-action="add" aria-label="＋ Add transaction"><span class="add-full">＋ Add transaction</span><span class="add-short">＋ Add</span></button></div></div><div id="month-tabs" class="month-tabs" aria-label="Months of the selected year"></div><div id="demo-banner" class="demo-banner" hidden><span><b>Sample mode</b> · Fictional numbers. Your own budget stays separate.</span><button class="btn small" data-action="exit-demo">Return to my books</button></div><div id="storage-warning" class="notice warning" hidden></div><div id="backup-banner" class="notice backup-banner no-print" role="status" hidden></div></header><main id="content" class="page" tabindex="-1"></main></div></div>
+<div class="main"><header class="topbar"><div class="topbar-in"><div class="top-left"><button class="ibtn mobile-menu" data-action="menu" aria-label="Open navigation">☰</button><div class="month-control"><span class="month-control-label">Viewing month</span><div class="month-switch"><button class="ibtn" data-action="prev" aria-label="Previous month">‹</button><span class="month-label" id="month-label" aria-hidden="true"></span><input id="month-picker" type="month" aria-label="Selected month" min="1900-01" max="9998-12"><button class="ibtn" data-action="next" aria-label="Next month">›</button></div></div></div><div class="actions"><span id="save-status" class="status" role="status">Saved on this device</span><button class="btn" data-action="quick-log" aria-label="Quick log">Quick log</button><button class="btn primary" data-action="add" aria-label="＋ Add transaction"><span class="add-full">＋ Add transaction</span><span class="add-short">＋ Add</span></button></div></div><div id="month-tabs" class="month-tabs" aria-label="Months of the selected year"></div><div id="demo-banner" class="demo-banner" hidden><span><b>Sample mode</b> · Fictional numbers. Your own budget stays separate.</span><button class="btn small" data-action="exit-demo">Return to my rentals</button></div><div id="storage-warning" class="notice warning" hidden></div><div id="backup-banner" class="notice backup-banner no-print" role="status" hidden></div></header><main id="content" class="page" tabindex="-1"></main></div></div>
 <dialog id="modal" aria-labelledby="modal-title"><div class="dialog-in" id="modal-body"></div></dialog>
 <dialog id="welcome-tour" class="welcome-tour" aria-labelledby="welcome-title"><div class="welcome-box"><button class="ibtn welcome-close" data-action="welcome-close" aria-label="Close welcome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="welcome-art" id="welcome-art"></div><div class="welcome-body"><span class="welcome-step" id="welcome-step"></span><h2 id="welcome-title"></h2><div id="welcome-text"></div></div><div class="welcome-dots" id="welcome-dots"></div><div class="welcome-foot"><div class="welcome-left"><button class="btn" data-action="welcome-back">Back</button><button class="btn pop welcome-folder" data-action="welcome-folder" hidden>Choose backup folder</button></div><button class="btn primary" data-action="welcome-next">Next</button></div></div></dialog>
-<div id="toast" class="toast" role="status" aria-live="polite" hidden></div><input type="file" id="restore-file" accept="application/json,.json" hidden><noscript><p>Enable JavaScript to use Creator Plan. Your data stays in this browser.</p></noscript><script>/* Shared planner core — pure calculations. All amounts are integer minor units.
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div><input type="file" id="restore-file" accept="application/json,.json" hidden><noscript><p>Enable JavaScript to use Rental Property Tracker. Your data stays in this browser.</p></noscript><script>/* Shared planner core — pure calculations. All amounts are integer minor units.
    Everything niche-specific (groups, categories, tax lines, labels) comes from the pack P. */
 const Budget = ((P) => {
   const THEMES=P.themes.slice();

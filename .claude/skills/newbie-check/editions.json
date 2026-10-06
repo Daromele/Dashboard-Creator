@@ -90,5 +90,21 @@
    "Bill & Subscription Tracker",
    "subscription tracker"
   ]
+ },
+ "rental": {
+  "first": "state.rpProps=[{id:'p1',name:'Maple Street duplex',kind:'multi',units:[{id:'u1',name:'Unit A'},{id:'u2',name:'Unit B'}],value:42000000,loan:{payment:185000,interest:130000},added:Budget.today()}];state.rpLeases=[{id:'l1',prop:'p1',unit:'u1',tenant:'Sam Rivera',rent:145000,due:1,grace:5,deposit:145000,lateFee:0,start:'2026-01-01'}];state.rpPays=[];state.rpExps=[];",
+  "forbid": [
+   "planner",
+   "budget",
+   "paycheck",
+   "net worth",
+   "FIRE",
+   "debt payoff",
+   "subscription",
+   "Autopilot",
+   "transactions",
+   "Quick Log",
+   "bills? tracker"
+  ]
  }
 }

@@ -76,6 +76,15 @@ Past paychecks; bills, the calendar (paydays added through `BillsUI.setDayExtra`
 bills edition's screens. State adds `ppIncome`, `ppEnv`, `ppSpend`, `ppGot` (`incomeId|date` → cents),
 `ppMoves` (`billId|due` → paycheck start) and `ppCarry`.
 
+**Rental Property Tracker** (`features.rental`, pack `packs/rental.js`, built as `RentalPropertyTracker.html`, storage
+key `jps-rental-tracker`). `Rental` in core is the pure engine (tested in `build/test_rental.js`): properties with units and
+a loan (interest to Schedule E line 12, principal kept out), leases (rent, due day, grace, late fee, deposit, end,
+move-out), payments by rent month and date, expenses that repeat monthly or yearly, the rent roll (paid, part, due,
+late, upcoming, vacant), months (cash basis, the month under way stops at today), Schedule E per property, and the
+landlord numbers (NOI, cap rate, cash-on-cash, 1% rule, occupancy, deposits) from whole months only. `RentalUI` draws
+Portfolio, Rent roll, Properties, Tenants & leases, Expenses, Schedule E and the Rent ledger. State: `rpProps`,
+`rpLeases`, `rpPays`, `rpExps`. Flow test: `node build/rental_flow.js`.
+
 **Budget methods** (`features.split`, in the Monthly Plan and the Paycheck Budget Planner). `Split` in core is
 the pure engine (tested in `build/test_split.js`): 50/30/20, 70/20/10, 80/20 and zero-based, each line tagged
 need, want, save or debt (guessed from its group or name, changeable on the card), and `bestFit`. `SplitUI` draws
@@ -120,6 +129,7 @@ node build/autopilot_flow.js     # Income and Expense Tracker: drop statements, 
 node build/bills_flow.js         # Bill & Subscription Tracker: add, tick off, varies, skip, price rise, trial, cancel, sample
 node build/networth_flow.js      # Net Worth & FIRE Tracker: add (guessed type/side), check-in, update, FIRE plan, close, delete, sample
 node build/paycheck_flow.js      # Paycheck Budget Planner: setup steps, paydays, bills per paycheck, spending, confirm, move, carry, sample
+node build/rental_flow.js        # Rental: property, tenant, part and late rent, expenses, Schedule E, sample
 node build/split_flow.js         # Budget methods: off in Monthly Plan until turned on, on in Paycheck; methods, zero-based, tags
 node build/print_audit.js [pdfs]  # prints every screen (Letter + A4); fails on near-empty pages (needs pdfjs-dist)
 ```
