@@ -1,0 +1,179 @@
+{
+ "product": "Small Business Profit Plan",
+ "footer": "Small Business Profit Plan · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Small_Business_Profit_Plan_Etsy_Mockups.html",
+ "storage_prefix": "sbpp-kit-img:",
+ "brand": {
+  "ink": "#141A1F",
+  "bold": "#182635",
+  "pop": "#E3A73B",
+  "paper": "#F6F7F5",
+  "calm": "#1F7A5C"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Small business bookkeeping",
+   "headline": "Know what your<br>business keeps.",
+   "pills": [
+    "Profit &amp; loss",
+    "Schedule C",
+    "Invoices",
+    "No subscription"
+   ],
+   "image": "tab-dashboard.jpg",
+   "alt": "Small Business Profit Plan dashboard"
+  },
+  {
+   "dark": false,
+   "label": "Profit and loss",
+   "eyebrow": "Profit &amp; loss",
+   "headline": "What the business actually made.",
+   "sub": "Revenue, costs and net profit for any month, quarter or year. Print it.",
+   "image": "tab-pl.jpg",
+   "foot": "Fictional sample business shown"
+  },
+  {
+   "dark": true,
+   "label": "Transactions",
+   "eyebrow": "Income &amp; expenses",
+   "headline": "Every sale and cost, in one place.",
+   "sub": "Log in seconds, or import your bank CSV and Etsy, Shopify, PayPal or Stripe statements.",
+   "image": "tab-activity.jpg",
+   "foot": "Sorted by category, channel and tag"
+  },
+  {
+   "dark": false,
+   "label": "Business health",
+   "eyebrow": "Business health",
+   "headline": "How healthy is the business?",
+   "sub": "Runway, break-even revenue, margins and your biggest channel, from your own numbers.",
+   "image": "tab-insights.jpg",
+   "foot": "Plain words, no jargon"
+  },
+  {
+   "dark": true,
+   "label": "Invoices",
+   "eyebrow": "Invoices",
+   "headline": "Know who owes you.",
+   "sub": "Write invoices, mark them paid, and see what’s overdue at a glance.",
+   "image": "tab-invoices.jpg",
+   "foot": "Friendly reminders, one click"
+  },
+  {
+   "dark": false,
+   "label": "Quarterly tax",
+   "eyebrow": "Quarterly tax",
+   "headline": "Put the tax money aside as you go.",
+   "sub": "What to set aside before each due date, and whether you’re ahead.",
+   "image": "tab-tax.jpg",
+   "foot": "Your rate, your rules"
+  },
+  {
+   "dark": true,
+   "label": "Schedule C",
+   "eyebrow": "Tax time",
+   "headline": "A summary your accountant can work from.",
+   "sub": "Expenses sorted onto Schedule C lines, ready to print or export.",
+   "image": "tab-taxlines.jpg",
+   "foot": "A worksheet, not tax advice"
+  },
+  {
+   "dark": false,
+   "label": "Mileage",
+   "eyebrow": "Mileage log",
+   "headline": "Business miles, logged as you drive.",
+   "sub": "Trips, purpose and their deduction value at the rate you set.",
+   "image": "tab-mileage.jpg",
+   "foot": "Export the year as CSV"
+  },
+  {
+   "dark": true,
+   "label": "Year",
+   "eyebrow": "The year",
+   "headline": "Your whole year at a glance.",
+   "sub": "Monthly averages and where the money came from and went.",
+   "image": "tab-annual.jpg",
+   "foot": "Click a slice to see its transactions"
+  },
+  {
+   "dark": false,
+   "label": "Cut costs",
+   "eyebrow": "Cut costs",
+   "headline": "Find the savings.",
+   "sub": "Trim or cancel costs and see what they add up to over a year.",
+   "image": "tab-cuts.jpg",
+   "foot": "Ideas from your own spending"
+  },
+  {
+   "dark": true,
+   "label": "Private",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Your numbers stay yours.",
+   "sub": "No login, no bank connection, nothing uploaded. One-click backups.",
+   "image": "tab-settings.jpg",
+   "foot": "Works offline on Mac and PC"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Six looks, one clear business.",
+   "columns": 3,
+   "themes": [
+    {
+     "name": "Ledger",
+     "image": "theme-ledger.jpg",
+     "swatch": "#182635"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Small Business Bookkeeping, Income Tracker, Business Expense Tracker, Profit and Loss, Schedule C, Mileage Log, Invoice Tracker",
+  "tags": [
+   "bookkeeping",
+   "business expenses",
+   "expense tracker",
+   "income tracker",
+   "profit and loss",
+   "small business",
+   "schedule c",
+   "mileage log",
+   "invoice tracker",
+   "self employed",
+   "etsy seller",
+   "bookkeeping template",
+   "financial tracker"
+  ],
+  "description_file": "description.txt"
+ }
+}

@@ -1,0 +1,271 @@
+{
+ "app": "../../app/SmallBusinessProfitPlan.html",
+ "date": "2026-10-20",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#141A1F",
+  "bold": "#182635",
+  "pop": "#E3A73B",
+  "paper": "#F6F7F5",
+  "calm": "#1F7A5C"
+ },
+ "fps": 30,
+ "shots_dir": "vshots",
+ "bpm": 104,
+ "music": 0.5,
+ "output": "Small_Business_Profit_Plan_Social.mp4",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "kpis": "#content .kpis",
+    "hero": "#content .hero"
+   }
+  },
+  {
+   "name": "inv0",
+   "view": "invoices",
+   "click": [
+    "#content [data-action=\"biz-inv-filter\"][data-filter=\"all\"]"
+   ],
+   "targets": {
+    "pay": "#content [data-action=\"biz-pay\"]",
+    "kpis": "#content .kpis",
+    "table": "#content section.card.table-card",
+    "paidk": "#content .kpis .kpi:nth-child(3)",
+    "row": "#content tbody tr:first-child"
+   }
+  },
+  {
+   "name": "inv1",
+   "click": [
+    "#content [data-action=\"biz-pay\"]",
+    "#biz-pay-form button[type=\"submit\"]"
+   ],
+   "clipFrom": "inv0"
+  },
+  {
+   "name": "pl",
+   "view": "pl",
+   "targets": {
+    "kpis": "#content .kpis",
+    "table": "#content section.card:has(table)"
+   }
+  },
+  {
+   "name": "tax",
+   "view": "tax",
+   "targets": {
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "miles",
+   "view": "mileage",
+   "targets": {
+    "kpis": "#content .kpis"
+   }
+  }
+ ],
+ "scenes": [
+  {
+   "type": "hook",
+   "dur": 2.0,
+   "text": "Did your business<br>*make money?*",
+   "image": "dash"
+  },
+  {
+   "type": "crop",
+   "dur": 3.4,
+   "captions": [
+    {
+     "t": 0,
+     "text": "See who *owes you*"
+    },
+    {
+     "t": 1.7,
+     "text": "Mark it paid in *one click*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "inv0",
+     "at": 0
+    },
+    {
+     "img": "inv1",
+     "at": 1.6
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "inv0.kpis",
+     "sub": [
+      0,
+      0,
+      0.5,
+      1
+     ],
+     "pad": 0.015
+    },
+    {
+     "t": 0.9,
+     "target": "inv0.row",
+     "sub": [
+      0.45,
+      0,
+      1,
+      1
+     ],
+     "pad": 0.02
+    },
+    {
+     "t": 2.3,
+     "target": "inv0.kpis",
+     "sub": [
+      0.5,
+      0,
+      1,
+      1
+     ],
+     "pad": 0.015
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.45,
+     "target": "inv0.pay",
+     "click": true
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.8,
+     "text": "Paid \u2713",
+     "x": 540,
+     "y": 1400,
+     "rot": -4,
+     "sound": "cash"
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 3.0,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Real profit, *not a guess*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "pl",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "pl.kpis",
+     "sub": [
+      0,
+      0,
+      0.5,
+      1
+     ],
+     "pad": 0.015
+    },
+    {
+     "t": 1.5,
+     "target": "pl.kpis",
+     "sub": [
+      0.5,
+      0,
+      1,
+      1
+     ],
+     "pad": 0.015
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.8,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Tax money *set aside*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "tax",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "tax.kpis",
+     "sub": [
+      0.25,
+      0,
+      0.75,
+      1
+     ],
+     "pad": 0.015
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Every mile *logged*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "miles",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "miles.kpis",
+     "sub": [
+      0,
+      0,
+      0.5,
+      1
+     ],
+     "pad": 0.015
+    }
+   ]
+  },
+  {
+   "type": "end",
+   "dur": 2.8,
+   "headline": "Small Business Profit Plan",
+   "sub": "P&amp;L, invoices and Schedule C.<br>No subscription, no bank login.",
+   "cta": "Instant download on Etsy",
+   "by": "JPS Digital Pages",
+   "themes": [
+    "shots/theme-fjord.jpg",
+    "shots/theme-midnight.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-night.jpg"
+   ]
+  }
+ ]
+}

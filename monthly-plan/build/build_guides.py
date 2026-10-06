@@ -1,6 +1,6 @@
 """Buyer guides (US Letter, print to PDF) for the app editions, in the Monthly Plan guide's style.
 
-usage: python3 build/build_guides.py [tracker|debt|bills|networth|paycheck|budget|rental ...]     (from monthly-plan/)
+usage: python3 build/build_guides.py [tracker|debt|bills|networth|paycheck|budget|rental|business ...]     (from monthly-plan/)
 Writes listing/<dir>/<Product>_Guide.html; build/guide_pdf.js turns each into a PDF.
 Screenshots come from listing/<dir>/shots (the deck captures).
 """
@@ -650,7 +650,72 @@ def rental_pages(shot):
 <tr><td>A tenant moved out</td><td>Edit the lease and set the move-out date. Rent stops; their history stays.</td></tr>''')),
     ]
 
+BUSINESS = dict(
+    dir='small-business-profit-plan', file='Small_Business_Profit_Plan', name='Small Business Profit Plan', html='SmallBusinessProfitPlan.html', mark='B', version='1.4',
+    storage='sbp-guide-img:', tour='logging entries, profit, tax money and backups', safe_page=9, who='business',
+    colors=dict(bold='#182635', accent='#1F7A5C', pop='#E3A73B', page='#F6F7F5', ink='#141A1F', ink2='#55606B', ink3='#88929C',
+                rule='#DDE1DC', soft='#ECEFEA', warm='#FBF1E3', warmline='#EED7B5', green='#E6F1EA', greenline='#BFDCCB'),
+    cover=dict(kicker='Your bookkeeping guide', tag='Know your profit, every month.', image='tab-dashboard.jpg',
+               intro='What came in, what went out, what the business really made and how much tax to set aside, in one file on your own computer.'),
+)
+
+
+def business_pages(shot):
+    P = BUSINESS
+    return [
+        ('Start here', start_here(P, '<li><b>Follow the five steps</b> on the Dashboard: your name and currency, your sales channels, your monthly targets, your first entries, and a backup.</li>',
+                                  'Choose <b>Explore sample data</b> on the Dashboard or in Settings &amp; backup. Juniper Studio, a fictional design studio with an Etsy shop, fills every screen with ten months of sales, costs, invoices and trips, in a separate session. <b>Return to my books</b> brings back your own, untouched.')),
+        ('The idea', f'''<h1>Every dollar in, every dollar out.</h1>
+<p class="lede">The Dashboard answers the monthly question: what came in, what went out, what the business kept, and what you owe.</p>
+{shot("tab-dashboard.jpg", "guide-home", "Dashboard")}
+<table><tr><th>Word</th><th>What it means</th></tr>
+<tr><td>Revenue</td><td>Money received from sales and clients. An invoice counts on the day it’s paid.</td></tr>
+<tr><td>Net profit</td><td>Revenue − cost of goods − running costs. What the business actually made.</td></tr>
+<tr><td>Transfers &amp; draws</td><td>Money you move to savings or pay yourself. Not an expense, so it doesn’t lower profit.</td></tr>
+<tr><td>Net cash flow</td><td>Revenue − expenses − transfers: what’s left in the business account.</td></tr></table>'''),
+        ('Each week', f'''<h1>Log it, or import it.</h1>
+<p class="lede">Transactions → <b>Add transaction</b> takes seconds: date, amount, category and channel. Or <b>Import CSV</b> once a month.</p>
+{shot("tab-activity.jpg", "guide-activity", "Transactions")}
+<div class="two"><div class="box"><h3>Your bank’s CSV</h3><p>Download it from online banking and drop it in. You check every line before it’s added; lines you imported before are skipped, and the categories you pick are remembered.</p></div>
+<div class="box"><h3>Platform statements</h3><p>Etsy, Shopify, PayPal and Stripe downloads are recognized: sales, refunds, fees and ads land on their own lines, and payouts to your bank aren’t counted twice.</p></div></div>'''),
+        ('Invoices', f'''<h1>Who still owes you.</h1>
+<p class="lede">Invoices → <b>Add invoice</b> for each bill you send. When the money arrives, <b>Mark paid</b> and it becomes revenue on that day.</p>
+{shot("tab-invoices.jpg", "guide-invoices", "Invoices")}
+<table><tr><td>How late is the money?</td><td>Open invoices grouped by days past due, so the oldest are chased first.</td></tr>
+<tr><td>Reminder</td><td>A friendly payment reminder, filled in from the invoice, ready to copy into an email.</td></tr>
+<tr><td>Undo paid</td><td>Marked one paid by mistake? One click puts it back, and the revenue entry goes too.</td></tr></table>'''),
+        ('Tax money', f'''<h1>Set tax aside as you go.</h1>
+<p class="lede">Quarterly tax works out what you should have put aside by each due date, at the rate you set (25% to start), and whether your pot covers it.</p>
+{shot("tab-tax.jpg", "guide-tax", "Quarterly tax")}
+<div class="two"><div class="box"><h3>Log a set-aside</h3><p>Each time you move money to your tax savings, log it. The pot and “ahead by” update straight away.</p></div>
+<div class="box"><h3>Change rate</h3><p>Ask your tax pro what share of profit to keep back, and set it here. The due dates are the usual US estimated-tax dates.</p></div></div>
+<p style="font-size:9pt;color:var(--ink3)">These are worksheets, not tax advice: rules differ by country and change every year.</p>'''),
+        ('Tax time', f'''<h1>Schedule C, ready for your accountant.</h1>
+<p class="lede">Every category sits on its Schedule C line, so the year’s summary builds itself. <b>Print</b> it or download the <b>Summary CSV</b>.</p>
+{shot("tab-taxlines.jpg", "guide-schedc", "Schedule C summary")}
+<div class="two"><div class="box"><h3>Mileage log</h3><p><b>Log a trip</b>: date, purpose, route and miles. The value is worked out at your rate (set it in Settings), and <b>Export year CSV</b> gives your accountant the list.</p></div>
+<div class="box"><h3>Profit &amp; loss</h3><p>Month, quarter, year to date, full year or your own dates, for the whole business or one channel. <b>Print statement</b> or <b>Download CSV</b>.</p></div></div>'''),
+        ('Getting around', '''<h1>The screens.</h1>
+<p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
+<table><tr><th>Screen</th><th>What it is for</th></tr>
+<tr><td>Dashboard · Transactions</td><td>The month at a glance; every entry, searchable, with bulk edit and Undo.</td></tr>
+<tr><td>Profit &amp; loss · Annual overview</td><td>The statement for any dates; the year month by month.</td></tr>
+<tr><td>Year over year · Cut costs</td><td>This year against last; where trimming a cost adds up most.</td></tr>
+<tr><td>Business health · Weekly review</td><td>Runway, break-even and margins; a five-minute check-in.</td></tr>
+<tr><td>Monthly targets · Recurring costs</td><td>What you expect each month; subscriptions and bills that repeat.</td></tr>
+<tr><td>Reserves &amp; goals · Calendar</td><td>Tax pot and savings goals; what’s due when.</td></tr>
+<tr><td>Invoices · Quarterly tax</td><td>Money owed to you; tax to set aside.</td></tr>
+<tr><td>Schedule C summary · Mileage log</td><td>The tax worksheet; business trips. Export as CSV.</td></tr></table>
+<p>Every table sorts, searches and filters. Every screen prints.</p>'''),
+        ('Read this one', SAFE('books', 'every transaction, invoice, trip, target, category and setting')),
+        ('When you need help', help_page(P, '''<tr><td>Profit looks too low</td><td>A transfer to savings or an owner’s draw may be filed as an expense. Change its category to a transfer.</td></tr>
+<tr><td>A sale shows twice</td><td>A platform’s deposit in your bank was filed as revenue as well as its statement. Change the deposit’s category to the payout transfer; imports do this for Etsy, Shopify, PayPal and Stripe.</td></tr>
+<tr><td>An invoice isn’t in revenue</td><td>Invoices count when they’re marked paid. Open Invoices → <b>Mark paid</b>.</td></tr>
+<tr><td>My PDF statement won’t import</td><td>Only CSV downloads can be read. Look for “Export” or “Download CSV” in online banking.</td></tr>''')),
+    ]
+
 BUDGET['pages'] = budget_pages
+BUSINESS['pages'] = business_pages
 RENTAL['pages'] = rental_pages
 BILLS['pages'] = bills_pages
 AUTOPILOT['pages'] = autopilot_pages
@@ -661,4 +726,4 @@ PAYCHECK['pages'] = paycheck_pages
 if __name__ == '__main__':
     which = sys.argv[1:] or ['tracker', 'debt', 'bills', 'networth', 'paycheck', 'budget']
     for w in which:
-        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK, 'budget': BUDGET, 'rental': RENTAL}[w])
+        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK, 'budget': BUDGET, 'rental': RENTAL, 'business': BUSINESS}[w])

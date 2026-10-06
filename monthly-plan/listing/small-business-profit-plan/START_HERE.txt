@@ -1,0 +1,21 @@
+SMALL BUSINESS PROFIT PLAN | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open SmallBusinessProfitPlan.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find, ideally a synced folder such as iCloud Drive, Dropbox, OneDrive or Google Drive. It works offline once open.
+
+FIRST STEPS
+A short welcome tour opens the first time. Then follow the five steps on the Dashboard: your business name and currency, your sales channels (Etsy, Shopify, clients...), your monthly targets, your first entries, and a backup.
+
+SAMPLE
+Explore sample data, on the Dashboard or in Settings & backup, fills every screen with a fictional design studio's year of sales, costs, invoices and trips, in a separate session. Return to my books restores your own.
+
+EACH MONTH
+Add sales and costs as they happen, or import your bank's CSV and your Etsy, Shopify, PayPal or Stripe statements. Mark invoices paid when the money arrives, log business trips, and log what you set aside for tax. At tax time, print or export Profit & loss and the Schedule C summary for your accountant.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one JSON file. Keep that file outside the app. To restore or move to another computer, copy the HTML file and your backup across and use Restore backup. Data does not sync automatically. Download a backup before clearing browser data or switching browsers.
+Chrome and Edge can also write a dated backup to a folder you choose each day. Safari and Firefox do not support this; use Download backup instead.
+
+HELP
+Read Small_Business_Profit_Plan_Guide.pdf, included with your download. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+Website: https://www.jpsdigitalpages.com

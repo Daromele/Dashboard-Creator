@@ -1,0 +1,76 @@
+{
+ "app": "../../app/SmallBusinessProfitPlan.html",
+ "out": "shots",
+ "date": "2026-10-20",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "view": "dashboard",
+   "offset": 6
+  },
+  {
+   "name": "activity",
+   "view": "activity",
+   "offset": 6
+  },
+  {
+   "name": "pl",
+   "view": "pl",
+   "offset": 6
+  },
+  {
+   "name": "annual",
+   "view": "annual",
+   "offset": 6
+  },
+  {
+   "name": "invoices",
+   "view": "invoices",
+   "offset": 6
+  },
+  {
+   "name": "tax",
+   "view": "tax",
+   "offset": 6
+  },
+  {
+   "name": "taxlines",
+   "view": "taxlines",
+   "offset": 6
+  },
+  {
+   "name": "mileage",
+   "view": "mileage",
+   "offset": 6
+  },
+  {
+   "name": "insights",
+   "view": "insights",
+   "offset": 6
+  },
+  {
+   "name": "cuts",
+   "view": "cuts",
+   "offset": 6
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  }
+ ],
+ "themes": {
+  "list": [
+   "ledger",
+   "sage",
+   "fjord",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('dashboard',true);render();document.querySelector('#toast').hidden=true;"
+ }
+}
