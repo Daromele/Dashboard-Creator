@@ -21,6 +21,7 @@ Moving from Goodreads or StoryGraph: import their CSV export. Books are stored i
 | `build.mjs` | Builds `site/index.html` and `site/sw.js` (`--check` fails when they're stale). |
 | `site/` | What Netlify serves. Committed, so deploys need no build. |
 | `netlify/functions/resolve-book-link.mjs`, `netlify/lib/` | The link reader: private/local addresses blocked on every redirect, 10 s timeout, 4 MB cap, 20 links/min per visitor per warm instance. |
+| `netlify/functions/google-books.mjs` | Only used when Google refuses a keyless lookup: repeats it with `GOOGLE_BOOKS_KEY` (a Netlify environment variable, never in the page). Books searches and volume ids only; answers cached a day by Netlify's CDN; 30 lookups a minute per visitor per instance. Set the global cap in Google Cloud → Books API → Quotas. |
 | `make-icons.mjs` | Draws `site/icons/*.png`. |
 | `dev-server.mjs` | Local preview with the function: `node dev-server.mjs` → http://localhost:8888 |
 | `test/` | `books.test.mjs` (ISBNs, link reader, link/CSV/status/merge logic), `smoke.mjs` (browser flows, catalogs answered by `catalog.mjs`), `spacing.mjs` (no touching controls at 1440 and 390 px). |

@@ -172,8 +172,11 @@ test('google-books function: only Books lookups, key added on the server, answer
   try {
     const r = await call('q=dune');
     assert.equal(r.status, 200); assert.deepEqual(await r.json(), { totalItems: 1 });
+    assert.match(r.headers.get('netlify-cdn-cache-control'), /s-maxage=86400/); assert.equal(r.headers.get('netlify-vary'), 'query=q|id|maxResults');
     assert.match(seen[0], /^https:\/\/www\.googleapis\.com\/books\/v1\/volumes\?q=dune&maxResults=8&printType=books&key=test-key-123$/);
     await call('q=dune'); assert.equal(seen.length, 1, 'second lookup comes from the cache');
+    globalThis.fetch = (f => async u => u.includes('q=echo') ? new Response('{"selfLink":"https://x/?key=test-key-123"}', { status: 200 }) : f(u))(globalThis.fetch);
+    const echo = await call('q=echo'); assert.equal(echo.status, 502); assert.doesNotMatch(await echo.text(), /test-key/);
     const bad = await call('q=fail'); assert.equal(bad.status, 502); assert.doesNotMatch(await bad.text(), /test-key/);
     let last; for (let i = 0; i < 32; i++) last = await call('q=book' + i, 'busy-ip');
     assert.equal(last.status, 429);
