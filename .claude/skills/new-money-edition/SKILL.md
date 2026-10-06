@@ -180,6 +180,12 @@ paycheck + Monthly Plan 6). Build each one in from the first commit; the check s
 
 ## 2b. Test-writing traps
 
+- Never name a form field `item`, `length` or `namedItem`: `form.elements.item` is the collection's own method, so
+  `f.elements.item.value` is undefined and the form silently ignores the choice. Check every live preview shows the value it
+  depends on (the reseller sale preview showed “item cost $0.00” until this was caught).
+- A sample business must look like a healthy one: enough volume that most months are profitable after running costs, on
+  any day it's opened. Generate it with a seeded random from templates rather than a hand list.
+
 - `requestSubmit()` runs the browser's own `required` check first: an empty required field never reaches
   the handler (that's correct). A closed dialog keeps its form in the DOM: check `$('#modal').open`.
 - Hidden radio inputs inside styled labels: click the label. Fields inside a closed `<details>`: open it.

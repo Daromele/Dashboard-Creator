@@ -89,6 +89,20 @@ Import bank CSV (via `Autopilot.read`) and Letters & notices (11 fill-in templat
 `rpProps` (+`photo`), `rpLeases`, `rpPays`, `rpExps` (`prop:''` = General), `rpJobs`, `rpTemplates`, `rpImported`,
 `settings.rpLandlord`. Flow test: `node build/rental_flow.js`.
 
+**Reseller Profit Tracker** (`features.resale`, pack `packs/reseller.js`, built as `ResellerProfitTracker.html`, storage
+key `jps-reseller-tracker`). `Resale` in core is the pure engine (tested in `build/test_resale.js`): items (qty identical
+units, own cost or a share of a lot, split evenly or by list price to the cent), sales (price, shipping charged, platform
+fee, label, other) with returns (refund, back to stock or not, fees refunded), write-offs (donated, lost) and personal use
+(kept), per-item and per-sale true profit, ROI and days to sell, stock and aging, platforms side by side, `pnl` for any
+dates and one platform, running costs that repeat plus mileage at `settings.rsRate` (thousandths of a dollar a mile), and
+`scheduleC` with Part III cost of goods sold from inventory (begin + purchases − personal use − end, which ties to the
+sales and write-offs). Platform fees (`PLATFORMS`, editable as `rsPlats`) only pre-fill new sales; each sale keeps its fee.
+`ResellerUI` draws Home, Inventory (grid, compact, table; photo; status chips; search; pages of 24), Add inventory (a
+haul in one row per Enter, lot mode), Sales, Platforms (comparison + fee table), Expenses, Mileage, Profit & loss,
+Schedule C and Import bank CSV (withdrawals become expenses; deposits are payouts and skipped). State: `rsItems`,
+`rsLots`, `rsSales`, `rsExps`, `rsTrips`, `rsPlats`, `rsImported`, `settings.rsRate`, `settings.rsPrefix`.
+Flow test: `node build/reseller_flow.js`.
+
 **Budget methods** (`features.split`, in the Monthly Plan and the Paycheck Budget Planner). `Split` in core is
 the pure engine (tested in `build/test_split.js`): 50/30/20, 70/20/10, 80/20 and zero-based, each line tagged
 need, want, save or debt (guessed from its group or name, changeable on the card), and `bestFit`. `SplitUI` draws
