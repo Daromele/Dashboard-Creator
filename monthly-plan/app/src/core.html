@@ -2709,7 +2709,7 @@ const Autopilot = (()=>{
  const norm=s=>String(s??'').trim().toLowerCase().replace(/\b(?:[a-z]\.){2,}[a-z]?\.?/g,m=>m.replace(/\./g,'')+' ').replace(/\s+/g,' ').trim();
  // long numbers in a description (account, card and reference numbers) keep only their last four
  const mask=s=>String(s??'').replace(/\d[\d -]{4,}\d/g,m=>{const d=m.replace(/\D/g,'');return d.length>=6?'••'+d.slice(-4):m;}).replace(/\s+/g,' ').trim();
- // the issuer in a file name, also when digits follow straight on ("Chase5471_Activity")
+ // the issuer in a file name, also when digits follow straight on ("Discover1234_Activity")
  const ISSUER=/(?:^|[^a-z])(chase|amex|american express|capital ?one|discover|citi(?:bank)?|barclays|synchrony|apple ?card|wells ?fargo|bank of america|bofa|us ?bank|usaa|navy federal|ally|sofi|schwab|pnc|td bank|truist|regions|citizens)(?=[^a-z]|$)/i;
  const CARD_ISSUERS=/\b(chase|amex|american express|capital ?one|discover|citi|citibank|barclays|synchrony|apple ?card|wells ?fargo|bank of america|bofa|us ?bank|usaa|navy federal|credit card|creditcard|visa|mastercard)\b/i;
  // what a line says about who was paid, without payment words, store numbers, places and references
@@ -2725,8 +2725,8 @@ const Autopilot = (()=>{
  const keyOf=name=>norm(name).replace(/\b(?:[a-z]\.){2,}[a-z]?\.?/g,m=>m.replace(/\./g,'')+' ').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim().split(' ').slice(0,3).join(' ');
 
  // ---------- one statement file ----------
- // statements from the same account share a file name but for dates and numbers ("Chase5471_Activity_20260925")
- // the last four digits stay: Chase5471 (a card) and Chase4410 (checking) are different accounts
+ // statements from the same account share a file name but for dates and numbers ("Discover1234_Activity_20260925")
+ // the last four digits stay: Discover1234 (a card) and Discover4410 (checking) are different accounts
  const fileKey=n=>{const b=String(n).toLowerCase().replace(/\.[^.]+$/,''),l4=b.match(/(?:^|[^\d])(\d{4})(?:[^\d]|$)/),last4=l4&&!/^(19|20)\d\d$/.test(l4[1])?' '+l4[1]:'';
   return ((b.replace(/[\d_ ()-]+/g,' ').replace(/\b(activity|transactions?|statement|export|download|history|stmt)\b/g,' ').replace(/\s+/g,' ').trim()||'file')+last4).slice(0,40);};
  // a name for the account behind a file: the issuer and the last four digits when the file name has them
@@ -3446,6 +3446,42 @@ const Rental = (()=>{
  return {CATS,KINDS,catName,guess,addM,mEnd,addD,days,inMonth,dueDate,leaseFor,paidFor,roll,expenses,income,months,firstMonth,scheduleE,pnl,metrics,ending,propOf};
 })();
 if(typeof module!=='undefined')module.exports=Rental;
+// ---------- Docs: invoices to customers and purchase orders to vendors (pure, integer cents) ----------
+// A document: {kind:'invoice'|'po', number, party, date, due, terms, lines:[{desc,qty,price}], discount, taxRate (basis
+// points: 825 = 8.25%), shipping, sent, received, void, payments:[{date,amount}]}. Shared by apps on and off the core.
+const Docs = (()=>{
+ const KINDS={invoice:{prefix:'INV',label:'Invoice',party:'customer'},po:{prefix:'PUR',label:'Purchase order',party:'vendor'}};
+ const TERMS=[['receipt','Due on receipt',0],['net7','Net 7',7],['net14','Net 14',14],['net30','Net 30',30]];
+ const STATUS={draft:['Draft',''],sent:['Sent','warn'],ordered:['Ordered','warn'],received:['Received','warn'],part:['Part paid','warn'],overdue:['Overdue','neg'],paid:['Paid','pos'],void:['Void','dim']};
+ const sum=a=>a.reduce((t,n)=>t+n,0);
+ const addDays=(d,n)=>{const x=new Date(d+'T12:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10);};
+ const lineTotal=l=>Math.round((+l.qty||0)*(+l.price||0));
+ function totals(d){const sub=sum((d.lines||[]).map(lineTotal)),disc=Math.min(Math.max(0,d.discount||0),sub),taxable=sub-disc,tax=Math.round(taxable*(d.taxRate||0)/10000),ship=Math.max(0,d.shipping||0),total=taxable+tax+ship,paid=sum((d.payments||[]).map(p=>p.amount||0));
+  return {sub,disc,tax,ship,total,paid,left:Math.max(0,total-paid)};}
+ function status(d,today){if(d.void)return 'void';const t=totals(d);if(t.total>0&&t.left===0)return 'paid';if(!d.sent)return 'draft';if(d.due&&d.due<today&&(d.kind!=='po'||d.received))return 'overdue';if(t.paid>0)return 'part';return d.kind==='po'?(d.received?'received':'ordered'):'sent';}
+ const isOpen=(d,today)=>!['void','paid','draft'].includes(status(d,today));
+ function nextNumber(docs,kind){let max=0;for(const d of docs)if(d.kind===kind){const m=String(d.number||'').match(/(\d+)\s*$/);if(m)max=Math.max(max,+m[1]);}return KINDS[kind].prefix+'-'+String(max+1).padStart(4,'0');}
+ const dueFrom=(date,terms)=>addDays(date,(TERMS.find(t=>t[0]===terms)||TERMS[0])[2]);
+ // money still owed, by how late it is
+ function aging(docs,today,kind='invoice'){const b={current:0,d30:0,d60:0,older:0,count:0};for(const d of docs){if(d.kind!==kind||!isOpen(d,today))continue;const left=totals(d).left;if(!left)continue;b.count++;
+   const late=d.due&&d.due<today?Math.round((Date.parse(today)-Date.parse(d.due))/864e5):0;if(late<=0)b.current+=left;else if(late<=30)b.d30+=left;else if(late<=60)b.d60+=left;else b.older+=left;}
+  b.total=b.current+b.d30+b.d60+b.older;return b;}
+ // a bank line paying a document: deposits pay invoices, withdrawals pay purchase orders. The exact amount still owed,
+ // preferring one whose party is named in the description; null when nothing fits or it's a toss-up
+ const words=s=>String(s||'').toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>2);
+ function match(docs,amount,desc,today){const kind=amount>0?'invoice':'po',want=Math.abs(amount),said=new Set(words(desc));
+  const fit=docs.filter(d=>d.kind===kind&&!d.void&&d.sent&&totals(d).left===want);
+  const named=fit.filter(d=>words(d.party).some(w=>said.has(w)));
+  if(named.length===1)return named[0];if(named.length>1)return named.sort((a,b)=>a.date.localeCompare(b.date))[0];
+  return fit.length===1?fit[0]:null;}
+ // the document as plain text, for email or a message
+ function text(d,biz,fmt){const t=totals(d),K=KINDS[d.kind]||KINDS.invoice,L=[`${K.label.toUpperCase()} ${d.number}`,biz?.name||'',biz?.address||'','',`${d.kind==='po'?'To':'Bill to'}: ${d.party}`,`Date: ${d.date}`,...(d.due?[`${d.kind==='po'?'Needed by':'Due'}: ${d.due}`]:[]),''];
+  for(const l of d.lines||[])L.push(`${l.desc} · ${+l.qty} × ${fmt(l.price)} = ${fmt(lineTotal(l))}`);
+  L.push('',`Subtotal: ${fmt(t.sub)}`);if(t.disc)L.push(`Discount: −${fmt(t.disc)}`);if(t.tax)L.push(`Tax (${(d.taxRate/100).toFixed(2).replace(/\.?0+$/,'')}%): ${fmt(t.tax)}`);if(t.ship)L.push(`Delivery: ${fmt(t.ship)}`);
+  L.push(`Total: ${fmt(t.total)}`);if(t.paid)L.push(`Paid: ${fmt(t.paid)}`,`Balance due: ${fmt(t.left)}`);if(d.notes)L.push('',d.notes);return L.filter((x,i,a)=>!(x===''&&a[i-1]==='')).join('\n').trim();}
+ return {KINDS,TERMS,STATUS,lineTotal,totals,status,isOpen,nextNumber,dueFrom,aging,match,text};
+})();
+if(typeof module!=='undefined')module.exports=Docs;
 
 const SVG = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
 const ICON = {
@@ -8464,7 +8500,7 @@ Sincerely,
   return head+noTen+`<div class="kpis">${kpi('Money in',imp.rows.filter(r=>r.v>0&&r.use!=='skip').reduce((a,r)=>a+r.v,0),`${plural(imp.rows.filter(r=>r.v>0&&r.use!=='skip').length,'deposit')} to bring in`,'wallet','pos')}${kpi('Money out',-imp.rows.filter(r=>r.v<0&&r.use!=='skip').reduce((a,r)=>a+r.v,0),`${plural(imp.rows.filter(r=>r.v<0&&r.use!=='skip').length,'expense')} to bring in`,'down','neg')}<div class="kpi"><div class="label">${kpiIco('check')}Skipped</div><b>${imp.rows.length-n}</b><small>${imp.rows.filter(r=>r.dup).length} imported before · ${imp.rows.filter(r=>r.why==='loan').length} mortgage</small></div><div class="kpi"><div class="label">${kpiIco('log')}File</div><b style="font-size:16px">${esc(imp.name.slice(0,28))}</b><small>${plural(imp.rows.length,'line')}</small></div></div>`+
    `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Check each line</h2><p>Change anything that’s wrong, then bring them in</p></div>${button(`Import ${plural(n,'line')}`,'rp-imp-go','primary',n?'':'disabled')}</div><div class="table-wrap"><table class="no-tools rp-imp"><thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th>Record as</th><th>Tenant / property</th><th>Month / line</th></tr></thead><tbody>${imp.rows.map(row).join('')}</tbody></table></div></section>`;}
  const impKey=r=>[r.date,r.v,String(r.desc).toLowerCase().replace(/\s+/g,' ').slice(0,60)].join('|');
- async function readImport(file){try{if(!file)return;if(file.size>10e6)throw Error('Files must be smaller than 10 MB.');const text=await file.text(),rd=Autopilot.read(text,file.name,CSV),seen=new Set(state.rpImported||[]),live=leases().filter(l=>!(l.out&&l.out<R.addD(today(),-120)));
+ async function readImport(file){try{if(!file)return;if(file.size>10e6)throw Error('Files must be smaller than 10 MB.');const text=await file.text(),rd=Autopilot.read(text,file.name,CSV,{flip:false,kind:'bank'}),seen=new Set(state.rpImported||[]),live=leases().filter(l=>!(l.out&&l.out<R.addD(today(),-120)));
    const words=s=>String(s).toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>2);
    imp={name:file.name,rows:rd.rows.map(x=>{const r={date:x.date,desc:x.desc,v:x.amount};r.dup=seen.has(impKey(r));
     if(r.v>0){const byName=live.find(l=>words(l.tenant).some(w=>words(r.desc).includes(w))),byAmt=live.filter(l=>l.rent===r.v);const l=byName||(byAmt.length===1?byAmt[0]:null)||byAmt[0]||null;

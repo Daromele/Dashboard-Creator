@@ -1,0 +1,32 @@
+// Docs: invoices and purchase orders, shared with Bakeweek Studio. Money in cents.
+const path=require('path'),{extractImportTo}=require('./extract.js');
+module.exports=({eq,ok})=>{
+  const {Docs:D}=require(extractImportTo(path.join(__dirname,'../app/DebtFreePlan.html'),path.join(__dirname,'import.docs.js')));
+  const inv={kind:'invoice',number:'INV-0001',party:'Corner Café',date:'2026-10-01',due:'2026-10-15',lines:[{desc:'Focaccia',qty:12,price:320},{desc:'Cookies',qty:18,price:240}],discount:500,taxRate:825,shipping:1000,sent:'2026-10-01',payments:[]};
+  const t=D.totals(inv);
+  eq('docs: subtotal is the sum of qty × price',t.sub,3840+4320);
+  eq('docs: tax on the subtotal after the discount',t.tax,Math.round((8160-500)*0.0825));
+  eq('docs: total adds tax and delivery',t.total,8160-500+632+1000);
+  eq('docs: fractional quantities round to the cent',D.lineTotal({qty:2.5,price:199}),498);
+  eq('docs: sent and not yet due',D.status(inv,'2026-10-10'),'sent');
+  eq('docs: past due and unpaid is overdue',D.status(inv,'2026-10-16'),'overdue');
+  eq('docs: some paid is part paid',D.status({...inv,payments:[{date:'2026-10-05',amount:2000}]},'2026-10-10'),'part');
+  eq('docs: paid in full stays paid after the due date',D.status({...inv,payments:[{date:'2026-10-05',amount:t.total}]},'2026-11-30'),'paid');
+  eq('docs: an unsent invoice is a draft, never overdue',D.status({...inv,sent:''},'2026-12-01'),'draft');
+  eq('docs: void wins',D.status({...inv,void:true},'2026-12-01'),'void');
+  const po={kind:'po',number:'PUR-0007',party:'Valley Grain Mill',date:'2026-10-02',due:'2026-10-09',lines:[{desc:'Bread flour',qty:4,price:1450}],sent:'2026-10-02',payments:[]};
+  eq('docs: a purchase order isn’t overdue before the goods arrive',D.status(po,'2026-10-20'),'ordered');
+  eq('docs: received and unpaid past the due date is overdue',D.status({...po,received:'2026-10-08'},'2026-10-20'),'overdue');
+  eq('docs: next number follows the highest',D.nextNumber([inv,{kind:'invoice',number:'INV-0041'},po],'invoice'),'INV-0042');
+  eq('docs: numbering is per kind',D.nextNumber([inv],'po'),'PUR-0001');
+  eq('docs: Net 14',D.dueFrom('2026-10-01','net14'),'2026-10-15');
+  eq('docs: due on receipt',D.dueFrom('2026-10-01','receipt'),'2026-10-01');
+  const a=D.aging([inv,{...inv,number:'INV-2',due:'2026-08-01'},{...inv,number:'INV-3',sent:''}],'2026-10-20');
+  eq('docs: aging skips drafts',a.count,2);eq('docs: 5 days late is in 1–30',a.d30,t.total);eq('docs: 80 days late is in 60+',a.older,t.total);
+  eq('docs: same amount, the named customer wins',D.match([inv,{...inv,number:'INV-9',party:'Olive & Fig Deli'}],t.total,'ZELLE FROM CORNER CAFE',  '2026-10-20')?.number,'INV-0001');
+  eq('docs: two equal amounts and no name: no guess',D.match([inv,{...inv,number:'INV-9',party:'Olive & Fig Deli'}],t.total,'DEPOSIT','2026-10-20'),null);
+  eq('docs: a withdrawal pays a purchase order',D.match([po],-5800,'VALLEY GRAIN MILL ACH','2026-10-20')?.number,'PUR-0007');
+  eq('docs: a different amount never matches',D.match([inv],1234,'Corner Cafe','2026-10-20'),null);
+  const txt=D.text(inv,{name:'Sunday Crumb',address:'14 Linden St'},v=>'$'+(v/100).toFixed(2));
+  ok('docs: plain-text invoice',/INVOICE INV-0001/.test(txt)&&/Total: \$\d/.test(txt)&&/Bill to: Corner Café/.test(txt));
+};

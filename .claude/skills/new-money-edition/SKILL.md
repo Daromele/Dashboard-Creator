@@ -172,6 +172,12 @@ paycheck + Monthly Plan 6). Build each one in from the first commit; the check s
 - Hero rings on a phone: a legend under the ring (`ring(...,{legend:true})`), not side labels that get cut.
   Long KPI amounts on a phone step down a size (`fitKpis`) instead of wrapping.
 
+- Apps not built on the core (Bakeweek Studio) still share its money engines: `Docs` (invoices and purchase orders),
+  `CSV` and `Autopilot` (bank files) are copied in by `bakeweek/build.js`. Never fork them; change the core and rebuild.
+  A business app that sells to customers or buys from suppliers gets invoices, purchase orders and vendors from `Docs`.
+- Any bank-statement import in a business app reads with `Autopilot.read(text,name,CSV,{flip:false,kind:'bank'})`:
+  without it, a file that is mostly deposits is mistaken for a credit card and every sign flips.
+
 ## 2b. Test-writing traps
 
 - `requestSubmit()` runs the browser's own `required` check first: an empty required field never reaches

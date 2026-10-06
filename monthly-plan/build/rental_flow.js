@@ -127,14 +127,14 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('paid in full: a fee payment linked to the charge, shown as Paid',await v(()=>state.rpPays.some(x=>x.charge===state.rpCharges[0].id&&x.kind==='fee'&&x.amount===7500)&&/Paid/.test([...document.querySelectorAll('#content table')].at(-1).innerText)));
  ok('the payment counts in Late fees & other',await v(()=>{go('rppl');const r=[...document.querySelectorAll('.rp-pl tbody tr')].find(r=>/^Late fees/.test(r.cells[0].innerText));return /\$75\.00/.test(r.cells[r.cells.length-1].innerText);}));
  // bank import
- const csvPath=require('path').join(require('os').tmpdir(),'rp-bank-test.csv');require('fs').writeFileSync(csvPath,'Date,Description,Amount\n2026-10-05,Zelle from Priya Shah,1400.00\n2026-10-06,HARBOR HARDWARE SUPPLY,-86.40\n2026-10-07,ACME MORTGAGE SERVICING PMT,-1850.00\n2026-10-08,Mystery deposit,999.00\n');
+ const csvPath=require('path').join(require('os').tmpdir(),'rp-bank-test.csv');require('fs').writeFileSync(csvPath,'Date,Description,Amount\n2026-10-05,Zelle from Priya Shah,1400.00\n2026-10-06,HARBOR HARDWARE SUPPLY,-86.40\n2026-10-07,ACME MORTGAGE SERVICING PMT,-1850.00\n2026-10-08,Mystery deposit,999.00\n2026-10-09,Mobile deposit,250.00\n');
  await v(()=>go('rpimport'));await p.setInputFiles('[data-rp-import]',csvPath);await p.waitForTimeout(400);
- ok('import: rent matched by name, mortgage and unknown deposit skipped',await v(()=>{const r=[...document.querySelectorAll('.rp-imp tbody tr')];const by=d=>r.find(x=>x.cells[1].innerText.includes(d));return r.length===4&&by('Priya').querySelector('[data-f=use]').value==='rent'&&by('MORTGAGE').querySelector('[data-f=use]').value==='skip'&&by('Mystery').querySelector('[data-f=use]').value==='skip'&&by('HARDWARE').querySelector('[data-f=use]').value==='exp';}));
+ ok('import: rent matched by name, mortgage and unknown deposit skipped',await v(()=>{const r=[...document.querySelectorAll('.rp-imp tbody tr')];const by=d=>r.find(x=>x.cells[1].innerText.includes(d));return r.length===5&&by('Priya').querySelector('[data-f=use]').value==='rent'&&by('MORTGAGE').querySelector('[data-f=use]').value==='skip'&&by('Mystery').querySelector('[data-f=use]').value==='skip'&&by('HARDWARE').querySelector('[data-f=use]').value==='exp';}));
  const before=await v(()=>[state.rpPays.length,state.rpExps.length]);
  await v(()=>document.querySelector('[data-action="rp-imp-go"]').click());await p.waitForTimeout(250);
  ok('import adds one payment and one expense',await v(b=>state.rpPays.length===b[0]+1&&state.rpExps.length===b[1]+1&&state.rpPays.some(x=>x.amount===140000&&x.date==='2026-10-05'),before));
  await v(()=>go('rpimport'));await p.setInputFiles('[data-rp-import]',csvPath);await p.waitForTimeout(400);
- ok('the same file again: those lines are marked as imported before and skipped',await v(()=>document.querySelectorAll('.rp-imp tr.rp-dup').length===2&&[...document.querySelectorAll('.rp-imp tr.rp-dup [data-f=use]')].every(s=>s.value==='skip')));
+ ok('the same file again: those lines are marked as imported before and skipped',await v(()=>document.querySelectorAll('.rp-imp tr.rp-dup').length===2&&document.querySelectorAll('.rp-imp tbody tr').length===5&&[...document.querySelectorAll('.rp-imp tr.rp-dup [data-f=use]')].every(s=>s.value==='skip')));
  await v(()=>document.querySelector('[data-action="rp-imp-clear"]').click());
  // a property photo and the compact grid
  await v(()=>{go('props');document.querySelector('[data-action="rp-prop-edit"]').click();});

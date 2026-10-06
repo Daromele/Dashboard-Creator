@@ -148,3 +148,11 @@ profiles). `biz_smoke.js` seeds its storage with an ordinary page script instead
 
 Rental property (Schedule E, per-property P&L): a new pack with property groups and Schedule E
 lines. Per-property reporting would need a property tag on transactions in the core.
+
+**Shared money engines for apps off the core.** `Docs` in core (tested in `build/test_docs.js`) is the pure invoice and
+purchase-order engine: totals with discount, tax (basis points) and delivery in cents, statuses (draft, sent/ordered,
+received, part paid, overdue, paid, void), per-kind numbering (INV-0001, PUR-0001), aging, and matching a bank line to
+the document it pays. Bakeweek Studio is not built from the core; `node bakeweek/build.js` copies `CSV`, `Autopilot` and
+`Docs` from `app/src/core.html` into `bakeweek/Bakeweek_Studio.html` between the SHARED-MONEY markers, so fixes here reach
+it on its next build. Run it after changing any of those three, then `node bakeweek/flow_money.js`.
+
