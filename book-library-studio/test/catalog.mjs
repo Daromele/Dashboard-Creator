@@ -23,10 +23,13 @@ const SEARCH = {
 };
 const json = (route, body, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
 export const calls = [];
+const flaky = { done: false };
 export async function catalog(route) {
   const u = new URL(route.request().url()); calls.push(u.href);
   if (u.hostname === 'covers.openlibrary.org') return /\/b\/id\/\d+-/.test(u.pathname) ? route.fulfill({ status: 200, contentType: 'image/png', body: PNG }) : route.fulfill({ status: 404, body: '' });
   if (u.hostname === 'www.googleapis.com') return json(route, { kind: 'books#volumes', totalItems: 0 });
+  // Dune's first lookup is turned away (busy), as the real catalog sometimes does; the app should retry
+  if (u.pathname === '/api/books' && /9780441172719/.test(u.search) && !flaky.done) { flaky.done = true; return route.fulfill({ status: 503, body: 'busy' }); }
   if (u.pathname === '/api/books') { const k = u.searchParams.get('bibkeys'); return json(route, BOOKS[k] ? { [k]: BOOKS[k] } : {}); }
   if (u.pathname === '/search.json') { const q = (u.searchParams.get('q') || '').toLowerCase(), hit = Object.keys(SEARCH).find(k => q.includes(k)); return json(route, { numFound: hit ? SEARCH[hit].length : 0, docs: hit ? SEARCH[hit] : [] }); }
   let m = u.pathname.match(/^\/books\/(OL\d+M)\.json$/); if (m) return EDITIONS[m[1]] ? json(route, EDITIONS[m[1]]) : json(route, { error: 'notfound' }, 404);

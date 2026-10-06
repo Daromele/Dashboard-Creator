@@ -74,7 +74,7 @@ try {
   await find('https://www.goodreads.com/book/show/54493401-project-hail-mary');
   ok(/Project Hail Mary/.test(await page.textContent('.result')), 'Goodreads link is matched by its title');
   await find('https://bookshop.org/p/books/dune-frank-herbert/6431?ean=9780441172719');
-  ok(/Dune/.test(await page.textContent('.result')), 'Bookshop link finds the book by its ISBN');
+  ok(/Dune/.test(await page.textContent('.result')), 'Bookshop link finds the book by its ISBN, after the busy catalog is retried');
   await page.click('.result [data-action="add-result"][data-k="read"]');
   await page.check('#finish-form [name=nodate]'); await page.click('#finish-form button.primary');
   await page.waitForSelector('.book-hero h1');
