@@ -23,7 +23,7 @@ WHAT YOU'LL GET:
 • Confirm what actually arrived when your pay changes
 • Bills screen with autopay, bills that change, free trials and price rises
 • Calendar with paydays and bills together
-• Budget methods on every paycheck: 50/30/20, 70/20/10, 80/20 or zero-based, shown as two pies (the goal and your plan), with one-click buttons that fix what’s missing
+• Budget methods on every paycheck: 50/30/20, 70/20/10, 80/20 or zero-based, or your own custom split: type your amounts and watch each group turn green when it fits its share and red when it goes over
 • Past paychecks: what came in, went to bills, was spent and saved, and what was left
 • Payment history and CSV exports
 • Every table sorts, searches and filters

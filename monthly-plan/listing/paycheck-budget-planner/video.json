@@ -69,6 +69,23 @@
     "kpis": "#content .kpis",
     "table": "#content .table-card"
    }
+  },
+  {
+   "name": "sp0",
+   "view": "dashboard",
+   "before": "const e=document.querySelector('#content .sp-card');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-150);",
+   "scrollTo": "#content .sp-card",
+   "targets": {
+    "fun": "#content .sp-amt[data-k=\"env:e-fun\"]",
+    "want": "#content .sp-bucket[data-b=\"want\"]",
+    "buckets": "#content .sp-buckets",
+    "banner": "#content [data-sp-banner]"
+   }
+  },
+  {
+   "name": "sp1",
+   "before": "const i=document.querySelector('#content .sp-amt[data-k=\"env:e-fun\"]');i.value='800';i.dispatchEvent(new Event('input',{bubbles:true}));",
+   "clipFrom": "sp0"
   }
  ],
  "product": "Paycheck Budget Planner",
@@ -174,24 +191,25 @@
    "type": "shot",
    "dur": 2.0,
    "dark": false,
-   "eyebrow": "Spending &amp; saving",
-   "headline": "Spending money that lasts.",
+   "eyebrow": "Plan this paycheck",
+   "headline": "Watch your plan fit.",
    "shots": [
     {
-     "img": "spend",
+     "img": "sp0",
      "at": 0
+    },
+    {
+     "img": "sp1",
+     "at": 1.0
     }
    ],
-   "zoom": {
-    "t0": 0.3,
-    "t1": 2.0,
-    "target": "spend.kpis",
-    "origin": [
-     0.0,
-     0.15
-    ],
-    "scale": 1.12
-   }
+   "cursor": [
+    {
+     "t": 0.9,
+     "target": "sp0.fun",
+     "click": true
+    }
+   ]
   },
   {
    "type": "end",

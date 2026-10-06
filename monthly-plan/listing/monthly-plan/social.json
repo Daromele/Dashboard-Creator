@@ -56,7 +56,7 @@
    "before": "state.settings.splitMethod='50-30-20';render();const e=document.querySelector('#content .sp-card');document.querySelector('#content .pagehead').after(e);window.scrollTo(0,0);",
    "targets": {
     "sofar": "#content [data-action=\"split-basis\"][data-k=\"actual\"]",
-    "pies": "#content .sp-pies",
+    "pies": "#content .sp-buckets",
     "card": "#content .sp-card"
    }
   },
@@ -198,10 +198,10 @@
      "target": "sp0.pies",
      "pad": 0.012,
      "sub": [
-      0.5,
       0,
-      1,
-      1
+      0,
+      0.67,
+      0.55
      ]
     }
    ]

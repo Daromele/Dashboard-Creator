@@ -72,6 +72,23 @@
     "kpis": "#content .kpis",
     "table": "#content .table-card"
    }
+  },
+  {
+   "name": "sp0",
+   "view": "dashboard",
+   "before": "const e=document.querySelector('#content .sp-card');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-150);",
+   "scrollTo": "#content .sp-card",
+   "targets": {
+    "fun": "#content .sp-amt[data-k=\"env:e-fun\"]",
+    "want": "#content .sp-bucket[data-b=\"want\"]",
+    "buckets": "#content .sp-buckets",
+    "banner": "#content [data-sp-banner]"
+   }
+  },
+  {
+   "name": "sp1",
+   "before": "const i=document.querySelector('#content .sp-amt[data-k=\"env:e-fun\"]');i.value='800';i.dispatchEvent(new Event('input',{bubbles:true}));",
+   "clipFrom": "sp0"
   }
  ],
  "scenes": [
@@ -225,26 +242,37 @@
    "captions": [
     {
      "t": 0,
-     "text": "Spending money that *lasts*"
+     "text": "Green fits, *red is over*"
     }
    ],
    "shots": [
     {
-     "img": "chk0",
+     "img": "sp0",
      "at": 0
+    },
+    {
+     "img": "sp1",
+     "at": 1.2
     }
    ],
    "camera": [
     {
      "t": 0,
-     "target": "chk0.env",
+     "target": "sp0.want",
      "sub": [
       0,
       0,
       1,
-      0.55
+      0.45
      ],
      "pad": 0.012
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.1,
+     "target": "sp0.fun",
+     "click": true
     }
    ]
   },

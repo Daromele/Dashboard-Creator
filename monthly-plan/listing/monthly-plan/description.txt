@@ -13,7 +13,7 @@ WHAT YOU'LL GET:
 • One HTML monthly budget planner file
 • Monthly dashboard built around one honest number: what's left after your commitments
 • A repeating monthly plan: set your budget once, change any month without touching the rest
-• Optional budget methods: compare your monthly plan with 50/30/20, 70/20/10, 80/20 or zero-based, shown as two pies (the goal and your plan), with each category marked need, want, saving or debt
+• Optional budget methods: compare your monthly plan with 50/30/20, 70/20/10, 80/20, zero-based or your own split, with a bar per group that turns green when it fits and red when it goes over
 • Annual dashboard: monthly averages, where the money went and where it came from, the whole year at a glance
 • Year over year: every year you have records for, side by side
 • Cut back: ideas to cancel or trim, and what the cuts add up to in 1, 5, 10 and 20 years
