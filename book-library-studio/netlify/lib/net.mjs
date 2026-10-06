@@ -77,9 +77,9 @@ export async function fetchPage(url, { allowPrivate = false, fetchImpl = fetch, 
       continue;
     }
     if (res.status === 401 || res.status === 403 || res.status === 429 || res.status === 451)
-      throw Object.assign(Error('This website blocks automatic access, even though it opens in your browser.'), { code: 'SOURCE_ACCESS_DENIED' });
+      throw Object.assign(Error('This website blocks automatic access, even though it opens in your browser.'), { code: 'SOURCE_ACCESS_DENIED', finalUrl: current });
     if (res.status === 404 || res.status === 410) throw Object.assign(Error('That page doesn’t exist anymore. Check the link.'), { code: 'NOT_FOUND' });
-    if (!res.ok) throw Object.assign(Error(`The website answered with an error (${res.status}). Try again later.`), { code: 'SOURCE_ERROR' });
+    if (!res.ok) throw Object.assign(Error(`The website answered with an error (${res.status}). Try again later.`), { code: 'SOURCE_ERROR', finalUrl: current });
     const type = res.headers.get('content-type') || '';
     if (type && !/html|xml|text\/plain/i.test(type)) throw Object.assign(Error('That link is not a web page. Paste the link of the book’s page.'), { code: 'NOT_HTML' });
     return { html: await readCapped(res), finalUrl: current };

@@ -40,15 +40,20 @@ test('a page with several printed ISBNs and no book data gives no ISBN', () => {
   assert.equal(b.title, 'List');
 });
 
-test('Amazon links are never opened: short links are followed to the address only', async () => {
-  const seen = [];
-  const fetchImpl = async u => { seen.push(u); return new Response('', { status: 301, headers: { location: 'https://www.amazon.com/Project-Hail-Mary-Novel/dp/0593135202' } }); };
-  const r = await resolveLink('https://a.co/d/abc123', { allowPrivate: true, fetchImpl });
-  assert.deepEqual(seen, ['https://a.co/d/abc123']);
-  assert.equal(r.stopped, true);
-  assert.equal(r.url, 'https://www.amazon.com/Project-Hail-Mary-Novel/dp/0593135202');
-  const direct = await resolveLink('https://www.amazon.co.uk/dp/B08FHBV4ZX', { allowPrivate: true, fetchImpl: () => { throw Error('fetched'); } });
-  assert.equal(direct.stopped, true);
+test('Amazon pages (any country): ISBN from the details, else title and author; refusals give back the address', async () => {
+  const page = html => async () => new Response(html, { status: 200, headers: { 'content-type': 'text/html' } });
+  const kindle = await resolveLink('https://www.amazon.es/dp/B0CNVR8ZX8/ref=sspa_dk_detail_4?psc=1', { allowPrivate: true, fetchImpl: page(fx('amazon-es.html')) });
+  assert.equal(kindle.isbn, ''); assert.equal(kindle.title, 'Alas de sangre (Empíreo 1)'); assert.equal(kindle.author, 'Rebecca Yarros');
+  assert.equal(kindle.image, 'https://m.media-amazon.com/images/I/81x.jpg');
+  const print = await resolveLink('https://www.amazon.es/dp/B0XXXXXXXX', { allowPrivate: true, fetchImpl: page(fx('amazon-print.html')) });
+  assert.equal(print.isbn, '9788466671811'); assert.equal(print.title, 'Proyecto Hail Mary');
+  const captcha = await resolveLink('https://www.amazon.com/dp/B08FHBV4ZX', { allowPrivate: true, fetchImpl: page('<form action="/errors/validateCaptcha"></form>') });
+  assert.equal(captcha.stopped, true);
+  const refused = await resolveLink('https://www.amazon.de/dp/B08FHBV4ZX', { allowPrivate: true, fetchImpl: async () => new Response('', { status: 503 }) });
+  assert.deepEqual(refused, { url: 'https://www.amazon.de/dp/B08FHBV4ZX', stopped: true });
+  // a short link that lands on a refusing Amazon page still gives back Amazon's address
+  const short = await resolveLink('https://a.co/d/abc123', { allowPrivate: true, fetchImpl: async u => u.includes('a.co') ? new Response('', { status: 301, headers: { location: 'https://www.amazon.com/dp/B08FHBV4ZX' } }) : new Response('', { status: 503 }) });
+  assert.deepEqual(short, { url: 'https://www.amazon.com/dp/B08FHBV4ZX', stopped: true });
 });
 
 test('the link reader reads a page for its book', async () => {
@@ -79,6 +84,8 @@ test('book numbers and titles from links', () => {
   assert.deepEqual(L('https://www.amazon.com/Project-Hail-Mary-Novel/dp/0593135202/ref=sr_1_1'), { isbn: '9780593135204' });
   assert.deepEqual(L('https://www.amazon.co.uk/gp/product/0593135202'), { isbn: '9780593135204' });
   assert.deepEqual(L('https://www.amazon.com/Project-Hail-Mary-Novel-ebook/dp/B08FHBV4ZX'), { asin: 'B08FHBV4ZX', q: 'Project Hail Mary' });
+  assert.deepEqual(L('https://www.amazon.es/dp/B0CNVR8ZX8/ref=sspa_dk_detail_4?psc=1&pd_rd_i=B0CNVR8ZX8'), { asin: 'B0CNVR8ZX8', q: '' });
+  assert.deepEqual(L('https://www.amazon.es/Proyecto-Hail-Mary-Andy-Weir/dp/8466671815'), { asin: '8466671815', q: 'Proyecto Hail Mary Andy Weir' });
   assert.deepEqual(L('https://www.barnesandnoble.com/w/dune-frank-herbert/1100154406?ean=9780441172719'), { isbn: '9780441172719' });
   assert.deepEqual(L('https://www.waterstones.com/book/circe/madeline-miller/9781526622587'), { isbn: '9781526622587' });
   assert.deepEqual(L('https://openlibrary.org/works/OL20651256W/The_Midnight_Library'), { olKey: '/works/OL20651256W' });

@@ -85,8 +85,10 @@ try {
   ok(/Circe/.test(await page.textContent('.result')) && /Madeline Miller/.test(await page.textContent('.result')), 'a bookshop page is read for its ISBN');
   await find(`${BASE}/fixtures/no-isbn.html`);
   ok(/The Quiet Garden/.test(await page.textContent('.result')), 'a page without an ISBN still offers its title');
-  await find('https://www.amazon.com/dp/B08FHBV4ZX');
-  ok(/Kindle and audiobook links/.test(await page.textContent('.find-status')), 'a Kindle link without a title explains what to do');
+  await find('https://www.amazon.es/dp/B0CNVR8ZX8/ref=sspa_dk_detail_4?psc=1&pd_rd_i=B0CNVR8ZX8');
+  ok(/didn’t share this book’s details/.test(await page.textContent('.find-status')) && await page.evaluate(() => document.activeElement?.id === 'find-a'), 'an Amazon link that won’t share asks for the title');
+  await find('hail mary');
+  ok(await page.evaluate(() => find.results[0]?.sourceUrl.startsWith('https://www.amazon.es/dp/B0CNVR8ZX8')), 'the title search keeps the Amazon link');
   await find('9780593135205');
   ok(/isn’t a valid ISBN/.test(await page.textContent('.find-status')), 'a mistyped ISBN is caught');
   await find('zzqx nothing');
