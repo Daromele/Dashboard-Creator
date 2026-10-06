@@ -113,6 +113,19 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  await v(()=>{const s=document.querySelector('[data-doc-lease]');s.value='all';s.dispatchEvent(new Event('change',{bubbles:true}));});
  ok('a letter to every tenant: Dear Residents, no one tenant’s name',await v(()=>{const t=document.querySelector('#rp-letter').value;return /Dear Residents/.test(t)&&!/Sam Rivera|Priya Shah/.test(t);}));
  ok('finances: summary by property with income, NOI and cash flow',await v(()=>{go('expenses');const t=document.querySelector('.rp-sum')?.innerText||'';return /Maple Street duplex/.test(t)&&/NOI/i.test(t)&&/Cash flow/i.test(t)&&/Finances/.test(document.querySelector('h1').innerText);}));
+ // charging a tenant
+ await v(()=>{go('tenants');document.querySelector('[data-action="rp-charge-add"][data-lease]').click();});
+ await p.fill('#rp-charge-form [name=title]','Damage repair');await p.fill('#rp-charge-form [name=d0]','Broken blind');await p.fill('#rp-charge-form [name=a0]','35');
+ await v(()=>document.querySelector('[data-action="rp-charge-line"]').click());await p.fill('#rp-charge-form [name=d1]','Labor');await p.fill('#rp-charge-form [name=a1]','40');await p.waitForTimeout(80);
+ ok('charge form totals the items as you type',await v(()=>/\$75\.00/.test(document.querySelector('.rp-ch-total').textContent)));
+ await p.click('#rp-charge-form button[type=submit]');await p.waitForTimeout(250);
+ ok('the charge is saved and listed as Open',await v(()=>state.rpCharges.length===1&&/Open/.test(document.querySelector('#content').innerText)));
+ await v(()=>document.querySelector('[data-action="rp-charge-bill"]').click());await p.waitForTimeout(200);
+ ok('Bill opens the letter with each item and the total',await v(()=>{const t=document.querySelector('#rp-letter').value;return /STATEMENT OF CHARGES/.test(t)&&/Broken blind: \$35\.00/.test(t)&&/Total: \$75\.00/.test(t);}));
+ const fees0=await v(()=>{go('rppl');return document.querySelector('.rp-pl').innerText;});
+ await v(()=>{go('tenants');document.querySelector('[data-action="rp-charge-pay"]').click();});await p.fill('#rp-chpay-form [name=amount]','75');await p.click('#rp-chpay-form button[type=submit]');await p.waitForTimeout(250);
+ ok('paid in full: a fee payment linked to the charge, shown as Paid',await v(()=>state.rpPays.some(x=>x.charge===state.rpCharges[0].id&&x.kind==='fee'&&x.amount===7500)&&/Paid/.test([...document.querySelectorAll('#content table')].at(-1).innerText)));
+ ok('the payment counts in Late fees & other',await v(()=>{go('rppl');const r=[...document.querySelectorAll('.rp-pl tbody tr')].find(r=>/^Late fees/.test(r.cells[0].innerText));return /\$75\.00/.test(r.cells[r.cells.length-1].innerText);}));
  // bank import
  const csvPath=require('path').join(require('os').tmpdir(),'rp-bank-test.csv');require('fs').writeFileSync(csvPath,'Date,Description,Amount\n2026-10-05,Zelle from Priya Shah,1400.00\n2026-10-06,HARBOR HARDWARE SUPPLY,-86.40\n2026-10-07,ACME MORTGAGE SERVICING PMT,-1850.00\n2026-10-08,Mystery deposit,999.00\n');
  await v(()=>go('rpimport'));await p.setInputFiles('[data-rp-import]',csvPath);await p.waitForTimeout(400);
@@ -134,6 +147,7 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  await v(()=>{go('settings');});await v(()=>document.querySelector('[data-action="demo"]').click());await p.waitForTimeout(500);
  ok('sample: one late tenant, one lease ending, one vacancy',await v(()=>{go('dashboard');const t=document.querySelector('#content').innerText;return /days late/.test(t)&&/lease ends/.test(t)&&/is vacant/.test(t);}));
  ok('sample: the Home chart filters to one property',await v(()=>{go('dashboard');const sel=document.querySelector('[data-rp-pick="chart"]');sel.value='p-harbor';sel.dispatchEvent(new Event('change',{bubbles:true}));return /Harbor View condo ·/.test(document.querySelector('.bt-chart').closest('.card').innerText);}));
+ ok('sample: an overdue charge on Home',await v(()=>{go('dashboard');return /owes \$126\.00 for Utilities/.test(document.querySelector('#content').innerText);}));
  ok('sample: an urgent repair on Home',await v(()=>{go('dashboard');return /Urgent repair: No hot water/.test(document.querySelector('#content').innerText);}));
  ok('sample: tenants filter by property and by status',await v(()=>{go('tenants');const f=[...document.querySelectorAll('.tbl-filter')].map(x=>x.getAttribute('aria-label').replace(/(by )(.*)/,(m,a,b)=>a+b[0]+b.slice(1).toLowerCase()));return f.includes('Filter by Property')&&f.includes('Filter by Status');}));
  ok('sample: cap rate and cash-on-cash shown',await v(()=>{go('props');return /\d%/.test(document.querySelector('.kpis').innerText);}));

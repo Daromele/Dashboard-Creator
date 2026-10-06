@@ -136,6 +136,7 @@ const NICHE = {
       ['Repairs and tenant requests', 'Log a repair, or a request a tenant phoned in, with how urgent it is. Mark it done with the cost and it goes into your expenses (Repairs, line 14) in one step. Urgent ones show on Home.'],
       ['Letters & notices', 'Welcome letter, rent receipt, late rent, late fee, rent increase, renewal offer, notice of entry, lease violation, notice to vacate, move-out instructions and deposit return. Each fills in from your records; change any words, save your wording, print or copy. Notice rules differ by state: check yours.'],
       ['Cash flow by property', 'Finances: pick the dates, and the Summary by property table shows each property’s income, running costs, NOI, interest, principal and cash flow side by side. Profit & loss has the full statement; the Home chart can show one property.'],
+      ['Charging a tenant', 'Tenants & leases → Charge (or Charge a tenant): list each item and its cost, set a pay-by date, then print the bill from Letters & notices. Record the payment when it arrives; it counts as “Late fees & other” income. Overdue charges show on Home.'],
       ['Letters for a group', 'In Letters & notices, “To” can be one tenant, every tenant at one building, every tenant, or nobody (a blank template).'],
       ['The calendar', 'A week view by default (Month is one click away); filter by rent, bills, lease dates and repairs, or by property. Rent due dates (green once paid, red when late), repeating bills and the mortgage, lease ends and move-outs, and scheduled repairs, on one month. Click a rent to record it.'],
       ['Depreciation', 'Not worked out here: it depends on your purchase price, land value and the year you started renting. Your tax pro can add it.'],
@@ -203,6 +204,12 @@ const NICHE = {
         { id: uid(), prop: '', date: first.slice(0, 8) + '08', amount: 1500, cat: 'other', note: 'Bookkeeping software', repeat: 'monthly' },
         { id: uid(), prop: '', date: addM(start, 3) + '-15', amount: 18500, cat: 'other', note: 'Landlord association dues', repeat: 'yearly' },
       ];
+      // charges: a damaged screen the Nguyens paid for, and Sam's share of a water bill still owed
+      s.rpCharges = [
+        { id: 'c-screen', lease: 'l-ng', title: 'Damage repair', date: addM(now, -2) + '-08', due: addM(now, -2) + '-22', items: [{ d: 'Replace torn window screen', a: 6500 }, { d: 'Labor', a: 4000 }] },
+        { id: 'c-water', lease: 'l-sam', title: 'Utilities', date: addD(t, -20), due: addD(t, -3), items: [{ d: 'Water & sewer, last quarter (your half)', a: 12600 }], note: 'Pay by Zelle or check.' },
+      ];
+      s.rpPays.push({ id: uid(), lease: 'l-ng', month: addM(now, -2), date: addM(now, -2) + '-19', amount: 10500, kind: 'fee', charge: 'c-screen', note: 'Damage repair' });
       // repairs: an urgent one a tenant reported, one booked, one to do before listing, and two finished ones already in expenses
       s.rpJobs = [
         { id: uid(), prop: 'p-oak', unit: 'u-oak', lease: 'l-ng', title: 'No hot water upstairs', reported: addD(t, -1), status: 'open', urgent: true, notes: 'Water heater is new; check the pilot light first.' },
