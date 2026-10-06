@@ -21,6 +21,11 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('interest field appears once there is a mortgage',await v(()=>!document.querySelector('.rp-int').hidden));
  await p.fill('#rp-prop-form [name=interest]','1300');await p.click('#rp-prop-form button[type=submit]');await p.waitForTimeout(250);
  ok('property saved with 2 units, the loan and $420,000',await v(()=>{const x=state.rpProps[0];return x.units.length===2&&x.units[1].name==='Unit 2'&&x.loan.payment===185000&&x.loan.interest===130000&&x.value===42000000;}));
+ ok('nothing recorded yet: profit & loss and Finances say so, no Print or Export',await v(()=>{const L=state.rpProps[0].loan;delete state.rpProps[0].loan;go('rppl');const a=/Nothing recorded yet/.test(document.querySelector('#content').innerText)&&!document.querySelector('[data-action="rp-pl-csv"]');go('expenses');return a&&/Nothing recorded yet/.test(document.querySelector('#content').innerText)&&!document.querySelector('[data-action="rp-exps-csv"]')&&(state.rpProps[0].loan=L,true);}));
+ ok('empty repair log: no zero tiles',await v(()=>{go('rpmaint');return !document.querySelector('#content .kpis');}));
+ ok('import before tenants says to add them first',await v(()=>{go('rpimport');return /add your tenants first/i.test(document.querySelector('#content').innerText);}));
+ ok('a quiet week shows what’s next',await v(()=>{go('rpcal');return !!document.querySelector('.rp-next');}));
+ await v(()=>go('dashboard'));
  // a tenant whose lease began before this month: this month's rent is asked about
  await v(()=>document.querySelector('[data-action="rp-lease-add"]').click());
  ok('lease start has no default (not today)',await v(()=>document.querySelector('#rp-lease-form [name=start]').value===''));
@@ -93,6 +98,7 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('repair log filters: Tenant requests shows it',await v(()=>{document.querySelector('[data-action="rp-job-show"][data-k="tenant"]').click();return /Dripping/.test(document.querySelector('#content tbody').innerText);}));
  // calendar
  ok('calendar opens on this week, 7 days',await v(()=>{go('rpcal');return document.querySelectorAll('.rp-week .rp-day').length===7&&!!document.querySelector('.rp-day.today');}));
+ ok('calendar chips count what they filter',await v(()=>/Rent \d+/.test(document.querySelector('[data-action="rp-cal-kind"][data-k="rent"]').innerText)));
  ok('calendar filters: hiding rent removes rent days',await v(()=>{document.querySelector('[data-action="rp-cal-mode"][data-k="month"]').click();document.querySelector('[data-action="rp-cal-kind"][data-k="rent"]').click();const gone=!/Sam Rivera/.test(document.querySelector('.rp-cal').innerText);document.querySelector('[data-action="rp-cal-kind"][data-k="rent"]').click();return gone;}));
  ok('calendar: rent due and the repair on their days',await v(()=>{const t=document.querySelector('.rp-cal').innerText;return /Sam Rivera/.test(t)&&/Dripping kitchen tap/.test(t)&&document.querySelectorAll('.rp-day:not(.out)').length===31;}));
  // letters

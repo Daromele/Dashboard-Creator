@@ -93,6 +93,9 @@ Every rule came from a real finding.
 - Suggested room or fix amounts never exceed what's actually free; a number over target says what to do.
 
 **Words and states**
+- Open every summary screen with one item and no money: no $0.00 walls, no Print/Export with nothing in it.
+- Run each import before the people it matches to exist (no tenants, no accounts): it must say what to add first.
+- Open a calendar's week view mid-month: an empty week must point to what's next.
 - Wording from other editions (the crawl's list, plus Settings, Start fresh, backups and the guide).
 - Empty states explain the next step. Controls that can't do anything yet (year arrows, month switches,
   filter chips with 0 entries, export) are hidden or disabled.

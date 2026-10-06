@@ -163,6 +163,15 @@ paycheck + Monthly Plan 6). Build each one in from the first commit; the check s
    on every period"), not about the one screen. Add a flow-test assertion for it. Commit the skill changes
    with the fixes.
 
+- A summary screen (P&L, finances, a calendar's totals, a log's KPI tiles) with nothing recorded yet shows one
+  empty state with the next step, never a wall of $0.00 tiles and dashes; Print and Export appear once there's data.
+- An import that matches money to people (rent to tenants) says "add your tenants first" when there are none,
+  instead of silently skipping every deposit.
+- A week view that's quiet shows "Next up" (the next few dated items, with a jump to that week), so it never
+  reads as broken. Filter chips show their counts and are disabled at 0.
+- Hero rings on a phone: a legend under the ring (`ring(...,{legend:true})`), not side labels that get cut.
+  Long KPI amounts on a phone step down a size (`fitKpis`) instead of wrapping.
+
 ## 2b. Test-writing traps
 
 - `requestSubmit()` runs the browser's own `required` check first: an empty required field never reaches
