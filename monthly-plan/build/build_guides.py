@@ -1,6 +1,6 @@
 """Buyer guides (US Letter, print to PDF) for the app editions, in the Monthly Plan guide's style.
 
-usage: python3 build/build_guides.py [tracker|debt|bills|networth|paycheck|budget|rental|business ...]     (from monthly-plan/)
+usage: python3 build/build_guides.py [tracker|debt|bills|networth|paycheck|budget|rental|business|bakeweek ...]     (from monthly-plan/)
 Writes listing/<dir>/<Product>_Guide.html; build/guide_pdf.js turns each into a PDF.
 Screenshots come from listing/<dir>/shots (the deck captures).
 """
@@ -134,7 +134,7 @@ def help_page(P, rows):
 {rows}
 <tr><td>Folder backup unavailable</td><td>Use Chrome or Edge on a computer, or Download backup instead.</td></tr>
 <tr><td>The currency is wrong</td><td>Settings &amp; backup → Currency, or type your own symbol. Amounts are not converted.</td></tr>
-<tr><td>I want the tour again</td><td>Settings &amp; backup → Welcome tour → Show tour.</td></tr></table>
+<tr><td>I want the tour again</td><td>{P.get('tour_again','Settings &amp; backup → Welcome tour → Show tour.')}</td></tr></table>
 <h2>We can help</h2>
 <p>For order support, message <b>JPS Digital Pages</b> through Etsy or email <b>hello@jpsdigitalpages.com</b>. Website: www.jpsdigitalpages.com</p>
 <div class="box"><h3>Thank you</h3><p>If {P['name']} earns its place, a review genuinely helps a small shop. And if it does not, tell us before you leave one: most things are fixable.</p></div>
@@ -714,7 +714,71 @@ def business_pages(shot):
 <tr><td>My PDF statement won’t import</td><td>Only CSV downloads can be read. Look for “Export” or “Download CSV” in online banking.</td></tr>''')),
     ]
 
+BAKEWEEK = dict(
+    dir='bakeweek-studio', file='Bakeweek_Studio', name='Bakeweek Studio', html='Bakeweek_Studio.html', mark='B', version='2.3',
+    storage='bws-guide-img:', tour='orders, the week plan and backups', safe_page=9, who='bakery',
+    tour_again='Settings &amp; backup → Show the welcome tour again → <b>Show tour</b>.',
+    colors=dict(bold='#3A2419', accent='#A4471F', pop='#F2B441', page='#FBF8F5', ink='#2A1A12', ink2='#5E5148', ink3='#8E8178',
+                rule='#E6DDD5', soft='#F2ECE6', warm='#FBF1E3', warmline='#EED7B5', green='#E6F1EA', greenline='#BFDCCB'),
+    cover=dict(kicker='Your bakery guide', tag='Your whole bake week, planned for you.', image='tab-week.jpg',
+               intro='What every bake costs, every order in one book, and the week turned into a shopping list, batch sheets and packing tickets, in one file on your own computer.'),
+)
+
+
+def bakeweek_pages(shot):
+    P = BAKEWEEK
+    return [
+        ('Start here', start_here(P, '<li><b>Follow the three steps</b> on This week: add your first ingredient, save one recipe you bake often, then try an order.</li>',
+                                  'Choose <b>Explore the sample bakery</b> on This week, or <b>Open the sample bakery</b> in Settings &amp; backup. Sunday Crumb, a made-up microbakery with a bread club, a café account and a Saturday market, fills every screen, and nothing in it is saved. <b>Return to my bakery</b> brings back your own, untouched.')),
+        ('The idea', f'''<h1>One week, one plan.</h1>
+<p class="lede">This week adds up every order, standing drop and market day into what to buy, what to bake each day, and whether it fits in your hours.</p>
+{shot("tab-week.jpg", "guide-week", "This week")}
+<table><tr><th>Word</th><th>What it means</th></tr>
+<tr><td>Hands-on time</td><td>Your minutes per batch: mixing, shaping, finishing. Proofing and baking on their own don’t count.</td></tr>
+<tr><td>Batch</td><td>One run of a recipe at its yield. Orders are rounded up to whole batches.</td></tr>
+<tr><td>Standing order</td><td>A regular drop for a bread club, subscriber or café, added to the order book four weeks ahead.</td></tr>
+<tr><td>Available hours</td><td>The hours you can bake each day. The plan warns you when a day needs more.</td></tr></table>'''),
+        ('Your library', f'''<h1>What every bake costs.</h1>
+<p class="lede">Add ingredients in <b>Pantry</b> with the pack size and price you pay, then save your tested recipes in <b>Recipes</b>. Every recipe shows its cost, your price and what you keep.</p>
+{shot("tab-recipetable.jpg", "guide-recipes", "Recipes")}
+<table><tr><td>Cost / piece</td><td>Ingredients and packaging for one piece, at your latest pack prices.</td></tr>
+<tr><td>Price</td><td>What you charge for one piece. Your target margin, card fee and the value of an hour are set in Settings &amp; backup.</td></tr>
+<tr><td>Keeps</td><td>The share of the price left after costs, before your time.</td></tr></table>'''),
+        ('Orders', f'''<h1>Every order, one order book.</h1>
+<p class="lede"><b>Try an order</b> first: it shows the extra hours and costs, and you accept it when the plan works. Orders keep their price, pickup day, balance and the customer’s allergies.</p>
+{shot("tab-orders.jpg", "guide-orders", "Orders")}
+<div class="two"><div class="box"><h3>Pre-order menu</h3><p>Post this week’s menu with a closing time. <b>Copy menu text</b> for your page or group chat; each pre-order joins the plan as it comes in.</p></div>
+<div class="box"><h3>Standing orders</h3><p>Bread clubs, subscriptions and wholesale cafés. Set the schedule once; each drop bakes, shops and packs like any order.</p></div></div>'''),
+        ('Bake day', f'''<h1>Shop, bake, pack.</h1>
+<p class="lede"><b>Shopping</b> totals every recipe in the week, takes off what’s on your shelves, and rounds up to the packs you buy, grouped by supplier.</p>
+{shot("tab-shopping.jpg", "guide-shopping", "Shopping")}
+<div class="two"><div class="box"><h3>Batch sheets</h3><p>Each day’s dough prep and bakes, scaled to the orders, with hands-on minutes. <b>Print batch sheets</b> for the kitchen.</p></div>
+<div class="box"><h3>Pack &amp; collect</h3><p>What goes in each bag, the balance to collect at pickup, and packing tickets with allergies. <b>Kitchen packet</b> prints the lot.</p></div></div>'''),
+        ('Markets & money', f'''<h1>What you really earn.</h1>
+<p class="lede">Reports → <b>Profit &amp; expenses</b> shows sales, ingredients, packaging, fees and the expenses you add, with profit per hands-on hour.</p>
+{shot("tab-money.jpg", "guide-money", "Profit & expenses")}
+<div class="two"><div class="box"><h3>Market days</h3><p><b>Plan a market day</b> with the stock you’ll bring, then <b>Record what sold</b>. Sell-through and leftovers tell you how much to bring next time.</p></div>
+<div class="box"><h3>Invoices, vendors, bank</h3><p>Invoice cafés and caterers, send purchase orders to your mill, and import your bank’s CSV: deposits pay invoices, withdrawals pay purchase orders.</p></div></div>'''),
+        ('Getting around', '''<h1>The screens.</h1>
+<p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
+<table><tr><th>Screen</th><th>What it is for</th></tr>
+<tr><td>This week</td><td>The week plan, shopping list, batch sheets and pack &amp; collect.</td></tr>
+<tr><td>Orders · Pre-order menu</td><td>Every order with its pickup and balance; this week’s menu.</td></tr>
+<tr><td>Standing orders · Market days</td><td>Regular drops; market stock, sales and leftovers.</td></tr>
+<tr><td>Customers · Invoices &amp; orders</td><td>Contacts and allergies; invoices and purchase orders.</td></tr>
+<tr><td>Reports</td><td>Year at a glance, profit &amp; expenses, and bank import.</td></tr>
+<tr><td>Recipes · Pantry · Vendors</td><td>Your formulas and costs; ingredients and stock; who you buy from.</td></tr>
+<tr><td>Labels · Calculators</td><td>Ingredient and allergen labels; scaling, baker’s %, levain, dough temperature, pans.</td></tr></table>
+<p>Every table sorts, searches and filters. Every screen prints.</p>'''),
+        ('Read this one', SAFE('bakery', 'every recipe, ingredient, order, customer, invoice and setting')),
+        ('When you need help', help_page(P, '''<tr><td>A recipe shows no cost</td><td>One of its ingredients has no pack price. Pantry → edit the ingredient and add what you pay.</td></tr>
+<tr><td>A day needs more time than you have</td><td>The week plan says how much more. Move a bake day, raise <b>Available hours</b>, or say no to an order.</td></tr>
+<tr><td>Labels look wrong</td><td>Labels come from the recipe’s ingredients. Check them, and your local cottage-food rules, before you print.</td></tr>
+<tr><td>A shopping amount looks odd</td><td>Check the ingredient’s pack size and unit in Pantry: the list rounds up to whole packs.</td></tr>''')),
+    ]
+
 BUDGET['pages'] = budget_pages
+BAKEWEEK['pages'] = bakeweek_pages
 BUSINESS['pages'] = business_pages
 RENTAL['pages'] = rental_pages
 BILLS['pages'] = bills_pages
@@ -726,4 +790,4 @@ PAYCHECK['pages'] = paycheck_pages
 if __name__ == '__main__':
     which = sys.argv[1:] or ['tracker', 'debt', 'bills', 'networth', 'paycheck', 'budget']
     for w in which:
-        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK, 'budget': BUDGET, 'rental': RENTAL, 'business': BUSINESS}[w])
+        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK, 'budget': BUDGET, 'rental': RENTAL, 'business': BUSINESS, 'bakeweek': BAKEWEEK}[w])

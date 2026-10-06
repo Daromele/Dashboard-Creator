@@ -1,0 +1,21 @@
+BAKEWEEK STUDIO | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open Bakeweek_Studio.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find, ideally a synced folder such as iCloud Drive, Dropbox, OneDrive or Google Drive. It works offline once open.
+
+FIRST STEPS
+A short welcome tour opens the first time. Then follow the three steps on This week: add your first ingredient (pack size and price), save one recipe you bake often (yield, ingredients, hands-on minutes), then try an order.
+
+SAMPLE
+Explore the sample bakery, on This week or in Settings & backup, fills every screen with Sunday Crumb, a made-up microbakery with a bread club, a café account and a Saturday market. Nothing in it is saved. Return to my bakery restores your own.
+
+EACH WEEK
+Add orders, post your pre-order menu and plan market days. This week turns them into a shopping list, batch sheets and pack & collect lists; print them for the kitchen. Mark orders collected and paid, and check Reports for your profit.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one JSON file. Keep that file outside the app. To restore or move to another computer, copy the HTML file and your backup across and use Restore backup. Data does not sync automatically. Download a backup before clearing browser data or switching browsers.
+Chrome and Edge can also write a dated backup to a folder you choose each day. Safari and Firefox do not support this; use Download backup instead.
+
+HELP
+Read Bakeweek_Studio_Guide.pdf, included with your download. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+Website: https://www.jpsdigitalpages.com

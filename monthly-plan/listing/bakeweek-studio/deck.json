@@ -1,0 +1,198 @@
+{
+ "product": "Bakeweek Studio",
+ "footer": "Bakeweek Studio · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Bakeweek_Studio_Etsy_Mockups.html",
+ "storage_prefix": "bws-kit-img:",
+ "brand": {
+  "ink": "#2A1A12",
+  "bold": "#3A2419",
+  "pop": "#F2B441",
+  "paper": "#FBF8F5",
+  "calm": "#A4471F"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Home bakery business planner",
+   "headline": "Your whole bake week,<br>planned for you.",
+   "pills": [
+    "Recipe costing",
+    "Orders",
+    "Shopping list",
+    "No subscription"
+   ],
+   "image": "tab-week.jpg",
+   "alt": "Bakeweek Studio week plan"
+  },
+  {
+   "dark": false,
+   "label": "Recipe costs",
+   "eyebrow": "Recipe cost calculator",
+   "headline": "Know what every bake costs.",
+   "sub": "Cost per piece, price and margin for every recipe, from your pack prices.",
+   "image": "tab-recipetable.jpg",
+   "foot": "Fictional sample bakery shown"
+  },
+  {
+   "dark": true,
+   "label": "Orders",
+   "eyebrow": "Order book",
+   "headline": "Every order in one place.",
+   "sub": "Custom orders, pre-orders and regulars, with balances and allergies.",
+   "image": "tab-orders.jpg",
+   "foot": "Import or export as CSV"
+  },
+  {
+   "dark": false,
+   "label": "Pre-order menu",
+   "eyebrow": "Pre-order menu",
+   "headline": "Post the menu. The plan fills itself.",
+   "sub": "Take orders until it closes; the bake plan and shopping list keep up.",
+   "image": "tab-menu.jpg",
+   "foot": "Copy the menu text in one click"
+  },
+  {
+   "dark": true,
+   "label": "Shopping",
+   "eyebrow": "Shopping list",
+   "headline": "The shopping list writes itself.",
+   "sub": "Every recipe totaled, pantry stock taken off, rounded to whole packs.",
+   "image": "tab-shopping.jpg",
+   "foot": "Grouped by supplier"
+  },
+  {
+   "dark": false,
+   "label": "Batch sheets",
+   "eyebrow": "Batch sheets",
+   "headline": "Know what to bake, and when.",
+   "sub": "Each day’s dough prep and bakes, scaled to the orders. Print and bake.",
+   "image": "tab-batches.jpg",
+   "foot": "Hands-on time for every batch"
+  },
+  {
+   "dark": true,
+   "label": "Market days",
+   "eyebrow": "Market days",
+   "headline": "Bring the right amount to market.",
+   "sub": "Plan stock, count what came home, and see your sell-through and leftovers.",
+   "image": "tab-markets.jpg",
+   "foot": "Every market day, side by side"
+  },
+  {
+   "dark": false,
+   "label": "Profit",
+   "eyebrow": "Profit &amp; expenses",
+   "headline": "See what you really earn.",
+   "sub": "Sales, ingredients, packaging and fees, and profit per hands-on hour.",
+   "image": "tab-money.jpg",
+   "foot": "Bank CSV import included"
+  },
+  {
+   "dark": true,
+   "label": "Invoices",
+   "eyebrow": "Invoices &amp; orders",
+   "headline": "Invoices and purchase orders.",
+   "sub": "Invoice cafés and caterers, order from your mill, see who owes whom.",
+   "image": "tab-docs.jpg",
+   "foot": "Numbered, printable, paid off in a click"
+  },
+  {
+   "dark": false,
+   "label": "Labels",
+   "eyebrow": "Labels",
+   "headline": "Labels with allergens, ready to print.",
+   "sub": "Ingredients by weight, allergens and dates on standard label sheets.",
+   "image": "tab-labels.jpg",
+   "foot": "Check your local cottage-food rules"
+  },
+  {
+   "dark": true,
+   "label": "Standing orders",
+   "eyebrow": "Standing orders",
+   "headline": "Bread clubs and wholesale, on repeat.",
+   "sub": "Regular drops join your order book ahead and bake like any order.",
+   "image": "tab-standing.jpg",
+   "foot": "Pause or end any time"
+  },
+  {
+   "dark": false,
+   "label": "Private",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Your recipes stay yours.",
+   "sub": "No login, no subscription, nothing uploaded. One-click backups.",
+   "image": "tab-settings.jpg",
+   "foot": "Works offline on Mac and PC"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks, one calm kitchen.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Kiln",
+     "image": "theme-kiln.jpg",
+     "swatch": "#3A2419"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Ledger",
+     "image": "theme-ledger.jpg",
+     "swatch": "#182635"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Recipe Cost Calculator, Home Bakery Business Planner, Bakery Order Tracker, Bakery Pricing, Cottage Bakery, No Subscription",
+  "tags": [
+   "recipe cost sheet",
+   "recipe costing",
+   "bakery pricing tool",
+   "bakery cost sheet",
+   "home bakery",
+   "bakery planner",
+   "cottage bakery",
+   "bakery order form",
+   "ingredient cost",
+   "recipe pricing",
+   "bakery business",
+   "custom order form",
+   "bakery inventory"
+  ],
+  "description_file": "description.txt"
+ }
+}

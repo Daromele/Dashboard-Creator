@@ -1,0 +1,280 @@
+{
+ "app": "../../../bakeweek/Bakeweek_Studio.html",
+ "date": "2026-10-20",
+ "setup": "try{localStorage.clear()}catch{};try{closeTour()}catch{};toggleSample(true);go('settings');document.querySelector('[data-action=\"theme\"][data-k=\"kiln\"]').click();go('week');const T=document.querySelector('#toast');if(T)T.hidden=true;",
+ "content": "#content",
+ "navigate": "#nav [data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#2A1A12",
+  "bold": "#3A2419",
+  "pop": "#F2B441",
+  "paper": "#FBF8F5",
+  "calm": "#A4471F"
+ },
+ "fps": 30,
+ "shots_dir": "vshots",
+ "bpm": 104,
+ "music": 0.5,
+ "output": "Bakeweek_Studio_Social.mp4",
+ "captures": [
+  {
+   "name": "week",
+   "view": "week",
+   "targets": {
+    "hero": "#content section.hero",
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "doc0",
+   "view": "docs",
+   "targets": {
+    "pay": "#content [data-action=\"doc-pay\"][data-id=\"sample-doc-1\"]",
+    "kpis": "#content .kpis",
+    "table": "#content section.table-card",
+    "row": "#content tr:has([data-id=\"sample-doc-1\"])"
+   }
+  },
+  {
+   "name": "doc1",
+   "click": [
+    "#content [data-action=\"doc-pay\"][data-id=\"sample-doc-1\"]",
+    "#docpay-form button[type=\"submit\"]"
+   ],
+   "clipFrom": "doc0"
+  },
+  {
+   "name": "rec",
+   "before": "go('recipes');document.querySelector('[data-action=\"recipe-view\"][data-k=\"table\"]').click();",
+   "targets": {
+    "table": "#content section.table-card"
+   }
+  },
+  {
+   "name": "shop",
+   "before": "go('week');go('shopping');",
+   "targets": {
+    "kpis": "#content .kpis",
+    "list": "#content section.table-card"
+   }
+  },
+  {
+   "name": "money",
+   "before": "go('year');go('money');",
+   "targets": {
+    "hero": "#content section.hero",
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "market",
+   "view": "markets",
+   "targets": {
+    "hero": "#content section.hero",
+    "kpis": "#content .kpis"
+   }
+  }
+ ],
+ "scenes": [
+  {
+   "type": "hook",
+   "dur": 2.0,
+   "text": "What does that loaf<br>*really cost you?*",
+   "image": "rec"
+  },
+  {
+   "type": "crop",
+   "dur": 3.0,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Every *recipe*"
+    },
+    {
+     "t": 1.5,
+     "text": "Cost, price and *margin*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "rec",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "rec.table",
+     "sub": [
+      0,
+      0,
+      0.42,
+      1
+     ],
+     "pad": 0.012
+    },
+    {
+     "t": 1.5,
+     "target": "rec.table",
+     "sub": [
+      0.5,
+      0,
+      1,
+      1
+     ],
+     "pad": 0.012
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.8,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Shopping list, *done for you*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "shop",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "shop.list",
+     "sub": [
+      0,
+      0,
+      1,
+      0.7
+     ],
+     "pad": 0.012
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 3.4,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Who *owes you*"
+    },
+    {
+     "t": 1.7,
+     "text": "Paid in *one click*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "doc0",
+     "at": 0
+    },
+    {
+     "img": "doc1",
+     "at": 1.6
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "doc0.kpis",
+     "sub": [
+      0,
+      0,
+      0.5,
+      1
+     ],
+     "pad": 0.015
+    },
+    {
+     "t": 0.9,
+     "target": "doc0.row",
+     "sub": [
+      0.45,
+      0,
+      1,
+      1
+     ],
+     "pad": 0.02
+    },
+    {
+     "t": 2.3,
+     "target": "doc0.kpis",
+     "sub": [
+      0,
+      0,
+      0.5,
+      1
+     ],
+     "pad": 0.015
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.45,
+     "target": "doc0.pay",
+     "click": true
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.8,
+     "text": "Paid ✓",
+     "x": 540,
+     "y": 1400,
+     "rot": -4,
+     "sound": "cash"
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Profit *per hands-on hour*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "money",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "money.hero",
+     "sub": [
+      0,
+      0,
+      0.6,
+      1
+     ],
+     "pad": 0.015
+    }
+   ]
+  },
+  {
+   "type": "end",
+   "dur": 2.8,
+   "headline": "Bakeweek Studio",
+   "sub": "Recipe costs, orders and the week plan.<br>No subscription, no account.",
+   "cta": "Instant download on Etsy",
+   "by": "JPS Digital Pages",
+   "themes": [
+    "shots/theme-kiln.jpg",
+    "shots/theme-midnight.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-linen.jpg"
+   ]
+  }
+ ]
+}

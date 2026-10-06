@@ -1,0 +1,198 @@
+{
+ "app": "../../../bakeweek/Bakeweek_Studio.html",
+ "date": "2026-10-20",
+ "setup": "try{localStorage.clear()}catch{};try{closeTour()}catch{};toggleSample(true);go('settings');document.querySelector('[data-action=\"theme\"][data-k=\"kiln\"]').click();go('week');const T=document.querySelector('#toast');if(T)T.hidden=true;",
+ "content": "#content",
+ "navigate": "#nav [data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#2A1A12",
+  "bold": "#3A2419",
+  "pop": "#F2B441",
+  "paper": "#FBF8F5",
+  "calm": "#A4471F"
+ },
+ "fps": 30,
+ "shots_dir": "vshots",
+ "captures": [
+  {
+   "name": "week",
+   "view": "week",
+   "targets": {
+    "hero": "#content section.hero",
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "doc0",
+   "view": "docs",
+   "targets": {
+    "pay": "#content [data-action=\"doc-pay\"][data-id=\"sample-doc-1\"]",
+    "kpis": "#content .kpis",
+    "table": "#content section.table-card",
+    "row": "#content tr:has([data-id=\"sample-doc-1\"])"
+   }
+  },
+  {
+   "name": "doc1",
+   "click": [
+    "#content [data-action=\"doc-pay\"][data-id=\"sample-doc-1\"]",
+    "#docpay-form button[type=\"submit\"]"
+   ],
+   "clipFrom": "doc0"
+  },
+  {
+   "name": "rec",
+   "before": "go('recipes');document.querySelector('[data-action=\"recipe-view\"][data-k=\"table\"]').click();",
+   "targets": {
+    "table": "#content section.table-card"
+   }
+  },
+  {
+   "name": "shop",
+   "before": "go('week');go('shopping');",
+   "targets": {
+    "kpis": "#content .kpis",
+    "list": "#content section.table-card"
+   }
+  },
+  {
+   "name": "money",
+   "before": "go('year');go('money');",
+   "targets": {
+    "hero": "#content section.hero",
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "market",
+   "view": "markets",
+   "targets": {
+    "hero": "#content section.hero",
+    "kpis": "#content .kpis"
+   }
+  }
+ ],
+ "product": "Bakeweek Studio",
+ "output": "Bakeweek_Studio_Etsy_Video.mp4",
+ "size": [
+  1440,
+  1080
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "dur": 2.0,
+   "eyebrow": "Home bakery business planner",
+   "headline": "Your whole bake week,<br>planned for you.",
+   "pills": [
+    "Recipe costing",
+    "Orders",
+    "No subscription"
+   ],
+   "image": "week"
+  },
+  {
+   "type": "shot",
+   "dur": 2.6,
+   "dark": false,
+   "eyebrow": "Recipe cost calculator",
+   "headline": "Know what every bake costs.",
+   "shots": [
+    {
+     "img": "rec",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.6,
+    "target": "rec.table",
+    "scale": 1.12
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 2.6,
+   "dark": true,
+   "eyebrow": "Shopping list",
+   "headline": "The shopping list writes itself.",
+   "shots": [
+    {
+     "img": "shop",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.6,
+    "target": "shop.list",
+    "scale": 1.1
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 3.2,
+   "dark": false,
+   "eyebrow": "Invoices",
+   "headline": "Paid? Record it in a click.",
+   "shots": [
+    {
+     "img": "doc0",
+     "at": 0
+    },
+    {
+     "img": "doc1",
+     "at": 1.6
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.45,
+     "target": "doc0.pay",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 2.2,
+   "dark": true,
+   "eyebrow": "Profit &amp; expenses",
+   "headline": "See what you really earn.",
+   "shots": [
+    {
+     "img": "money",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.2,
+    "t1": 2.2,
+    "target": "money.hero",
+    "scale": 1.1
+   }
+  },
+  {
+   "type": "end",
+   "dur": 2.0,
+   "eyebrow": "Instant download",
+   "headline": "Bakeweek Studio",
+   "sub": "One file · works offline · Mac &amp; PC",
+   "pills": [
+    "No subscription",
+    "Private",
+    "8 themes"
+   ],
+   "themes": [
+    "shots/theme-kiln.jpg",
+    "shots/theme-fjord.jpg",
+    "shots/theme-linen.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-ledger.jpg",
+    "shots/theme-slate.jpg",
+    "shots/theme-night.jpg",
+    "shots/theme-midnight.jpg"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,58 @@
+A recipe cost calculator and home bakery business planner in one: cost every recipe from your own pack prices, price it for the margin you want, then plan the week. Orders, pre-orders, bread clubs and market days turn into one bake plan, one shopping list and one set of batch sheets. It opens in any browser and never asks you to sign up for anything.
+
+Bakeweek Studio is one HTML file. You download it, double-click it, and it opens like a web page. Add your pantry with the pack sizes and prices you pay, save your tested recipes with yields and hands-on minutes, and every recipe shows its cost per piece, your price and your margin. Take custom orders, post a weekly pre-order menu, set up standing orders for regulars and cafés, and plan your market stall. The week plan adds it all up: what to buy, what to bake each day, what to pack for each pickup, and whether it fits in the hours you have. No subscription, no account. Your recipes and customers stay on your own computer.
+
+How It Works:
+1. Download the file and save it somewhere you will find it again.
+2. Double-click to open it in your browser. Take the short tour, or explore the fictional sample bakery first.
+3. Add your ingredients with their pack sizes and prices, then your recipes with yields and times.
+4. Add orders, a pre-order menu, standing orders and market days as they come.
+5. Each week, follow the shopping list, batch sheets and packing list. Mark orders collected and paid.
+
+WHAT YOU'LL GET:
+• One HTML home bakery business planner file
+• Recipe cost calculator: cost per piece, price per piece and margin for every recipe, from your own pack prices
+• Pricing help: a price for your target margin, with your hourly value, card fees and packaging counted
+• Order book: custom orders, pre-orders and standing drops, with pickup dates, balances, quotes and allergies
+• Weekly pre-order menu that closes on the day you choose, with menu text to copy and post
+• Standing orders for bread clubs, subscriptions and wholesale cafés
+• Market days: plan stock, record what sold, see sell-through and leftovers
+• Week plan: hours needed against hours available, and "can I fit another order?"
+• Shopping list: totaled across recipes, pantry stock taken off, rounded to the packs you buy, grouped by supplier
+• Batch sheets and pack & collect lists to print for the kitchen
+• Pantry with stock, pack prices and low-stock warnings
+• Customers with contact details, allergies and order history
+• Invoices for customers and purchase orders for vendors, numbered and printable
+• Vendors: your mill, grocer and packaging supplier, with terms and what you owe
+• Profit & expenses: sales, ingredients, packaging and fees, with profit per hands-on hour
+• Bank CSV import that matches deposits to invoices and payments to purchase orders
+• Labels with ingredients by weight, allergens and dates on Avery 5163, 5164 or L7163 sheets
+• Kitchen calculators: scale a recipe, baker's percentages, levain build, dough temperature, pan sizes, conversions, price check
+• Year at a glance with sales by month and by product
+• Orders import and export as CSV
+• Every table sorts, searches and filters
+• 8 color themes, light and dark; every screen prints
+• Built-in how-to guide and a PDF guide included
+
+PERFECT FOR:
+Home bakers, cottage bakeries, microbakeries, sourdough bakers, cake and cookie makers, farmers market stalls, bread clubs and anyone selling baked goods who wants to know what each bake really costs, plus anyone replacing a recipe costing spreadsheet or bakery cost sheet who wants their recipes to stay private on their own computer.
+
+Please note: this is a digital file, not a physical product. Nothing will be posted to you. It doesn't connect to your bank or take payments; you add orders yourself or import CSV files. Your data is stored in your own browser on your own device, and this app never uploads anything anywhere. Download a backup regularly; the app reminds you, and Chrome and Edge can back up to a folder automatically every day. Works best on a computer. Labels and allergen lists come from the recipes you enter: check them against your local cottage-food rules.
+
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
+
+👍 You Can
+✔ Use this app for your own bakery, for as long as you like
+✔ Use it on your own computers, and print your own copies
+✔ Back up your own file and your own data as often as you want
+
+👎 You Cannot
+❌ Resell, redistribute, or share this file with others
+❌ Include it in any product, bundle or service of your own
+❌ Claim it as your own work, or alter it for resale
+❌ Return it — digital files cannot be returned once downloaded
+
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order! hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+
+Bakeweek Studio by JPS Digital Pages

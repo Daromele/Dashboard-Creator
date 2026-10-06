@@ -1,0 +1,124 @@
+{
+ "app": "../../../bakeweek/Bakeweek_Studio.html",
+ "out": "shots",
+ "date": "2026-10-20",
+ "setup": "try{localStorage.clear()}catch{};try{closeTour()}catch{};toggleSample(true);go('settings');document.querySelector('[data-action=\"theme\"][data-k=\"kiln\"]').click();go('week');const T=document.querySelector('#toast');if(T)T.hidden=true;",
+ "content": "#content",
+ "navigate": "#nav [data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "week",
+   "view": "week",
+   "offset": 6
+  },
+  {
+   "name": "orders",
+   "view": "orders",
+   "offset": 6
+  },
+  {
+   "name": "menu",
+   "view": "menu",
+   "offset": 6
+  },
+  {
+   "name": "standing",
+   "view": "standing",
+   "offset": 6
+  },
+  {
+   "name": "markets",
+   "view": "markets",
+   "offset": 6
+  },
+  {
+   "name": "customers",
+   "view": "customers",
+   "offset": 6
+  },
+  {
+   "name": "docs",
+   "view": "docs",
+   "offset": 6
+  },
+  {
+   "name": "year",
+   "view": "year",
+   "offset": 6
+  },
+  {
+   "name": "recipes",
+   "view": "recipes",
+   "offset": 6
+  },
+  {
+   "name": "pantry",
+   "view": "pantry",
+   "offset": 6
+  },
+  {
+   "name": "vendors",
+   "view": "vendors",
+   "offset": 6
+  },
+  {
+   "name": "labels",
+   "view": "labels",
+   "offset": 6
+  },
+  {
+   "name": "tools",
+   "view": "tools",
+   "offset": 6
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  },
+  {
+   "name": "shopping",
+   "offset": 6,
+   "before": "go('week');go('shopping')"
+  },
+  {
+   "name": "batches",
+   "offset": 6,
+   "before": "go('week');go('batches')"
+  },
+  {
+   "name": "packing",
+   "offset": 6,
+   "before": "go('week');go('packing')"
+  },
+  {
+   "name": "money",
+   "offset": 6,
+   "before": "go('year');go('money')"
+  },
+  {
+   "name": "bank",
+   "offset": 6,
+   "before": "go('year');go('bank')"
+  },
+  {
+   "name": "recipetable",
+   "view": "recipes",
+   "offset": 6,
+   "before": "document.querySelector('[data-action=\"recipe-view\"][data-k=\"table\"]').click()"
+  }
+ ],
+ "themes": {
+  "list": [
+   "kiln",
+   "fjord",
+   "linen",
+   "sage",
+   "ledger",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "go('settings');document.querySelector('[data-action=\"theme\"][data-k=\"'+T+'\"]').click();go('week');const X=document.querySelector('#toast');if(X)X.hidden=true;"
+ }
+}
