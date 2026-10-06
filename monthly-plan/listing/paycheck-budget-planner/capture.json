@@ -1,0 +1,69 @@
+{
+ "app": "../../app/PaycheckBudgetPlanner.html",
+ "out": "shots",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "view": "dashboard",
+   "offset": 6
+  },
+  {
+   "name": "thischeck",
+   "view": "dashboard",
+   "scrollTo": "#content .grid2.equal",
+   "before": "const e=document.querySelector('#content .grid2.equal');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);"
+  },
+  {
+   "name": "plan",
+   "view": "paychecks",
+   "offset": 6
+  },
+  {
+   "name": "cards",
+   "view": "paychecks",
+   "scrollTo": "#content .pp-grid",
+   "before": "const e=document.querySelector('#content .pp-grid');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);"
+  },
+  {
+   "name": "spending",
+   "view": "spending",
+   "offset": 6
+  },
+  {
+   "name": "income",
+   "view": "income",
+   "offset": 6
+  },
+  {
+   "name": "billcal",
+   "view": "billcal",
+   "offset": 6
+  },
+  {
+   "name": "history",
+   "view": "pphistory",
+   "offset": 6
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  }
+ ],
+ "themes": {
+  "list": [
+   "linen",
+   "sage",
+   "fjord",
+   "lavender",
+   "blush",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('dashboard',true);render();document.querySelector('#toast').hidden=true;"
+ }
+}

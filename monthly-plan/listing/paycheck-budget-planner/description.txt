@@ -1,0 +1,53 @@
+A paycheck to paycheck budget planner that puts every bill in the paycheck before it's due, gives your spending money an amount per paycheck, and shows what each paycheck leaves before you spend it. It opens in any browser and never asks you to sign up for anything.
+
+Paycheck Budget Planner is one HTML file. You download it, double-click it, and it opens like a web page. Add your take-home pay, how often you're paid and your next payday, then your bills and your spending money for groceries, gas, fun and savings. From then on it works out which paycheck pays each bill, what each paycheck leaves after bills, spending and saving, and warns you when a paycheck coming up is going to run short, so you can move a bill to an earlier paycheck before it happens. Paid weekly, every two weeks, twice a month or monthly, with one income or two. No bank login, no subscription. Your figures stay on your own computer.
+
+How It Works:
+1. Download the file and save it somewhere you will find it again.
+2. Double-click to open it in your browser. Take the two-minute tour, or open Sample Mode to explore a fictional household's paychecks first.
+3. Add your paycheck: take-home pay, how often, and your next payday. Add a partner's or side job's pay too.
+4. Add your bills and your spending money. Common ones (rent, electric, phone, groceries, gas, savings) are one click away.
+5. Each payday, open This paycheck: tick bills off as you pay them, log what you spend, and see what's left until the next one.
+
+WHAT YOU'LL GET:
+• One HTML paycheck budget planner file
+• This paycheck: what's left after bills, spending and saving, where the paycheck goes, and the days to your next payday
+• Bills from this paycheck: every bill due before your next payday, ticked off as you pay
+• Spending & saving: groceries, gas, eating out, fun money and savings goals, per paycheck or per month
+• Log spending in seconds and see what's left this paycheck
+• Paycheck plan: the next 6 or 12 paychecks side by side, with a chart of what each one leaves
+• Short paycheck warnings, and one click to pay a bill from an earlier paycheck
+• Carry what's left to the next paycheck, or keep each one separate
+• Paid weekly, every 2 weeks, twice a month (any two days) or monthly; weekend paydays move to the Friday before or Monday after
+• Two incomes: each payday starts its own paycheck
+• Confirm what actually arrived when your pay changes
+• Bills screen with autopay, bills that change, free trials and price rises
+• Calendar with paydays and bills together
+• Past paychecks: what came in, went to bills, was spent and saved, and what was left
+• Payment history and CSV exports
+• Every table sorts, searches and filters
+• 8 color themes, light and dark; every screen prints
+• Built-in how-to guide included
+
+PERFECT FOR:
+Living paycheck to paycheck and wanting to stop running out before payday, anyone paid every two weeks or twice a month whose bills don't line up with paydays, couples with two paydays, hourly workers whose pay changes, anyone building a small buffer or savings habit one paycheck at a time, people replacing a paper paycheck budget or a bi-weekly budget spreadsheet, and anyone who wants their finances to stay private on their own computer.
+
+Please note: this is a digital file, not a physical product. Nothing will be posted to you. You add your pay, bills and spending by hand; it doesn't connect to your bank or move money for you. Your data is stored in your own browser on your own device, and this planner never uploads anything anywhere. Download a backup regularly; the app reminds you, and Chrome and Edge can back up to a folder automatically every day. Works best on a computer; phones and tablets can view, tick off bills and log spending. This is not financial advice.
+
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
+
+👍 You Can
+✔ Use this planner for your own household's budget, for as long as you like
+✔ Use it on your own computers, and print your own copies
+✔ Back up your own file and your own data as often as you want
+
+👎 You Cannot
+❌ Resell, redistribute, or share this file with others
+❌ Use it commercially, or include it in any product, bundle or service of your own
+❌ Claim it as your own work, or alter it for resale
+❌ Return it — digital files cannot be returned once downloaded
+
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order! hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+
+Paycheck Budget Planner by JPS Digital Pages

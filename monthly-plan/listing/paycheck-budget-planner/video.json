@@ -1,0 +1,219 @@
+{
+ "app": "../../app/PaycheckBudgetPlanner.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#2A2218",
+  "bold": "#45392A",
+  "pop": "#E8A24A",
+  "paper": "#F7F4ED",
+  "calm": "#6B5B45"
+ },
+ "fps": 30,
+ "shots_dir": "vshots",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "hero": "#content .debt-hero",
+    "heroL": "#content .debt-hero > div:first-child"
+   }
+  },
+  {
+   "name": "plan0",
+   "view": "paychecks",
+   "scrollTo": "#content section:has(> .bt-chart)",
+   "targets": {
+    "red": "#content .pp-bar.neg",
+    "chart": "#content .bt-chart",
+    "card": "#content section:has(> .bt-chart)"
+   }
+  },
+  {
+   "name": "plan1",
+   "before": "const r=state.btBills.find(b=>b.id==='b-repair'),L=PaycheckUI.model().L;state.ppMoves={[r.id+'|'+r.start]:L[1].start};render();",
+   "clipFrom": "plan0"
+  },
+  {
+   "name": "chk0",
+   "view": "dashboard",
+   "before": "const e=document.querySelector('#content .grid2.equal');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);",
+   "scrollTo": "#content .grid2.equal",
+   "targets": {
+    "a": "#content .bt-check[data-id=\"b-care\"]",
+    "b": "#content .bt-check[data-id=\"b-stream\"]",
+    "list": "#content .bt-list",
+    "env": "#content .grid2.equal > :last-child"
+   }
+  },
+  {
+   "name": "chk1",
+   "click": [
+    "#content .bt-check[data-id=\"b-care\"]"
+   ],
+   "clipFrom": "chk0"
+  },
+  {
+   "name": "chk2",
+   "click": [
+    "#content .bt-check[data-id=\"b-stream\"]"
+   ],
+   "clipFrom": "chk0"
+  },
+  {
+   "name": "spend",
+   "view": "spending",
+   "targets": {
+    "kpis": "#content .kpis",
+    "table": "#content .table-card"
+   }
+  }
+ ],
+ "product": "Paycheck Budget Planner",
+ "output": "Paycheck_Budget_Planner_Etsy_Video.mp4",
+ "size": [
+  1440,
+  1080
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "dur": 2.0,
+   "eyebrow": "Paycheck to paycheck budget",
+   "headline": "Budget by<br>paycheck.",
+   "pills": [
+    "Bills by payday",
+    "Spending money",
+    "No subscription"
+   ],
+   "image": "dash"
+  },
+  {
+   "type": "shot",
+   "dur": 2.4,
+   "dark": true,
+   "eyebrow": "This paycheck",
+   "headline": "What’s left, before you spend it.",
+   "shots": [
+    {
+     "img": "dash",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.4,
+    "target": "dash.hero",
+    "origin": [
+     0.02,
+     0.2
+    ],
+    "scale": 1.2
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 3.4,
+   "dark": false,
+   "eyebrow": "Paycheck plan",
+   "headline": "Short? Move a bill.",
+   "shots": [
+    {
+     "img": "plan0",
+     "at": 0
+    },
+    {
+     "img": "plan1",
+     "at": 1.7
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.55,
+     "target": "plan0.red",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 3.0,
+   "dark": true,
+   "eyebrow": "Each payday",
+   "headline": "Tick bills off as you pay.",
+   "shots": [
+    {
+     "img": "chk0",
+     "at": 0
+    },
+    {
+     "img": "chk1",
+     "at": 1.1
+    },
+    {
+     "img": "chk2",
+     "at": 2.2
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.0,
+     "target": "chk0.a",
+     "click": true
+    },
+    {
+     "t": 2.1,
+     "target": "chk0.b",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 2.0,
+   "dark": false,
+   "eyebrow": "Spending &amp; saving",
+   "headline": "Spending money that lasts.",
+   "shots": [
+    {
+     "img": "spend",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.0,
+    "target": "spend.kpis",
+    "origin": [
+     0.0,
+     0.15
+    ],
+    "scale": 1.12
+   }
+  },
+  {
+   "type": "end",
+   "dur": 2.0,
+   "eyebrow": "Instant download",
+   "headline": "Paycheck Budget Planner",
+   "sub": "One file · works offline · Mac &amp; PC",
+   "pills": [
+    "No subscription",
+    "Private",
+    "8 themes"
+   ],
+   "themes": [
+    "shots/theme-linen.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-fjord.jpg",
+    "shots/theme-lavender.jpg",
+    "shots/theme-blush.jpg",
+    "shots/theme-slate.jpg",
+    "shots/theme-night.jpg",
+    "shots/theme-midnight.jpg"
+   ]
+  }
+ ]
+}

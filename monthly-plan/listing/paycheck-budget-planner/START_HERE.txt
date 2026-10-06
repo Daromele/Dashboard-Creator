@@ -1,0 +1,21 @@
+PAYCHECK BUDGET PLANNER | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open PaycheckBudgetPlanner.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find, ideally a synced folder such as iCloud Drive, Dropbox, OneDrive or Google Drive. It works offline once open.
+
+FIRST STEPS
+A short welcome tour opens the first time. Then follow the three steps on This paycheck: add your paycheck (take-home pay, how often, your next payday), your bills, and your spending and saving. Add a partner's or side job's pay on Paydays.
+
+SAMPLE
+Explore sample data, on the welcome screen or in Settings & backup, fills every screen with a fictional household's two incomes, 12 bills and spending plan, in a separate session. Return to my paychecks restores your own.
+
+EACH PAYDAY
+Confirm what actually arrived, tick bills off as you pay them, and log what you spend. Check the Paycheck plan for a short paycheck coming up and move a bill to an earlier paycheck with room.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one JSON file. Keep that file outside the app. To restore or move to another computer, copy the HTML file and your backup across and use Restore backup. Data does not sync automatically. Download a backup before clearing browser data or switching browsers.
+Chrome and Edge can also write a dated backup to a folder you choose each day. Safari and Firefox do not support this; use Download backup instead.
+
+HELP
+Read Paycheck_Budget_Planner_Guide.pdf, included with your download. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+Website: https://www.jpsdigitalpages.com

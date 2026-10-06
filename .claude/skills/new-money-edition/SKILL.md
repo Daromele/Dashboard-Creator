@@ -24,6 +24,10 @@ Everything here is a correction the user already made once. Apply it up front.
 - Wire the edition's branches in core alongside `P.features.debt` (blank state, validator block for its
   keys, `debt-ed` body class, Settings column + wording + Move your data + categories card, Start fresh,
   guide Quick Log section, the `q` key). Bills (`features.billsTracker`) is the smallest example.
+- Reuse a whole edition's screens when the new one needs them: turn on its flag too (the paycheck edition
+  runs `billsTracker` + `paycheck`), put the new edition's branches **before** the reused one's in every
+  ternary, override its dashboard by spreading the new views last, and skip its top-bar rewiring (a
+  `click` listener it adds survives a later `dataset.action` change).
 - Grep the core for words from other editions before shipping (closed `<details>` hide text from
   innerText: scan `#content.innerHTML`): "planner", "budget", "books",
   "Autopilot", "transactions" in Settings, Start fresh, backups, Getting started, guide, empty states.
@@ -58,6 +62,10 @@ Everything here is a correction the user already made once. Apply it up front.
 - Defaults a newbie won't change are guessed from what they type (category or type from the name; a
   debt-sounding name flips own/owe) and stop following once they pick one themselves.
 - Hide controls that can't do anything yet (Print, Export, arrows) on an empty app.
+- Anything "per period" with two sources (two incomes): per-period amounts follow one main source (let the
+  buyer pick it), and month amounts split by the days a period covers, or short periods get a full share.
+- Make the sample show the edition's signature moment on any day it's opened: compute the plan with the
+  engine inside `sample.extras` and add what's needed (e.g. a one-off bill that leaves one paycheck short).
 - Sample data: fictional names only (never the user's banks: "Harbor Bank", not Chase); rich enough
   that every screen and every toggle shows a difference.
 
@@ -67,6 +75,7 @@ Everything here is a correction the user already made once. Apply it up front.
   the handler (that's correct). A closed dialog keeps its form in the DOM: check `$('#modal').open`.
 - Hidden radio inputs inside styled labels: click the label. Fields inside a closed `<details>`: open it.
 - KPI numbers count up from 0: wait or read `state`, not a mid-animation screenshot.
+- A form's defaults apply in tests too (a bill added without choosing "Once" repeats monthly).
 - `el.click()` returns undefined: never chain `a?.click()||b.click()`.
 - Playwright `fill()` fires `input`, not `change`; `change` comes on blur, so test both the typing path and
   leaving the field (click elsewhere).

@@ -1,0 +1,266 @@
+{
+ "app": "../../app/PaycheckBudgetPlanner.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#2A2218",
+  "bold": "#45392A",
+  "pop": "#E8A24A",
+  "paper": "#F7F4ED",
+  "calm": "#6B5B45"
+ },
+ "fps": 30,
+ "shots_dir": "sshots",
+ "bpm": 104,
+ "music": 0.5,
+ "output": "Paycheck_Budget_Planner_Social.mp4",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "hero": "#content .debt-hero",
+    "heroL": "#content .debt-hero > div:first-child"
+   }
+  },
+  {
+   "name": "plan0",
+   "view": "paychecks",
+   "scrollTo": "#content section:has(> .bt-chart)",
+   "targets": {
+    "red": "#content .pp-bar.neg",
+    "chart": "#content .bt-chart",
+    "card": "#content section:has(> .bt-chart)"
+   }
+  },
+  {
+   "name": "plan1",
+   "before": "const r=state.btBills.find(b=>b.id==='b-repair'),L=PaycheckUI.model().L;state.ppMoves={[r.id+'|'+r.start]:L[1].start};render();",
+   "clipFrom": "plan0"
+  },
+  {
+   "name": "chk0",
+   "view": "dashboard",
+   "before": "const e=document.querySelector('#content .grid2.equal');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);",
+   "scrollTo": "#content .grid2.equal",
+   "targets": {
+    "a": "#content .bt-check[data-id=\"b-care\"]",
+    "b": "#content .bt-check[data-id=\"b-stream\"]",
+    "list": "#content .bt-list",
+    "env": "#content .grid2.equal > :last-child"
+   }
+  },
+  {
+   "name": "chk1",
+   "click": [
+    "#content .bt-check[data-id=\"b-care\"]"
+   ],
+   "clipFrom": "chk0"
+  },
+  {
+   "name": "chk2",
+   "click": [
+    "#content .bt-check[data-id=\"b-stream\"]"
+   ],
+   "clipFrom": "chk0"
+  },
+  {
+   "name": "spend",
+   "view": "spending",
+   "targets": {
+    "kpis": "#content .kpis",
+    "table": "#content .table-card"
+   }
+  }
+ ],
+ "scenes": [
+  {
+   "type": "hook",
+   "dur": 2.0,
+   "text": "Broke before<br>*payday?*",
+   "image": "dash"
+  },
+  {
+   "type": "crop",
+   "dur": 2.8,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Know what’s *left*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "dash",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "dash.heroL",
+     "pad": 0.015
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 3.6,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Every bill in the *right paycheck*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "chk0",
+     "at": 0
+    },
+    {
+     "img": "chk1",
+     "at": 1.15
+    },
+    {
+     "img": "chk2",
+     "at": 2.25
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "chk0.list",
+     "sub": [
+      0,
+      0,
+      1,
+      0.7
+     ],
+     "pad": 0.012
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.05,
+     "target": "chk0.a",
+     "click": true
+    },
+    {
+     "t": 2.15,
+     "target": "chk0.b",
+     "click": true
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.2,
+     "text": "Paid ✓",
+     "x": 300,
+     "y": 1450,
+     "rot": -5,
+     "until": 2.1
+    },
+    {
+     "t": 2.3,
+     "text": "Paid ✓",
+     "x": 760,
+     "y": 1450,
+     "rot": 5
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 3.2,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Short paycheck *coming?*"
+    },
+    {
+     "t": 1.8,
+     "text": "*Fixed* in one click"
+    }
+   ],
+   "shots": [
+    {
+     "img": "plan0",
+     "at": 0
+    },
+    {
+     "img": "plan1",
+     "at": 1.7
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "plan0.chart",
+     "sub": [
+      0.2,
+      0,
+      0.8,
+      1
+     ],
+     "pad": 0.012
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.9,
+     "text": "Covered ✓",
+     "x": 560,
+     "y": 1470,
+     "rot": -4,
+     "sound": "cash"
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Spending money that *lasts*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "chk0",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "chk0.env",
+     "sub": [
+      0,
+      0,
+      1,
+      0.55
+     ],
+     "pad": 0.012
+    }
+   ]
+  },
+  {
+   "type": "end",
+   "dur": 2.8,
+   "headline": "Paycheck Budget Planner",
+   "sub": "Budget by paycheck.<br>No subscription, no bank login.",
+   "cta": "Instant download on Etsy",
+   "by": "JPS Digital Pages",
+   "themes": [
+    "shots/theme-linen.jpg",
+    "shots/theme-midnight.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-night.jpg"
+   ]
+  }
+ ]
+}

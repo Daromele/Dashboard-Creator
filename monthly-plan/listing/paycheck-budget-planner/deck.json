@@ -1,0 +1,171 @@
+{
+ "product": "Paycheck Budget Planner",
+ "footer": "Paycheck Budget Planner · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Paycheck_Budget_Planner_Etsy_Mockups.html",
+ "storage_prefix": "pbp-kit-img:",
+ "brand": {
+  "ink": "#2A2218",
+  "bold": "#45392A",
+  "pop": "#E8A24A",
+  "paper": "#F7F4ED",
+  "calm": "#6B5B45"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Paycheck to paycheck budget",
+   "headline": "Budget by<br>paycheck.",
+   "pills": [
+    "Bills by payday",
+    "Spending money",
+    "Private &amp; offline",
+    "One-time purchase"
+   ],
+   "image": "tab-dashboard.jpg",
+   "alt": "Paycheck Budget Planner: This paycheck"
+  },
+  {
+   "dark": false,
+   "label": "This paycheck",
+   "eyebrow": "This paycheck",
+   "headline": "Every bill in the right paycheck.",
+   "sub": "What’s due before your next payday, and what’s left to spend.",
+   "image": "tab-thischeck.jpg",
+   "foot": "Fictional sample household shown"
+  },
+  {
+   "dark": true,
+   "label": "Plan",
+   "eyebrow": "Paycheck plan",
+   "headline": "See a short paycheck coming.",
+   "sub": "What each of the next paychecks leaves, at a glance.",
+   "image": "tab-plan.jpg",
+   "foot": "Carry what’s left to the next one, if you like"
+  },
+  {
+   "dark": false,
+   "label": "Move a bill",
+   "eyebrow": "Paycheck plan",
+   "headline": "Move a bill, even it out.",
+   "sub": "Pay a bill from an earlier paycheck in one click.",
+   "image": "tab-cards.jpg",
+   "foot": "Six or twelve paychecks ahead"
+  },
+  {
+   "dark": true,
+   "label": "Spending",
+   "eyebrow": "Spending &amp; saving",
+   "headline": "Spending money that lasts.",
+   "sub": "Groceries, gas, fun and savings: per paycheck or per month.",
+   "image": "tab-spending.jpg",
+   "foot": "Log what you spend, see what’s left"
+  },
+  {
+   "dark": false,
+   "label": "Paydays",
+   "eyebrow": "Paydays",
+   "headline": "Any payday, any schedule.",
+   "sub": "Weekly, every 2 weeks, twice a month or monthly. One income or two.",
+   "image": "tab-income.jpg",
+   "foot": "Confirm what actually arrived"
+  },
+  {
+   "dark": true,
+   "label": "Calendar",
+   "eyebrow": "Calendar",
+   "headline": "Paydays and bills, together.",
+   "sub": "Every payday and every bill on one calendar.",
+   "image": "tab-billcal.jpg",
+   "foot": "Click a bill to mark it paid"
+  },
+  {
+   "dark": false,
+   "label": "Past paychecks",
+   "eyebrow": "Past paychecks",
+   "headline": "How every paycheck went.",
+   "sub": "Came in, bills, spent, saved, and what was left.",
+   "image": "tab-history.jpg",
+   "foot": "Export it all as CSV"
+  },
+  {
+   "dark": true,
+   "label": "Private & offline",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Yours, and safe.",
+   "sub": "No login, no bank connection, nothing uploaded. One-click backups.",
+   "image": "tab-settings.jpg",
+   "foot": "Your data never leaves your computer"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks. Every payday covered.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Lavender",
+     "image": "theme-lavender.jpg",
+     "swatch": "#2E2040"
+    },
+    {
+     "name": "Blush",
+     "image": "theme-blush.jpg",
+     "swatch": "#63304A"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Paycheck Budget Planner, Paycheck to Paycheck Budget, Bi Weekly Budget Template, Bill Tracker by Paycheck, Budget App, No Subscription",
+  "tags": [
+   "paycheck budget",
+   "paycheck to paycheck",
+   "biweekly budget",
+   "bi weekly budget",
+   "budget planner",
+   "budget by paycheck",
+   "budget template",
+   "bill tracker",
+   "budget spreadsheet",
+   "weekly budget",
+   "budget app",
+   "money planner",
+   "semi monthly budget"
+  ],
+  "description_file": "description.txt"
+ }
+}

@@ -451,12 +451,82 @@ def networth_pages(shot):
 <tr><td>A debt shows as negative</td><td>Enter what you owe as a positive number on a “Something I owe” account.</td></tr>''')),
     ]
 
+
+PAYCHECK = dict(
+    dir='paycheck-budget-planner', file='Paycheck_Budget_Planner', name='Paycheck Budget Planner', html='PaycheckBudgetPlanner.html', mark='P', version='1.0',
+    storage='pbp-guide-img:', tour='your paycheck, bills, spending money and backups', safe_page=9,
+    colors=dict(bold='#45392A', accent='#6B5B45', pop='#E8A24A', page='#F7F4ED', ink='#2A2218', ink2='#5E5446', ink3='#968C7E',
+                rule='#E5DED2', soft='#EFE9DF', warm='#FBF1E3', warmline='#EED7B5', green='#E6F1EA', greenline='#BFDCCB'),
+    cover=dict(kicker='Your payday guide', tag='Budget by paycheck.', image='tab-dashboard.jpg',
+               intro='Every bill in the paycheck before it’s due, spending money that lasts until payday, and an early warning when a paycheck is going to run short.'),
+)
+
+
+def paycheck_pages(shot):
+    P = PAYCHECK
+    return [
+        ('Start here', start_here(P, '<li><b>Follow the three steps</b> on This paycheck: add your paycheck, your bills, and your spending and saving. The usual bills and spending are one click away.</li>',
+                                  'Choose <b>Explore sample data</b> on the welcome screen or in Settings &amp; backup. A fictional household with two incomes, 12 bills and a spending plan fills every screen, in a separate session. <b>Return to my paychecks</b> brings back your own, untouched.')),
+        ('The idea', f'''<h1>One paycheck at a time.</h1>
+<p class="lede">You’re paid every week, two weeks or twice a month, and bills don’t wait for the end of the month. So the planner budgets each paycheck on its own.</p>
+{shot("tab-dashboard.jpg", "guide-dashboard", "This paycheck")}
+<p class="cap">This paycheck. The big number is what’s left after its bills, spending and saving; the ring shows where it goes.</p>
+<table><tr><th>Word</th><th>What it means</th></tr>
+<tr><td>This paycheck</td><td>From your payday to the day before your next one.</td></tr>
+<tr><td>Left over</td><td>The paycheck − its bills − spending − saving.</td></tr>
+<tr><td>Short</td><td>Its bills and plans add up to more than it brings in.</td></tr>
+<tr><td>Main paycheck</td><td>The income “each paycheck” amounts follow, when there are two.</td></tr></table>'''),
+        ('Your paydays', '''<h1>Add your paycheck.</h1>
+<p class="lede">Paydays → <b>Add an income</b>, or the first setup step. Add a partner’s or side job’s pay the same way.</p>
+<table><tr><th>Field</th><th>What to enter</th></tr>
+<tr><td>Take-home pay</td><td>What lands in your account, after tax. $2,150 or 1980.50 are fine.</td></tr>
+<tr><td>How often</td><td>Every week, every 2 weeks, twice a month or once a month.</td></tr>
+<tr><td>Next payday</td><td>For weekly and every 2 weeks: check your last pay stub. Every later payday follows from it.</td></tr>
+<tr><td>Paid on</td><td>For twice a month: the two days, like the 15th and the last day.</td></tr>
+<tr><td>On a weekend</td><td>Paid the Friday before, the Monday after, or that day.</td></tr></table>
+<div class="box"><h3>Did your paycheck arrive?</h3><p>On payday, This paycheck asks. <b>Confirm amount</b> with what actually came in: overtime, fewer hours, a bonus. The plan uses the real number.</p></div>
+<div class="box"><h3>Two incomes</h3><p>Every payday from either one starts a paycheck. “Each paycheck” spending follows your <b>main paycheck</b>; change it with <b>Make main</b>.</p></div>'''),
+        ('Each payday', f'''<h1>Bills and spending money.</h1>
+<p class="lede">Each bill lands in the paycheck before it’s due. Tick it off as you pay it, and log what you spend.</p>
+{shot("tab-thischeck.jpg", "guide-thischeck", "This paycheck")}
+<div class="two"><div class="box"><h3>Spending &amp; saving</h3><p>Groceries, gas, fun money, savings: an amount <b>each paycheck</b>, or <b>each month</b> split by the days each paycheck covers.</p></div>
+<div class="box"><h3>Log spending</h3><p>At the top of every screen. Pick what it was for and the amount; you see what’s left this paycheck straight away.</p></div></div>'''),
+        ('Plan ahead', f'''<h1>See a short paycheck coming.</h1>
+<p class="lede">Paycheck plan shows the next 6 or 12 paychecks side by side, and what each one leaves.</p>
+{shot("tab-plan.jpg", "guide-plan", "Paycheck plan")}
+<table>
+<tr><td>A red bar</td><td>That paycheck is short: its bills and plans are more than it brings in.</td></tr>
+<tr><td>⇄ on a bill</td><td>Pay it from another paycheck, usually an earlier one with room. It stays there until you move it back.</td></tr>
+<tr><td>Carry what’s left</td><td>Each paycheck starts with what the one before left (or owes).</td></tr></table>'''),
+        ('Looking back', f'''<h1>How every paycheck went.</h1>
+<p class="lede">Past paychecks: what came in, went to bills, was spent and saved, and what was left at the end.</p>
+{shot("tab-history.jpg", "guide-history", "Past paychecks")}
+<p>“Ended with” uses what you actually spent, not what you planned, so it tells you which paychecks really ran short. Export it all as CSV.</p>'''),
+        ('Getting around', '''<h1>The screens.</h1>
+<p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
+<table><tr><th>Screen</th><th>What it is for</th></tr>
+<tr><td>This paycheck</td><td>What’s left, its bills to tick, your spending money, and the next paychecks. ‹ › to move between paychecks.</td></tr>
+<tr><td>Paycheck plan</td><td>The next paychecks side by side; move a bill; carry what’s left.</td></tr>
+<tr><td>Spending &amp; saving</td><td>Your spending and saving amounts, and what you logged this paycheck.</td></tr>
+<tr><td>Bills</td><td>Every bill as a card or a table: autopay, amounts that change, free trials, price rises.</td></tr>
+<tr><td>Paydays</td><td>Your incomes, coming paydays, and what arrived.</td></tr>
+<tr><td>Calendar</td><td>Paydays ($) and bills together; click a bill to tick it.</td></tr>
+<tr><td>Past paychecks · Payment history</td><td>How each paycheck went; every bill payment. Export as CSV.</td></tr></table>
+<p>Every table sorts, searches and filters. Every screen prints.</p>'''),
+        ('Read this one', SAFE('paychecks', 'every paycheck, bill, payment, spending entry and category')),
+        ('When you need help', help_page(P, '''<tr><td>A bill is in the wrong paycheck</td><td>It goes in the paycheck its due date falls in. Check the bill’s next due date, or use ⇄ to move it.</td></tr>
+<tr><td>A paycheck looks too short</td><td>Two incomes? Make sure the right one is the <b>main paycheck</b> on Paydays.</td></tr>
+<tr><td>Spending money looks small</td><td>A month amount is split by days: a short paycheck (a day or two) gets a small share.</td></tr>
+<tr><td>My payday moved</td><td>Edit the income and set the next payday; every later one follows.</td></tr>''')),
+    ]
+
 BILLS['pages'] = bills_pages
 AUTOPILOT['pages'] = autopilot_pages
 DEBT['pages'] = debt_pages
 NETWORTH['pages'] = networth_pages
+PAYCHECK['pages'] = paycheck_pages
 
 if __name__ == '__main__':
-    which = sys.argv[1:] or ['tracker', 'debt', 'bills', 'networth']
+    which = sys.argv[1:] or ['tracker', 'debt', 'bills', 'networth', 'paycheck']
     for w in which:
-        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH}[w])
+        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK}[w])
