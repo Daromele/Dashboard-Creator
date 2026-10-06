@@ -1646,7 +1646,7 @@ body.debt-ed .month-control,body.debt-ed #month-tabs{display:none}body.debt-ed .
 .bt-bar{fill:color-mix(in srgb,var(--accent) 70%,var(--card));cursor:pointer;transition:fill .2s}.bt-bar.heavy{fill:var(--accent)}.bt-bar.cur{fill:var(--pop)}.bt-bar:hover{fill:var(--accent-2,var(--accent))}
 .bt-val{font:650 11px var(--num);fill:var(--ink-2)}.bt-mon{font:600 11px var(--sans,inherit);fill:var(--ink-3)}.bt-mon.cur{fill:var(--ink);font-weight:800}.bt-mon.pre{opacity:.45}
 .bt-more-card .bt-presets{justify-content:flex-start;max-width:none;margin:4px 0 0}
-.sp-pick{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0 16px}.sp-pick .link{font-size:12.5px}.sp-pick>span{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}.sp-pick .segment button{padding:8px 16px;font-weight:700}
+.sp-key{white-space:nowrap}.sp-key .dot{width:9px;height:9px;border-radius:50%;margin:0 4px 0 2px;vertical-align:0}.sp-pick{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0 16px}.sp-pick .link{font-size:12.5px}.sp-pick>span{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}.sp-pick .segment button{padding:8px 16px;font-weight:700}
 .sp-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-radius:12px;margin-bottom:16px;background:var(--sunk);border-left:5px solid var(--ink-3)}.sp-banner small{display:block;color:var(--ink-3);font-weight:650;font-size:12px}.sp-banner strong{font:700 26px/1.15 var(--num)}.sp-banner p{margin:0;max-width:46ch;font-size:13px;color:var(--ink-2);text-align:right}
 .sp-banner.ok{border-left-color:var(--pos)}.sp-banner.ok strong{color:var(--pos)}.sp-banner.over{border-left-color:var(--neg)}.sp-banner.over strong{color:var(--neg)}.sp-banner.short{border-left-color:#C98A1B}
 .sp-buckets{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:14px}.sp-bucket{border:1px solid var(--rule);border-top:4px solid var(--c);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -7890,7 +7890,7 @@ const PaycheckUI=(()=>{
   p.bills.filter(i=>i.state!=='skipped').forEach(i=>{const k='bill:'+i.b.id,x=by.get(k)||{key:k,name:i.b.name,amount:0,tag:SplitUI.tagOf(k,billTag(i.b)),note:`Bill · due ${dayName(i.due)}`,link:{action:'bt-edit',id:i.b.id}};x.amount+=i.amount;by.set(k,x);});
   envs().filter(e=>e.status!=='paused').forEach(e=>{const k='env:'+e.id,x=p.envs.find(z=>z.e.id===e.id),can=e.per==='month'||hasMain;
    by.set(k,{key:k,name:e.name,amount:x?x.planned:0,tag:envTag(e),...(can?{edit:{amount:e.amount,unit:e.per==='month'?'a month':'a paycheck'}}:{note:`On ${esc(main.name)}’s paydays`})});});
-  return SplitUI.card({items:[...by.values()],income:p.income+Math.max(0,p.carryIn||0),title:'Plan this paycheck',sub:'Type amounts below: green fits, red is over.',unit:'paycheck',empty:'Add your paycheck, and its plan shows here.',
+  return SplitUI.card({items:[...by.values()],income:p.income+Math.max(0,p.carryIn||0),title:'Plan this paycheck',subHtml:'Type amounts below: <span class="sp-key"><i class="dot" style="background:var(--pos)"></i>green fits</span>, <span class="sp-key"><i class="dot" style="background:var(--neg)"></i>red is over</span>.',unit:'paycheck',empty:'Add your paycheck, and its plan shows here.',
    live:(key,v)=>{const e=env(key.slice(4));return e?Pay.envAmount({...e,amount:v},p,incomes()):v;},
    save:out=>commit(()=>{Object.entries(out).forEach(([k,v])=>{const e=env(k.slice(4));if(e)e.amount=v;});},'Plan saved'),
    add:b=>button('＋ Add a line','pp-env-add','small quiet',`data-tag="${b.key==='live'?'want':b.key}" data-kind="${b.key==='save'?'save':'spend'}"`)});}
@@ -8107,13 +8107,15 @@ const SplitUI=(()=>{
  function banner(un,sofar,typed){if(Math.abs(un)<100)return ['ok',sofar?'Every dollar accounted for ✓':'Every dollar has a job ✓',sofar?'Nothing left unspent or unsaved.':'Your plan uses all of it. Nice work.'];
   if(un<0)return ['over',`Over by ${fmt(-un)}`,sofar?'You’ve spent and saved more than came in.':typed?'Lower an amount below until this is zero.':'Lower amounts in your plan below until this is zero.'];
   return ['short',`${fmt(un)} ${sofar?'not spent or saved yet':'left to assign'}`,sofar?'What’s still in the account from this month.':typed?'Give it a job: type an amount below, or add a line. Each bar turns red if it goes over its share.':'Give it a job in your plan below. Each bar turns red if it goes over its share.'];}
- let live=null,save=null;
+ let live=null,save=null,tagsOpen=false;
+ // the move panel stays open while you sort lines (each choice re-renders the card)
+ document.addEventListener('toggle',e=>{if(e.target.matches?.('.sp-tags'))tagsOpen=e.target.open;},true);
  const cents=v=>{const t=String(v??'').trim().replace(/^[$€£]\s*/,'').replace(/,(?=\d{3}(\D|$))/g,'').replace(/\s+/g,'');if(!t||/^-/.test(t))return null;try{const n=Budget.cents(t);return Number.isFinite(n)&&n>=0?n:null;}catch{return null;}};
  // items: [{key, name, amount (this period, cents), tag, note?, edit?:{amount, unit}}]; income in cents
  // opts.live(key,cents) → this period's amount for a typed value; opts.save({key:cents}); opts.add(bucket) → a button
- function card({items,income,title,sub,extra='',empty:emptyText,sofar=false,unit='income',live:lv=null,save:sv=null,add=null}){const id=method();if(!id)return '';
+ function card({items,income,title,sub,subHtml='',extra='',empty:emptyText,sofar=false,unit='income',live:lv=null,save:sv=null,add=null}){const id=method();if(!id)return '';
   live=lv;save=sv;const R=Split.compute(items,income,id,state.settings.splitCustom),M=Split.METHODS[R.id];
-  const head=`<div class="cardhead"><div><h2>${esc((title||'Your {m} budget').replace('{m}',M.zero?'zero-based':R.name))}</h2><p>${esc(sub||M.about)}</p></div><div class="nw-segs">${extra}</div></div>${pick(R.id)}`;
+  const head=`<div class="cardhead"><div><h2>${esc((title||'Your {m} budget').replace('{m}',M.zero?'zero-based':R.name))}</h2><p>${subHtml||esc(sub||M.about)}</p></div><div class="nw-segs">${extra}</div></div>${pick(R.id)}`;
   if(!(income>0))return `<section class="card sp-card">${head}${empty('No income to split yet',emptyText||'Add your income, and the split shows here.')}</section>`;
   const B=R.zero?BUCKETS_ZERO.map(([key,label,tags])=>({key,label,tags,goal:null,target:null})):R.rows,isSave=b=>b.key==='save'||b.key==='debt';
   const L=items.filter(x=>x.amount>0||x.edit||x.note),of=x=>(B.find(b=>b.tags.includes(x.tag))||B[0]).key;
@@ -8125,7 +8127,7 @@ const SplitUI=(()=>{
     `<div class="sp-lines">${mine.map(x=>`<div class="sp-line" data-k="${esc(x.key)}" data-v="${x.amount}"><span>${x.link?`<button class="link sp-name" data-action="${x.link.action}" data-id="${esc(x.link.id)}" title="Edit ${esc(x.name)}">${esc(x.name)} <span aria-hidden="true">✎</span></button>`:`<b>${esc(x.name)}</b>`}${x.note?`<small>${x.note}</small>`:''}</span>${x.edit?`<span class="sp-in"><input class="sp-amt" data-k="${esc(x.key)}" inputmode="decimal" value="${(x.edit.amount/100).toFixed(2)}" aria-label="${esc(x.name)} amount"><small>${x.edit.unit}${x.edit.unit==='a month'?` · <span data-sp-share>${fmt(x.amount)}</span> here`:''}</small></span>`:`<b class="number">${fmt(x.amount)}</b>`}</div>`).join('')||`<p class="small muted">Nothing here yet.</p>`}</div>`+
     (add?`<div class="sp-add no-print">${add(b)}</div>`:'')+`</section>`;}).join('');
   const T=[...items].filter(x=>x.amount>0||x.edit).sort((a,b)=>b.amount-a.amount);
-  const move=`<details class="sp-tags no-print"><summary>Move a line to another group</summary><p class="small muted">The app guesses from the name. Tap where a line belongs.</p><div class="sp-tag-list">${T.map(x=>`<div class="sp-tag"><span>${esc(x.name)}</span><div class="sp-chips" role="radiogroup" aria-label="${esc(x.name)} counts as">${Split.TAGS.map(([k,l])=>`<button type="button" data-action="split-tag" data-key="${esc(x.key)}" data-v="${k}" role="radio" aria-checked="${x.tag===k}" style="--c:${COLOR[k]}">${l}</button>`).join('')}</div></div>`).join('')}</div></details>`;
+  const move=`<details class="sp-tags no-print"${tagsOpen?' open':''}><summary>Move a line to another group</summary><p class="small muted">The app guesses from the name. Tap where a line belongs.</p><div class="sp-tag-list">${T.map(x=>`<div class="sp-tag"><span>${esc(x.name)}</span><div class="sp-chips" role="radiogroup" aria-label="${esc(x.name)} counts as">${Split.TAGS.map(([k,l])=>`<button type="button" data-action="split-tag" data-key="${esc(x.key)}" data-v="${k}" role="radio" aria-checked="${x.tag===k}" style="--c:${COLOR[k]}">${l}</button>`).join('')}</div></div>`).join('')}</div></details>`;
   return `<section class="card sp-card" data-income="${income}" data-sofar="${sofar?1:''}">${head}${top}<div class="sp-buckets" style="--n:${B.length}">${cols}</div>${T.length?move:''}</section>`;}
  // typing an amount: every bar, status and the banner follow at once; saved when you leave the card
  function refresh(c){const income=+c.dataset.income,sofar=!!c.dataset.sofar;let used=0;

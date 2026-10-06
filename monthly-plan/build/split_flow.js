@@ -52,6 +52,7 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('custom split saved and used: 60/25/15',await w(()=>state.settings.splitMethod==='custom'&&state.settings.splitCustom.save===15&&/60% · /.test(document.querySelector('.sp-bucket[data-b="need"] header').innerText)));
  ok('a bill line links to its edit form',await w(()=>{document.querySelector('[data-action="pp-now"]')?.click();const b=document.querySelector('.sp-card .sp-name[data-action="bt-edit"]');b.click();return /Edit/.test(document.querySelector('#modal').innerText);}));
  await w(()=>closeModal());
+ ok('the move panel stays open after a choice',await w(()=>{const d=document.querySelector('.sp-tags');d.open=true;d.dispatchEvent(new Event('toggle'));const b=d.querySelector('[data-action="split-tag"][aria-checked="false"]');b.click();return document.querySelector('.sp-tags').open;}));
  ok('Settings can hide the method in the paycheck planner',await w(()=>{go('settings');return [...document.querySelectorAll('#split-method-select option')].some(o=>o.value==='');}));
  await p.close();
  ok('no page errors',!errs.length,errs.join(' | '));
