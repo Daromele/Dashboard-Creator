@@ -27,6 +27,8 @@ const flaky = { done: false };
 export async function catalog(route) {
   const u = new URL(route.request().url()); calls.push(u.href);
   if (u.hostname === 'covers.openlibrary.org') return /\/b\/id\/\d+-/.test(u.pathname) ? route.fulfill({ status: 200, contentType: 'image/png', body: PNG }) : route.fulfill({ status: 404, body: '' });
+  // Google's keyless limit: a lookup for 'ratelimit' is refused without a key and answered with one
+  if (u.hostname === 'www.googleapis.com' && u.searchParams.get('q') === 'ratelimit') return u.searchParams.get('key') ? json(route, { totalItems: 1, items: [] }) : json(route, { error: { code: 429 } }, 429);
   if (u.hostname === 'www.googleapis.com') return json(route, { kind: 'books#volumes', totalItems: 0 });
   // Dune's first lookup is turned away (busy), as the real catalog sometimes does; the app should retry
   if (u.pathname === '/api/books' && /9780441172719/.test(u.search) && !flaky.done) { flaky.done = true; return route.fulfill({ status: 503, body: 'busy' }); }

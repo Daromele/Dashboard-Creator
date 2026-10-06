@@ -189,7 +189,8 @@ try {
   for (const s of ['dashboard', 'library', 'import', 'reading', 'year', 'settings']) { await page.evaluate(s => go(s), s); const w = await page.evaluate(() => document.documentElement.scrollWidth); ok(w <= 390, `${s} fits a phone (${w}px)`); }
   await page.click('.mobile-menu'); ok(await page.evaluate(() => document.body.classList.contains('menu-open')), 'phone menu opens');
   await shot('11-phone');
-  ok(calls.every(u => !/googleapis|openlibrary/.test(u) || !/[?&](key|token)=/.test(u)), 'catalog calls carry no keys');
+  ok(calls.every(u => !/[?&](key|token)=/.test(u)), 'normal catalog calls carry no key');
+  ok(await page.evaluate(async () => (await getJSON(GB + '?q=ratelimit')).totalItems === 1) && calls.filter(u => /[?&]key=/.test(u)).length === 1 && /^https:\/\/www\.googleapis\.com\//.test(calls.find(u => /[?&]key=/.test(u))), 'Google’s keyless limit: retried once with the app key, Google only');
 } finally { await browser.close(); srv.kill(); }
 if (errors.length) { console.log(`\n${errors.length} failure(s)`); process.exit(1); }
 console.log('\nall smoke checks passed');
