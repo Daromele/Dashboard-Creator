@@ -22,7 +22,7 @@ const NICHE = {
   storage: { key: 'jps-monthly-plan', file: 'monthly-plan' },
   // first theme is the default
   themes: ['lavender', 'sage', 'linen', 'fjord', 'blush', 'slate', 'night', 'midnight'],
-  features: { goals: true, wealth: true, pl: false, tax: false, taxLines: false, mileage: false, invoices: false },
+  features: { goals: true, wealth: true, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, split: true },
   settings: {},
 
   // type: income | expense | saving (money moved aside: neither income nor spending)

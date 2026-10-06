@@ -501,7 +501,8 @@ def paycheck_pages(shot):
         ('Looking back', f'''<h1>How every paycheck went.</h1>
 <p class="lede">Past paychecks: what came in, went to bills, was spent and saved, and what was left at the end.</p>
 {shot("tab-history.jpg", "guide-history", "Past paychecks")}
-<p>“Ended with” uses what you actually spent, not what you planned, so it tells you which paychecks really ran short. Export it all as CSV.</p>'''),
+<p>“Ended with” uses what you actually spent, not what you planned, so it tells you which paychecks really ran short. Export it all as CSV.</p>
+<div class="box"><h3>50/30/20, 70/20/10, 80/20 or zero-based</h3><p>This paycheck compares how it’s split with a budget method. Switch methods on the card or in Settings. Open <b>Is each line a need, a want, saving or debt?</b> to fix any line the app guessed wrong.</p></div>'''),
         ('Getting around', '''<h1>The screens.</h1>
 <p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
 <table><tr><th>Screen</th><th>What it is for</th></tr>

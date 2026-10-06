@@ -74,12 +74,12 @@
   },
   {
    "dark": true,
-   "label": "Calendar",
-   "eyebrow": "Calendar",
-   "headline": "Paydays and bills, together.",
-   "sub": "Every payday and every bill on one calendar.",
-   "image": "tab-billcal.jpg",
-   "foot": "Click a bill to mark it paid"
+   "label": "Budget methods",
+   "eyebrow": "Budget methods",
+   "headline": "50/30/20, your way.",
+   "sub": "Or 70/20/10, 80/20, zero-based. Switch with one click.",
+   "image": "tab-split.jpg",
+   "foot": "Each line marked need, want, saving or debt"
   },
   {
    "dark": false,
@@ -150,7 +150,7 @@
   }
  ],
  "listing": {
-  "title": "Paycheck Budget Planner, Paycheck to Paycheck Budget, Bi Weekly Budget Template, Bill Tracker by Paycheck, Budget App, No Subscription",
+  "title": "Paycheck Budget Planner, Paycheck to Paycheck Budget, Bi Weekly Budget, 50/30/20 Budget, Zero Based Budget, Bill Tracker, No Subscription",
   "tags": [
    "paycheck budget",
    "paycheck to paycheck",
@@ -162,8 +162,8 @@
    "bill tracker",
    "budget spreadsheet",
    "weekly budget",
-   "budget app",
-   "money planner",
+   "zero based budget",
+   "50 30 20 budget",
    "semi monthly budget"
   ],
   "description_file": "description.txt"

@@ -23,8 +23,8 @@ const NICHE = {
   storage: { key: 'jps-paycheck-budget', file: 'paycheck-budget' },
   // first theme is the default
   themes: ['linen', 'sage', 'fjord', 'lavender', 'blush', 'slate', 'night', 'midnight'],
-  features: { goals: false, wealth: false, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, billsTracker: true, paycheck: true },
-  settings: { hiddenNav: [] },
+  features: { goals: false, wealth: false, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, billsTracker: true, paycheck: true, split: true },
+  settings: { hiddenNav: [], splitMethod: '50-30-20' },
 
   // type: income | expense | saving (money moved aside: neither income nor spending)
   // fixed: a commitment the dashboard reserves for · debt: can be a payoff goal

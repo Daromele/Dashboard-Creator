@@ -17,6 +17,12 @@
    "before": "const e=document.querySelector('#content .grid2.equal');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);"
   },
   {
+   "name": "split",
+   "view": "dashboard",
+   "scrollTo": "#content .sp-card",
+   "before": "const e=document.querySelector('#content .sp-card');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);"
+  },
+  {
    "name": "plan",
    "view": "paychecks",
    "offset": 6

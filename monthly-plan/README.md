@@ -75,6 +75,13 @@ Past paychecks; bills, the calendar (paydays added through `BillsUI.setDayExtra`
 bills edition's screens. State adds `ppIncome`, `ppEnv`, `ppSpend`, `ppGot` (`incomeId|date` → cents),
 `ppMoves` (`billId|due` → paycheck start) and `ppCarry`.
 
+**Budget methods** (`features.split`, in the Monthly Plan and the Paycheck Budget Planner). `Split` in core is
+the pure engine (tested in `build/test_split.js`): 50/30/20, 70/20/10, 80/20 and zero-based, each line tagged
+need, want, save or debt (guessed from its group or name, changeable on the card), and `bestFit`. `SplitUI` draws
+the card on the monthly plan and on This paycheck, and the Settings switch. The method is
+`settings.splitMethod` ('' = off: the Monthly Plan's default; the paycheck pack starts on 50/30/20); changed
+tags are in `state.splitTags` (`cat:id`, `bill:id`, `env:id`).
+
 A niche pack is one `const NICHE = {...}` block, inlined as the first script at the top of the
 shipped file. It holds product identity, category **groups and their flags**, default categories,
 tax-line mapping, Quick Log words, labels, tour and guide copy, themes, storage keys, features
@@ -109,6 +116,7 @@ node build/autopilot_flow.js     # Income and Expense Tracker: drop statements, 
 node build/bills_flow.js         # Bill & Subscription Tracker: add, tick off, varies, skip, price rise, trial, cancel, sample
 node build/networth_flow.js      # Net Worth & FIRE Tracker: add (guessed type/side), check-in, update, FIRE plan, close, delete, sample
 node build/paycheck_flow.js      # Paycheck Budget Planner: setup steps, paydays, bills per paycheck, spending, confirm, move, carry, sample
+node build/split_flow.js         # Budget methods: off in Monthly Plan until turned on, on in Paycheck; methods, zero-based, tags
 node build/print_audit.js [pdfs]  # prints every screen (Letter + A4); fails on near-empty pages (needs pdfjs-dist)
 ```
 
