@@ -82,4 +82,16 @@ module.exports=({eq,ok})=>{
   eq('own debt categories are kept, and a debt can use one', [vk.debtKinds.map(k=>k.id+':'+k.name+(k.hidden?':hidden':'')),vk.debts.map(d=>d.kind)], [['kback:Back taxes','card:Credit cards:hidden'],['kback','other']]);
   const vs=B.validate({...B.blank(),debts:[{id:'a',name:'A',balance:100,status:'collections'},{id:'b',name:'B',balance:100,status:'gone'},{id:'c',name:'C',balance:100,status:'active'}]});
   eq('a debt status survives validation; unknown ones are dropped', vs.debts.map(d=>d.status||'active'), ['collections','active','active']);
+  // a lasting change to the monthly payment from a month on, keeping the original plan
+  {const DD=[{id:'c',name:'Card',balance:500000,apr:2000,min:10000}],P={budget:30000,strategy:'avalanche',custom:[],extras:[],start:'2026-11'};
+   const base=D.simulate(DD,P),up=D.simulate(DD,{...P,changes:[{id:'x',month:'2027-03',budget:60000}]});
+   eq('changes: months before the change pay the original amount', up.months.slice(0,4).map(r=>r.budget), [30000,30000,30000,30000]);
+   eq('changes: from the change month on, the new amount', up.months[4].budget, 60000);
+   ok('changes: paying more from March clears the debt sooner and with less interest', up.months.length<base.months.length&&up.totalInterest<base.totalInterest);
+   const two=D.simulate(DD,{...P,changes:[{id:'y',month:'2027-06',budget:20000},{id:'x',month:'2027-03',budget:60000}]});
+   eq('changes: several apply in month order, whatever order they were saved', [two.months[4].budget,two.months[7].budget], [60000,20000]);
+   const w=D.whatIf(DD,{...P,changes:[{id:'x',month:'2027-03',budget:60000}]},{extra:5000});
+   eq('changes: a what-if extra adds on top of a change too', [D.simulate(w.debts,w.plan).months[0].budget,D.simulate(w.debts,w.plan).months[4].budget], [35000,65000]);
+   const vc=B.validate({...B.blank(),debtPlan:{budget:100,strategy:'avalanche',custom:[],extras:[],changes:[{id:'a',month:'2027-01',budget:500},{id:'b',month:'bad',budget:5},{id:'c',month:'2027-02',budget:-1}]}});
+   eq('changes: valid ones survive validation', vc.debtPlan.changes.map(c=>c.id), ['a']);}
 };

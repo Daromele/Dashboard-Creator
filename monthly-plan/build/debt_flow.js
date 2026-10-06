@@ -89,6 +89,15 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('everything is still there after a reload',await p.evaluate(()=>state.debts.length===3&&state.debtLog.length>=4&&state.debtPlan.extras.length===1));
  // every screen, with the sample, at desktop and phone width
  await p.evaluate(()=>{try{closeModal()}catch{};document.querySelector('[data-action="demo"]').click();});await p.waitForTimeout(300);
+ // a lasting change to the monthly payment, without touching the debts or today's plan
+ {const before=await p.evaluate(()=>{go('plan',true);return {b:state.debtPlan.budget,debts:JSON.stringify(state.debts)};});
+  await p.evaluate(()=>document.querySelector('[data-action="plan-change-add"]').click());await p.waitForTimeout(150);
+  const fm=await p.evaluate(()=>document.querySelector('#debt-change-form [name=month]').value);
+  await p.fill('#debt-change-form [name=budget]','2000');await p.click('#debt-change-form button[type=submit]');await p.waitForTimeout(250);
+  ok('a payment change is saved for next month on; today’s amount and the debts are untouched',await p.evaluate(a=>state.debtPlan.changes.length===1&&state.debtPlan.changes[0].month===a.fm&&state.debtPlan.changes[0].budget===200000&&state.debtPlan.budget===a.b&&JSON.stringify(state.debts)===a.debts,{...before,fm}));
+  ok('“What the changes do” compares the debt-free date with and without',await p.evaluate(()=>/Without changes/.test(document.querySelector('#content').innerText)&&/With changes/.test(document.querySelector('#content').innerText)));
+  await p.evaluate(()=>document.querySelector('[data-action="plan-change-del"]').click());await p.waitForTimeout(150);
+  ok('a change can be removed',await p.evaluate(()=>state.debtPlan.changes.length===0));}
  const screens=['dashboard','debts','plan','payments','whatif','progress','duedates','budget','activity','cuts','settings','guide'];
  for(const w of [1300,390]){await p.setViewportSize({width:w,height:900});for(const s of screens){await p.evaluate(s=>go(s,true),s);await p.waitForTimeout(80);}
   ok(`every screen opens at ${w}px`,!errs.length,errs.join('|'));

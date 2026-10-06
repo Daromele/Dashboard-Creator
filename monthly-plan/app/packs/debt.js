@@ -8,7 +8,7 @@
 const NICHE = {
   id: 'debt',
   product: {
-    name: 'Debt Free Plan', mark: 'D', publisher: 'DEBT PAYOFF TRACKER', version: '1.0',
+    name: 'Debt Free Plan', mark: 'D', publisher: 'DEBT PAYOFF TRACKER', version: '1.1',
     tagline: 'Debt payoff tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Debt Free Plan · Debt Payoff Tracker', themeColor: '#1F3A33',
     description: 'Debt Free Plan by JPS Digital Pages. List your debts, pick a payoff strategy (snowball, avalanche and more), see your debt-free date, log payments and watch every balance fall. Works offline.',
@@ -121,6 +121,7 @@ const NICHE = {
     ],
     meanings: [['Minimum', 'What each lender requires'], ['Extra', 'Your budget above the minimums'], ['Rollover', 'A cleared debt’s payment moves to the next'], ['Debt-free date', 'The month the last debt reaches zero']],
     details: [
+      ['Paying more (or less) from a month on', 'On the Plan, <b>Changes ahead</b> → Add: pick the month and the new monthly total (a raise, daycare ending, a car paid off). Your debts and the plan before that month stay exactly as they are, and <b>What the changes do</b> shows your debt-free date and interest with and without them. Moving the monthly budget slider replaces a change that has already started; future ones stay.'],
       ['Debt status: paused, collections, dispute', 'Each debt has a status. <b>Active</b> and <b>Hardship plan</b> debts are in your payoff plan. <b>Paused or deferred</b>, <b>In collections</b> and <b>In dispute</b> stay in your total owed, but come out of the plan, the monthly payments and the debt-free date, so the plan only counts what you are actually paying down. Interest keeps adding up on a paused debt at its rate, and the dashboard reminds you it is on hold. Payments you make on it (a settlement, for example) can still be logged. Set it back to Active when you start paying it again.'],
       ['Importing statement downloads', 'On <b>Import statements</b>, drop the CSV, OFX or QFX files you download from a card, a loan or your checking account (look for “Download activity” or “Export”). A card or loan file brings its payments, purchases, fees, refunds and the interest the lender charged; that interest replaces the app’s estimate for the month. A checking file gives only the payments it sent to your debts. You check every line before it’s saved, lines already logged are skipped, and the app remembers which debt each file and payee belongs to. PDF statements can’t be read: use <b>Update a balance</b> for those.'],
       ['Snowball, avalanche and the rest', '<b>Avalanche</b> sends every extra dollar to the highest interest rate: it costs the least. <b>Snowball</b> clears the smallest balance first: you see debts disappear sooner. <b>Cash flow</b> clears the debt that frees the most monthly minimum for its size. <b>Credit score</b> pays down the cards closest to their limit first. <b>Your order</b> follows the order you set. Whatever you pick, a cleared debt’s payment rolls over to the next one.'],
@@ -152,7 +153,7 @@ const NICHE = {
         { id: 'd-medical', name: 'Medical bill', kind: 'medical', balance: 140000, apr: 0, min: 5000, minMode: 'fixed', due: 27, note: 'Interest-free payment plan', color: 6 },
       ];
       s.debts = D.map(d => ({ ...d, since, start: d.balance }));
-      s.debtPlan = { budget: 150000, strategy: 'avalanche', custom: ['d-store', 'd-medical', 'd-visa', 'd-personal', 'd-car', 'd-student'], extras: [{ id: 'x-tax', month: (+year + 1) + '-04', amount: 150000, note: 'Tax refund' }] };
+      s.debtPlan = { budget: 150000, strategy: 'avalanche', custom: ['d-store', 'd-medical', 'd-visa', 'd-personal', 'd-car', 'd-student'], extras: [{ id: 'x-tax', month: (+year + 1) + '-04', amount: 150000, note: 'Tax refund' }], changes: [{ id: 'c-raise', month: (+year + 1) + '-02', budget: 175000, note: 'Raise starts' }] };
       // a payment on each due day so far: the plan amounts, as if the household followed it
       const months = []; for (let i = 1; i <= +m.slice(5, 7); i++) months.push(year + '-' + String(i).padStart(2, '0'));
       s.debtLog = [];
