@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { parseBookPage, isIsbn13, isIsbn10, toIsbn13 } from '../netlify/lib/book-page.mjs';
 import handler, { resolveLink } from '../netlify/functions/resolve-book-link.mjs';
+import googleBooks, { target } from '../netlify/functions/google-books.mjs';
 
 const fx = n => readFileSync(new URL(`./fixtures/${n}`, import.meta.url), 'utf8');
 // the app's pure logic (CONFIG, helpers, ISBN, Logic) runs here without a browser
@@ -156,4 +157,26 @@ test('validate keeps only clean data', () => {
   assert.equal(b.status, 'want'); assert.equal(b.rating, 5); assert.equal(b.isbn, ''); assert.equal(b.cover, ''); assert.equal(b.reads.length, 1);
   assert.equal(s.settings.theme, 'fjord'); assert.deepEqual(plain(s.settings.goals), { 2025: 12 });
   assert.match(today(), /^\d{4}-\d{2}-\d{2}$/);
+});
+
+test('google-books function: only Books lookups, key added on the server, answers cached, never echoes Google errors', async () => {
+  assert.equal(target(new URLSearchParams('q=isbn:9780593135204&maxResults=50')), 'https://www.googleapis.com/books/v1/volumes?q=isbn%3A9780593135204&maxResults=10&printType=books');
+  assert.equal(target(new URLSearchParams('id=abcDEF123456')), 'https://www.googleapis.com/books/v1/volumes/abcDEF123456');
+  assert.equal(target(new URLSearchParams('id=../../oauth2')), '');
+  assert.equal(target(new URLSearchParams('')), '');
+  const call = (qs, ip = 'g1') => googleBooks(new Request('http://x/.netlify/functions/google-books?' + qs), { ip });
+  delete process.env.GOOGLE_BOOKS_KEY;
+  assert.equal((await (await call('q=dune')).json()).code, 'NO_KEY');
+  process.env.GOOGLE_BOOKS_KEY = 'test-key-123'; const real = globalThis.fetch, seen = [];
+  globalThis.fetch = async u => { seen.push(u); return u.includes('q=fail') ? new Response('{"error":{"message":"API key test-key-123 invalid"}}', { status: 400 }) : new Response('{"totalItems":1}', { status: 200 }); };
+  try {
+    const r = await call('q=dune');
+    assert.equal(r.status, 200); assert.deepEqual(await r.json(), { totalItems: 1 });
+    assert.match(seen[0], /^https:\/\/www\.googleapis\.com\/books\/v1\/volumes\?q=dune&maxResults=8&printType=books&key=test-key-123$/);
+    await call('q=dune'); assert.equal(seen.length, 1, 'second lookup comes from the cache');
+    const bad = await call('q=fail'); assert.equal(bad.status, 502); assert.doesNotMatch(await bad.text(), /test-key/);
+    let last; for (let i = 0; i < 32; i++) last = await call('q=book' + i, 'busy-ip');
+    assert.equal(last.status, 429);
+    assert.equal((await googleBooks(new Request('http://x/', { method: 'POST' }), {})).status, 405);
+  } finally { globalThis.fetch = real; delete process.env.GOOGLE_BOOKS_KEY; }
 });

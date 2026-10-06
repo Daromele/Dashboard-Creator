@@ -4,15 +4,18 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
-import handler from './netlify/functions/resolve-book-link.mjs';
+import resolve from './netlify/functions/resolve-book-link.mjs';
+import googleBooks from './netlify/functions/google-books.mjs';
+const FUNCTIONS = { 'resolve-book-link': resolve, 'google-books': googleBooks };
 
 const port = +(process.argv[2] || process.env.PORT || 8888), root = new URL('./site/', import.meta.url).pathname, fixtures = new URL('./test/fixtures/', import.meta.url).pathname;
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json', '.csv': 'text/csv' };
 createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  if (url.pathname === '/.netlify/functions/resolve-book-link') {
+  const fn = FUNCTIONS[url.pathname.replace(/^\/\.netlify\/functions\//, '')];
+  if (fn) {
     const body = await new Promise(r => { let b = ''; req.on('data', c => b += c); req.on('end', () => r(b)); });
-    const out = await handler(new Request(url, { method: req.method, headers: req.headers, body: req.method === 'POST' ? body : undefined }), { ip: req.socket.remoteAddress });
+    const out = await fn(new Request(url, { method: req.method, headers: req.headers, body: req.method === 'POST' ? body : undefined }), { ip: req.socket.remoteAddress });
     res.writeHead(out.status, Object.fromEntries(out.headers)); return res.end(await out.text());
   }
   const base = url.pathname.startsWith('/fixtures/') && process.env.ALLOW_PRIVATE_URLS === '1' ? fixtures : root;

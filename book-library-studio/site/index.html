@@ -857,9 +857,9 @@ const CONFIG={
  fileKey:'jps-book-library',      // names downloaded files (backups, CSV)
  idb:true,
  resolveEndpoint:'/.netlify/functions/resolve-book-link',
- // Google Books key, used only when Google turns a keyless lookup away (its free per-connection limit).
- // Restricted in Google Cloud to the Books API and to this app's website, so it is safe to ship in the page.
- googleKey:'AIzaSyDrzOiGoinwKFXKgQsOHKLiM8ZlNfWxV6s',
+ // when Google turns a keyless lookup away (its free per-connection limit), the lookup is repeated through this function,
+ // which holds the app's Google key on the server
+ googleEndpoint:'/.netlify/functions/google-books',
  defaultTheme:'fjord',
  themes:['fjord','kiln','ledger','sage','linen','slate','night','midnight'],
  railNote:'<b>Add any book from a link.</b>Your library stays on this device.',
@@ -1287,7 +1287,8 @@ async function getJSON(url,ms=12000){if(CACHE.has(url))return CACHE.get(url);let
   try{r=await fetch(ask,{signal:AbortSignal.timeout(ms)});}catch(e){last=e.name==='TimeoutError'?'slow':navigator.onLine===false?'offline':'unreachable';if(last==='offline')break;continue;}
   if(r.status===404){CACHE.set(url,null);return null;}
   // Google's keyless limit reached: ask again with the app's own key, straight away
-  if(r.status===429&&CONFIG.googleKey&&ask.startsWith(GB)&&!/[?&]key=/.test(ask)){ask+=(ask.includes('?')?'&':'?')+'key='+CONFIG.googleKey;attempt--;last='busy';continue;}
+  if(r.status===429&&ask.startsWith(GB)&&location.protocol!=='file:'){const u=new URL(ask),p=new URLSearchParams();if(u.pathname.length>'/books/v1/volumes/'.length)p.set('id',u.pathname.split('/').pop());else{p.set('q',u.searchParams.get('q')||'');p.set('maxResults',u.searchParams.get('maxResults')||'8');}
+   ask=CONFIG.googleEndpoint+'?'+p;attempt--;last='busy';continue;}
   if(r.status===429||r.status>=500){last='busy';continue;}
   if(!r.ok){last='busy';break;}
   let j=null;try{j=await r.json();}catch{}if(CACHE.size>300)CACHE.clear();CACHE.set(url,j);return j;}
