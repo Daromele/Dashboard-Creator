@@ -1,0 +1,267 @@
+{
+ "app": "../../app/RentalPropertyTracker.html",
+ "date": "2026-10-20",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#14263A",
+  "bold": "#1C3C52",
+  "pop": "#F2C46D",
+  "paper": "#F6F8FA",
+  "calm": "#2C5470"
+ },
+ "fps": 30,
+ "shots_dir": "sshots",
+ "bpm": 104,
+ "music": 0.5,
+ "output": "Rental_Property_Tracker_Social.mp4",
+ "captures": [
+  {
+   "name": "props",
+   "view": "props",
+   "targets": {
+    "cards": "#content .debt-grid",
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "doc0",
+   "view": "rpdocs",
+   "targets": {
+    "late": "#content .rp-doc[data-k=\"late\"]",
+    "letter": "#content .rp-doc-edit",
+    "list": "#content .rp-docs"
+   },
+   "before": "const s=document.querySelector('[data-doc-lease]');s.value='l-ng';s.dispatchEvent(new Event('change',{bubbles:true}));"
+  },
+  {
+   "name": "doc1",
+   "click": [
+    "#content .rp-doc[data-k=\"late\"]"
+   ],
+   "clipFrom": "doc0"
+  },
+  {
+   "name": "rr0",
+   "view": "rentroll",
+   "targets": {
+    "rec": "#content .rp-roll button[data-lease=\"l-ng\"]",
+    "got": "#content .kpis .kpi:nth-child(2)",
+    "left": "#content .kpis .kpi:nth-child(3)",
+    "list": "#content section.card:last-of-type",
+    "kpis": "#content .kpis",
+    "roll": "#content section.card:has(.rp-roll)"
+   }
+  },
+  {
+   "name": "rr1",
+   "before": "state.rpPays.push({id:'vid1',lease:'l-ng',month:Budget.today().slice(0,7),date:Budget.today(),amount:110000});render();",
+   "clipFrom": "rr0"
+  },
+  {
+   "name": "sum",
+   "view": "expenses",
+   "before": "const s=document.querySelector('#content .rp-sum').closest('section'),h=document.querySelector('#content .pagehead');h.after(s);window.scrollTo(0,0);",
+   "targets": {
+    "table": "#content .rp-sum",
+    "card": "#content .rp-sum"
+   }
+  },
+  {
+   "name": "pl",
+   "view": "rppl",
+   "targets": {
+    "kpis": "#content .kpis",
+    "table": "#content .rp-pl"
+   }
+  }
+ ],
+ "scenes": [
+  {
+   "type": "hook",
+   "dur": 2.0,
+   "text": "Who paid rent<br>*this month?*",
+   "image": "rr0"
+  },
+  {
+   "type": "crop",
+   "dur": 3.4,
+   "captions": [
+    {
+     "t": 0,
+     "text": "See who’s *late*"
+    },
+    {
+     "t": 1.7,
+     "text": "Record it in *one click*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "rr0",
+     "at": 0
+    },
+    {
+     "img": "rr1",
+     "at": 1.6
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "rr0.roll",
+     "sub": [
+      0.45,
+      0,
+      1,
+      1
+     ],
+     "pad": 0.015
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.45,
+     "target": "rr0.rec",
+     "click": true
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.8,
+     "text": "Paid ✓",
+     "x": 540,
+     "y": 1400,
+     "rot": -4,
+     "sound": "cash"
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 3.0,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Cash flow *by property*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "sum",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "sum.table",
+     "sub": [
+      0,
+      0,
+      0.62,
+      1
+     ],
+     "pad": 0.012
+    },
+    {
+     "t": 1.6,
+     "target": "sum.table",
+     "sub": [
+      0.45,
+      0,
+      1,
+      1
+     ],
+     "pad": 0.012
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 3.0,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Late notice? *Already written*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "doc0",
+     "at": 0
+    },
+    {
+     "img": "doc1",
+     "at": 1.4
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "doc0.letter",
+     "sub": [
+      0,
+      0,
+      1,
+      0.7
+     ],
+     "pad": 0.012
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.3,
+     "target": "doc0.late",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Profit & loss for *tax time*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "pl",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "pl.kpis",
+     "sub": [
+      0,
+      0,
+      0.5,
+      1
+     ],
+     "pad": 0.015
+    }
+   ]
+  },
+  {
+   "type": "end",
+   "dur": 2.8,
+   "headline": "Rental Property Tracker",
+   "sub": "Rent roll, P&amp;L and Schedule E.<br>No subscription, no bank login.",
+   "cta": "Instant download on Etsy",
+   "by": "JPS Digital Pages",
+   "themes": [
+    "shots/theme-fjord.jpg",
+    "shots/theme-midnight.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-night.jpg"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,21 @@
+RENTAL PROPERTY TRACKER | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open RentalPropertyTracker.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find, ideally a synced folder such as iCloud Drive, Dropbox, OneDrive or Google Drive. It works offline once open.
+
+FIRST STEPS
+A short welcome tour opens the first time. Then follow the three steps on Home: add a property (its units, value and mortgage payment), add your tenants (rent, due day, lease dates, deposit), then record rent and add your expenses.
+
+SAMPLE
+Explore sample data, on Home or in Settings & backup, fills every screen with a fictional landlord's three properties, a late tenant, a lease ending and a vacancy, in a separate session. Return to my rentals restores your own.
+
+EACH MONTH
+Record rent on the rent roll as it arrives (part payments are fine) and add expenses, or import your bank's CSV. Check Home for late rent, leases ending, urgent repairs and charges owed. At tax time, print or export Profit & loss and Schedule E.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one JSON file. Keep that file outside the app. To restore or move to another computer, copy the HTML file and your backup across and use Restore backup. Data does not sync automatically. Download a backup before clearing browser data or switching browsers.
+Chrome and Edge can also write a dated backup to a folder you choose each day. Safari and Firefox do not support this; use Download backup instead.
+
+HELP
+Read Rental_Property_Tracker_Guide.pdf, included with your download. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+Website: https://www.jpsdigitalpages.com

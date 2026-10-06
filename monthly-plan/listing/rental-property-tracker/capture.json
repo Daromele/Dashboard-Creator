@@ -1,0 +1,91 @@
+{
+ "app": "../../app/RentalPropertyTracker.html",
+ "out": "shots",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "view": "dashboard",
+   "offset": 6
+  },
+  {
+   "name": "attention",
+   "view": "dashboard",
+   "scrollTo": "#content .debt-warn",
+   "before": "const e=document.querySelector('#content .debt-warn');window.scrollTo(0,e.getBoundingClientRect().top+scrollY-96);"
+  },
+  {
+   "name": "rentroll",
+   "view": "rentroll",
+   "offset": 6
+  },
+  {
+   "name": "props",
+   "view": "props",
+   "offset": 6
+  },
+  {
+   "name": "tenants",
+   "view": "tenants",
+   "offset": 6
+  },
+  {
+   "name": "finances",
+   "view": "expenses",
+   "offset": 6
+  },
+  {
+   "name": "summary",
+   "view": "expenses",
+   "before": "const s=document.querySelector('#content .rp-sum').closest('section'),h=document.querySelector('#content .pagehead');h.after(s);window.scrollTo(0,0);",
+   "offset": 6
+  },
+  {
+   "name": "pl",
+   "view": "rppl",
+   "offset": 6
+  },
+  {
+   "name": "calendar",
+   "view": "rpcal",
+   "offset": 6,
+   "before": "document.querySelector('[data-action=\"rp-cal-mode\"][data-k=\"month\"]').click();"
+  },
+  {
+   "name": "repairs",
+   "view": "rpmaint",
+   "offset": 6
+  },
+  {
+   "name": "letters",
+   "view": "rpdocs",
+   "offset": 6
+  },
+  {
+   "name": "taxes",
+   "view": "taxes",
+   "offset": 6
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  }
+ ],
+ "themes": {
+  "list": [
+   "fjord",
+   "slate",
+   "sage",
+   "linen",
+   "lavender",
+   "blush",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('props',true);render();document.querySelector('#toast').hidden=true;"
+ },
+ "date": "2026-10-20"
+}

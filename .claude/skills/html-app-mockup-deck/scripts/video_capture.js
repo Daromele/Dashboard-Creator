@@ -19,6 +19,7 @@ const RATIO=C.ratio||1.6,W=C.capture_width||2560;
 (async()=>{const b=await chromium.launch();
  const p=await (await b.newContext({viewport:{width:1600,height:1400},deviceScaleFactor:2})).newPage();
  const errs=[];p.on('pageerror',e=>errs.push(e.message));
+ if(C.date)await p.clock.setFixedTime(new Date(C.date+'T12:00:00'));   // optional "date": freeze the app's clock
  await p.goto('file://'+R(C.app));await p.waitForTimeout(900);
  if(C.setup){await p.evaluate(C.setup);await p.waitForTimeout(700);}
  const targets={},clips={};

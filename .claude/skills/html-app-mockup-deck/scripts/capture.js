@@ -15,6 +15,8 @@ const APP='file://'+R(C.app),OUT=R(C.out||'shots');fs.mkdirSync(OUT,{recursive:t
 const RATIO=C.ratio||1.6;
 const toJpg=(png,w)=>{execFileSync('python3',['-c',`from PIL import Image;im=Image.open("${png}").convert("RGB");h=round(im.height*${w}/im.width);im.resize((${w},h),Image.LANCZOS).save("${png.replace(/\.png$/,'.jpg')}",quality=86)`]);fs.unlinkSync(png);};
 const open=async(b,vp)=>{const p=await (await b.newContext({viewport:vp,deviceScaleFactor:2})).newPage();
+  // "date":"2026-10-20" in capture.json freezes the app's clock, so date-relative sample data looks the same every run
+  if(C.date)await p.clock.setFixedTime(new Date(C.date+'T12:00:00'));
   await p.goto(APP);await p.waitForTimeout(900);if(C.setup){await p.evaluate(C.setup);await p.waitForTimeout(700);}return p;};
 (async()=>{const b=await chromium.launch();
  const p=await open(b,{width:1600,height:1400});

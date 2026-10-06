@@ -1,0 +1,52 @@
+A rental property tracker for small landlords: a rent roll that shows who paid and who's late, every expense on its Schedule E line, and each property's real cash flow, for any dates you pick. It opens in any browser and never asks you to sign up for anything.
+
+Rental Property Tracker is one HTML file. You download it, double-click it, and it opens like a web page. Add your properties and units, then your tenants with their rent, due day, lease dates and deposit. From then on the rent roll shows what's due each month, what arrived and who's late (with your late fee ready to add); expenses go on their Schedule E lines and repeat on their own; and Finances, Profit & loss and Schedule E add everything up by property, for any dates. Log repairs and tenant requests, bill a tenant for damage or utilities, print letters and notices filled in from your records, and bring in your bank's CSV when you want to. No bank login, no subscription. Your figures and your tenants' details stay on your own computer.
+
+How It Works:
+1. Download the file and save it somewhere you will find it again.
+2. Double-click to open it in your browser. Take the short tour, or explore the fictional sample landlord's three properties first.
+3. Add a property: its name, how many units, what it's worth and the mortgage payment.
+4. Add your tenants: rent, the day it's due, lease dates, deposit and late fee.
+5. Each month, record rent as it arrives and add expenses (or import your bank's CSV). The rent roll, profit & loss and Schedule E fill themselves.
+
+WHAT YOU'LL GET:
+• One HTML rental property tracker file
+• Home: this month's cash flow, rent collected, occupancy and everything that needs your attention
+• Rent roll: every unit, rent due, what arrived, part payments and who's late, with late fees
+• Properties: cash flow, NOI, cap rate, cash-on-cash and the 1% rule per property; grid, compact or table; optional property photos
+• Tenants & leases: rent, due day, lease dates, deposits; search and filter by property or status
+• Charge a tenant for damage, utilities, cleaning or keys, item by item, and track what's still owed
+• Finances: income, expenses and cash flow by property for any dates, plus a General bucket for costs that cover every rental
+• Profit & loss statement with a column per property; print or export CSV
+• Schedule E worksheet: rents and every expense line, by property; print or export CSV
+• Repeating expenses (insurance, taxes, HOA) and your mortgage interest and principal added automatically
+• Repairs & maintenance log with tenant requests; done + cost goes straight into expenses
+• Calendar by week or month: rent due, bills, lease dates and repairs, with filters
+• 11 letters & notices filled in from your records: welcome, rent receipt, late rent, late fee, rent increase, renewal, notice of entry, lease violation, notice to vacate, move-out, deposit return, plus a bill for a charge
+• Import your bank's CSV: deposits matched to tenants, withdrawals to expense lines, duplicates skipped
+• Every table sorts, searches and filters
+• 8 color themes, light and dark; every screen prints
+• Built-in how-to guide and a PDF guide included
+
+PERFECT FOR:
+Small landlords with one to a few dozen units, house hackers renting part of their home, owners of duplexes, condos and single-family rentals, anyone who self-manages and wants a clear rent roll and rental income tracker, landlords getting ready for Schedule E at tax time, and anyone replacing a rental property spreadsheet who wants their tenants' details to stay private on their own computer.
+
+Please note: this is a digital file, not a physical product. Nothing will be posted to you. It doesn't connect to your bank or collect rent for you; you record payments yourself or import your bank's CSV download (PDF statements can't be read). Your data is stored in your own browser on your own device, and this tracker never uploads anything anywhere. Download a backup regularly; the app reminds you, and Chrome and Edge can back up to a folder automatically every day. Works best on a computer. The Schedule E screen is a worksheet, not tax advice, and depreciation isn't calculated. The letters are starting points, not legal advice: notice periods and rules differ by state and city.
+
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
+
+👍 You Can
+✔ Use this tracker for your own rental properties, for as long as you like
+✔ Use it on your own computers, and print your own copies and letters
+✔ Back up your own file and your own data as often as you want
+
+👎 You Cannot
+❌ Resell, redistribute, or share this file with others
+❌ Use it to offer property management or bookkeeping services to others, or include it in any product, bundle or service of your own
+❌ Claim it as your own work, or alter it for resale
+❌ Return it — digital files cannot be returned once downloaded
+
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order! hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+
+Rental Property Tracker by JPS Digital Pages

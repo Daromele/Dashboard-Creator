@@ -1,6 +1,6 @@
 """Buyer guides (US Letter, print to PDF) for the app editions, in the Monthly Plan guide's style.
 
-usage: python3 build/build_guides.py [tracker|debt|bills|networth|paycheck|budget ...]     (from monthly-plan/)
+usage: python3 build/build_guides.py [tracker|debt|bills|networth|paycheck|budget|rental ...]     (from monthly-plan/)
 Writes listing/<dir>/<Product>_Guide.html; build/guide_pdf.js turns each into a PDF.
 Screenshots come from listing/<dir>/shots (the deck captures).
 """
@@ -138,7 +138,7 @@ def help_page(P, rows):
 <h2>We can help</h2>
 <p>For order support, message <b>JPS Digital Pages</b> through Etsy or email <b>hello@jpsdigitalpages.com</b>. Website: www.jpsdigitalpages.com</p>
 <div class="box"><h3>Thank you</h3><p>If {P['name']} earns its place, a review genuinely helps a small shop. And if it does not, tell us before you leave one: most things are fixable.</p></div>
-<p style="font-size:8.5pt;color:var(--ink3)">© 2026 JPS Digital Pages · Personal use by one household. {P['name']} is not financial advice. See LICENCE.txt.</p>'''
+<p style="font-size:8.5pt;color:var(--ink3)">© 2026 JPS Digital Pages · Personal use by one {P.get('who','household')}. {P['name']} is not financial advice. See LICENCE.txt.</p>'''
 
 
 AUTOPILOT = dict(
@@ -585,7 +585,73 @@ def budget_pages(shot):
 <tr><td>I updated from an earlier version</td><td>Open the new file in the same browser: your budget carries over. Download a backup first.</td></tr>''')),
     ]
 
+RENTAL = dict(
+    dir='rental-property-tracker', file='Rental_Property_Tracker', name='Rental Property Tracker', html='RentalPropertyTracker.html', mark='R', version='1.1',
+    storage='rpt-guide-img:', tour='your properties, tenants, rent and backups', safe_page=9, who='landlord',
+    colors=dict(bold='#1C3C52', accent='#2C5470', pop='#F2C46D', page='#F6F8FA', ink='#14263A', ink2='#55606B', ink3='#88929C',
+                rule='#D9E0E6', soft='#E8EEF3', warm='#FBF1E3', warmline='#EED7B5', green='#E6F1EA', greenline='#BFDCCB'),
+    cover=dict(kicker='Your landlord guide', tag='Every rental, one clear view.', image='tab-props.jpg',
+               intro='Who paid and who’s late, what each property really earns, and Schedule E ready at tax time, in one file on your own computer.'),
+)
+
+
+def rental_pages(shot):
+    P = RENTAL
+    return [
+        ('Start here', start_here(P, '<li><b>Follow the three steps</b> on Home: add a property, add your tenants, then record rent and add your expenses.</li>',
+                                  'Choose <b>Explore sample data</b> on Home or in Settings &amp; backup. A fictional landlord with three properties, a late tenant, a lease ending and a vacancy fills every screen, in a separate session. <b>Return to my rentals</b> brings back your own, untouched.')),
+        ('The idea', f'''<h1>Every door, every month.</h1>
+<p class="lede">Home answers the monthly question: what came in, what went out, who still owes, and what needs you.</p>
+{shot("tab-attention.jpg", "guide-home", "Home")}
+<table><tr><th>Word</th><th>What it means</th></tr>
+<tr><td>Cash flow</td><td>Rent and fees received − every expense, the mortgage included.</td></tr>
+<tr><td>NOI</td><td>Net operating income: rent minus running costs, before the mortgage.</td></tr>
+<tr><td>Cap rate</td><td>A year of NOI ÷ what the property is worth.</td></tr>
+<tr><td>Cash-on-cash</td><td>A year of cash flow ÷ the cash you put in.</td></tr></table>'''),
+        ('Properties & tenants', f'''<h1>Add a property, then its tenants.</h1>
+<p class="lede">Properties → <b>Add a property</b>: its name, how many units, what it’s worth and the mortgage payment (roughly how much is interest). Then Tenants &amp; leases → <b>Add a tenant</b>.</p>
+{shot("tab-props.jpg", "guide-props", "Properties")}
+<table><tr><th>Tenant field</th><th>What to enter</th></tr>
+<tr><td>Rent and due day</td><td>The monthly rent and the day it’s due. Rent appears on the rent roll every month.</td></tr>
+<tr><td>Lease dates</td><td>Start, and end (empty = month to month). Leases ending in 60 days show on Home.</td></tr>
+<tr><td>Deposit, grace days, late fee</td><td>Late after the grace days; your late fee is one click away when rent is late.</td></tr></table>'''),
+        ('Each month', f'''<h1>Record rent as it arrives.</h1>
+<p class="lede">The rent roll lists every unit: rent due, what arrived, and who’s late. <b>Record</b> a payment when it comes in; part payments are fine.</p>
+{shot("tab-rentroll.jpg", "guide-roll", "Rent roll")}
+<div class="two"><div class="box"><h3>Expenses</h3><p><b>Add an expense</b> once: insurance, property taxes and HOA fees can repeat monthly or yearly on their own. Each one lands on its Schedule E line. Costs for all your rentals (bookkeeping software) go under <b>General</b>.</p></div>
+<div class="box"><h3>Your bank’s CSV</h3><p><b>Import bank CSV</b>: deposits that match a tenant become rent, withdrawals become expenses, mortgage payments and lines you imported before are skipped. You check every line first.</p></div></div>'''),
+        ('Money & taxes', f'''<h1>What each property really earns.</h1>
+<p class="lede">Finances shows income, running costs, NOI and cash flow for every property side by side, for any dates. Profit &amp; loss is the full statement; Schedule E is the tax worksheet.</p>
+{shot("tab-summary.jpg", "guide-summary", "Summary by property")}
+<table><tr><td>Profit &amp; loss</td><td>Pick the dates and a property, or all with a column each. <b>Print</b> or <b>Export CSV</b> for your accountant.</td></tr>
+<tr><td>Schedule E</td><td>Rents and every expense line by property, for the year. Depreciation isn’t worked out: ask your tax pro.</td></tr>
+<tr><td>Loan principal</td><td>Counts in cash flow, not as an expense; it pays down the loan.</td></tr></table>'''),
+        ('Tenants & paperwork', f'''<h1>Charges, repairs and letters.</h1>
+<p class="lede">The landlord jobs that usually live on sticky notes, kept with your numbers.</p>
+{shot("tab-tenants.jpg", "guide-tenants", "Tenants & leases")}
+<div class="two"><div class="box"><h3>Charge a tenant</h3><p>Damage, utilities, cleaning, keys: list each item, set a pay-by date, then <b>Bill</b> prints a statement of charges. <b>Record payment</b> when it’s paid.</p></div>
+<div class="box"><h3>Repairs &amp; letters</h3><p><b>Log a repair</b> or a tenant’s request; marked done with a cost, it goes into expenses. <b>Letters &amp; notices</b> fills in 11 letters from your records; edit, print or copy.</p></div></div>
+<p style="font-size:9pt;color:var(--ink3)">The letters are starting points, not legal advice: notice periods and rules differ by state and city.</p>'''),
+        ('Getting around', '''<h1>The screens.</h1>
+<p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
+<table><tr><th>Screen</th><th>What it is for</th></tr>
+<tr><td>Home</td><td>This month’s cash flow, rent collected, and everything that needs you.</td></tr>
+<tr><td>Rent roll · Properties</td><td>Who paid this month; each property’s returns (grid, compact or table, with photos).</td></tr>
+<tr><td>Tenants &amp; leases</td><td>Leases, deposits, and charges to tenants.</td></tr>
+<tr><td>Finances · Profit &amp; loss</td><td>Money in and out by property for any dates; the full statement.</td></tr>
+<tr><td>Calendar · Repairs</td><td>Rent due, bills, lease dates and repairs by week or month; the repair log.</td></tr>
+<tr><td>Schedule E · Rent ledger</td><td>The tax worksheet; every payment received. Export as CSV.</td></tr>
+<tr><td>Import bank CSV · Letters &amp; notices</td><td>Bring in your bank’s download; letters filled in for you.</td></tr></table>
+<p>Every table sorts, searches and filters. Every screen prints.</p>'''),
+        ('Read this one', SAFE('rentals', 'every property, tenant, payment, expense, repair, charge and letter wording')),
+        ('When you need help', help_page(P, '''<tr><td>A tenant shows as late but paid</td><td>Check the payment’s <b>For the month of</b>: it may be recorded against another month.</td></tr>
+<tr><td>Cash flow looks very negative</td><td>A yearly bill (property taxes, insurance) landed this month. Look at Finances for the year to date.</td></tr>
+<tr><td>Deposits came in as skipped</td><td>Add your tenants first, then import again: deposits are matched to tenants by name or exact rent.</td></tr>
+<tr><td>A tenant moved out</td><td>Edit the lease and set the move-out date. Rent stops; their history stays.</td></tr>''')),
+    ]
+
 BUDGET['pages'] = budget_pages
+RENTAL['pages'] = rental_pages
 BILLS['pages'] = bills_pages
 AUTOPILOT['pages'] = autopilot_pages
 DEBT['pages'] = debt_pages
@@ -595,4 +661,4 @@ PAYCHECK['pages'] = paycheck_pages
 if __name__ == '__main__':
     which = sys.argv[1:] or ['tracker', 'debt', 'bills', 'networth', 'paycheck', 'budget']
     for w in which:
-        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK, 'budget': BUDGET}[w])
+        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK, 'budget': BUDGET, 'rental': RENTAL}[w])

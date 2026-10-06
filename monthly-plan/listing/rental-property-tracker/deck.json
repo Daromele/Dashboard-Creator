@@ -1,0 +1,189 @@
+{
+ "product": "Rental Property Tracker",
+ "footer": "Rental Property Tracker · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Rental_Property_Tracker_Etsy_Mockups.html",
+ "storage_prefix": "rpt-kit-img:",
+ "brand": {
+  "ink": "#14263A",
+  "bold": "#1C3C52",
+  "pop": "#F2C46D",
+  "paper": "#F6F8FA",
+  "calm": "#2C5470"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Rental property tracker",
+   "headline": "Every rental,<br>one clear view.",
+   "pills": [
+    "Rent roll",
+    "Profit &amp; loss",
+    "Schedule E",
+    "No subscription"
+   ],
+   "image": "tab-props.jpg",
+   "alt": "Rental Property Tracker: each property"
+  },
+  {
+   "dark": false,
+   "label": "Rent roll",
+   "eyebrow": "Rent roll",
+   "headline": "Who paid, who’s late.",
+   "sub": "Every unit for the month: rent due, what arrived, and late fees ready to add.",
+   "image": "tab-rentroll.jpg",
+   "foot": "Fictional sample landlord shown"
+  },
+  {
+   "dark": true,
+   "label": "Home",
+   "eyebrow": "Home",
+   "headline": "What needs you this month.",
+   "sub": "Rent collected, who’s late, leases ending, urgent repairs: all on one screen.",
+   "image": "tab-attention.jpg",
+   "foot": "Cap rate, cash-on-cash and the 1% rule per property"
+  },
+  {
+   "dark": false,
+   "label": "By property",
+   "eyebrow": "Finances",
+   "headline": "Cash flow by property, any dates.",
+   "sub": "Income, running costs, NOI and cash flow for every property side by side.",
+   "image": "tab-summary.jpg",
+   "foot": "This month, a quarter, year to date or your own dates"
+  },
+  {
+   "dark": true,
+   "label": "Profit and loss",
+   "eyebrow": "Profit &amp; loss",
+   "headline": "A statement your accountant will like.",
+   "sub": "Income, expenses, NOI and net income, with a column per property.",
+   "image": "tab-pl.jpg",
+   "foot": "Print it or export CSV"
+  },
+  {
+   "dark": false,
+   "label": "Schedule E",
+   "eyebrow": "Tax time",
+   "headline": "Schedule E, done as you go.",
+   "sub": "Every expense lands on its Schedule E line, property by property.",
+   "image": "tab-taxes.jpg",
+   "foot": "A worksheet for you or your tax pro"
+  },
+  {
+   "dark": true,
+   "label": "Tenants",
+   "eyebrow": "Tenants &amp; leases",
+   "headline": "Leases, deposits and charges.",
+   "sub": "Bill a tenant for damage or utilities, and track what they still owe.",
+   "image": "tab-tenants.jpg",
+   "foot": "Search and filter by property or status"
+  },
+  {
+   "dark": false,
+   "label": "Repairs",
+   "eyebrow": "Repairs",
+   "headline": "Repairs and tenant requests.",
+   "sub": "Log a request, mark it done with the cost, and it’s in your expenses.",
+   "image": "tab-repairs.jpg",
+   "foot": "Urgent ones show on your home screen"
+  },
+  {
+   "dark": true,
+   "label": "Letters",
+   "eyebrow": "Letters &amp; notices",
+   "headline": "Eleven letters, filled in for you.",
+   "sub": "Welcome, late rent, rent increase, entry, move-out and more. Edit, print or copy.",
+   "image": "tab-letters.jpg",
+   "foot": "To one tenant, a building or everyone"
+  },
+  {
+   "dark": false,
+   "label": "Calendar",
+   "eyebrow": "Calendar",
+   "headline": "Your rental month at a glance.",
+   "sub": "Rent due, bills, lease dates and repairs, by week or by month.",
+   "image": "tab-calendar.jpg",
+   "foot": "Click a rent to record it"
+  },
+  {
+   "dark": true,
+   "label": "Private",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Your tenants’ details stay with you.",
+   "sub": "No login, no bank connection, nothing uploaded. One-click backups.",
+   "image": "tab-settings.jpg",
+   "foot": "Import your bank’s CSV when you want to"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks. Every door covered.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Lavender",
+     "image": "theme-lavender.jpg",
+     "swatch": "#2E2040"
+    },
+    {
+     "name": "Blush",
+     "image": "theme-blush.jpg",
+     "swatch": "#63304A"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Rental Property Tracker, Rental Income Tracker, Landlord Rent Roll, Rental Property Bookkeeping, Schedule E, Profit & Loss, No Subscription",
+  "tags": [
+   "rental property",
+   "rental income",
+   "landlord spreadsheet",
+   "rent roll",
+   "rental bookkeeping",
+   "property management",
+   "landlord tracker",
+   "schedule e",
+   "tenant ledger",
+   "rental expenses",
+   "real estate tracker",
+   "landlord binder",
+   "rent tracker"
+  ],
+  "description_file": "description.txt"
+ }
+}
