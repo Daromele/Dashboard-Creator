@@ -29,7 +29,7 @@ const ecb=url=>{const m=url.match(/(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})/),
  ok('only currencies and dates were sent',hits.length>0&&hits.every(u=>/^https:\/\/api\.frankfurter\.(dev|app)\/[^?]*\?(base|from)=[A-Z]{3}&(symbols|to)=EUR$/.test(u)),hits.join(' '));
  ok('the account is marked EUR',await p.evaluate(()=>state.accounts.some(a=>a.cur==='EUR')));
  // a US card file in the same app: no conversion
- await p.setInputFiles('#ap-files',[file('Chase5471_Activity_20260925.csv',USD)]);await p.waitForTimeout(400);
+ await p.setInputFiles('#ap-files',[file('Discover1234_Activity_20260925.csv',USD)]);await p.waitForTimeout(400);
  ok('a dollar statement is not converted',await p.evaluate(()=>state.transactions.filter(t=>!t.fx).length===2));
  // the app switches to euros: the euro account loses its conversion, the dollar card gains one
  await p.evaluate(()=>{go('settings',true);});await p.waitForTimeout(150);

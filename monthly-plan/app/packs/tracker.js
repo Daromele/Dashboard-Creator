@@ -196,7 +196,7 @@ const NICHE = {
     // a year of a two-account household, the way their statements would read
     extras(s, { m, year, now, uid }) {
       const A = { chk: 'acc-chk', card: 'acc-card', amex: 'acc-amex', sav: 'acc-sav' };
-      s.accounts = [{ id: A.chk, name: 'Checking ••4410', kind: 'bank' }, { id: A.card, name: 'Chase ••5471', kind: 'card' }, { id: A.amex, name: 'Amex ••1009', kind: 'card' }, { id: A.sav, name: 'Ally Savings ••7720', kind: 'savings' }, { id: 'acc-brk', name: 'Fidelity Individual ••5678', kind: 'invest' }, { id: 'acc-401k', name: 'Acme 401(k)', kind: 'retire' }, { id: 'acc-car', name: 'Car loan', kind: 'loan' }];
+      s.accounts = [{ id: A.chk, name: 'Checking ••4410', kind: 'bank' }, { id: A.card, name: 'Discover ••1234', kind: 'card' }, { id: A.amex, name: 'Amex ••1009', kind: 'card' }, { id: A.sav, name: 'Ally Savings ••7720', kind: 'savings' }, { id: 'acc-brk', name: 'Fidelity Individual ••5678', kind: 'invest' }, { id: 'acc-401k', name: 'Acme 401(k)', kind: 'retire' }, { id: 'acc-car', name: 'Car loan', kind: 'loan' }];
       const tx = (date, category, amount, note, acct, why = 'merchant', look = false) => { if (date <= now) s.transactions.push({ id: uid(), date, category, amount, note, acct, auto: { why, ...(look ? { look: true } : {}) } }); };
       const d = (mo, day) => `${year}-${String(mo).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const last = +m.slice(5, 7), bal = { sav: [], brk: [], k: [] };
@@ -223,13 +223,13 @@ const NICHE = {
         // month-end balances, as the statements would show them
         const end = d(mo, 28); if (end <= now) { bal.sav.push({ date: end, value: 640000 + mo * 41300 + mo * mo * 90, how: 'file' }); bal.brk.push({ date: end, value: 1820000 + mo * 25000 + Math.round(Math.sin(mo) * 60000) + mo * 9000, how: 'file' }); if (mo % 3 === 0) bal.k.push({ date: d(mo, 28), value: 4100000 + mo * 108000 + (mo === 6 ? -90000 : 0), how: 'manual' }); }
         // the cards are paid in full from checking a few days after the statement closes: paired, not counted
-        Object.entries(card).forEach(([acct, sum], i) => { const day = 27 - i * 2; tx(d(mo, day), 'card-payoff', sum, acct === A.amex ? 'Amex Epayment' : 'Chase Card Autopay', A.chk, 'card payment'); tx(d(mo, day), 'card-payoff', -sum, 'Payment Thank You', acct, 'card payment'); });
+        Object.entries(card).forEach(([acct, sum], i) => { const day = 27 - i * 2; tx(d(mo, day), 'card-payoff', sum, acct === A.amex ? 'Amex Epayment' : 'Discover Card Autopay', A.chk, 'card payment'); tx(d(mo, day), 'card-payoff', -sum, 'Payment Thank You', acct, 'card payment'); });
         // the sample opens on the last full month early in a month: a couple of unclear ones wait there
         if (mo === (+now.slice(8, 10) < 10 && last > 1 ? last - 1 : last)) { tx(d(mo, 9), 'people', 6000, 'Venmo', A.chk, 'guess', true); tx(d(mo, 3), 'unsorted', 2750, 'Blue Door Studio', A.card, 'guess', true); tx(d(mo, 14), 'people', 12000, 'Zelle', A.chk, 'guess', true); }
       }
       // the usual pay stub behind each $3,120 deposit (Paychecks tab)
       s.payStubs = { usual: { 'acme corp payroll': { name: 'Acme Corp Payroll', gross: 447000, lines: { fed: 45000, state: 17000, ss: 27900, medicare: 6500, k401: 27000, health: 9600, hsa: 2000 } } }, exact: {} };
-      // the Amex balance was typed in once and statements keep it current; the Chase card is still estimated
+      // the Amex balance was typed in once and statements keep it current; the Discover card is still estimated
       s.balances = { [A.chk]: [{ date: d(1, 28), value: 412700, how: 'file' }], [A.sav]: bal.sav, 'acc-brk': bal.brk, 'acc-401k': bal.k, [A.amex]: [{ date: d(1, 2), value: 38450, how: 'manual' }], 'acc-car': [{ date: d(1, 31), value: 1460000, how: 'manual' }, { date: d(Math.max(1, last - 1), 28), value: 1460000 - (last - 2) * 26500, how: 'manual' }] };
       s.categoryRules = { 'rent': 'housing' };
       // nothing here is budgeted, so no month is closed

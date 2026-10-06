@@ -24,9 +24,9 @@ await p.goto(F);await p.evaluate(()=>{localStorage.clear();localStorage.setItem(
 ok('an empty app opens on the drop zone',await p.evaluate(()=>!!document.querySelector('#ap-drop.is-big')&&screen==='dashboard'));
 let net=0;p.on('request',r=>{if(!r.url().startsWith('file:')&&!r.url().startsWith('data:'))net++;});
 await p.evaluate(()=>go('import',true));
-await p.setInputFiles('#ap-files',[file('Chase5471_Activity_20260925.csv',CARD),file('Chase4410_Activity_20260930.csv',BANK),file('statement.pdf','%PDF')]);await p.waitForTimeout(500);
+await p.setInputFiles('#ap-files',[file('Discover1234_Activity_20260925.csv',CARD),file('Discover4410_Activity_20260930.csv',BANK),file('statement.pdf','%PDF')]);await p.waitForTimeout(500);
 const S=await p.evaluate(()=>({n:state.transactions.length,accts:state.accounts.map(a=>a.name+':'+a.kind),toast:$('#toast').innerText}));
-ok('both files read, one account each, named from the file',JSON.stringify(S.accts)==='["Chase ••5471:card","Chase ••4410:bank"]',JSON.stringify(S.accts));
+ok('both files read, one account each, named from the file',JSON.stringify(S.accts)==='["Discover ••1234:card","Discover ••4410:bank"]',JSON.stringify(S.accts));
 ok('every line added, both coffees kept',S.n===11,S.n);
 ok('the toast counts what was added and what needs a look',/11 transactions added · 3 need a look/.test(S.toast),S.toast);
 ok('a PDF is refused with what to do instead',await p.evaluate(()=>/Download the CSV version/.test(document.querySelector('.ap-report').innerText)));
@@ -46,7 +46,7 @@ await p.evaluate(()=>{const sel=document.querySelector('[data-look]');sel.value=
 ok('a Venmo payment is settled alone, with no rule',await p.evaluate(()=>state.transactions.find(t=>t.note==='Venmo').category==='gifts'&&!state.categoryRules.venmo&&!state.transactions.some(t=>t.auto?.look)));
 // the same files again, plus an overlapping later statement: only the new line comes in
 await p.evaluate(()=>go('import',true));
-await p.setInputFiles('#ap-files',[file('Chase5471_Activity_20260925.csv',CARD),file('Chase5471_Activity_20261005.csv',CARD.split('\n').slice(0,1).concat(CARD.split('\n').slice(5),['10/02/2026,10/03/2026,BLUE DOOR STUDIO 4421,,Sale,-8.00,']).join('\n'))]);await p.waitForTimeout(400);
+await p.setInputFiles('#ap-files',[file('Discover1234_Activity_20260925.csv',CARD),file('Discover1234_Activity_20261005.csv',CARD.split('\n').slice(0,1).concat(CARD.split('\n').slice(5),['10/02/2026,10/03/2026,BLUE DOOR STUDIO 4421,,Sale,-8.00,']).join('\n'))]);await p.waitForTimeout(400);
 const R=await p.evaluate(()=>({n:state.transactions.length,toast:$('#toast').innerText,acc:state.accounts.length,bd:state.transactions.filter(t=>t.note==='Blue Door Studio').map(t=>t.category+':'+t.auto.why)}));
 ok('repeats are skipped, the new line is added to the same account',R.n===12&&R.acc===2,JSON.stringify(R));
 ok('the learned rule sorts the new Blue Door line',R.bd.length===3&&R.bd.includes('shopping:your rule'),JSON.stringify(R.bd));
@@ -84,7 +84,7 @@ const POSF=`Account Number,Account Name,Symbol,Description,Quantity,Last Price,C
 Z12345678,Individual,VTI,VANGUARD TOTAL STOCK MARKET ETF,40,$310.00,$12400.00
 244556677,ROTH IRA,FXAIX,FIDELITY 500 INDEX,25,$212.00,$5300.00`;
 await p.evaluate(()=>go('import',true));
-await p.setInputFiles('#ap-files',[file('Ally_Savings_7720.csv',SAVF),file('Chase4410_Activity_20260917.csv',BANK2),file('Portfolio_Positions_2026-09-30.csv',POSF)]);await p.waitForTimeout(400);
+await p.setInputFiles('#ap-files',[file('Ally_Savings_7720.csv',SAVF),file('Discover4410_Activity_20260917.csv',BANK2),file('Portfolio_Positions_2026-09-30.csv',POSF)]);await p.waitForTimeout(400);
 const W=await p.evaluate(()=>{const sav=state.accounts.find(a=>a.kind==='savings'),tx=state.transactions.filter(t=>t.date==='2026-09-16'&&Math.abs(t.amount)===40000);
  return {kinds:state.accounts.map(a=>a.kind).sort().join(','),cats:tx.map(t=>t.category).sort().join(','),paired:tx.every(t=>t.auto?.pair),bal:(state.balances||{})[sav?.id]?.at(-1),invest:state.accounts.filter(a=>['invest','retire'].includes(a.kind)).map(a=>a.name+':'+state.balances[a.id].at(-1).value),toast:$('#toast').innerText};});
 ok('savings, brokerage and IRA accounts are created from their files',['bank','card','invest','retire','savings'].every(k=>W.kinds.split(',').includes(k)),W.kinds);

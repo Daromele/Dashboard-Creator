@@ -7,15 +7,15 @@ module.exports=({eq,ok})=>{
   const sort=(f,rows)=>{const c=A.context(P,s,B,f.kind);return rows.map(r=>({...r,name:A.merchant(r.desc,c.dict),...A.classify({...r,name:A.merchant(r.desc,c.dict)},c)}));};
 
   // Chase card: purchases negative, payments positive, a Type column that is not a category
-  const CHASE=`Transaction Date,Post Date,Description,Category,Type,Amount,Memo
+  const DISCOVER=`Transaction Date,Post Date,Description,Category,Type,Amount,Memo
 09/03/2026,09/04/2026,WHOLEFDS MKT #10234 AUSTIN TX,Groceries,Sale,-84.12,
 09/05/2026,09/06/2026,NETFLIX.COM 866-579-7172 CA,Bills & Utilities,Sale,-15.49,
 09/09/2026,09/10/2026,SQ *BLUE DOOR STUDIO,Shopping,Sale,-27.50,
 09/12/2026,09/12/2026,AMAZON MKTP US*2K4AB1C23,Shopping,Return,19.99,
 09/20/2026,09/20/2026,Payment Thank You-Mobile,,Payment,412.30,
 09/21/2026,09/22/2026,TST* JOES PIZZA 4412,Food & Drink,Sale,-23.80,`;
-  const chase=A.read(CHASE,'Chase5471_Activity_20260925.csv',CSV);
-  eq('Chase card: a card, the usual sign kept, the account named from the file', [chase.kind,chase.flip,chase.account,chase.rows.length], ['card',false,'Chase ••5471',6]);
+  const chase=A.read(DISCOVER,'Discover1234_Activity_20260925.csv',CSV);
+  eq('Chase card: a card, the usual sign kept, the account named from the file', [chase.kind,chase.flip,chase.account,chase.rows.length], ['card',false,'Discover ••1234',6]);
   const cr=sort(chase,chase.rows);
   eq('known merchants are named and sorted', cr.map(r=>[r.name,r.category]).slice(0,2), [['Whole Foods','groceries'],['Netflix','streaming']]);
   eq('an unknown shop falls to the bank’s own category', [cr[2].name,cr[2].category,cr[2].why,!!cr[2].look], ['Blue Door Studio','shopping','bank category',false]);
@@ -51,17 +51,17 @@ module.exports=({eq,ok})=>{
 CREDIT,09/01/2026,ACME CORP PAYROLL PPD ID: 9876543210,3120.00,ACH_CREDIT,5200.00,
 DEBIT,09/01/2026,AVAIL RENT 3304 PPD ID: 123456,-1850.00,ACH_DEBIT,3350.00,
 DEBIT,09/16/2026,Online Transfer to SAV ...7720 transaction#: 1234567,-400.00,ACCT_XFER,2950.00,
-DEBIT,09/21/2026,CHASE CREDIT CRD AUTOPAY PPD ID: 4760039224,-412.30,ACH_DEBIT,2537.70,
+DEBIT,09/21/2026,DISCOVER CREDIT CRD AUTOPAY PPD ID: 4760039224,-412.30,ACH_DEBIT,2537.70,
 DEBIT,09/19/2026,AMERICAN EXPRESS ACH PMT M1234,-120.65,ACH_DEBIT,2417.05,
 CREDIT,09/24/2026,MOBILE DEPOSIT REF 99,250.00,CHECK_DEPOSIT,2667.05,
 DEBIT,09/25/2026,ATM WITHDRAWAL 000123 MAIN ST,-60.00,ATM,2607.05,`;
-  const chk=A.read(CHK,'Chase4410_Activity_20260930.csv',CSV);
+  const chk=A.read(CHK,'Discover4410_Activity_20260930.csv',CSV);
   eq('checking: a bank account (it has a balance), signs kept', [chk.kind,chk.flip], ['bank',false]);
   const kr=sort(chk,chk.rows);
   eq('checking lines sorted', kr.map(r=>r.category), ['salary','housing','emergency','card-payoff','card-payoff','other-income','cash']);
   ok('an unknown deposit waits for a look; the paycheck does not', kr[5].look===true&&!kr[0].look);
 
-  ok('two accounts at one bank keep their own file key', A.fileKey('Chase5471_Activity_20260925.csv')!==A.fileKey('Chase4410_Activity_20260930.csv')&&A.fileKey('Chase5471_Activity_20260925.csv')===A.fileKey('Chase5471_Activity_20261031.csv'));
+  ok('two accounts at one bank keep their own file key', A.fileKey('Discover1234_Activity_20260925.csv')!==A.fileKey('Discover4410_Activity_20260930.csv')&&A.fileKey('Discover1234_Activity_20260925.csv')===A.fileKey('Discover1234_Activity_20261031.csv'));
   // pairs across files: the checking payment and the card's “thank you” are the same money
   const all=[...cr.map(r=>({...r,acct:'card'})),...ar.map(r=>({...r,acct:'amex'})),...kr.map(r=>({...r,acct:'chk'}))];
   const pr=A.pairs(all).map(([i,j])=>[all[i].acct,all[j].acct,Math.abs(all[i].amount)]).sort((a,b)=>a[2]-b[2]);
@@ -85,13 +85,13 @@ DEBIT,09/25/2026,ATM WITHDRAWAL 000123 MAIN ST,-60.00,ATM,2607.05,`;
   s.categoryRules={};
 
   // the backup keeps accounts, the account on each entry and how it was sorted; bad values drop
-  const st=B.blank();st.accounts=[{id:'acc-1',name:'Chase ••5471',kind:'card'}];st.importFiles={chase:{acct:'acc-1',flip:false,kind:'card'}};
+  const st=B.blank();st.accounts=[{id:'acc-1',name:'Discover ••1234',kind:'card'}];st.importFiles={chase:{acct:'acc-1',flip:false,kind:'card'}};
   st.transactions=[{id:'t1',date:'2026-09-03',category:'groceries',amount:8412,note:'Whole Foods',acct:'acc-1',raw:'WHOLEFDS MKT ••0234',auto:{why:'merchant'}},{id:'t2',date:'2026-09-04',category:'groceries',amount:100,note:'x',acct:'nope',auto:{why:'merchant',look:'yes',junk:1}}];
   const V=B.validate(JSON.parse(JSON.stringify(st)));
   eq('accounts and sorting survive a backup; unknown accounts and fields drop', [V.accounts.length,V.transactions[0].acct,V.transactions[0].auto,V.transactions[1].acct,V.transactions[1].auto], [1,'acc-1',{why:'merchant'},undefined,{why:'merchant'}]);
 
   // savings, brokerage and retirement: kinds from the file, balances, and what happens inside
-  eq('account kinds from file names and columns', [A.kindFrom('Ally_Savings_2026.csv'),A.kindFrom('Fidelity 401(k) activity.csv'),A.kindFrom('Schwab_Brokerage_positions.csv'),A.kindFrom('x.csv',['Date','Symbol','Quantity','Amount']),A.kindFrom('Chase4410_Activity.csv')], ['savings','retire','invest','invest','']);
+  eq('account kinds from file names and columns', [A.kindFrom('Ally_Savings_2026.csv'),A.kindFrom('Fidelity 401(k) activity.csv'),A.kindFrom('Schwab_Brokerage_positions.csv'),A.kindFrom('x.csv',['Date','Symbol','Quantity','Amount']),A.kindFrom('Discover4410_Activity.csv')], ['savings','retire','invest','invest','']);
   eq('a checking file remembers its latest balance (newest-first file)', chk.balance, {date:'2026-09-25',value:260705});
   const SAV=`Date,Description,Amount,Balance
 09/16/2026,Transfer from Checking ••4410,400.00,8400.00
@@ -121,7 +121,7 @@ Pending Activity,,,,,,$-50.00
 12345678,Vanguard Federal Money Market,VMFXX,120.5,1.00,120.50`;
   const van=A.holdings(VAN,'vanguard_ofxdownload_2026-09-30.csv',CSV);
   eq('Vanguard holdings: the total of the account, dated from the file name', [van.date,van.accounts.length,van.accounts[0].value], ['2026-09-30',1,512050]);
-  ok('a transactions file is not taken for holdings', A.holdings(CHK,'checking.csv',CSV)===null&&A.holdings(CHASE,'card.csv',CSV)===null);
+  ok('a transactions file is not taken for holdings', A.holdings(CHK,'checking.csv',CSV)===null&&A.holdings(DISCOVER,'card.csv',CSV)===null);
 
   // pay stubs: the usual one when the take-home matches, scaled for a bonus, the entered one when there is one
   const usual={gross:447000,lines:{fed:45000,state:17000,ss:27900,medicare:6500,k401:27000,health:9600,hsa:2000}};
