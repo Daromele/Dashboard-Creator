@@ -1570,7 +1570,7 @@ body.debt-ed .month-control,body.debt-ed #month-tabs{display:none}body.debt-ed .
 .bt-bar{fill:color-mix(in srgb,var(--accent) 70%,var(--card));cursor:pointer;transition:fill .2s}.bt-bar.heavy{fill:var(--accent)}.bt-bar.cur{fill:var(--pop)}.bt-bar:hover{fill:var(--accent-2,var(--accent))}
 .bt-val{font:650 11px var(--num);fill:var(--ink-2)}.bt-mon{font:600 11px var(--sans,inherit);fill:var(--ink-3)}.bt-mon.cur{fill:var(--ink);font-weight:800}.bt-mon.pre{opacity:.45}
 .bt-more-card .bt-presets{justify-content:flex-start;max-width:none;margin:4px 0 0}
-.sp-pick{display:flex;align-items:center;gap:10px;margin:2px 0 14px;flex-wrap:wrap}.sp-pick>span{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}.sp-pick .segment button{padding:8px 16px;font-weight:700}
+.sp-pick{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0 16px}.sp-pick .link{font-size:12.5px}.sp-pick>span{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}.sp-pick .segment button{padding:8px 16px;font-weight:700}
 .sp-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-radius:12px;margin-bottom:16px;background:var(--sunk);border-left:5px solid var(--ink-3)}.sp-banner small{display:block;color:var(--ink-3);font-weight:650;font-size:12px}.sp-banner strong{font:700 26px/1.15 var(--num)}.sp-banner p{margin:0;max-width:46ch;font-size:13px;color:var(--ink-2);text-align:right}
 .sp-banner.ok{border-left-color:var(--pos)}.sp-banner.ok strong{color:var(--pos)}.sp-banner.over{border-left-color:var(--neg)}.sp-banner.over strong{color:var(--neg)}.sp-banner.short{border-left-color:#C98A1B}
 .sp-buckets{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:14px}.sp-bucket{border:1px solid var(--rule);border-top:4px solid var(--c);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -1578,11 +1578,13 @@ body.debt-ed .month-control,body.debt-ed #month-tabs{display:none}body.debt-ed .
 .sp-status{font-weight:700;font-size:13px}.sp-status.ok{color:var(--pos)}.sp-status.over{color:var(--neg)}.sp-status.short{color:#C98A1B}
 .sp-meter{position:relative;display:flex;height:12px;border-radius:999px;background:var(--sunk);overflow:visible}.sp-fill{display:block;height:100%;background:var(--c);transition:width .35s ease}.sp-fill:first-child{border-radius:999px 0 0 999px}.sp-fill.ok{background:var(--pos)}.sp-fill.short{background:#C98A1B}.sp-fill.over-in{background:var(--pos)}.sp-fill.over{background:var(--neg);border-radius:0 999px 999px 0}
 .sp-tick{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);transform:translateX(-1px);border-radius:2px}
-.sp-lines{display:flex;flex-direction:column;margin-top:4px;border-top:1px solid var(--rule)}.sp-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:13px}.sp-line>span:first-child{min-width:0}.sp-line small{display:block;color:var(--ink-3);font-size:11.5px}
+.sp-lines{display:flex;flex-direction:column;margin-top:4px;border-top:1px solid var(--rule);max-height:340px;overflow-y:auto;scrollbar-gutter:stable;padding-right:4px}.sp-name{font-weight:700;text-align:left;padding:0;font-size:13px}.sp-name span{opacity:.5;font-size:11px}.sp-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:13px}.sp-line>span:first-child{min-width:0}.sp-line small{display:block;color:var(--ink-3);font-size:11.5px}
 .sp-in{text-align:right;flex-shrink:0}.sp-amt{width:92px;text-align:right;padding:4px 8px;min-height:0;height:32px;font:600 14px var(--num)}.sp-add{margin-top:auto;padding-top:6px}
 @media(max-width:900px){.sp-buckets{grid-template-columns:1fr}.sp-banner{flex-direction:column;align-items:flex-start}.sp-banner p{text-align:left}}
-.sp-tags{margin-top:12px;border-top:1px solid var(--rule);padding-top:10px}.sp-tags summary{cursor:pointer;font-weight:650;font-size:13px}.sp-tag-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px 16px;margin-top:8px}
-.sp-tag{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}.sp-tag select{width:auto;min-width:96px}#split-method-select{max-width:420px}
+.sp-tags{margin-top:12px;border-top:1px solid var(--rule);padding-top:10px}.sp-tags summary{cursor:pointer;font-weight:650;font-size:13px}.sp-tag-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:0 32px;margin-top:8px}
+.sp-tag{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:650;padding:6px 0;border-bottom:1px solid var(--rule)}
+.sp-chips{display:inline-flex;background:var(--sunk);border-radius:999px;padding:3px;gap:2px;flex-shrink:0}.sp-chips button{border:0;background:transparent;border-radius:999px;padding:4px 10px;font:600 12px var(--sans,inherit);color:var(--ink-3);cursor:pointer}.sp-chips button[aria-checked="true"]{background:var(--c);color:#fff}
+.sp-sliders{display:grid;gap:18px;margin:6px 0 4px}.sp-slide span{display:flex;justify-content:space-between;margin-bottom:6px}.sp-slide output{font:700 18px var(--num);color:var(--c)}.sp-slide input[type=range]{width:100%;accent-color:var(--c)}#split-method-select{max-width:420px}
 .pp-steps .pp-step{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--rule)}.pp-step-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--accent-soft,var(--sunk));color:var(--accent)}
 .pp-step b{display:block}.pp-step small{color:var(--ink-3)}.pp-step.done{opacity:.7}.pp-step.done .pp-step-n{background:var(--pos);color:#fff}
 .pp-switch{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:650;cursor:pointer}.pp-switch input{accent-color:var(--accent);width:18px;height:18px}
@@ -2203,7 +2205,8 @@ const Budget = ((P) => {
      if(!Object.hasOwn(DATE_FORMATS,s.settings.dateFormat))s.settings.dateFormat='auto';
     }
     if(object(s)&&object(s.settings)&&s.settings.fxOnline!==undefined&&typeof s.settings.fxOnline!=='boolean')delete s.settings.fxOnline;
-    if(object(s)&&object(s.settings)&&s.settings.splitMethod!==undefined&&!['','50-30-20','70-20-10','80-20','zero'].includes(s.settings.splitMethod))delete s.settings.splitMethod;
+    if(object(s)&&object(s.settings)&&s.settings.splitMethod!==undefined&&!['','50-30-20','70-20-10','80-20','zero','custom'].includes(s.settings.splitMethod))delete s.settings.splitMethod;
+    if(object(s)&&object(s.settings)&&s.settings.splitCustom!==undefined){const c=s.settings.splitCustom;if(!object(c)||!['need','want','save'].every(k=>Number.isInteger(c[k])&&c[k]>=0&&c[k]<=100)||c.need+c.want+c.save!==100)delete s.settings.splitCustom;}
     if(object(s)&&s.splitTags!==undefined){if(!object(s.splitTags))delete s.splitTags;else Object.keys(s.splitTags).forEach(k=>{if(!/^(cat|bill|env):[A-Za-z0-9_-]{1,40}$/.test(k)||!['need','want','save','debt'].includes(s.splitTags[k]))delete s.splitTags[k];});}
     if(!object(s)||s.version!==1||!object(s.settings)||!str(s.settings.name,100)||!str(s.settings.symbol,6)||!CURRENCIES.includes(s.settings.currency)||!Array.isArray(s.categories)||!s.categories.length||s.categories.length>300||!object(s.months)||!Array.isArray(s.transactions)||s.transactions.length>100000||!Array.isArray(s.goals)||!object(s.reviews))fail();
     const optionalNav=P.optionalNav;
@@ -3541,8 +3544,11 @@ const Split = (()=>{
   '50-30-20':{name:'50/30/20',about:'Half for needs, 30% for wants, 20% for savings and extra debt payments.',buckets:[['need','Needs',50,['need']],['want','Wants',30,['want']],['save','Savings & debt',20,['save','debt']]]},
   '70-20-10':{name:'70/20/10',about:'70% to live on, 20% to savings, 10% to paying off debt or giving.',buckets:[['live','Living',70,['need','want']],['save','Savings',20,['save']],['debt','Debt & giving',10,['debt']]]},
   '80-20':{name:'80/20',about:'Save 20% first; the other 80% covers everything else.',buckets:[['live','Everything else',80,['need','want','debt']],['save','Savings',20,['save']]]},
-  'zero':{name:'Zero-based',about:'Give every dollar a job until nothing is left unassigned.',zero:true}};
- const ORDER=['50-30-20','70-20-10','80-20','zero'];
+  'zero':{name:'Zero-based',about:'Give every dollar a job until nothing is left unassigned.',zero:true},
+  'custom':{name:'Custom',about:'Your own shares for needs, wants, and savings & debt.',custom:true}};
+ const ORDER=['50-30-20','70-20-10','80-20','zero','custom'];
+ // a custom split: {need, want, save} percentages that add up to 100 (falls back to 50/30/20)
+ const customOf=c=>{const n=Math.round(+c?.need),w=Math.round(+c?.want),v=Math.round(+c?.save);return [n,w,v].every(x=>Number.isFinite(x)&&x>=0&&x<=100)&&n+w+v===100?{need:n,want:w,save:v}:{need:50,want:30,save:20};};
  const TAGS=[['need','Need'],['want','Want'],['save','Saving'],['debt','Debt']];
  // a tag from a name, for things that don't say (a grocery budget is a need, eating out a want)
  const NEED=/rent|mortgage|grocer|supermarket|food shop|gas\b|fuel|petrol|electric|power|water|sewer|utilit|heat|insur|phone|internet|child ?care|daycare|kids|school|tuition|medic|health|pharm|doctor|dental|transport|transit|bus|train|commut|car\b|household|toiletr|tax|housing|hoa\b|baby|diaper|pet food/i;
@@ -3550,14 +3556,14 @@ const Split = (()=>{
  const DEBT=/debt|loan|credit card|card payment|payoff|student|klarna|afterpay|bnpl/i;
  const guess=(name,fallback='want')=>{const n=String(name||'');return SAVE.test(n)?'save':DEBT.test(n)?'debt':NEED.test(n)?'need':fallback;};
  // items: [{amount, tag}]; income in cents
- function compute(items,income,id){const M=METHODS[id]||METHODS['50-30-20'],L=(items||[]).filter(x=>x.amount>0),assigned=L.reduce((a,x)=>a+x.amount,0),inc=Math.max(0,income||0),out={id:METHODS[id]?id:'50-30-20',name:M.name,income:inc,assigned,unassigned:inc-assigned,zero:!!M.zero};
+ function compute(items,income,id,custom){let M=METHODS[id]||METHODS['50-30-20'];if(M.custom){const c=customOf(custom);M={...M,name:`${c.need}/${c.want}/${c.save}`,buckets:[['need','Needs',c.need,['need']],['want','Wants',c.want,['want']],['save','Savings & debt',c.save,['save','debt']]]};}const L=(items||[]).filter(x=>x.amount>0),assigned=L.reduce((a,x)=>a+x.amount,0),inc=Math.max(0,income||0),out={id:METHODS[id]?id:'50-30-20',name:M.name,income:inc,assigned,unassigned:inc-assigned,zero:!!M.zero};
   if(M.zero)return out;
   out.rows=M.buckets.map(([key,label,target,tags])=>{const actual=L.filter(x=>tags.includes(x.tag)).reduce((a,x)=>a+x.amount,0),goal=Math.round(inc*target/100);
    return {key,label,target,tags,actual,goal,diff:actual-goal,pct:inc?Math.round(actual/inc*1000)/10:0};});
   return out;}
  // the method whose targets sit closest to how the money is already split
- function bestFit(items,income){if(!(income>0))return null;let best=null;for(const id of ORDER){const r=compute(items,income,id);if(r.zero)continue;const d=r.rows.reduce((a,x)=>a+Math.abs(x.pct-x.target),0);if(!best||d<best.d)best={id,d};}return best&&best.id;}
- return {METHODS,ORDER,TAGS,guess,compute,bestFit};
+ function bestFit(items,income){if(!(income>0))return null;let best=null;for(const id of ORDER){if(METHODS[id].custom)continue;const r=compute(items,income,id);if(r.zero)continue;const d=r.rows.reduce((a,x)=>a+Math.abs(x.pct-x.target),0);if(!best||d<best.d)best={id,d};}return best&&best.id;}
+ return {METHODS,ORDER,TAGS,guess,compute,bestFit,customOf};
 })();
 if(typeof module!=='undefined')module.exports=Split;
 
@@ -7805,10 +7811,10 @@ const PaycheckUI=(()=>{
  // the budget method for this paycheck: bills and spending tagged need, want, saving or debt
  const billTag=b=>b.cat==='loans'?'debt':b.kind==='sub'?'want':Split.guess(b.name,'need');
   function splitCard(p){const by=new Map(),main=Pay.mainOf(incomes()),hasMain=!main||p.pays.some(x=>x.id===main.id);
-  p.bills.filter(i=>i.state!=='skipped').forEach(i=>{const k='bill:'+i.b.id,x=by.get(k)||{key:k,name:i.b.name,amount:0,tag:SplitUI.tagOf(k,billTag(i.b)),note:`Bill · due ${dayName(i.due)}`};x.amount+=i.amount;by.set(k,x);});
+  p.bills.filter(i=>i.state!=='skipped').forEach(i=>{const k='bill:'+i.b.id,x=by.get(k)||{key:k,name:i.b.name,amount:0,tag:SplitUI.tagOf(k,billTag(i.b)),note:`Bill · due ${dayName(i.due)}`,link:{action:'bt-edit',id:i.b.id}};x.amount+=i.amount;by.set(k,x);});
   envs().filter(e=>e.status!=='paused').forEach(e=>{const k='env:'+e.id,x=p.envs.find(z=>z.e.id===e.id),can=e.per==='month'||hasMain;
    by.set(k,{key:k,name:e.name,amount:x?x.planned:0,tag:envTag(e),...(can?{edit:{amount:e.amount,unit:e.per==='month'?'a month':'a paycheck'}}:{note:`On ${esc(main.name)}’s paydays`})});});
-  return SplitUI.card({items:[...by.values()],income:p.income+Math.max(0,p.carryIn||0),title:'Plan this paycheck',sub:'Pick a method, then type your amounts. Each group turns green when it fits its share and red when it goes over.',unit:'paycheck',empty:'Add your paycheck, and its plan shows here.',
+  return SplitUI.card({items:[...by.values()],income:p.income+Math.max(0,p.carryIn||0),title:'Plan this paycheck',sub:'Type amounts below: green fits, red is over.',unit:'paycheck',empty:'Add your paycheck, and its plan shows here.',
    live:(key,v)=>{const e=env(key.slice(4));return e?Pay.envAmount({...e,amount:v},p,incomes()):v;},
    save:out=>commit(()=>{Object.entries(out).forEach(([k,v])=>{const e=env(k.slice(4));if(e)e.amount=v;});},'Plan saved'),
    add:b=>button('＋ Add a line','pp-env-add','small quiet',`data-tag="${b.key==='live'?'want':b.key}" data-kind="${b.key==='save'?'save':'spend'}"`)});}
@@ -8012,7 +8018,8 @@ const SplitUI=(()=>{
  // a monthly-plan category's usual tag, from its group
  const catTag=c=>({bills:'need',subscriptions:'want',debt:'debt',sinking:'save',savings:'save',investment:'save'})[c.group]||(Budget.type(c)==='saving'?'save':Split.guess(c.name,'want'));
  // pick a method: labeled pills, saved the moment you click
- const pick=id=>`<div class="sp-pick no-print"><span>Method</span><div class="segment" role="radiogroup" aria-label="Budget method">${Split.ORDER.map(k=>`<button data-action="split-method" data-k="${k}" role="radio" aria-checked="${id===k}" aria-pressed="${id===k}">${Split.METHODS[k].name}</button>`).join('')}</div></div>`;
+ const custom=()=>Split.customOf(state.settings.splitCustom);
+ const pick=id=>{const c=custom();return `<div class="sp-pick no-print"><span>Choose your method</span><div class="segment" role="radiogroup" aria-label="Budget method">${Split.ORDER.map(k=>`<button data-action="split-method" data-k="${k}" role="radio" aria-checked="${id===k}" aria-pressed="${id===k}">${k==='custom'?`Custom${id==='custom'?` ${c.need}/${c.want}/${c.save}`:''}`:Split.METHODS[k].name}</button>`).join('')}</div>${id==='custom'?`<button class="link" data-action="split-custom">Change shares</button>`:''}</div>`;};
  const BUCKETS_ZERO=[['need','Needs',['need']],['want','Wants',['want']],['save','Savings',['save']],['debt','Debt',['debt']]];
  // a group's bar: green up to its share, red past it; saving fills toward its goal
  function meter(v,goal,save,income){if(goal==null){const w=income>0?Math.min(100,v/income*100):0;return `<div class="sp-meter"><i class="sp-fill" style="width:${w}%"></i></div>`;}
@@ -8029,8 +8036,8 @@ const SplitUI=(()=>{
  // items: [{key, name, amount (this period, cents), tag, note?, edit?:{amount, unit}}]; income in cents
  // opts.live(key,cents) → this period's amount for a typed value; opts.save({key:cents}); opts.add(bucket) → a button
  function card({items,income,title,sub,extra='',empty:emptyText,sofar=false,unit='income',live:lv=null,save:sv=null,add=null}){const id=method();if(!id)return '';
-  live=lv;save=sv;const R=Split.compute(items,income,id),M=Split.METHODS[R.id];
-  const head=`<div class="cardhead"><div><h2>${esc((title||'Your {m} budget').replace('{m}',M.zero?'zero-based':M.name))}</h2><p>${esc(sub||M.about)}</p></div><div class="nw-segs">${extra}</div></div>${pick(R.id)}`;
+  live=lv;save=sv;const R=Split.compute(items,income,id,state.settings.splitCustom),M=Split.METHODS[R.id];
+  const head=`<div class="cardhead"><div><h2>${esc((title||'Your {m} budget').replace('{m}',M.zero?'zero-based':R.name))}</h2><p>${esc(sub||M.about)}</p></div><div class="nw-segs">${extra}</div></div>${pick(R.id)}`;
   if(!(income>0))return `<section class="card sp-card">${head}${empty('No income to split yet',emptyText||'Add your income, and the split shows here.')}</section>`;
   const B=R.zero?BUCKETS_ZERO.map(([key,label,tags])=>({key,label,tags,goal:null,target:null})):R.rows,isSave=b=>b.key==='save'||b.key==='debt';
   const L=items.filter(x=>x.amount>0||x.edit||x.note),of=x=>(B.find(b=>b.tags.includes(x.tag))||B[0]).key;
@@ -8039,10 +8046,10 @@ const SplitUI=(()=>{
   const cols=B.map(b=>{const mine=L.filter(x=>of(x)===b.key).sort((x,y)=>y.amount-x.amount),v=mine.reduce((n,x)=>n+x.amount,0),[st,sc]=status(v,b.goal,isSave(b),income,sofar);
    return `<section class="sp-bucket${sc==='over'?' is-over':''}" data-b="${b.key}" data-goal="${b.goal??''}" data-save="${isSave(b)?1:''}" style="--c:${COLOR[b.key]}"><header><b><i class="dot" style="background:${COLOR[b.key]}"></i>${b.label}</b>${b.goal!=null?`<small>${b.target}% · ${fmt(b.goal)}</small>`:''}</header>`+
     `<div class="sp-b-fig"><strong class="number" data-sp-v>${fmt(v)}</strong><span class="sp-status ${sc}" data-sp-st>${st}</span></div><div data-sp-m>${meter(v,b.goal,isSave(b),income)}</div>`+
-    `<div class="sp-lines">${mine.map(x=>`<div class="sp-line" data-k="${esc(x.key)}" data-v="${x.amount}"><span><b>${esc(x.name)}</b>${x.note?`<small>${x.note}</small>`:''}</span>${x.edit?`<span class="sp-in"><input class="sp-amt" data-k="${esc(x.key)}" inputmode="decimal" value="${(x.edit.amount/100).toFixed(2)}" aria-label="${esc(x.name)} amount"><small>${x.edit.unit}${x.edit.unit==='a month'?` · <span data-sp-share>${fmt(x.amount)}</span> here`:''}</small></span>`:`<b class="number">${fmt(x.amount)}</b>`}</div>`).join('')||`<p class="small muted">Nothing here yet.</p>`}</div>`+
+    `<div class="sp-lines">${mine.map(x=>`<div class="sp-line" data-k="${esc(x.key)}" data-v="${x.amount}"><span>${x.link?`<button class="link sp-name" data-action="${x.link.action}" data-id="${esc(x.link.id)}" title="Edit ${esc(x.name)}">${esc(x.name)} <span aria-hidden="true">✎</span></button>`:`<b>${esc(x.name)}</b>`}${x.note?`<small>${x.note}</small>`:''}</span>${x.edit?`<span class="sp-in"><input class="sp-amt" data-k="${esc(x.key)}" inputmode="decimal" value="${(x.edit.amount/100).toFixed(2)}" aria-label="${esc(x.name)} amount"><small>${x.edit.unit}${x.edit.unit==='a month'?` · <span data-sp-share>${fmt(x.amount)}</span> here`:''}</small></span>`:`<b class="number">${fmt(x.amount)}</b>`}</div>`).join('')||`<p class="small muted">Nothing here yet.</p>`}</div>`+
     (add?`<div class="sp-add no-print">${add(b)}</div>`:'')+`</section>`;}).join('');
   const T=[...items].filter(x=>x.amount>0||x.edit).sort((a,b)=>b.amount-a.amount);
-  const move=`<details class="sp-tags no-print"><summary>Move a line to another group</summary><p class="small muted">The app guesses need, want, saving or debt from the name; change any that are wrong.</p><div class="sp-tag-list">${T.map(x=>`<label class="sp-tag"><span>${esc(x.name)}</span><select data-split-key="${esc(x.key)}" aria-label="${esc(x.name)} counts as">${Split.TAGS.map(([k,l])=>`<option value="${k}" ${x.tag===k?'selected':''}>${l}</option>`).join('')}</select></label>`).join('')}</div></details>`;
+  const move=`<details class="sp-tags no-print"><summary>Move a line to another group</summary><p class="small muted">The app guesses from the name. Tap where a line belongs.</p><div class="sp-tag-list">${T.map(x=>`<div class="sp-tag"><span>${esc(x.name)}</span><div class="sp-chips" role="radiogroup" aria-label="${esc(x.name)} counts as">${Split.TAGS.map(([k,l])=>`<button type="button" data-action="split-tag" data-key="${esc(x.key)}" data-v="${k}" role="radio" aria-checked="${x.tag===k}" style="--c:${COLOR[k]}">${l}</button>`).join('')}</div></div>`).join('')}</div></details>`;
   return `<section class="card sp-card" data-income="${income}" data-sofar="${sofar?1:''}">${head}${top}<div class="sp-buckets" style="--n:${B.length}">${cols}</div>${T.length?move:''}</section>`;}
  // typing an amount: every bar, status and the banner follow at once; saved when you leave the card
  function refresh(c){const income=+c.dataset.income,sofar=!!c.dataset.sofar;let used=0;
@@ -8063,8 +8070,16 @@ const SplitUI=(()=>{
  function settingsCard(){const id=method();
   return `<section class="card"><div class="cardhead"><div><h2>Budget method</h2><p>${P.features.paycheck?'How each paycheck is split, compared with a rule of thumb.':'Optional: compare your monthly plan with a rule of thumb. Off by default.'}</p></div></div><label class="full">Method<select id="split-method-select" aria-label="Budget method">${P.features.paycheck?'':`<option value="" ${!id?'selected':''}>Off</option>`}${Split.ORDER.map(k=>`<option value="${k}" ${id===k?'selected':''}>${Split.METHODS[k].name}</option>`).join('')}${P.features.paycheck?`<option value="" ${!id?'selected':''}>Don’t show a method</option>`:''}</select><small>${id?esc(Split.METHODS[id].about):'Turn one on to see a 50/30/20, 70/20/10, 80/20 or zero-based check on your '+(P.features.paycheck?'paychecks':'monthly plan')+'.'}</small></label></section>`;}
  document.addEventListener('click',e=>{const b=e.target.closest('[data-action^="split-"]');if(!b)return;
-  if(b.dataset.action==='split-method'){const k=b.dataset.k;if(Split.METHODS[k]&&k!==method())commit(()=>{state.settings.splitMethod=k;},`Method: ${Split.METHODS[k].name}`);}
+  if(b.dataset.action==='split-method'){const k=b.dataset.k;if(k==='custom'&&!state.settings.splitCustom){customForm();return;}if(Split.METHODS[k]&&k!==method())commit(()=>{state.settings.splitMethod=k;},`Method: ${k==='custom'?'Custom '+Object.values(custom()).join('/'):Split.METHODS[k].name}`);}
+  if(b.dataset.action==='split-custom')customForm();
+  if(b.dataset.action==='split-tag'){const key=b.dataset.key,v=b.dataset.v;if(Split.TAGS.some(t=>t[0]===v))commit(()=>{(state.splitTags||(state.splitTags={}))[key]=v;},`Moved to ${tagName(v).toLowerCase()}`);}
   if(b.dataset.action==='split-basis'){basis=b.dataset.k==='actual'?'actual':'plan';render();}});
+ // your own split: two sliders, savings & debt gets the rest, so it always adds up to 100%
+ function customForm(){const c=custom();
+  modal('Your own split','Slide needs and wants; savings & debt gets what’s left, so it always adds up to 100%.',`<form id="split-custom-form"><div class="sp-sliders">${[['need','Needs',c.need],['want','Wants',c.want]].map(([k,l,v])=>`<label class="sp-slide" style="--c:${COLOR[k]}"><span><b>${l}</b><output data-o="${k}">${v}%</output></span><input type="range" name="${k}" min="0" max="100" step="5" value="${v}"></label>`).join('')}<div class="sp-slide" style="--c:${COLOR.save}"><span><b>Savings &amp; debt</b><output data-o="save">${c.save}%</output></span><div class="sp-meter"><i class="sp-fill ok" data-o-bar style="width:${c.save}%"></i></div></div></div>${formFoot('Use this split')}</form>`);}
+ const syncCustom=f=>{const n=+f.elements.need.value;let w=+f.elements.want.value;if(n+w>100){w=100-n;f.elements.want.value=w;}f.querySelector('[data-o="need"]').textContent=n+'%';f.querySelector('[data-o="want"]').textContent=w+'%';f.querySelector('[data-o="save"]').textContent=(100-n-w)+'%';f.querySelector('[data-o-bar]').style.width=(100-n-w)+'%';};
+ document.addEventListener('input',e=>{const f=e.target.closest?.('#split-custom-form');if(f)syncCustom(f);});
+ document.addEventListener('submit',e=>{const f=e.target;if(f.id!=='split-custom-form')return;e.preventDefault();syncCustom(f);const n=+f.elements.need.value,w=+f.elements.want.value;closeModal();commit(()=>{state.settings.splitCustom={need:n,want:w,save:100-n-w};state.settings.splitMethod='custom';},`Custom split: ${n}/${w}/${100-n-w}`);});
  document.addEventListener('change',e=>{const el=e.target;
   if(el.matches?.('select[data-split-pick]')){const k=el.value;if(Split.METHODS[k])commit(()=>{state.settings.splitMethod=k;},`Method saved: ${Split.METHODS[k].name}`);return;}
   if(el.id==='split-method-select'){const k=el.value;commit(()=>{state.settings.splitMethod=k;},k?`${Split.METHODS[k].name} budget`:'Budget method off');return;}

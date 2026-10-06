@@ -15,8 +15,8 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('turned on: the monthly plan shows the 50/30/20 card',await v(()=>{go('budget');const c=document.querySelector('.sp-card');return !!c&&/Your 50\/30\/20 budget/.test(c.innerText)&&c.querySelectorAll('.sp-bucket').length===3;}));
  const needs=await v(()=>Split.compute(Budget.rows(state,selected).filter(c=>c.type!=='income'&&c.type!=='transfer').map(c=>({amount:c.planned,tag:SplitUI.tagOf('cat:'+c.id,SplitUI.catTag(c))})),Budget.totals(state,selected).income.plan,'50-30-20').rows[0].actual);
  ok('needs = the planned bills and needs',needs>0,needs);
- await v(()=>{document.querySelector('.sp-tags').open=true;});const key=await v(()=>{const s=[...document.querySelectorAll('select[data-split-key]')].find(x=>x.value==='need');return s.dataset.splitKey;});
- await p.selectOption(`select[data-split-key="${key}"]`,'want');await p.waitForTimeout(250);
+ await v(()=>{document.querySelector('.sp-tags').open=true;});const key=await v(()=>document.querySelector('[data-action="split-tag"][data-v="need"][aria-checked="true"]').dataset.key);
+ await p.click(`[data-action="split-tag"][data-key="${key}"][data-v="want"]`);await p.waitForTimeout(250);
  ok('moving a line from need to want is remembered',await v(k=>state.splitTags[k]==='want',key));
  await v(()=>document.querySelector('[data-action="split-basis"][data-k="actual"]').click());ok('Planned / So far switch',await v(()=>/so far/i.test(document.querySelector('.sp-card').innerText)));
  await v(()=>document.querySelector('.sp-card [data-action="split-method"][data-k="70-20-10"]').click());await p.waitForTimeout(200);
@@ -25,7 +25,7 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  // Paycheck: on by default; pick a method, type amounts, watch each group fit its share
  p=await open('PaycheckBudgetPlanner');const w=(js,a)=>p.evaluate(js,a);
  ok('Paycheck: Plan this paycheck, 50/30/20 by default',await w(()=>{go('dashboard');const c=document.querySelector('.sp-card');return !!c&&/Plan this paycheck/.test(c.innerText)&&state.settings.splitMethod==='50-30-20'&&c.querySelectorAll('.sp-bucket').length===3;}));
- ok('four methods as labeled pills',await w(()=>document.querySelectorAll('.sp-card [data-action="split-method"]').length===4));
+ ok('five methods as labeled pills, custom included',await w(()=>document.querySelectorAll('.sp-card [data-action="split-method"]').length===5));
  ok('one left-to-assign number on top',await w(()=>/left to assign/.test(document.querySelector('[data-sp-banner]').innerText)));
  const fun=await w(()=>state.ppEnv.find(e=>/fun/i.test(e.name)).id);
  await p.locator(`.sp-amt[data-k="env:${fun}"]`).fill('800');
@@ -44,6 +44,14 @@ let fails=0;const ok=(name,cond,info='')=>{console.log(`${cond?'ok  ':'FAIL'} ${
  ok('80/20',await w(()=>document.querySelectorAll('.sp-bucket').length===2));
  await w(()=>document.querySelector('.sp-card [data-action="split-method"][data-k="50-30-20"]').click());await p.waitForTimeout(200);
  ok('a paycheck without the main payday shows per-paycheck lines as not editable here',await w(()=>{let n=0;while(n++<6){const m=PaycheckUI.model(),main=Pay.mainOf(state.ppIncome);if(!m.p.pays.some(x=>x.id===main.id))break;document.querySelector('[data-action="pp-next"]').click();}const t=document.querySelector('.sp-card').innerText;return /paydays/.test(t);}));
+ await w(()=>document.querySelector('.sp-card [data-action="split-method"][data-k="custom"]').click());await p.waitForTimeout(250);
+ ok('Custom opens the split sliders the first time',await w(()=>!!document.querySelector('#split-custom-form')));
+ await w(()=>{const f=document.querySelector('#split-custom-form');f.elements.need.value=60;f.elements.need.dispatchEvent(new Event('input',{bubbles:true}));f.elements.want.value=25;f.elements.want.dispatchEvent(new Event('input',{bubbles:true}));});
+ ok('savings & debt gets the rest live (15%)',await w(()=>document.querySelector('[data-o="save"]').textContent==='15%'));
+ await p.click('#split-custom-form button[type="submit"]');await p.waitForTimeout(300);
+ ok('custom split saved and used: 60/25/15',await w(()=>state.settings.splitMethod==='custom'&&state.settings.splitCustom.save===15&&/60% · /.test(document.querySelector('.sp-bucket[data-b="need"] header').innerText)));
+ ok('a bill line links to its edit form',await w(()=>{document.querySelector('[data-action="pp-now"]')?.click();const b=document.querySelector('.sp-card .sp-name[data-action="bt-edit"]');b.click();return /Edit/.test(document.querySelector('#modal').innerText);}));
+ await w(()=>closeModal());
  ok('Settings can hide the method in the paycheck planner',await w(()=>{go('settings');return [...document.querySelectorAll('#split-method-select option')].some(o=>o.value==='');}));
  await p.close();
  ok('no page errors',!errs.length,errs.join(' | '));

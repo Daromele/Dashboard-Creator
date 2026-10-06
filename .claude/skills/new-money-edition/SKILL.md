@@ -73,7 +73,10 @@ Everything here is a correction the user already made once. Apply it up front.
   red past it (saving fills amber toward its goal, green when reached); the lines inside each group with their
   amounts **editable in place**, so bars and the banner move as you type; saved when focus leaves the card;
   method picked with labeled pills; "+ Add a line" in each group. Pies and "gap" text with buttons were
-  rejected as confusing: the buyer couldn't see how to do the budgeting.
+  rejected as confusing: the buyer couldn't see how to do the budgeting. Polish the user asked for next: method pills centered
+  above the banner (with a Custom split set by two sliders, the third share is the remainder), long group
+  lists scroll inside the column, pill toggles instead of rows of dropdowns, a short subtitle, and every
+  fixed line (a bill) links to the form where it's edited.
 
 ## 2c. Newbie-check rules: build them in, don't wait to be told
 
