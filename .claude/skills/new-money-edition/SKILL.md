@@ -41,6 +41,33 @@ Everything here is a correction the user already made once. Apply it up front.
   hero text below 900 px.
 - Entity lists (debts, bills…): **grid default**, table toggle, category chips to filter, name column
   left-aligned, each card with visible edit / history / delete, and an update action.
+- **Grids of things people picture (properties, cars, rooms, products): an optional photo.** Upload with
+  `coverFromFile` (800×450 JPEG), shown 16:9 on top of the card and as a thumbnail in the table view, with
+  Change / Remove in the edit form; the validator only keeps `data:image/(jpeg|png|webp)`. Skip it where a
+  picture adds nothing (debts, bills).
+- **Card grids collapse.** Grid · Compact · Table: Compact keeps the header, the big number and the two rows
+  that matter most, so many cards fit on one screen.
+- **Every major table: search, sort and filter, from two rows.** Give it `class="tbl-always"` (the shared
+  `enhanceTables` otherwise waits for 6 rows) and `data-filter` on the columns people filter by (property,
+  status, line), so those filters show even when every value differs. Separate columns for things people
+  filter on (Property and Unit, not "Property · unit"). Long tables scroll inside the card (`max-height`,
+  sticky header) instead of growing the page.
+- **Any money summary takes any dates.** One range bar (This month, Last month, This quarter, Year to date,
+  Last year, Custom with From/To) reused by every screen that sums money, plus an "All / one item" picker.
+  A business-style edition gets a printable, exportable **Profit & loss** (income, running costs, NOI,
+  interest, net income, principal below the line, cash flow) with a column per item when showing all.
+- **Costs that belong to no single item** (bookkeeping software, a phone line): a "General" choice in the
+  form, its own chip and P&L column, never forced onto one item.
+- **Bank CSV import for any tracker of money in and out**: reuse `Autopilot.read` (rows have `amount` in
+  cents), match deposits to who pays (name in the description, else the exact amount), guess expense lines
+  from the description, skip loan payments the app already adds, remember imported lines (date|amount|desc
+  key) and mark them "Imported before"; the buyer reviews every line before anything is saved.
+- **Ideas the buyer would pay a subscription for, offline**: a month calendar of what's due and what
+  happened (click to act), a maintenance/request log whose "done + cost" becomes an expense in one step, and
+  fill-in letters (welcome, receipt, late notice, increase, renewal, entry, violation, vacate, move-out,
+  deposit return) with the buyer's details saved once, editable text, "save my wording" (the filled values
+  turn back into `[[blanks]]`), Copy and a print of the letter alone. Never use `{{ }}` in core.html: the
+  build treats it as a pack placeholder.
 - Row buttons never touch: `.row-acts` gap, `td .btn+.btn{margin-left:6px}`. Check every table.
 - Categories for the edition (debt kinds, bill categories) in Settings with **edit, archive, delete**
   icons (not "hide"); the budget "Your categories" card is not reused.

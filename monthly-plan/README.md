@@ -81,9 +81,13 @@ key `jps-rental-tracker`). `Rental` in core is the pure engine (tested in `build
 a loan (interest to Schedule E line 12, principal kept out), leases (rent, due day, grace, late fee, deposit, end,
 move-out), payments by rent month and date, expenses that repeat monthly or yearly, the rent roll (paid, part, due,
 late, upcoming, vacant), months (cash basis, the month under way stops at today), Schedule E per property, and the
-landlord numbers (NOI, cap rate, cash-on-cash, 1% rule, occupancy, deposits) from whole months only. `RentalUI` draws
-Portfolio, Rent roll, Properties, Tenants & leases, Expenses, Schedule E and the Rent ledger. State: `rpProps`,
-`rpLeases`, `rpPays`, `rpExps`. Flow test: `node build/rental_flow.js`.
+landlord numbers (NOI, cap rate, cash-on-cash, 1% rule, occupancy, deposits) from whole months only, and `pnl` for any
+dates and one property, all, or `'__general'` (expenses with no property). `RentalUI` draws Portfolio, Rent roll,
+Properties (grid, compact, table; optional photo), Tenants & leases, Expenses (any dates, by property, General),
+Calendar, Repairs (tenant requests; done + cost becomes a Repairs expense), Profit & loss, Schedule E, Rent ledger,
+Import bank CSV (via `Autopilot.read`) and Letters & notices (11 fill-in templates, `[[key]]` blanks). State:
+`rpProps` (+`photo`), `rpLeases`, `rpPays`, `rpExps` (`prop:''` = General), `rpJobs`, `rpTemplates`, `rpImported`,
+`settings.rpLandlord`. Flow test: `node build/rental_flow.js`.
 
 **Budget methods** (`features.split`, in the Monthly Plan and the Paycheck Budget Planner). `Split` in core is
 the pure engine (tested in `build/test_split.js`): 50/30/20, 70/20/10, 80/20 and zero-based, each line tagged

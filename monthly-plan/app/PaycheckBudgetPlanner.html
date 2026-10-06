@@ -1531,6 +1531,27 @@ body.debt-ed .month-control,body.debt-ed #month-tabs{display:none}body.debt-ed .
 .bt-more-card .bt-presets{justify-content:flex-start;max-width:none;margin:4px 0 0}
 .rp-chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;background:var(--sunk);color:var(--ink-3);white-space:nowrap}.rp-chip.pos{background:color-mix(in srgb,var(--pos) 14%,transparent);color:var(--pos)}.rp-chip.neg{background:color-mix(in srgb,var(--neg) 14%,transparent);color:var(--neg)}.rp-chip.warn{background:color-mix(in srgb,#C98A1B 16%,transparent);color:#A86F0F}
 .rp-amt{text-align:right;margin-right:4px}.rp-amt small{display:block;color:var(--ink-3);font-size:11.5px}.rp-scroll{max-height:440px;overflow-y:auto}.rp-roll .row-acts{align-items:center;gap:10px}.rp-roll.vacant b{color:var(--ink-3)}@media(max-width:620px){.rp-roll{flex-wrap:wrap}.rp-roll .row-acts{width:100%;justify-content:flex-end}}.bt-val.rp-in{fill:#fff}
+.rp-tall .table-wrap{max-height:640px;overflow:auto}.rp-tall thead th{position:sticky;top:0;z-index:1;background:var(--card)}@media print{.rp-tall .table-wrap{max-height:none}}
+.rp-wd{display:none}@media(max-width:620px){.rp-wd{display:inline}}
+.rp-jobs td .link{text-align:left;display:inline}
+.rp-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:0 0 var(--s4)}.rp-range{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}.rp-date{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;color:var(--ink-3)}.rp-date input{min-height:32px;padding:4px 8px}.rp-controls select{min-height:34px;max-width:260px}.rp-controls+.dg-chips{margin-top:-6px}
+.rp-pl td:first-child{white-space:normal}.rp-pl .rp-sec td{background:var(--sunk);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding-top:10px}.rp-pl .rp-net td{border-top:2px solid var(--ink-3)}.rp-pl td.num{white-space:nowrap}
+.meter.rp-two{display:flex;flex-direction:column;gap:2px;height:auto;background:none}.meter.rp-two i{display:block;height:5px;border-radius:3px;min-width:2px}.rp-bp.on{background:color-mix(in srgb,var(--accent) 7%,transparent);border-radius:8px}.rp-bp .link{padding:0}
+.rp-cal-head{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px}.rp-cal-head span{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);text-align:center}
+.rp-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.rp-day{min-height:104px;border:1px solid var(--rule);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:3px;min-width:0;background:var(--card)}.rp-day.out{background:transparent;border-style:dashed;opacity:.45}.rp-day>b{font-size:12px;color:var(--ink-3)}.rp-day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}.rp-day.today>b{color:var(--accent)}.rp-day small{font-size:11px;color:var(--ink-3)}
+.rp-ev{display:block;width:100%;text-align:left;font:600 11px/1.3 inherit;padding:2px 6px;border-radius:5px;border:0;border-left:3px solid var(--ink-3);background:var(--sunk);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}button.rp-ev{cursor:pointer}button.rp-ev:hover{filter:brightness(.96);text-decoration:underline}
+.rp-ev.pos{border-left-color:var(--pos);background:color-mix(in srgb,var(--pos) 10%,transparent)}.rp-ev.neg{border-left-color:var(--neg);background:color-mix(in srgb,var(--neg) 10%,transparent)}.rp-ev.warn{border-left-color:#C98A1B;background:color-mix(in srgb,#C98A1B 12%,transparent)}.rp-ev.exp{border-left-color:var(--ink-3)}.rp-ev.job{border-left-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}.rp-ev.dim{opacity:.65}
+.rp-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.rp-legend .rp-ev{width:auto}
+.rp-docwrap{display:grid;grid-template-columns:minmax(260px,1fr) 2fr;gap:var(--s4);align-items:start}.rp-docs{display:flex;flex-direction:column;gap:6px;max-height:720px;overflow-y:auto}.rp-doc{text-align:left;border:1px solid var(--rule);border-radius:10px;background:var(--card);padding:10px 12px;cursor:pointer;color:var(--ink)}.rp-doc b{display:block;font-size:13.5px}.rp-doc small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}.rp-doc em{display:inline-block;margin-top:4px;font-style:normal;font-size:11px;font-weight:700;color:var(--accent)}.rp-doc:hover{border-color:var(--accent)}.rp-doc.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--card))}
+.rp-doc-edit .fields{margin-bottom:12px}.rp-letter-l{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px}.rp-letter{width:100%;min-height:420px;font:14px/1.6 Georgia,'Times New Roman',serif;padding:18px 20px;border:1px solid var(--rule);border-radius:10px;background:var(--card);color:var(--ink);resize:vertical}.rp-letter-print{display:none}.banner.rp-ll{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:var(--s4)}
+.rp-drop{text-align:center;padding:36px 20px;border:2px dashed var(--rule);border-radius:14px}.rp-drop h3{margin:0 0 6px}.rp-drop .btn{margin-top:10px;cursor:pointer}.rp-imp select,.rp-imp input{min-height:32px;font-size:12.5px;max-width:190px}.rp-imp tr.is-off td{opacity:.55}.rp-imp td{vertical-align:middle}
+.rp-st-pick{display:flex;gap:6px;flex-wrap:wrap;background:none;padding:0}.rp-st-pick label{flex:1;min-width:90px}.rp-st-pick input{position:absolute;opacity:0;pointer-events:none}.rp-st-pick span{display:block;text-align:center;padding:8px 10px;border:1px solid var(--rule);border-radius:999px;font-weight:650;font-size:13px;cursor:pointer}.rp-st-pick input:checked+span{background:var(--accent);border-color:var(--accent);color:#fff}.rp-st-pick input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.rp-photo{display:block;border:0;padding:0;margin:0;background:var(--sunk);cursor:pointer;aspect-ratio:16/9;overflow:hidden}.rp-photo img{width:100%;height:100%;object-fit:cover;display:block}.rp-compact .rp-photo{aspect-ratio:16/6}.rp-compact .dg-rows{padding-bottom:4px}.rp-thumb{width:34px;height:22px;object-fit:cover;border-radius:4px;vertical-align:-6px;margin-right:8px}.rp-pname{display:inline-flex;align-items:center}
+.rp-photo-field .rp-lbl{display:block;font-size:13px;font-weight:650;margin-bottom:6px}.rp-photo-pick{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rp-photo-prev{width:112px;height:63px;border-radius:8px;overflow:hidden;background:var(--sunk);display:grid;place-items:center;font-size:11.5px;color:var(--ink-3)}.rp-photo-prev img{width:100%;height:100%;object-fit:cover}.rp-photo-pick label.btn{cursor:pointer}.rp-note{margin:-6px 0 12px}
+@media(max-width:900px){.rp-docwrap{grid-template-columns:1fr}.rp-docs{flex-direction:row;overflow-x:auto;max-height:none}.rp-doc{min-width:200px}}
+@media(max-width:620px){.rp-cal-head{display:none}.rp-cal{grid-template-columns:1fr}.rp-day{min-height:0}.rp-day.out{display:none}.rp-day:not(:has(.rp-ev)):not(.today){display:none}.rp-range .segment{width:100%}.rp-controls select{max-width:none;width:100%}}
+@media print{.rp-day{min-height:80px;break-inside:avoid}.rp-ev{white-space:normal}.rp-letter{display:none}.rp-letter-print{display:block;font:12pt/1.6 Georgia,serif;color:#000}
+ body.rp-print-letter .pagehead,body.rp-print-letter .print-title,body.rp-print-letter .footer,body.rp-print-letter .rp-docwrap>section:first-child,body.rp-print-letter .rp-doc-edit .cardhead,body.rp-print-letter .banner{display:none!important}body.rp-print-letter .rp-docwrap{display:block}body.rp-print-letter .rp-doc-edit{box-shadow:none;border:0;padding:0}}
 .sp-key{white-space:nowrap}.sp-key .dot{width:9px;height:9px;border-radius:50%;margin:0 4px 0 2px;vertical-align:0}.sp-pick{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0 16px}.sp-pick .link{font-size:12.5px}.sp-pick>span{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}.sp-pick .segment button{padding:8px 16px;font-weight:700}
 .sp-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-radius:12px;margin-bottom:16px;background:var(--sunk);border-left:5px solid var(--ink-3)}.sp-banner small{display:block;color:var(--ink-3);font-weight:650;font-size:12px}.sp-banner strong{font:700 26px/1.15 var(--num)}.sp-banner p{margin:0;max-width:46ch;font-size:13px;color:var(--ink-2);text-align:right}
 .sp-banner.ok{border-left-color:var(--pos)}.sp-banner.ok strong{color:var(--pos)}.sp-banner.over{border-left-color:var(--neg)}.sp-banner.over strong{color:var(--neg)}.sp-banner.short{border-left-color:#C98A1B}
@@ -1745,7 +1766,7 @@ const Budget = ((P) => {
   const validDate = x => typeof x==='string' && /^\d{4}-\d{2}-\d{2}$/.test(x) && validMonth(x.slice(0,7)) && +x.slice(8)>=1 && +x.slice(8)<=days(x.slice(0,7));
   const shift = (m,n) => {const d=new Date(+m.slice(0,4),+m.slice(5)-1+n,1,12);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;};
   const cents = s => {if(!/^\d{1,8}(\.\d{1,2})?$/.test(String(s).trim())) throw Error('Use a positive amount with up to two decimal places.');return Math.round(Number(s)*100);};
-  const blank = () => ({version:1,...(P.id!=='budget'?{niche:P.id}:{}),...(P.features.debt?{debts:[],debtLog:[],debtPlan:{budget:0,strategy:'avalanche',custom:[],extras:[]},debtImport:{files:{},payees:{},kinds:{}}}:{}),...(P.features.billsTracker?{btBills:[],btLog:[],btCats:[]}:{}),...(P.features.paycheck?{ppIncome:[],ppEnv:[],ppSpend:[],ppGot:{},ppMoves:{}}:{}),...(P.features.netWorth?{nwAccounts:[],nwSnaps:[],nwTypes:[],nwPlan:{spend:0,rate:400,growth:500,monthly:0,retireAge:65}}:{}),...(P.features.rental?{rpProps:[],rpLeases:[],rpPays:[],rpExps:[]}:{}),...(P.features.autopilot?{accounts:[],importFiles:{}}:{}),settings:{name:'',currency:'USD',symbol:'',dateFormat:'auto',theme:THEMES[0],hiddenNav:[],...JSON.parse(JSON.stringify(P.settings||{}))},baseline:{},
+  const blank = () => ({version:1,...(P.id!=='budget'?{niche:P.id}:{}),...(P.features.debt?{debts:[],debtLog:[],debtPlan:{budget:0,strategy:'avalanche',custom:[],extras:[]},debtImport:{files:{},payees:{},kinds:{}}}:{}),...(P.features.billsTracker?{btBills:[],btLog:[],btCats:[]}:{}),...(P.features.paycheck?{ppIncome:[],ppEnv:[],ppSpend:[],ppGot:{},ppMoves:{}}:{}),...(P.features.netWorth?{nwAccounts:[],nwSnaps:[],nwTypes:[],nwPlan:{spend:0,rate:400,growth:500,monthly:0,retireAge:65}}:{}),...(P.features.rental?{rpProps:[],rpLeases:[],rpPays:[],rpExps:[],rpJobs:[]}:{}),...(P.features.autopilot?{accounts:[],importFiles:{}}:{}),settings:{name:'',currency:'USD',symbol:'',dateFormat:'auto',theme:THEMES[0],hiddenNav:[],...JSON.parse(JSON.stringify(P.settings||{}))},baseline:{},
     categories:P.categories.map(([id,name,group,taxLine,vat])=>({id,name,group,archived:false,...(taxLine?{taxLine}:{}),...(P.features.vat&&vat!==undefined?{vat}:{})})),
     months:{},transactions:[],goals:[],reviews:{},schedules:[],snapshots:{},quickMemory:{},importMap:{},...(P.features.mileage?{mileage:[]}:{}),...(P.features.invoices?{invoices:[]}:{}),...(P.features.channels?(()=>{const tags=[],tagId=n=>{if(!n)return '';let g=tags.find(x=>x.name===n);if(!g){g={id:'tg-'+(tags.length+1),name:n,color:tags.length%TAG_COLORS+1};tags.push(g);}return g.id;};
       return {channels:(P.seedPayers||[]).map(([id,name,act,cur])=>{const tag=tagId(usualTagFor(name));return {id,name,...(act?{act}:{}),...(cur?{cur}:{}),...(tag?{tag}:{})};}),channelRules:{},tags,tagRules:{}};})():{})});
@@ -2230,6 +2251,7 @@ const Budget = ((P) => {
       ['value','price','invested'].forEach(k=>{if(cents0(p[k]))o[k]=p[k];});if(str(p.addr,120))o.addr=p.addr;if(validDate(p.added))o.added=p.added;if(Number.isInteger(p.color)&&p.color>=0&&p.color<1000)o.color=p.color;
       if(p.status==='sold'){o.status='sold';if(validDate(p.sold))o.sold=p.sold;}
       if(object(p.loan)&&cents0(p.loan.payment)&&p.loan.payment>0){o.loan={payment:p.loan.payment};if(cents0(p.loan.interest)&&p.loan.interest<=p.loan.payment)o.loan.interest=p.loan.interest;if(validDate(p.loan.start))o.loan.start=p.loan.start;if(Number.isInteger(p.loan.day)&&p.loan.day>=1&&p.loan.day<=28)o.loan.day=p.loan.day;}
+      if(typeof p.photo==='string'&&p.photo.length<900000&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(p.photo))o.photo=p.photo;
       return o;});
      const pids=new Set(s.rpProps.map(p=>p.id)),uids=new Set(s.rpProps.flatMap(p=>p.units.map(u=>u.id))),ls=new Set();
      s.rpLeases=(Array.isArray(s.rpLeases)?s.rpLeases:[]).filter(l=>object(l)&&id(l.id)&&!ls.has(l.id)&&pids.has(l.prop)&&uids.has(l.unit)&&str(l.tenant,60)&&l.tenant.trim()&&cents0(l.rent)&&validDate(l.start)&&ls.add(l.id)).slice(0,2000).map(l=>({id:l.id,prop:l.prop,unit:l.unit,tenant:l.tenant,rent:l.rent,start:l.start,due:Number.isInteger(l.due)&&l.due>=1&&l.due<=28?l.due:1,
@@ -2237,7 +2259,12 @@ const Budget = ((P) => {
      const lids=new Set(s.rpLeases.map(l=>l.id)),ps=new Set();
      s.rpPays=(Array.isArray(s.rpPays)?s.rpPays:[]).filter(x=>object(x)&&id(x.id)&&!ps.has(x.id)&&lids.has(x.lease)&&validMonth(x.month)&&validDate(x.date)&&cents0(x.amount)&&ps.add(x.id)).slice(0,100000).map(x=>({id:x.id,lease:x.lease,month:x.month,date:x.date,amount:x.amount,...(x.kind==='fee'?{kind:'fee'}:{}),...(str(x.note,80)&&x.note?{note:x.note}:{})}));
      const es=new Set(),cats=new Set(['advertising','auto','cleaning','commissions','insurance','legal','management','mortgage','otherint','repairs','supplies','taxes','utilities','hoa','other']);
-     s.rpExps=(Array.isArray(s.rpExps)?s.rpExps:[]).filter(x=>object(x)&&id(x.id)&&!es.has(x.id)&&pids.has(x.prop)&&validDate(x.date)&&cents0(x.amount)&&es.add(x.id)).slice(0,100000).map(x=>({id:x.id,prop:x.prop,date:x.date,amount:x.amount,cat:cats.has(x.cat)?x.cat:'other',repeat:['monthly','yearly'].includes(x.repeat)?x.repeat:'once',...(str(x.note,80)?{note:x.note}:{}),...(validDate(x.until)&&x.repeat!=='once'?{until:x.until}:{})}));}
+     s.rpExps=(Array.isArray(s.rpExps)?s.rpExps:[]).filter(x=>object(x)&&id(x.id)&&!es.has(x.id)&&(pids.has(x.prop)||x.prop==='')&&validDate(x.date)&&cents0(x.amount)&&es.add(x.id)).slice(0,100000).map(x=>({id:x.id,prop:x.prop,date:x.date,amount:x.amount,cat:cats.has(x.cat)?x.cat:'other',repeat:['monthly','yearly'].includes(x.repeat)?x.repeat:'once',...(str(x.note,80)?{note:x.note}:{}),...(validDate(x.until)&&x.repeat!=='once'?{until:x.until}:{})}));
+     // repairs and tenant requests, saved letter wording, lines already imported from the bank, the landlord's details
+     if(s.rpJobs!==undefined){const js=new Set(),eids=new Set(s.rpExps.map(x=>x.id));s.rpJobs=(Array.isArray(s.rpJobs)?s.rpJobs:[]).filter(j=>object(j)&&id(j.id)&&!js.has(j.id)&&pids.has(j.prop)&&str(j.title,80)&&j.title.trim()&&validDate(j.reported)&&js.add(j.id)).slice(0,20000).map(j=>({id:j.id,prop:j.prop,...(uids.has(j.unit)?{unit:j.unit}:{}),...(lids.has(j.lease)?{lease:j.lease}:{}),title:j.title,reported:j.reported,status:['open','scheduled','done'].includes(j.status)?j.status:'open',...(j.urgent===true?{urgent:true}:{}),...(validDate(j.when)?{when:j.when}:{}),...(validDate(j.done)?{done:j.done}:{}),...(str(j.vendor,60)&&j.vendor?{vendor:j.vendor}:{}),...(cents0(j.cost)&&j.cost?{cost:j.cost}:{}),...(str(j.notes,500)&&j.notes?{notes:j.notes}:{}),...(eids.has(j.exp)?{exp:j.exp}:{})}));}
+     if(s.rpTemplates!==undefined)s.rpTemplates=Object.fromEntries(Object.entries(object(s.rpTemplates)?s.rpTemplates:{}).filter(([k,v])=>/^[a-z]{2,12}$/.test(k)&&str(v,6000)&&v.trim()).slice(0,40));
+     if(s.rpImported!==undefined)s.rpImported=(Array.isArray(s.rpImported)?s.rpImported:[]).filter(k=>str(k,200)).slice(-20000);
+     if(s.settings.rpLandlord!==undefined){const L=s.settings.rpLandlord;s.settings.rpLandlord=object(L)?Object.fromEntries(['name','phone','email','addr'].filter(k=>str(L[k],120)&&L[k]).map(k=>[k,L[k]])):{};}}
     // net worth: accounts, monthly check-ins, your own account types and the FIRE plan
     if(s.nwAccounts!==undefined){const tid=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,30}$/.test(x),seen=new Set();
      {const ks=new Set();s.nwTypes=(Array.isArray(s.nwTypes)?s.nwTypes:[]).filter(k=>object(k)&&tid(k.id)&&!ks.has(k.id)&&str(k.name,40)&&k.name.trim()&&ks.add(k.id)).slice(0,60).map(k=>({id:k.id,name:k.name.trim(),...(k.side==='debt'||k.side==='asset'?{side:k.side}:{}),...(k.fi===true?{fi:true}:{}),...(k.hidden===true?{hidden:true}:{}),...(k.deleted===true?{deleted:true}:{})}));}
@@ -3574,14 +3601,14 @@ const Rental = (()=>{
   return out;}
  // expenses on dates in [from, to]: each repeat, plus a property's loan from the month it was added
  function expenses(S,from,to,propId){const out=[],F=from.slice(0,7),T=to.slice(0,7);
-  for(const e of (S.exps||[])){if(propId&&e.prop!==propId)continue;if(e.repeat==='monthly'||e.repeat==='yearly'){const step=e.repeat==='yearly'?12:1,day=+e.date.slice(8,10);
+  for(const e of (S.exps||[])){if(propId==='__general'?!!e.prop:propId&&e.prop!==propId)continue;if(e.repeat==='monthly'||e.repeat==='yearly'){const step=e.repeat==='yearly'?12:1,day=+e.date.slice(8,10);
     for(let ym=e.date.slice(0,7),i=0;ym<=T&&i<1200;ym=addM(ym,step),i++){const d=`${ym}-${pad(Math.min(day,dim(+ym.slice(0,4),+ym.slice(5,7))))}`;if(e.until&&d>e.until)break;if(d>=from&&d<=to)out.push({e,date:d,amount:e.amount,cat:e.cat,prop:e.prop});}}
    else if(e.date>=from&&e.date<=to)out.push({e,date:e.date,amount:e.amount,cat:e.cat,prop:e.prop});}
-  for(const p of (S.props||[])){if(propId&&p.id!==propId)continue;const L=p.loan;if(!L||!(L.payment>0))continue;const start=(L.start||p.added||from).slice(0,7),stop=p.status==='sold'&&p.sold?p.sold.slice(0,7):null;
+  for(const p of (S.props||[])){if(propId==='__general'||propId&&p.id!==propId)continue;const L=p.loan;if(!L||!(L.payment>0))continue;const start=(L.start||p.added||from).slice(0,7),stop=p.status==='sold'&&p.sold?p.sold.slice(0,7):null;
    for(let ym=start>F?start:F,i=0;ym<=T&&i<1200;ym=addM(ym,1),i++){if(stop&&ym>stop)break;const d=`${ym}-${pad(Math.min(+L.day||1,dim(+ym.slice(0,4),+ym.slice(5,7))))}`;if(d<from||d>to)continue;
     const int=Math.min(L.payment,Math.max(0,+L.interest||0));if(int)out.push({loan:p.id,date:d,amount:int,cat:'mortgage',prop:p.id});if(L.payment-int)out.push({loan:p.id,date:d,amount:L.payment-int,cat:'principal',prop:p.id});}}
   return out.sort((a,b)=>a.date.localeCompare(b.date));}
- const income=(S,from,to,propId)=>(S.pays||[]).filter(p=>p.date>=from&&p.date<=to&&(!propId||propOf(S,p)===propId));
+ const income=(S,from,to,propId)=>propId==='__general'?[]:(S.pays||[]).filter(p=>p.date>=from&&p.date<=to&&(!propId||propOf(S,p)===propId));
  const propOf=(S,p)=>(S.leases||[]).find(l=>l.id===p.lease)?.prop||p.prop||null;
  const sum=(L,f=x=>x.amount)=>L.reduce((a,x)=>a+f(x),0);
  // money in, money out, and what's left for each month from..to (inclusive 'YYYY-MM')
@@ -3591,7 +3618,14 @@ const Rental = (()=>{
  function firstMonth(S,propId){const mine=x=>!propId||x===propId,d=[...(S.pays||[]).filter(p=>mine(propOf(S,p))).map(p=>p.date),...(S.exps||[]).filter(e=>mine(e.prop)).map(e=>e.date),...(S.props||[]).filter(p=>mine(p.id)).map(p=>p.added||'').filter(Boolean)].sort()[0];return d?d.slice(0,7):null;}
  // Schedule E for a year: rents received and each expense line, per property
  function scheduleE(S,year,today){const a=`${year}-01-01`,b=today&&today<`${year}-12-31`?today:`${year}-12-31`;return (S.props||[]).map(p=>{const ex=expenses(S,a,b,p.id),rents=sum(income(S,a,b,p.id)),lines=CATS.map(([k,l,n])=>({key:k,label:l,line:n,amount:sum(ex.filter(x=>x.cat===k))})).filter(x=>x.amount>0);
-   const deductible=sum(lines.filter(x=>x.key!=='principal'));return {prop:p,rents,lines,expenses:deductible,principal:sum(lines.filter(x=>x.key==='principal')),net:rents-deductible};});}
+   const deductible=sum(lines.filter(x=>x.key!=='principal'));return {prop:p,rents,lines,expenses:deductible,principal:sum(lines.filter(x=>x.key==='principal')),net:rents-deductible};}).concat((()=>{const ex=expenses(S,a,b,'__general');if(!ex.length)return [];
+   const lines=CATS.map(([k,l,n])=>({key:k,label:l,line:n,amount:sum(ex.filter(x=>x.cat===k))})).filter(x=>x.amount>0),d=sum(lines);return [{prop:{id:'',name:'General (not one property)',general:true},rents:0,lines,expenses:d,principal:0,net:-d}];})());}
+ // a profit & loss statement for any dates and one property (or '__general', or all): income, running costs by line,
+ // NOI, interest, net income; then principal and cash flow below the line
+ function pnl(S,from,to,propId){const pays=income(S,from,to,propId),ex=expenses(S,from,to,propId),rent=sum(pays.filter(p=>p.kind!=='fee')),fees=sum(pays.filter(p=>p.kind==='fee'));
+  const op=CATS.filter(c=>!['mortgage','otherint','principal'].includes(c[0])).map(([k,l,n])=>({key:k,label:l,line:n,amount:sum(ex.filter(x=>x.cat===k))})).filter(x=>x.amount>0);
+  const opex=sum(op),interest=sum(ex.filter(x=>x.cat==='mortgage'||x.cat==='otherint')),principal=sum(ex.filter(x=>x.cat==='principal')),inc=rent+fees,noi=inc-opex,net=noi-interest;
+  return {from,to,rent,fees,income:inc,lines:op,opex,noi,interest,net,principal,cashflow:net-principal,margin:inc>0?net/inc:null};}
  // the landlord numbers for one property (or all), from the last 12 months of real data, annualized when shorter
  function metrics(S,today,propId){const P=(S.props||[]).filter(p=>p.status!=='sold'&&(!propId||p.id===propId)),ym=today.slice(0,7),first=firstMonth(S,propId),last=addM(ym,-1);
   const units=P.reduce((a,p)=>a+(p.units||[]).length,0),R=roll(S,ym,today).filter(r=>!propId||r.prop.id===propId),occupied=R.filter(r=>!r.vacant).length,rent=sum(R.filter(r=>!r.vacant),r=>r.due);
@@ -3603,7 +3637,7 @@ const Rental = (()=>{
    capRate:value>0&&n?noi/value:null,cashOnCash:invested>0&&n?cash/invested:null,onePct:price>0?rent/price:null,dscr:debt>0&&n?noi/debt:null,value,price,invested,deposits};}
  // leases ending within `within` days (renewal or move-out to plan)
  const ending=(S,today,within=60)=>(S.leases||[]).filter(l=>l.end&&!l.out&&l.end>=today&&days(today,l.end)<=within).sort((a,b)=>a.end.localeCompare(b.end));
- return {CATS,KINDS,catName,guess,addM,mEnd,addD,days,inMonth,dueDate,leaseFor,paidFor,roll,expenses,income,months,firstMonth,scheduleE,metrics,ending,propOf};
+ return {CATS,KINDS,catName,guess,addM,mEnd,addD,days,inMonth,dueDate,leaseFor,paidFor,roll,expenses,income,months,firstMonth,scheduleE,pnl,metrics,ending,propOf};
 })();
 if(typeof module!=='undefined')module.exports=Rental;
 
@@ -4289,7 +4323,7 @@ async function startFresh(keep){
  if(backupFolder){try{if(await backupFolder.queryPermission({mode:'readwrite'})==='granted'){const file=await backupFolder.getFileHandle(`${P.storage.file}-before-start-fresh-${Budget.today()}.json`,{create:true}),w=await file.createWritable();try{await w.write(JSON.stringify(state,null,2));}finally{await w.close();}}}catch{}}
  const next=Budget.blank();
  if(keep==='setup'&&P.features.paycheck){next.settings=clone(state.settings);['btBills','btCats','categories','ppIncome','ppEnv','ppCarry','splitTags'].forEach(k=>{if(state[k]!==undefined)next[k]=clone(state[k]);});}
- else if(keep==='setup'&&P.features.rental){next.settings=clone(state.settings);['rpProps','rpLeases'].forEach(k=>{if(state[k]!==undefined)next[k]=clone(state[k]);});}
+ else if(keep==='setup'&&P.features.rental){next.settings=clone(state.settings);['rpProps','rpLeases','rpTemplates'].forEach(k=>{if(state[k]!==undefined)next[k]=clone(state[k]);});}
  else if(keep==='setup'&&P.features.netWorth){next.settings=clone(state.settings);['nwAccounts','nwTypes','nwPlan','categories'].forEach(k=>{if(state[k]!==undefined)next[k]=clone(state[k]);});const last=NetWorth.months(state.nwSnaps||[]).at(-1);if(last){const t=NetWorth.totals(state.nwAccounts||[],state.nwSnaps,last);next.nwSnaps=[{id:Budget.uid(),month:last,date:Budget.today(),values:Object.fromEntries(t.each)}];}}
  else if(keep==='setup'&&P.features.billsTracker){next.settings=clone(state.settings);['btBills','btCats','categories'].forEach(k=>{if(state[k]!==undefined)next[k]=clone(state[k]);});}
  else if(keep==='setup'&&P.features.debt){next.settings=clone(state.settings);['debts','debtPlan','debtKinds','debtImport','categories'].forEach(k=>{if(state[k]!==undefined)next[k]=clone(state[k]);});}
@@ -8113,6 +8147,7 @@ const RentalUI=(()=>{
  function attentionCard(M){const rows=[];
   M.late.forEach(r=>rows.push([`${esc(r.lease.tenant)} is ${plural(r.daysLate,'day')} late`,`${fmt(r.left)} of ${fmt(r.due)} for ${unitLabel(r.prop,r.unit)} was due ${dayName(r.dueDate)}.${r.lateFee?` Your lease’s late fee: ${fmt(r.lateFee)}.`:''}`,button('Record payment','rp-pay','small primary',`data-lease="${r.lease.id}" data-month="${M.m}"`)+(r.lateFee?button('Add late fee','rp-fee','small quiet',`data-lease="${r.lease.id}" data-month="${M.m}"`):''),'neg']));
   M.ending.forEach(l=>{const p=prop(l.prop);rows.push([`${esc(l.tenant)}’s lease ends ${dayName(l.end)}`,`${unitLabel(p,unitOf(p,l.unit))}, in ${plural(R.days(M.t,l.end),'day')}. Renew it, or plan the move-out.`,button('Renew','rp-lease-edit','small',`data-id="${l.id}" data-renew="1"`)+button('Move-out','rp-lease-out','small quiet',`data-id="${l.id}"`),'warn']);});
+  jobs().filter(j=>j.status!=='done'&&j.urgent).forEach(j=>{const p=prop(j.prop),l=lease(j.lease);rows.push([`Urgent repair: ${esc(j.title)}`,`${p?unitLabel(p,unitOf(p,j.unit)):''}${l?` · reported by ${esc(l.tenant)}`:''} on ${dayName(j.reported)}${j.when?` · scheduled ${dayName(j.when)}`:''}.`,button('Mark done','rp-job-done','small primary',`data-id="${j.id}"`)+button('Open','rp-job-edit','small quiet',`data-id="${j.id}"`),'neg']);});
   M.vacant.forEach(r=>rows.push([`${unitLabel(r.prop,r.unit)} is vacant`,`No tenant this month. Add one when it’s rented.`,button('Add a tenant','rp-lease-add','small',`data-prop="${r.prop.id}" data-unit="${r.unit.id}"`),'']));
   if(!rows.length)return '';
   return `<section class="card debt-warn"><div class="cardhead"><div><h2>Needs your attention</h2><p>${plural(rows.length,'thing')}</p></div></div>${rows.slice(0,8).map(([h,p,a,t])=>`<div class="row warn-row bt-warn ${t}"><span><b>${h}</b><small>${p}</small></span><span class="row-acts">${a}</span></div>`).join('')}</section>`;}
@@ -8141,16 +8176,16 @@ const RentalUI=(()=>{
  // ---------- properties ----------
  let layout='grid';
  function propsView(){const M=model(),list=props();
-  const head=pagehead('What you own','Properties','Each property’s rent, cash flow and returns.',(list.length?`<div class="segment no-print" role="group" aria-label="Layout">${[['grid','Grid'],['table','Table']].map(([k,l])=>`<button data-action="rp-layout" data-k="${k}" aria-pressed="${layout===k}">${l}</button>`).join('')}</div>`:'')+button('Add a property','rp-prop-add','primary'));
+  const head=pagehead('What you own','Properties','Each property’s rent, cash flow and returns.',(list.length?`<div class="segment no-print" role="group" aria-label="Layout">${[['grid','Grid'],['compact','Compact'],['table','Table']].map(([k,l])=>`<button data-action="rp-layout" data-k="${k}" aria-pressed="${layout===k}">${l}</button>`).join('')}</div>`:'')+button('Add a property','rp-prop-add','primary'));
   if(!list.length)return head+stepsCard(M);
   const a=M.all,kp=`<div class="kpis">${kpi('Monthly rent',a.rent,`${a.occupied} of ${plural(a.units,'unit')} rented`,'wallet')}${kpi('Value',a.value,a.price?`${signed(a.value-a.price)} since you bought`:'Add purchase prices to compare','coins')}<div class="kpi"><div class="label">${kpiIco('spark')}Cap rate</div><b>${pctTxt(a.capRate)}</b><small>${a.capRate===null?'Add values, then rent and expenses':'NOI ÷ value'}</small></div><div class="kpi"><div class="label">${kpiIco('outlook')}Cash-on-cash</div><b>${pctTxt(a.cashOnCash)}</b><small>${a.cashOnCash===null?'Add the cash you put in':'Cash flow ÷ cash invested'}</small></div></div>`;
   const row=(l,v,cls='')=>`<div class="dg-row ${cls}"><span>${l}</span><b>${v}</b></div>`;
-  const cards=layout==='table'?`<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Property</th><th>Type</th><th class="num">Units</th><th class="num">Rent a month</th><th class="num">Cash flow a year</th><th class="num">Cap rate</th><th class="num">Cash-on-cash</th><th class="num">Value</th><th class="num">Actions</th></tr></thead><tbody>${list.map(p=>{const m=M.each.get(p.id);return `<tr class="${p.status==='sold'?'is-off':''}"><td><button class="link" data-action="rp-prop-edit" data-id="${p.id}">${dot(colorOf(p))}${esc(p.name)}</button></td><td>${esc((R.KINDS.find(k=>k[0]===p.kind)||R.KINDS[4])[1])}</td><td class="num">${m.occupied}/${m.units}</td><td class="num">${fmt(m.rent)}</td><td class="num ${m.cashflow<0?'neg':''}">${m.months?fmt(m.cashflow):'—'}</td><td class="num">${pctTxt(m.capRate)}</td><td class="num">${pctTxt(m.cashOnCash)}</td><td class="num">${p.value?fmt(p.value):'—'}</td><td class="num nw"><div class="row-acts">${propActs(p)}</div></td></tr>`;}).join('')}</tbody></table></div></section>`:
-   `<div class="debt-grid">${list.map(p=>{const m=M.each.get(p.id),units=(p.units||[]).map(u=>{const l=R.leaseFor(M.s,u.id,M.m);return `<div class="pp-bill"><span>${esc(u.name)} <small class="dim">${l?esc(l.tenant):'vacant'}</small></span><b class="number">${l?fmt(l.rent):'—'}</b></div>`;}).join('');
-    return `<section class="debt-card${p.status==='sold'?' is-hold':''}" style="--c:${colorOf(p)}"><header class="dg-head"><button class="dg-name" data-action="rp-prop-edit" data-id="${p.id}">${esc(p.name)}</button><small>${esc((R.KINDS.find(k=>k[0]===p.kind)||R.KINDS[4])[1])}${p.addr?' · '+esc(p.addr):''}</small></header><div class="bt-amt"><strong>${fmt(m.rent)}</strong><span>rent a month · ${m.occupied}/${plural(m.units,'unit')} rented</span></div>`+
-     `<div class="dg-rows">${row('Cash flow a year',m.months?`<span class="${m.cashflow<0?'neg':'pos'}">${signed(m.cashflow)}</span>`:'—','dg-hi')}${row('NOI a year',m.months?fmt(m.noi):'—')}${row('Cap rate',pctTxt(m.capRate))}${row('Cash-on-cash',pctTxt(m.cashOnCash))}${row('1% rule',m.onePct===null?'—':`${pctTxt(m.onePct,2)} ${m.onePct>=.01?'✓':''}`)}${row('Value',p.value?fmt(p.value):'—')}${p.loan?.payment?row('Mortgage',`${fmt(p.loan.payment)} a month`):''}${row('Deposits held',fmt(m.deposits))}</div>`+
-     `<div class="pp-bills">${units}</div><div class="dg-actions no-print">${button('＋ Tenant','rp-lease-add','small quiet',`data-prop="${p.id}"`)}<div class="row-acts">${propActs(p)}</div></div></section>`;}).join('')}</div>`;
-  return head+kp+cards;}
+  const cards=layout==='table'?`<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Property</th><th>Type</th><th class="num">Units</th><th class="num">Rent a month</th><th class="num">Cash flow a year</th><th class="num">Cap rate</th><th class="num">Cash-on-cash</th><th class="num">Value</th><th class="num">Actions</th></tr></thead><tbody>${list.map(p=>{const m=M.each.get(p.id);return `<tr class="${p.status==='sold'?'is-off':''}"><td><button class="link rp-pname" data-action="rp-prop-edit" data-id="${p.id}">${p.photo?`<img class="rp-thumb" src="${p.photo}" alt="">`:dot(colorOf(p))}${esc(p.name)}</button></td><td>${esc((R.KINDS.find(k=>k[0]===p.kind)||R.KINDS[4])[1])}</td><td class="num">${m.occupied}/${m.units}</td><td class="num">${fmt(m.rent)}</td><td class="num ${m.cashflow<0?'neg':''}">${m.months?fmt(m.cashflow):'—'}</td><td class="num">${pctTxt(m.capRate)}</td><td class="num">${pctTxt(m.cashOnCash)}</td><td class="num">${p.value?fmt(p.value):'—'}</td><td class="num nw"><div class="row-acts">${propActs(p)}</div></td></tr>`;}).join('')}</tbody></table></div></section>`:
+   `<div class="debt-grid${layout==='compact'?' rp-compact':''}">${list.map(p=>{const m=M.each.get(p.id),small=layout==='compact',units=(p.units||[]).map(u=>{const l=R.leaseFor(M.s,u.id,M.m);return `<div class="pp-bill"><span>${esc(u.name)} <small class="dim">${l?esc(l.tenant):'vacant'}</small></span><b class="number">${l?fmt(l.rent):'—'}</b></div>`;}).join('');
+    return `<section class="debt-card rp-pcard${p.status==='sold'?' is-hold':''}${p.photo?' has-photo':''}" style="--c:${colorOf(p)}">${p.photo?`<button class="rp-photo" data-action="rp-prop-edit" data-id="${p.id}" aria-label="Edit ${esc(p.name)}"><img src="${p.photo}" alt=""></button>`:''}<header class="dg-head"><button class="dg-name" data-action="rp-prop-edit" data-id="${p.id}">${esc(p.name)}</button><small>${esc((R.KINDS.find(k=>k[0]===p.kind)||R.KINDS[4])[1])}${p.addr?' · '+esc(p.addr):''}</small></header><div class="bt-amt"><strong>${fmt(m.rent)}</strong><span>rent a month · ${m.occupied}/${plural(m.units,'unit')} rented</span></div>`+
+     `<div class="dg-rows">${row('Cash flow a year',m.months?`<span class="${m.cashflow<0?'neg':'pos'}">${signed(m.cashflow)}</span>`:'—','dg-hi')}${row('Cap rate',pctTxt(m.capRate))}${small?'':row('NOI a year',m.months?fmt(m.noi):'—')}${small?'':row('Cash-on-cash',pctTxt(m.cashOnCash))+row('1% rule',m.onePct===null?'—':`${pctTxt(m.onePct,2)} ${m.onePct>=.01?'✓':''}`)+row('Value',p.value?fmt(p.value):'—')+(p.loan?.payment?row('Mortgage',`${fmt(p.loan.payment)} a month`):'')+row('Deposits held',fmt(m.deposits))}</div>`+
+     `${small?'':`<div class="pp-bills">${units}</div>`}<div class="dg-actions no-print">${button('＋ Tenant','rp-lease-add','small quiet',`data-prop="${p.id}"`)}<div class="row-acts">${propActs(p)}</div></div></section>`;}).join('')}</div>`;
+  return head+kp+(layout==='compact'?`<p class="small muted rp-note no-print">Compact: the two numbers that matter most. Switch to Grid for the rest.</p>`:'')+cards;}
  const propActs=p=>`<button class="icon-action" data-action="rp-prop-edit" data-id="${p.id}" title="Edit ${esc(p.name)}" aria-label="Edit ${esc(p.name)}">${ico('edit')}</button><button class="icon-action" data-action="rp-ledger" data-prop="${p.id}" title="Money in and out for ${esc(p.name)}" aria-label="History of ${esc(p.name)}">${ico('insights')}</button><button class="icon-action danger" data-action="rp-prop-del" data-id="${p.id}" title="Delete ${esc(p.name)}" aria-label="Delete ${esc(p.name)}">${ico('trash')}</button>`;
 
  // ---------- tenants and leases ----------
@@ -8160,23 +8195,23 @@ const RentalUI=(()=>{
   if(!props().length)return head+stepsCard(M);
   if(!leases().length)return head+`<section class="card">${empty('No tenants yet','Add who rents each unit: the rent, the day it’s due and the deposit. Rent then shows on your rent roll every month.','rp-lease-add','Add a tenant')}</section>`;
   const st=l=>l.out&&l.out<M.t||l.end&&l.end<M.t?['Past','dim']:l.end&&R.days(M.t,l.end)<=60?['Ending soon','warn']:!l.end?['Month-to-month','']:['Active','pos'];
-  return head+`<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Tenant</th><th>Property · unit</th><th class="num">Rent</th><th class="num">Due</th><th>Lease</th><th class="num">Deposit</th><th>Status</th><th class="num">Actions</th></tr></thead><tbody>${L.map(l=>{const p=prop(l.prop),[s,t]=st(l);return `<tr><td><button class="link" data-action="rp-lease-edit" data-id="${l.id}">${esc(l.tenant)}</button></td><td>${p?`${dot(colorOf(p))}${unitLabel(p,unitOf(p,l.unit))}`:'—'}</td><td class="num">${fmt(l.rent)}</td><td class="num">${ordinal(l.due||1)}</td><td>${dayName(l.start)} – ${l.end?dayName(l.end)+' '+l.end.slice(0,4):'month to month'}</td><td class="num">${l.deposit?fmt(l.deposit):'—'}</td><td><span class="rp-chip ${t}">${s}</span></td><td class="num nw"><div class="row-acts">${button('Payments','rp-ledger','small quiet',`data-lease="${l.id}"`)}<button class="icon-action" data-action="rp-lease-edit" data-id="${l.id}" title="Edit ${esc(l.tenant)}" aria-label="Edit ${esc(l.tenant)}">${ico('edit')}</button><button class="icon-action danger" data-action="rp-lease-del" data-id="${l.id}" title="Delete ${esc(l.tenant)}" aria-label="Delete ${esc(l.tenant)}">${ico('trash')}</button></div></td></tr>`;}).join('')}</tbody></table></div></section>`;}
+  return head+`<section class="card table-card"><div class="table-wrap"><table class="tbl-always"><thead><tr><th>Tenant</th><th data-filter>Property</th><th>Unit</th><th class="num">Rent</th><th class="num">Due</th><th>Lease</th><th class="num">Deposit</th><th data-filter>Status</th><th class="num">Actions</th></tr></thead><tbody>${L.map(l=>{const p=prop(l.prop),[s,t]=st(l);return `<tr><td><button class="link" data-action="rp-lease-edit" data-id="${l.id}">${esc(l.tenant)}</button></td><td>${p?`${dot(colorOf(p))}${esc(p.name)}`:'—'}</td><td>${esc(unitOf(p,l.unit)?.name||'—')}</td><td class="num">${fmt(l.rent)}</td><td class="num">${ordinal(l.due||1)}</td><td>${dayName(l.start)} – ${l.end?dayName(l.end)+' '+l.end.slice(0,4):'month to month'}</td><td class="num">${l.deposit?fmt(l.deposit):'—'}</td><td><span class="rp-chip ${t}">${s}</span></td><td class="num nw"><div class="row-acts">${button('Payments','rp-ledger','small quiet',`data-lease="${l.id}"`)}<button class="icon-action" data-action="rp-lease-edit" data-id="${l.id}" title="Edit ${esc(l.tenant)}" aria-label="Edit ${esc(l.tenant)}">${ico('edit')}</button><button class="icon-action danger" data-action="rp-lease-del" data-id="${l.id}" title="Delete ${esc(l.tenant)}" aria-label="Delete ${esc(l.tenant)}">${ico('trash')}</button></div></td></tr>`;}).join('')}</tbody></table></div></section>`;}
  const ordinal=n=>{n=+n;const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);};
 
  // ---------- expenses ----------
  let expProp='',expYear='';
- function expensesView(){const M=model(),y=expYear||M.t.slice(0,4),to=y===M.t.slice(0,4)?M.t:`${y}-12-31`,occ=R.expenses(M.s,`${y}-01-01`,to,expProp||undefined),total=occ.reduce((a,x)=>a+x.amount,0);
-  const years=[...new Set([M.first?.slice(0,4)||y,M.t.slice(0,4)])],multi=years[0]<years.at(-1);
-  const head=pagehead('Money out','Expenses',`Repairs, insurance, taxes and the rest, each on its Schedule E line. Repeating ones add themselves.`,(multi?`<div class="due-nav">${button('‹','rp-exp-prev','quiet','aria-label="Previous year"')}<b>${y}</b>${button('›','rp-exp-next','quiet','aria-label="Next year"')}</div>`:'')+button('Add an expense','rp-exp-add','primary'));
+ function expensesView(){const M=model(),[a,b]=rangeOf(expRange),occ=R.expenses(M.s,a,b,expProp||undefined),total=occ.reduce((x,y)=>x+y.amount,0);
+  const head=pagehead(rangeLabel(expRange),'Expenses','Repairs, insurance, taxes and the rest, each on its Schedule E line. Repeating ones add themselves.',(props().length?button('Import bank CSV','rp-go','quiet','data-to="rpimport"')+button('Export CSV','rp-exps-csv',''):'')+button('Add an expense','rp-exp-add','primary'));
   if(!props().length)return head+stepsCard(M);
-  const by=new Map();occ.forEach(x=>by.set(x.cat,(by.get(x.cat)||0)+x.amount));const top=[...by].filter(([k])=>k!=='principal').sort((a,b)=>b[1]-a[1]);
-  const kp=`<div class="kpis">${kpi(`Expenses · ${y}${y===M.t.slice(0,4)?' so far':''}`,total,`${plural(occ.length,'entry','entries')}`,'down')}${kpi('Deductible',total-(by.get('principal')||0),'everything but loan principal','spark')}${kpi('Repairs',by.get('repairs')||0,'Schedule E line 14','tool' in ICON?'tool':'edit')}${kpi('Biggest',top[0]?.[1]||0,top[0]?R.catName(top[0][0]):'—','coins')}</div>`;
-  const chips=props().length>1?`<div class="dg-chips no-print" role="group" aria-label="Property">${[['','All properties'],...props().map(p=>[p.id,p.name])].map(([k,l])=>`<button class="dl-chip" data-action="rp-exp-prop" data-k="${k}" aria-pressed="${expProp===k}" style="--c:${k?colorOf(prop(k)):'var(--accent)'}"><span>${esc(l)}</span></button>`).join('')}</div>`:'';
+  const by=new Map();occ.forEach(x=>by.set(x.cat,(by.get(x.cat)||0)+x.amount));const top=[...by].filter(([k])=>k!=='principal').sort((x,y)=>y[1]-x[1]);
+  const kp=`<div class="kpis">${kpi('Expenses',total,`${plural(occ.length,'entry','entries')}${expProp?' · '+esc(expProp==='__general'?'General':prop(expProp)?.name||''):''}`,'down')}${kpi('Deductible',total-(by.get('principal')||0),'everything but loan principal','spark')}${kpi('Repairs',by.get('repairs')||0,'Schedule E line 14','edit')}${kpi('Biggest',top[0]?.[1]||0,top[0]?R.catName(top[0][0]):'—','coins')}</div>`;
+  const opts=[['','All properties','var(--accent)'],...props().map(p=>[p.id,p.name,colorOf(p)]),...(hasGeneral()?[['__general','General','var(--muted)']]:[])];
+  const chips=opts.length>2?`<div class="dg-chips no-print" role="group" aria-label="Property">${opts.map(([k,l,c])=>`<button class="dl-chip" data-action="rp-exp-prop" data-k="${k}" aria-pressed="${expProp===k}" style="--c:${c}"><span>${esc(l)}</span></button>`).join('')}</div>`:'';
   const parts=top.slice(0,8).map(([k,v],i)=>[R.catName(k),v,SLICE_COLORS[i%SLICE_COLORS.length]]);
-  const donut=`<section class="card"><div class="cardhead"><div><h2>By Schedule E line</h2><p>${y}${expProp?' · '+esc(prop(expProp)?.name||''):''}</p></div></div>${parts.length?donutMarkup(parts,parts.reduce((a,x)=>a+x[1],0),'deductible'):empty('Nothing yet','Add your first expense.','rp-exp-add','Add an expense')}</section>`;
-  const list=[...occ].reverse().slice(0,400);
-  const table=`<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Property</th><th>What</th><th>Schedule E line</th><th class="num">Amount</th><th>Repeats</th><th class="num">Actions</th></tr></thead><tbody>${list.map(x=>{const p=prop(x.prop),e=x.e;return `<tr><td>${dayName(x.date)}</td><td>${p?dot(colorOf(p))+esc(p.name):'—'}</td><td>${e?esc(e.note||R.catName(e.cat)):'Mortgage payment'}</td><td>${esc(R.catName(x.cat))}</td><td class="num">${fmt(x.amount)}</td><td>${e?(e.repeat==='monthly'?'Monthly':e.repeat==='yearly'?'Yearly':'—'):'Monthly (loan)'}</td><td class="num nw"><div class="row-acts">${e?`<button class="icon-action" data-action="rp-exp-edit" data-id="${e.id}" title="Edit" aria-label="Edit expense">${ico('edit')}</button><button class="icon-action danger" data-action="rp-exp-del" data-id="${e.id}" title="Delete" aria-label="Delete expense">${ico('trash')}</button>`:`<button class="icon-action" data-action="rp-prop-edit" data-id="${x.prop}" title="Edit the mortgage on ${esc(p?.name||'')}" aria-label="Edit mortgage">${ico('edit')}</button>`}</div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty('No expenses yet','Add repairs, insurance, property taxes, HOA fees and the rest. Monthly and yearly ones repeat on their own.','rp-exp-add','Add an expense')}</td></tr>`}</tbody></table></div></section>`;
-  return head+kp+chips+`<div class="grid2 equal">${donut}${presetCard()}</div>`+table;}
+  const donut=`<section class="card"><div class="cardhead"><div><h2>By Schedule E line</h2><p>${esc(rangeLabel(expRange))}${expProp?' · '+esc(expProp==='__general'?'General':prop(expProp)?.name||''):''}</p></div></div>${parts.length?donutMarkup(parts,parts.reduce((x,y)=>x+y[1],0),'deductible'):empty('Nothing in these dates','Pick other dates above, or add an expense.','rp-exp-add','Add an expense')}</section>`;
+  const list=[...occ].reverse().slice(0,600);
+  const table=`<section class="card table-card rp-tall"><div class="table-wrap"><table class="tbl-always"><thead><tr><th>Date</th><th data-filter>Property</th><th>What</th><th data-filter>Schedule E line</th><th class="num">Amount</th><th>Repeats</th><th class="num">Actions</th></tr></thead><tbody>${list.map(x=>{const p=prop(x.prop),e=x.e;return `<tr><td>${dayName(x.date)} ${x.date.slice(0,4)}</td><td>${p?dot(colorOf(p))+esc(p.name):'General'}</td><td>${e?esc(e.note||R.catName(e.cat)):'Mortgage payment'}</td><td>${esc(R.catName(x.cat))}</td><td class="num">${fmt(x.amount)}</td><td>${e?(e.repeat==='monthly'?'Monthly':e.repeat==='yearly'?'Yearly':'Once'):'Monthly (loan)'}</td><td class="num nw"><div class="row-acts">${e?`<button class="icon-action" data-action="rp-exp-edit" data-id="${e.id}" title="Edit" aria-label="Edit expense">${ico('edit')}</button><button class="icon-action danger" data-action="rp-exp-del" data-id="${e.id}" title="Delete" aria-label="Delete expense">${ico('trash')}</button>`:`<button class="icon-action" data-action="rp-prop-edit" data-id="${x.prop}" title="Edit the mortgage on ${esc(p?.name||'')}" aria-label="Edit mortgage">${ico('edit')}</button>`}</div></td></tr>`;}).join('')||`<tr><td colspan="7">${exps().length||props().some(p=>p.loan)?empty('Nothing in these dates','Pick other dates above.'):empty('No expenses yet','Add repairs, insurance, property taxes, HOA fees and the rest. Monthly and yearly ones repeat on their own.','rp-exp-add','Add an expense')}</td></tr>`}</tbody></table></div></section>`;
+  return head+`<div class="rp-controls no-print">${rangeBar(expRange,'rp-exp-range')}</div>`+chips+kp+`<div class="grid2 equal">${byPropCard(M,a,b)}${donut}</div>`+table+presetCard();}
  const EXP_PRESETS=[['Property taxes','taxes','yearly'],['Insurance','insurance','yearly'],['HOA fees','hoa','monthly'],['Repairs','repairs','once'],['Lawn & snow','cleaning','monthly'],['Utilities','utilities','monthly'],['Property manager','management','monthly'],['Supplies','supplies','once']];
  const presetCard=()=>`<section class="card"><div class="cardhead"><div><h2>The usual ones</h2><p>One click, then the amount. Repeating ones add themselves each month or year.</p></div></div><div class="bt-presets">${EXP_PRESETS.map((x,i)=>`<button class="dl-chip" data-action="rp-exp-add" data-preset="${i}" style="--c:var(--accent)"><span>＋ ${esc(x[0])}</span></button>`).join('')}</div></section>`;
 
@@ -8198,11 +8233,11 @@ const RentalUI=(()=>{
  // ---------- money in: the rent ledger ----------
  let ledLease='',ledProp='';
  function ledgerView(){const M=model(),L=pays().filter(p=>(!ledLease||p.lease===ledLease)&&(!ledProp||R.propOf(M.s,p)===ledProp)).sort((a,b)=>b.date.localeCompare(a.date)),who=ledLease?lease(ledLease):null,wp=ledProp?prop(ledProp):null;
-  const head=pagehead('Money in','Rent ledger',who?`Every payment from ${esc(who.tenant)}.`:wp?`Every payment for ${esc(wp.name)}.`:'Every rent payment and fee, newest first.',(who||wp?button('All payments','rp-ledger','quiet'):'')+(pays().length?button('Export CSV','rp-pays-csv',''):'')+(props().length?button('Record rent','rp-pay','primary'):''));
+  const head=pagehead('Money in','Rent ledger',who?`Every payment from ${esc(who.tenant)}.`:wp?`Every payment for ${esc(wp.name)}.`:'Every rent payment and fee, newest first.',(who||wp?button('All payments','rp-ledger','quiet'):'')+(props().length?button('Import bank CSV','rp-go','quiet','data-to="rpimport"'):'')+(pays().length?button('Export CSV','rp-pays-csv',''):'')+(props().length?button('Record rent','rp-pay','primary'):''));
   if(!props().length)return head+stepsCard(M);
   const tot=L.reduce((a,p)=>a+p.amount,0);
   return head+`<div class="kpis">${kpi('Received',tot,plural(L.length,'payment'),'wallet','pos')}${kpi('This year',L.filter(p=>p.date.slice(0,4)===M.t.slice(0,4)).reduce((a,p)=>a+p.amount,0),M.t.slice(0,4),'calendar')}${kpi('Late fees & other',L.filter(p=>p.kind==='fee').reduce((a,p)=>a+p.amount,0),'counted as rent on Schedule E','spark')}${kpi('Deposits held',M.all.deposits,'not income until kept','shield' in ICON?'shield':'coins')}</div>`+
-   `<section class="card table-card"><div class="table-wrap"><table><thead><tr><th>Received</th><th>Tenant</th><th>Property</th><th>For</th><th class="num">Amount</th><th>Note</th><th class="num">Actions</th></tr></thead><tbody>${L.map(p=>{const l=lease(p.lease),pr=l?prop(l.prop):null;return `<tr><td>${dayName(p.date)} ${p.date.slice(0,4)}</td><td>${l?esc(l.tenant):'—'}</td><td>${pr?dot(colorOf(pr))+unitLabel(pr,unitOf(pr,l.unit)):'—'}</td><td>${p.kind==='fee'?'Late fee':monthName(p.month)}</td><td class="num">${fmt(p.amount)}</td><td>${esc(p.note||'')}</td><td class="num nw"><div class="row-acts"><button class="icon-action" data-action="rp-pay-edit" data-id="${p.id}" title="Edit payment" aria-label="Edit payment">${ico('edit')}</button><button class="icon-action danger" data-action="rp-pay-del" data-id="${p.id}" title="Delete payment" aria-label="Delete payment">${ico('trash')}</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty('No payments yet','Record rent as it arrives, from the rent roll or the button above.','rp-pay','Record rent')}</td></tr>`}</tbody></table></div></section>`;}
+   `<section class="card table-card rp-tall"><div class="table-wrap"><table class="tbl-always"><thead><tr><th>Received</th><th data-filter>Tenant</th><th data-filter>Property</th><th>For</th><th class="num">Amount</th><th>Note</th><th class="num">Actions</th></tr></thead><tbody>${L.map(p=>{const l=lease(p.lease),pr=l?prop(l.prop):null;return `<tr><td>${dayName(p.date)} ${p.date.slice(0,4)}</td><td>${l?esc(l.tenant):'—'}</td><td>${pr?dot(colorOf(pr))+unitLabel(pr,unitOf(pr,l.unit)):'—'}</td><td>${p.kind==='fee'?'Late fee':monthName(p.month)}</td><td class="num">${fmt(p.amount)}</td><td>${esc(p.note||'')}</td><td class="num nw"><div class="row-acts"><button class="icon-action" data-action="rp-pay-edit" data-id="${p.id}" title="Edit payment" aria-label="Edit payment">${ico('edit')}</button><button class="icon-action danger" data-action="rp-pay-del" data-id="${p.id}" title="Delete payment" aria-label="Delete payment">${ico('trash')}</button></div></td></tr>`;}).join('')||`<tr><td colspan="7">${empty('No payments yet','Record rent as it arrives, from the rent roll or the button above.','rp-pay','Record rent')}</td></tr>`}</tbody></table></div></section>`;}
 
  // ---------- forms ----------
  function propForm(id=''){const p=prop(id),e=p||{kind:'single',units:[{name:'Whole property'}]},n=(e.units||[]).length||1;
@@ -8212,6 +8247,7 @@ const RentalUI=(()=>{
    <label>Units<input name="count" type="number" min="1" max="60" value="${n}" inputmode="numeric"><small>A house is 1 unit; a duplex is 2.</small></label>
    <label class="full rp-unitnames" ${n>1?'':'hidden'}>Unit names <span class="dim">(optional, comma separated)</span><input name="unames" maxlength="400" value="${esc((e.units||[]).map(u=>u.name).join(', '))}" placeholder="Unit A, Unit B"></label>
    <label class="full">Address <span class="dim">(optional)</span><input name="addr" maxlength="120" value="${esc(e.addr||'')}" placeholder="e.g. 12 Maple St"></label>
+   ${photoPick(e)}
    <label>What it’s worth today<input name="value" inputmode="decimal" value="${e.value?num(e.value):''}" placeholder="e.g. 325,000"><small>For cap rate and equity.</small></label>
    <label>Purchase price <span class="dim">(optional)</span><input name="price" inputmode="decimal" value="${e.price?num(e.price):''}" placeholder="e.g. 280,000"></label>
    <label>Cash you put in <span class="dim">(optional)</span><input name="invested" inputmode="decimal" value="${e.invested?num(e.invested):''}" placeholder="Down payment + closing + repairs"><small>For cash-on-cash return.</small></label>
@@ -8251,10 +8287,10 @@ const RentalUI=(()=>{
    </div>${formFoot(old?'Save':'Record payment')}</form>`);}
  function feeForm(leaseId,ym){const l=lease(leaseId);if(!l)return;
   modal(`Late fee: ${esc(l.tenant)}`,'A late fee you charged and received. It counts as rent income on Schedule E.',`<form id="rp-fee-form" data-lease="${leaseId}" data-month="${ym}"><div class="fields"><label>Amount<input name="amount" inputmode="decimal" required value="${l.lateFee?num(l.lateFee):''}" autofocus></label><label>Received on<input type="date" name="date" required value="${today()}" max="${today()}"></label></div>${formFoot('Record fee')}</form>`);}
- function expForm(id='',pre={}){const x=exp(id),e=x||{repeat:'once',...pre},list=props();if(!list.length)return propForm();
+ function expForm(id='',pre={}){const x=exp(id),e=x||{repeat:'once',...pre},list=props();if(!list.length)return propForm();const cur=x?x.prop:e.prop??(expProp==='__general'?'':expProp&&prop(expProp)?expProp:list[0].id);
   modal(x?'Edit expense':'Add an expense',x?(x.repeat!=='once'?'Changes apply to every repeat.':'Change anything about this expense.'):'What it was, for which property, and whether it repeats.',`<form id="rp-exp-form" data-id="${x?id:''}" ${x?'':'data-auto="1"'}><div class="fields">
    <label class="full">What was it<input name="note" required maxlength="80" value="${esc(e.note||'')}" placeholder="e.g. Plumber, Property taxes, Lawn care" ${x?'':'autofocus'}></label>
-   <label>Property<select name="prop">${list.map(p=>`<option value="${p.id}" ${(e.prop||expProp||list[0].id)===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>
+   <label>Property<select name="prop">${list.map(p=>`<option value="${p.id}" ${cur===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}<option value="" ${cur===''?'selected':''}>General (not one property)</option></select><small>General: costs for all your rentals, like bookkeeping software.</small></label>
    <label>Schedule E line<select name="cat">${R.CATS.filter(c=>c[0]!=='principal'&&c[0]!=='mortgage').map(([k,l,n])=>`<option value="${k}" ${(e.cat||'other')===k?'selected':''}>${l} (line ${n})</option>`).join('')}</select><small class="rp-cat-hint">${x?'':'Guessed from what you type; pick another anytime.'}</small></label>
    <label>Amount<input name="amount" inputmode="decimal" required value="${e.amount?num(e.amount):''}" placeholder="0.00"></label>
    <label>Date paid<input type="date" name="date" required value="${e.date||today()}"></label>
@@ -8273,7 +8309,7 @@ const RentalUI=(()=>{
   try{const F=new FormData(f),id=f.dataset.id;switch(f.id){
    case 'rp-prop-form':{const old=prop(id),name=String(F.get('name')||'').trim().slice(0,50);if(!name)throw Error('Give the property a name.');const loan=cents(F.get('loan'))||0,int=cents(F.get('interest'))||0;if(int>loan)throw Error('Interest can’t be more than the payment.');
     const units=parseUnits(F,old?.units);if(old){const gone=(old.units||[]).filter(u=>!units.some(x=>x.id===u.id));if(gone.some(u=>leases().some(l=>l.unit===u.id)))throw Error('A unit you removed has a tenant. Move the tenant out or delete the lease first.');}
-    const p={...(old||{id:Budget.uid(),color:props().length,added:today()}),name,kind:String(F.get('kind')||'single'),units,addr:String(F.get('addr')||'').trim().slice(0,120)||undefined,value:cents(F.get('value'))||undefined,price:cents(F.get('price'))||undefined,invested:cents(F.get('invested'))||undefined,loan:loan?{payment:loan,...(int?{interest:int}:{}),...(old?.loan?.start?{start:old.loan.start}:{start:old?today():today()})}:undefined};
+    const ph=f._photo===undefined?old?.photo:f._photo||undefined;const p={...(old||{id:Budget.uid(),color:props().length,added:today()}),photo:ph,name,kind:String(F.get('kind')||'single'),units,addr:String(F.get('addr')||'').trim().slice(0,120)||undefined,value:cents(F.get('value'))||undefined,price:cents(F.get('price'))||undefined,invested:cents(F.get('invested'))||undefined,loan:loan?{payment:loan,...(int?{interest:int}:{}),...(old?.loan?.start?{start:old.loan.start}:{start:old?today():today()})}:undefined};
     if(old){if(F.get('sold')==='on'){p.status='sold';p.sold=old.sold||today();}else{delete p.status;delete p.sold;}}Object.keys(p).forEach(k=>p[k]===undefined&&delete p[k]);
     closeModal();commit(()=>{if(old)state.rpProps[state.rpProps.indexOf(old)]=p;else props().push(p);},old?`${name} saved`:`${name} added · ${plural(units.length,'unit')}`);break;}
    case 'rp-lease-form':{const old=lease(id),[pid,uid]=String(F.get('unit')||'').split('|'),tenant=String(F.get('tenant')||'').trim().slice(0,60),rent=cents(F.get('rent')),start=String(F.get('start')||''),end=String(F.get('end')||'');
@@ -8288,7 +8324,7 @@ const RentalUI=(()=>{
     closeModal();commit(()=>{if(old)state.rpPays[state.rpPays.indexOf(old)]=x;else pays().push(x);},'');const l=lease(lid),left=l?Math.max(0,l.rent-R.paidFor(S(),lid,month)):0;toast(`${l?.tenant}: ${fmt(amount)} recorded${left?` · ${fmt(left)} still due for ${monthShort(month)}`:` · ${monthShort(month)} paid in full ✓`}`,true);break;}
    case 'rp-fee-form':{const amount=cents(F.get('amount'));if(!amount)throw Error('Enter the fee.');closeModal();commit(()=>{pays().push({id:Budget.uid(),lease:f.dataset.lease,month:f.dataset.month,date:String(F.get('date')||today()),amount,kind:'fee'});},`Late fee recorded · ${fmt(amount)}`);break;}
    case 'rp-exp-form':{const old=exp(id),note=String(F.get('note')||'').trim().slice(0,80),amount=cents(F.get('amount')),date=String(F.get('date')||''),repeat=['monthly','yearly'].includes(F.get('repeat'))?F.get('repeat'):'once',until=String(F.get('until')||'');if(!note)throw Error('What was it for?');if(!amount)throw Error('Enter the amount.');if(!date)throw Error('When was it paid?');
-    const x={...(old||{id:Budget.uid()}),prop:String(F.get('prop')),cat:String(F.get('cat')||'other'),note,amount,date,repeat,...(repeat!=='once'&&until?{until}:{})};if(repeat==='once'||!until)delete x.until;
+    const pid=String(F.get('prop')||'');if(pid&&!prop(pid))throw Error('Pick a property.');const x={...(old||{id:Budget.uid()}),prop:pid,cat:String(F.get('cat')||'other'),note,amount,date,repeat,...(repeat!=='once'&&until?{until}:{})};if(repeat==='once'||!until)delete x.until;
     closeModal();commit(()=>{if(old)state.rpExps[state.rpExps.indexOf(old)]=x;else exps().push(x);},old?'Expense saved':`${note} added · ${fmt(amount)}${repeat==='once'?'':repeat==='monthly'?' a month':' a year'}`);break;}
   }}catch(err){const box=$('#form-error');if(box&&$('#modal').open){box.textContent=err.message;box.hidden=false;}else toast(err.message);}});
 
@@ -8298,13 +8334,13 @@ const RentalUI=(()=>{
   try{switch(a){
    case 'rp-prop-add':propForm();break;
    case 'rp-prop-edit':propForm(id);break;
-   case 'rp-prop-del':{const p=prop(id);if(!p)break;const n=leases().filter(l=>l.prop===id).length;confirmation(`Delete ${esc(p.name)}?`,`Its ${plural(n,'lease')}, their payments and its expenses go too. To keep its history, edit it and tick Sold instead. You can undo this right after.`,'rp-prop-del-ok','Delete',`data-id="${id}"`);break;}
-   case 'rp-prop-del-ok':{const p=prop(id);closeModal();if(p){const L=new Set(leases().filter(l=>l.prop===id).map(l=>l.id));commit(()=>{state.rpProps=props().filter(x=>x.id!==id);state.rpLeases=leases().filter(l=>!L.has(l.id));state.rpPays=pays().filter(x=>!L.has(x.lease));state.rpExps=exps().filter(x=>x.prop!==id);},`${p.name} deleted`);}break;}
+   case 'rp-prop-del':{const p=prop(id);if(!p)break;const n=leases().filter(l=>l.prop===id).length;confirmation(`Delete ${esc(p.name)}?`,`Its ${plural(n,'lease')}, their payments, its expenses and repairs go too. To keep its history, edit it and tick Sold instead. You can undo this right after.`,'rp-prop-del-ok','Delete',`data-id="${id}"`);break;}
+   case 'rp-prop-del-ok':{const p=prop(id);closeModal();if(p){const L=new Set(leases().filter(l=>l.prop===id).map(l=>l.id));commit(()=>{state.rpProps=props().filter(x=>x.id!==id);state.rpLeases=leases().filter(l=>!L.has(l.id));state.rpPays=pays().filter(x=>!L.has(x.lease));state.rpExps=exps().filter(x=>x.prop!==id);state.rpJobs=jobs().filter(j=>j.prop!==id);},`${p.name} deleted`);}break;}
    case 'rp-lease-add':leaseForm('',{...(b.dataset.prop?{prop:b.dataset.prop}:{}),...(b.dataset.unit?{unit:b.dataset.unit}:{})});if(b.dataset.prop&&!b.dataset.unit){const s=$('#rp-lease-form select[name="unit"]'),o=[...(s?.options||[])].find(o=>o.value.startsWith(b.dataset.prop+'|'));if(o)s.value=o.value;}break;
    case 'rp-lease-edit':leaseForm(id,b.dataset.renew?{renew:true}:{});if(b.dataset.renew){const f=$('#rp-lease-form'),l=lease(id);if(f&&l?.end){const d=new Date(l.end+'T12:00:00');d.setFullYear(d.getFullYear()+1);f.elements.end.value=d.toISOString().slice(0,10);}}break;
    case 'rp-lease-out':{leaseForm(id);const f=$('#rp-lease-form'),l=lease(id);if(f&&l)f.elements.out.value=l.end||today();break;}
    case 'rp-lease-del':{const l=lease(id);if(!l)break;confirmation(`Delete ${esc(l.tenant)}?`,`Their ${plural(pays().filter(p=>p.lease===id).length,'payment')} go too. To keep their history, set a move-out date instead. You can undo this right after.`,'rp-lease-del-ok','Delete',`data-id="${id}"`);break;}
-   case 'rp-lease-del-ok':{const l=lease(id);closeModal();if(l)commit(()=>{state.rpLeases=leases().filter(x=>x.id!==id);state.rpPays=pays().filter(x=>x.lease!==id);},`${l.tenant} deleted`);break;}
+   case 'rp-lease-del-ok':{const l=lease(id);closeModal();if(l)commit(()=>{state.rpLeases=leases().filter(x=>x.id!==id);state.rpPays=pays().filter(x=>x.lease!==id);jobs().forEach(j=>{if(j.lease===id)delete j.lease;});},`${l.tenant} deleted`);break;}
    case 'rp-pay':payForm(b.dataset.lease||'',b.dataset.month||'');break;
    case 'rp-pay-edit':payForm('','',id);break;
    case 'rp-pay-del':{const x=pays().find(p=>p.id===id);if(x)commit(()=>{state.rpPays=pays().filter(p=>p.id!==id);},'Payment deleted');break;}
@@ -8314,26 +8350,345 @@ const RentalUI=(()=>{
    case 'rp-exp-del':{const x=exp(id);if(!x)break;try{if($('#modal').open)closeModal();}catch{}commit(()=>{state.rpExps=exps().filter(z=>z.id!==id);},x.repeat==='once'?'Expense deleted':'Repeating expense deleted, every month of it');break;}
    case 'rp-go':go(b.dataset.to);break;
    case 'rp-chart':chartMode=b.dataset.k==='both'?'both':'net';render();break;
-   case 'rp-layout':layout=b.dataset.k==='table'?'table':'grid';render();break;
+   case 'rp-layout':layout=['table','compact'].includes(b.dataset.k)?b.dataset.k:'grid';render();break;
    case 'rp-ended':showEnded=!showEnded;render();break;
    case 'rp-roll-prev':rollMonth=R.addM(rollMonth||thisMonth(),-1);render();break;
    case 'rp-roll-next':rollMonth=R.addM(rollMonth||thisMonth(),1);render();break;
    case 'rp-roll-now':rollMonth='';render();break;
-   case 'rp-exp-prop':expProp=b.dataset.k||'';render();break;
+   case 'rp-exp-prop':expProp=b.dataset.k===expProp?'':b.dataset.k||'';render();break;
    case 'rp-exp-prev':expYear=String(+(expYear||today().slice(0,4))-1);render();break;
    case 'rp-exp-next':expYear=String(Math.min(+today().slice(0,4),+(expYear||today().slice(0,4))+1));render();break;
    case 'rp-tax-prev':taxYear=String(+(taxYear||today().slice(0,4))-1);render();break;
    case 'rp-tax-next':taxYear=String(Math.min(+today().slice(0,4),+(taxYear||today().slice(0,4))+1));render();break;
    case 'rp-ledger':ledLease=b.dataset.lease||'';ledProp=b.dataset.prop||'';try{if($('#modal').open)closeModal();}catch{}if(screen==='rpledger')render();else go('rpledger');break;
    case 'rp-pays-csv':if(!pays().length){toast('Nothing to export yet: record some rent first.');break;}csv([['Received','Tenant','Property','Unit','For month','Kind','Amount','Note'],...[...pays()].sort((x,y)=>x.date.localeCompare(y.date)).map(p=>{const l=lease(p.lease),pr=l?prop(l.prop):null;return [p.date,l?.tenant||'',pr?.name||'',pr?unitOf(pr,l.unit)?.name||'':'',p.month,p.kind==='fee'?'Late fee':'Rent',(p.amount/100).toFixed(2),p.note||''];})],`rental-payments-${today()}.csv`);toast('Payments exported.');break;
-   case 'rp-exps-csv':{const occ=R.expenses(S(),(R.firstMonth(S())||thisMonth())+'-01',today());if(!occ.length){toast('Nothing to export yet: add an expense first.');break;}csv([['Date','Property','What','Schedule E line','Line','Amount','Repeats'],...occ.map(x=>[x.date,prop(x.prop)?.name||'',x.e?x.e.note||'':'Mortgage payment',R.catName(x.cat),(R.CATS.find(c=>c[0]===x.cat)||[])[2]||'',(x.amount/100).toFixed(2),x.e?x.e.repeat:'monthly (loan)'])],`rental-expenses-${today()}.csv`);toast('Expenses exported.');break;}
+   case 'rp-exps-csv':{const [ra,rb]=rangeOf(expRange),occ=R.expenses(S(),ra,rb,expProp||undefined);if(!occ.length){toast('Nothing to export yet: add an expense first.');break;}csv([['Date','Property','What','Schedule E line','Line','Amount','Repeats'],...occ.map(x=>[x.date,prop(x.prop)?.name||'General',x.e?x.e.note||'':'Mortgage payment',R.catName(x.cat),(R.CATS.find(c=>c[0]===x.cat)||[])[2]||'',(x.amount/100).toFixed(2),x.e?x.e.repeat:'monthly (loan)'])],`rental-expenses-${ra}-to-${rb}.csv`);toast('Expenses exported.');break;}
    case 'rp-tax-csv':{const y=taxYear||today().slice(0,4),E=R.scheduleE(S(),+y,today());csv([['Line','Item',...E.map(x=>x.prop.name),'Total'],['3','Rents received',...E.map(x=>(x.rents/100).toFixed(2)),(E.reduce((a,x)=>a+x.rents,0)/100).toFixed(2)],...[...new Map(E.flatMap(x=>x.lines).filter(l=>l.key!=='principal').map(l=>[l.key,l])).values()].sort((a,b)=>a.line-b.line).map(l=>[String(l.line),l.label,...E.map(x=>((x.lines.find(z=>z.key===l.key)?.amount||0)/100).toFixed(2)),(E.reduce((a,x)=>a+(x.lines.find(z=>z.key===l.key)?.amount||0),0)/100).toFixed(2)]),['20','Total expenses',...E.map(x=>(x.expenses/100).toFixed(2)),(E.reduce((a,x)=>a+x.expenses,0)/100).toFixed(2)],['21','Income or loss (before depreciation)',...E.map(x=>(x.net/100).toFixed(2)),(E.reduce((a,x)=>a+x.net,0)/100).toFixed(2)]],`schedule-e-${y}.csv`);toast(`Schedule E ${y} exported.`);break;}
   }}catch(err){actionError(err);}});
+
+ // ---------- dates: one range picker for the statement and the expenses ----------
+ const dayLong=d=>new Date(d+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+ const RANGES=[['month','This month'],['last','Last month'],['quarter','This quarter'],['ytd','Year to date'],['lastyear','Last year'],['custom','Custom']];
+ function rangeOf(r){const t=today(),y=+t.slice(0,4),m=t.slice(0,7);
+  switch(r.k){case 'month':return [m+'-01',t];case 'last':{const l=R.addM(m,-1);return [l+'-01',R.mEnd(l)];}
+   case 'quarter':{const q=Math.floor((+t.slice(5,7)-1)/3)*3+1;return [`${y}-${String(q).padStart(2,'0')}-01`,t];}
+   case 'lastyear':return [`${y-1}-01-01`,`${y-1}-12-31`];case 'custom':{const a=r.from||`${y}-01-01`,b=r.to||t;return a<=b?[a,b]:[b,a];}default:return [`${y}-01-01`,t];}}
+ const rangeLabel=r=>{const [a,b]=rangeOf(r);return `${dayLong(a)} – ${dayLong(b)}`;};
+ const rangeBar=(r,act)=>`<div class="rp-range no-print"><div class="segment" role="group" aria-label="Dates">${RANGES.map(([k,l])=>`<button data-action="${act}" data-k="${k}" aria-pressed="${r.k===k}">${l}</button>`).join('')}</div>${r.k==='custom'?`<label class="rp-date"><span>From</span><input type="date" data-range="${act}" data-end="from" value="${rangeOf(r)[0]}"></label><label class="rp-date"><span>To</span><input type="date" data-range="${act}" data-end="to" value="${rangeOf(r)[1]}"></label>`:''}</div>`;
+ const plRange={k:'ytd'},expRange={k:'ytd'};let plProp='';
+ const hasGeneral=()=>exps().some(e=>!e.prop);
+ const propOptions=(cur,withGeneral=true)=>[['','All properties'],...props().map(p=>[p.id,p.name]),...(withGeneral&&hasGeneral()?[['__general','General (not one property)']]:[])].map(([k,l])=>`<option value="${k}" ${cur===k?'selected':''}>${esc(l)}</option>`).join('');
+
+ // ---------- profit & loss statement ----------
+ function plData(){const M=model(),[a,b]=rangeOf(plRange),cols=plProp?[{id:plProp,name:plProp==='__general'?'General':prop(plProp)?.name||'',p:prop(plProp)}]:[...props().filter(p=>{if(p.status!=='sold')return true;const x=R.pnl(M.s,a,b,p.id);return x.income||x.opex;}).map(p=>({id:p.id,name:p.name,p})),...(hasGeneral()?[{id:'__general',name:'General'}]:[])];
+  const P_=cols.map(c=>R.pnl(M.s,a,b,c.id)),T=R.pnl(M.s,a,b,plProp||undefined),lines=[...new Map([...P_,T].flatMap(x=>x.lines).map(l=>[l.key,l])).values()].sort((x,y)=>x.line-y.line||x.label.localeCompare(y.label));
+  return {M,a,b,cols,P_,T,lines,many:cols.length>1};}
+ function plView(){const {M,cols,P_,T,lines,many}=plData();
+  const head=pagehead(rangeLabel(plRange),'Profit & loss','Income, running costs and what’s left, for any dates and any property. Cash basis: money counts on the day it moved.',props().length?button('Print','print','quiet')+button('Export CSV','rp-pl-csv',''):'');
+  if(!props().length)return head+stepsCard(M);
+  const cell=(v,neg)=>`<td class="num${neg&&v?' neg':''}">${v?(neg?'('+fmt(v)+')':fmt(v)):'—'}</td>`;
+  const row=(label,get,{cls='',neg=false,bold=false}={})=>`<tr class="${cls}"><td>${bold?`<b>${label}</b>`:label}</td>${many?P_.map(x=>cell(get(x),neg)).join(''):''}${cell(get(T),neg)}</tr>`;
+  const kp=`<div class="kpis">${kpi('Income',T.income,`${fmt(T.rent)} rent${T.fees?` · ${fmt(T.fees)} fees`:''}`,'wallet','pos')}${kpi('Expenses',T.opex+T.interest,`${fmt(T.opex)} running · ${fmt(T.interest)} interest`,'down','neg')}<div class="kpi"><div class="label">${kpiIco('spark')}Net income</div><b class="${T.net<0?'neg':'pos'}">${fmt(T.net)}</b><small>${T.margin===null?'No income in these dates':`${Math.round(T.margin*100)}% of income`}</small></div><div class="kpi"><div class="label">${kpiIco('coins')}Cash flow</div><b class="${T.cashflow<0?'neg':''}">${fmt(T.cashflow)}</b><small>after ${fmt(T.principal)} loan principal</small></div></div>`;
+  const ctl=`<div class="rp-controls no-print">${rangeBar(plRange,'rp-pl-range')}<select data-rp-pick="pl" aria-label="Property">${propOptions(plProp)}</select></div>`;
+  const span=(many?cols.length:0)+2;
+ const tbl=`<section class="card table-card"><div class="table-wrap"><table class="statement-table rp-pl"><thead><tr><th>${esc(plProp?cols[0].name:'Portfolio')}</th>${many?cols.map(c=>`<th class="num">${c.p?dot(colorOf(c.p)):''}${esc(c.name)}</th>`).join(''):''}<th class="num">${many?'Total':'Amount'}</th></tr></thead><tbody>`+
+   `<tr class="rp-sec"><td colspan="${span}">Income</td></tr>`+row('Rents',x=>x.rent)+row('Late fees &amp; other',x=>x.fees)+row('Total income',x=>x.income,{cls:'tx-total',bold:true})+
+   `<tr class="rp-sec"><td colspan="${span}">Operating expenses</td></tr>`+lines.map(l=>row(esc(l.label),x=>x.lines.find(z=>z.key===l.key)?.amount||0,{neg:true})).join('')+(lines.length?'':`<tr><td colspan="${span}" class="dim">No running costs in these dates</td></tr>`)+row('Total operating expenses',x=>x.opex,{cls:'tx-total',neg:true,bold:true})+
+   row('Net operating income (NOI)',x=>x.noi,{cls:'tx-total',bold:true})+row('Mortgage &amp; other interest',x=>x.interest,{neg:true})+row('Net income',x=>x.net,{cls:'tx-total rp-net',bold:true})+
+   `<tr class="rp-sec"><td colspan="${span}">Below the line</td></tr>`+row('Loan principal paid',x=>x.principal,{neg:true})+row('Cash flow',x=>x.cashflow,{cls:'tx-total',bold:true})+`</tbody></table></div></section>`;
+  return head+ctl+kp+tbl+`<p class="small muted">Depreciation isn’t included. Principal isn’t an expense (it pays down the loan), so it sits below the line: it reduces cash flow, not profit.</p>`;}
+
+ // ---------- calendar: rent due, expenses, lease dates and repairs, day by day ----------
+ let calM='';
+ function calView(){const M=model(),ym=calM||M.m,first=ym+'-01',last=R.mEnd(ym),ev=new Map(),add=(d,x)=>{if(d<first||d>last)return;(ev.get(d)||ev.set(d,[]).get(d)).push(x);};
+  R.roll(M.s,ym,M.t).filter(r=>!r.vacant).forEach(r=>add(r.dueDate,{k:'rent',t:`${r.lease.tenant} · ${fmt(r.due)}`,tone:r.status==='paid'?'pos':String(r.status).startsWith('late')?'neg':r.status==='upcoming'?'':'warn',act:r.status==='paid'?'':`data-action="rp-pay" data-lease="${r.lease.id}" data-month="${ym}"`}));
+  R.expenses(M.s,first,last).forEach(x=>add(x.date,{k:'exp',t:`${x.e?x.e.note||R.catName(x.cat):x.cat==='mortgage'?'Mortgage interest':'Loan principal'} · ${fmt(x.amount)}`,tone:'exp'}));
+  leases().forEach(l=>{if(l.end)add(l.end,{k:'lease',t:`${l.tenant}’s lease ends`,tone:'warn'});if(l.out)add(l.out,{k:'lease',t:`${l.tenant} moves out`,tone:'warn'});if(l.start>=first)add(l.start,{k:'lease',t:`${l.tenant} moves in`,tone:'pos'});});
+  jobs().forEach(j=>{const d=j.status==='done'?j.done:j.when||j.reported;if(d)add(d,{k:'job',t:`${j.status==='done'?'✓ ':''}${j.title}`,tone:j.status==='done'?'dim':j.urgent?'neg':'job',act:`data-action="rp-job-edit" data-id="${j.id}"`});});
+  const head=pagehead('Your month','Calendar','Rent due, bills, lease dates and repairs, day by day. Click a rent to record it.',`<div class="due-nav">${button('‹','rp-cal-prev','quiet','aria-label="Previous month"')}<b>${monthName(ym)}</b>${button('›','rp-cal-next','quiet','aria-label="Next month"')}${ym===M.m?'':button('This month','rp-cal-now','small')}</div>`+button('Print','print','quiet'));
+  if(!props().length)return head+stepsCard(M);
+  const start=new Date(first+'T12:00:00'),lead=(start.getDay()+6)%7,n=+last.slice(8,10),cells=[];for(let i=0;i<lead;i++)cells.push('<div class="rp-day out"></div>');
+  for(let d=1;d<=n;d++){const ds=`${ym}-${String(d).padStart(2,'0')}`,L=ev.get(ds)||[];cells.push(`<div class="rp-day${ds===M.t?' today':''}"><b>${d}<span class="rp-wd"> · ${new Date(ds+'T12:00:00').toLocaleDateString(undefined,{weekday:'long'})}</span></b>${L.map(x=>`<${x.act?'button':'span'} class="rp-ev ${x.k} ${x.tone}" ${x.act||''} title="${esc(x.t)}">${esc(x.t)}</${x.act?'button':'span'}>`).join('')}</div>`);}
+  const due=[...ev.values()].flat(),cnt=k=>due.filter(x=>x.k===k).length;
+  return head+`<div class="kpis">${kpi('Rent due',R.roll(M.s,ym,M.t).filter(r=>!r.vacant).reduce((a,r)=>a+r.due,0),plural(cnt('rent'),'payment'),'calendar')}${kpi('Bills & mortgage',R.expenses(M.s,first,last).reduce((a,x)=>a+x.amount,0),plural(cnt('exp'),'item'),'down')}<div class="kpi"><div class="label">${kpiIco('tags')}Lease dates</div><b>${cnt('lease')}</b><small>move-ins, ends and move-outs</small></div><div class="kpi"><div class="label">${kpiIco('edit')}Repairs</div><b>${cnt('job')}</b><small>scheduled or done this month</small></div></div>`+
+   `<section class="card"><div class="rp-cal-head">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<span>${d}</span>`).join('')}</div><div class="rp-cal">${cells.join('')}</div><div class="rp-legend"><span class="rp-ev rent pos">Rent paid</span><span class="rp-ev rent warn">Due</span><span class="rp-ev rent neg">Late</span><span class="rp-ev exp">Bill</span><span class="rp-ev lease warn">Lease date</span><span class="rp-ev job">Repair</span></div></section>`;}
+
+ // ---------- maintenance & repairs, including what tenants report ----------
+ const jobs=()=>state.rpJobs||(state.rpJobs=[]),job=id=>jobs().find(j=>j.id===id);
+ const JOB_ST=[['open','Open'],['scheduled','Scheduled'],['done','Done']];
+ let jobShow='all';
+ function maintView(){const M=model(),L=jobs().filter(j=>jobShow==='all'||(jobShow==='tenant'?!!j.lease:jobShow==='open'?j.status!=='done':j.status==='done')).sort((a,b)=>(a.status==='done')-(b.status==='done')||(!!b.urgent-!!a.urgent)||b.reported.localeCompare(a.reported));
+  const head=pagehead('Keep it in shape','Maintenance & repairs','Every repair and request, who reported it, who fixed it and what it cost. A finished job can add its cost to your expenses.',button('Log a repair','rp-job-add','primary'));
+  if(!props().length)return head+stepsCard(M);
+  const y=M.t.slice(0,4),open=jobs().filter(j=>j.status!=='done'),done=jobs().filter(j=>j.status==='done'&&(j.done||'').startsWith(y));
+  const kp=`<div class="kpis"><div class="kpi"><div class="label">${kpiIco('edit')}Open</div><b class="${open.length?'warn':''}">${open.length}</b><small>${plural(open.filter(j=>j.urgent).length,'urgent one')}</small></div><div class="kpi"><div class="label">${kpiIco('tags')}From tenants</div><b>${open.filter(j=>j.lease).length}</b><small>requests still open</small></div><div class="kpi"><div class="label">${kpiIco('check')}Done in ${y}</div><b>${done.length}</b><small>${done.length?`about ${Math.round(done.reduce((a,j)=>a+R.days(j.reported,j.done||j.reported),0)/done.length)} days to fix`:'—'}</small></div>${kpi(`Spent in ${y}`,done.reduce((a,j)=>a+(j.cost||0),0),'on finished jobs','coins')}</div>`;
+  const seg=`<div class="segment no-print" role="group" aria-label="Show">${[['all','All'],['open','Open'],['tenant','Tenant requests'],['done','Done']].map(([k,l])=>`<button data-action="rp-job-show" data-k="${k}" aria-pressed="${jobShow===k}">${l}</button>`).join('')}</div>`;
+  if(!jobs().length)return head+kp+`<section class="card">${empty('No repairs logged yet','Log a repair or a tenant’s request: what, where, how urgent. Mark it done with the cost and it can go straight into your expenses.','rp-job-add','Log a repair')}</section>`;
+  const st=j=>j.status==='done'?['Done','pos']:j.status==='scheduled'?['Scheduled','']:j.urgent?['Urgent','neg']:['Open','warn'];
+  return head+kp+`<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>${jobShow==='tenant'?'Tenant requests':'Repair log'}</h2><p>${plural(L.length,'job')}</p></div>${seg}</div><div class="table-wrap"><table class="tbl-always rp-jobs"><thead><tr><th>Reported</th><th data-filter>Property</th><th>Unit</th><th>What</th><th>From</th><th data-filter>Status</th><th>When</th><th>Vendor</th><th class="num">Cost</th><th class="num">Actions</th></tr></thead><tbody>${L.map(j=>{const p=prop(j.prop),l=lease(j.lease),[s,t]=st(j);return `<tr class="${j.status==='done'?'is-off':''}"><td>${dayName(j.reported)} ${j.reported.slice(0,4)}</td><td>${p?dot(colorOf(p))+esc(p.name):'—'}</td><td>${esc(unitOf(p,j.unit)?.name||'—')}</td><td><button class="link" data-action="rp-job-edit" data-id="${j.id}">${esc(j.title)}</button>${j.notes?`<br><small class="dim">${esc(j.notes.slice(0,80))}</small>`:''}</td><td>${l?esc(l.tenant):'Me'}</td><td><span class="rp-chip ${t}">${s}</span></td><td>${j.status==='done'?(j.done?dayName(j.done):'—'):j.when?dayName(j.when):'—'}</td><td>${esc(j.vendor||'—')}</td><td class="num">${j.cost?fmt(j.cost):'—'}</td><td class="num nw"><div class="row-acts">${j.status!=='done'?button('Done','rp-job-done','small',`data-id="${j.id}"`):''}<button class="icon-action" data-action="rp-job-edit" data-id="${j.id}" title="Edit" aria-label="Edit ${esc(j.title)}">${ico('edit')}</button><button class="icon-action danger" data-action="rp-job-del" data-id="${j.id}" title="Delete" aria-label="Delete ${esc(j.title)}">${ico('trash')}</button></div></td></tr>`;}).join('')||`<tr><td colspan="10" class="dim">Nothing here.</td></tr>`}</tbody></table></div></section>`;}
+ function jobForm(id='',pre={}){const j=job(id),e=j||{status:'open',reported:today(),...pre},list=props();if(!list.length)return propForm();const p0=e.prop||list[0].id;
+  const units=list.flatMap(p=>(p.units||[]).map(u=>[`${p.id}|${u.id}`,`${p.name}${(p.units||[]).length>1?' · '+u.name:''}`]));
+  const tenants=leases().filter(l=>!(l.out&&l.out<today()));
+  modal(pre.done?'Mark it done':j?'Edit repair':'Log a repair',j?'Change anything about this job.':'What needs fixing, where, and who reported it.',`<form id="rp-job-form" data-id="${j?id:''}"><div class="fields">
+   <label class="full">What needs doing<input name="title" required maxlength="80" value="${esc(e.title||'')}" placeholder="e.g. Kitchen tap dripping" ${j?'':'autofocus'}></label>
+   <label class="full">Where<select name="where">${list.map(p=>`<option value="${p.id}|" ${!e.unit&&p0===p.id?'selected':''}>${esc(p.name)} (whole property)</option>`).join('')}${units.filter(([v])=>list.find(p=>v.startsWith(p.id+'|'))?.units.length>1).map(([v,t])=>`<option value="${v}" ${e.unit&&v===`${e.prop}|${e.unit}`?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
+   <label>Reported by<select name="lease"><option value="">Me (I noticed it)</option>${tenants.map(l=>`<option value="${l.id}" ${e.lease===l.id?'selected':''}>${esc(l.tenant)} (tenant)</option>`).join('')}</select></label>
+   <label>Reported on<input type="date" name="reported" required value="${e.reported||today()}" max="${today()}"></label>
+   <div class="full segment rp-st-pick" role="radiogroup" aria-label="Status">${JOB_ST.map(([k,l])=>`<label><input type="radio" name="status" value="${k}" ${(pre.done?'done':e.status)===k?'checked':''}><span>${l}</span></label>`).join('')}</div>
+   <label class="checkline"><input type="checkbox" name="urgent" ${e.urgent?'checked':''}><span>Urgent<br><small>No heat, no water, a leak, anything unsafe</small></span></label>
+   <label class="rp-when" ${(pre.done?'done':e.status)==='scheduled'?'':'hidden'}>Scheduled for<input type="date" name="when" value="${e.when||''}"></label>
+   <label class="rp-done" ${(pre.done?'done':e.status)==='done'?'':'hidden'}>Finished on<input type="date" name="done" value="${e.done||today()}" max="${today()}"></label>
+   <label>Vendor <span class="dim">(optional)</span><input name="vendor" maxlength="60" value="${esc(e.vendor||'')}" placeholder="e.g. Harbor Plumbing"></label>
+   <label>Cost <span class="dim">(optional)</span><input name="cost" inputmode="decimal" value="${e.cost?num(e.cost):''}" placeholder="0.00"></label>
+   <label class="checkline full rp-toexp" ${(pre.done?'done':e.status)==='done'&&!e.exp?'':'hidden'}><input type="checkbox" name="toExp" checked><span>Add the cost to expenses (Repairs, line 14)<br><small>So it shows in your profit &amp; loss and Schedule E.</small></span></label>
+   <label class="full">Notes <span class="dim">(optional)</span><textarea name="notes" maxlength="500" rows="2" placeholder="e.g. Tenant home after 5 pm">${esc(e.notes||'')}</textarea></label>
+   </div>${formFoot(pre.done?'Mark done':j?'Save':'Log it',j?button('Delete','rp-job-del','danger quiet',`data-id="${id}"`):'')}</form>`);}
+ document.addEventListener('change',e=>{const f=e.target.closest?.('#rp-job-form');if(!f)return;const s=f.elements.status.value;f.querySelector('.rp-when').hidden=s!=='scheduled';f.querySelector('.rp-done').hidden=s!=='done';const x=job(f.dataset.id);f.querySelector('.rp-toexp').hidden=s!=='done'||!!x?.exp;});
+
+ // ---------- documents: letters and notices, filled in from your records ----------
+ const LANDLORD=()=>state.settings.rpLandlord||{};
+ const DOCS=[
+  ['welcome','Welcome letter','For a new tenant: how to pay, who to call, what to know.',['start'],`Dear [[tenant]],
+
+Welcome to [[address]]! We’re glad to have you, and we hope you’ll feel at home.
+
+A few things to know:
+• Rent: [[rent]] is due on the [[due_day]] of each month. [[grace_line]]
+• Repairs: report anything that needs fixing to [[landlord_phone]] or [[landlord_email]]. For emergencies (no heat, no water, a leak, anything unsafe), call right away.
+• Utilities: [list who provides electricity, gas, water, internet and trash, and which ones are in your name].
+• Trash and recycling: [collection days].
+• Your lease runs from [[lease_start]] [[lease_end_line]].
+
+Please don’t hesitate to reach out with any questions.
+
+Warm regards,
+[[landlord]]`],
+  ['receipt','Rent receipt','Proof of a payment you received.',['payment'],`RENT RECEIPT
+
+Date: [[today]]
+Received from: [[tenant]]
+Amount: [[payment_amount]]
+For: rent for [[payment_month]]
+Property: [[address]]
+Received on: [[payment_date]]
+
+Thank you.
+
+[[landlord]]`],
+  ['late','Late rent notice','A friendly, clear reminder that rent is overdue.',['late'],`Dear [[tenant]],
+
+Our records show that rent for [[payment_month]] at [[address]], due on [[due_date]], has not been received in full.
+
+Amount due: [[amount_due]]
+[[late_fee_line]]
+Please pay the balance by [[pay_by]]. If you’ve already sent it, thank you, and please let us know so we can update our records. If something has come up, contact us at [[landlord_phone]] so we can talk about it.
+
+Sincerely,
+[[landlord]]`],
+  ['fee','Late fee notice','Lets the tenant know a late fee was added, as the lease allows.',['late'],`Dear [[tenant]],
+
+Rent for [[payment_month]] at [[address]] was due on [[due_date]]. As stated in your lease, a late fee of [[late_fee]] applies when rent is received after the grace period.
+
+Rent still due: [[amount_due]]
+Late fee: [[late_fee]]
+Total due: [[total_due]]
+
+Please pay the total by [[pay_by]]. Contact us at [[landlord_phone]] with any questions.
+
+Sincerely,
+[[landlord]]`],
+  ['increase','Rent increase notice','The new rent and when it starts.',['increase'],`Dear [[tenant]],
+
+This letter is to let you know that the monthly rent for [[address]] will change from [[rent]] to [[new_rent]], starting [[effective_date]].
+
+All other terms of your lease stay the same. Your first payment at the new amount is due on [[effective_date]].
+
+We appreciate you as a tenant. Please contact us at [[landlord_phone]] if you have any questions.
+
+Sincerely,
+[[landlord]]`],
+  ['renewal','Lease renewal offer','Offers a new lease term before the current one ends.',['increase'],`Dear [[tenant]],
+
+Your lease at [[address]] ends on [[lease_end]]. We’ve enjoyed having you as a tenant and would like to offer you a renewal.
+
+New term: [[renew_term]]
+Monthly rent: [[new_rent]], starting [[effective_date]]
+
+Please let us know by [[reply_by]] whether you’d like to renew. If you plan to move out, we’ll send move-out instructions.
+
+Sincerely,
+[[landlord]]`],
+  ['entry','Notice of entry','Tells the tenant when and why you’ll come in.',['entry'],`Dear [[tenant]],
+
+This is notice that we will need to enter [[address]] on [[entry_date]] between [[entry_time]] for the following reason: [[entry_reason]].
+
+You don’t need to be home. If this time doesn’t work for you, please contact us at [[landlord_phone]] as soon as possible to arrange another.
+
+Thank you,
+[[landlord]]`],
+  ['violation','Lease violation notice','Names the problem and a date to put it right.',['violation'],`Dear [[tenant]],
+
+It has come to our attention that the following goes against the terms of your lease for [[address]]:
+
+[[violation]]
+
+Please correct this by [[cure_by]]. If you have questions or believe this is a mistake, contact us at [[landlord_phone]].
+
+Sincerely,
+[[landlord]]`],
+  ['vacate','Notice to vacate','The tenancy ends on a date; asks the tenant to move out.',['vacate'],`Dear [[tenant]],
+
+This is notice that your tenancy at [[address]] will end on [[move_out_date]], and we ask that you move out by that date.
+
+Reason: [[vacate_reason]]
+
+Please return all keys and leave a forwarding address for your security deposit. Move-out instructions will follow.
+
+Sincerely,
+[[landlord]]`],
+  ['moveout','Move-out instructions','Cleaning, keys, inspection and your deposit.',['vacate'],`Dear [[tenant]],
+
+As your move-out date of [[move_out_date]] approaches, here’s how to get your full security deposit of [[deposit]] back:
+
+• Clean the kitchen, bathrooms and floors, and empty every cupboard and closet.
+• Remove all belongings and trash.
+• Return all keys and remotes to [[landlord]].
+• Schedule a walk-through inspection by contacting us at [[landlord_phone]].
+• Send us your forwarding address so we can return your deposit.
+
+Thank you for being our tenant.
+
+Sincerely,
+[[landlord]]`],
+  ['deposit','Security deposit return','Itemized deductions and the refund.',['deposit'],`Dear [[tenant]],
+
+Here is the itemized statement for your security deposit at [[address]].
+
+Security deposit held: [[deposit]]
+Deductions:
+[[deductions]]
+Total deductions: [[deductions_total]]
+Amount returned to you: [[refund]]
+
+[[refund_line]]
+
+Sincerely,
+[[landlord]]`],
+ ];
+ let docSel='welcome',docLease='',docText=null,docF={};
+ function docVals(l,M){const p=l?prop(l.prop):null,u=l?unitOf(p,l.unit):null,L=LANDLORD(),ym=M.m,r=l?R.roll(M.s,ym,M.t).find(x=>x.lease?.id===l.id):null,pay=l?[...pays().filter(x=>x.lease===l.id&&x.kind!=='fee')].sort((a,b)=>b.date.localeCompare(a.date))[0]:null;
+  const addr=p?[p.addr||p.name,(p.units||[]).length>1&&u?u.name:''].filter(Boolean).join(', '):'[address]',due=r?r.left:l?.rent||0,fee=l?.lateFee||0,dep=l?.deposit||0,ded=(docF.deductions||'').split('\n').map(s=>s.trim()).filter(Boolean),dsum=ded.reduce((a,s)=>{const m=s.match(/([\d,]+(\.\d{1,2})?)\s*$/);return a+(m?Math.round(parseFloat(m[1].replace(/,/g,''))*100):0);},0);
+  const long=d=>d?new Date(d+'T12:00:00').toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'}):'[date]';
+  return {tenant:l?.tenant||'[tenant]',address:addr,property:p?.name||'',unit:u?.name||'',rent:l?fmt(l.rent):'[rent]',due_day:l?ordinal(l.due||1):'[day]',grace_line:l?.grace?`Rent paid within ${plural(l.grace,'day')} of the due date isn’t late.`:'',lease_start:long(l?.start),lease_end:long(l?.end),lease_end_line:l?.end?`to ${long(l.end)}`:'and continues month to month',
+   landlord:L.name||state.settings.name||'[your name]',landlord_phone:L.phone||'[your phone]',landlord_email:L.email||'[your email]',landlord_address:L.addr||'',today:long(today()),
+   payment_amount:pay?fmt(pay.amount):'[amount]',payment_date:long(pay?.date),payment_month:r?monthName(ym):pay?monthName(pay.month):monthName(ym),due_date:long(r?.dueDate||(l?R.dueDate(l,ym):'')),amount_due:fmt(due),late_fee:fmt(fee),late_fee_line:fee&&r&&String(r.status).startsWith('late')?`A late fee of ${fmt(fee)} applies under your lease.\n`:'',total_due:fmt(due+fee),pay_by:long(docF.pay_by||R.addD(today(),5)),
+   new_rent:docF.new_rent?fmt(cents(docF.new_rent)||0):'[new rent]',effective_date:long(docF.effective||''),renew_term:docF.term||'12 months',reply_by:long(docF.reply_by||R.addD(today(),14)),
+   entry_date:long(docF.entry_date||''),entry_time:docF.entry_time||'9 am and 5 pm',entry_reason:docF.entry_reason||'[reason, e.g. repair the kitchen faucet]',violation:docF.violation||'[describe what happened, when, and the lease section]',cure_by:long(docF.cure_by||R.addD(today(),7)),
+   move_out_date:long(docF.move_out||l?.end||''),vacate_reason:docF.vacate_reason||'the lease is not being renewed',deposit:fmt(dep),deductions:ded.length?ded.map(s=>'• '+s).join('\n'):'• None',deductions_total:fmt(dsum),refund:fmt(Math.max(0,dep-dsum)),refund_line:dsum>dep?`The deductions are ${fmt(dsum-dep)} more than the deposit; that balance is due.`:'The refund is enclosed / has been sent.'};}
+ const fill=(t,v)=>t.replace(/\[\[(\w+)\]\]/g,(m,k)=>v[k]??m);
+ const docLeases=()=>leases().filter(l=>!(l.out&&l.out<R.addD(today(),-90))),docL=()=>lease(docLease)||docLeases()[0]||null;
+ function docsView(){const M=model(),D=DOCS.find(d=>d[0]===docSel)||DOCS[0],own=(state.rpTemplates||{})[D[0]],L=docLeases(),l=docL(),v=docVals(l,M),text=docText??fill(own||D[4],v),Ld=LANDLORD();
+  const head=pagehead('Paperwork','Letters & notices','Filled in from your records. Pick one, pick the tenant, adjust the words, print.',button('Print letter','rp-doc-print','primary'));
+  if(!props().length)return head+stepsCard(M);
+  const needs=D[3],field=(k,l,type='text',ph='')=>`<label>${l}<input ${type==='date'?'type="date"':type==='money'?'inputmode="decimal"':''} data-doc-f="${k}" value="${esc(docF[k]||'')}" placeholder="${esc(ph)}"></label>`;
+  const extra=needs.includes('increase')?field('new_rent','New monthly rent','money','e.g. 1,525')+field('effective','Starting','date')+(D[0]==='renewal'?field('term','New term','text','12 months')+field('reply_by','Reply by','date'):''):needs.includes('entry')?field('entry_date','Entry date','date')+field('entry_time','Between','text','9 am and 5 pm')+`<label class="full">Reason<input data-doc-f="entry_reason" value="${esc(docF.entry_reason||'')}" placeholder="e.g. repair the kitchen faucet"></label>`:needs.includes('violation')?`<label class="full">What happened<textarea data-doc-f="violation" rows="2" placeholder="e.g. A dog has been living at the unit since May; the lease (section 12) doesn’t allow pets.">${esc(docF.violation||'')}</textarea></label>`+field('cure_by','Correct by','date'):needs.includes('vacate')?field('move_out','Move-out date','date')+(D[0]==='vacate'?field('vacate_reason','Reason','text','the lease is not being renewed'):''):needs.includes('deposit')?`<label class="full">Deductions <span class="dim">(one per line, amount at the end)</span><textarea data-doc-f="deductions" rows="3" placeholder="Carpet cleaning, living room 120&#10;Replace broken blind 35">${esc(docF.deductions||'')}</textarea></label>`:needs.includes('late')?field('pay_by','Pay by','date'):'';
+  const pick=`<div class="rp-docs">${DOCS.map(d=>`<button class="rp-doc${d[0]===D[0]?' on':''}" data-action="rp-doc" data-k="${d[0]}"><b>${d[1]}</b><small>${d[2]}</small>${(state.rpTemplates||{})[d[0]]?'<em>Your wording</em>':''}</button>`).join('')}</div>`;
+  const setup=!Ld.name||!Ld.phone?`<div class="banner rp-ll no-print"><span><b>Add your details once</b> (name, phone, email) and every letter fills them in.</span>${button('Add my details','rp-landlord','small')}</div>`:'';
+  return head+setup+`<div class="rp-docwrap"><section class="card"><div class="cardhead"><div><h2>Templates</h2><p>${DOCS.length} letters and notices</p></div>${button('My details','rp-landlord','small quiet')}</div>${pick}</section>`+
+   `<section class="card rp-doc-edit"><div class="cardhead"><div><h2>${D[1]}</h2><p>${D[2]}</p></div>${own?button('Reset to original','rp-doc-reset','small quiet'):''}</div><div class="fields no-print"><label class="full">Tenant<select data-doc-lease>${L.map(x=>{const p=prop(x.prop);return `<option value="${x.id}" ${l?.id===x.id?'selected':''}>${esc(x.tenant)} · ${esc(p?.name||'')}</option>`;}).join('')||'<option value="">No tenants yet</option>'}</select></label>${extra}</div>`+
+   `<label class="rp-letter-l no-print">The letter <span class="dim">(edit anything; words in [brackets] still need filling in)</span></label><textarea class="rp-letter" id="rp-letter" rows="18" spellcheck="true">${esc(text)}</textarea><div class="rp-letter-print" aria-hidden="true">${esc(text).replace(/\n/g,'<br>')}</div>`+
+   `<div class="row-acts no-print" style="margin-top:12px;justify-content:space-between"><small class="dim">A starting point, not legal advice: notice periods and rules differ by state and city.</small><span class="row-acts">${button('Save wording as my template','rp-doc-save','small quiet')}${button('Copy','rp-doc-copy','small')}${button('Print letter','rp-doc-print','small primary')}</span></div></section></div>`;}
+ function landlordForm(){const L=LANDLORD();modal('Your details','Used on every letter and notice. Stays on this device.',`<form id="rp-ll-form"><div class="fields"><label class="full">Name or company<input name="name" maxlength="80" value="${esc(L.name||state.settings.name||'')}" placeholder="e.g. Morgan Properties LLC" autofocus></label><label>Phone<input name="phone" maxlength="40" value="${esc(L.phone||'')}" placeholder="(555) 010-2000"></label><label>Email<input name="email" maxlength="80" value="${esc(L.email||'')}" placeholder="you@example.com"></label><label class="full">Mailing address <span class="dim">(optional)</span><input name="addr" maxlength="120" value="${esc(L.addr||'')}" placeholder="PO Box 12, Springfield"></label></div>${formFoot('Save')}</form>`);}
+ document.addEventListener('input',e=>{const el=e.target;if(el.id==='rp-letter'){docText=el.value;const pr=el.nextElementSibling;if(pr)pr.innerHTML=esc(el.value).replace(/\n/g,'<br>');return;}
+  if(el.dataset?.docF!==undefined&&el.closest('.rp-doc-edit')){docF[el.dataset.docF]=el.value;docText=null;const M=model(),D=DOCS.find(d=>d[0]===docSel),t=fill((state.rpTemplates||{})[D[0]]||D[4],docVals(docL(),M)),ta=$('#rp-letter');if(ta){ta.value=t;ta.nextElementSibling.innerHTML=esc(t).replace(/\n/g,'<br>');}}});
+ document.addEventListener('change',e=>{const el=e.target;if(el.matches?.('[data-doc-lease]')){docLease=el.value;docText=null;render();}});
+
+ // ---------- bank statement import: deposits become rent, withdrawals become expenses ----------
+ let imp=null;
+ function importView(){const M=model(),head=pagehead('Bring in your bank','Import bank CSV','Download a CSV from your bank and bring the rent and expenses in at once. You check every line first; nothing leaves this device.',imp?button('Start over','rp-imp-clear','quiet'):'');
+  if(!props().length)return head+stepsCard(M);
+  if(!imp)return head+`<section class="card"><div class="rp-drop"><h3>Choose your bank’s CSV file</h3><p class="muted">From your bank’s website: Download or Export → CSV. Most US and European banks work, including files with separate debit and credit columns.</p><label class="btn primary">Choose a CSV file<input type="file" accept=".csv,text/csv" data-rp-import hidden></label><p class="small muted" style="margin-top:14px">Deposits that match a tenant’s rent become rent payments; withdrawals become expenses on their Schedule E line. Mortgage payments are skipped (each property’s loan adds them already). Lines you imported before are skipped automatically.</p></div></section>`;
+  const live=leases().filter(l=>!(l.out&&l.out<R.addD(M.t,-120))),n=imp.rows.filter(r=>r.use!=='skip').length;
+  const row=(r,i)=>{const dep=r.v>0;return `<tr class="${r.use==='skip'?'is-off':''}${r.dup?' rp-dup':''}"><td>${dayName(r.date)} ${r.date.slice(0,4)}</td><td>${esc(r.desc)}${r.dup?'<br><small class="dim">Imported before</small>':''}</td><td class="num ${dep?'pos':''}">${dep?'+':'−'}${fmt(Math.abs(r.v))}</td>`+
+   `<td><select data-imp="${i}" data-f="use">${dep?`<option value="rent" ${r.use==='rent'?'selected':''}>Rent</option><option value="fee" ${r.use==='fee'?'selected':''}>Late fee / other</option>`:`<option value="exp" ${r.use==='exp'?'selected':''}>Expense</option>`}<option value="skip" ${r.use==='skip'?'selected':''}>Skip</option></select></td>`+
+   `<td>${dep?`<select data-imp="${i}" data-f="lease" ${r.use==='skip'?'disabled':''}>${live.map(l=>`<option value="${l.id}" ${r.lease===l.id?'selected':''}>${esc(l.tenant)}</option>`).join('')}</select>`:`<select data-imp="${i}" data-f="prop" ${r.use==='skip'?'disabled':''}>${props().map(p=>`<option value="${p.id}" ${r.prop===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}<option value="" ${!r.prop?'selected':''}>General</option></select>`}</td>`+
+   `<td>${dep?`<input type="month" data-imp="${i}" data-f="month" value="${r.month}" ${r.use==='skip'?'disabled':''}>`:`<select data-imp="${i}" data-f="cat" ${r.use==='skip'?'disabled':''}>${R.CATS.filter(c=>!['principal','mortgage'].includes(c[0])).map(([k,l])=>`<option value="${k}" ${r.cat===k?'selected':''}>${l}</option>`).join('')}</select>`}</td></tr>`;};
+  return head+`<div class="kpis">${kpi('Money in',imp.rows.filter(r=>r.v>0&&r.use!=='skip').reduce((a,r)=>a+r.v,0),`${imp.rows.filter(r=>r.v>0&&r.use!=='skip').length} deposits to bring in`,'wallet','pos')}${kpi('Money out',-imp.rows.filter(r=>r.v<0&&r.use!=='skip').reduce((a,r)=>a+r.v,0),`${imp.rows.filter(r=>r.v<0&&r.use!=='skip').length} expenses to bring in`,'down','neg')}<div class="kpi"><div class="label">${kpiIco('check')}Skipped</div><b>${imp.rows.length-n}</b><small>${imp.rows.filter(r=>r.dup).length} imported before · ${imp.rows.filter(r=>r.why==='loan').length} mortgage</small></div><div class="kpi"><div class="label">${kpiIco('log')}File</div><b style="font-size:16px">${esc(imp.name.slice(0,28))}</b><small>${plural(imp.rows.length,'line')}</small></div></div>`+
+   `<section class="card table-card"><div class="cardhead" style="padding:20px 20px 0"><div><h2>Check each line</h2><p>Change anything that’s wrong, then bring them in</p></div>${button(`Import ${plural(n,'line')}`,'rp-imp-go','primary',n?'':'disabled')}</div><div class="table-wrap"><table class="no-tools rp-imp"><thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th>Record as</th><th>Tenant / property</th><th>Month / line</th></tr></thead><tbody>${imp.rows.map(row).join('')}</tbody></table></div></section>`;}
+ const impKey=r=>[r.date,r.v,String(r.desc).toLowerCase().replace(/\s+/g,' ').slice(0,60)].join('|');
+ async function readImport(file){try{if(!file)return;if(file.size>10e6)throw Error('Files must be smaller than 10 MB.');const text=await file.text(),rd=Autopilot.read(text,file.name,CSV),seen=new Set(state.rpImported||[]),live=leases().filter(l=>!(l.out&&l.out<R.addD(today(),-120)));
+   const words=s=>String(s).toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>2);
+   imp={name:file.name,rows:rd.rows.map(x=>{const r={date:x.date,desc:x.desc,v:x.amount};r.dup=seen.has(impKey(r));
+    if(r.v>0){const byName=live.find(l=>words(l.tenant).some(w=>words(r.desc).includes(w))),byAmt=live.filter(l=>l.rent===r.v);const l=byName||(byAmt.length===1?byAmt[0]:null)||byAmt[0]||null;
+     Object.assign(r,{use:r.dup?'skip':l?'rent':'skip',lease:(l||live[0])?.id||'',month:r.date.slice(0,7),why:l?'':'no match'});}
+    else{const loan=/mortgage|home loan|loan servic|loan pmt|escrow/i.test(r.desc),pr=props().find(p=>words(p.name+' '+(p.addr||'')).some(w=>w.length>3&&words(r.desc).includes(w)));
+     Object.assign(r,{use:r.dup||loan?'skip':'exp',why:loan?'loan':'',cat:R.guess(r.desc),prop:pr?.id||(props().length===1?props()[0].id:'')});}
+    return r;}).sort((a,b)=>b.date.localeCompare(a.date))};render();}
+  catch(err){toast(err.message||String(err));}}
+ document.addEventListener('change',e=>{const el=e.target;if(el.matches?.('[data-rp-import]')){readImport(el.files[0]);el.value='';return;}
+  if(el.dataset?.imp!==undefined&&imp){const r=imp.rows[+el.dataset.imp];if(!r)return;r[el.dataset.f]=el.value;if(el.dataset.f==='use')render();else{const k=el.closest('.kpis');}}});
+ function doImport(){if(!imp)return;const sel=imp.rows.filter(r=>r.use!=='skip');if(!sel.length)return;
+  commit(()=>{const seen=state.rpImported||(state.rpImported=[]);sel.forEach(r=>{if(r.use==='exp')exps().push({id:Budget.uid(),prop:r.prop||'',date:r.date,amount:-r.v,cat:r.cat||'other',note:r.desc.slice(0,80),repeat:'once'});else if(r.lease)pays().push({id:Budget.uid(),lease:r.lease,month:r.month||r.date.slice(0,7),date:r.date,amount:r.v,...(r.use==='fee'?{kind:'fee'}:{}),note:r.desc.slice(0,80)});seen.push(impKey(r));});if(seen.length>20000)state.rpImported=seen.slice(-20000);},
+   `${plural(sel.length,'line')} imported · ${sel.filter(r=>r.use!=='exp').length} income, ${sel.filter(r=>r.use==='exp').length} expenses`);imp=null;go(sel.some(r=>r.use==='exp')?'expenses':'rpledger');}
+
+ // ---------- expenses for each property, over the chosen dates ----------
+ function byPropCard(M,a,b){const list=[...props().filter(p=>{if(p.status!=='sold')return true;const x=R.pnl(M.s,a,b,p.id);return x.income||x.opex;}).map(p=>({id:p.id,name:p.name,c:colorOf(p)})),...(hasGeneral()?[{id:'__general',name:'General',c:'var(--muted)'}]:[])];
+  const rows=list.map(x=>{const v=R.pnl(M.s,a,b,x.id),out=v.opex+v.interest+v.principal;return {...x,in:v.income,out,cf:v.cashflow};}),max=Math.max(1,...rows.map(r=>Math.max(r.in,r.out)));
+  return `<section class="card"><div class="cardhead"><div><h2>Each property</h2><p>Money in, money out and cash flow · ${esc(rangeLabel(expRange))}</p></div><button class="link" data-go="rppl">Profit &amp; loss</button></div><div class="rp-scroll">${rows.map(r=>`<div class="budget-row rp-bp${expProp===r.id?' on':''}"><div class="row"><span>${dot(r.c)}<button class="link" data-action="rp-exp-prop" data-k="${r.id}"><b>${esc(r.name)}</b></button> <small class="dim">${r.in?`in ${fmt(r.in)} · `:''}out ${fmt(r.out)}</small></span><b class="number ${r.cf<0?'neg':r.cf>0?'pos':''}">${signed(r.cf)}</b></div><div class="meter rp-two"><i style="width:${Math.round(r.in/max*100)}%;background:var(--pos)"></i><i style="width:${Math.round(r.out/max*100)}%;background:var(--neg)"></i></div></div>`).join('')}</div></section>`;}
+
+ // ---------- property photos ----------
+ const photoPick=e=>`<div class="full rp-photo-field"><span class="rp-lbl">Photo <span class="dim">(optional)</span></span><div class="rp-photo-pick"><span class="rp-photo-prev">${e.photo?`<img src="${e.photo}" alt="">`:'<span>No photo</span>'}</span><label class="btn small">${e.photo?'Change photo':'Choose a photo'}<input type="file" accept="image/*" data-rp-photo hidden></label><button type="button" class="btn small quiet" data-action="rp-photo-rm" ${e.photo?'':'hidden'}>Remove</button></div><small>Shows on the property’s card. Resized and kept on this device.</small></div>`;
+ document.addEventListener('change',e=>{const el=e.target;if(!el.matches?.('[data-rp-photo]'))return;const f=el.closest('form'),file=el.files[0];el.value='';if(!f||!file)return;
+  coverFromFile(file).then(url=>{f._photo=url;f.querySelector('.rp-photo-prev').innerHTML=`<img src="${url}" alt="">`;f.querySelector('[data-action="rp-photo-rm"]').hidden=false;f.querySelector('.rp-photo-pick label.btn').firstChild.textContent='Change photo';}).catch(err=>{const box=$('#form-error');if(box){box.textContent=err.message;box.hidden=false;}else toast(err.message);});});
+
+ // ---------- the new screens’ buttons, forms and fields ----------
+ const plCsv=()=>{const {a,b,cols,P_,T,lines,many}=plData(),c=v=>(v/100).toFixed(2),R_=(l,get)=>[l,...(many?P_.map(x=>c(get(x))):[]),c(get(T))];
+  return [['Profit & loss',`${a} to ${b}`],['',...(many?cols.map(x=>x.name):[]),many?'Total':'Amount'],R_('Rents',x=>x.rent),R_('Late fees & other',x=>x.fees),R_('Total income',x=>x.income),...lines.map(l=>R_(l.label,x=>x.lines.find(z=>z.key===l.key)?.amount||0)),R_('Total operating expenses',x=>x.opex),R_('Net operating income',x=>x.noi),R_('Mortgage & other interest',x=>x.interest),R_('Net income',x=>x.net),R_('Loan principal paid',x=>x.principal),R_('Cash flow',x=>x.cashflow)];};
+ // a saved wording turns this tenant's details back into blanks, so it fits the next tenant too
+ const toTemplate=(t,v)=>{Object.entries(v).filter(([k,x])=>typeof x==='string'&&x.length>=3&&!/^\[/.test(x)&&!x.includes('\n')&&x!==fmt(0)&&!/_line$/.test(k)).sort((p,q)=>q[1].length-p[1].length).forEach(([k,x])=>{t=t.split(x).join(`[[${k}]]`);});return t;};
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const a=b.dataset.action,id=b.dataset.id;
+  try{switch(a){
+   case 'rp-pl-range':plRange.k=RANGES.some(r=>r[0]===b.dataset.k)?b.dataset.k:'ytd';render();break;
+   case 'rp-exp-range':expRange.k=RANGES.some(r=>r[0]===b.dataset.k)?b.dataset.k:'ytd';render();break;
+   case 'rp-pl-csv':csv(plCsv(),`profit-and-loss-${rangeOf(plRange).join('-to-')}.csv`);toast('Profit & loss exported.');break;
+   case 'rp-cal-prev':calM=R.addM(calM||thisMonth(),-1);render();break;
+   case 'rp-cal-next':calM=R.addM(calM||thisMonth(),1);render();break;
+   case 'rp-cal-now':calM='';render();break;
+   case 'rp-job-add':jobForm('',b.dataset.prop?{prop:b.dataset.prop}:{});break;
+   case 'rp-job-edit':jobForm(id);break;
+   case 'rp-job-done':jobForm(id,{done:true});break;
+   case 'rp-job-del':{const j=job(id);if(!j)break;try{if($('#modal').open)closeModal();}catch{}commit(()=>{state.rpJobs=jobs().filter(x=>x.id!==id);},`${j.title} deleted${j.exp?' · its expense stays':''}`);break;}
+   case 'rp-job-show':jobShow=['all','open','tenant','done'].includes(b.dataset.k)?b.dataset.k:'all';render();break;
+   case 'rp-doc':docSel=DOCS.some(d=>d[0]===b.dataset.k)?b.dataset.k:'welcome';docText=null;docF={};render();break;
+   case 'rp-doc-save':{const ta=$('#rp-letter');if(!ta)break;const t=toTemplate(ta.value,docVals(docL(),model())).slice(0,6000),k=docSel;docText=null;commit(()=>{state.rpTemplates={...(state.rpTemplates||{}),[k]:t};},'Saved as your template · it fills in for any tenant');break;}
+   case 'rp-doc-reset':{const k=docSel;docText=null;commit(()=>{const t={...(state.rpTemplates||{})};delete t[k];state.rpTemplates=t;},'Back to the original wording');break;}
+   case 'rp-doc-copy':{const ta=$('#rp-letter');if(!ta)break;const done=()=>toast('Copied. Paste it into an email or a text.');if(navigator.clipboard?.writeText)navigator.clipboard.writeText(ta.value).then(done,()=>{ta.select();document.execCommand('copy');done();});else{ta.select();document.execCommand('copy');done();}break;}
+   case 'rp-doc-print':{const off=()=>document.body.classList.remove('rp-print-letter');document.body.classList.add('rp-print-letter');addEventListener('afterprint',off,{once:true});window.print();setTimeout(off,1500);break;}
+   case 'rp-landlord':landlordForm();break;
+   case 'rp-photo-rm':{const f=b.closest('form');if(!f)break;f._photo=null;f.querySelector('.rp-photo-prev').innerHTML='<span>No photo</span>';b.hidden=true;f.querySelector('.rp-photo-pick label.btn').firstChild.textContent='Choose a photo';break;}
+   case 'rp-imp-clear':imp=null;render();break;
+   case 'rp-imp-go':doImport();break;
+  }}catch(err){actionError(err);}});
+ document.addEventListener('change',e=>{const el=e.target;
+  if(el.dataset?.range){const r=el.dataset.range==='rp-pl-range'?plRange:expRange,[a,b]=rangeOf(r);r.k='custom';r.from=a;r.to=b;if(/^\d{4}-\d{2}-\d{2}$/.test(el.value))r[el.dataset.end==='to'?'to':'from']=el.value;render();return;}
+  if(el.matches?.('[data-rp-pick="pl"]')){plProp=el.value;render();}});
+ document.addEventListener('submit',e=>{const f=e.target;if(f.id!=='rp-job-form'&&f.id!=='rp-ll-form')return;e.preventDefault();
+  try{const F=new FormData(f),txt=(k,n)=>String(F.get(k)||'').trim().slice(0,n);
+   if(f.id==='rp-ll-form'){const L={};[['name',80],['phone',40],['email',80],['addr',120]].forEach(([k,n])=>{const v=txt(k,n);if(v)L[k]=v;});closeModal();docText=null;commit(()=>{state.settings.rpLandlord=L;},'Your details saved · every letter uses them');return;}
+   const old=job(f.dataset.id),[pid,uid]=String(F.get('where')||'').split('|'),title=txt('title',80),status=['open','scheduled','done'].includes(F.get('status'))?String(F.get('status')):'open',reported=String(F.get('reported')||today()),cost=cents(F.get('cost'))||0,done=String(F.get('done')||''),when=String(F.get('when')||''),lid=String(F.get('lease')||'');
+   if(!title)throw Error('What needs doing?');if(!prop(pid))throw Error('Pick where it is.');if(reported>today())throw Error('The reported date hasn’t happened yet.');if(status==='done'&&done&&done>today())throw Error('The finish date hasn’t happened yet.');if(status==='done'&&done&&done<reported)throw Error('It was finished before it was reported.');
+   const j={id:old?.id||Budget.uid(),prop:pid,...(uid?{unit:uid}:{}),...(lid&&lease(lid)?{lease:lid}:{}),title,reported,status,...(F.get('urgent')==='on'?{urgent:true}:{}),...(status==='scheduled'&&when?{when}:{}),...(status==='done'?{done:done||today()}:{}),...(txt('vendor',60)?{vendor:txt('vendor',60)}:{}),...(cost?{cost}:{}),...(txt('notes',500)?{notes:txt('notes',500)}:{}),...(old?.exp&&exp(old.exp)?{exp:old.exp}:{})};
+   const toExp=status==='done'&&cost>0&&!j.exp&&F.get('toExp')==='on';
+   closeModal();commit(()=>{if(toExp){const x={id:Budget.uid(),prop:pid,cat:'repairs',note:((j.vendor?j.vendor+': ':'')+title).slice(0,80),amount:cost,date:j.done,repeat:'once'};exps().push(x);j.exp=x.id;}
+    else if(j.exp){const x=exp(j.exp);if(x&&cost){x.amount=cost;if(j.done)x.date=j.done;}}
+    if(old)state.rpJobs[state.rpJobs.indexOf(old)]=j;else jobs().push(j);},status==='done'&&old?.status!=='done'?`${title}: done${toExp?` · ${fmt(cost)} added to expenses`:''}`:old?'Repair saved':`${title} logged`);
+  }catch(err){const box=$('#form-error');if(box&&$('#modal').open){box.textContent=err.message;box.hidden=false;}else toast(err.message);}});
+
  // the top bar speaks about rent
  {const q=document.querySelector('.topbar [data-action="quick-log"]'),add=document.querySelector('.topbar [data-action="add"]');
   if(q){q.dataset.action='rp-exp-add';q.textContent='Add expense';q.setAttribute('aria-label','Add an expense');}
   if(add){add.dataset.action='rp-pay';add.setAttribute('aria-label','Record rent');add.innerHTML='<span class="add-full">＋ Record rent</span><span class="add-short">＋ Rent</span>';}}
- return {views:{dashboard,rentroll:rollView,props:propsView,tenants:tenantsView,expenses:expensesView,taxes:taxView,rpledger:ledgerView},model};
+ return {views:{dashboard,rentroll:rollView,props:propsView,tenants:tenantsView,expenses:expensesView,taxes:taxView,rpledger:ledgerView,rppl:plView,rpcal:calView,rpmaint:maintView,rpdocs:docsView,rpimport:importView},model};
 })();
 // ---------- Budget methods on screen (features.split): the monthly plan (off until turned on) and paychecks ----------
 // The method is state.settings.splitMethod ('' = off); a line's need/want/save/debt choice, when it isn't the
@@ -8981,10 +9336,11 @@ function enhanceTables(){
   if(!own)heads.forEach((h,c)=>{if(!h.innerText.trim()||h.colSpan>1||/^actions?$/i.test(h.innerText.trim()))return;h.classList.add('tbl-th');h.tabIndex=0;h.dataset.col=c;h.setAttribute('aria-sort',st.col===c?(st.dir>0?'ascending':'descending'):'none');
    h.insertAdjacentHTML('beforeend',`<span class="tbl-arrow" aria-hidden="true">${st.col===c?(st.dir>0?'▲':'▼'):'↕'}</span>`);});
   // a filter for each column with a short list of values, a search box once there are a few rows
-  const filters=rows.length<6?[]:heads.map((h,c)=>{if(!h.innerText.trim()||h.classList.contains('num'))return null;const vals=[...new Set(rows.map(r=>(r.cells[c]?.innerText||'').split('\n')[0].trim()).filter(Boolean))];
-   return vals.length>=2&&vals.length<=12&&vals.length<rows.length?{c,label:h.innerText.replace(/[↕▲▼]/g,'').trim(),vals:vals.sort()}:null;}).filter(Boolean).slice(0,3);
-  if(rows.length>=6){const wrap=t.closest('.table-wrap')||t;
-   wrap.insertAdjacentHTML('beforebegin',`<div class="tbl-tools no-print" data-for="${esc(key)}"><input type="search" class="tbl-search" placeholder="Search this table" aria-label="Search this table" value="${esc(st.q)}">${filters.map(f=>`<select class="tbl-filter" data-col="${f.c}" aria-label="Filter by ${esc(f.label)}"><option value="">${esc((l=>/\s/.test(l)?l[0].toUpperCase()+l.slice(1)+': all':'All '+(/(s|ed|ing|transaction|status)$/.test(l)?l:l.endsWith('y')?l.slice(0,-1)+'ies':l+'s'))(f.label.toLowerCase()))}</option>${f.vals.map(v=>`<option ${st.f[f.c]===v?'selected':''}>${esc(v)}</option>`).join('')}</select>`).join('')}<span class="tbl-count small muted"></span></div>`);}
+  const min=t.classList.contains('tbl-always')?2:6;
+  const filters=rows.length<min?[]:heads.map((h,c)=>{if(!h.innerText.trim()||h.classList.contains('num'))return null;const vals=[...new Set(rows.map(r=>(r.cells[c]?.innerText||'').split('\n')[0].trim()).filter(Boolean))];
+   const force=h.hasAttribute('data-filter');return vals.length>=2&&vals.length<=12&&(force||vals.length<rows.length)?{c,force,label:h.innerText.replace(/[↕▲▼]/g,'').trim(),vals:vals.sort()}:null;}).filter(Boolean).sort((a,b)=>b.force-a.force||a.c-b.c).slice(0,3);
+  if(rows.length>=min){const wrap=t.closest('.table-wrap')||t;
+   wrap.insertAdjacentHTML('beforebegin',`<div class="tbl-tools no-print" data-for="${esc(key)}"><input type="search" class="tbl-search" placeholder="Search this table" aria-label="Search this table" value="${esc(st.q)}">${filters.map(f=>`<select class="tbl-filter" data-col="${f.c}" aria-label="Filter by ${esc(f.label)}"><option value="">${esc((l=>l==='status'?'Any status':/\s/.test(l)?l[0].toUpperCase()+l.slice(1)+': all':'All '+(/(s|ed|ing|transaction|status)$/.test(l)?l:l.endsWith('y')?l.slice(0,-1)+'ies':l+'s'))(f.label.toLowerCase()))}</option>${f.vals.map(v=>`<option ${st.f[f.c]===v?'selected':''}>${esc(v)}</option>`).join('')}</select>`).join('')}<span class="tbl-count small muted"></span></div>`);}
   tblApply(t,key);});}
 function tblApply(t,key){const st=TBL[key];if(!st)return;const body=t.tBodies[0],rows=tblRows(t),pinned=[...body.rows].filter(r=>!rows.includes(r));
  if(st.col>=0){const v=r=>tblValue(tblText(r.cells[st.col]));rows.sort((a,b)=>{const x=v(a),y=v(b);return (typeof x==='number'&&typeof y==='number'?x-y:String(x).localeCompare(String(y)))*st.dir;});rows.forEach(r=>body.appendChild(r));pinned.forEach(r=>body.appendChild(r));}

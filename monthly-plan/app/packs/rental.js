@@ -8,7 +8,7 @@
 const NICHE = {
   id: 'rental',
   product: {
-    name: 'Rental Property Tracker', mark: 'R', publisher: 'LANDLORD BOOKS', version: '1.0',
+    name: 'Rental Property Tracker', mark: 'R', publisher: 'LANDLORD BOOKS', version: '1.1',
     tagline: 'Rental property tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
     title: 'Rental Property Tracker · Rent roll, expenses & Schedule E', themeColor: '#1C3C52',
     description: 'Rental Property Tracker by JPS Digital Pages. Properties and units, tenants and leases, a rent roll that shows who paid and who is late, expenses on their Schedule E lines, and your cash flow, NOI, cap rate and cash-on-cash return. Works offline.',
@@ -79,10 +79,13 @@ const NICHE = {
   defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', payout: 'platform-payout', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
 
   // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
-  nav: [['dashboard', 'Portfolio', 'today'], ['rentroll', 'Rent roll', 'calendar'], ['props', 'Properties', 'grid'], ['tenants', 'Tenants & leases', 'tags'], ['expenses', 'Expenses', 'down'], ['taxes', 'Schedule E', 'review'], ['rpledger', 'Rent ledger', 'history'],
+  nav: [['dashboard', 'Portfolio', 'today'], ['rentroll', 'Rent roll', 'wallet'], ['props', 'Properties', 'grid'], ['tenants', 'Tenants & leases', 'tags'], ['expenses', 'Expenses', 'down'],
+    ['rpcal', 'Calendar', 'calendar'], ['rpmaint', 'Repairs', 'edit'],
+    ['rppl', 'Profit & loss', 'spark'], ['taxes', 'Schedule E', 'review'], ['rpledger', 'Rent ledger', 'history'], ['rpimport', 'Import bank CSV', 'log'],
+    ['rpdocs', 'Letters & notices', 'archive'],
     ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
-  optionalNav: ['rpledger', 'taxes', 'guide'],
-  navGroups: [['Your rentals', ['dashboard', 'rentroll', 'props', 'tenants', 'expenses']], ['Taxes & records', ['taxes', 'rpledger']]],
+  optionalNav: ['rpcal', 'rpmaint', 'rppl', 'taxes', 'rpledger', 'rpimport', 'rpdocs', 'guide'],
+  navGroups: [['Your rentals', ['dashboard', 'rentroll', 'props', 'tenants', 'expenses', 'rpcal', 'rpmaint']], ['Money & taxes', ['rppl', 'taxes', 'rpledger', 'rpimport']], ['Paperwork', ['rpdocs']]],
   navGroupRest: 'Make it yours',
 
   // words used across the screens
@@ -101,12 +104,12 @@ const NICHE = {
   },
   quickLog: { placeholder: 'coffee 4.50', help: 'Try “coffee 4.50”.', demo: ['coffee', '4.50', 'Dining & coffee'] },
 
-  tourTopics: 'adding properties and tenants, recording rent, expenses, Schedule E and backups',
+  tourTopics: 'adding properties and tenants, recording rent, expenses, repairs, letters, profit & loss, Schedule E and backups',
   // first-run tour; 'backup' is the shared backup slide
   welcome: [
     { icon: 'today', step: 'WELCOME', title: 'Every rental, in one place', text: '<p>Your properties and units, who rents them, what’s come in and what’s gone out. The big number is this month’s cash flow.</p><p>Everything stays on your computer: no bank login, no subscription, no sharing tenant details with anyone.</p>' },
     { icon: 'calendar', step: 'EACH MONTH', title: 'Who paid, who’s late', text: '<p>The rent roll lists every unit: rent due, what arrived and who’s late, with your late fee ready to add.</p>' },
-    { icon: 'review', step: 'TAX TIME', title: 'Schedule E, done as you go', text: '<p>Every expense goes on its Schedule E line. At tax time, print it or export it for your accountant.</p>' },
+    { icon: 'review', step: 'TAX TIME', title: 'Profit & loss and Schedule E, done as you go', text: '<p>Every expense goes on its Schedule E line, for one property or all of them. Pick any dates for a profit &amp; loss statement; print either for your accountant.</p>' },
     'backup',
     { icon: 'grid', step: 'START', title: 'Start with one property', text: '<p>Its name and units now; the money details whenever you have them.</p>', cta: { label: 'Add my first property', action: 'rp-prop-add' }, finish: 'Look around first' },
   ],
@@ -127,6 +130,12 @@ const NICHE = {
       ['Security deposits', 'Deposits are held, not income. If you keep part of one, record it as a payment for that month.'],
       ['A tenant moves out', 'Edit the lease and set the move-out date. Rent stops after it, the unit shows as vacant, and their history stays.'],
       ['Selling a property', 'Edit it and tick Sold. It leaves your rent and returns, and stays in past Schedule E years.'],
+      ['Profit & loss for any dates', 'Profit & loss shows income, running costs, NOI, interest and net income for the dates you pick, one column per property. Expenses do the same: pick the dates and a property to see where the money went.'],
+      ['Costs for all your rentals', 'Bookkeeping software, a phone line, mileage to every property: add them as an expense with “General (not one property)”. They count in Profit & loss and Schedule E, but not against one property.'],
+      ['Importing your bank’s CSV', 'Download a CSV from your bank and open Import bank CSV. Deposits that match a tenant become rent; withdrawals become expenses on their Schedule E line. You check every line first, mortgage payments are skipped, and lines you brought in before are skipped too.'],
+      ['Repairs and tenant requests', 'Log a repair, or a request a tenant phoned in, with how urgent it is. Mark it done with the cost and it goes into your expenses (Repairs, line 14) in one step. Urgent ones show on your Portfolio.'],
+      ['Letters & notices', 'Welcome letter, rent receipt, late rent, late fee, rent increase, renewal offer, notice of entry, lease violation, notice to vacate, move-out instructions and deposit return. Each fills in from your records; change any words, save your wording, print or copy. Notice rules differ by state: check yours.'],
+      ['The calendar', 'Rent due dates (green once paid, red when late), repeating bills and the mortgage, lease ends and move-outs, and scheduled repairs, on one month. Click a rent to record it.'],
       ['Depreciation', 'Not worked out here: it depends on your purchase price, land value and the year you started renting. Your tax pro can add it.'],
       ['Is this tax advice?', 'No. It’s a worksheet of your own numbers, laid out like Schedule E, to make tax time easier.'],
     ],
@@ -134,7 +143,7 @@ const NICHE = {
 
   // the fictional landlord behind "Explore sample data": three properties, one late tenant, one lease ending, one vacancy
   sample: {
-    name: 'Morgan', opening: 0, settings: {},
+    name: 'Morgan', opening: 0, settings: { rpLandlord: { name: 'Morgan Rentals LLC', phone: '(555) 010-2000', email: 'morgan@example.com' } },
     note: 'Record rent as it arrives.',
     extraCategories: [],
     amounts: {},
@@ -176,18 +185,29 @@ const NICHE = {
         { id: uid(), prop: 'p-maple', date: addM(y0, 2) + '-10', amount: 420000, cat: 'taxes', note: 'Property taxes', repeat: 'yearly' },
         { id: uid(), prop: 'p-maple', date: first.slice(0, 8) + '20', amount: 14000, cat: 'utilities', note: 'Water & sewer', repeat: 'monthly' },
         { id: uid(), prop: 'p-maple', date: first.slice(0, 8) + '12', amount: 8500, cat: 'cleaning', note: 'Lawn & snow', repeat: 'monthly' },
-        { id: uid(), prop: 'p-maple', date: addM(now, -5) + '-18', amount: 34000, cat: 'repairs', note: 'Plumber: kitchen leak', repeat: 'once' },
+        { id: 'e-plumb', prop: 'p-maple', date: addM(now, -5) + '-18', amount: 34000, cat: 'repairs', note: 'Harbor Plumbing: kitchen leak', repeat: 'once' },
         { id: uid(), prop: 'p-maple', date: addM(now, -2) + '-06', amount: 6400, cat: 'supplies', note: 'Smoke detectors', repeat: 'once' },
         { id: uid(), prop: 'p-oak', date: addM(start, 4) + '-22', amount: 115000, cat: 'insurance', note: 'Landlord insurance', repeat: 'yearly' },
         { id: uid(), prop: 'p-oak', date: addM(y0, 5) + '-10', amount: 360000, cat: 'taxes', note: 'Property taxes', repeat: 'yearly' },
         { id: uid(), prop: 'p-oak', date: addM(now, -9) + '-14', amount: 125000, cat: 'repairs', note: 'Water heater replaced', repeat: 'once' },
-        { id: uid(), prop: 'p-oak', date: addM(now, -3) + '-02', amount: 18000, cat: 'repairs', note: 'Furnace service', repeat: 'once' },
+        { id: 'e-furn', prop: 'p-oak', date: addM(now, -3) + '-02', amount: 18000, cat: 'repairs', note: 'Northside Heating: furnace service', repeat: 'once' },
         { id: uid(), prop: 'p-harbor', date: first.slice(0, 8) + '05', amount: 32000, cat: 'hoa', note: 'HOA fees', repeat: 'monthly' },
         { id: uid(), prop: 'p-harbor', date: addM(start, 10) + '-28', amount: 52000, cat: 'insurance', note: 'Condo insurance', repeat: 'yearly' },
         { id: uid(), prop: 'p-harbor', date: addM(y0, 8) + '-10', amount: 230000, cat: 'taxes', note: 'Property taxes', repeat: 'yearly' },
         { id: uid(), prop: 'p-harbor', date: addM(now, -1) + '-26', amount: 4500, cat: 'advertising', note: 'Rental listing', repeat: 'once' },
         { id: uid(), prop: 'p-harbor', date: addM(now, -1) + '-29', amount: 22000, cat: 'cleaning', note: 'Turnover cleaning', repeat: 'once' },
         { id: uid(), prop: 'p-harbor', date: addM(now, -6) + '-11', amount: 15000, cat: 'legal', note: 'Lease review', repeat: 'once' },
+        // costs for all three rentals, not one
+        { id: uid(), prop: '', date: first.slice(0, 8) + '08', amount: 1500, cat: 'other', note: 'Bookkeeping software', repeat: 'monthly' },
+        { id: uid(), prop: '', date: addM(start, 3) + '-15', amount: 18500, cat: 'other', note: 'Landlord association dues', repeat: 'yearly' },
+      ];
+      // repairs: an urgent one a tenant reported, one booked, one to do before listing, and two finished ones already in expenses
+      s.rpJobs = [
+        { id: uid(), prop: 'p-oak', unit: 'u-oak', lease: 'l-ng', title: 'No hot water upstairs', reported: addD(t, -1), status: 'open', urgent: true, notes: 'Water heater is new; check the pilot light first.' },
+        { id: uid(), prop: 'p-maple', unit: 'u-mb', lease: 'l-priya', title: 'Bathroom fan is noisy', reported: addD(t, -6), status: 'scheduled', when: addD(t, 3), vendor: 'Harbor Electric' },
+        { id: uid(), prop: 'p-harbor', unit: 'u-hv', title: 'Repaint before listing', reported: addD(t, -20), status: 'open' },
+        { id: uid(), prop: 'p-maple', unit: 'u-ma', lease: 'l-sam', title: 'Kitchen leak under the sink', reported: addM(now, -5) + '-15', status: 'done', done: addM(now, -5) + '-18', vendor: 'Harbor Plumbing', cost: 34000, exp: 'e-plumb' },
+        { id: uid(), prop: 'p-oak', unit: 'u-oak', title: 'Furnace service', reported: addM(now, -3) + '-01', status: 'done', done: addM(now, -3) + '-02', vendor: 'Northside Heating', cost: 18000, exp: 'e-furn' },
       ];
     },
   },

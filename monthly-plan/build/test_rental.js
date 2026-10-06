@@ -37,6 +37,13 @@ module.exports=({eq,ok})=>{
   eq('1% rule: rent / price', m.onePct, 140000/32000000);
   eq('leases ending in 60 days', R.ending(S,'2026-10-06').map(l=>l.id), ['l1']);
   eq('guess: plumber → repairs, HOA → hoa, county tax → taxes, lawn → cleaning', ['Plumber visit','HOA dues','County tax bill','Lawn care'].map(R.guess), ['repairs','hoa','taxes','cleaning']);
+  const G={...S,exps:[...S.exps,{id:'g1',prop:'',date:'2026-10-04',amount:1500,cat:'legal',note:'Bookkeeping app',repeat:'monthly'}]};
+  eq('a general expense belongs to no property', R.expenses(G,'2026-10-01','2026-10-31','p1').some(x=>x.e?.id==='g1'), false);
+  eq('…and shows under General', R.expenses(G,'2026-10-01','2026-10-31','__general').map(x=>x.amount), [1500]);
+  ok('Schedule E gets a General column', R.scheduleE(G,2026,'2026-10-06').some(x=>x.prop.general&&x.expenses===1500*1));
+  const L=R.pnl(G,'2026-10-01','2026-10-31');
+  eq('P&L October: income, opex, NOI, interest, net, principal, cash flow', [L.income,L.opex,L.noi,L.interest,L.net,L.principal,L.cashflow], [240000,9000+35000+1500,240000-45500,110000,240000-45500-110000,40000,240000-45500-110000-40000]);
+  eq('P&L one property', R.pnl(G,'2026-10-01','2026-10-31','p2').income, 100000);
   eq('first month with data: money or a property added, not a lease start', R.firstMonth(S), '2026-01');
   eq('per property', R.firstMonth(S,'p2'), '2026-03');
   eq('whole months only: 9 complete months for the duplex', R.metrics(S,'2026-10-06','p1').months, 9);
