@@ -1,6 +1,6 @@
 """Buyer guides (US Letter, print to PDF) for the app editions, in the Monthly Plan guide's style.
 
-usage: python3 build/build_guides.py [tracker|debt ...]     (from monthly-plan/)
+usage: python3 build/build_guides.py [tracker|debt|bills|networth|paycheck|budget ...]     (from monthly-plan/)
 Writes listing/<dir>/<Product>_Guide.html; build/guide_pdf.js turns each into a PDF.
 Screenshots come from listing/<dir>/shots (the deck captures).
 """
@@ -521,6 +521,71 @@ def paycheck_pages(shot):
 <tr><td>My payday moved</td><td>Edit the income and set the next payday; every later one follows.</td></tr>''')),
     ]
 
+BUDGET = dict(
+    dir='monthly-plan', file='Monthly_Plan', name='Monthly Plan', html='MonthlyBudgetPlanner.html', mark='M', version='2.4',
+    storage='mp24-guide-img:', tour='your plan, your spending, your goals and backups', safe_page=9,
+    colors=dict(bold='#2E2040', accent='#5C3F8F', pop='#F0B98F', page='#F8F5FA', ink='#2A2233', ink2='#5F5770', ink3='#8E86A0',
+                rule='#DDD5E6', soft='#ECE6F3', warm='#FBF1E6', warmline='#EFD9BF', green='#E6F1EA', greenline='#BFDCCB'),
+    cover=dict(kicker='Your budget guide', tag='Know what’s really left.', image='tab-dashboard.jpg',
+               intro='Plan your month once, follow your spending as you go, and see the whole year clearly, all in one file on your own computer.'),
+)
+
+
+def budget_pages(shot):
+    P = BUDGET
+    return [
+        ('Start here', start_here(P, '<li><b>Open Monthly budget</b> and set your plan once: income, bills, subscriptions, debt payments, everyday spending and savings. Every new month starts from it.</li>',
+                                  'Choose <b>Explore sample data</b> on the welcome screen or in Settings &amp; backup. A fictional household’s year fills every screen, in a separate session. <b>Return to my budget</b> brings back your own, untouched.')),
+        ('The idea', f'''<h1>One honest number.</h1>
+<p class="lede">The monthly dashboard shows what’s left after your commitments: not just what’s in the account, but what’s still free once unpaid bills and planned savings are covered.</p>
+{shot("tab-dashboard.jpg", "guide-dashboard", "Monthly dashboard")}
+<table><tr><th>Word</th><th>What it means</th></tr>
+<tr><td>Planned</td><td>What you expect for the month, from your monthly budget.</td></tr>
+<tr><td>Actual</td><td>What you logged or imported.</td></tr>
+<tr><td>Saving</td><td>Money moved aside: savings, sinking funds, investments. Neither income nor spending.</td></tr>
+<tr><td>Transfer</td><td>Money between your own accounts. Never counted.</td></tr></table>'''),
+        ('Your plan', f'''<h1>Plan once. It repeats.</h1>
+<p class="lede">Monthly budget holds your plan. Each new month starts from your usual amounts; change any month without touching the rest.</p>
+{shot("tab-budget.jpg", "guide-budget", "Monthly budget")}
+<div class="two"><div class="box"><h3>Groups</h3><p>Income, bills, subscriptions, debt payments, everyday spending, sinking funds, savings and investments. Add or rename categories in each.</p></div>
+<div class="box"><h3>Plan tools</h3><p><b>Use recurring amounts</b>, <b>Copy last month into this one</b>, carry your opening balance, or add a category.</p></div></div>'''),
+        ('Budget methods', f'''<h1>50/30/20, if you like.</h1>
+<p class="lede">Optional and off until you turn it on: Settings &amp; backup → <b>Budget method</b>. Pick 50/30/20, 70/20/10, 80/20 or zero-based.</p>
+{shot("tab-split.jpg", "guide-split", "Budget methods")}
+<p>Two pies sit on your monthly plan: the method’s goal and your plan. Each line says what the gap means: under the goal on needs is good, under on wants is room, under on savings is a gap. <b>So far</b> compares what you’ve actually spent and saved. Open <b>Is each line a need, a want, saving or debt?</b> to fix any category the app guessed wrong.</p>'''),
+        ('Day to day', f'''<h1>Log it, or import it.</h1>
+<p class="lede"><b>Quick log</b> and <b>Add transaction</b> sit at the top of every screen. Or download a CSV from your bank and use <b>Import CSV</b> on Transactions.</p>
+{shot("tab-activity.jpg", "guide-activity", "Transactions")}
+<table>
+<tr><td>Import CSV</td><td>Reads any date format, remembers the categories you pick, and skips rows you already have. PDF statements can’t be read.</td></tr>
+<tr><td>Bulk actions</td><td>Tick rows to change their category or delete them together, with Undo.</td></tr>
+<tr><td>Recurring payments</td><td>Set a payment once; match it when it happens with <b>Record / match</b>.</td></tr></table>'''),
+        ('The year', f'''<h1>The whole year, and where to cut.</h1>
+<p class="lede">Annual dashboard: monthly averages, where the money went and where it came from. Click a slice to see its transactions.</p>
+{shot("tab-cuts.jpg", "guide-cuts", "Cut back")}
+<div class="two"><div class="box"><h3>Cut back</h3><p>Ideas to cancel or trim, from your own spending. <b>Apply</b> one and see what it adds up to in 1, 5, 10 and 20 years.</p></div>
+<div class="box"><h3>Year over year</h3><p>Every year you have records for, side by side. Import older statements to fill it back.</p></div></div>'''),
+        ('Getting around', '''<h1>The screens.</h1>
+<p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
+<table><tr><th>Screen</th><th>What it is for</th></tr>
+<tr><td>Monthly dashboard</td><td>What’s left after your commitments, and how the month is going.</td></tr>
+<tr><td>Annual dashboard · Year over year</td><td>The year at a glance; every year side by side.</td></tr>
+<tr><td>Cut back</td><td>What to cancel or trim, and what it adds up to.</td></tr>
+<tr><td>Monthly budget</td><td>Your plan, month by month.</td></tr>
+<tr><td>Transactions</td><td>Everything you logged or imported; import and export CSV.</td></tr>
+<tr><td>Savings &amp; goals</td><td>Savings goals and debt payoff, as cards or a table.</td></tr>
+<tr><td>Recurring payments · Calendar</td><td>Repeating payments, and your month day by day.</td></tr>
+<tr><td>Wealth snapshots</td><td>Assets, debts and net worth, month by month.</td></tr>
+<tr><td>Insights · Weekly review</td><td>What stands out, and a two-minute weekly check-in.</td></tr></table>
+<p>Every table sorts, searches and filters. Every screen prints.</p>'''),
+        ('Read this one', SAFE('budget', 'every month, category, transaction, goal, recurring payment and wealth snapshot')),
+        ('When you need help', help_page(P, '''<tr><td>A payment shows twice</td><td>A card payment from checking is a transfer when the card’s purchases are already logged. Use <b>Credit card payoff (purchases already logged)</b>.</td></tr>
+<tr><td>Next month is empty</td><td>It starts from your usual amounts. Plan tools → <b>Use recurring amounts</b> or <b>Copy last month into this one</b>.</td></tr>
+<tr><td>My bank file won’t import</td><td>Download the CSV version from your bank (Download or Export), not the PDF.</td></tr>
+<tr><td>I updated from an earlier version</td><td>Open the new file in the same browser: your budget carries over. Download a backup first.</td></tr>''')),
+    ]
+
+BUDGET['pages'] = budget_pages
 BILLS['pages'] = bills_pages
 AUTOPILOT['pages'] = autopilot_pages
 DEBT['pages'] = debt_pages
@@ -528,6 +593,6 @@ NETWORTH['pages'] = networth_pages
 PAYCHECK['pages'] = paycheck_pages
 
 if __name__ == '__main__':
-    which = sys.argv[1:] or ['tracker', 'debt', 'bills', 'networth', 'paycheck']
+    which = sys.argv[1:] or ['tracker', 'debt', 'bills', 'networth', 'paycheck', 'budget']
     for w in which:
-        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK}[w])
+        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK, 'budget': BUDGET}[w])

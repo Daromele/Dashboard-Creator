@@ -1,0 +1,52 @@
+A monthly budget planner that does the adding up for you, shows the whole year at a glance, and opens in any browser without ever asking you to sign up for anything.
+
+Monthly Plan is one HTML file. You download it, double-click it, and it opens like a web page, except everything inside it is yours to edit. Set your plan once and it repeats every month, so you adjust a few numbers instead of rebuilding a spreadsheet from scratch. Log what you spend, or import your bank's CSV and let it sort the entries for you. The dashboard shows one honest number: what's left after your commitments, not just what's in the account. No bank login, no subscription. Your figures stay on your own computer.
+
+How It Works:
+1. Download the file and save it somewhere you will find it again.
+2. Double-click to open it in your browser. Take the two-minute tour, or open Sample Mode to explore a fictional household's year first.
+3. Build your plan once: income, bills, subscriptions, debt payments, everyday spending and savings. Every new month starts from it.
+4. Log what you spend as you go, or import your bank's CSV and let it sort the entries for you.
+5. Check the dashboard and the two-minute weekly review: what's left after your commitments, and what stands out.
+
+WHAT YOU'LL GET:
+• One HTML monthly budget planner file
+• Monthly dashboard built around one honest number: what's left after your commitments
+• A repeating monthly plan: set your budget once, change any month without touching the rest
+• Optional budget methods: compare your monthly plan with 50/30/20, 70/20/10, 80/20 or zero-based, shown as two pies (the goal and your plan), with each category marked need, want, saving or debt
+• Annual dashboard: monthly averages, where the money went and where it came from, the whole year at a glance
+• Year over year: every year you have records for, side by side
+• Cut back: ideas to cancel or trim, and what the cuts add up to in 1, 5, 10 and 20 years
+• Transactions with search, filters and charts, plus bank CSV import that reads any date format, remembers your categories and refuses duplicates
+• Savings goals and debt payoff goals, with optional cover photos, as cards or a table
+• Recurring payments and a money calendar
+• Wealth snapshots to track net worth month by month, kept separate from your budget
+• Insights that point out what actually stands out, and a two-minute weekly review
+• Every table sorts, searches and filters
+• Bulk category tools, and a separate currency per account if you need one
+• 8 color themes, light and dark; every screen prints
+• Full backup and restore, plus a daily folder backup in Chrome and Edge
+• Built-in how-to guide included
+
+PERFECT FOR:
+Getting a real handle on monthly spending, anyone following the 50/30/20 rule or zero-based budgeting, paying off a credit card or loan, saving for a house down payment or a trip, sinking funds, couples budgeting together, freelancers with uneven income, anyone leaving a messy budget spreadsheet behind, and anyone who wants their finances to stay private on their own computer.
+
+Please note: this is a digital file, not a physical product. Nothing will be mailed to you. You add your numbers by hand or import your bank's CSV file; it doesn't connect to your bank or move money for you. Your data is stored in your own browser on your own device, and this planner never uploads anything anywhere. Download a backup regularly; the app reminds you, and Chrome and Edge can back up to a folder automatically every day. Works best on a computer; phones and tablets can view and log spending. PDF statements can't be read: download the CSV version from your bank. This is not financial advice.
+
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
+
+👍 You Can
+✔ Use this planner for your own household's budget, for as long as you like
+✔ Use it on your own computers, and print your own copies
+✔ Back up your own file and your own data as often as you want
+
+👎 You Cannot
+❌ Resell, redistribute, or share this file with others
+❌ Use it commercially, or include it in any product, bundle or service of your own
+❌ Claim it as your own work, or alter it for resale
+❌ Return it — digital files cannot be returned once downloaded
+
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order! hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+
+Monthly Plan by JPS Digital Pages

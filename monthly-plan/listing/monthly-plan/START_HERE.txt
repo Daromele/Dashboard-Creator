@@ -1,0 +1,24 @@
+MONTHLY PLAN | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open MonthlyBudgetPlanner.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find, ideally a synced folder such as iCloud Drive, Dropbox, OneDrive or Google Drive. It works offline once open.
+
+FIRST STEPS
+A short welcome tour opens the first time. Then open Monthly budget and set your plan once: what comes in, your bills, subscriptions, debt payments, everyday spending and savings. Every new month starts from it.
+
+SAMPLE
+Explore sample mode, on the welcome screen or in Settings & backup, fills every screen with a fictional household's year, in a separate session. Return to my budget restores your own.
+
+EACH WEEK
+Log what you spend with Quick log or Add transaction, or import your bank's CSV. The Weekly review takes two minutes and keeps the habit going. Optional: turn on a budget method (50/30/20, 70/20/10, 80/20 or zero-based) in Settings & backup > Budget method.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one JSON file. Keep that file outside the app. To restore or move to another computer, copy the HTML file and your backup across and use Restore backup. Data does not sync automatically. Download a backup before clearing browser data or switching browsers.
+Chrome and Edge can also write a dated backup to a folder you choose each day. Safari and Firefox do not support this; use Download backup instead.
+
+UPDATING FROM AN EARLIER VERSION
+Open the new file in the same browser you used before: your budget carries over. Download a backup first, just in case.
+
+HELP
+Read Monthly_Plan_Guide.pdf, included with your download. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+Website: https://www.jpsdigitalpages.com

@@ -1,0 +1,198 @@
+{
+ "product": "Monthly Plan",
+ "footer": "Monthly Plan · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Monthly_Plan_Etsy_Mockups.html",
+ "storage_prefix": "mp24-kit-img:",
+ "brand": {
+  "ink": "#2A2233",
+  "bold": "#2E2040",
+  "pop": "#F0B98F",
+  "paper": "#F8F5FA",
+  "calm": "#5C3F8F"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Monthly &amp; annual budget planner",
+   "headline": "Know what’s<br>really left.",
+   "pills": [
+    "Set it once",
+    "50/30/20 optional",
+    "Private &amp; offline",
+    "One-time purchase"
+   ],
+   "image": "tab-dashboard.jpg",
+   "alt": "Monthly Plan: monthly dashboard"
+  },
+  {
+   "dark": false,
+   "label": "Monthly budget",
+   "eyebrow": "Monthly budget",
+   "headline": "Plan once. It repeats.",
+   "sub": "Change one month without touching the rest.",
+   "image": "tab-budget.jpg",
+   "foot": "Fictional sample household shown"
+  },
+  {
+   "dark": true,
+   "label": "Budget methods",
+   "eyebrow": "Budget methods",
+   "headline": "50/30/20, if you like.",
+   "sub": "Or 70/20/10, 80/20, zero-based. Off until you turn it on.",
+   "image": "tab-split.jpg",
+   "foot": "The goal and your plan, side by side"
+  },
+  {
+   "dark": false,
+   "label": "Annual",
+   "eyebrow": "Annual dashboard",
+   "headline": "The whole year, at a glance.",
+   "sub": "Monthly averages, where it went and where it came from.",
+   "image": "tab-annual.jpg",
+   "foot": "Click a slice to see its transactions"
+  },
+  {
+   "dark": true,
+   "label": "Transactions",
+   "eyebrow": "Transactions",
+   "headline": "Every transaction, in one place.",
+   "sub": "Log as you go, or import your bank’s CSV file.",
+   "image": "tab-activity.jpg",
+   "foot": "Any date format · duplicate protection"
+  },
+  {
+   "dark": false,
+   "label": "Goals",
+   "eyebrow": "Savings &amp; goals",
+   "headline": "Make room for what matters.",
+   "sub": "Savings goals and debt payoff, with your own photos.",
+   "image": "tab-goals.jpg",
+   "foot": "Cards or table · search, sort and filter"
+  },
+  {
+   "dark": true,
+   "label": "Cut back",
+   "eyebrow": "Cut back",
+   "headline": "Small cuts, big years.",
+   "sub": "Pick what to cancel or trim; see it add up.",
+   "image": "tab-cuts.jpg",
+   "foot": "In 1, 5, 10 and 20 years"
+  },
+  {
+   "dark": false,
+   "label": "Recurring",
+   "eyebrow": "Recurring payments",
+   "headline": "Repeat the plan. Record the reality.",
+   "sub": "Set a payment once, then match it when it happens.",
+   "image": "tab-scheduled.jpg",
+   "foot": "Weekly · monthly · quarterly · yearly"
+  },
+  {
+   "dark": true,
+   "label": "Calendar",
+   "eyebrow": "Calendar",
+   "headline": "Your money, day by day.",
+   "sub": "Planned and recorded payments on one calendar.",
+   "image": "tab-calendar.jpg",
+   "foot": "Select any day for its detail"
+  },
+  {
+   "dark": false,
+   "label": "Wealth",
+   "eyebrow": "Wealth snapshots",
+   "headline": "Your net worth, month by month.",
+   "sub": "Assets and debts, kept separate from your budget.",
+   "image": "tab-wealth.jpg",
+   "foot": "Assets · debts · net worth"
+  },
+  {
+   "dark": true,
+   "label": "Insights",
+   "eyebrow": "Insights",
+   "headline": "Notice the patterns.",
+   "sub": "What stands out, and where your money goes.",
+   "image": "tab-insights.jpg",
+   "foot": "Nothing estimated, nothing invented"
+  },
+  {
+   "dark": false,
+   "label": "Private & offline",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Yours, and safe.",
+   "sub": "No login, no bank connection, nothing uploaded. One-click backups.",
+   "image": "tab-settings.jpg",
+   "foot": "Your data never leaves your computer"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks. One honest budget.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Lavender",
+     "image": "theme-lavender.jpg",
+     "swatch": "#2E2040"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Blush",
+     "image": "theme-blush.jpg",
+     "swatch": "#63304A"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Monthly Budget Planner, Budget Spreadsheet Alternative, 50/30/20 Budget, Annual Budget Tracker, Expense Tracker, Savings Goals, Offline",
+  "tags": [
+   "budget planner",
+   "monthly budget",
+   "budget tracker",
+   "budget spreadsheet",
+   "expense tracker",
+   "annual budget",
+   "50 30 20 budget",
+   "zero based budget",
+   "savings tracker",
+   "debt payoff tracker",
+   "sinking funds",
+   "budget template",
+   "finance planner"
+  ],
+  "description_file": "description.txt"
+ }
+}

@@ -8013,13 +8013,13 @@ const SplitUI=(()=>{
  const pick=id=>`<label class="sp-pick no-print"><span>Your method</span><select data-split-pick aria-label="Budget method">${Split.ORDER.map(k=>`<option value="${k}" ${id===k?'selected':''}>${Split.METHODS[k].name}</option>`).join('')}</select></label>`;
  const pie=(title,parts,total,label)=>`<div class="sp-pie"><h3>${title}</h3>${donutMarkup(parts.filter(x=>x[1]>0),total,label)}</div>`;
  // what a bucket still needs, in plain words: under on needs is good, under on wants is room, under on saving is a gap
- function status(r){const d=r.diff;if(Math.abs(d)<100)return ['On the goal ✓','pos'];
+ function status(r,sofar){const d=r.diff;if(Math.abs(d)<100)return ['On the goal ✓','pos'];
   if(r.key==='save'||r.key==='debt')return d>0?[`${fmt(d)} ahead of the goal ✓`,'pos']:[`${fmt(-d)} more to reach ${r.target}%`,'warn'];
   if(d>0)return [`${fmt(d)} over the goal`,'warn'];
-  return r.key==='need'?[`${fmt(-d)} under the goal ✓`,'pos']:[`${fmt(-d)} still free to plan`,''];}
+  return r.key==='need'?[`${fmt(-d)} under the goal ✓`,'pos']:[`${fmt(-d)} still free to ${sofar?'spend':'plan'}`,''];}
  // items: [{key, name, amount, tag}] (tag already resolved); income in cents
  // act(bucket, amount): an optional button that plans the missing amount (the paycheck planner passes one)
- function card({items,income,title,sub,extra='',empty:emptyText,unit='income',how='',act}){const id=method();if(!id)return '';
+ function card({items,income,title,sub,extra='',empty:emptyText,unit='income',how='',act,sofar=false}){const mine=sofar?'So far':'Your plan',notYet=sofar?'Not spent or saved yet':'Not planned yet',did=sofar?'so far':'planned';const id=method();if(!id)return '';
   const R=Split.compute(items,income,id),M=Split.METHODS[R.id];
   const nm=M.zero?'zero-based':M.name,head=`<div class="cardhead"><div><h2>${esc((title||'Your {m} budget').replace('{m}',nm))}</h2><p>${esc(sub||M.about)}</p></div><div class="nw-segs">${extra}${pick(R.id)}</div></div>`;
   const steps=how?`<ol class="sp-how no-print">${how.map(x=>`<li><span>${x}</span></li>`).join('')}</ol>`:'';
@@ -8028,12 +8028,12 @@ const SplitUI=(()=>{
   let body;
   if(R.zero){const done=R.unassigned===0;
    const btns=act&&left>0?act({key:'save',label:'Saving',tags:['save']},left):'';
-   body=`<div class="sp-pies">${pie('Your plan',[...tagged,['Still to assign',left,COLOR.left]],over?R.assigned:income,over?'planned':unit)}<div class="sp-zero"><small>${over?'Planned more than comes in':done?'Every dollar has a job':'Still to assign'}</small><strong class="number ${over?'neg':done?'pos':''}">${twNum('sp-zero',Math.abs(R.unassigned))}</strong><p class="small">${over?`Trim ${fmt(-R.unassigned)} somewhere, or plan more income.`:done?'Nothing is left without a plan. ✓':`${fmt(R.assigned)} of ${fmt(income)} has a job. Give the rest one: savings, a goal, or paying down debt.`}</p>${btns?`<div class="row-acts">${btns}</div>`:''}</div></div>`;}
-  else{const goal=R.rows.map(r=>[r.label,r.goal,COLOR[r.key]]),yours=[...R.rows.map(r=>[r.label,r.actual,COLOR[r.key]]),['Not planned yet',left,COLOR.left]];
-   body=`<div class="sp-pies">${pie(`The ${M.name} goal`,goal,income,unit)}${pie('Your plan',yours,over?R.assigned:income,over?'planned':unit)}</div>`+
-    `<div class="sp-todo">${R.rows.map(r=>{const [txt,tone]=status(r),b=act&&r.diff<=-100&&(r.key==='save'||r.key==='debt')?act(r,-r.diff):'';
-     return `<div class="sp-row"><span><i class="dot" style="background:${COLOR[r.key]}"></i><b>${r.label}</b><small class="dim">Goal ${fmt(r.goal)} · planned ${fmt(r.actual)}</small></span><span class="sp-fig"><b class="${tone}">${txt}</b>${b}</span></div>`;}).join('')}</div>`+
-    (over?`<p class="small warn">Planned ${fmt(-R.unassigned)} more than comes in.</p>`:'');}
+   body=`<div class="sp-pies">${pie(mine,[...tagged,['Still to assign',left,COLOR.left]],over?R.assigned:income,over?'planned':unit)}<div class="sp-zero"><small>${over?'Planned more than comes in':done?'Every dollar has a job':'Still to assign'}</small><strong class="number ${over?'neg':done?'pos':''}">${twNum('sp-zero',Math.abs(R.unassigned))}</strong><p class="small">${over?`Trim ${fmt(-R.unassigned)} somewhere, or plan more income.`:done?'Nothing is left without a plan. ✓':`${fmt(R.assigned)} of ${fmt(income)} has a job. Give the rest one: savings, a goal, or paying down debt.`}</p>${btns?`<div class="row-acts">${btns}</div>`:''}</div></div>`;}
+  else{const goal=R.rows.map(r=>[r.label,r.goal,COLOR[r.key]]),yours=[...R.rows.map(r=>[r.label,r.actual,COLOR[r.key]]),[notYet,left,COLOR.left]];
+   body=`<div class="sp-pies">${pie(`The ${M.name} goal`,goal,income,unit)}${pie(mine,yours,over?R.assigned:income,over?'planned':unit)}</div>`+
+    `<div class="sp-todo">${R.rows.map(r=>{const [txt,tone]=status(r,sofar),b=act&&r.diff<=-100&&(r.key==='save'||r.key==='debt')?act(r,-r.diff):'';
+     return `<div class="sp-row"><span><i class="dot" style="background:${COLOR[r.key]}"></i><b>${r.label}</b><small class="dim">Goal ${fmt(r.goal)} · ${did} ${fmt(r.actual)}</small></span><span class="sp-fig"><b class="${tone}">${txt}</b>${b}</span></div>`;}).join('')}</div>`+
+    (over?`<p class="small warn">${sofar?'Spent and saved':'Planned'} ${fmt(-R.unassigned)} more than ${sofar?'came':'comes'} in.</p>`:'');}
   const L=[...items].filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
   const edit=`<details class="sp-tags no-print"><summary>Is each line a need, a want, saving or debt?</summary><p class="small muted">The app guesses from the name and type; change any that are wrong.</p><div class="sp-tag-list">${L.map(x=>`<label class="sp-tag"><span>${esc(x.name)} <small class="dim">${fmt(x.amount)}</small></span><select data-split-key="${esc(x.key)}" aria-label="${esc(x.name)} counts as">${Split.TAGS.map(([k,l])=>`<option value="${k}" ${x.tag===k?'selected':''}>${l}</option>`).join('')}</select></label>`).join('')}</div></details>`;
   return `<section class="card sp-card">${head}${steps}${body}${L.length?edit:''}</section>`;}
@@ -8042,7 +8042,7 @@ const SplitUI=(()=>{
  function budgetCard(m){if(!method()||P.features.paycheck)return '';const rows=Budget.rows(state,m),t=Budget.totals(state,m),actual=basis==='actual';
   const items=rows.filter(c=>c.type==='expense'||c.type==='saving').map(c=>({key:'cat:'+c.id,name:c.name,amount:actual?c.actual:c.planned,tag:tagOf('cat:'+c.id,catTag(c))}));
   const sw=`<div class="segment no-print" role="group" aria-label="Planned or actual">${[['plan','Planned'],['actual','So far']].map(([k,l])=>`<button data-action="split-basis" data-k="${k}" aria-pressed="${basis===k}">${l}</button>`).join('')}</div>`;
-  return card({items,income:actual?t.income.actual:t.income.plan,sub:Split.METHODS[method()].zero?`${actual?'What you’ve spent and saved so far':'Your plan'} for ${monthName(m)}: give every dollar a job`:`${actual?'What you’ve spent and saved so far':'Your plan'} for ${monthName(m)}, against ${Split.METHODS[method()].name}`,extra:sw,how:['Pick your method. It’s saved for every month.','Your planned categories fill <b>Your plan</b>.','Change category amounts until it matches the goal.'],empty:actual?'Nothing received yet this month.':'Plan your income for this month, and the split shows here.'});}
+  return card({items,income:actual?t.income.actual:t.income.plan,sub:Split.METHODS[method()].zero?`${actual?'What you’ve spent and saved so far':'Your plan'} for ${monthName(m)}: give every dollar a job`:`${actual?'What you’ve spent and saved so far':'Your plan'} for ${monthName(m)}, against ${Split.METHODS[method()].name}`,sofar:actual,extra:sw,how:['Pick your method. It’s saved for every month.','Your planned categories fill <b>Your plan</b>.','Change category amounts until it matches the goal.'],empty:actual?'Nothing received yet this month.':'Plan your income for this month, and the split shows here.'});}
  function settingsCard(){const id=method();
   return `<section class="card"><div class="cardhead"><div><h2>Budget method</h2><p>${P.features.paycheck?'How each paycheck is split, compared with a rule of thumb.':'Optional: compare your monthly plan with a rule of thumb. Off by default.'}</p></div></div><label class="full">Method<select id="split-method-select" aria-label="Budget method">${P.features.paycheck?'':`<option value="" ${!id?'selected':''}>Off</option>`}${Split.ORDER.map(k=>`<option value="${k}" ${id===k?'selected':''}>${Split.METHODS[k].name}</option>`).join('')}${P.features.paycheck?`<option value="" ${!id?'selected':''}>Don’t show a method</option>`:''}</select><small>${id?esc(Split.METHODS[id].about):'Turn one on to see a 50/30/20, 70/20/10, 80/20 or zero-based check on your '+(P.features.paycheck?'paychecks':'monthly plan')+'.'}</small></label></section>`;}
  document.addEventListener('click',e=>{const b=e.target.closest('[data-action^="split-"]');if(!b)return;

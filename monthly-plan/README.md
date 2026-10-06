@@ -5,11 +5,12 @@ digital download (JPS Digital Pages). Everything needed to rebuild the listing i
 
 ## Layout
 
-- `app/MonthlyBudgetPlanner.html` — the product, v1.9. One self-contained file:
+- `app/MonthlyBudgetPlanner.html` — the product, v2.4. One self-contained file:
   inline CSS/JS, localStorage, optional folder backups via the File System Access API.
   Live copy: https://claude.ai/artifact/A1MLRsPrH9ytRtaX6rnfyM
-- `listing-kit/` — buyer files (`START_HERE.txt`, `LICENCE.txt`, `Monthly_Plan_Guide.pdf`)
-  plus the seller's mockup deck and `etsy-listing.md` (title, 13 tags, description).
+- `listing/monthly-plan/` — the Etsy kit: mockup deck with the listing copy inside, PNGs, Etsy and
+  social videos, guide (HTML + PDF, from `build/build_guides.py budget`), `START_HERE.txt`, `LICENCE.txt`
+  and the buyer ZIP (git-ignored). Every other edition has its own folder under `listing/`.
 - `build/` — the scripts that produced the kit: `shots18b.js` / `themes18.js` capture
   screenshots with Playwright, `build_deck2.py` assembles the mockup deck,
   `build_pdfguide.py` + `render_pdf.js` make the guide PDF, and `validate_deck.py`,

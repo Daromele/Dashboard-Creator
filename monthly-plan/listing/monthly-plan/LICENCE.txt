@@ -2,7 +2,7 @@ MONTHLY PLAN — LICENCE
 ======================
 
 Monthly Plan
-Copyright (c) 2026 JPS Digital Pages · https://jpsdigitalpages.com/
+Copyright (c) 2026 JPS Digital Pages · https://www.jpsdigitalpages.com/
 
 This is a commercial template. Buying it gives you the rights set out
 below. The full terms, which take precedence over this summary, are at
@@ -14,10 +14,12 @@ WHAT YOU MAY DO
 
 You bought a single-user personal licence. You may:
 
-  · Use Monthly Plan for your own household's money, for as long as you like.
+  · Use Monthly Plan for your own household's budget, for
+    as long as you like.
   · Keep it on as many of your own computers as you own.
-  · Keep as many backup copies of your own file and your own data as you want.
-  · Change the file however you like for your own use — colours, category
+  · Keep as many backup copies of your own file and your own data as you
+    want.
+  · Change the file however you like for your own use: colors, category
     names, wording, code.
   · Print any page for your own records.
   · Keep using it forever. There is no subscription and no expiry, and
@@ -35,23 +37,25 @@ WHAT YOU MAY NOT DO
     file hosts, template galleries, marketplaces or public repositories.
   · Sell anything derived from it, or use it as the basis of another
     product, template or app you distribute.
+  · Use it to provide a paid service to others, such as budgeting or
+    budget coaching for clients.
   · Remove or replace the maker's name, website or terms link and pass
     the result off as your own work.
 
-An extended or commercial licence — for client work, for teams, or to
-build on this file in something you distribute — is available. Get in
+An extended or commercial licence (for client work, for teams, or to
+build on this file in something you distribute) is available. Get in
 touch through the website.
 
 
 YOUR DATA
 ---------
 
-Monthly Plan runs entirely on your device. It has no accounts, no server
-and no analytics, and it never sends your financial information
-anywhere. That also means nobody else holds a copy for you: your data
-is yours to keep, and yours to back up. Download backup writes a file
-you choose, and the optional daily folder backup writes to a folder you
-control.
+Monthly Plan runs entirely on your device. It has no
+accounts, no server and no analytics, and it never sends your financial
+information anywhere. That also means nobody else holds a copy for you:
+your data is yours to keep, and yours to back up. Download backup writes
+a file you choose, and the optional daily folder backup writes to a
+folder you control.
 
 
 NO WARRANTY
@@ -61,11 +65,14 @@ This software is provided "as is", without warranty of any kind, express
 or implied, including but not limited to the warranties of
 merchantability, fitness for a particular purpose and non-infringement.
 
-Monthly Plan is a budgeting tool, not financial advice. Its totals and
-"after your commitments" figures are arithmetic applied to the figures
-you enter — they are only ever as good as those figures, and they
-cannot know about anything you have not told it. Always check important
-decisions against your actual bank balance.
+Monthly Plan is a budgeting tool, not financial advice. Its
+paydays, totals and warnings come from the pay, bills and spending you
+enter; it does not connect to your bank, move or pay anything for you,
+or know your employer's or providers' exact dates. A warning is only
+shown when you open the app.
+
+Always check paydays, due dates and amounts against your actual pay
+stubs and statements.
 
 In no event shall the author be liable for any claim, damages or other
 liability arising from the use of this software.

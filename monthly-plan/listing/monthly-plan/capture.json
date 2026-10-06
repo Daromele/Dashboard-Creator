@@ -1,0 +1,85 @@
+{
+ "app": "../../app/MonthlyBudgetPlanner.html",
+ "out": "shots",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();document.querySelector('#toast').hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "view": "dashboard",
+   "offset": 6
+  },
+  {
+   "name": "budget",
+   "view": "budget",
+   "offset": 6
+  },
+  {
+   "name": "split",
+   "view": "budget",
+   "before": "state.settings.splitMethod='50-30-20';render();document.querySelector('#toast').hidden=true;const e=document.querySelector('#content .sp-card');document.querySelector('#content .pagehead').after(e);window.scrollTo(0,0);",
+   "offset": 6
+  },
+  {
+   "name": "annual",
+   "view": "annual",
+   "offset": 6
+  },
+  {
+   "name": "activity",
+   "view": "activity",
+   "offset": 6
+  },
+  {
+   "name": "goals",
+   "view": "goals",
+   "offset": 6,
+   "before": "state.settings.splitMethod='';render();window.scrollTo(0,0);"
+  },
+  {
+   "name": "scheduled",
+   "view": "scheduled",
+   "offset": 6
+  },
+  {
+   "name": "calendar",
+   "view": "calendar",
+   "offset": 6
+  },
+  {
+   "name": "cuts",
+   "view": "cuts",
+   "before": "for(let i=0;i<3;i++){const b=[...document.querySelectorAll('#content button')].find(x=>x.innerText.trim()==='Apply');if(b)b.click();}document.querySelector('#toast').hidden=true;window.scrollTo(0,0);",
+   "offset": 6
+  },
+  {
+   "name": "wealth",
+   "view": "wealth",
+   "offset": 6
+  },
+  {
+   "name": "insights",
+   "view": "insights",
+   "offset": 6
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  }
+ ],
+ "themes": {
+  "list": [
+   "lavender",
+   "sage",
+   "linen",
+   "fjord",
+   "blush",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('dashboard',true);render();document.querySelector('#toast').hidden=true;"
+ }
+}

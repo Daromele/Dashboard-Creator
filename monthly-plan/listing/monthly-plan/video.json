@@ -1,0 +1,220 @@
+{
+ "app": "../../app/MonthlyBudgetPlanner.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#2A2233",
+  "bold": "#2E2040",
+  "pop": "#F0B98F",
+  "paper": "#F8F5FA",
+  "calm": "#5C3F8F"
+ },
+ "fps": 30,
+ "shots_dir": "vshots",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "hero": "#content .hero",
+    "heroL": "#content .hero > div:first-child",
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "cut0",
+   "view": "cuts",
+   "targets": {
+    "apply": "#content button:text-is(\"Apply\") >> nth=0",
+    "kpis": "#content .kpis",
+    "mine": "#content .kpis > :nth-child(2)",
+    "ideas": "#content .grid2 > :first-child",
+    "adds": "#content .grid2 > :last-child"
+   }
+  },
+  {
+   "name": "cut1",
+   "click": [
+    "#content button:text-is(\"Apply\") >> nth=0"
+   ],
+   "clipFrom": "cut0"
+  },
+  {
+   "name": "cut2",
+   "click": [
+    "#content button:text-is(\"Apply\") >> nth=0"
+   ],
+   "clipFrom": "cut0"
+  },
+  {
+   "name": "sp0",
+   "view": "budget",
+   "before": "state.settings.splitMethod='50-30-20';render();const e=document.querySelector('#content .sp-card');document.querySelector('#content .pagehead').after(e);window.scrollTo(0,0);",
+   "targets": {
+    "sofar": "#content [data-action=\"split-basis\"][data-k=\"actual\"]",
+    "pies": "#content .sp-pies",
+    "card": "#content .sp-card"
+   }
+  },
+  {
+   "name": "sp1",
+   "clipFrom": "sp0",
+   "before": "document.querySelector('#content [data-action=\"split-basis\"][data-k=\"actual\"]').click();const e=document.querySelector('#content .sp-card');document.querySelector('#content .pagehead').after(e);window.scrollTo(0,0);"
+  },
+  {
+   "name": "annual",
+   "view": "annual",
+   "before": "state.settings.splitMethod='';render();window.scrollTo(0,0);",
+   "targets": {
+    "kpis": "#content .kpis",
+    "donuts": "#content .grid2"
+   }
+  }
+ ],
+ "product": "Monthly Plan",
+ "output": "Monthly_Plan_Etsy_Video.mp4",
+ "size": [
+  1440,
+  1080
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "dur": 2.0,
+   "eyebrow": "Monthly &amp; annual budget planner",
+   "headline": "Know what’s<br>really left.",
+   "pills": [
+    "Set it once",
+    "Private",
+    "No subscription"
+   ],
+   "image": "dash"
+  },
+  {
+   "type": "shot",
+   "dur": 2.4,
+   "dark": true,
+   "eyebrow": "Monthly dashboard",
+   "headline": "One honest number.",
+   "shots": [
+    {
+     "img": "dash",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.4,
+    "target": "dash.hero",
+    "origin": [
+     0.02,
+     0.3
+    ],
+    "scale": 1.18
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 3.4,
+   "dark": false,
+   "eyebrow": "Cut back",
+   "headline": "Small cuts, big years.",
+   "shots": [
+    {
+     "img": "cut0",
+     "at": 0
+    },
+    {
+     "img": "cut1",
+     "at": 1.1
+    },
+    {
+     "img": "cut2",
+     "at": 2.3
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.0,
+     "target": "cut0.apply",
+     "click": true
+    },
+    {
+     "t": 2.2,
+     "target": "cut0.apply",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 3.0,
+   "dark": true,
+   "eyebrow": "Budget methods",
+   "headline": "50/30/20, if you like.",
+   "shots": [
+    {
+     "img": "sp0",
+     "at": 0
+    },
+    {
+     "img": "sp1",
+     "at": 1.6
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.5,
+     "target": "sp0.sofar",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 2.0,
+   "dark": false,
+   "eyebrow": "Annual dashboard",
+   "headline": "The whole year, at a glance.",
+   "shots": [
+    {
+     "img": "annual",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.3,
+    "t1": 2.0,
+    "target": "annual.kpis",
+    "origin": [
+     0.0,
+     0.15
+    ],
+    "scale": 1.1
+   }
+  },
+  {
+   "type": "end",
+   "dur": 2.0,
+   "eyebrow": "Instant download",
+   "headline": "Monthly Plan",
+   "sub": "One file · works offline · Mac &amp; PC",
+   "pills": [
+    "No subscription",
+    "Private",
+    "8 themes"
+   ],
+   "themes": [
+    "shots/theme-lavender.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-linen.jpg",
+    "shots/theme-fjord.jpg",
+    "shots/theme-blush.jpg",
+    "shots/theme-slate.jpg",
+    "shots/theme-night.jpg",
+    "shots/theme-midnight.jpg"
+   ]
+  }
+ ]
+}

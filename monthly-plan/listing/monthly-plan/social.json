@@ -1,0 +1,254 @@
+{
+ "app": "../../app/MonthlyBudgetPlanner.html",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#2A2233",
+  "bold": "#2E2040",
+  "pop": "#F0B98F",
+  "paper": "#F8F5FA",
+  "calm": "#5C3F8F"
+ },
+ "fps": 30,
+ "shots_dir": "sshots",
+ "bpm": 104,
+ "music": 0.5,
+ "output": "Monthly_Plan_Social.mp4",
+ "captures": [
+  {
+   "name": "dash",
+   "view": "dashboard",
+   "targets": {
+    "hero": "#content .hero",
+    "heroL": "#content .hero > div:first-child",
+    "kpis": "#content .kpis"
+   }
+  },
+  {
+   "name": "cut0",
+   "view": "cuts",
+   "targets": {
+    "apply": "#content button:text-is(\"Apply\") >> nth=0",
+    "kpis": "#content .kpis",
+    "mine": "#content .kpis > :nth-child(2)",
+    "ideas": "#content .grid2 > :first-child",
+    "adds": "#content .grid2 > :last-child"
+   }
+  },
+  {
+   "name": "cut1",
+   "click": [
+    "#content button:text-is(\"Apply\") >> nth=0"
+   ],
+   "clipFrom": "cut0"
+  },
+  {
+   "name": "cut2",
+   "click": [
+    "#content button:text-is(\"Apply\") >> nth=0"
+   ],
+   "clipFrom": "cut0"
+  },
+  {
+   "name": "sp0",
+   "view": "budget",
+   "before": "state.settings.splitMethod='50-30-20';render();const e=document.querySelector('#content .sp-card');document.querySelector('#content .pagehead').after(e);window.scrollTo(0,0);",
+   "targets": {
+    "sofar": "#content [data-action=\"split-basis\"][data-k=\"actual\"]",
+    "pies": "#content .sp-pies",
+    "card": "#content .sp-card"
+   }
+  },
+  {
+   "name": "sp1",
+   "clipFrom": "sp0",
+   "before": "document.querySelector('#content [data-action=\"split-basis\"][data-k=\"actual\"]').click();const e=document.querySelector('#content .sp-card');document.querySelector('#content .pagehead').after(e);window.scrollTo(0,0);"
+  },
+  {
+   "name": "annual",
+   "view": "annual",
+   "before": "state.settings.splitMethod='';render();window.scrollTo(0,0);",
+   "targets": {
+    "kpis": "#content .kpis",
+    "donuts": "#content .grid2"
+   }
+  }
+ ],
+ "scenes": [
+  {
+   "type": "hook",
+   "dur": 2.0,
+   "text": "Where does it<br>all *go?*",
+   "image": "dash"
+  },
+  {
+   "type": "crop",
+   "dur": 2.8,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Know what’s *really left*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "dash",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "dash.heroL",
+     "pad": 0.015
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 3.6,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Small cuts, *big years*"
+    }
+   ],
+   "shots": [
+    {
+     "img": "cut0",
+     "at": 0
+    },
+    {
+     "img": "cut1",
+     "at": 1.15
+    },
+    {
+     "img": "cut2",
+     "at": 2.25
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "cut0.ideas",
+     "sub": [
+      0,
+      0,
+      1,
+      0.75
+     ],
+     "pad": 0.012
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.05,
+     "target": "cut0.apply",
+     "click": true
+    },
+    {
+     "t": 2.15,
+     "target": "cut0.apply",
+     "click": true
+    }
+   ],
+   "stickers": [
+    {
+     "t": 1.2,
+     "text": "+$89/mo",
+     "x": 300,
+     "y": 1450,
+     "rot": -5,
+     "until": 2.1
+    },
+    {
+     "t": 2.3,
+     "text": "+$1,612/yr",
+     "x": 760,
+     "y": 1450,
+     "rot": 5,
+     "sound": "cash"
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 3.2,
+   "captions": [
+    {
+     "t": 0,
+     "text": "Your *50/30/20* split"
+    }
+   ],
+   "shots": [
+    {
+     "img": "sp0",
+     "at": 0
+    },
+    {
+     "img": "sp1",
+     "at": 1.7
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "sp0.pies",
+     "pad": 0.012,
+     "sub": [
+      0.5,
+      0,
+      1,
+      1
+     ]
+    }
+   ]
+  },
+  {
+   "type": "crop",
+   "dur": 2.6,
+   "light": true,
+   "captions": [
+    {
+     "t": 0,
+     "text": "The whole *year* at a glance"
+    }
+   ],
+   "shots": [
+    {
+     "img": "annual",
+     "at": 0
+    }
+   ],
+   "camera": [
+    {
+     "t": 0,
+     "target": "annual.kpis",
+     "sub": [
+      0,
+      0,
+      0.5,
+      1
+     ],
+     "pad": 0.012
+    }
+   ]
+  },
+  {
+   "type": "end",
+   "dur": 2.8,
+   "headline": "Monthly Plan",
+   "sub": "Set your budget once.<br>No subscription, no bank login.",
+   "cta": "Instant download on Etsy",
+   "by": "JPS Digital Pages",
+   "themes": [
+    "shots/theme-lavender.jpg",
+    "shots/theme-midnight.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-night.jpg"
+   ]
+  }
+ ]
+}
