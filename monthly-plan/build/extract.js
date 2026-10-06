@@ -31,7 +31,8 @@ function extractImport(html){
     +cut('const DebtFiles = (()=>{',"if(typeof module!=='undefined')module.exports=DebtFiles;")
     +cut('const BillCal = (()=>{',"if(typeof module!=='undefined')module.exports=BillCal;")
     +cut('const NetWorth = (()=>{',"if(typeof module!=='undefined')module.exports=NetWorth;")
-    +'\nmodule.exports={Budget,CSV,Platforms,Autopilot,Debt,DebtFiles,BillCal,NetWorth};\n';
+    +cut('const Pay = (()=>{',"if(typeof module!=='undefined')module.exports=Pay;")
+    +'\nmodule.exports={Budget,CSV,Platforms,Autopilot,Debt,DebtFiles,BillCal,NetWorth,Pay};\n';
 }
 function extractImportTo(htmlFile,outFile){fs.writeFileSync(outFile,extractImport(fs.readFileSync(htmlFile,'utf8')));return outFile;}
 

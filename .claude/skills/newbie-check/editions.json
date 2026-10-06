@@ -76,5 +76,19 @@
    "bills? tracker",
    "debt-free"
   ]
+ },
+ "paycheck": {
+  "first": "state.ppIncome=[{id:'i1',name:'My job',amount:200000,freq:'biweekly',start:'2026-10-09',added:'2026-10-05'}];state.btBills=[{id:'x1',name:'Rent',amount:145000,kind:'bill',cat:'housing',freq:'monthly',start:'2026-11-01',color:0}];",
+  "forbid": [
+   "books",
+   "Autopilot",
+   "debt-free",
+   "net worth",
+   "FIRE number",
+   "Quick Log",
+   "transactions?",
+   "Bill & Subscription Tracker",
+   "subscription tracker"
+  ]
  }
 }

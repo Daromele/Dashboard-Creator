@@ -1,34 +1,35 @@
 <!doctype html>
-<!-- Debt Free Plan. Copyright (c) 2026 JPS Digital Pages. All rights reserved.
+<!-- Paycheck Budget Planner. Copyright (c) 2026 JPS Digital Pages. All rights reserved.
      Built on the Monthly Plan core. Personal-use customer edition. -->
-<html lang="en" data-theme="{{themes.0}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1F3A33"><meta name="description" content="Debt Free Plan by JPS Digital Pages. List your debts, pick a payoff strategy (snowball, avalanche and more), see your debt-free date, log payments and watch every balance fall. Works offline."><title>Debt Free Plan · Debt Payoff Tracker</title><link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%231F3A33"/><path d="M22 16v32h8a16 16 0 0 0 0-32z" fill="none" stroke="%23F2B441" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
+<html lang="en" data-theme="{{themes.0}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#45392A"><meta name="description" content="Paycheck Budget Planner by JPS Digital Pages. A paycheck to paycheck budget: every bill in the paycheck before it is due, spending and saving per paycheck, what each paycheck leaves, and warnings before one runs short. Works offline."><title>Paycheck Budget Planner · Budget by payday</title><link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%2345392A"/><rect x="12" y="20" width="40" height="26" rx="5" fill="none" stroke="%23E8A24A" stroke-width="5"/><circle cx="32" cy="33" r="5" fill="%23E8A24A"/></svg>'>
 <script>
 /* ===================================================================================
-   NICHE PACK · Debt Free Plan (debt payoff tracker edition)
-   One goal: debt freedom. The debts, payments, payoff strategies, what-if tools and progress
-   screens live in the core's Debts module (features.debt). This block gives the edition its
-   identity, its sidebar, its words and the fictional sample household with six debts. The
-   budget screens stay available, switched off by default, to help find extra money.
+   NICHE PACK · Paycheck Budget Planner
+   A budget by payday instead of by month: every bill lands in the paycheck before it's due, spending
+   and saving get an amount per paycheck, and each paycheck shows what's left or how short it is.
+   The paycheck screens live in the core's PaycheckUI module (features.paycheck) on top of Pay (pure,
+   tested); bills, the calendar and payment history are the bills edition's (features.billsTracker).
+   This block gives the edition its identity, sidebar, words, welcome, guide and sample household.
    =================================================================================== */
 const NICHE = {
-  id: 'debt',
+  id: 'paycheck',
   product: {
-    name: 'Debt Free Plan', mark: 'D', publisher: 'DEBT PAYOFF TRACKER', version: '1.0',
-    tagline: 'Debt payoff tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
-    title: 'Debt Free Plan · Debt Payoff Tracker', themeColor: '#1F3A33',
-    description: 'Debt Free Plan by JPS Digital Pages. List your debts, pick a payoff strategy (snowball, avalanche and more), see your debt-free date, log payments and watch every balance fall. Works offline.',
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%231F3A33"/><path d="M22 16v32h8a16 16 0 0 0 0-32z" fill="none" stroke="%23F2B441" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    notice: 'Debt Free Plan. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
-    railNote: '<b>Every payment counts.</b>Pick a plan, pay a little extra, and watch the balances fall to zero.',
-    printTitle: 'Debt Free Plan · Debt Payoff Tracker',
+    name: 'Paycheck Budget Planner', mark: 'P', publisher: 'BUDGET BY PAYDAY', version: '1.0',
+    tagline: 'Paycheck to paycheck budget', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
+    title: 'Paycheck Budget Planner · Budget by payday', themeColor: '#45392A',
+    description: 'Paycheck Budget Planner by JPS Digital Pages. A paycheck to paycheck budget: every bill in the paycheck before it is due, spending and saving per paycheck, what each paycheck leaves, and warnings before one runs short. Works offline.',
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%2345392A"/><rect x="12" y="20" width="40" height="26" rx="5" fill="none" stroke="%23E8A24A" stroke-width="5"/><circle cx="32" cy="33" r="5" fill="%23E8A24A"/></svg>',
+    notice: 'Paycheck Budget Planner. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
+    railNote: '<b>Every paycheck, planned.</b>Bills come out of the paycheck before they are due; you see what is left before you spend it.',
+    printTitle: 'Paycheck Budget Planner · JPS Digital Pages',
   },
-  build: { file: 'DebtFreePlan.html' },
+  build: { file: 'PaycheckBudgetPlanner.html' },
   // browser storage keys, the backup-folder database and download names all start with these
-  storage: { key: 'jps-debt-free-plan', file: 'debt-free-plan' },
+  storage: { key: 'jps-paycheck-budget', file: 'paycheck-budget' },
   // first theme is the default
-  themes: ['sage', 'fjord', 'lavender', 'linen', 'blush', 'slate', 'night', 'midnight'],
-  features: { goals: false, wealth: false, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, debt: true },
-  settings: { hiddenNav: ['budget', 'activity', 'cuts'] },
+  themes: ['linen', 'sage', 'fjord', 'lavender', 'blush', 'slate', 'night', 'midnight'],
+  features: { goals: false, wealth: false, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, billsTracker: true, paycheck: true },
+  settings: { hiddenNav: [] },
 
   // type: income | expense | saving (money moved aside: neither income nor spending)
   // fixed: a commitment the dashboard reserves for · debt: can be a payoff goal
@@ -84,10 +85,10 @@ const NICHE = {
   defaults: { category: 'groceries', schedule: 'housing', annualCategory: 'housing', payout: 'platform-payout', quickSetup: ['salary', 'side', 'spouse', 'housing', 'groceries', 'emergency'] },
 
   // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
-  nav: [['dashboard', 'Debt freedom', 'today'], ['debts', 'My debts', 'wallet'], ['debtimport', 'Import statements', 'up'], ['plan', 'Payoff plan', 'plan'], ['payments', 'Payments', 'log'], ['whatif', 'What if', 'spark'], ['progress', 'Progress', 'outlook'], ['duedates', 'Due dates', 'calendar'],
-    ['budget', 'Monthly budget', 'plan'], ['activity', 'Transactions', 'log'], ['cuts', 'Find extra money', 'scissors'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
-  optionalNav: ['debtimport', 'whatif', 'progress', 'duedates', 'budget', 'activity', 'cuts', 'guide'],
-  navGroups: [['Debt freedom', ['dashboard', 'debts', 'debtimport', 'plan', 'payments', 'whatif', 'progress', 'duedates']], ['Find extra money', ['budget', 'activity', 'cuts']]],
+  nav: [['dashboard', 'This paycheck', 'today'], ['paychecks', 'Paycheck plan', 'plan'], ['spending', 'Spending & saving', 'spark'], ['mybills', 'Bills', 'wallet'], ['income', 'Paydays', 'coins'], ['billcal', 'Calendar', 'calendar'], ['pphistory', 'Past paychecks', 'insights'], ['billpay', 'Payment history', 'log'],
+    ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
+  optionalNav: ['billcal', 'pphistory', 'billpay', 'guide'],
+  navGroups: [['Your paychecks', ['dashboard', 'paychecks', 'spending', 'mybills', 'income', 'billcal', 'pphistory', 'billpay']]],
   navGroupRest: 'Make it yours',
 
   // words used across the screens
@@ -96,79 +97,107 @@ const NICHE = {
     incomePlanned: 'Expected income', incomeReceived: 'Income received', expensesPaid: 'Expenses paid', savedInvested: 'Saved & invested',
     plannedContributions: 'Planned contributions', savingsFilter: 'Savings & investments',
     plannedIncome: 'PLANNED INCOME', subscriptionKpi: 'Subscription plan', yourName: 'Your name (optional)', yourNameHint: 'What should we call you?',
-    greeting: '’s month at a glance', greetingPlain: 'Your month at a glance', planTitle: 'Your monthly plan', categoryPlaceholder: 'e.g. Childcare',
-    categorySub: 'Make your budget fit your life.', directionNormal: 'Income received / expense paid / contribution',
-    statementKinds: 'a bank or PayPal statement',
-    importNote: 'Card and bank statements work best. Spending in another currency is converted at a rate you choose on the review screen. A PayPal statement, or one from a side hustle such as Etsy or YouTube, is recognised too; what you earn there is filed as side income.',
-    exitDemo: 'Return to my debts', demoOnly: 'Your debts only', notePlaceholder: 'e.g. Weekly groceries',
-    incomeOne: 'Income', savedCol: 'Saved', transfer: 'Transfers (not counted)', transferOne: 'Transfer', netHint: 'Income − expenses − savings',
-    savingRateEmpty: 'Log income to see your savings rate', savingRate: '% of income received',
+    greeting: '’s paycheck', greetingPlain: 'Your paycheck', planTitle: 'Your paycheck plan', categoryPlaceholder: 'e.g. Childcare',
+    categorySub: 'Make it fit your bills.', directionNormal: 'Paid',
+    statementKinds: 'a statement',
+    importNote: '',
+    exitDemo: 'Return to my paychecks', demoOnly: 'Your paychecks only', demoNote: 'Fictional household. Your own paychecks and bills stay separate.', notePlaceholder: 'e.g. Weekly shop',
+    incomeOne: 'Income', savedCol: 'Saved', transfer: 'Transfers (not counted)', transferOne: 'Transfer', netHint: 'Paycheck − bills − spending − saving',
+    savingRateEmpty: 'Add your paycheck to see what you save', savingRate: '% of each paycheck',
   },
-  quickLog: { placeholder: 'coffee 4.50', help: 'Try “coffee 4.50”, “rent 1200”, or “salary 2400”.', demo: ['coffee', '4.50', 'Dining & coffee'] },
+  quickLog: { placeholder: 'coffee 4.50', help: 'Try “coffee 4.50”.', demo: ['coffee', '4.50', 'Dining & coffee'] },
 
-  tourTopics: 'your debts, the plan, payments and backups',
+  tourTopics: 'your paycheck, bills, spending money and backups',
   // first-run tour; 'backup' is the shared backup slide
   welcome: [
-    { icon: 'today', step: 'WELCOME', title: 'One goal: debt free', text: '<p>List what you owe, choose how to pay it down, and see the exact month you will be debt free.</p><p>Everything stays on this computer. No bank login, no account.</p>' },
-    { icon: 'plan', step: 'PLAN', title: 'Pick the plan that fits you', text: '<p><b>Snowball</b> clears small debts first for quick wins. <b>Avalanche</b> pays the least interest. Compare five strategies side by side, then pick one.</p>' },
-    { icon: 'spark', step: 'TRACK', title: 'Log payments, watch the balances fall', text: '<p>Each month the plan says what to pay on every debt. Log it in one click, or drop in the activity download from your card, loan or bank: payments and interest land on the right debt.</p>' },
+    { icon: 'today', step: 'WELCOME', title: 'Budget by paycheck, not by month', text: '<p>You get paid every week, two weeks or twice a month, and bills don’t wait for the end of the month. This planner budgets each paycheck on its own.</p><p>Everything stays on this computer. No bank login, no account.</p>' },
+    { icon: 'calendar', step: 'BILLS', title: 'Each bill in the right paycheck', text: '<p>Every bill lands in the paycheck before it’s due, so you always know which paycheck pays rent, and which one has room.</p>' },
+    { icon: 'spark', step: 'SPENDING', title: 'Spending money that lasts', text: '<p>Give groceries, gas, fun and savings an amount per paycheck. Log what you spend and see what’s left until payday. A short paycheck shows up early.</p>' },
     'backup',
-    { icon: 'check', step: 'START', title: 'Start with one debt', text: '<p>Add your first debt: its balance, interest rate and minimum payment. Your debt-free date appears straight away.</p>', cta: { label: 'Add my first debt', action: 'debt-add' }, finish: 'Look around first' },
+    { icon: 'wallet', step: 'START', title: 'Start with your paycheck', text: '<p>Add what you take home, how often you’re paid, and your next payday. Then your bills and spending.</p>', cta: { label: 'Add my paycheck', action: 'pp-income-add' }, finish: 'Look around first' },
   ],
   guide: {
-    title: 'Four moves to debt freedom.',
+    title: 'Four steps to a paycheck plan.',
     // [icon, step, what to do, screen label, screen id]
     cards: [
-      ['wallet', '1. List', 'Add every debt: balance, interest rate, minimum payment and due day. Card and loan downloads can be imported too.', 'My debts', 'debts'],
-      ['plan', '2. Plan', 'Set what you can pay each month in total and pick a strategy. The plan shows what to pay on each debt.', 'Payoff plan', 'plan'],
-      ['log', '3. Pay', 'Log each payment, mark the month as paid in one click, or import your card, loan and bank downloads.', 'Payments', 'payments'],
-      ['outlook', '4. Watch', 'See balances fall, color in the tracker, and test what an extra $50 or a balance transfer would do.', 'Progress', 'progress'],
+      ['coins', '1. Paydays', 'Add your take-home pay, how often it comes, and your next payday. A partner’s or side job’s pay too.', 'Paydays', 'income'],
+      ['wallet', '2. Bills', 'Add each bill once: amount, how often, next due date. It lands in the paycheck before it’s due.', 'Bills', 'mybills'],
+      ['spark', '3. Spending', 'Groceries, gas, fun money and savings: an amount each paycheck or each month.', 'Spending & saving', 'spending'],
+      ['plan', '4. Plan ahead', 'See the next paychecks side by side, spot a short one early, and move a bill to even them out.', 'Paycheck plan', 'paychecks'],
     ],
-    meanings: [['Minimum', 'What each lender requires'], ['Extra', 'Your budget above the minimums'], ['Rollover', 'A cleared debt’s payment moves to the next'], ['Debt-free date', 'The month the last debt reaches zero']],
+    meanings: [['Left over', 'Paycheck − its bills − spending − saving'], ['Short', 'A paycheck whose bills and plans add up to more than it brings in'], ['This paycheck', 'From your payday to the day before the next one'], ['Each month', 'An amount split by the days each paycheck covers']],
     details: [
-      ['Debt status: paused, collections, dispute', 'Each debt has a status. <b>Active</b> and <b>Hardship plan</b> debts are in your payoff plan. <b>Paused or deferred</b>, <b>In collections</b> and <b>In dispute</b> stay in your total owed, but come out of the plan, the monthly payments and the debt-free date, so the plan only counts what you are actually paying down. Interest keeps adding up on a paused debt at its rate, and the dashboard reminds you it is on hold. Payments you make on it (a settlement, for example) can still be logged. Set it back to Active when you start paying it again.'],
-      ['Importing statement downloads', 'On <b>Import statements</b>, drop the CSV, OFX or QFX files you download from a card, a loan or your checking account (look for “Download activity” or “Export”). A card or loan file brings its payments, purchases, fees, refunds and the interest the lender charged; that interest replaces the app’s estimate for the month. A checking file gives only the payments it sent to your debts. You check every line before it’s saved, lines already logged are skipped, and the app remembers which debt each file and payee belongs to. PDF statements can’t be read: use <b>Update a balance</b> for those.'],
-      ['Snowball, avalanche and the rest', '<b>Avalanche</b> sends every extra dollar to the highest interest rate: it costs the least. <b>Snowball</b> clears the smallest balance first: you see debts disappear sooner. <b>Cash flow</b> clears the debt that frees the most monthly minimum for its size. <b>Credit score</b> pays down the cards closest to their limit first. <b>Your order</b> follows the order you set. Whatever you pick, a cleared debt’s payment rolls over to the next one.'],
-      ['How interest is worked out', 'Each month a debt is charged its APR ÷ 12 on the balance, before that month’s payments, like a card statement. A promotional rate (0% balance transfer, for example) applies until its end month, then the standard rate. Real lenders charge daily, so a statement can differ by a few cents or dollars: update the balance from your statement whenever you like.'],
-      ['Keeping balances right', 'The app estimates each balance from the one you entered: interest each month, minus the payments you log, plus new charges. When a statement arrives, use <b>Update balance</b> to enter the real number; the estimate restarts from there.'],
-      ['Card minimums', 'Choose <b>Card style</b> for a credit card: the minimum is 1% of the balance plus that month’s interest, never below the amount you enter. It falls as the balance falls, which is why paying only the minimum takes so long.'],
-      ['Not financial advice', 'Debt Free Plan works from the numbers you enter. It does not know your lender’s exact terms, fees or rules. Check big decisions, like a consolidation loan or a balance transfer, with your lender or a qualified adviser.'],
+      ['Which paycheck pays a bill?', 'The one before it’s due: the paycheck whose dates the due date falls in. Rent due on the 1st comes out of the last paycheck before the 1st.'],
+      ['A paycheck is short. What now?', 'Open the Paycheck plan. Use ⇄ on a bill to pay it from an earlier paycheck that has room, trim spending for that paycheck, or turn on <b>Carry what’s left</b> so a good paycheck covers the next.'],
+      ['Paid twice a month, or on a weekend?', 'Choose <b>Twice a month</b> and pick the two days (the 15th and the last day, say). If a payday falls on a weekend, pick whether you’re paid the Friday before or the Monday after.'],
+      ['My paycheck changes each time', 'Enter a typical amount. When it arrives, confirm what actually came in: the plan uses the real number.'],
+      ['Per paycheck or per month?', 'Gas is easy per paycheck. Groceries might be $600 a month: choose <b>Each month</b> and it’s split by the days each paycheck covers, so a longer paycheck gets a bigger share.'],
+      ['Two incomes', 'Add both. Every payday from either one starts a new paycheck, and paydays on the same day are counted together. “Each paycheck” amounts follow your main paycheck (pick it on Paydays), so a second income doesn’t add another round of spending.'],
+      ['Bills, ticks and the calendar', 'Tick bills off from This paycheck or the Bills screens. Autopay bills tick themselves on their due day. The calendar shows paydays ($) and bills together.'],
     ],
   },
 
-  // the fictional household behind "Explore sample data": a budget and six debts
+  // the fictional household behind "Explore sample data": two incomes, 11 bills, a spending plan and two months of entries
   sample: {
-    name: 'Alex', opening: 50000, settings: {},
-    note: 'Keep dining within plan: every dollar saved goes to the card.',
-    extraCategories: [['car-loan', 'Car loan payment', 'debt'], ['student', 'Student loan payment', 'debt']],
-    amounts: { salary: 3600, side: 450, housing: 1450, utilities: 180, internet: 90, insurance: 120, streaming: 25, credit: 400, loan: 260, 'car-loan': 340, student: 210, groceries: 520, transport: 180, dining: 140, personal: 160, emergency: 150 },
-    days: { salary: 1, side: 20, insurance: 26, loan: 27, 'car-loan': 18, student: 12 },
-    undated: ['groceries', 'transport', 'dining', 'personal'],
-    spread: { groups: ['variable'], days: [3, 9, 16, 23, 28], notes: ['Weekly shop', 'Top-up', 'Weekend', 'Weekly shop', 'Month end'], share: { dining: .24, default: .17 } },
+    name: 'Jamie', opening: 50000, settings: {},
+    note: 'Confirm your paycheck when it lands.',
+    extraCategories: [],
+    amounts: { salary: 4300, housing: 1450, groceries: 650 },
+    days: { salary: 1 },
+    undated: ['groceries'],
+    spread: { groups: ['variable'], days: [3, 16], notes: ['Shop', 'Shop'], share: { default: .5 } },
     goals: [],
-    // six debts, entered last January, with a year of payments logged against them
-    extras: (s, { m, year, uid }) => {
-      const since = (+year) + '-01-05', D = [
-        { id: 'd-visa', name: 'Visa card', kind: 'card', balance: 640000, apr: 2449, min: 3500, minMode: 'card', due: 22, limit: 800000, lender: 'Harbor Bank', color: 1 },
-        { id: 'd-store', name: 'Store card', kind: 'card', balance: 260000, apr: 2899, min: 7500, minMode: 'fixed', due: 9, limit: 300000, color: 2 },
-        { id: 'd-car', name: 'Car loan', kind: 'auto', balance: 1420000, apr: 649, min: 34000, minMode: 'fixed', due: 18, lender: 'Credit union', color: 3 },
-        { id: 'd-student', name: 'Student loan', kind: 'student', balance: 2280000, apr: 499, min: 21000, minMode: 'fixed', due: 12, color: 4 },
-        { id: 'd-personal', name: 'Personal loan', kind: 'personal', balance: 420000, apr: 1199, min: 16000, minMode: 'fixed', due: 3, color: 5 },
-        { id: 'd-medical', name: 'Medical bill', kind: 'medical', balance: 140000, apr: 0, min: 5000, minMode: 'fixed', due: 27, note: 'Interest-free payment plan', color: 6 },
+    extras: (s, { uid }) => {
+      const t = new Date().toISOString().slice(0, 10), pad = n => String(n).padStart(2, '0');
+      const add = (d, n) => { const x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+      const dow = d => new Date(d + 'T12:00:00Z').getUTCDay();
+      // the Friday payday of the job: the latest Friday on or before today, every two weeks
+      let fri = t; while (dow(fri) !== 5) fri = add(fri, -1);
+      const Y = +t.slice(0, 4), M = +t.slice(5, 7), ym = (k) => { const m = M - 1 + k, y = Y + Math.floor(m / 12); return `${y}-${pad(((m % 12) + 12) % 12 + 1)}`; };
+      const start = add(fri, -84);
+      s.ppIncome = [
+        { id: 'i-job', name: 'Clinic job', amount: 215000, freq: 'biweekly', start, color: 0, added: add(t, -70) },
+        { id: 'i-partner', name: 'Partner', amount: 165000, freq: 'semimonthly', day1: 15, day2: 31, weekend: 'before', start: ym(-3) + '-01', color: 1, added: add(t, -70) },
       ];
-      s.debts = D.map(d => ({ ...d, since, start: d.balance }));
-      s.debtPlan = { budget: 150000, strategy: 'avalanche', custom: ['d-store', 'd-medical', 'd-visa', 'd-personal', 'd-car', 'd-student'], extras: [{ id: 'x-tax', month: (+year + 1) + '-04', amount: 150000, note: 'Tax refund' }] };
-      // a payment on each due day so far: the plan amounts, as if the household followed it
-      const months = []; for (let i = 1; i <= +m.slice(5, 7); i++) months.push(year + '-' + String(i).padStart(2, '0'));
-      s.debtLog = [];
-      months.forEach((mo, i) => D.forEach(d => {
-        const day = String(d.due).padStart(2, '0'), date = mo + '-' + day;
-        if (date <= since || date > new Date().toISOString().slice(0, 10)) return;
-        const amt = d.id === 'd-visa' ? 52000 : d.id === 'd-store' ? (i < 4 ? 13000 : 7500) : d.min;
-        s.debtLog.push({ id: uid(), debt: d.id, date, amount: amt, kind: 'payment' });
-      }));
-      // a statement balance for the Visa in the spring, and one new charge
-      s.debtLog.push({ id: uid(), debt: 'd-visa', date: year + '-03-25', amount: 9800, kind: 'charge', note: 'Car repair' });
+      s.btBills = [
+        { id: 'b-rent', name: 'Rent', amount: 165000, kind: 'bill', cat: 'housing', freq: 'monthly', start: ym(-6) + '-01', from: 'Checking' },
+        { id: 'b-power', name: 'City Power & Light', amount: 11800, kind: 'bill', cat: 'utilities', freq: 'monthly', start: ym(-6) + '-08', varies: true },
+        { id: 'b-net', name: 'Bluewave Internet', amount: 7499, kind: 'bill', cat: 'phone', freq: 'monthly', start: ym(-6) + '-12', autopay: true },
+        { id: 'b-phone', name: 'Phone plan', amount: 8500, kind: 'bill', cat: 'phone', freq: 'monthly', start: ym(-6) + '-20', autopay: true },
+        { id: 'b-car', name: 'Car payment', amount: 31500, kind: 'bill', cat: 'loans', freq: 'monthly', start: ym(-6) + '-18' },
+        { id: 'b-ins', name: 'Car insurance', amount: 14200, kind: 'bill', cat: 'insurance', freq: 'monthly', start: ym(-6) + '-26', autopay: true },
+        { id: 'b-stu', name: 'Student loan', amount: 22000, kind: 'bill', cat: 'loans', freq: 'monthly', start: ym(-6) + '-03' },
+        { id: 'b-care', name: 'Daycare', amount: 21000, kind: 'bill', cat: 'kids', freq: 'biweekly', start: add(fri, -80) },
+        { id: 'b-water', name: 'Water & sewer', amount: 6400, kind: 'bill', cat: 'utilities', freq: 'bimonthly', start: ym(-5) + '-22' },
+        { id: 'b-stream', name: 'Streaming bundle', amount: 2299, kind: 'sub', cat: 'streaming', freq: 'monthly', start: ym(-6) + '-09', autopay: true },
+        { id: 'b-gym', name: 'Gym', amount: 3999, kind: 'sub', cat: 'memberships', freq: 'monthly', start: ym(-6) + '-05', autopay: true },
+      ].map((b, i) => ({ ...b, color: i, added: add(t, -70) }));
+      s.btCats = [];
+      s.ppEnv = [
+        { id: 'e-food', name: 'Groceries', kind: 'spend', amount: 65000, per: 'month', color: 0 },
+        { id: 'e-gas', name: 'Gas', kind: 'spend', amount: 8000, per: 'check', color: 1 },
+        { id: 'e-out', name: 'Eating out', kind: 'spend', amount: 5000, per: 'check', color: 2 },
+        { id: 'e-home', name: 'Household', kind: 'spend', amount: 3500, per: 'check', color: 3 },
+        { id: 'e-fun', name: 'Fun money', kind: 'spend', amount: 4000, per: 'check', color: 4 },
+        { id: 'e-save', name: 'Emergency fund', kind: 'save', amount: 10000, per: 'check', color: 5 },
+        { id: 'e-xmas', name: 'Holiday fund', kind: 'save', amount: 4000, per: 'check', color: 6 },
+      ];
+      // two months of spending, a little each few days
+      const plan = { 'e-food': [6400, 3, 'Weekly shop'], 'e-gas': [4200, 6, 'Fill-up'], 'e-out': [2350, 5, 'Takeout'], 'e-home': [1800, 9, 'Hardware store'], 'e-fun': [1500, 8, 'Movies'] };
+      s.ppSpend = []; let n = 0;
+      for (let d = add(t, -60); d <= t; d = add(d, 1)) for (const [e, [amt, every, note]] of Object.entries(plan)) if ((++n * 7 + d.charCodeAt(9)) % every === 0) s.ppSpend.push({ id: uid(), env: e, date: d, amount: amt + ((n * 37) % 11 - 5) * 100, note });
+      // past paychecks confirmed (one a little lower), bills before today paid
+      s.ppGot = {}; for (let d = add(fri, -56); d <= t; d = add(d, 14)) s.ppGot['i-job|' + d] = d === add(fri, -28) ? 198050 : 215000;
+      // the partner's paychecks, confirmed except the latest one
+      if (typeof Pay !== 'undefined') { const P2 = Pay.paydays(s.ppIncome[1], add(t, -62), t); P2.slice(0, -1).forEach(d => { s.ppGot['i-partner|' + d] = 165000; }); }
+      s.btLog = []; const due = (b, from, to) => { const out = []; const step = { monthly: 1, bimonthly: 2 }[b.freq]; if (!step) { for (let d = b.start; d <= to; d = add(d, 14)) if (d >= from) out.push(d); return out; }
+        for (let k = 0; k < 60; k++) { const y = +b.start.slice(0, 4), m = +b.start.slice(5, 7) - 1 + k * step, Yr = y + Math.floor(m / 12), Mo = m % 12 + 1, dd = `${Yr}-${pad(Mo)}-${b.start.slice(8)}`; if (dd > to) break; if (dd >= from) out.push(dd); } return out; };
+      s.btBills.forEach(b => due(b, add(t, -60), add(t, -1)).forEach(d => { if (b.id === 'b-power' && d >= add(t, -4)) return; s.btLog.push({ id: uid(), bill: b.id, due: d, date: d, amount: b.varies ? b.amount + 640 : b.amount, ...(b.autopay ? { note: 'Autopay' } : {}) }); }));
+      s.ppMoves = {};
+      // a one-off repair that leaves the paycheck after next about $180 short, so the plan has something to fix
+      if (typeof Pay !== 'undefined') { const S = { incomes: s.ppIncome, bills: s.btBills, envelopes: s.ppEnv, log: s.btLog, spend: s.ppSpend, got: s.ppGot, moves: {} }, L = Pay.plan(S, t, 3, t);
+        if (L[2]) s.btBills.push({ id: 'b-repair', name: 'Car repair', amount: L[2].left + 18000, kind: 'bill', cat: 'transport', freq: 'once', start: add(L[2].start, 2), color: 11, added: t, notes: 'Brakes' }); }
+      s.ppCarry = false;
     },
   },
 };
@@ -1666,14 +1695,14 @@ th.tbl-th{cursor:pointer;user-select:none;white-space:nowrap}th.tbl-th:hover,th.
 <a href="#content" style="position:absolute;left:-9999px" onfocus="this.style.left='10px'" onblur="this.style.left='-9999px'">Skip to content</a>
 <div class="app" id="app"><aside class="rail" id="rail" aria-label="Main navigation">
   <button class="mobile-close" aria-label="Close menu" data-action="menu">×</button>
-  <div class="brand"><div class="brand-mark">D</div><div class="brand-txt"><b>Debt Free Plan</b><small>DEBT PAYOFF TRACKER</small></div><button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
+  <div class="brand"><div class="brand-mark">P</div><div class="brand-txt"><b>Paycheck Budget Planner</b><small>BUDGET BY PAYDAY</small></div><button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
   <nav id="nav"></nav>
-  <div class="rail-foot"><div class="rail-note"><b>Every payment counts.</b>Pick a plan, pay a little extra, and watch the balances fall to zero.</div><button class="btn small rail-demo" id="demo-toggle" data-action="demo">Explore sample data</button><a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages ↗</a><br><span>Debt payoff tracker · v1.0</span></div>
+  <div class="rail-foot"><div class="rail-note"><b>Every paycheck, planned.</b>Bills come out of the paycheck before they are due; you see what is left before you spend it.</div><button class="btn small rail-demo" id="demo-toggle" data-action="demo">Explore sample data</button><a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages ↗</a><br><span>Paycheck to paycheck budget · v1.0</span></div>
 </aside><button class="scrim" data-action="menu" aria-label="Close navigation"></button>
-<div class="main"><header class="topbar"><div class="topbar-in"><div class="top-left"><button class="ibtn mobile-menu" data-action="menu" aria-label="Open navigation">☰</button><div class="month-control"><span class="month-control-label">Viewing month</span><div class="month-switch"><button class="ibtn" data-action="prev" aria-label="Previous month">‹</button><span class="month-label" id="month-label" aria-hidden="true"></span><input id="month-picker" type="month" aria-label="Selected month" min="1900-01" max="9998-12"><button class="ibtn" data-action="next" aria-label="Next month">›</button></div></div></div><div class="actions"><span id="save-status" class="status" role="status">Saved on this device</span><button class="btn" data-action="quick-log" aria-label="Quick log">Quick log</button><button class="btn primary" data-action="add" aria-label="＋ Add transaction"><span class="add-full">＋ Add transaction</span><span class="add-short">＋ Add</span></button></div></div><div id="month-tabs" class="month-tabs" aria-label="Months of the selected year"></div><div id="demo-banner" class="demo-banner" hidden><span><b>Sample mode</b> · Fictional numbers. Your own budget stays separate.</span><button class="btn small" data-action="exit-demo">Return to my debts</button></div><div id="storage-warning" class="notice warning" hidden></div><div id="backup-banner" class="notice backup-banner no-print" role="status" hidden></div></header><main id="content" class="page" tabindex="-1"></main></div></div>
+<div class="main"><header class="topbar"><div class="topbar-in"><div class="top-left"><button class="ibtn mobile-menu" data-action="menu" aria-label="Open navigation">☰</button><div class="month-control"><span class="month-control-label">Viewing month</span><div class="month-switch"><button class="ibtn" data-action="prev" aria-label="Previous month">‹</button><span class="month-label" id="month-label" aria-hidden="true"></span><input id="month-picker" type="month" aria-label="Selected month" min="1900-01" max="9998-12"><button class="ibtn" data-action="next" aria-label="Next month">›</button></div></div></div><div class="actions"><span id="save-status" class="status" role="status">Saved on this device</span><button class="btn" data-action="quick-log" aria-label="Quick log">Quick log</button><button class="btn primary" data-action="add" aria-label="＋ Add transaction"><span class="add-full">＋ Add transaction</span><span class="add-short">＋ Add</span></button></div></div><div id="month-tabs" class="month-tabs" aria-label="Months of the selected year"></div><div id="demo-banner" class="demo-banner" hidden><span><b>Sample mode</b> · Fictional numbers. Your own budget stays separate.</span><button class="btn small" data-action="exit-demo">Return to my paychecks</button></div><div id="storage-warning" class="notice warning" hidden></div><div id="backup-banner" class="notice backup-banner no-print" role="status" hidden></div></header><main id="content" class="page" tabindex="-1"></main></div></div>
 <dialog id="modal" aria-labelledby="modal-title"><div class="dialog-in" id="modal-body"></div></dialog>
 <dialog id="welcome-tour" class="welcome-tour" aria-labelledby="welcome-title"><div class="welcome-box"><button class="ibtn welcome-close" data-action="welcome-close" aria-label="Close welcome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="welcome-art" id="welcome-art"></div><div class="welcome-body"><span class="welcome-step" id="welcome-step"></span><h2 id="welcome-title"></h2><div id="welcome-text"></div></div><div class="welcome-dots" id="welcome-dots"></div><div class="welcome-foot"><div class="welcome-left"><button class="btn" data-action="welcome-back">Back</button><button class="btn pop welcome-folder" data-action="welcome-folder" hidden>Choose backup folder</button></div><button class="btn primary" data-action="welcome-next">Next</button></div></div></dialog>
-<div id="toast" class="toast" role="status" aria-live="polite" hidden></div><input type="file" id="restore-file" accept="application/json,.json" hidden><noscript><p>Enable JavaScript to use Debt Free Plan. Your data stays in this browser.</p></noscript><script>/* Shared planner core — pure calculations. All amounts are integer minor units.
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div><input type="file" id="restore-file" accept="application/json,.json" hidden><noscript><p>Enable JavaScript to use Paycheck Budget Planner. Your data stays in this browser.</p></noscript><script>/* Shared planner core — pure calculations. All amounts are integer minor units.
    Everything niche-specific (groups, categories, tax lines, labels) comes from the pack P. */
 const Budget = ((P) => {
   const THEMES=P.themes.slice();

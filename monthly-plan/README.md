@@ -31,6 +31,7 @@ The planner is built, not hand-edited. Edit the source, then rebuild:
 - `app/packs/debt.js` → `app/DebtFreePlan.html` (Debt Free Plan v1.0, debt payoff tracker)
 - `app/packs/bills.js` → `app/BillSubscriptionTracker.html` (Bill & Subscription Tracker v1.0)
 - `app/packs/networth.js` → `app/NetWorthFireTracker.html` (Net Worth & FIRE Tracker v1.0)
+- `app/packs/paycheck.js` → `app/PaycheckBudgetPlanner.html` (Paycheck Budget Planner v1.0)
 
 **Income and Expense Tracker** (`features.autopilot`, `features.offline`) turns card and bank CSVs into the
 whole picture with no typing. `Autopilot` in core is the pure engine: `read` (columns, which way
@@ -63,6 +64,16 @@ Coast FI, what moves the date, what-if slider, projection), Milestones and Histo
 Settings. State adds `nwAccounts`, `nwSnaps` (one per month: `{month, date, values:{accountId: cents}}`),
 `nwTypes` and `nwPlan` (`spend`, `rate` and `growth` in basis points, `monthly`, `age`, `retireAge`, `income`).
 `Live` (shared with the bills edition) holds the number tweens, row slides and the labeled ring.
+
+**Paycheck Budget Planner** (`features.paycheck` with `features.billsTracker`) budgets by payday. `Pay` in
+core is the pure engine (tested in `build/test_paycheck.js`): `paydays` (weekly, every 2 weeks, twice a month
+on two days, monthly; weekend paydays move to the Friday before or Monday after), `periods` (payday to the day
+before the next, from any income), `envAmount` (each paycheck follows the main income; each month is split
+by the days a paycheck covers) and `plan` (bills in the paycheck before they're due, moved bills, confirmed
+amounts, spent, left, carry). `PaycheckUI` holds This paycheck, Paycheck plan, Spending & saving, Paydays and
+Past paychecks; bills, the calendar (paydays added through `BillsUI.setDayExtra`) and payment history are the
+bills edition's screens. State adds `ppIncome`, `ppEnv`, `ppSpend`, `ppGot` (`incomeId|date` → cents),
+`ppMoves` (`billId|due` → paycheck start) and `ppCarry`.
 
 A niche pack is one `const NICHE = {...}` block, inlined as the first script at the top of the
 shipped file. It holds product identity, category **groups and their flags**, default categories,
@@ -97,6 +108,7 @@ node build/biz_smoke.js [shots]  # drives every business screen and flow in Chro
 node build/autopilot_flow.js     # Income and Expense Tracker: drop statements, pairs, needs a look, re-import, delete import
 node build/bills_flow.js         # Bill & Subscription Tracker: add, tick off, varies, skip, price rise, trial, cancel, sample
 node build/networth_flow.js      # Net Worth & FIRE Tracker: add (guessed type/side), check-in, update, FIRE plan, close, delete, sample
+node build/paycheck_flow.js      # Paycheck Budget Planner: setup steps, paydays, bills per paycheck, spending, confirm, move, carry, sample
 node build/print_audit.js [pdfs]  # prints every screen (Letter + A4); fails on near-empty pages (needs pdfjs-dist)
 ```
 
