@@ -1,0 +1,200 @@
+{
+ "app": "../../app/ResellerProfitTracker.html",
+ "date": "2026-10-20",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();const T=document.querySelector('#toast');if(T)T.hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "brand": {
+  "ink": "#1F1A26",
+  "bold": "#2E2040",
+  "pop": "#F0B98F",
+  "paper": "#FAF9FC",
+  "calm": "#5C3F8F"
+ },
+ "fps": 30,
+ "shots_dir": "vshots",
+ "captures": [
+  {
+   "name": "add0",
+   "view": "rsadd",
+   "before": "const s=document.querySelector('[data-rs-intake=\"source\"]');s.value='Goodwill';s.dispatchEvent(new Event('change',{bubbles:true}));",
+   "targets": {
+    "add": "#rs-intake-form button[type=\"submit\"]",
+    "form": "#rs-intake-form",
+    "haul": "#content .rs-haul"
+   }
+  },
+  {
+   "name": "add1",
+   "before": "const go1=(t,c,l,k)=>{const f=document.querySelector('#rs-intake-form');f.elements.title.value=t;f.elements.cost.value=c;f.elements.list.value=l;f.elements.cat.value=k;f.requestSubmit();};go1('Vintage Pendleton blanket','12','85','Home & decor');go1('Levi’s 550 jeans, 34×30','6','38','Clothing');go1('Ceramic table lamp','4','45','Home & decor');window.scrollTo(0,0);",
+   "clipFrom": "add0"
+  },
+  {
+   "name": "h0",
+   "view": "dashboard",
+   "targets": {
+    "sell": "#content .hero [data-action=\"rs-sell\"]",
+    "hero": "#content .hero",
+    "kpis": "#content .kpis",
+    "big": "#content .hero-big"
+   }
+  },
+  {
+   "name": "h1",
+   "before": "const M=ResellerUI.model(),r=M.st.rows.find(r=>r.it.list>=6000&&r.it.plats&&r.it.plats[0]==='ebay')||M.st.rows[0],it=r.it,price=it.list,fee=Resale.estFee(Resale.plat({},'ebay'),price,0);state.rsSales.push({id:'vid',item:it.id,date:'2026-10-20',plat:'ebay',qty:1,price,ship:0,fee,label:899,other:0});render();",
+   "clipFrom": "h0"
+  },
+  {
+   "name": "plats",
+   "view": "rsplats",
+   "targets": {
+    "kpis": "#content .kpis",
+    "fees": "#rs-fees-form"
+   }
+  },
+  {
+   "name": "tax",
+   "view": "rstax",
+   "targets": {
+    "kpis": "#content .kpis",
+    "p3": "#content .grid2"
+   }
+  },
+  {
+   "name": "items",
+   "view": "rsitems",
+   "targets": {
+    "kpis": "#content .kpis",
+    "grid": "#content .debt-grid"
+   }
+  }
+ ],
+ "product": "Reseller Profit Tracker",
+ "output": "Reseller_Profit_Tracker_Etsy_Video.mp4",
+ "size": [
+  1440,
+  1080
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "dur": 2.0,
+   "eyebrow": "Reseller inventory & profit",
+   "headline": "Know what you<br>really made.",
+   "pills": [
+    "True profit",
+    "Inventory",
+    "No subscription"
+   ],
+   "image": "h0"
+  },
+  {
+   "type": "shot",
+   "dur": 3.0,
+   "dark": false,
+   "eyebrow": "After a haul",
+   "headline": "Add a haul in a minute.",
+   "shots": [
+    {
+     "img": "add0",
+     "at": 0
+    },
+    {
+     "img": "add1",
+     "at": 1.5
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.35,
+     "target": "add0.add",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 3.2,
+   "dark": true,
+   "eyebrow": "When it sells",
+   "headline": "Sold? Your true profit updates.",
+   "shots": [
+    {
+     "img": "h0",
+     "at": 0
+    },
+    {
+     "img": "h1",
+     "at": 1.6
+    }
+   ],
+   "cursor": [
+    {
+     "t": 1.45,
+     "target": "h0.sell",
+     "click": true
+    }
+   ]
+  },
+  {
+   "type": "shot",
+   "dur": 2.4,
+   "dark": false,
+   "eyebrow": "Platforms",
+   "headline": "See which platform pays best.",
+   "shots": [
+    {
+     "img": "plats",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.2,
+    "t1": 2.4,
+    "target": "plats.kpis",
+    "scale": 1.1
+   }
+  },
+  {
+   "type": "shot",
+   "dur": 2.2,
+   "dark": true,
+   "eyebrow": "Tax time",
+   "headline": "Schedule C, cost of goods included.",
+   "shots": [
+    {
+     "img": "tax",
+     "at": 0
+    }
+   ],
+   "zoom": {
+    "t0": 0.2,
+    "t1": 2.2,
+    "target": "tax.kpis",
+    "scale": 1.1
+   }
+  },
+  {
+   "type": "end",
+   "dur": 2.0,
+   "eyebrow": "Instant download",
+   "headline": "Reseller Profit Tracker",
+   "sub": "One file · works offline · Mac &amp; PC",
+   "pills": [
+    "No subscription",
+    "Private",
+    "8 themes"
+   ],
+   "themes": [
+    "shots/theme-lavender.jpg",
+    "shots/theme-blush.jpg",
+    "shots/theme-sage.jpg",
+    "shots/theme-fjord.jpg",
+    "shots/theme-linen.jpg",
+    "shots/theme-slate.jpg",
+    "shots/theme-night.jpg",
+    "shots/theme-midnight.jpg"
+   ]
+  }
+ ]
+}

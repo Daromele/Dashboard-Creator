@@ -184,7 +184,7 @@
    "dur": 2.0,
    "eyebrow": "Instant download",
    "headline": "Income &amp; Expense Tracker",
-   "sub": "One file \u00b7 works offline \u00b7 Mac &amp; PC",
+   "sub": "One file · works offline · Mac &amp; PC",
    "pills": [
     "No subscription",
     "No bank login",
@@ -201,5 +201,6 @@
     "shots/theme-midnight.jpg"
    ]
   }
- ]
+ ],
+ "date": "2026-10-20"
 }

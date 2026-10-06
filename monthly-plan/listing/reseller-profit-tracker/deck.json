@@ -1,0 +1,189 @@
+{
+ "product": "Reseller Profit Tracker",
+ "footer": "Reseller Profit Tracker · JPS Digital Pages",
+ "images_dir": "shots",
+ "output": "Reseller_Profit_Tracker_Etsy_Mockups.html",
+ "storage_prefix": "rpt2-kit-img:",
+ "brand": {
+  "ink": "#1F1A26",
+  "bold": "#2E2040",
+  "pop": "#F0B98F",
+  "paper": "#FAF9FC",
+  "calm": "#5C3F8F"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Reseller inventory & profit tracker",
+   "headline": "Know what you<br>really made.",
+   "pills": [
+    "True profit",
+    "Inventory",
+    "Schedule C",
+    "No subscription"
+   ],
+   "image": "tab-dashboard.jpg",
+   "alt": "Reseller Profit Tracker home"
+  },
+  {
+   "dark": false,
+   "label": "Inventory",
+   "eyebrow": "Inventory",
+   "headline": "Every item, and what it should make.",
+   "sub": "What you paid, the list price, where it’s listed and the profit after fees.",
+   "image": "tab-items.jpg",
+   "foot": "Fictional sample shop shown"
+  },
+  {
+   "dark": true,
+   "label": "Add inventory",
+   "eyebrow": "After a haul",
+   "headline": "Add a whole haul in a minute.",
+   "sub": "Title, what you paid, Enter. Bought a bin or a lot? Its price is split for you.",
+   "image": "tab-add.jpg",
+   "foot": "SKUs numbered for you"
+  },
+  {
+   "dark": false,
+   "label": "Sales",
+   "eyebrow": "Sales",
+   "headline": "Every sale, its real profit.",
+   "sub": "Fees, the label and the item’s cost come off. ROI and days to sell.",
+   "image": "tab-sales.jpg",
+   "foot": "Returns go back on the shelf"
+  },
+  {
+   "dark": true,
+   "label": "Platforms",
+   "eyebrow": "Platforms",
+   "headline": "Which platform pays you best?",
+   "sub": "Fees, profit and days to sell, side by side. Edit each platform’s fees.",
+   "image": "tab-plats.jpg",
+   "foot": "Past sales keep the fee they paid"
+  },
+  {
+   "dark": false,
+   "label": "Profit and loss",
+   "eyebrow": "Profit &amp; loss",
+   "headline": "Your profit, for any dates.",
+   "sub": "Sales, cost of goods, selling costs, running costs and what’s left.",
+   "image": "tab-pl.jpg",
+   "foot": "Print it or export a CSV"
+  },
+  {
+   "dark": true,
+   "label": "Schedule C",
+   "eyebrow": "Tax time",
+   "headline": "Schedule C with cost of goods sold.",
+   "sub": "Inventory at the start and end of the year, worked out for you.",
+   "image": "tab-tax.jpg",
+   "foot": "A worksheet for your tax pro"
+  },
+  {
+   "dark": false,
+   "label": "Expenses",
+   "eyebrow": "Running costs",
+   "headline": "Supplies, storage, apps: sorted.",
+   "sub": "Each on its Schedule C line. Monthly ones repeat on their own.",
+   "image": "tab-exp.jpg",
+   "foot": "Import your bank or card CSV"
+  },
+  {
+   "dark": true,
+   "label": "Mileage",
+   "eyebrow": "Mileage",
+   "headline": "Every sourcing mile counts.",
+   "sub": "Thrift runs and post-office trips, worth the rate you set.",
+   "image": "tab-miles.jpg",
+   "foot": "Export the year as CSV"
+  },
+  {
+   "dark": false,
+   "label": "Inventory table",
+   "eyebrow": "Find anything",
+   "headline": "Sort, search and filter it all.",
+   "sub": "By status, category, platform or how long it’s sat. Stale stock stands out.",
+   "image": "tab-table.jpg",
+   "foot": "Grid, compact or table"
+  },
+  {
+   "dark": true,
+   "label": "Private",
+   "eyebrow": "Private &amp; offline",
+   "headline": "Your shop stays yours.",
+   "sub": "No account, no bank login, nothing uploaded. One-click backups.",
+   "image": "tab-settings.jpg",
+   "foot": "Works offline on Mac and PC"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks, one clear shop.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Lavender",
+     "image": "theme-lavender.jpg",
+     "swatch": "#2E2040"
+    },
+    {
+     "name": "Blush",
+     "image": "theme-blush.jpg",
+     "swatch": "#63304A"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#1F4A3E"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#1C3C52"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#45392A"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#2E3841"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#221C2C"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#0B303D"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Reseller Spreadsheet, Reseller Inventory Tracker, Reseller Profit Tracker, Thrift Flipping Sales Tracker, Schedule C, No Subscription",
+  "tags": [
+   "reseller spreadsheet",
+   "reseller tracker",
+   "inventory tracker",
+   "profit tracker",
+   "reseller inventory",
+   "flipping tracker",
+   "thrift flipping",
+   "resale business",
+   "sales tracker",
+   "cost of goods sold",
+   "schedule c",
+   "small business",
+   "bookkeeping"
+  ],
+  "description_file": "description.txt"
+ }
+}

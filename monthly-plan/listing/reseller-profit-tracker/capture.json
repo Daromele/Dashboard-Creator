@@ -1,0 +1,86 @@
+{
+ "app": "../../app/ResellerProfitTracker.html",
+ "out": "shots",
+ "date": "2026-10-20",
+ "setup": "try{localStorage.clear()}catch{};try{closeWelcome()}catch{};document.querySelector('[data-action=\"demo\"]').click();state.settings.hiddenNav=[];render();const T=document.querySelector('#toast');if(T)T.hidden=true;",
+ "content": "#content",
+ "navigate": "#nav button[data-go=\"{view}\"]",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "view": "dashboard",
+   "offset": 6
+  },
+  {
+   "name": "items",
+   "view": "rsitems",
+   "offset": 6
+  },
+  {
+   "name": "add",
+   "view": "rsadd",
+   "offset": 6,
+   "before": "const go1=(t,c,l,k)=>{const f=document.querySelector('#rs-intake-form');f.elements.title.value=t;if(f.elements.cost)f.elements.cost.value=c;f.elements.list.value=l;f.elements.cat.value=k;f.requestSubmit();};document.querySelector('[data-rs-intake=\"source\"]').value='Goodwill';document.querySelector('[data-rs-intake=\"source\"]').dispatchEvent(new Event('change',{bubbles:true}));go1('Vintage Pendleton blanket','12','85','Home & decor');go1('Levi’s 550 jeans, 34×30','6','38','Clothing');go1('Ceramic table lamp','4','45','Home & decor');go1('Kids rain boots, 2','3','22','Shoes');const T=document.querySelector('#toast');if(T)T.hidden=true;window.scrollTo(0,0);"
+  },
+  {
+   "name": "sales",
+   "view": "rssales",
+   "offset": 6
+  },
+  {
+   "name": "plats",
+   "view": "rsplats",
+   "offset": 6
+  },
+  {
+   "name": "pl",
+   "view": "rspl",
+   "offset": 6
+  },
+  {
+   "name": "tax",
+   "view": "rstax",
+   "offset": 6
+  },
+  {
+   "name": "exp",
+   "view": "rsexp",
+   "offset": 6
+  },
+  {
+   "name": "miles",
+   "view": "rsmiles",
+   "offset": 6
+  },
+  {
+   "name": "table",
+   "view": "rsitems",
+   "offset": 6,
+   "before": "document.querySelector('[data-action=\"rs-layout\"][data-k=\"table\"]').click();"
+  },
+  {
+   "name": "settings",
+   "view": "settings",
+   "offset": 6
+  },
+  {
+   "name": "sell",
+   "view": "rsitems",
+   "offset": 6,
+   "before": "document.querySelector('[data-action=\"rs-sell\"][data-item]').click();"
+  }
+ ],
+ "themes": {
+  "list": [
+   "lavender",
+   "blush",
+   "sage",
+   "fjord",
+   "linen",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "try{closeModal()}catch{};state.settings.theme=T;go('dashboard',true);render();const X=document.querySelector('#toast');if(X)X.hidden=true;"
+ }
+}

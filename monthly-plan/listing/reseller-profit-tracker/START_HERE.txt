@@ -1,0 +1,24 @@
+RESELLER PROFIT TRACKER | JPS DIGITAL PAGES
+
+OPEN IT
+Extract this ZIP, then open ResellerProfitTracker.html in Chrome, Edge, Safari or Firefox on your computer. The HTML file is the app. Keep it somewhere easy to find, ideally a synced folder such as iCloud Drive, Dropbox, OneDrive or Google Drive. It works offline once open.
+
+FIRST STEPS
+A short welcome tour opens the first time. Then follow the three steps on Home: add your inventory (a title and what you paid is enough), say where each item is listed and for how much, and record a sale when one sells.
+
+SAMPLE
+Explore sample data, on Home or in Settings & backup, fills every screen with Thrift & Thread, a fictional reseller with 14 months of sales on five platforms. Nothing in it is saved. Return to my shop restores your own.
+
+EACH WEEK
+After a haul, use Add inventory: one row per item, Enter for the next. Bought a lot for one price? Use Bought a lot and its cost is split for you. When something sells, record the sale and check the fee and the label. Add running costs and sourcing trips as they happen. At tax time, print or export Profit & loss and Schedule C.
+
+CHECK YOUR FEES
+Platforms come with typical fees as a starting point. Open Platforms and set the fees you actually pay. Past sales keep the fee they were saved with.
+
+BACK UP
+Your data is saved in this browser on this device, not in the HTML file. Settings & backup > Download backup saves everything as one JSON file. Keep that file outside the app. To restore or move to another computer, copy the HTML file and your backup across and use Restore backup. Data does not sync automatically. Download a backup before clearing browser data or switching browsers.
+Chrome and Edge can also write a dated backup to a folder you choose each day. Safari and Firefox do not support this; use Download backup instead.
+
+HELP
+Read Reseller_Profit_Tracker_Guide.pdf, included with your download. For order support, contact JPS Digital Pages through Etsy Messages at https://www.etsy.com/shop/JPSDigitalPages or email hello@jpsdigitalpages.com.
+Website: https://www.jpsdigitalpages.com

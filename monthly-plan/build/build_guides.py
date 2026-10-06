@@ -1,6 +1,6 @@
 """Buyer guides (US Letter, print to PDF) for the app editions, in the Monthly Plan guide's style.
 
-usage: python3 build/build_guides.py [tracker|debt|bills|networth|paycheck|budget|rental|business|bakeweek ...]     (from monthly-plan/)
+usage: python3 build/build_guides.py [tracker|debt|bills|networth|paycheck|budget|rental|business|bakeweek|reseller ...]     (from monthly-plan/)
 Writes listing/<dir>/<Product>_Guide.html; build/guide_pdf.js turns each into a PDF.
 Screenshots come from listing/<dir>/shots (the deck captures).
 """
@@ -777,7 +777,70 @@ def bakeweek_pages(shot):
 <tr><td>A shopping amount looks odd</td><td>Check the ingredient’s pack size and unit in Pantry: the list rounds up to whole packs.</td></tr>''')),
     ]
 
+RESELLER = dict(
+    dir='reseller-profit-tracker', file='Reseller_Profit_Tracker', name='Reseller Profit Tracker', html='ResellerProfitTracker.html', mark='R', version='1.0',
+    storage='rpt2-guide-img:', tour='adding items, recording sales, true profit and backups', safe_page=9, who='reselling business',
+    colors=dict(bold='#2E2040', accent='#5C3F8F', pop='#F0B98F', page='#FAF9FC', ink='#1F1A26', ink2='#5A5266', ink3='#8C8496',
+                rule='#E3DEEA', soft='#EFEBF5', warm='#FBF1E3', warmline='#EED7B5', green='#E6F1EA', greenline='#BFDCCB'),
+    cover=dict(kicker='Your reselling guide', tag='Know what you really made.', image='tab-dashboard.jpg',
+               intro='What every item cost, what every platform took, and the profit that’s actually yours, by item, platform and month, in one file on your own computer.'),
+)
+
+
+def reseller_pages(shot):
+    P = RESELLER
+    return [
+        ('Start here', start_here(P, '<li><b>Follow the three steps</b> on Home: add your inventory, say where it’s listed, and record a sale when one sells.</li>',
+                                  'Choose <b>Explore sample data</b> on Home or in Settings &amp; backup. Thrift &amp; Thread, a fictional reseller with 14 months of sales on five platforms, a lot, a bundle and two returns, fills every screen, and nothing in it is saved. <b>Return to my shop</b> brings back your own, untouched.')),
+        ('The idea', f'''<h1>True profit, after every cost.</h1>
+<p class="lede">Home shows this month’s profit after what the items cost you, the platform fees, the shipping labels and your running costs.</p>
+{shot("tab-dashboard.jpg", "guide-home", "Home")}
+<table><tr><th>Word</th><th>What it means</th></tr>
+<tr><td>True profit</td><td>Price and shipping charged, minus fees, the label, other costs and what the item cost you.</td></tr>
+<tr><td>ROI</td><td>Profit ÷ what the item cost you. 300% means it made three times its cost.</td></tr>
+<tr><td>Cost of goods sold</td><td>What the items you sold (or wrote off) cost you.</td></tr>
+<tr><td>Running costs</td><td>Supplies, storage, apps and subscriptions: costs that belong to no one item.</td></tr></table>'''),
+        ('After a haul', f'''<h1>Add a whole haul in a minute.</h1>
+<p class="lede"><b>Add inventory</b>: set the date and where you bought once, then type a title and what you paid and press Enter. The next row is ready straight away.</p>
+{shot("tab-add.jpg", "guide-add", "Add inventory")}
+<div class="two"><div class="box"><h3>Bought a lot</h3><p>A bin, a bundle or a storage unit for one price? Use <b>Bought a lot</b>: its price is split evenly across the items you add, or by their list prices. The shares always add up to the cent.</p></div>
+<div class="box"><h3>Several of the same</h3><p>Set the quantity, like 12 of the same card lot. A sale can sell one or several; each one sold costs its share.</p></div></div>'''),
+        ('Your inventory', f'''<h1>Every item, and what it should make.</h1>
+<p class="lede"><b>Inventory</b> shows each item’s cost, list price, where it’s listed and the estimated profit after typical fees. Add a photo, brand and size in its Edit.</p>
+{shot("tab-items.jpg", "guide-items", "Inventory")}
+<table><tr><td>Filters</td><td>On the shelf, Not listed, Listed, Over 90 days, Sold, Gone. Grid, Compact or Table; search by title, SKU or brand.</td></tr>
+<tr><td>Over 90 days</td><td>Stock that isn’t moving. A price drop, a new photo or another platform can help; Home reminds you.</td></tr>
+<tr><td>Donated, lost or kept</td><td>Edit the item and pick what happened. Donated and lost are written off; kept for yourself isn’t a business cost.</td></tr></table>'''),
+        ('When it sells', f'''<h1>Record the sale, see the profit.</h1>
+<p class="lede">Click <b>Sold</b> on the item (or <b>Record a sale</b>). Pick the platform and the price: the usual fee is filled in for you to check, and the profit shows before you save.</p>
+{shot("tab-sales.jpg", "guide-sales", "Sales")}
+<div class="two"><div class="box"><h3>Returns</h3><p>On the sale, choose <b>Return</b>: how much you refunded, whether the item came back (it goes back on the shelf) and any fee the platform gave back.</p></div>
+<div class="box"><h3>Platform fees</h3><p>Fees change. Check the starting fees under <b>Platforms</b> and edit them with <b>Save fees</b>. Past sales keep the fee they paid.</p></div></div>'''),
+        ('Tax time', f'''<h1>Schedule C, cost of goods included.</h1>
+<p class="lede"><b>Schedule C</b> lays out your year: gross receipts, returns, cost of goods sold from your inventory, and every expense on its line. <b>Print</b> it or <b>Export CSV</b>.</p>
+{shot("tab-tax.jpg", "guide-tax", "Schedule C")}
+<div class="two"><div class="box"><h3>Running costs and mileage</h3><p><b>Add an expense</b> once; monthly ones repeat. <b>Log a trip</b> for sourcing runs and the post office; set the mileage rate under Settings → Your shop.</p></div>
+<div class="box"><h3>Profit &amp; loss</h3><p>Any dates, for the whole shop or one platform. Bank or card CSV? <b>Import bank CSV</b> brings in running costs; you check each line.</p></div></div>
+<p style="font-size:9pt;color:var(--ink3)">A worksheet, not tax advice. Ask a tax pro about your own situation.</p>'''),
+        ('Getting around', '''<h1>The screens.</h1>
+<p class="lede">Turn off any you don't use in Settings &amp; backup → <b>Simplify your sidebar</b>.</p>
+<table><tr><th>Screen</th><th>What it is for</th></tr>
+<tr><td>Home</td><td>This month’s true profit, what needs you, latest sales, best platforms.</td></tr>
+<tr><td>Inventory · Add inventory</td><td>Every item; adding a haul or a lot.</td></tr>
+<tr><td>Sales · Platforms</td><td>Every sale and return; platforms side by side and their fees.</td></tr>
+<tr><td>Expenses · Mileage</td><td>Running costs on their Schedule C lines; business trips.</td></tr>
+<tr><td>Profit &amp; loss · Schedule C</td><td>Any dates; the tax worksheet with cost of goods sold.</td></tr>
+<tr><td>Import bank CSV</td><td>Running costs from your bank or card, checked line by line.</td></tr></table>
+<p>Every table sorts, searches and filters. Every screen prints. Inventory, sales, expenses and mileage export as CSV.</p>'''),
+        ('Read this one', SAFE('shop', 'every item, lot, sale, return, expense, trip and platform fee')),
+        ('When you need help', help_page(P, '''<tr><td>A profit looks too high</td><td>The item may have no cost. Edit it and add what you paid; Home lists items with no cost.</td></tr>
+<tr><td>A fee looks wrong</td><td>Open the sale and type the fee the platform actually kept. Then update that platform under Platforms.</td></tr>
+<tr><td>A returned item vanished</td><td>Open the sale → Return and tick “The item came back”. It goes back on the shelf.</td></tr>
+<tr><td>My bank import has personal spending</td><td>Set those lines to Skip before importing. Only business costs belong here.</td></tr>''')),
+    ]
+
 BUDGET['pages'] = budget_pages
+RESELLER['pages'] = reseller_pages
 BAKEWEEK['pages'] = bakeweek_pages
 BUSINESS['pages'] = business_pages
 RENTAL['pages'] = rental_pages
@@ -790,4 +853,4 @@ PAYCHECK['pages'] = paycheck_pages
 if __name__ == '__main__':
     which = sys.argv[1:] or ['tracker', 'debt', 'bills', 'networth', 'paycheck', 'budget']
     for w in which:
-        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK, 'budget': BUDGET, 'rental': RENTAL, 'business': BUSINESS, 'bakeweek': BAKEWEEK}[w])
+        build({'tracker': AUTOPILOT, 'debt': DEBT, 'bills': BILLS, 'networth': NETWORTH, 'paycheck': PAYCHECK, 'budget': BUDGET, 'rental': RENTAL, 'business': BUSINESS, 'bakeweek': BAKEWEEK, 'reseller': RESELLER}[w])

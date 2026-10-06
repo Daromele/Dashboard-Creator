@@ -1,0 +1,53 @@
+A reseller spreadsheet that does the math for you: every item with what it really cost, every sale with the platform's fees and the shipping label, returns, and the true profit you actually kept, by item, by platform and by month. It opens in any browser and never asks you to sign up for anything.
+
+Reseller Profit Tracker is one HTML file. You download it, double-click it, and it opens like a web page. After a haul, type each item's title and what you paid and press Enter; bought a bin or a lot for one price, and the cost is split across the items for you. When something sells, pick the platform and the price: the usual fee is filled in for you to check, and the profit appears before you save. Returns go back on the shelf. Your inventory, sales, running costs and mileage add up to a profit & loss for any dates and a Schedule C with cost of goods sold. No subscription, no bank login. Your numbers stay on your own computer.
+
+How It Works:
+1. Download the file and save it somewhere you will find it again.
+2. Double-click to open it in your browser. Take the short tour, or explore the fictional sample shop first.
+3. Add your inventory: a title and what you paid is enough. Add the list price and where it's listed when you list it.
+4. When an item sells, record the sale: platform, price, shipping. Check the fee and the label.
+5. Check Home for this month's true profit. At tax time, print the profit & loss and Schedule C.
+
+WHAT YOU'LL GET:
+• One HTML reseller inventory and profit tracker file
+• Home: this month's true profit after every cost, where each sales dollar went, and what needs your attention
+• Inventory in grid, compact or table view, with photos, SKUs, status filters and search
+• Fast intake: one row per item, Enter to add the next; lots and bins split their cost to the cent
+• Several of the same item, sold one or a few at a time
+• Sales with platform fees filled in for you to check, shipping charged and labels, ROI and days to sell
+• Returns and refunds: back on the shelf or not, fees refunded by the platform
+• Donated, lost or kept items handled the right way for your books
+• Platforms side by side: profit, fees and how fast things sell on each
+• Your own platform fees, editable, with past sales keeping the fee they paid
+• Running costs (supplies, storage, apps, subscriptions) on their Schedule C lines, repeating monthly or yearly
+• Mileage log at the rate you set
+• Profit & loss for any dates, for the whole shop or one platform; print or export CSV
+• Schedule C with Part III cost of goods sold from your inventory; print or export CSV
+• Bank or card CSV import for running costs
+• Inventory, sales, expenses and mileage export as CSV
+• 8 color themes, light and dark; every screen prints
+• Built-in how-to guide and a PDF guide included
+
+PERFECT FOR:
+Resellers, thrift flippers, closet sellers, vintage sellers, garage sale and estate sale pickers, and anyone selling secondhand on several platforms who wants to know their real profit, plus anyone replacing a reseller spreadsheet or inventory spreadsheet who wants their numbers to stay private on their own computer.
+
+Please note: this is a digital file, not a physical product. Nothing will be posted to you. It doesn't connect to any selling platform or bank; you add items and sales yourself, and can import a bank or card CSV for expenses (PDF statements can't be read). Platform fees change: the fees included are starting points to check against your own. Your data is stored in your own browser on your own device, and this app never uploads anything anywhere. Download a backup regularly; the app reminds you, and Chrome and Edge can back up to a folder automatically every day. Works best on a computer. The tax screens are worksheets, not tax advice.
+
+How to download your Etsy digital file:
+https://help.etsy.com/hc/en-gb/articles/115013328108-How-to-Download-a-Digital-Item?segment=shopping
+
+👍 You Can
+✔ Use this app for your own reselling business, for as long as you like
+✔ Use it on your own computers, and print your own copies
+✔ Back up your own file and your own data as often as you want
+
+👎 You Cannot
+❌ Resell, redistribute, or share this file with others
+❌ Use it to offer bookkeeping services to clients, or include it in any product, bundle or service of your own
+❌ Claim it as your own work, or alter it for resale
+❌ Return it — digital files cannot be returned once downloaded
+
+Please note: Due to the digital nature of this product, we do not accept returns, exchanges, or cancellations. But please contact us if you have any problems with your order! hello@jpsdigitalpages.com · www.jpsdigitalpages.com
+
+Reseller Profit Tracker by JPS Digital Pages
