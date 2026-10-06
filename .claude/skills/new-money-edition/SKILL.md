@@ -68,6 +68,10 @@ Everything here is a correction the user already made once. Apply it up front.
   engine inside `sample.extras` and add what's needed (e.g. a one-off bill that leaves one paycheck short).
 - Sample data: fictional names only (never the user's banks: "Harbor Bank", not Chase); rich enough
   that every screen and every toggle shows a difference.
+- A comparison card must say what to do next, not only show numbers. Pick a method with one select (saved on
+  change, not tabs that look like views), show the goal and the buyer's plan as two pies, word each gap by what it
+  means (under on needs is good, under on wants is room, under on saving is a gap), and give the gap a one-click
+  button that changes the plan. Explain the flow in three numbered steps on the card.
 
 ## 2b. Test-writing traps
 

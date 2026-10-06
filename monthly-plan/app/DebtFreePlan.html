@@ -1500,10 +1500,13 @@ body.debt-ed .month-control,body.debt-ed #month-tabs{display:none}body.debt-ed .
 .bt-bar{fill:color-mix(in srgb,var(--accent) 70%,var(--card));cursor:pointer;transition:fill .2s}.bt-bar.heavy{fill:var(--accent)}.bt-bar.cur{fill:var(--pop)}.bt-bar:hover{fill:var(--accent-2,var(--accent))}
 .bt-val{font:650 11px var(--num);fill:var(--ink-2)}.bt-mon{font:600 11px var(--sans,inherit);fill:var(--ink-3)}.bt-mon.cur{fill:var(--ink);font-weight:800}.bt-mon.pre{opacity:.45}
 .bt-more-card .bt-presets{justify-content:flex-start;max-width:none;margin:4px 0 0}
-.sp-bars{display:grid;gap:8px;margin:6px 0 14px}.sp-bar-row{display:grid;grid-template-columns:56px 1fr;gap:10px;align-items:center}.sp-bar-row small{color:var(--ink-3);font-weight:650}
-.sp-bar{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--sunk)}.sp-bar i{display:block;height:100%;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.sp-pies{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:6px 0 14px}.sp-pie h3{font-size:13px;font-weight:700;color:var(--ink-2);margin:0 0 10px;text-align:center}.sp-pie .donut-wrap{flex-direction:column;align-items:stretch;gap:14px}.sp-pie .donut{width:150px;height:150px;margin:0 auto}
+.sp-pick{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:650;color:var(--ink-3)}.sp-pick select{width:auto;min-width:130px;font-weight:700}
+.sp-how{display:flex;flex-wrap:wrap;gap:6px 20px;margin:0 0 14px;padding:10px 14px;list-style:none;counter-reset:sp;background:var(--sunk);border-radius:10px;font-size:12.5px;color:var(--ink-2)}.sp-how li{counter-increment:sp;display:flex;gap:7px;align-items:baseline}.sp-how li::before{content:counter(sp);display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--accent);color:var(--paper,#fff);font-size:11px;font-weight:700;flex-shrink:0}
+.sp-zero{display:flex;flex-direction:column;justify-content:center;gap:4px}.sp-zero .row-acts{margin-top:8px}.sp-fig b.pos{color:var(--pos)}.sp-fig b.warn{color:var(--neg)}.sp-fig{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.sp-pie .donut-key{display:block!important}.sp-pie .donut-key .row{padding:7px 4px}
+@media(max-width:620px){.sp-pies{grid-template-columns:1fr}.sp-card .cardhead{flex-direction:column;align-items:stretch}.sp-card .nw-segs{justify-content:space-between;flex-wrap:wrap}.sp-how{flex-direction:column}}
 .sp-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--rule)}.sp-row span:first-child small{display:block;margin-left:16px}.sp-fig{text-align:right}.sp-fig small{display:block}
-.sp-zero strong{display:block;font:700 34px/1.1 var(--num);margin:2px 0 10px}.sp-zero small{color:var(--ink-3);font-weight:650}.sp-zero .sp-bar{margin-bottom:8px}.sp-fit{margin-top:8px}
+.sp-zero strong{display:block;font:700 34px/1.1 var(--num);margin:2px 0 6px}.sp-zero small{color:var(--ink-3);font-weight:650}
 .sp-tags{margin-top:12px;border-top:1px solid var(--rule);padding-top:10px}.sp-tags summary{cursor:pointer;font-weight:650;font-size:13px}.sp-tag-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px 16px;margin-top:8px}
 .sp-tag{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}.sp-tag select{width:auto;min-width:96px}#split-method-select{max-width:420px}
 .pp-steps .pp-step{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--rule)}.pp-step-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--accent-soft,var(--sunk));color:var(--accent)}
@@ -7730,7 +7733,15 @@ const PaycheckUI=(()=>{
  function splitCard(p){const by=new Map();
   p.bills.filter(i=>i.state!=='skipped').forEach(i=>{const k='bill:'+i.b.id,x=by.get(k)||{key:k,name:i.b.name,amount:0,tag:SplitUI.tagOf(k,billTag(i.b))};x.amount+=i.amount;by.set(k,x);});
   p.envs.forEach(x=>{const k='env:'+x.e.id;by.set(k,{key:k,name:x.e.name,amount:x.planned,tag:SplitUI.tagOf(k,x.e.kind==='save'?'save':Split.guess(x.e.name,'want'))});});
-  return SplitUI.card({items:[...by.values()],income:p.income+Math.max(0,p.carryIn||0),title:'This paycheck, {m}',empty:'Add your paycheck, and its split shows here.'});}
+  return SplitUI.card({items:[...by.values()],income:p.income+Math.max(0,p.carryIn||0),title:'Split this paycheck: {m}',sub:'',unit:'paycheck',empty:'Add your paycheck, and its split shows here.',
+   how:['Pick your method. It’s saved for every paycheck.','Your bills and spending fill <b>Your plan</b>.','Use the buttons to plan what’s missing.'],act:planButton});}
+ // one click plans what a bucket is missing: raise a matching spending or saving line, or add one
+ const envTag=e=>SplitUI.tagOf('env:'+e.id,e.kind==='save'?'save':Split.guess(e.name,'want'));
+ function planButton(r,amount){const want=r.tags.filter(t=>t!=='need'),order=['save','debt','want'].filter(t=>want.includes(t)),tag=order[0]||'want';
+  const have=envs().filter(e=>e.status!=='paused'&&e.per!=='month'&&want.includes(envTag(e))).sort((a,b)=>order.indexOf(envTag(a))-order.indexOf(envTag(b)))[0];
+  if(have)return button(`Add ${fmt(amount)} to ${esc(have.name)}`,'pp-env-edit','small',`data-id="${have.id}" data-add="${amount}"`);
+  const [name,kind]=tag==='save'?['Savings','save']:tag==='debt'?['Extra debt payment','spend']:['Fun money','spend'];
+  return button(`Plan ${fmt(amount)} for ${tag==='save'?'savings':tag==='debt'?'debt':'wants'}`,'pp-env-add','small',`data-name="${name}" data-kind="${kind}" data-amount="${amount}" data-tag="${tag}"`);}
  function whereRing(p){const list=[{name:'Bills',value:p.billTotal,color:'var(--accent)'},...p.envs.filter(x=>x.planned>0).map((x,i)=>({name:x.e.name,value:x.planned,color:x.e.kind==='save'?'var(--pos)':SLICE_COLORS[(i+2)%SLICE_COLORS.length]})),...(p.left>0?[{name:'Left over',value:p.left,color:'var(--pop)'}]:[])];
   return ring(list,{total:Math.max(1,p.income+Math.max(0,p.carryIn)),top:'This paycheck',bottom:dayName(p.start),aria:'Where this paycheck goes'})||'';}
  function attentionCard(M){const p=M.p,rows=[];
@@ -7829,8 +7840,8 @@ const PaycheckUI=(()=>{
    ${editing?`<label>Status<select name="status"><option value="active" ${!x.status||x.status==='active'?'selected':''}>Active</option><option value="stopped" ${x.status==='stopped'?'selected':''}>Stopped</option></select></label><label class="pp-f-stopped" ${x.status==='stopped'?'':'hidden'}>Last payday was before<input type="date" name="stopped" value="${x.stopped||today()}"></label>`:''}
    </div>${formFoot(editing?'Save':'Add paycheck',editing?button('Delete','pp-income-del','danger quiet',`data-id="${id}"`):'')}</form>`);}
  const SAVE_RE=/sav|emergency|fund|invest|retire|goal|vacation|holiday|christmas|gift|rainy|sinking|college|wedding|down payment/i;
- function envForm(id='',pre={}){const editing=!!env(id),e=env(id)||{kind:'spend',per:'check',...pre},auto=!editing&&!pre.kind;
-  modal(editing?`Edit ${esc(e.name)}`:'Add spending or saving',editing?'Changes apply to every paycheck in the plan.':'Money for something that isn’t a bill: an amount each paycheck, or each month.',`<form id="pp-env-form" data-id="${editing?id:''}"><div class="fields">
+ function envForm(id='',pre={}){const editing=!!env(id),e=editing?{...env(id),...pre}:{kind:'spend',per:'check',...pre},auto=!editing&&!pre.kind;
+  modal(editing?`Edit ${esc(e.name)}`:'Add spending or saving',editing?'Changes apply to every paycheck in the plan.':'Money for something that isn’t a bill: an amount each paycheck, or each month.',`<form id="pp-env-form" data-id="${editing?id:''}"${pre.tag?` data-tag="${esc(pre.tag)}"`:''}><div class="fields">
    <label class="full">Name<input name="name" required maxlength="40" value="${esc(e.name||'')}" placeholder="e.g. Groceries, Gas, Savings" ${editing?'':'autofocus'}></label>
    <div class="full segment bt-kind-pick" role="radiogroup" aria-label="Spending or saving" ${auto?'data-auto="1"':''}>${[['spend','Spending'],['save','Saving']].map(([k,l])=>`<label><input type="radio" name="kind" value="${k}" ${e.kind===k?'checked':''}><span>${l}</span></label>`).join('')}</div>
    <label>Amount<input name="amount" inputmode="decimal" required value="${num(e.amount)}" placeholder="0.00"><small class="pp-per-hint"></small></label>
@@ -7864,7 +7875,7 @@ const PaycheckUI=(()=>{
     commit(()=>{if(old)state.ppIncome[state.ppIncome.indexOf(old)]=x;else incomes().push(x);if(first)at='';},old?`${x.name} saved`:`${x.name} added · ${fmt(x.amount)} ${freqName(freq).toLowerCase()}`);if(first&&screen!=='dashboard')go('dashboard');break;}
    case 'pp-env-form':{const old=env(id),amount=cents(F.get('amount'));if(amount===null)throw Error('Enter an amount.');const name=String(F.get('name')||'').trim().slice(0,40);if(!name)throw Error('Give it a name.');
     const x={...(old?{...old}:{id:Budget.uid(),color:envs().length}),name,kind:F.get('kind')==='save'?'save':'spend',amount,per:F.get('per')==='month'?'month':'check'};if(old){if(F.get('paused')==='on')x.status='paused';else delete x.status;}
-    closeModal();commit(()=>{if(old)state.ppEnv[state.ppEnv.indexOf(old)]=x;else envs().push(x);},old?`${name} saved`:`${name} added · ${fmt(amount)} ${x.per==='month'?'a month':'a paycheck'}`);break;}
+    closeModal();commit(()=>{if(old)state.ppEnv[state.ppEnv.indexOf(old)]=x;else envs().push(x);if(!old&&f.dataset.tag)(state.splitTags||(state.splitTags={}))['env:'+x.id]=f.dataset.tag;},old?`${name} saved`:`${name} added · ${fmt(amount)} ${x.per==='month'?'a month':'a paycheck'}`);break;}
    case 'pp-spend-form':{const amount=cents(F.get('amount'));if(!amount)throw Error('Enter what you spent.');const date=String(F.get('date')||today());if(date>today())throw Error('That date hasn’t happened yet.');const en=String(F.get('env')),note=String(F.get('note')||'').trim().slice(0,80),old=spends().find(x=>x.id===id);
     closeModal();commit(()=>{const x={id:old?.id||Budget.uid(),env:en,date,amount,...(note?{note}:{})};if(old)state.ppSpend[state.ppSpend.indexOf(old)]=x;else spends().push(x);state.ppLastEnv=en;},'');
     const p=Pay.plan(S(),date,1,today())[0],x=p?.envs.find(z=>z.e.id===en);toast(`${env(en)?.name}: ${fmt(amount)}${x?` · ${x.left<0?fmt(-x.left)+' over':fmt(x.left)+' left'} this paycheck`:''}`,true);break;}
@@ -7888,8 +7899,8 @@ const PaycheckUI=(()=>{
    case 'pp-income-main':{const x=income(id);if(x)commit(()=>{state.ppIncome=[x,...incomes().filter(z=>z!==x)];},`${x.name} is now the main paycheck`);break;}
    case 'pp-income-del':{const x=income(id);if(!x)break;confirmation(`Delete ${esc(x.name)}?`,'Its paydays leave the plan, and paychecks you confirmed for it are forgotten. To keep its history, set it to Stopped instead. You can undo this right after.','pp-income-del-ok','Delete',`data-id="${id}"`);break;}
    case 'pp-income-del-ok':{const x=income(id);closeModal();if(x)commit(()=>{state.ppIncome=incomes().filter(z=>z.id!==id);const g=state.ppGot||{};Object.keys(g).forEach(k=>{if(k.startsWith(id+'|'))delete g[k];});at='';},`${x.name} deleted`);break;}
-   case 'pp-env-add':{const p=ENV_PRESETS[+b.dataset.preset];envForm('',p?{name:p[0],kind:p[1],amount:p[2],per:p[3]}:{});break;}
-   case 'pp-env-edit':envForm(id);break;
+   case 'pp-env-add':{const p=ENV_PRESETS[+b.dataset.preset],d=b.dataset;envForm('',p?{name:p[0],kind:p[1],amount:p[2],per:p[3]}:d.amount?{name:d.name,kind:d.kind,amount:+d.amount,per:'check',tag:d.tag}:{});break;}
+   case 'pp-env-edit':envForm(id,b.dataset.add&&env(id)?{amount:env(id).amount+(+b.dataset.add)}:{});break;
    case 'pp-env-del':{const x=env(id);if(!x)break;const n=spends().filter(z=>z.env===id).length;confirmation(`Delete ${esc(x.name)}?`,`${n?`Its ${plural(n,'entry','entries')} of spending go too. `:''}To keep them, pause it instead. You can undo this right after.`,'pp-env-del-ok','Delete',`data-id="${id}"`);break;}
    case 'pp-env-del-ok':{const x=env(id);closeModal();if(x)commit(()=>{state.ppEnv=envs().filter(z=>z.id!==id);state.ppSpend=spends().filter(z=>z.env!==id);},`${x.name} deleted`);break;}
    case 'pp-spend':spendForm(b.dataset.env||'');break;
@@ -7929,36 +7940,46 @@ const SplitUI=(()=>{
  const tagName=t=>(Split.TAGS.find(x=>x[0]===t)||Split.TAGS[0])[1];
  // a monthly-plan category's usual tag, from its group
  const catTag=c=>({bills:'need',subscriptions:'want',debt:'debt',sinking:'save',savings:'save',investment:'save'})[c.group]||(Budget.type(c)==='saving'?'save':Split.guess(c.name,'want'));
- const seg=id=>`<div class="segment no-print" role="group" aria-label="Budget method">${Split.ORDER.map(k=>`<button data-action="split-method" data-k="${k}" aria-pressed="${id===k}">${Split.METHODS[k].name}</button>`).join('')}</div>`;
- const bar=(parts,label)=>`<div class="sp-bar" role="img" aria-label="${esc(label)}">${parts.filter(x=>x.w>0).map(x=>`<i style="width:${Math.min(100,x.w)}%;background:${x.c}" title="${esc(x.t)}"></i>`).join('')}</div>`;
+ const pick=id=>`<label class="sp-pick no-print"><span>Your method</span><select data-split-pick aria-label="Budget method">${Split.ORDER.map(k=>`<option value="${k}" ${id===k?'selected':''}>${Split.METHODS[k].name}</option>`).join('')}</select></label>`;
+ const pie=(title,parts,total,label)=>`<div class="sp-pie"><h3>${title}</h3>${donutMarkup(parts.filter(x=>x[1]>0),total,label)}</div>`;
+ // what a bucket still needs, in plain words: under on needs is good, under on wants is room, under on saving is a gap
+ function status(r){const d=r.diff;if(Math.abs(d)<100)return ['On the goal ✓','pos'];
+  if(r.key==='save'||r.key==='debt')return d>0?[`${fmt(d)} ahead of the goal ✓`,'pos']:[`${fmt(-d)} more to reach ${r.target}%`,'warn'];
+  if(d>0)return [`${fmt(d)} over the goal`,'warn'];
+  return r.key==='need'?[`${fmt(-d)} under the goal ✓`,'pos']:[`${fmt(-d)} still free to plan`,''];}
  // items: [{key, name, amount, tag}] (tag already resolved); income in cents
- function card({items,income,title,sub,extra='',empty:emptyText}){const id=method();if(!id)return '';
-  const R=Split.compute(items,income,id),fit=Split.bestFit(items,income),M=Split.METHODS[R.id];
-  const nm=M.zero?'zero-based':M.name,head=`<div class="cardhead"><div><h2>${esc((title||'Your {m} budget').replace('{m}',nm))}</h2><p>${esc(sub||M.about)}</p></div><div class="nw-segs">${extra}${seg(R.id)}</div></div>`;
-  if(!(income>0))return `<section class="card sp-card">${head}${empty('No income to split yet',emptyText||'Add your income, and the split shows here.')}</section>`;
+ // act(bucket, amount): an optional button that plans the missing amount (the paycheck planner passes one)
+ function card({items,income,title,sub,extra='',empty:emptyText,unit='income',how='',act}){const id=method();if(!id)return '';
+  const R=Split.compute(items,income,id),M=Split.METHODS[R.id];
+  const nm=M.zero?'zero-based':M.name,head=`<div class="cardhead"><div><h2>${esc((title||'Your {m} budget').replace('{m}',nm))}</h2><p>${esc(sub||M.about)}</p></div><div class="nw-segs">${extra}${pick(R.id)}</div></div>`;
+  const steps=how?`<ol class="sp-how no-print">${how.map(x=>`<li><span>${x}</span></li>`).join('')}</ol>`:'';
+  if(!(income>0))return `<section class="card sp-card">${head}${steps}${empty('No income to split yet',emptyText||'Add your income, and the split shows here.')}</section>`;
+  const tagged=Split.TAGS.map(([k,l])=>[{need:'Needs',want:'Wants',save:'Saving',debt:'Debt'}[k],items.filter(x=>x.amount>0&&x.tag===k).reduce((a,x)=>a+x.amount,0),COLOR[k]]),over=R.unassigned<0,left=Math.max(0,R.unassigned);
   let body;
-  if(R.zero){const done=R.unassigned===0,over=R.unassigned<0;
-   body=`<div class="sp-zero"><div><small>${over?'Assigned more than comes in':done?'Every dollar has a job':'Still to assign'}</small><strong class="number ${over?'neg':done?'pos':''}">${twNum('sp-zero',Math.abs(R.unassigned))}</strong></div>${bar([{w:R.assigned/income*100,c:'var(--accent)',t:'Assigned'}],'Assigned of income')}<p class="small">${over?`Trim ${fmt(-R.unassigned)} somewhere, or plan more income.`:done?'Nothing left without a plan. ✓':`${fmt(R.assigned)} of ${fmt(income)} has a job. Give the rest one: savings, a goal, or paying down debt.`}</p></div>`;}
-  else{const yours=R.rows.map(r=>({w:r.actual/income*100,c:COLOR[r.key],t:`${r.label} ${r.pct}%`})),left=Math.max(0,R.unassigned);
-   body=`<div class="sp-bars"><div class="sp-bar-row"><small>Yours</small>${bar([...yours,{w:left/income*100,c:COLOR.left,t:'Not assigned'}],'Your split')}</div><div class="sp-bar-row"><small>Target</small>${bar(R.rows.map(r=>({w:r.target,c:COLOR[r.key],t:`${r.label} ${r.target}%`})),'The target split')}</div></div>`+
-    R.rows.map(r=>`<div class="sp-row"><span><i class="dot" style="background:${COLOR[r.key]}"></i><b>${r.label}</b><small class="dim">${r.pct}% · target ${r.target}%</small></span><span class="sp-fig"><b class="number">${twNum('sp-'+r.key,r.actual)}</b><small class="dim">${r.diff===0?'on target':r.diff>0?`${fmt(r.diff)} above target`:`${fmt(-r.diff)} below target`}</small></span></div>`).join('')+
-    (R.unassigned>0?`<p class="small muted">${fmt(R.unassigned)} (${Math.round(R.unassigned/income*100)}%) isn’t assigned to anything yet.</p>`:R.unassigned<0?`<p class="small warn">Planned ${fmt(-R.unassigned)} more than comes in.</p>`:'');}
-  const hint=fit&&fit!==R.id&&!R.zero?`<p class="small sp-fit">Your numbers sit closest to <button class="link" data-action="split-method" data-k="${fit}">${Split.METHODS[fit].name}</button>.</p>`:'';
+  if(R.zero){const done=R.unassigned===0;
+   const btns=act&&left>0?act({key:'save',label:'Saving',tags:['save']},left):'';
+   body=`<div class="sp-pies">${pie('Your plan',[...tagged,['Still to assign',left,COLOR.left]],over?R.assigned:income,over?'planned':unit)}<div class="sp-zero"><small>${over?'Planned more than comes in':done?'Every dollar has a job':'Still to assign'}</small><strong class="number ${over?'neg':done?'pos':''}">${twNum('sp-zero',Math.abs(R.unassigned))}</strong><p class="small">${over?`Trim ${fmt(-R.unassigned)} somewhere, or plan more income.`:done?'Nothing is left without a plan. ✓':`${fmt(R.assigned)} of ${fmt(income)} has a job. Give the rest one: savings, a goal, or paying down debt.`}</p>${btns?`<div class="row-acts">${btns}</div>`:''}</div></div>`;}
+  else{const goal=R.rows.map(r=>[r.label,r.goal,COLOR[r.key]]),yours=[...R.rows.map(r=>[r.label,r.actual,COLOR[r.key]]),['Not planned yet',left,COLOR.left]];
+   body=`<div class="sp-pies">${pie(`The ${M.name} goal`,goal,income,unit)}${pie('Your plan',yours,over?R.assigned:income,over?'planned':unit)}</div>`+
+    `<div class="sp-todo">${R.rows.map(r=>{const [txt,tone]=status(r),b=act&&r.diff<=-100&&(r.key==='save'||r.key==='debt')?act(r,-r.diff):'';
+     return `<div class="sp-row"><span><i class="dot" style="background:${COLOR[r.key]}"></i><b>${r.label}</b><small class="dim">Goal ${fmt(r.goal)} · planned ${fmt(r.actual)}</small></span><span class="sp-fig"><b class="${tone}">${txt}</b>${b}</span></div>`;}).join('')}</div>`+
+    (over?`<p class="small warn">Planned ${fmt(-R.unassigned)} more than comes in.</p>`:'');}
   const L=[...items].filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
   const edit=`<details class="sp-tags no-print"><summary>Is each line a need, a want, saving or debt?</summary><p class="small muted">The app guesses from the name and type; change any that are wrong.</p><div class="sp-tag-list">${L.map(x=>`<label class="sp-tag"><span>${esc(x.name)} <small class="dim">${fmt(x.amount)}</small></span><select data-split-key="${esc(x.key)}" aria-label="${esc(x.name)} counts as">${Split.TAGS.map(([k,l])=>`<option value="${k}" ${x.tag===k?'selected':''}>${l}</option>`).join('')}</select></label>`).join('')}</div></details>`;
-  return `<section class="card sp-card">${head}${body}${hint}${L.length?edit:''}</section>`;}
+  return `<section class="card sp-card">${head}${steps}${body}${L.length?edit:''}</section>`;}
  // the monthly plan: planned amounts, or what's been spent so far
  let basis='plan';
  function budgetCard(m){if(!method()||P.features.paycheck)return '';const rows=Budget.rows(state,m),t=Budget.totals(state,m),actual=basis==='actual';
   const items=rows.filter(c=>c.type==='expense'||c.type==='saving').map(c=>({key:'cat:'+c.id,name:c.name,amount:actual?c.actual:c.planned,tag:tagOf('cat:'+c.id,catTag(c))}));
   const sw=`<div class="segment no-print" role="group" aria-label="Planned or actual">${[['plan','Planned'],['actual','So far']].map(([k,l])=>`<button data-action="split-basis" data-k="${k}" aria-pressed="${basis===k}">${l}</button>`).join('')}</div>`;
-  return card({items,income:actual?t.income.actual:t.income.plan,sub:Split.METHODS[method()].zero?`${actual?'What you’ve spent and saved so far':'Your plan'} for ${monthName(m)}: give every dollar a job`:`${actual?'What you’ve spent and saved so far':'Your plan'} for ${monthName(m)}, against ${Split.METHODS[method()].name}`,extra:sw,empty:actual?'Nothing received yet this month.':'Plan your income for this month, and the split shows here.'});}
+  return card({items,income:actual?t.income.actual:t.income.plan,sub:Split.METHODS[method()].zero?`${actual?'What you’ve spent and saved so far':'Your plan'} for ${monthName(m)}: give every dollar a job`:`${actual?'What you’ve spent and saved so far':'Your plan'} for ${monthName(m)}, against ${Split.METHODS[method()].name}`,extra:sw,how:['Pick your method. It’s saved for every month.','Your planned categories fill <b>Your plan</b>.','Change category amounts until it matches the goal.'],empty:actual?'Nothing received yet this month.':'Plan your income for this month, and the split shows here.'});}
  function settingsCard(){const id=method();
   return `<section class="card"><div class="cardhead"><div><h2>Budget method</h2><p>${P.features.paycheck?'How each paycheck is split, compared with a rule of thumb.':'Optional: compare your monthly plan with a rule of thumb. Off by default.'}</p></div></div><label class="full">Method<select id="split-method-select" aria-label="Budget method">${P.features.paycheck?'':`<option value="" ${!id?'selected':''}>Off</option>`}${Split.ORDER.map(k=>`<option value="${k}" ${id===k?'selected':''}>${Split.METHODS[k].name}</option>`).join('')}${P.features.paycheck?`<option value="" ${!id?'selected':''}>Don’t show a method</option>`:''}</select><small>${id?esc(Split.METHODS[id].about):'Turn one on to see a 50/30/20, 70/20/10, 80/20 or zero-based check on your '+(P.features.paycheck?'paychecks':'monthly plan')+'.'}</small></label></section>`;}
  document.addEventListener('click',e=>{const b=e.target.closest('[data-action^="split-"]');if(!b)return;
   if(b.dataset.action==='split-method'){const k=b.dataset.k;if(Split.METHODS[k]&&k!==method())commit(()=>{state.settings.splitMethod=k;},`${Split.METHODS[k].name} budget`);}
   if(b.dataset.action==='split-basis'){basis=b.dataset.k==='actual'?'actual':'plan';render();}});
  document.addEventListener('change',e=>{const el=e.target;
+  if(el.matches?.('select[data-split-pick]')){const k=el.value;if(Split.METHODS[k])commit(()=>{state.settings.splitMethod=k;},`Method saved: ${Split.METHODS[k].name}`);return;}
   if(el.id==='split-method-select'){const k=el.value;commit(()=>{state.settings.splitMethod=k;},k?`${Split.METHODS[k].name} budget`:'Budget method off');return;}
   if(el.matches?.('select[data-split-key]')){const key=el.dataset.splitKey,v=el.value;commit(()=>{(state.splitTags||(state.splitTags={}))[key]=v;},`Counted as ${tagName(v).toLowerCase()}`);}});
  return {card,budgetCard,settingsCard,tagOf,catTag};

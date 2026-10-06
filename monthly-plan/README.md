@@ -78,7 +78,11 @@ bills edition's screens. State adds `ppIncome`, `ppEnv`, `ppSpend`, `ppGot` (`in
 **Budget methods** (`features.split`, in the Monthly Plan and the Paycheck Budget Planner). `Split` in core is
 the pure engine (tested in `build/test_split.js`): 50/30/20, 70/20/10, 80/20 and zero-based, each line tagged
 need, want, save or debt (guessed from its group or name, changeable on the card), and `bestFit`. `SplitUI` draws
-the card on the monthly plan and on This paycheck, and the Settings switch. The method is
+the card on the monthly plan and on This paycheck, and the Settings switch. The card: a "Your method" select
+(saved on change), three how-it-works steps, two pies (the method's goal and your plan, with "Not planned yet"),
+and one line per bucket in plain words (under the goal ✓, still free to plan, more to reach 20%). In the paycheck
+planner a saving or debt bucket short of its goal gets one button that raises a matching spending or saving line
+by the gap, or adds one (tagged), so the plan is fixed in one click. The method is
 `settings.splitMethod` ('' = off: the Monthly Plan's default; the paycheck pack starts on 50/30/20); changed
 tags are in `state.splitTags` (`cat:id`, `bill:id`, `env:id`).
 
