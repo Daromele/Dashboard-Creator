@@ -4,6 +4,11 @@
   functions = "netlify/functions"
   command = "node build.mjs"
 
+# The Google Books key in the app is meant to be public: it only works for the Books API and on this site
+# (restricted in Google Cloud). Tell Netlify's secret scan this one value is intentional.
+[build.environment]
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyDrzOiGoinwKFXKgQsOHKLiM8ZlNfWxV6s"
+
 [functions]
   node_bundler = "esbuild"
 
