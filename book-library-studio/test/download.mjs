@@ -35,6 +35,15 @@ try {
   await page.reload(); await page.waitForTimeout(500);
   ok(await page.evaluate(() => state.books.length === 1), 'books are still there after reopening the file');
   ok(!server.length, 'never calls our server');
+  // the file opened on a phone: it says up front to use the web app, and a failed lookup says why
+  const phone = await browser.newContext({ ...pw.devices['iPhone 13'], reducedMotion: 'reduce' });
+  await phone.route(/^https:\/\/(openlibrary\.org|www\.googleapis\.com)\//, r => r.abort());   // as an iPhone browser does for a downloaded file
+  const pp = await phone.newPage(); await pp.goto(FILE); await pp.evaluate(() => localStorage.setItem(CONFIG.storageKey + '-welcome-v1', '1')); await pp.reload(); await pp.waitForSelector('#content .pagehead');
+  ok(await pp.isVisible('#install-banner') && /use the web app/.test(await pp.textContent('#install-banner')) && /book-library-studio\.netlify\.app/.test(await pp.getAttribute('#install-banner a', 'href')), 'phone: told to use the web app, with a link');
+  await pp.fill('#find-a', '9780593135204'); await pp.click('[data-find-go]'); await pp.waitForFunction(() => !find.busy);
+  ok(/Phones don’t let a downloaded file go online/.test(await pp.textContent('.find-status')) && await pp.isVisible('.find-status a[href*="netlify.app"]'), 'phone: a failed lookup explains why and links the web app');
+  ok(await page.isHidden('#install-banner'), 'computer: no phone notice');
+  await phone.close();
 } finally { await browser.close(); }
 if (errors.length) { console.log(`\n${errors.length} failure(s)`); process.exit(1); }
 console.log('\nall download checks passed');
