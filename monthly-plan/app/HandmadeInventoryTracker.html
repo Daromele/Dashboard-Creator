@@ -1,292 +1,181 @@
 <!doctype html>
-<!-- Small Business Profit Plan (Income & Expense Tracker). Copyright (c) 2026 JPS Digital Pages. All rights reserved.
+<!-- Handmade Inventory Tracker. Copyright (c) 2026 JPS Digital Pages. All rights reserved.
      Built on the Monthly Plan core. Personal-use customer edition. -->
-<html lang="en" data-theme="{{themes.0}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#182635"><meta name="description" content="Small Business Profit Plan, an income &amp; expense tracker by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline."><title>Small Business Profit Plan · Income &amp; Expense Tracker</title><link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%23182635"/><path d="M22 16v32M22 16h11a8 8 0 0 1 0 16H22M22 32h13a8 8 0 0 1 0 16H22" fill="none" stroke="%23E3A73B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'>
+<html lang="en" data-theme="{{themes.0}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#45392A"><meta name="description" content="Handmade Inventory Tracker by JPS Digital Pages. Materials with their real cost, product recipes, batches that use materials up, sales on Etsy, at craft fairs and everywhere else, stock counts, low-stock alerts and the true profit per piece. Works offline."><title>Handmade Inventory Tracker · Materials, products & true profit</title><link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%2345392A"/><path d="M14 26l18-10 18 10v20l-18 10-18-10z" fill="none" stroke="%23E8A24A" stroke-width="4.5" stroke-linejoin="round"/><path d="M14 26l18 10 18-10M32 36v20" fill="none" stroke="%23E8A24A" stroke-width="4.5" stroke-linejoin="round"/></svg>'>
 <script>
 /* ===================================================================================
-   NICHE PACK · Small Business Profit Plan, “Income & Expense Tracker” (freelancer & small-business edition)
-   Everything that makes this edition a set of business books lives in this block:
-   product identity, category groups and their flags (revenue, cost of goods sold,
-   overheads, tax set-aside), default categories and their Schedule C lines, the
-   estimated-tax calendar, Quick Log words, labels, theme choices and the sample
-   business. The engine below is shared with the budget edition.
+   NICHE PACK · Handmade Inventory Tracker
+   For makers: materials with what they really cost, products with their recipes, batches that use the materials up,
+   sales on every channel, craft fairs with planned, taken and sold, stock counts and adjustments that are never lost,
+   and the true profit per piece, per channel and per month.
+   Screens live in the core's HandmadeUI module (features.handmade) on top of Handmade (pure, tested). This block gives
+   the edition its identity, sidebar, words, welcome, guide and the fictional maker behind sample mode.
    =================================================================================== */
 const NICHE = {
-  id: 'business',
+  id: 'handmade',
   product: {
-    name: 'Small Business Profit Plan', mark: 'B', publisher: 'INCOME & EXPENSE TRACKER', version: '1.4',
-    tagline: 'Income & Expense Tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
-    title: 'Small Business Profit Plan · Income &amp; Expense Tracker', themeColor: '#182635',
-    description: 'Small Business Profit Plan, an income & expense tracker by JPS Digital Pages. Track sales and expenses, see profit and loss by month, quarter or year, set money aside for quarterly tax and hand your accountant a Schedule C summary. Works offline.',
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%23182635"/><path d="M22 16v32M22 16h11a8 8 0 0 1 0 16H22M22 32h13a8 8 0 0 1 0 16H22" fill="none" stroke="%23E3A73B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    notice: 'Small Business Profit Plan (Income & Expense Tracker). Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
-    railNote: '<b>Know what you really made.</b>Log sales and costs. Watch profit. Put tax money aside before it is due.',
-    printTitle: 'Small Business Profit Plan · Income & Expense Tracker',
+    name: 'Handmade Inventory Tracker', mark: 'H', publisher: 'MAKER STOCK & PROFIT', version: '1.0',
+    tagline: 'Handmade inventory tracker', site: 'https://www.jpsdigitalpages.com', siteLabel: 'JPS Digital Pages',
+    title: 'Handmade Inventory Tracker · Materials, products & true profit', themeColor: '#45392A',
+    description: 'Handmade Inventory Tracker by JPS Digital Pages. Materials with their real cost, product recipes, batches that use materials up, sales on Etsy, at craft fairs and everywhere else, stock counts, low-stock alerts and the true profit per piece. Works offline.',
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%2345392A"/><path d="M14 26l18-10 18 10v20l-18 10-18-10z" fill="none" stroke="%23E8A24A" stroke-width="4.5" stroke-linejoin="round"/><path d="M14 26l18 10 18-10M32 36v20" fill="none" stroke="%23E8A24A" stroke-width="4.5" stroke-linejoin="round"/></svg>',
+    notice: 'Handmade Inventory Tracker. Copyright (c) 2026 JPS Digital Pages. All rights reserved.\n     Built on the Monthly Plan core. Personal-use customer edition.',
+    railNote: '<b>Know what each piece really costs.</b>Materials in, pieces made, sold everywhere: stock and profit that add up.',
+    printTitle: 'Handmade Inventory Tracker · JPS Digital Pages',
   },
-  build: { file: 'SmallBusinessProfitPlan.html' },
-  storage: { key: 'jps-profit-plan', file: 'profit-plan' },
-  editions: { budget: 'Monthly Plan, the household budget edition', creator: 'Creator Plan, the creator edition', autonomo: 'Autónomo Plan, the Spain edition' },
-  themes: ['ledger', 'sage', 'fjord', 'slate', 'linen', 'night', 'midnight'],
-  features: { goals: true, wealth: false, pl: true, tax: true, taxLines: true, mileage: true, invoices: true, channels: true },
-  // offered as one-click sales channels in Settings; a channel added by name picks up its usual tag
-  suggestedChannels: ['Etsy', 'Shopify', 'Payhip', 'Gumroad', 'Fourthwall', 'Amazon', 'YouTube', 'Patreon', 'Buy Me a Coffee', 'Ko-fi', 'Clients'],
-  suggestedTags: ['Digital products', 'Physical products', 'Services', 'Ad revenue', 'Donations', 'Memberships', 'Sponsorships'],
-  channelTags: { etsy: 'Digital products', payhip: 'Digital products', gumroad: 'Digital products', fourthwall: 'Digital products', shopify: 'Physical products', amazon: 'Physical products', patreon: 'Donations', 'buy me a coffee': 'Donations', 'ko-fi': 'Donations', clients: 'Services', youtube: 'Ad revenue', tiktok: 'Ad revenue', 'brand deals': 'Sponsorships' },
-  // taxRate in basis points (2500 = 25%). mileageRate in thousandths of the currency per distance unit
-  // (700 = 0.70 per mile or km); it starts at 0 because the allowed rate differs by country and year.
-  settings: { taxRate: 2500, mileageRate: 0, distanceUnit: 'mi' },
-  tourTopics: 'profit, tax set-asides, imports and backups',
+  build: { file: 'HandmadeInventoryTracker.html' },
+  // browser storage keys, the backup-folder database and download names all start with these
+  storage: { key: 'jps-handmade-inventory', file: 'handmade-inventory' },
+  // first theme is the default
+  themes: ['linen', 'sage', 'blush', 'lavender', 'fjord', 'slate', 'night', 'midnight'],
+  features: { goals: false, wealth: false, pl: false, tax: false, taxLines: false, mileage: false, invoices: false, handmade: true },
+  settings: { hiddenNav: [], hmRate: 2000, hmPrefix: '' },
 
-  // type: income | expense | saving (money moved aside: not income, not an expense)
-  // cogs: cost of goods sold, sits between revenue and gross profit
-  // other: income below operating profit · tax: counts as tax set aside
-  // fixed: a commitment the dashboard reserves for · debt: can be a payoff goal
-  // taxLine: the Schedule C line a new category in this group starts on
   groups: [
-    { id: 'revenue', label: 'Sales & revenue', type: 'income', taxLine: 'L1' },
-    { id: 'other-income', label: 'Other income', type: 'income', other: true, taxLine: 'L6' },
-    { id: 'cogs', label: 'Cost of goods sold', type: 'expense', cogs: true, taxLine: 'L38' },
-    { id: 'overhead', label: 'Overheads', type: 'expense', fixed: true, subscription: true, taxLine: 'L27b' },
-    { id: 'marketing', label: 'Marketing & selling', type: 'expense', taxLine: 'L8' },
-    { id: 'operations', label: 'Running the business', type: 'expense', taxLine: 'L22' },
-    { id: 'people', label: 'Contractors & staff', type: 'expense', taxLine: 'L11' },
-    { id: 'travel', label: 'Vehicle, travel & meals', type: 'expense', taxLine: 'L24a' },
-    { id: 'owner', label: 'Owner’s pay & draws', type: 'saving' },
-    { id: 'tax', label: 'Tax set-aside & payments', type: 'saving', tax: true, icon: 'shield' },
-    { id: 'reserve', label: 'Business savings', type: 'saving', icon: 'umbrella' },
-    { id: 'loans', label: 'Loan repayments', type: 'saving', fixed: true, debt: true },
-    // money moving between the business's own accounts: never income, expense or saving
-    { id: 'transfer', label: 'Card payments & own transfers', type: 'transfer', debt: true },
+    { id: 'income', label: 'Income', type: 'income' },
+    { id: 'bills', label: 'Bills', type: 'expense', fixed: true },
+    { id: 'subscriptions', label: 'Subscriptions', type: 'expense', fixed: true, subscription: true },
+    { id: 'debt', label: 'Debt payments', type: 'expense', fixed: true, debt: true },
+    { id: 'variable', label: 'Variable expenses', type: 'expense' },
+    { id: 'sinking', label: 'Sinking funds', type: 'saving' },
+    { id: 'savings', label: 'Savings', type: 'saving' },
+    { id: 'investment', label: 'Investments', type: 'saving', icon: 'outlook' },
+    { id: 'transfer', label: 'Transfers (not counted)', type: 'transfer', debt: true },
   ],
-  // [id, name, group, Schedule C line]
+  // [id, name, group]
   categories: [
-    ['client-work', 'Client projects', 'revenue', 'L1'], ['product-sales', 'Product sales', 'revenue', 'L1'], ['retainers', 'Retainers & subscriptions', 'revenue', 'L1'],
-    ['other-biz-income', 'Other business income', 'other-income', 'L6'], ['interest', 'Bank interest', 'other-income', 'N'],
-    ['materials', 'Materials & supplies for products', 'cogs', 'L38'], ['inventory', 'Stock bought for resale', 'cogs', 'L36'], ['postage', 'Packaging & postage to customers', 'cogs', 'L39'],
-    ['software', 'Software & subscriptions', 'overhead', 'L18'], ['phone-internet', 'Phone & internet', 'overhead', 'L25'], ['workspace', 'Workspace rent', 'overhead', 'L20b'], ['insurance', 'Business insurance', 'overhead', 'L15'], ['website', 'Website & hosting', 'overhead', 'L27b'],
-    ['advertising', 'Advertising & promotion', 'marketing', 'L8'], ['platform-fees', 'Platform & payment fees', 'marketing', 'L10'],
-    ['office', 'Office supplies', 'operations', 'L18'], ['equipment', 'Equipment & computers', 'operations', 'L13'], ['professional', 'Accountant & legal', 'operations', 'L17'], ['licences', 'Licences & business taxes', 'operations', 'L23'], ['training', 'Training & education', 'operations', 'L27b'], ['bank-fees', 'Bank charges', 'operations', 'L27b'], ['loan-interest', 'Loan interest', 'operations', 'L16b'],
-    ['contractors', 'Contractors & freelancers', 'people', 'L11'], ['wages', 'Wages', 'people', 'L26'],
-    ['fuel', 'Fuel, parking & tolls', 'travel', 'L9'], ['business-travel', 'Business travel', 'travel', 'L24a'], ['meals', 'Business meals', 'travel', 'L24b'],
-    ['owner-draw', 'Owner’s draw', 'owner'], ['owner-retirement', 'Owner retirement (SEP-IRA / Solo 401k)', 'owner'],
-    ['tax-reserve', 'Tax savings transfer', 'tax'], ['est-tax', 'Income tax paid (estimated & year-end)', 'tax'],
-    ['biz-savings', 'Rainy-day fund', 'reserve'], ['equipment-fund', 'Equipment fund', 'reserve'],
-    ['loan-repay', 'Business loan repayment', 'loans'],
-    ['card-payoff', 'Business card payoff (purchases already logged)', 'transfer'], ['own-transfer', 'Transfer between business accounts', 'transfer'],
-    ['platform-payout', 'Platform payouts & top-ups (already imported)', 'transfer'],
+    ['salary', 'Salary', 'income'], ['side', 'Side hustle', 'income'], ['other-income', 'Other income', 'income'],
+    ['housing', 'Rent / mortgage', 'bills'], ['utilities', 'Utilities', 'bills'], ['memberships', 'Memberships', 'subscriptions'],
+    ['groceries', 'Groceries', 'variable'], ['personal', 'Personal & family', 'variable'], ['emergency', 'Emergency savings', 'savings'],
+    ['investing', 'Investment contributions', 'investment'], ['own-transfer', 'Transfer between my accounts', 'transfer'], ['platform-payout', 'Shop payouts (already counted)', 'transfer'],
   ],
-  // US Schedule C (Form 1040). part: income | other | cogs (Part III) | expense (Part II)
-  taxForm: { name: 'Schedule C', long: 'Schedule C (Form 1040) · Profit or Loss From Business' },
-  taxLines: [
-    { id: 'L1', line: '1', label: 'Gross receipts or sales', part: 'income' },
-    { id: 'L6', line: '6', label: 'Other income', part: 'other' },
-    { id: 'L36', line: '36', label: 'Purchases less cost of items withdrawn for personal use', part: 'cogs' },
-    { id: 'L37', line: '37', label: 'Cost of labor', part: 'cogs' },
-    { id: 'L38', line: '38', label: 'Materials and supplies', part: 'cogs' },
-    { id: 'L39', line: '39', label: 'Other costs', part: 'cogs' },
-    { id: 'L8', line: '8', label: 'Advertising', part: 'expense' },
-    { id: 'L9', line: '9', label: 'Car and truck expenses', part: 'expense' },
-    { id: 'L10', line: '10', label: 'Commissions and fees', part: 'expense' },
-    { id: 'L11', line: '11', label: 'Contract labor', part: 'expense' },
-    { id: 'L13', line: '13', label: 'Depreciation and section 179 expense', part: 'expense', note: 'Your accountant decides what to expense now and what to depreciate.' },
-    { id: 'L14', line: '14', label: 'Employee benefit programs', part: 'expense' },
-    { id: 'L15', line: '15', label: 'Insurance (other than health)', part: 'expense' },
-    { id: 'L16a', line: '16a', label: 'Mortgage interest (paid to banks)', part: 'expense' },
-    { id: 'L16b', line: '16b', label: 'Other interest', part: 'expense' },
-    { id: 'L17', line: '17', label: 'Legal and professional services', part: 'expense' },
-    { id: 'L18', line: '18', label: 'Office expense', part: 'expense' },
-    { id: 'L19', line: '19', label: 'Pension and profit-sharing plans', part: 'expense' },
-    { id: 'L20a', line: '20a', label: 'Rent or lease: vehicles, machinery, equipment', part: 'expense' },
-    { id: 'L20b', line: '20b', label: 'Rent or lease: other business property', part: 'expense' },
-    { id: 'L21', line: '21', label: 'Repairs and maintenance', part: 'expense' },
-    { id: 'L22', line: '22', label: 'Supplies', part: 'expense' },
-    { id: 'L23', line: '23', label: 'Taxes and licenses', part: 'expense' },
-    { id: 'L24a', line: '24a', label: 'Travel', part: 'expense' },
-    { id: 'L24b', line: '24b', label: 'Deductible meals', part: 'expense', note: 'Shown at the full amount spent. Business meals are usually 50% deductible.' },
-    { id: 'L25', line: '25', label: 'Utilities', part: 'expense' },
-    { id: 'L26', line: '26', label: 'Wages (less employment credits)', part: 'expense' },
-    { id: 'L27b', line: '27b', label: 'Other expenses (itemised in Part V)', part: 'expense' },
-    { id: 'N', line: '—', label: 'Not on Schedule C (personal, or reported elsewhere)', part: 'none', exclude: true },
-  ],
-  mileageLine: 'L9',
-  // US estimated-tax periods (Form 1040-ES): months covered and the payment due date
-  taxQuarters: [
-    { label: 'Q1', months: [1, 3], due: '04-15' },
-    { label: 'Q2', months: [4, 5], due: '06-15' },
-    { label: 'Q3', months: [6, 8], due: '09-15' },
-    { label: 'Q4', months: [9, 12], due: '01-15', nextYear: true },
-  ],
-  // Quick Log: a word in the description → category id. Earlier words win, so costs come first.
-  aliases: { lunch: 'meals', dinner: 'meals', coffee: 'meals', meal: 'meals', restaurant: 'meals', fuel: 'fuel', petrol: 'fuel', parking: 'fuel', toll: 'fuel', flight: 'business-travel', hotel: 'business-travel', train: 'business-travel', uber: 'business-travel', taxi: 'business-travel', postage: 'postage', shipping: 'postage', usps: 'postage', stamps: 'postage', packaging: 'postage', fabric: 'materials', yarn: 'materials', materials: 'materials', beads: 'materials', stock: 'inventory', inventory: 'inventory', wholesale: 'inventory', adobe: 'software', canva: 'software', figma: 'software', notion: 'software', software: 'software', subscription: 'software', phone: 'phone-internet', internet: 'phone-internet', cowork: 'workspace', studio: 'workspace', insurance: 'insurance', hosting: 'website', domain: 'website', squarespace: 'website', ads: 'advertising', advert: 'advertising', promo: 'advertising', stripe: 'platform-fees', paypal: 'platform-fees', fees: 'platform-fees', etsyfee: 'platform-fees', printer: 'office', ink: 'office', paper: 'office', laptop: 'equipment', camera: 'equipment', accountant: 'professional', bookkeeper: 'professional', lawyer: 'professional', licence: 'licences', license: 'licences', course: 'training', contractor: 'contractors', freelancer: 'contractors', assistant: 'contractors', payroll: 'wages', draw: 'owner-draw', irs: 'est-tax', estimated: 'est-tax', taxpot: 'tax-reserve', setaside: 'tax-reserve', retainer: 'retainers', autopay: 'card-payoff', cardpayment: 'card-payoff', transfer: 'own-transfer', sep: 'owner-retirement', solo401k: 'owner-retirement', retirement: 'owner-retirement', invoice: 'client-work', client: 'client-work', project: 'client-work', sale: 'product-sales', order: 'product-sales', etsy: 'product-sales', shopify: 'product-sales', interest: 'interest' },
-  importHints: {
-    'credit card payment': 'card-payoff', 'credit card payments': 'card-payoff', 'card payment': 'card-payoff', payment: 'card-payoff', payments: 'card-payoff',
-    transfer: 'own-transfer', transfers: 'own-transfer', 'internal transfer': 'own-transfer',
-    taxes: 'est-tax', tax: 'est-tax', 'federal tax': 'est-tax', retirement: 'owner-retirement',
-    advertising: 'advertising', software: 'software', 'office supplies': 'office', shipping: 'postage', postage: 'postage',
-    travel: 'business-travel', 'dining out': 'meals', restaurants: 'meals', fuel: 'fuel', gas: 'fuel', insurance: 'insurance',
-    fees: 'bank-fees', 'bank fees': 'bank-fees', income: 'client-work', deposit: 'client-work', sales: 'product-sales',
-  },
-  defaults: { category: 'client-work', schedule: 'software', annualCategory: 'client-work', payout: 'platform-payout', quickSetup: ['client-work', 'product-sales', 'materials', 'software', 'advertising', 'tax-reserve'] },
-  // platform statements (Etsy, Shopify, PayPal, Stripe, YouTube, Patreon…): where each kind of entry
-  // starts. 'payout' rows move money to your bank, so they are skipped; the bank side is a transfer.
-  platformDefaults: { sale: 'product-sales', refund: 'product-sales', fees: 'platform-fees', ads: 'advertising', shipping: 'postage', feeTax: 'platform-fees', payout: '__skip', conversion: '__skip', taxWithheld: 'est-tax', purchase: '', other: '',
-    platforms: { paypal: { sale: 'client-work', refund: 'client-work' }, stripe: { sale: 'client-work', refund: 'client-work' }, youtube: { sale: 'other-biz-income', refund: 'other-biz-income' }, patreon: { sale: 'retainers', refund: 'retainers' }, substack: { sale: 'retainers', refund: 'retainers' } } },
+  aliases: {},
+  importHints: {},
+  platformDefaults: { sale: 'side', refund: 'side', fees: 'side', ads: 'side', shipping: 'side', feeTax: 'side', payout: '__skip', conversion: '__skip', taxWithheld: 'side', purchase: '', other: 'side' },
+  defaults: { category: 'personal', schedule: 'housing', annualCategory: 'housing', payout: 'platform-payout', quickSetup: ['side'] },
 
-
-  nav: [['dashboard', 'Dashboard', 'today'], ['activity', 'Transactions', 'log'], ['pl', 'Profit & loss', 'insights'], ['annual', 'Annual overview', 'outlook'], ['years', 'Year over year', 'years'], ['cuts', 'Cut costs', 'scissors'], ['insights', 'Business health', 'spark'], ['review', 'Weekly review', 'review'], ['budget', 'Monthly targets', 'plan'], ['scheduled', 'Recurring costs', 'calendar'], ['goals', 'Reserves & goals', 'umbrella'], ['calendar', 'Calendar', 'calendar'], ['invoices', 'Invoices', 'table'], ['tax', 'Quarterly tax', 'shield'], ['taxlines', 'Schedule C summary', 'tags'], ['mileage', 'Mileage log', 'compass'], ['settings', 'Settings & backup', 'palette'], ['guide', 'How to use', 'help']],
-  optionalNav: ['years', 'cuts', 'invoices', 'mileage', 'annual', 'goals', 'scheduled', 'calendar', 'insights', 'review', 'guide'],
-  navGroups: [['Your business', ['dashboard', 'activity', 'pl', 'annual', 'years', 'insights', 'cuts', 'review']], ['Plan ahead', ['budget', 'scheduled', 'goals', 'calendar']], ['Invoices & tax', ['invoices', 'tax', 'taxlines', 'mileage']]],
-  navGroupRest: 'Settings & help',
+  // sidebar: [id, label, icon]; optionalNav can be switched off in Settings
+  nav: [['dashboard', 'Home', 'today'], ['hmprods', 'Products', 'grid'], ['hmmats', 'Materials', 'tags'], ['hmmake', 'Make a batch', 'spark'], ['hmsales', 'Sales', 'wallet'], ['hmevents', 'Craft fairs & events', 'calendar'],
+    ['hmrestock', 'Restock list', 'log'], ['hmlog', 'Stock history', 'history'], ['hmexp', 'Expenses', 'down'], ['hmpl', 'Profit & loss', 'review'],
+    ['settings', 'Settings & backup', 'palette'], ['guide', 'How it works', 'help']],
+  optionalNav: ['hmevents', 'hmrestock', 'hmlog', 'hmexp', 'guide'],
+  navGroups: [['Your workshop', ['dashboard', 'hmprods', 'hmmats', 'hmmake', 'hmsales', 'hmevents']], ['Stock & money', ['hmrestock', 'hmlog', 'hmexp', 'hmpl']]],
+  navGroupRest: 'Make it yours',
 
   labels: {
-    income: 'Revenue', expense: 'Expenses', saving: 'Transfers & draws', savingShort: 'Transfers', savingOne: 'Transfer',
-    incomePlanned: 'Expected revenue', incomeReceived: 'Revenue received', expensesPaid: 'Expenses paid', savedInvested: 'Transfers & draws',
-    plannedContributions: 'Planned transfers', savingsFilter: 'Transfers & draws',
-    plannedIncome: 'PLANNED REVENUE', subscriptionKpi: 'Overheads plan', yourName: 'Business name', yourNameHint: 'Shown on your statements and exports',
-    greeting: ' · the month at a glance', greetingPlain: 'Your business at a glance', planTitle: 'Your monthly targets', categoryPlaceholder: 'e.g. Stock photography',
-    categorySub: 'Shape the categories around how your business really runs.', directionNormal: 'Money in / cost paid / transfer',
-    budgetOver: 'over target by', budgetLeft: 'under target by', repeatNote: 'Copy this month’s targets into months that have none, then adjust the months that need something different.', repeatButton: 'Repeat these targets',
-    openingLabel: 'Opening cash balance', recurringButton: 'Recurring costs', planNoun: 'targets', txFormNote: 'Choose the matching category.',
-    quickSetupSave: 'Save starting targets', importSub: 'Map the columns, review the rows, then add them to your books.',
-    calendarTitle: 'Your business calendar', scheduleEmpty: 'Add rent, a subscription, a retainer a client pays you, or a regular transfer to your tax pot.',
-    quickSetupNote: 'You can add the rest of your categories, dates and transfers in Monthly targets. This sets targets; it does not record any sales or costs.',
-    importFrom: 'Use a CSV export from your bank, PayPal, a selling platform or another bookkeeping app.',
-    exitDemo: 'Return to my books', demoOnly: 'Your books only', notePlaceholder: 'e.g. Invoice 1042 · Acme Studio',
-    incomeOne: 'Revenue', savedCol: 'Transfers', netHint: 'Revenue − expenses − transfers',
-    savingRateEmpty: 'Log revenue to see the share moved aside', savingRate: '% of revenue received',
-    transfer: 'Card payments & own transfers', transferOne: 'Transfer',
-    noPlan: 'No monthly target set', editPlan: 'Edit targets',
-    rhythmPlan: 'Set this month’s revenue and cost targets', incomeWeek: 'Revenue this week', reviewDaysNote: 'Days with at least one sale or cost logged.',
-    reviewChecks: ['I matched this week’s entries to my bank and card statements.', 'I followed up on invoices that are due or late.', 'I moved this week’s tax set-aside and checked the bills coming next.'],
-    goalsEyebrow: 'Build a cushion', goalsTitle: 'Reserves, goals & loan payoff', goalsPlanTitle: 'This month’s transfers', goalsPlanSub: 'Draws, tax pot and reserves planned for', heroBills: 'Unpaid bills & fixed costs', heroSave: 'Planned transfers to make', heroFree: 'Free to use',
-    heroLead: 'Free to use once unpaid fixed costs and planned transfers, like the tax pot and your draw, are covered.',
+    income: 'Sales', expense: 'Expenses', saving: 'Savings & investing', savingShort: 'Contributions', savingOne: 'Contribution',
+    incomePlanned: 'Expected sales', incomeReceived: 'Sales', expensesPaid: 'Expenses paid', savedInvested: 'Saved & invested',
+    plannedContributions: 'Planned contributions', savingsFilter: 'Savings & investments',
+    plannedIncome: 'PLANNED SALES', subscriptionKpi: 'Subscription plan', yourName: 'Your shop name (optional)', yourNameHint: 'e.g. Willow & Wick',
+    greeting: '', greetingPlain: 'Your workshop', planTitle: 'Your workshop', categoryPlaceholder: 'e.g. Candles',
+    categorySub: 'Make it fit your shop.', directionNormal: 'Paid',
+    statementKinds: 'a statement',
+    importNote: '',
+    exitDemo: 'Return to my workshop', demoOnly: 'Your workshop only', demoNote: 'Fictional candle and soap maker. Your own materials and sales stay separate.', notePlaceholder: 'e.g. Spring batch',
+    incomeOne: 'Sale', savedCol: 'Saved', transfer: 'Transfers (not counted)', transferOne: 'Transfer', netHint: 'Sales − every cost',
+    savingRateEmpty: 'Record a sale to see your profit', savingRate: '% of sales',
   },
-  quickLog: { placeholder: 'client invoice 1200', help: 'Try “client invoice 1200”, “canva 12.99”, “postage 8.40” or “lunch with client 32”.', demo: ['postage', '8.40', 'Packaging & postage to customers'] },
+  quickLog: { placeholder: 'mailers 12.99', help: 'Try “mailers 12.99”.', demo: ['mailers', '12.99', 'Shipping supplies'] },
 
+  tourTopics: 'materials, recipes, making batches, recording sales, craft fairs, stock counts and backups',
   welcome: [
-    { icon: 'today', step: 'WELCOME', title: 'Your business books, in one calm place', text: '<p>Log what comes in and what goes out, or import your bank CSV. Profit, cash flow, tax money and a year-end summary build themselves.</p><p>Everything stays in this browser. No bank login, no subscription.</p>' },
-    { icon: 'insights', step: 'PROFIT', title: 'See what you made, and where the cash went', text: '<p><b>Profit &amp; loss</b> shows sales, minus what the products cost you, minus running costs, for a month, a quarter, the year so far or any dates you choose. Print it when you need it.</p><p>The <b>Annual overview</b> adds a cash flow statement: what came in, what went out and what you moved aside.</p>' },
-    { icon: 'umbrella', step: 'TAX', title: 'Put tax money aside as you go', text: '<p>Choose a set-aside rate. <b>Quarterly tax</b> compares what you should have put aside with what you have.</p><p><b>Not tax, legal or financial advice.</b> The rates, mileage values and form lines use the figures you enter. Tax rules differ by country and change every year, so confirm them with a tax professional.</p>' },
-    { icon: 'table', step: 'IMPORT', title: 'Bring in a month of bank transactions', text: '<p>Import a CSV from your bank, or a statement from Etsy, Shopify, PayPal or Stripe: each sale comes in at its full price, with the platform’s fees as costs of their own.</p><p>Correct a category once and Profit Plan offers to fix similar transactions and remember the choice.</p>', cta: { label: 'Import a bank CSV', action: 'welcome-import' } },
+    { icon: 'today', step: 'WELCOME', title: 'What each piece really costs', text: '<p>Your materials with what you paid, each product’s recipe, and every batch you make. The app works out what a piece costs, what’s on the shelf and what you really kept after every sale.</p><p>Everything stays on your computer: no account, no subscription.</p>' },
+    { icon: 'tags', step: 'MATERIALS', title: 'Buy, use, never lose track', text: '<p>Record what you buy and its cost. Making a batch uses the materials up for you. Stock counts and breakages are logged with a reason, so the numbers always add up.</p>' },
+    { icon: 'calendar', step: 'SELLING', title: 'Etsy, craft fairs and everywhere else', text: '<p>Record sales on each channel, plan a craft fair with what to make and take, then see what the day really made after the booth fee.</p>' },
     'backup',
-    { icon: 'check', step: 'START', title: 'Start with one sale or one cost', text: '<p>Log a payment you received or something you paid for today. Your dashboard fills in from there.</p><p>Want a clean slate later? <b>Settings → Start fresh</b> clears the books in one step.</p>', cta: { label: 'Add a transaction', action: 'welcome-log' } },
+    { icon: 'grid', step: 'START', title: 'Start with one product', text: '<p>Its materials and recipe now; the sales whenever they happen.</p>', cta: { label: 'Add my first material', action: 'hm-mat-add' }, finish: 'Look around first' },
   ],
   guide: {
-    title: 'Four moves. Books you can hand over.',
+    title: 'Four steps to stock and profit that add up.',
     cards: [
-      ['spark', '1. Log', 'Quick Log sales and costs as they happen, or import a bank CSV each month and fix anything marked not ready.', 'Transactions', 'activity'],
-      ['insights', '2. Check profit', 'Read the P&L for the month, the quarter or the year so far, and the cash flow in the Annual overview. Print either.', 'Profit & loss', 'pl'],
-      ['shield', '3. Set tax aside', 'Move your set-aside each month and see it against each due date. A savings rule, not tax advice.', 'Quarterly tax', 'tax'],
-      ['tags', '4. Hand over', 'Download a line-by-line summary and every transaction for your accountant or tax preparer.', 'Schedule C summary', 'taxlines'],
+      ['tags', '1. Materials', 'Add each material and record what you buy: quantity and total cost. Its average cost updates itself.', 'Materials', 'hmmats'],
+      ['grid', '2. Products', 'Add a product with its recipe: how much of each material one piece uses, plus packaging and your time.', 'Products', 'hmprods'],
+      ['spark', '3. Make a batch', 'Say what you made. The materials are used up and the pieces join your stock at what they cost.', 'Make a batch', 'hmmake'],
+      ['wallet', '4. Sell', 'Record sales on Etsy, at fairs or anywhere. Profit counts fees, shipping and what the pieces cost.', 'Sales', 'hmsales'],
     ],
-    meanings: [['Revenue', 'Money in from sales'], ['Gross profit', 'Revenue − cost of goods'], ['Net profit', 'Gross profit − running costs'], ['Transfers', 'Tax pot, draws, card payoffs']],
+    meanings: [['Average cost', 'What one unit of a material cost you, averaged over what you bought'], ['Cost per piece', 'Materials and packaging for one piece, at today’s average costs'], ['True profit', 'What a sale left after fees, shipping and what the pieces cost'], ['Sell-through', 'Pieces sold ÷ pieces you took to the event']],
     details: [
-      ['Tags: grouping sales channels', 'A tag groups sales channels by what they earn from, for example Etsy and Payhip under <b>Digital products</b>, Patreon and Buy Me a Coffee under <b>Donations</b>. Set each sales channel’s tag in <b>Settings</b>; its entries follow, and a well-known name picks up its usual tag when you add it. Any entry, a cost included, can also carry its own tag in <b>Edit transaction</b>, or tag many at once in Transactions. Either way, Profit Plan offers to tag look-alike transactions too and to remember the tag for future imports and Quick Log; the rules are listed under Tags in Settings. Each tag gets its own colour automatically. The dashboard and annual overview chart money in and out by tag, and the Transactions screen filters by it.'],
-      ['Combing through transactions', 'The Transactions screen keeps its own dates, apart from the month picker: all time, this or last month, the last 3 months, this or last year, or custom dates. Tick rows, or <b>Select all</b> matching, to change their category, channel or tag, or to delete them, in one step. Every bulk change can be undone. Rows in a closed month cannot be ticked. <b>Export CSV</b> saves exactly the rows shown.'],
-      ['Dig into any number', 'Click a card at the top of the dashboard to see the transactions behind it; <b>Avg. monthly cash flow</b> opens the Annual overview. Click a slice of any donut to list its transactions. On Transactions, pick a group and then a category, sort any column, and read the total of what is shown at the bottom.'],
-      ['Business health', 'Shows your <b>cash runway</b> (how many months your tracked cash would cover costs if sales stopped), your <b>break-even revenue</b> (what you need to sell each month to cover running costs at your gross margin), margins month by month, costs against their usual level, and whether one client or channel carries too much of the business. Averages use up to three recent complete months. It reads only what you record and is not financial advice.'],
-      ['Chasing late invoices', 'On Invoices, overdue ones get a <b>Reminder</b> button. It writes a polite reminder with the invoice number, amount and dates; edit it if you like, copy it, and paste it into an email.'],
-      ['Not tax, legal or financial advice', 'This tracker organises your own records. Every tax figure it shows, from the set-aside to the mileage value and the form lines, comes from the rates, categories and rules you enter. It does not know your tax position, and tax rules differ by country and change every year. Check with a qualified tax professional or accountant before you file, claim or pay tax.'],
-      ['Outside the US', 'Profit, cash flow, transactions, invoices and the mileage log work anywhere: set your currency in Settings, and choose miles or kilometres. The <b>Schedule C summary</b> uses US line numbers and the <b>Quarterly tax</b> due dates follow the US estimated-tax calendar. Elsewhere, treat the category totals and set-aside figures as a starting point for your own return and your own payment dates.'],
-      ['Mileage rate', 'The mileage rate starts at zero because every country sets its own, and it changes most years (for example the IRS rate in the US, or HMRC’s in the UK). Enter the rate that applies to you in <b>Settings → Tax &amp; mileage</b>. Trips logged before you set it are valued at the new rate.'],
-      ['Statements from Etsy, Shopify, PayPal and Stripe', 'Import the platform’s own statement on the Import screen: an Etsy monthly statement, a Shopify Payments or Stripe balance export, a PayPal activity download, a YouTube (AdSense) transactions file, or any file with gross and fee columns such as Patreon, Gumroad or Ko-fi. Profit Plan recognises it and splits every sale into the full price and the platform’s fees, ads and shipping labels, each in a category you choose. Payouts to your bank are skipped. After that, when you import your bank statement, deposits from that platform go to <b>Platform payouts &amp; top-ups (already imported)</b>, a transfer, so nothing is counted twice.'],
-      ['Money in other currencies', 'Record what reached or left your account in your own currency, and open <b>In another currency?</b> on the transaction to keep the original amount; the rate you enter works the amount out for you and is remembered. Imports convert rows in another currency at a rate you set on the review screen. Invoices can be in any currency: when one is paid, enter what actually arrived. The rates you use are listed in <b>Settings → Other currencies</b>.'],
-      ['Importing from your bank', 'On the import screen, filter by status to see only the rows that are not ready, fix their category or date, and import them from the button at the top or bottom. When you change a category, Profit Plan offers to update similar transactions and to remember the choice for future imports. Remembered rules are listed in Settings, where you can remove them.'],
-      ['Selling in more than one place', 'Add a sales channel for each place you sell (Etsy, Shopify, YouTube, client work…) in <b>Settings → Sales channels</b>, or just type a new one on a transaction. Tag sales and the costs that clearly belong to a channel, such as its fees and postage. Leave shared costs like software untagged. Profit &amp; loss then shows profit for each channel before shared costs, and you can view the statement for one channel at a time. On import, tag rows in bulk; Profit Plan offers to remember the channel for similar descriptions.'],
-      ['Owner’s draws, tax money and retirement', 'Paying yourself, moving money to your tax pot, income tax you pay, your own retirement contributions and loan principal are not business expenses, so they never reduce profit. Loan interest is an expense; record it separately. Your accountant will want the totals for retirement contributions and tax paid, which appear under Transfers.'],
-      ['Business credit cards and your own transfers', 'If you log or import the card’s purchases, those are the expenses. Paying the card from the business account is then a transfer: use <b>Business card payoff (purchases already logged)</b>, which is never counted. Moving money between your own business accounts is a transfer too.'],
-      ['Tax pot and tax payments', 'Log each move into your tax pot as a Tax savings transfer. If you later pay the tax from that pot, do not log the payment again; log Estimated tax payments only when you pay straight from the business account.'],
-      ['Cash basis, refunds and invoices', 'A sale counts when the money arrives and a cost when you pay it. Record a refund you give as a reversal on the sale’s category. An invoice becomes revenue when you mark it paid.'],
-      ['Tax lines and your accountant', 'Each category carries a Schedule C line, which you can change. The summary groups your year by line so your accountant can check it quickly. It is an organised record, not tax advice or a filed return.'],
-      ['Starting over', 'Settings → <b>Start fresh</b> clears the books in one step. Keep your categories and settings, or erase everything. Download a backup first if you might want the data again.'],
+      ['Why can’t I just type my stock?', 'Stock is worked out from what you bought, made, sold and adjusted, in date order. That way every unit can be traced and nothing goes missing. To start, record what you already have as a stock count.'],
+      ['Starting with what I already have', 'Materials: record a purchase with today’s date and roughly what it cost. Finished pieces: open the product and use Stock count; they’re valued at today’s recipe cost.'],
+      ['Stock counts', 'Stock history → Count stock: type what’s really on the shelf and every difference is saved as an adjustment, with the reason “Stock count”.'],
+      ['Breakages, gifts and samples', 'Use Adjust on a material or product and pick the reason. Damaged, lost, gifts and samples are a business cost; things you kept for yourself are not.'],
+      ['Changing a recipe', 'Each batch keeps the recipe it was made with, so changing a recipe only affects new batches.'],
+      ['Labor', 'Set your hourly rate in Settings and the minutes a piece takes. Labor shows in pricing, not in what stock is worth: tax rules count your own time differently.'],
+      ['Craft fairs', 'Plan an event with the booth fee and what you plan to make and take. On the day, Record sales takes a quick tally. Afterwards it shows what sold, what came home and what the day really made.'],
+      ['Channel fees', 'Etsy and website fees start as typical rates in Settings; fees change, so check yours. Each sale keeps the fee it was saved with.'],
+      ['Making with too little stock', 'You can save a batch even if a material looks short (maybe you didn’t record a purchase). It’s flagged on Home and in Stock history until a purchase or count fixes it.'],
+      ['Is this tax advice?', 'No. The profit & loss is a worksheet of your own numbers. Materials count as a cost when the pieces made from them sell, which is how inventory businesses usually report.'],
     ],
   },
 
-  // the fictional studio behind "Explore sample data": a designer who also sells prints
+  // the fictional maker behind "Explore sample data": a candle and soap studio selling on Etsy, its website, shops and fairs
   sample: {
-    name: 'Juniper Studio', opening: 420000, settings: { goalImages: true, goalsLayout: 'grid', mileageRate: 700, distanceUnit: 'mi' },
-    note: 'Chase the late invoices and keep the tax pot topped up before the September payment.',
-    amounts: { 'client-work': 5600, 'product-sales': 1600, retainers: 900, materials: 260, postage: 180, software: 95, 'phone-internet': 80, workspace: 350, insurance: 45, website: 25, advertising: 220, 'platform-fees': 120, office: 40, professional: 60, contractors: 600, meals: 70, 'owner-draw': 2000, 'tax-reserve': 1400, 'biz-savings': 200 },
-    days: { retainers: 1, workspace: 1, software: 3, website: 4, 'phone-internet': 12, insurance: 15, 'owner-draw': 28, 'tax-reserve': 28, 'biz-savings': 28, professional: 20, contractors: 25 },
-    undated: ['client-work', 'product-sales', 'materials', 'postage', 'advertising', 'platform-fees', 'office', 'meals'],
-    unscheduled: ['client-work', 'product-sales', 'office', 'meals'],
-    spread: { groups: ['cogs', 'marketing'], days: [4, 11, 18, 25], notes: ['Order batch', 'Restock', 'Order batch', 'Month end'], share: { default: .26 } },
-    // client work and print sales rise and fall through the year; costs follow sales
-    actual: (id, month, planned) => {
-      const season = [0.7, 0.8, 1.0, 1.1, 0.95, 0.9, 0.75, 0.85, 1.15, 1.2, 1.35, 1.5][month - 1];
-      // the rest of client revenue arrives as invoice payments (see extras)
-      if (id === 'client-work') return Math.round(planned * 0.46 * [0.9, 1.1, 1.25, 0.8, 1.3, 1.05, 0.6, 0.95, 1.2, 1, 1.1, 1.3][month - 1]);
-      if (['product-sales', 'materials', 'postage', 'platform-fees'].includes(id)) return Math.round(planned * season);
-      if (id === 'meals') return month % 2 ? planned : Math.round(planned * 0.6);
-      if (id === 'office') return month % 3 === 0 ? planned * 2 : 0;
-      return planned;
-    },
-    snapshots: false,
-    goals: [
-      { category: 'tax-reserve', kind: 'saving', name: 'Tax pot for this year', target: 1600000, opening: 0, due: [0, '12-31'], image: 'emergency' },
-      { category: 'biz-savings', kind: 'saving', name: 'Three months of costs in reserve', target: 700000, opening: 250000, due: [1, '06-30'], image: 'investing' },
-    ],
-    extras: (s, { m, year, now, uid, totals }) => {
-      // a few invoices: paid ones already sit in revenue, open ones are receivables
-      const clients = ['Acme Studio', 'Northwind Co.', 'Fable & Finch', 'Orchard Health', 'Bright Harbor'];
-      const monthNo = +m.slice(5, 7);
-      s.invoices = [];
-      let n = 1040;
-      for (let i = Math.max(1, monthNo - 4); i <= monthNo; i++) {
-        const key = `${year}-${String(i).padStart(2, '0')}`;
-        [6, 19].forEach((d, j) => {
-          const issued = `${key}-${String(d).padStart(2, '0')}`; if (issued > now) return;
-          const due = new Date(Date.UTC(+year, i - 1, d + 30)).toISOString().slice(0, 10);
-          const amount = [180000, 95000, 240000, 60000, 135000][(i + j) % 5];
-          const inv = { id: uid(), number: String(++n), client: clients[(i * 2 + j) % 5], issued, due, amount, category: 'client-work', note: j ? 'Design sprint' : 'Brand refresh, phase ' + (i % 3 + 1) };
-          // older invoices are paid; the last five are still open, three of them late
-          if (i < monthNo - 2 || (i === monthNo - 2 && j === 0)) {
-            const paidOn = new Date(Date.UTC(+year, i - 1, d + 21)).toISOString().slice(0, 10);
-            if (paidOn <= now) { const t = { id: uid(), date: paidOn, category: 'client-work', amount, note: `Invoice ${inv.number} · ${inv.client}` }; s.transactions.push(t); inv.paid = { date: paidOn, tx: t.id }; }
-          }
-          s.invoices.push(inv);
-        });
+    name: 'Willow & Wick', opening: 0, settings: { hmRate: 2000, hmPrefix: 'WW-' },
+    note: 'Record each batch and sale as it happens.',
+    extraCategories: [], amounts: {}, days: {}, undated: [],
+    spread: { groups: [], days: [], notes: [], share: { default: .5 } },
+    goals: [],
+    extras: (s, { uid }) => {
+      const t = new Date().toISOString().slice(0, 10);
+      const addD = (d, n) => { const x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+      let seed = 11; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+      const r3 = x => Math.round(x * 1000) / 1000;
+      // [id, name, unit, cost per buy (cents), qty per buy, reorder at, supplier]
+      const M = [['soy', 'Soy wax', 'lb', 4500, 20, 8, 'Lakeshore Supply'], ['coco', 'Coconut wax blend', 'lb', 6200, 10, 4, 'Lakeshore Supply'], ['jar8', 'Amber jar 8 oz', 'each', 4800, 36, 12, 'Glassworks Co.'],
+        ['tin4', 'Travel tin 4 oz', 'each', 2400, 48, 12, 'Glassworks Co.'], ['wick', 'Cotton wicks', 'each', 1200, 100, 30, 'Lakeshore Supply'], ['cedar', 'Cedar & sage oil', 'oz', 3600, 16, 6, 'Fragrance Barn'],
+        ['lav', 'Lavender oil', 'oz', 3200, 16, 6, 'Fragrance Barn'], ['cit', 'Citrus grove oil', 'oz', 3000, 16, 6, 'Fragrance Barn'], ['soapb', 'Goat milk soap base', 'lb', 3800, 10, 4, 'Meadow Soap Supply'],
+        ['oat', 'Ground oatmeal', 'oz', 900, 32, 8, 'Meadow Soap Supply'], ['label', 'Printed labels', 'each', 2500, 250, 60, 'Print Corner'], ['box', 'Kraft gift boxes', 'each', 3000, 50, 15, 'Print Corner']];
+      s.hmMats = M.map(([id, name, unit, , , reorder, supplier]) => ({ id, name, unit, reorder, supplier }));
+      // [id, name, price, labor min, packaging, recipe, weekly demand, usual channel]
+      const P = [['cedar8', 'Cedar & Sage candle, 8 oz', 2800, 12, 0, [['soy', 0.45], ['jar8', 1], ['wick', 1], ['cedar', 0.6], ['label', 1]], 4.2],
+        ['lav8', 'Lavender Fields candle, 8 oz', 2800, 12, 0, [['soy', 0.45], ['jar8', 1], ['wick', 1], ['lav', 0.6], ['label', 1]], 3.6],
+        ['cit4', 'Citrus Grove travel tin', 1600, 8, 0, [['coco', 0.22], ['tin4', 1], ['wick', 1], ['cit', 0.3], ['label', 1]], 3.4],
+        ['melts', 'Wax melts, 6 pack', 1200, 6, 35, [['soy', 0.25], ['cedar', 0.15], ['cit', 0.15], ['label', 1]], 2.6],
+        ['oats', 'Oatmeal & honey soap', 900, 5, 0, [['soapb', 0.28], ['oat', 0.5], ['label', 1]], 4.5],
+        ['lavs', 'Lavender goat milk soap', 900, 5, 0, [['soapb', 0.28], ['lav', 0.15], ['label', 1]], 3.8],
+        ['gift', 'Cozy night gift box', 4800, 15, 0, [['soy', 0.45], ['jar8', 1], ['wick', 1], ['lav', 0.6], ['soapb', 0.28], ['oat', 0.5], ['label', 2], ['box', 1]], 1.2]];
+      s.hmProds = P.map(([id, name, price, labor, pack, bom], i) => ({ id, sku: 'WW-' + String(i + 1).padStart(3, '0'), name, price, labor, pack, bom: bom.map(([m, q]) => ({ m, q })), reorder: id === 'gift' ? 2 : 6, chan: 'etsy', cat: /soap/.test(name) ? 'Soap' : id === 'gift' ? 'Gift sets' : 'Candles' }));
+      s.hmBuys = []; s.hmBatches = []; s.hmSales = []; s.hmAdj = []; s.hmEvents = [];
+      const stockM = Object.fromEntries(M.map(m => [m[0], 0])), stockP = Object.fromEntries(P.map(p => [p[0], 0]));
+      const buy = (m, d) => { const x = M.find(z => z[0] === m), price = Math.round(x[3] * (0.92 + rnd() * 0.16)); s.hmBuys.push({ id: uid(), mat: m, date: d, qty: x[4], cost: price, supplier: x[6] }); stockM[m] = r3(stockM[m] + x[4]); };
+      const make = (p, q, d) => { const x = P.find(z => z[0] === p); for (const [m, n] of x[5]) { while (stockM[m] < n * q) buy(m, addD(d, -1)); } for (const [m, n] of x[5]) stockM[m] = r3(stockM[m] - n * q); s.hmBatches.push({ id: uid(), prod: p, date: d, qty: q, bom: x[5].map(([m, qq]) => ({ m, q: qq })), pack: x[4] }); stockP[p] += q; };
+      const fee = (ch, price, ship) => ch === 'etsy' ? Math.round((price + ship) * 950 / 10000) + 45 : ch === 'web' ? Math.round((price + ship) * 290 / 10000) + 30 : 0;
+      const sell = (p, q, d, ch, ev) => { if (stockP[p] < q) return; const x = P.find(z => z[0] === p), price = Math.round(x[2] * q * (ch === 'wholesale' ? 0.5 : 1)), ship = ch === 'etsy' || ch === 'web' ? (rnd() < 0.5 ? 595 : 0) : 0, label = ch === 'etsy' || ch === 'web' ? 650 + (q > 1 ? 150 : 0) : 0;
+        s.hmSales.push({ id: uid(), prod: p, date: d, qty: q, chan: ch, price, ship, fee: fee(ch, price, ship), label, other: 0, ...(ev ? { event: ev } : {}) }); stockP[p] -= q; };
+      // 12 months: make on Mondays, sell through the week, and three craft fairs along the way
+      const start = addD(t, -364), fairs = [[-300, 'Spring makers market', 6500, 7], [-200, 'Summer street fair', 8500, 8], [-80, 'Harvest craft fair', 9500, 9]].map(([off, name, booth, hours], i) => ({ d: addD(t, off), name, booth, hours, i }));
+      for (let d = start, k = 0; d < t; d = addD(d, 1), k++) {
+        const dow = k % 7, holiday = +d.slice(5, 7) >= 11;
+        fairs.filter(f => addD(f.d, -3) === d).forEach(f => P.slice(0, 6).forEach(([p]) => { const want = 12 + f.i * 2 + 4; if (stockP[p] < want) make(p, Math.ceil((want - stockP[p]) / 6) * 6, d); }));
+        fairs.filter(f => f.d === d).forEach(f => { const id = 'ev' + f.i, plan = [];
+          P.slice(0, 6).forEach(([p]) => { const take = Math.max(0, Math.min(stockP[p], 12 + f.i * 2)); plan.push({ prod: p, planned: 12 + f.i * 2, taken: take }); const n = Math.round(take * (0.45 + rnd() * 0.35)); for (let j = 0; j < n; j++) sell(p, 1, d, 'fair', id); });
+          s.hmEvents.push({ id, name: f.name, date: d, booth: f.booth, costs: [], hours: f.hours, plan }); });
+        const adj = (ref, kind, q, reason, note) => { const st = kind === 'mat' ? stockM : stockP; if (q < 0 && st[ref] < -q) return; st[ref] = r3(st[ref] + q); s.hmAdj.push({ id: uid(), [kind]: ref, date: d, qty: q, reason, note }); };
+        if (d === addD(t, -150)) adj('jar8', 'mat', -3, 'damaged', 'Cracked in shipping');
+        if (d === addD(t, -60)) adj('cedar8', 'prod', -2, 'sample', 'Photo shoot');
+        if (d === addD(t, -40)) adj('gift', 'prod', -1, 'gift', 'Giveaway winner');
+        if (d === addD(t, -30)) adj('wick', 'mat', 12, 'count', 'Monthly count');
+        if (dow === 0) P.forEach(([p, , , , , , wk]) => { const want = Math.ceil(wk * (holiday ? 2.4 : 1.4)); if (stockP[p] < want) make(p, Math.max(6, Math.ceil((want - stockP[p]) / 6) * 6), d); });
+        P.forEach(([p, , , , , , wk]) => { let n = wk * (holiday ? 1.6 : 1) / 7; while (n > 0) { if (rnd() < Math.min(1, n)) { const r = rnd(), ch = r < 0.62 ? 'etsy' : r < 0.82 ? 'web' : r < 0.92 ? 'local' : 'wholesale'; sell(p, ch === 'wholesale' ? 6 : 1, d, ch); } n -= 1; } });
       }
-      // business mileage: client visits and supply runs
-      s.mileage = [];
-      const trips = [['Client workshop · Acme Studio', 'Studio → Acme HQ → Studio', 286], ['Print shop pick-up', 'Studio → Riverside Print → Studio', 94], ['Photo shoot on location', 'Studio → Harbor Park → Studio', 412], ['Craft fair stall', 'Studio → Fairgrounds → Studio', 238]];
-      for (let i = 1; i <= monthNo; i++) {
-        const key = `${year}-${String(i).padStart(2, '0')}`;
-        [5, 14, 22].forEach((d, j) => {
-          const date = `${key}-${String(d).padStart(2, '0')}`; if (date > now) return;
-          const [purpose, route, miles] = trips[(i + j) % trips.length];
-          s.mileage.push({ id: uid(), date, purpose, route, miles });
-        });
-      }
-      // three sales channels: design clients, an Etsy shop and the studio's own web shop.
-      // Their sales and direct costs are tagged; rent, software and the like stay shared.
-      // tags group the channels: client work is services, both shops sell prints
-      s.tags = [{ id: 'tg-services', name: 'Services', color: 1 }, { id: 'tg-products', name: 'Physical products', color: 2 }];
-      s.channels = [{ id: 'ch-clients', name: 'Design clients', tag: 'tg-services' }, { id: 'ch-etsy', name: 'Etsy', tag: 'tg-products' }, { id: 'ch-web', name: 'Web shop', tag: 'tg-products' }];
-      s.channelRules = { 'etsy': 'ch-etsy', 'invoice': 'ch-clients' };
-      // product sales and their costs split roughly 60/40 between Etsy and the web shop
-      const seen = {}, split = [];
-      s.transactions.forEach(t => {
-        if (['client-work', 'retainers', 'contractors'].includes(t.category)) t.channel = 'ch-clients';
-        else if (t.category === 'platform-fees') t.channel = 'ch-etsy';
-        else if (t.category === 'product-sales') {
-          // each month's print sales arrive as an Etsy payout and a smaller web-shop payout
-          const web = Math.round(t.amount * 0.38);
-          t.amount -= web; t.channel = 'ch-etsy'; t.note = 'Etsy payout';
-          split.push({ id: uid(), date: t.date.slice(0, 8) + String(Math.min(28, +t.date.slice(8) + 12)).padStart(2, '0'), category: 'product-sales', amount: web, note: 'Web shop payout', channel: 'ch-web' });
-        }
-        else if (['materials', 'postage', 'advertising'].includes(t.category)) {
-          const n = seen[t.category] = (seen[t.category] || 0) + 1;
-          t.channel = n % 5 === 1 || n % 5 === 3 ? 'ch-web' : 'ch-etsy';
-        }
-      });
-      s.transactions.push(...split.filter(t => t.date <= now));
-      s.invoices.forEach(v => { v.channel = 'ch-clients'; });
-      // cash carries forward: each month opens with the month before's closing balance
-      for (let i = 2; i <= 12; i++) {
-        const prev = `${year}-${String(i - 1).padStart(2, '0')}`, key = `${year}-${String(i).padStart(2, '0')}`;
-        s.months[key].opening = totals(s, prev).cash;
-      }
+      // the fair sales above were recorded one by one; card fees on fair sales
+      s.hmSales.filter(x => x.chan === 'fair').forEach((x, i) => { if (i % 3) x.fee = Math.round(x.price * 0.026 + 15); });
+      s.hmEvents.push({ id: 'ev9', name: 'Holiday makers market', date: addD(t, 24), booth: 12000, costs: [{ d: 'Table cover & signs', a: 3500 }], hours: 9, plan: P.slice(0, 7).map(([p], i) => ({ prod: p, planned: i === 6 ? 8 : 24, taken: 0 })) });
+      // a supplies run two days ago tops up everything but the two left low on purpose
+      M.forEach(([m, , , , , reorder]) => { if (!['tin4', 'cit'].includes(m) && stockM[m] < reorder * 1.6) buy(m, addD(t, -2)); });
+      // the odd breakage, sample and giveaway (done inside the year above), and a count today that leaves two materials low
+      ['tin4', 'cit'].forEach(m => { const have = stockM[m], keep = m === 'tin4' ? 8 : 4; if (have > keep) { s.hmAdj.push({ id: uid(), mat: m, date: t, qty: -r3(have - keep), reason: 'count', note: 'Monthly count' }); stockM[m] = keep; } });
+      const y0 = addD(t, -360);
+      s.hmExps = [
+        { id: uid(), date: y0, amount: 1000, cat: 'fees', note: 'Etsy Plus', repeat: 'monthly' },
+        { id: uid(), date: addD(y0, 4), amount: 2900, cat: 'software', note: 'Website plan', repeat: 'monthly' },
+        { id: uid(), date: addD(y0, 9), amount: 15000, cat: 'studio', note: 'Shared studio space', repeat: 'monthly' },
+        { id: uid(), date: addD(t, -280), amount: 8900, cat: 'shipsup', note: 'Mailer boxes & crinkle paper', repeat: 'once' },
+        { id: uid(), date: addD(t, -120), amount: 6400, cat: 'shipsup', note: 'Mailer boxes, 100', repeat: 'once' },
+        { id: uid(), date: addD(t, -200), amount: 24900, cat: 'tools', note: 'Pouring pot & thermometer set', repeat: 'once' },
+        { id: uid(), date: addD(t, -45), amount: 3500, cat: 'ads', note: 'Etsy ads, holiday push', repeat: 'once' },
+        { id: uid(), date: addD(y0, 30), amount: 18000, cat: 'insurance', note: 'Product liability insurance', repeat: 'yearly' },
+      ];
     },
   },
 };
@@ -1831,14 +1720,14 @@ th.tbl-th{cursor:pointer;user-select:none;white-space:nowrap}th.tbl-th:hover,th.
 <a href="#content" style="position:absolute;left:-9999px" onfocus="this.style.left='10px'" onblur="this.style.left='-9999px'">Skip to content</a>
 <div class="app" id="app"><aside class="rail" id="rail" aria-label="Main navigation">
   <button class="mobile-close" aria-label="Close menu" data-action="menu">×</button>
-  <div class="brand"><div class="brand-mark">B</div><div class="brand-txt"><b>Small Business Profit Plan</b><small>INCOME &amp; EXPENSE TRACKER</small></div><button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
+  <div class="brand"><div class="brand-mark">H</div><div class="brand-txt"><b>Handmade Inventory Tracker</b><small>MAKER STOCK &amp; PROFIT</small></div><button class="ibtn rail-toggle" data-action="rail-toggle" aria-label="Collapse navigation" aria-expanded="true" aria-controls="rail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg></button></div>
   <nav id="nav"></nav>
-  <div class="rail-foot"><div class="rail-note"><b>Know what you really made.</b>Log sales and costs. Watch profit. Put tax money aside before it is due.</div><button class="btn small rail-demo" id="demo-toggle" data-action="demo">Explore sample data</button><a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages ↗</a><br><span>Income &amp; Expense Tracker · v1.4</span></div>
+  <div class="rail-foot"><div class="rail-note"><b>Know what each piece really costs.</b>Materials in, pieces made, sold everywhere: stock and profit that add up.</div><button class="btn small rail-demo" id="demo-toggle" data-action="demo">Explore sample data</button><a href="https://www.jpsdigitalpages.com" target="_blank" rel="noopener">JPS Digital Pages ↗</a><br><span>Handmade inventory tracker · v1.0</span></div>
 </aside><button class="scrim" data-action="menu" aria-label="Close navigation"></button>
-<div class="main"><header class="topbar"><div class="topbar-in"><div class="top-left"><button class="ibtn mobile-menu" data-action="menu" aria-label="Open navigation">☰</button><div class="month-control"><span class="month-control-label">Viewing month</span><div class="month-switch"><button class="ibtn" data-action="prev" aria-label="Previous month">‹</button><span class="month-label" id="month-label" aria-hidden="true"></span><input id="month-picker" type="month" aria-label="Selected month" min="1900-01" max="9998-12"><button class="ibtn" data-action="next" aria-label="Next month">›</button></div></div></div><div class="actions"><span id="save-status" class="status" role="status">Saved on this device</span><button class="btn" data-action="quick-log" aria-label="Quick log">Quick log</button><button class="btn primary" data-action="add" aria-label="＋ Add transaction"><span class="add-full">＋ Add transaction</span><span class="add-short">＋ Add</span></button></div></div><div id="month-tabs" class="month-tabs" aria-label="Months of the selected year"></div><div id="demo-banner" class="demo-banner" hidden><span><b>Sample mode</b> · Fictional numbers. Your own budget stays separate.</span><button class="btn small" data-action="exit-demo">Return to my books</button></div><div id="storage-warning" class="notice warning" hidden></div><div id="backup-banner" class="notice backup-banner no-print" role="status" hidden></div></header><main id="content" class="page" tabindex="-1"></main></div></div>
+<div class="main"><header class="topbar"><div class="topbar-in"><div class="top-left"><button class="ibtn mobile-menu" data-action="menu" aria-label="Open navigation">☰</button><div class="month-control"><span class="month-control-label">Viewing month</span><div class="month-switch"><button class="ibtn" data-action="prev" aria-label="Previous month">‹</button><span class="month-label" id="month-label" aria-hidden="true"></span><input id="month-picker" type="month" aria-label="Selected month" min="1900-01" max="9998-12"><button class="ibtn" data-action="next" aria-label="Next month">›</button></div></div></div><div class="actions"><span id="save-status" class="status" role="status">Saved on this device</span><button class="btn" data-action="quick-log" aria-label="Quick log">Quick log</button><button class="btn primary" data-action="add" aria-label="＋ Add transaction"><span class="add-full">＋ Add transaction</span><span class="add-short">＋ Add</span></button></div></div><div id="month-tabs" class="month-tabs" aria-label="Months of the selected year"></div><div id="demo-banner" class="demo-banner" hidden><span><b>Sample mode</b> · Fictional numbers. Your own budget stays separate.</span><button class="btn small" data-action="exit-demo">Return to my workshop</button></div><div id="storage-warning" class="notice warning" hidden></div><div id="backup-banner" class="notice backup-banner no-print" role="status" hidden></div></header><main id="content" class="page" tabindex="-1"></main></div></div>
 <dialog id="modal" aria-labelledby="modal-title"><div class="dialog-in" id="modal-body"></div></dialog>
 <dialog id="welcome-tour" class="welcome-tour" aria-labelledby="welcome-title"><div class="welcome-box"><button class="ibtn welcome-close" data-action="welcome-close" aria-label="Close welcome"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="welcome-art" id="welcome-art"></div><div class="welcome-body"><span class="welcome-step" id="welcome-step"></span><h2 id="welcome-title"></h2><div id="welcome-text"></div></div><div class="welcome-dots" id="welcome-dots"></div><div class="welcome-foot"><div class="welcome-left"><button class="btn" data-action="welcome-back">Back</button><button class="btn pop welcome-folder" data-action="welcome-folder" hidden>Choose backup folder</button></div><button class="btn primary" data-action="welcome-next">Next</button></div></div></dialog>
-<div id="toast" class="toast" role="status" aria-live="polite" hidden></div><input type="file" id="restore-file" accept="application/json,.json" hidden><noscript><p>Enable JavaScript to use Small Business Profit Plan. Your data stays in this browser.</p></noscript><script>/* Shared planner core — pure calculations. All amounts are integer minor units.
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div><input type="file" id="restore-file" accept="application/json,.json" hidden><noscript><p>Enable JavaScript to use Handmade Inventory Tracker. Your data stays in this browser.</p></noscript><script>/* Shared planner core — pure calculations. All amounts are integer minor units.
    Everything niche-specific (groups, categories, tax lines, labels) comes from the pack P. */
 const Budget = ((P) => {
   const THEMES=P.themes.slice();

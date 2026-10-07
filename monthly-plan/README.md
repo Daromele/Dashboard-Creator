@@ -103,6 +103,19 @@ Schedule C and Import bank CSV (withdrawals become expenses; deposits are payout
 `rsLots`, `rsSales`, `rsExps`, `rsTrips`, `rsPlats`, `rsImported`, `settings.rsRate`, `settings.rsPrefix`.
 Flow test: `node build/reseller_flow.js`.
 
+**Handmade Inventory Tracker** (`features.handmade`, pack `packs/handmade.js`, built as `HandmadeInventoryTracker.html`,
+storage key `jps-handmade-inventory`). `Handmade` in core is the pure engine (tested in `build/test_handmade.js`). Stock is
+never typed in: `replay` rebuilds every material and product from purchases, batches (each keeps its own copy of the
+recipe), sales, returns and adjustments in date order, with a moving average cost; a batch short of materials is flagged,
+not hidden. Also `pricing` (materials, labor at `settings.hmRate`, fee, formula price), `canMake`, `needs`, `restock`
+(reorder points and what upcoming events still need), `event` (planned, taken, sold, left, profit after the booth),
+`history` (every movement with the running balance), `pnl` (materials become a cost when the pieces sell; write-offs,
+fair booths and running costs; personal use kept apart). `HandmadeUI` draws Home, Products (grid/table, photo, recipe and
+live pricing), Materials (purchases), Make a batch, Sales (by channel), Craft fairs & events (plan, pack list, day tally,
+side by side), Restock list, Stock history (count stock, adjust), Expenses and Profit & loss. State: `hmMats`, `hmProds`,
+`hmBuys`, `hmBatches`, `hmSales`, `hmAdj`, `hmEvents`, `hmExps`, `hmChans`, `settings.hmRate`, `settings.hmPrefix`.
+Flow test: `node build/handmade_flow.js`.
+
 **Budget methods** (`features.split`, in the Monthly Plan and the Paycheck Budget Planner). `Split` in core is
 the pure engine (tested in `build/test_split.js`): 50/30/20, 70/20/10, 80/20 and zero-based, each line tagged
 need, want, save or debt (guessed from its group or name, changeable on the card), and `bestFit`. `SplitUI` draws
