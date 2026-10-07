@@ -1,10 +1,10 @@
-// Recipe Library Studio service worker: the app opens offline once it has been visited.
+// Book Library Studio service worker: the app opens offline once it has been visited.
 // Pages: network first (so a new version shows up), then the saved copy. Icons and the manifest: saved copy first.
-// The recipe importer and other websites' photos are never cached here.
-const CACHE = 'rls-742740ca36c9';
+// The link reader, book databases and cover images are never cached here.
+const CACHE = 'bls-@@VERSION@@';
 const SHELL = ['./', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('rls-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('bls-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const req = e.request, url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/.netlify/')) return;

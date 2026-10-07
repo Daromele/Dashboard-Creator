@@ -296,6 +296,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .custom-range label{display:flex;flex-direction:column;font-size:11px;color:var(--ink-3)}
 .custom-range input{height:30px;min-height:30px}
 .print-title{display:none}
+.footer a{color:inherit;text-decoration:underline;text-underline-offset:2px}.footer a:hover{color:var(--accent)}
 .footer{display:flex;justify-content:space-between;gap:var(--s4);font-size:10.5px;color:var(--ink-3);margin-top:var(--s7);border-top:1px solid var(--rule);padding-top:var(--s4)}
 
 /* ---------- pulse strip: one insight at a time, above the hero ---------- */
@@ -1296,7 +1297,7 @@ function toast(message,undo=false){clearTimeout(toast.t);const el=$('#toast');el
 function download(name,text,type='application/json'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
 async function backupJSON(){const photos={};for(const r of state.recipes)if(r.hasPhoto){const p=await getPhoto(r.id);if(p)photos[r.id]=p;}
  return JSON.stringify({app:CONFIG.storageKey,version:CONFIG.version,saved:new Date().toISOString(),data:state,photos});}
-async function backup(){download(`${CONFIG.fileKey}-${demo?'sample-':''}${today()}.json`,await backupJSON());if(!demo){ls.set(MANUAL_BACKUP_KEY,String(Date.now()));renderStatus();}toast('Backup downloaded. Keep it somewhere safe.');}
+async function backup(){download(`${CONFIG.fileKey}-${demo?'sample-':''}${stamp()}.json`,await backupJSON());if(!demo){ls.set(MANUAL_BACKUP_KEY,String(Date.now()));renderStatus();}toast('Backup downloaded. Keep it somewhere safe.');}
 let pendingRestore=null;
 async function restore(file){try{if(file.size>200*1024*1024)throw Error('That file is too large to be a backup.');const j=JSON.parse(await file.text());
   const v1=j.app==='RecipeLibraryStudio';if(j.app!==CONFIG.storageKey&&!v1)throw Error(`This backup is from another app. Choose a ${CONFIG.name} backup.`);
@@ -1321,13 +1322,20 @@ const folderSupported=()=>!!globalThis.showDirectoryPicker;
 let folder=null,folderStatus='Not connected',folderTimer=null,folderChain=Promise.resolve(),bannerHidden=false;
 const handleStore=(mode,v)=>kv(CONFIG.storageKey+'-backup','handles','folder',mode,v);
 function setFolderStatus(t){folderStatus=t;const el=$('#folder-status');if(el)el.textContent=t;renderStatus();}
+// file-name stamp with date and time, e.g. 2026-10-02_17-42 (no colons, so it is safe on every system)
+const stamp=(d=new Date())=>`${ymd(d)}_${String(d.getHours()).padStart(2,'0')}-${String(d.getMinutes()).padStart(2,'0')}`;
+const FOLDER_FILE_KEY=CONFIG.storageKey+'-folder-file';
 async function chooseFolder(){if(!folderSupported())return toast('Folder backup needs Chrome or Edge on a computer. Use Download backup here.');
  try{folder=await showDirectoryPicker({mode:'readwrite',id:CONFIG.storageKey+'-backups'});await handleStore('put',folder);await writeFolder();toast('Backups will be saved to that folder after every change.');render();}catch(e){if(e.name!=='AbortError')toast('That folder could not be used.');}}
 async function reconnectFolder(){if(!folder)return chooseFolder();try{const p=await folder.requestPermission({mode:'readwrite'});if(p==='granted'){await writeFolder();render();}}catch{setFolderStatus('Reconnect needed');}}
 function queueFolderBackup(){if(!folder||demo)return;clearTimeout(folderTimer);folderTimer=setTimeout(()=>writeFolder().catch(()=>setFolderStatus('Backup needs attention')),1200);}
 function writeFolder(){const f=folder;folderChain=folderChain.catch(()=>{}).then(async()=>{if(!f||f!==folder||demo)return;
  if(await f.queryPermission({mode:'readwrite'})!=='granted')return setFolderStatus('Reconnect needed');
- const h=await f.getFileHandle(`${CONFIG.fileKey}-backup-${today()}.json`,{create:true}),w=await h.createWritable();await w.write(await backupJSON());await w.close();setFolderStatus('Connected');});return folderChain;}
+ // one file per day, named with the date and time of the latest save; the earlier file from the same day is removed
+ const name=`${CONFIG.fileKey}-backup-${stamp()}.json`,prev=ls.get(FOLDER_FILE_KEY)||'';
+ const h=await f.getFileHandle(name,{create:true}),w=await h.createWritable();await w.write(await backupJSON());await w.close();ls.set(FOLDER_FILE_KEY,name);
+ if(prev&&prev!==name&&prev.startsWith(`${CONFIG.fileKey}-backup-${today()}`))await f.removeEntry(prev).catch(()=>{});
+ setFolderStatus('Connected');});return folderChain;}
 async function initFolder(){if(!folderSupported()){folderStatus='Not available here';return;}try{folder=await handleStore('get')||null;if(folder){const p=await folder.queryPermission({mode:'readwrite'});setFolderStatus(p==='granted'?'Connected':'Reconnect needed');}}catch{folderStatus='Not available here';}}
 const hasData=()=>state.recipes.length>0;
 const protectedNow=()=>(folder&&folderStatus==='Connected')||Date.now()-(+ls.get(MANUAL_BACKUP_KEY)||0)<7*864e5;
@@ -1740,7 +1748,7 @@ function render(){const f=captureFocus();
  const hub=hubOf(screen),r=recipeById(openId);
  $('#content').innerHTML=`<div class="print-title"><span><b>${esc(state.settings.name||CONFIG.name)}</b></span><b>${esc(screen==='dashboard'?monthName(selected):screen==='plan'?'Week of '+new Date(week+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'}):screen==='recipe'&&r?r.sourceName||'':'')}</b></div>`+
   (hub?`<nav class="segment hub-tabs" aria-label="${hub[1]}">${hub[3].map(([c,l])=>`<button data-action="go" data-go="${c}" aria-pressed="${c===screen}">${l}</button>`).join('')}</nav>`:'')+
-  (VIEWS[screen]||VIEWS.dashboard)()+`<footer class="footer"><span>${esc(CONFIG.name)} · ${CONFIG.publisher}</span><span>${demo?'Sample recipes':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
+  (VIEWS[screen]||VIEWS.dashboard)()+`<footer class="footer"><span>${esc(CONFIG.name)} · ${contactLine()}</span><span>${demo?'Sample recipes':'Saved on this device'} · v${CONFIG.version}</span></footer>`;
  afterRender();restoreFocus(f);}
 function afterRender(){
  document.querySelectorAll('#content .kpi').forEach(k=>{const tone=k.dataset.tone||'neutral';k.classList.add('tone-'+tone);
@@ -1885,6 +1893,9 @@ function bookDoc(rs,o){const year=new Date().getFullYear(),groups=new Map();
   list.map(([i,r])=>`<div class="pd-break">${recipeDoc(r,{photo:o.photos,notes:o.notes,nutrition:o.nutrition,num:'No. '+pad(i),book:true})}</div>`).join('')).join('');
  // the cover goes outside the document wrapper: Chrome only gives it its own edge-to-edge page there
  return {lead:cover,html:`<div class="pd-book">${toc}${body}</div>`};}
+// the publisher's name, website and email at the foot of every screen, so buyers can reach us quickly
+const contactLine=()=>{const host=CONFIG.site.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'');
+ return `${esc(CONFIG.publisher)} · <a href="${esc(CONFIG.site)}" target="_blank" rel="noopener">${esc(host)}</a> · <a href="mailto:${esc(CONFIG.email)}">${esc(CONFIG.email)}</a>`;};
 async function printDoc(doc,title){const {lead='',html=''}=typeof doc==='string'?{html:doc}:doc,cover=!!lead;
  closeModal();const p=printPalette(),root=$('#print-root');
  root.style.cssText=`--p-accent:${p.accent};--p-deep:${p.deep};--p-pop:${p.pop};--p-soft:${p.soft};--p-soft2:${p.line}`;
@@ -2077,7 +2088,7 @@ document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,d=Obj
   commit(()=>{rs.forEach(r=>{r.categories=d.mode==='add'?[...new Set([...r.categories,v])]:[v,...r.categories.filter(x=>x!==v).slice(1)];r.updatedAt=new Date().toISOString();});lib.sel.clear();},`${plural(rs.length,'recipe')} now in ${v}`);}
  if(f.id==='bulk-tags-form'){const add=String(d.add||'').split(',').map(tidy).filter(Boolean).map(t=>t.slice(0,40)),rem=new FormData(f).getAll('remove');if(!add.length&&!rem.length)return formError('Add a tag or choose one to remove.');const rs=pickedRecipes();closeModal();
   commit(()=>{rs.forEach(r=>{r.tags=[...new Set([...r.tags.filter(t=>!rem.includes(t)),...add])];r.updatedAt=new Date().toISOString();});lib.sel.clear();},`Tags updated on ${plural(rs.length,'recipe')}`);}
- if(f.id==='bulk-col-form'){const rs=selected(),c=state.collections.find(x=>x.id===d.v);closeModal();commit(()=>{rs.forEach(r=>{if(!r.collections.includes(d.v))r.collections.push(d.v);});lib.sel.clear();},`${plural(rs.length,'recipe')} added to ${c?.name||'the collection'}`);}
+ if(f.id==='bulk-col-form'){const rs=pickedRecipes(),c=state.collections.find(x=>x.id===d.v);closeModal();commit(()=>{rs.forEach(r=>{if(!r.collections.includes(d.v))r.collections.push(d.v);});lib.sel.clear();},`${plural(rs.length,'recipe')} added to ${c?.name||'the collection'}`);}
  if(f.id==='facet-form'){const k=f.dataset.k,v=f.dataset.v,to=tidy(d.to).slice(0,40);if(!to)return formError('Type a name.');closeModal();if(to===v)return;const merge=listOf(k).includes(to);
   commit(()=>{state.recipes.forEach(r=>{if(r[k].includes(v))r[k]=[...new Set(r[k].map(x=>x===v?to:x))];});if(lib.cat.slice(2)===v)lib.cat=lib.cat.slice(0,2)+to;},merge?`Merged “${v}” into “${to}”`:`Renamed to “${to}”`);}
  if(f.id==='made-form'){const r=recipeById(f.dataset.id);if(!r)return closeModal();if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date||''))return formError('Pick the day you made it.');const note=String(d.note||'').trim().slice(0,2000);closeModal();

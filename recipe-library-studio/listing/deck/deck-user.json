@@ -1,0 +1,233 @@
+{
+ "product": "Recipe Library Studio",
+ "footer": "Recipe Library Studio · JPS Digital Pages",
+ "images_dir": "shots-photos",
+ "output": "Recipe_Library_Studio_Etsy_Mockups_Your_Recipes.html",
+ "storage_prefix": "rls-user-img:",
+ "brand": {
+  "ink": "#221A15",
+  "bold": "#3A2419",
+  "pop": "#F2B441",
+  "paper": "#FBF8F5",
+  "calm": "#A4471F"
+ },
+ "slides": [
+  {
+   "kind": "hero",
+   "dark": true,
+   "label": "Hero",
+   "eyebrow": "Recipe keeper · meal planner · shopping list",
+   "headline": "Your recipes.<br>One calm place.",
+   "pills": [
+    "Import from a link",
+    "Plan the week",
+    "Print a recipe book"
+   ],
+   "image": "tab-library.jpg",
+   "alt": "Recipe library full of saved recipes"
+  },
+  {
+   "dark": false,
+   "label": "Import from a link",
+   "eyebrow": "Import from a link",
+   "headline": "Paste a link. Get the recipe.",
+   "sub": "Ingredients, steps, times, servings and photo, without the ads or the life story.",
+   "image": "tab-import.jpg",
+   "foot": "Most food blogs and recipe sites import in one step"
+  },
+  {
+   "dark": true,
+   "label": "Bulk import",
+   "eyebrow": "Bring them all",
+   "headline": "100 links at once.",
+   "sub": "Moving from bookmarks or Pinterest? Paste them all and watch them land.",
+   "image": "tab-bulk.jpg",
+   "foot": "Pages without a full recipe card are tagged to review"
+  },
+  {
+   "dark": false,
+   "label": "Which sites work",
+   "eyebrow": "Which sites work",
+   "headline": "20 tested sites, and a plan B.",
+   "sub": "See which sites import by link, and the quick paste step for the few that block it.",
+   "image": "tab-sites.jpg",
+   "foot": "Check any website before you rely on it"
+  },
+  {
+   "dark": true,
+   "label": "Recipe page",
+   "eyebrow": "Every recipe",
+   "headline": "Clean, calm, cookable.",
+   "sub": "Times, servings, favorites and a plan button, on one tidy page.",
+   "image": "tab-recipe.jpg",
+   "foot": "Print any recipe as a clean card"
+  },
+  {
+   "dark": false,
+   "label": "Servings & units",
+   "eyebrow": "Servings &amp; units",
+   "headline": "Cooking for six? Done.",
+   "sub": "Change the servings and every amount scales. Switch between US and metric.",
+   "image": "tab-scale.jpg",
+   "foot": "Copy the ingredients as clean text"
+  },
+  {
+   "dark": true,
+   "label": "Cook mode",
+   "eyebrow": "Cook mode",
+   "headline": "One step at a time.",
+   "sub": "Big type and built-in timers. Tap or use the arrow keys to move on.",
+   "image": "tab-cook.jpg",
+   "foot": "The ingredients stay one tap away"
+  },
+  {
+   "dark": false,
+   "label": "Library",
+   "eyebrow": "Your library",
+   "headline": "Find it in seconds.",
+   "sub": "Search, filter by category, tag, collection or time, and edit many at once.",
+   "image": "tab-library.jpg",
+   "foot": "Every recipe saved from a link"
+  },
+  {
+   "dark": true,
+   "label": "Meal plan",
+   "eyebrow": "Meal plan",
+   "headline": "Plan the week in minutes.",
+   "sub": "Drag meals between days, Fill my week, or Copy last week.",
+   "image": "tab-plan.jpg",
+   "foot": "Servings per meal scale the shopping list"
+  },
+  {
+   "dark": false,
+   "label": "Shopping list",
+   "eyebrow": "Shopping list",
+   "headline": "Shop by aisle.",
+   "sub": "One tap sends the week’s ingredients, merged and sorted by aisle.",
+   "image": "tab-shopping.jpg",
+   "foot": "Staples, check-offs and one-tap copy"
+  },
+  {
+   "dark": true,
+   "label": "Pantry",
+   "eyebrow": "Pantry",
+   "headline": "What can I cook tonight?",
+   "sub": "Tell it what you have. See what you can make now, or with a few things more.",
+   "image": "tab-pantry.jpg",
+   "foot": "Pantry items stay off your shopping list"
+  },
+  {
+   "dark": false,
+   "label": "Cook log",
+   "eyebrow": "Cook log",
+   "headline": "Remember how it went.",
+   "sub": "Rate each recipe and keep a note every time you make it.",
+   "image": "tab-log.jpg",
+   "foot": "Your tweaks, saved for next time"
+  },
+  {
+   "dark": true,
+   "label": "Collections",
+   "eyebrow": "Collections",
+   "headline": "Group it your way.",
+   "sub": "Weeknight dinners, Sunday baking, family classics. Any collection becomes a book.",
+   "image": "tab-collections.jpg",
+   "foot": "Recipes can sit in as many collections as you like"
+  },
+  {
+   "dark": false,
+   "label": "Recipe book",
+   "eyebrow": "Print &amp; PDF",
+   "headline": "A recipe book, made by you.",
+   "sub": "A designer cover, a contents page and every recipe, ready to print or save as PDF.",
+   "image": "tab-book.jpg",
+   "foot": "Letter or A4 · recipe cards, lists and meal plans too"
+  },
+  {
+   "dark": true,
+   "label": "Kitchen insights",
+   "eyebrow": "Your kitchen",
+   "headline": "See what you really cook.",
+   "sub": "Most-made recipes, what’s still to try and meals planned this week.",
+   "image": "tab-dashboard.jpg",
+   "foot": "Your kitchen at a glance"
+  },
+  {
+   "dark": false,
+   "label": "Settings & backup",
+   "eyebrow": "Private &amp; yours",
+   "headline": "Saved on your device.",
+   "sub": "Backups that merge without duplicates, a backup folder and CSV export.",
+   "image": "tab-settings.jpg",
+   "foot": "No account, no ads"
+  },
+  {
+   "kind": "themes",
+   "label": "Themes",
+   "eyebrow": "Make it yours",
+   "headline": "Eight looks. Two dark modes.",
+   "columns": 4,
+   "themes": [
+    {
+     "name": "Kiln",
+     "image": "theme-kiln.jpg",
+     "swatch": "#2D1B12"
+    },
+    {
+     "name": "Ledger",
+     "image": "theme-ledger.jpg",
+     "swatch": "#111C28"
+    },
+    {
+     "name": "Sage",
+     "image": "theme-sage.jpg",
+     "swatch": "#183B31"
+    },
+    {
+     "name": "Linen",
+     "image": "theme-linen.jpg",
+     "swatch": "#362D21"
+    },
+    {
+     "name": "Fjord",
+     "image": "theme-fjord.jpg",
+     "swatch": "#153042"
+    },
+    {
+     "name": "Slate",
+     "image": "theme-slate.jpg",
+     "swatch": "#242C34"
+    },
+    {
+     "name": "Night",
+     "image": "theme-night.jpg",
+     "swatch": "#C3A9E8"
+    },
+    {
+     "name": "Midnight",
+     "image": "theme-midnight.jpg",
+     "swatch": "#9DB8F5"
+    }
+   ]
+  }
+ ],
+ "listing": {
+  "title": "Recipe Organizer App, Save Recipes from Website Links, Meal Planner and Grocery List (Digital Recipe Keeper Web App, Instant Access)",
+  "tags": [
+   "recipe organizer",
+   "recipe keeper app",
+   "digital recipe book",
+   "recipe manager",
+   "weekly meal planner",
+   "grocery list app",
+   "recipe binder",
+   "pantry tracker",
+   "recipe book maker",
+   "recipe saver",
+   "kitchen organizer",
+   "family recipe book",
+   "meal prep planner"
+  ],
+  "description_file": "description.txt"
+ }
+}

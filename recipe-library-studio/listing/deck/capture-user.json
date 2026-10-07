@@ -1,0 +1,85 @@
+{
+ "app": "../../site/index.html",
+ "out": "shots-photos",
+ "setup": "(async()=>{const L=u=>new Promise((a,b)=>{const s=document.createElement('script');s.src=u;s.onload=a;s.onerror=b;document.head.appendChild(s);});await L('file:///home/user/Dashboard-Creator/recipe-library-studio/listing/deck/userdata.js');await L('file:///home/user/Dashboard-Creator/recipe-library-studio/listing/deck/stage.js');await window.__stage();await new Promise(r=>setTimeout(r,2500));await Promise.all([...document.images].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r;setTimeout(r,8000);})));})()",
+ "content": "#content",
+ "tabs": [
+  {
+   "name": "dashboard",
+   "before": "(async()=>{go('dashboard');await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "import",
+   "before": "(async()=>{lastLink='https://www.recipetineats.com/one-pot-chicken-risoni/';bulk.items=[];bulk.running=false;go('import');await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "bulk",
+   "before": "(async()=>{go('import');lastLink='';bulk.items=[{url:'https://www.recipetineats.com/one-pot-chicken-risoni/',status:'saved',title:'One pot chicken risoni'},{url:'https://www.loveandlemons.com/banana-bread/',status:'saved',title:'Healthy banana bread'},{url:'https://www.bbcgoodfood.com/recipes/easy-pancakes',status:'saved',title:'Easy pancakes'},{url:'https://www.tasteofhome.com/recipes/best-lasagna/',status:'working'},{url:'https://www.kingarthurbaking.com/recipes/buttermilk-pancakes-recipe',status:'waiting'},{url:'https://www.allrecipes.com/recipe/12345/',status:'failed',msg:'This website blocks automatic access. Copy the page and use Paste the page text.'}];bulk.running=true;render();;await new Promise(r=>setTimeout(r,1500));})()",
+   "scrollTo": "section.card:has(#bulk-text)",
+   "ratio": 1.6
+  },
+  {
+   "name": "sites",
+   "before": "(async()=>{bulk.items=[];bulk.running=false;go('import');const keep=document.querySelector('#sites');[...document.querySelectorAll('#content > *')].forEach(e=>{if(!e.contains(keep))e.style.display='none';});scrollTo(0,0);setTimeout(()=>{document.querySelectorAll('#content .pair').forEach(x=>{x.style.height='auto';x.classList.remove('scrolls');});document.querySelector('#content').style.zoom='1.3';document.querySelector('.footer').style.display='none';},300);;await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "recipe",
+   "before": "(async()=>{openRecipe(__pick(/garlic butter salmon/i));await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "scale",
+   "before": "(async()=>{openRecipe(__pick(/kadai paneer|chole/i));await new Promise(r=>setTimeout(r,1500));})()",
+   "scrollTo": ".recipe-cols"
+  },
+  {
+   "name": "cook",
+   "before": "(async()=>{openRecipe(__pick(/garlic butter salmon/i));setTimeout(()=>document.querySelector('[data-action=\"cook\"]').click(),50);await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "library",
+   "before": "(async()=>{lib.view='grid';go('library');await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "collections",
+   "before": "(async()=>{go('collections');await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "plan",
+   "before": "(async()=>{go('plan');await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "shopping",
+   "before": "(async()=>{go('shopping');await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "pantry",
+   "before": "(async()=>{go('pantry');await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "log",
+   "before": "(async()=>{openRecipe(state.recipes.find(r=>r.cooklog.length).id);const keep=document.querySelector('.cooklog');[...document.querySelectorAll('#content > *')].forEach(e=>{if(!e.contains(keep))e.style.display='none';});scrollTo(0,0);setTimeout(()=>{document.querySelectorAll('#content .pair').forEach(x=>{x.style.height='auto';x.classList.remove('scrolls');});document.querySelector('#content').style.zoom='1.45';document.querySelector('.footer').style.display='none';},300);;await new Promise(r=>setTimeout(r,1500));})()"
+  },
+  {
+   "name": "insights",
+   "before": "(async()=>{go('dashboard');await new Promise(r=>setTimeout(r,1500));})()",
+   "scrollTo": "section.card:has(.kit-pie)"
+  },
+  {
+   "name": "settings",
+   "before": "(async()=>{go('settings');await new Promise(r=>setTimeout(r,1500));})()"
+  }
+ ],
+ "themes": {
+  "list": [
+   "kiln",
+   "ledger",
+   "sage",
+   "linen",
+   "fjord",
+   "slate",
+   "night",
+   "midnight"
+  ],
+  "apply": "state.settings.theme=T;go('dashboard');render();"
+ }
+}
