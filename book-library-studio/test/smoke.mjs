@@ -189,7 +189,15 @@ try {
   for (const s of ['dashboard', 'library', 'import', 'reading', 'year', 'settings']) { await page.evaluate(s => go(s), s); const w = await page.evaluate(() => document.documentElement.scrollWidth); ok(w <= 390, `${s} fits a phone (${w}px)`); }
   await page.click('.mobile-menu'); ok(await page.evaluate(() => document.body.classList.contains('menu-open')), 'phone menu opens');
   await shot('11-phone');
-  ok(await page.evaluate(async () => { try { await getJSON(GB + '?q=ratelimit'); return false; } catch (e) { return /busy/.test(e.message); } }), 'Google’s keyless limit: retried, then a clear message');
+  const before = calls.filter(u => u.includes('q=ratelimit')).length;
+  ok(await page.evaluate(async () => { try { await getJSON(GB + '?q=ratelimit'); return false; } catch (e) { return e.why === 'limit' && /turning lookups away/.test(e.message); } }) && calls.filter(u => u.includes('q=ratelimit')).length === before + 1, 'Google’s keyless limit: asked once, not hammered, and explained');
+  // a title Open Library doesn't have while Google is refusing: say which did what, offer Try again and Type it in
+  await page.evaluate(() => document.body.classList.remove('menu-open')); await page.setViewportSize({ width: 1440, height: 900 });
+  await page.click('.topbar [data-action="add"]'); await page.waitForSelector('#find-a');
+  await page.fill('#find-a', 'ratelimit'); await page.click('[data-find-go]'); await page.waitForFunction(() => !find.busy);
+  const st = await page.textContent('.find-status');
+  ok(/Open Library has no match, and Google Books \(the backup\) is turning lookups away/.test(st) && /Details: Open Library: no match · Google Books: too many lookups from this connection \(429\)/.test(st), 'both catalogs explained, with a details line');
+  ok(await page.isVisible('.find-status [data-action="find-again"]') && await page.isVisible('.find-status [data-action="manual"]'), 'Try again and Type it in offered');
   ok(calls.every(u => !/[?&](key|token)=/.test(u)) && !(await page.content()).includes('AIza') && !/google-books|googleEndpoint/.test(await page.content()), 'no Google key or Google function anywhere');
   // on an iPhone that hasn't installed it: a nudge to add it to the home screen, with the steps, that can be put off
   const phone = await browser.newContext({ ...pw.devices['iPhone 13'], reducedMotion: 'reduce' });

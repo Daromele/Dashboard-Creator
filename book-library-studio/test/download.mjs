@@ -29,7 +29,7 @@ try {
   ok(/doesn’t include the book’s ISBN/.test(await page.textContent('.find-status')), 'a link without an ISBN asks for the title');
   await find('hail mary');
   ok(await page.evaluate(() => find.results[0]?.sourceUrl.includes('amazon.es')), 'and keeps the link');
-  ok(await page.evaluate(async () => { try { await getJSON(GB + '?q=ratelimit'); return false; } catch (e) { return /busy/.test(e.message); } }), 'Google’s keyless limit: no server fallback, a clear message');
+  ok(await page.evaluate(async () => { try { await getJSON(GB + '?q=ratelimit'); return false; } catch (e) { return e.why === 'limit'; } }), 'Google’s keyless limit: no server fallback, a clear message');
   await page.evaluate(() => go('settings')); ok(/Keep this file in one place/.test(await page.textContent('#content')) && !/Install the app/.test(await page.textContent('#content')), 'settings explain the file, no install card');
   await page.evaluate(() => go('guide')); ok(/Where should I keep this file/.test(await page.textContent('#content')), 'guide explains where to keep the file');
   await page.reload(); await page.waitForTimeout(500);
