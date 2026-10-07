@@ -15,8 +15,6 @@ const browser = await pw.chromium.launch();
 try {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce', permissions: ['clipboard-read', 'clipboard-write'] });
   await ctx.route(/^https:\/\/(openlibrary\.org|covers\.openlibrary\.org|www\.googleapis\.com)\//, catalog);
-  // the app's Google function (it holds the key on the server): answers the lookup Google refused without a key
-  await ctx.route(/\/\.netlify\/functions\/google-books\?/, route => { calls.push(route.request().url()); route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ totalItems: 1, items: [] }) }); });
   const page = await ctx.newPage();
   page.on('pageerror', e => fail('pageerror: ' + e.message));
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) fail('console: ' + m.text()); });
@@ -88,7 +86,7 @@ try {
   await find(`${BASE}/fixtures/no-isbn.html`);
   ok(/The Quiet Garden/.test(await page.textContent('.result')), 'a page without an ISBN still offers its title');
   await find('https://www.amazon.es/dp/B0CNVR8ZX8/ref=sspa_dk_detail_4?psc=1&pd_rd_i=B0CNVR8ZX8');
-  ok(/didn’t share this book’s details/.test(await page.textContent('.find-status')) && await page.evaluate(() => document.activeElement?.id === 'find-a'), 'an Amazon link that won’t share asks for the title');
+  ok(/This Amazon link doesn’t include the book’s ISBN/.test(await page.textContent('.find-status')) && await page.evaluate(() => document.activeElement?.id === 'find-a'), 'an Amazon link without an ISBN asks for the title, straight away');
   await find('hail mary');
   ok(await page.evaluate(() => find.results[0]?.sourceUrl.startsWith('https://www.amazon.es/dp/B0CNVR8ZX8')), 'the title search keeps the Amazon link');
   await find('9780593135205');
@@ -191,8 +189,19 @@ try {
   for (const s of ['dashboard', 'library', 'import', 'reading', 'year', 'settings']) { await page.evaluate(s => go(s), s); const w = await page.evaluate(() => document.documentElement.scrollWidth); ok(w <= 390, `${s} fits a phone (${w}px)`); }
   await page.click('.mobile-menu'); ok(await page.evaluate(() => document.body.classList.contains('menu-open')), 'phone menu opens');
   await shot('11-phone');
-  ok(await page.evaluate(async () => (await getJSON(GB + '?q=ratelimit&maxResults=1')).totalItems === 1) && calls.filter(u => u.includes('/google-books?')).length === 1 && calls.some(u => u.endsWith('/google-books?q=ratelimit&maxResults=1')), 'Google’s keyless limit: the lookup goes through the app’s server function');
-  ok(calls.every(u => !/[?&](key|token)=/.test(u)) && !(await page.content()).includes('AIza'), 'no key anywhere in the page or its requests');
+  ok(await page.evaluate(async () => { try { await getJSON(GB + '?q=ratelimit'); return false; } catch (e) { return /busy/.test(e.message); } }), 'Google’s keyless limit: retried, then a clear message');
+  ok(calls.every(u => !/[?&](key|token)=/.test(u)) && !(await page.content()).includes('AIza') && !/google-books|googleEndpoint/.test(await page.content()), 'no Google key or Google function anywhere');
+  // on an iPhone that hasn't installed it: a nudge to add it to the home screen, with the steps, that can be put off
+  const phone = await browser.newContext({ ...pw.devices['iPhone 13'], reducedMotion: 'reduce' });
+  const pp = await phone.newPage(); pp.on('pageerror', e => fail('phone pageerror: ' + e.message));
+  await pp.goto(BASE + '/'); await pp.evaluate(() => { localStorage.setItem(CONFIG.storageKey + '-welcome-v1', '1'); }); await pp.reload(); await pp.waitForSelector('#content .pagehead');
+  ok(await pp.isVisible('#install-banner') && /home screen/.test(await pp.textContent('#install-banner')), 'iPhone: add-to-home-screen nudge shows');
+  await pp.click('#install-banner [data-action="install"]'); await pp.waitForSelector('#dlg[open]');
+  ok(/Add to Home Screen/.test(await pp.textContent('#dlg')), 'iPhone: the steps are shown'); await pp.click('#dlg [data-action="dismiss"]');
+  await pp.click('#install-banner [data-action="install-later"]'); await pp.reload(); await pp.waitForSelector('#content .pagehead');
+  ok(await pp.isHidden('#install-banner'), 'Not now is remembered');
+  ok(await page.isHidden('#install-banner'), 'no nudge on a computer');
+  await phone.close();
 } finally { await browser.close(); srv.kill(); }
 if (errors.length) { console.log(`\n${errors.length} failure(s)`); process.exit(1); }
 console.log('\nall smoke checks passed');

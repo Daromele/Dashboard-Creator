@@ -10,7 +10,7 @@ Moving from Goodreads or StoryGraph: import their CSV export. Books are stored i
 |---|---|
 | ISBN, title search, covers | The browser asks **Open Library** (`openlibrary.org`, `covers.openlibrary.org`) directly; **Google Books** is the fallback. No keys. Only the ISBN or title is sent. |
 | Links | Most links carry the book's number and are read in the browser: Amazon `/dp/` (ISBN-10), `?ean=`/`?isbn=` (Bookshop.org, Barnes & Noble), an ISBN-13 in the path (Waterstones, Booktopia, Indigo), Open Library and Google Books ids. Goodreads and Kindle links are searched by the title in the link. |
-| Other links | `POST /.netlify/functions/resolve-book-link {url}` follows short links (a.co, amzn.to) and reads bookshop or publisher pages for their schema.org Book data, ISBN and title. Amazon pages are never fetched, only their address. |
+| Other links | `POST /.netlify/functions/resolve-book-link {url}` follows short links (a.co, amzn.to) and reads bookshop or publisher pages for their schema.org Book data, ISBN and title. Amazon pages are never fetched, only their address (Amazon refuses automated readers). |
 
 ## What's where
 
@@ -21,7 +21,6 @@ Moving from Goodreads or StoryGraph: import their CSV export. Books are stored i
 | `build.mjs` | Builds `site/index.html` and `site/sw.js` (`--check` fails when they're stale). |
 | `site/` | What Netlify serves. Committed, so deploys need no build. |
 | `netlify/functions/resolve-book-link.mjs`, `netlify/lib/` | The link reader: private/local addresses blocked on every redirect, 10 s timeout, 4 MB cap, 20 links/min per visitor per warm instance. |
-| `netlify/functions/google-books.mjs` | Only used when Google refuses a keyless lookup: repeats it with `GOOGLE_BOOKS_KEY` (a Netlify environment variable, never in the page). Books searches and volume ids only; answers cached a day by Netlify's CDN; 30 lookups a minute per visitor per instance. Set the global cap in Google Cloud → Books API → Quotas. |
 | `make-icons.mjs` | Draws `site/icons/*.png`. |
 | `dev-server.mjs` | Local preview with the function: `node dev-server.mjs` → http://localhost:8888 |
 | `test/` | `books.test.mjs` (ISBNs, link reader, link/CSV/status/merge logic), `smoke.mjs` (browser flows, catalogs answered by `catalog.mjs`), `spacing.mjs` (no touching controls at 1440 and 390 px). |
@@ -30,7 +29,7 @@ Moving from Goodreads or StoryGraph: import their CSV export. Books are stored i
 
 | Edition | File | What's different |
 |---|---|---|
-| Hosted | `site/` on Netlify | Everything: link reader for any link, Google fallback through the server, installable app. |
+| Hosted | `site/` on Netlify | Installable phone and computer app (PWA), works offline, updates itself. Link reader for short links and bookshop pages. No keys or accounts. |
 | Download | `download/Book-Library-Studio.html` | One file the buyer opens from their computer. ISBN and title lookups go straight to Open Library and Google Books (internet needed for those and for covers). Links without an ISBN ask for the title. No install. Data is saved per browser for that file in that place, so the guide tells buyers to keep it in one folder and back up. |
 
 `node build.mjs` writes both; `CONFIG.edition` and the `<!--@@HOSTED-->` markers in `src/app.html` are the switch.

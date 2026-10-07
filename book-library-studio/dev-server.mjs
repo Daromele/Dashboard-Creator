@@ -5,8 +5,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import resolve from './netlify/functions/resolve-book-link.mjs';
-import googleBooks from './netlify/functions/google-books.mjs';
-const FUNCTIONS = { 'resolve-book-link': resolve, 'google-books': googleBooks };
+const FUNCTIONS = { 'resolve-book-link': resolve };
 
 const port = +(process.argv[2] || process.env.PORT || 8888), root = new URL('./site/', import.meta.url).pathname, fixtures = new URL('./test/fixtures/', import.meta.url).pathname;
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json', '.csv': 'text/csv' };

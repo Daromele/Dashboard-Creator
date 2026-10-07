@@ -28,7 +28,7 @@ const flaky = { done: false };
 export async function catalog(route) {
   const u = new URL(route.request().url()); calls.push(u.href);
   if (u.hostname === 'covers.openlibrary.org') return /\/b\/id\/\d+-/.test(u.pathname) ? route.fulfill({ status: 200, headers: CORS, contentType: 'image/png', body: PNG }) : route.fulfill({ status: 404, headers: CORS, body: '' });
-  // Google's keyless limit: a lookup for 'ratelimit' is refused, so the app has to use its own function
+  // Google's keyless limit: a lookup for 'ratelimit' is always refused
   if (u.hostname === 'www.googleapis.com' && u.searchParams.get('q') === 'ratelimit') return json(route, { error: { code: 429 } }, 429);
   if (u.hostname === 'www.googleapis.com') return json(route, { kind: 'books#volumes', totalItems: 0 });
   // Dune's first lookup is turned away (busy), as the real catalog sometimes does; the app should retry

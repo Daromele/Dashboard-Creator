@@ -1,10 +1,10 @@
 // ---------- resolve-book-link: POST {url} → {url, isbn, title, author, image} ----------
 // The app reads most book links itself (the ISBN or Amazon number is in the address). It calls this for the rest:
-// short links (a.co, amzn.to) are followed, and bookshop, publisher and Amazon pages are read for the book's ISBN
-// and title. Amazon often refuses automated readers; then only the address comes back. Nothing is stored.
+// short links (a.co, amzn.to) are followed to their full address, and bookshop or publisher pages are read for the
+// book's ISBN and title. Amazon pages are never opened (Amazon refuses automated readers), only the address comes back.
+// Nothing is stored.
 import { normalizeUrl, checkHost, fetchPage, json, fail, limited } from '../lib/net.mjs';
 import { parseBookPage } from '../lib/book-page.mjs';
-import { parseAmazon } from '../lib/amazon-page.mjs';
 
 const AMAZON = /(^|\.)amazon\.[a-z.]{2,6}$/i, SHORT = /^(a\.co|amzn\.to|amzn\.eu|amzn\.asia)$/i;
 const hostOf = u => new URL(u).hostname.replace(/^www\./, '');
@@ -12,10 +12,12 @@ const hostOf = u => new URL(u).hostname.replace(/^www\./, '');
 export async function resolveLink(raw, opts = {}) {
   const url = normalizeUrl(raw, { anyPort: !!opts.allowPrivate });
   if (!url) throw Object.assign(Error('Enter a full book link that starts with https://'), { code: 'BAD_URL', status: 400 });
+  const stopAt = u => AMAZON.test(hostOf(u));
+  if (stopAt(url)) return { url, stopped: true };
   let page;
-  try { page = await fetchPage(url, opts); }
-  catch (e) { const at = e.finalUrl || url; if (AMAZON.test(hostOf(at)) || SHORT.test(hostOf(url))) return { url: at, stopped: true }; throw e; }   // Amazon said no: the address is all we have
-  if (AMAZON.test(hostOf(page.finalUrl))) { const a = parseAmazon(page.html); return { url: page.finalUrl, ...(a.blocked ? { stopped: true } : a) }; }
+  try { page = await fetchPage(url, { ...opts, stopAt }); }
+  catch (e) { if (SHORT.test(hostOf(url))) return { url: e.finalUrl || url, stopped: true }; throw e; }
+  if (page.stopped) return { url: page.finalUrl, stopped: true };
   if (SHORT.test(hostOf(url)) && page.finalUrl === url) throw Object.assign(Error('That short link didn’t lead anywhere. Open it and copy the full address.'), { code: 'NOT_FOUND' });
   const b = parseBookPage(page.html, page.finalUrl);
   return { url: page.finalUrl, isbn: b.isbn, title: b.title, author: b.author, image: b.image, pages: b.pages, found: b.found };

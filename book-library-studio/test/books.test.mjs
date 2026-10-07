@@ -5,7 +5,6 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { parseBookPage, isIsbn13, isIsbn10, toIsbn13 } from '../netlify/lib/book-page.mjs';
 import handler, { resolveLink } from '../netlify/functions/resolve-book-link.mjs';
-import googleBooks, { target } from '../netlify/functions/google-books.mjs';
 
 const fx = n => readFileSync(new URL(`./fixtures/${n}`, import.meta.url), 'utf8');
 // the app's pure logic (CONFIG, helpers, ISBN, Logic) runs here without a browser
@@ -41,20 +40,13 @@ test('a page with several printed ISBNs and no book data gives no ISBN', () => {
   assert.equal(b.title, 'List');
 });
 
-test('Amazon pages (any country): ISBN from the details, else title and author; refusals give back the address', async () => {
-  const page = html => async () => new Response(html, { status: 200, headers: { 'content-type': 'text/html' } });
-  const kindle = await resolveLink('https://www.amazon.es/dp/B0CNVR8ZX8/ref=sspa_dk_detail_4?psc=1', { allowPrivate: true, fetchImpl: page(fx('amazon-es.html')) });
-  assert.equal(kindle.isbn, ''); assert.equal(kindle.title, 'Alas de sangre (Empíreo 1)'); assert.equal(kindle.author, 'Rebecca Yarros');
-  assert.equal(kindle.image, 'https://m.media-amazon.com/images/I/81x.jpg');
-  const print = await resolveLink('https://www.amazon.es/dp/B0XXXXXXXX', { allowPrivate: true, fetchImpl: page(fx('amazon-print.html')) });
-  assert.equal(print.isbn, '9788466671811'); assert.equal(print.title, 'Proyecto Hail Mary');
-  const captcha = await resolveLink('https://www.amazon.com/dp/B08FHBV4ZX', { allowPrivate: true, fetchImpl: page('<form action="/errors/validateCaptcha"></form>') });
-  assert.equal(captcha.stopped, true);
-  const refused = await resolveLink('https://www.amazon.de/dp/B08FHBV4ZX', { allowPrivate: true, fetchImpl: async () => new Response('', { status: 503 }) });
-  assert.deepEqual(refused, { url: 'https://www.amazon.de/dp/B08FHBV4ZX', stopped: true });
-  // a short link that lands on a refusing Amazon page still gives back Amazon's address
-  const short = await resolveLink('https://a.co/d/abc123', { allowPrivate: true, fetchImpl: async u => u.includes('a.co') ? new Response('', { status: 301, headers: { location: 'https://www.amazon.com/dp/B08FHBV4ZX' } }) : new Response('', { status: 503 }) });
-  assert.deepEqual(short, { url: 'https://www.amazon.com/dp/B08FHBV4ZX', stopped: true });
+test('Amazon pages are never opened: the address comes back, short links are followed to it', async () => {
+  const direct = await resolveLink('https://www.amazon.es/dp/B0CNVR8ZX8/ref=sspa_dk_detail_4?psc=1', { allowPrivate: true, fetchImpl: () => { throw Error('fetched'); } });
+  assert.equal(direct.stopped, true); assert.match(direct.url, /^https:\/\/www\.amazon\.es\/dp\/B0CNVR8ZX8/);
+  const seen = [];
+  const short = await resolveLink('https://a.co/d/abc123', { allowPrivate: true, fetchImpl: async u => { seen.push(u); return new Response('', { status: 301, headers: { location: 'https://www.amazon.com/Project-Hail-Mary-Novel/dp/0593135202' } }); } });
+  assert.deepEqual(seen, ['https://a.co/d/abc123']);
+  assert.deepEqual(short, { url: 'https://www.amazon.com/Project-Hail-Mary-Novel/dp/0593135202', stopped: true });
 });
 
 test('the link reader reads a page for its book', async () => {
@@ -159,27 +151,3 @@ test('validate keeps only clean data', () => {
   assert.match(today(), /^\d{4}-\d{2}-\d{2}$/);
 });
 
-test('google-books function: only Books lookups, key added on the server, answers cached, never echoes Google errors', async () => {
-  assert.equal(target(new URLSearchParams('q=isbn:9780593135204&maxResults=50')), 'https://www.googleapis.com/books/v1/volumes?q=isbn%3A9780593135204&maxResults=10&printType=books');
-  assert.equal(target(new URLSearchParams('id=abcDEF123456')), 'https://www.googleapis.com/books/v1/volumes/abcDEF123456');
-  assert.equal(target(new URLSearchParams('id=../../oauth2')), '');
-  assert.equal(target(new URLSearchParams('')), '');
-  const call = (qs, ip = 'g1') => googleBooks(new Request('http://x/.netlify/functions/google-books?' + qs), { ip });
-  delete process.env.GOOGLE_BOOKS_KEY;
-  assert.equal((await (await call('q=dune')).json()).code, 'NO_KEY');
-  process.env.GOOGLE_BOOKS_KEY = 'test-key-123'; const real = globalThis.fetch, seen = [];
-  globalThis.fetch = async u => { seen.push(u); return u.includes('q=fail') ? new Response('{"error":{"message":"API key test-key-123 invalid"}}', { status: 400 }) : new Response('{"totalItems":1}', { status: 200 }); };
-  try {
-    const r = await call('q=dune');
-    assert.equal(r.status, 200); assert.deepEqual(await r.json(), { totalItems: 1 });
-    assert.match(r.headers.get('netlify-cdn-cache-control'), /s-maxage=86400/); assert.equal(r.headers.get('netlify-vary'), 'query=q|id|maxResults');
-    assert.match(seen[0], /^https:\/\/www\.googleapis\.com\/books\/v1\/volumes\?q=dune&maxResults=8&printType=books&key=test-key-123$/);
-    await call('q=dune'); assert.equal(seen.length, 1, 'second lookup comes from the cache');
-    globalThis.fetch = (f => async u => u.includes('q=echo') ? new Response('{"selfLink":"https://x/?key=test-key-123"}', { status: 200 }) : f(u))(globalThis.fetch);
-    const echo = await call('q=echo'); assert.equal(echo.status, 502); assert.doesNotMatch(await echo.text(), /test-key/);
-    const bad = await call('q=fail'); assert.equal(bad.status, 502); assert.doesNotMatch(await bad.text(), /test-key/);
-    let last; for (let i = 0; i < 32; i++) last = await call('q=book' + i, 'busy-ip');
-    assert.equal(last.status, 429);
-    assert.equal((await googleBooks(new Request('http://x/', { method: 'POST' }), {})).status, 405);
-  } finally { globalThis.fetch = real; delete process.env.GOOGLE_BOOKS_KEY; }
-});

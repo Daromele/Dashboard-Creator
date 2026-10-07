@@ -265,6 +265,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;bor
 .banner{display:flex;justify-content:space-between;gap:var(--s3);align-items:center;padding:var(--s2) var(--s7);font-size:12.5px}
 .banner .actions{flex-wrap:nowrap}.banner .link,.banner .btn{white-space:nowrap}
 .banner.demo{background:var(--sunk);color:var(--ink-2);border-top:1px solid var(--rule)}
+.banner.install{background:var(--accent-soft);color:var(--ink)}.banner.install b{color:var(--accent)}
 .banner.backup{background:var(--flag-soft);color:var(--ink)}.banner.backup b{color:var(--flag)}
 .banner.storage{background:color-mix(in srgb,var(--over) 10%,var(--card));color:var(--ink)}.banner.storage b{color:var(--over)}
 
@@ -829,6 +830,7 @@ dialog .subtitle{margin:0 0 var(--s5)}
    </div>
   </div>
   <div class="banner demo" id="demo-banner" hidden><span><b>Sample mode.</b> A made-up reader’s library to explore. Nothing here is saved, and your own library is untouched.</span><button class="link" data-action="sample">Return to my books</button></div>
+  <div class="banner install" id="install-banner" hidden></div>
   <div class="banner backup" id="backup-banner" hidden></div>
   <div class="banner storage" id="storage-banner" role="alert" hidden></div>
   </header>
@@ -854,13 +856,10 @@ const CONFIG={
  storageKey:'jps-book-library',   // names every storage key
  fileKey:'jps-book-library',      // names downloaded files (backups, CSV)
  idb:true,
- // 'hosted' runs on Netlify with the link reader and the Google function; the build also writes a 'download' copy:
+ // 'hosted' runs on Netlify as an installable app, with the link reader for short links and bookshop pages; the build also writes a 'download' copy:
  // one HTML file opened from the buyer's computer, which looks books up straight from Open Library and Google Books
  edition:'download',
  resolveEndpoint:'/.netlify/functions/resolve-book-link',
- // when Google turns a keyless lookup away (its free per-connection limit), the lookup is repeated through this function,
- // which holds the app's Google key on the server
- googleEndpoint:'/.netlify/functions/google-books',
  defaultTheme:'fjord',
  themes:['fjord','kiln','ledger','sage','linen','slate','night','midnight'],
  railNote:'<b>Add any book from a link.</b>Your library stays on this device.',
@@ -1091,7 +1090,7 @@ const findSame=x=>state.books.find(b=>(x.isbn&&b.isbn===x.isbn)||(norm(b.title)=
 
 /* ---------- state + storage keys (every key starts with the product's storage key) ---------- */
 const KEY=CONFIG.storageKey+'-v1',RAIL_KEY=CONFIG.storageKey+'-rail-collapsed',WELCOME_KEY=CONFIG.storageKey+'-welcome-v1',
- NUDGE_KEY=CONFIG.storageKey+'-backup-nudge',MANUAL_BACKUP_KEY=CONFIG.storageKey+'-manual-backup',VIEW_KEY=CONFIG.storageKey+'-library-view';
+ NUDGE_KEY=CONFIG.storageKey+'-backup-nudge',INSTALL_KEY=CONFIG.storageKey+'-install-later',MANUAL_BACKUP_KEY=CONFIG.storageKey+'-manual-backup',VIEW_KEY=CONFIG.storageKey+'-library-view';
 const ls={get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch{}}};
 let state=Logic.blank(),real=null,demo=false,undoState=null,storageProblem='',screen='dashboard',selected=today().slice(0,7),
  railMin=ls.get(RAIL_KEY)==='1',hubLast={},returnFocus=null,askFn=null;
@@ -1281,16 +1280,13 @@ function card(b,i=0){const sel=lib.selecting&&screen==='library',on=sel&&lib.sel
 /* ---------- finding books: Open Library first, Google Books when it has nothing. Only the ISBN or title is sent. ---------- */
 const OL='https://openlibrary.org',GB='https://www.googleapis.com/books/v1/volumes';
 const olCover=(isbn,id)=>id?`https://covers.openlibrary.org/b/id/${id}-L.jpg`:isbn?`https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`:'';
-// the free catalogs sometimes turn a request away (busy, rate-limited, slow): try again quietly before saying so.
+// the free catalogs (no keys, no accounts) sometimes turn a request away (busy, rate-limited, slow): try again quietly before saying so.
 // Answers are remembered for the session, so the same book is never asked for twice.
 const CACHE=new Map();
-async function getJSON(url,ms=12000){if(CACHE.has(url))return CACHE.get(url);let last='',ask=url;
+async function getJSON(url,ms=12000){if(CACHE.has(url))return CACHE.get(url);let last='';
  for(let attempt=0;attempt<3;attempt++){if(attempt)await sleep(attempt===1?900:2400);let r;
-  try{r=await fetch(ask,{signal:AbortSignal.timeout(ms)});}catch(e){last=e.name==='TimeoutError'?'slow':navigator.onLine===false?'offline':'unreachable';if(last==='offline')break;continue;}
+  try{r=await fetch(url,{signal:AbortSignal.timeout(ms)});}catch(e){last=e.name==='TimeoutError'?'slow':navigator.onLine===false?'offline':'unreachable';if(last==='offline')break;continue;}
   if(r.status===404){CACHE.set(url,null);return null;}
-  // Google's keyless limit reached: ask again with the app's own key, straight away
-  if(r.status===429&&ask.startsWith(GB)&&!DL&&location.protocol!=='file:'){const u=new URL(ask),p=new URLSearchParams();if(u.pathname.length>'/books/v1/volumes/'.length)p.set('id',u.pathname.split('/').pop());else{p.set('q',u.searchParams.get('q')||'');p.set('maxResults',u.searchParams.get('maxResults')||'8');}
-   ask=CONFIG.googleEndpoint+'?'+p;attempt--;last='busy';continue;}
   if(r.status===429||r.status>=500){last='busy';continue;}
   if(!r.ok){last='busy';break;}
   let j=null;try{j=await r.json();}catch{}if(CACHE.size>300)CACHE.clear();CACHE.set(url,j);return j;}
@@ -1328,6 +1324,8 @@ async function lookup(it){let rs=[],head='';
  if(it.kind==='isbn'){const r=await byIsbn(it.isbn);rs=r?[r]:[];}
  else if(it.kind==='title')rs=await search(it.q);
  else{let x=it,page=null;
+  // an Amazon link without an ISBN or a title: Amazon refuses automated readers, so ask for the title straight away
+  if(x.asin&&!x.isbn&&!x.q)throw Object.assign(Error('Amazon link without the book’s number.'),{needTitle:true,url:it.url,host:hostOf(it.url)});
   if(!x.isbn&&!x.olKey&&!x.gbId&&!x.q){page=await resolveLink(x.url);x={...Logic.fromLink(page.url||x.url),asin:Logic.fromLink(page.url||x.url).asin||x.asin};}
   if(x.isbn){const r=await byIsbn(x.isbn);if(r)rs=[r];}
   else if(x.olKey)rs=await byOlKey(x.olKey);
@@ -1347,7 +1345,7 @@ async function findBooks(raw){const it=Logic.readInput(raw);find.q=String(raw||'
  find.msg=`<div class="loading" role="status"><span class="spinner"></span>${it.kind==='title'?`Searching for “${esc(it.q)}”…`:it.kind==='isbn'?`Looking up ISBN ${esc(it.isbn)}…`:`Reading the link from ${esc(hostOf(it.url))}…`}</div>`;paintFind();
  try{const {rs,head}=await lookup(it);if(it.kind==='title'&&find.pending){rs.forEach(r=>{r.sourceUrl=find.pending;});}if(it.kind!=='title'||rs.length)find.pending='';find.results=rs;find.msg=rs.length?'':note('refused',it.kind==='title'?`No books found for “${esc(it.q)}”. Check the spelling, or add the author’s name.`:it.kind==='isbn'?`No book found for ISBN ${esc(it.isbn)}. Try the title instead.`:'No book found at that link. Search by the title or ISBN instead.');
   find.head=head||(rs.length===1&&it.kind!=='title'?'Found it. How do you want to add it?':`${plural(rs.length,'match','matches')} for “${esc(it.kind==='title'?it.q:find.q)}”`);}
- catch(e){find.results=[];if(e.needTitle){find.pending=e.url;find.q='';find.msg=note('warning',e.noReader?`<b>This link doesn’t include the book’s ISBN</b>, so it can’t be looked up from here. Type the title, and the author if you know it, above: we’ll find it and keep your link with the book.`:`<b>${esc(/amazon/.test(e.host)?'Amazon':e.host)} didn’t share this book’s details</b> (Kindle and some newer books have no ISBN in the link). Type the title, and the author if you know it, above: we’ll find it and keep your link with the book.`);}
+ catch(e){find.results=[];if(e.needTitle){find.pending=e.url;find.q='';find.msg=note('warning',`<b>This ${/amazon/.test(e.host)?'Amazon link':'link'} doesn’t include the book’s ISBN</b>${/amazon/.test(e.host)?' (Kindle and some newer books don’t)':''}, so it can’t be looked up from the link. Type the title, and the author if you know it, above: we’ll find it and keep your link with the book.`);}
   else find.msg=note('refused',esc(e.message||'Something went wrong. Try again.'));}
  find.busy=false;paintFind();if(find.pending&&!find.q){const i=$('#find-a');if(i){i.value='';i.focus();}}}
 function findBar(light=false){return `<form class="linkbar ${light?'light':''}" data-form="find" role="search" aria-label="Find a book"><label class="sr-only" for="find-${light?'b':'a'}">Book link, ISBN or title</label><input id="find-${light?'b':'a'}" name="q" type="search" autocomplete="off" placeholder="Paste a book link, an ISBN, or type a title" value="${esc(find.q)}" required><button class="btn ${light?'primary':'pop'}" data-find-go ${find.busy?'disabled':''}>${ico('search')}Find book</button></form><div class="find-status import-status" aria-live="polite">${find.msg}</div>`;}
@@ -1519,7 +1517,7 @@ const VIEWS={
    <div class="actions">${button(ico('file')+'Choose export file','csv-pick','primary')}</div></div></section>
   <section class="card">${cardhead('Add many at once','One book per line: links, ISBNs or titles. Each is matched and added.','list')}<div class="pair-body"><form data-form="bulk"><div class="fields"><label class="full">Books<textarea id="bulk-text" name="text" rows="5" placeholder="9780593135204&#10;The Midnight Library Matt Haig&#10;https://bookshop.org/p/books/…" ${bulk.running?'disabled':''}></textarea></label>
    <label class="full">Add them as<select name="status">${CONFIG.status.slice(0,3).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select></label></div><div class="actions" style="margin-top:12px"><button class="btn primary" ${bulk.running?'disabled':''}>${ico('plus')}Add them</button></div></form><div id="bulk-list">${bulkList()}</div></div></section></div>
-  <section class="card">${cardhead('Which links work','We look for the book’s number (its ISBN) in the link, or its title.','link')}<div class="how-links">${[['Amazon (any country)',DL?'Print books whose link has the 10-digit book number after /dp/. Kindle links: type the title instead, and your link is kept.':'Print books by their link. For Kindle and newer books we read the page for the title; if Amazon won’t share it, type the title and your link is kept.'],['Bookshop.org','Any book page.'],['Barnes & Noble','Any book page.'],['Waterstones, Booktopia and Indigo','Any book page: the ISBN is in the link.'],['Goodreads','Matched by the title in the link.'],['Open Library and Google Books','Any book or edition page.'],['Publisher and other bookshop pages',DL?'When the ISBN is in the link. Otherwise type the title.':'We read the page for its ISBN and title.'],['A paper book in your hand','Type the ISBN printed above the barcode on the back.']].map(([h,t])=>`<div><b>${h}</b><span>${t}</span></div>`).join('')}</div></section>`;},
+  <section class="card">${cardhead('Which links work','We look for the book’s number (its ISBN) in the link, or its title.','link')}<div class="how-links">${[['Amazon (any country)','Print books whose link has the 10-digit book number after /dp/. Kindle and other links without it: type the title, and your link is kept.'],['Bookshop.org','Any book page.'],['Barnes & Noble','Any book page.'],['Waterstones, Booktopia and Indigo','Any book page: the ISBN is in the link.'],['Goodreads','Matched by the title in the link.'],['Open Library and Google Books','Any book or edition page.'],['Publisher and other bookshop pages',DL?'When the ISBN is in the link. Otherwise type the title.':'We read the page for its ISBN and title.'],['A paper book in your hand','Type the ISBN printed above the barcode on the back.']].map(([h,t])=>`<div><b>${h}</b><span>${t}</span></div>`).join('')}</div></section>`;},
 
  book(){const b=bookById(openId);if(!b)return pagehead('Books','Book not found','It may have been deleted.',button('Back to books','go','primary','data-go="library"'));
   const open=Logic.open(b),fin=Logic.finished(b),pct=Logic.pct(b),series=b.series?`${b.series}${b.seriesNo?' #'+b.seriesNo:''}`:'',kicker=[series,b.genres[0]||''].filter(Boolean).join(' · ')||'Book';
@@ -1592,7 +1590,7 @@ const VIEWS={
   `<div class="steps steps4" style="margin-bottom:16px">${[['01 / ADD','Add a book','Paste a link, an ISBN or a title in Add a book. Press N anywhere to start.','Add a book','go','data-go="import"'],['02 / READ','Track it','Start reading, log your page, then mark it finished with a rating.','Reading now','go','data-go="reading"'],['03 / KEEP','Quotes & notes','Keep the lines you love and what you thought, on each book’s page.','My books','go','data-go="library"'],['04 / PROTECT','Back up','Choose a backup folder once, or download a backup now and then.','Settings & backup','go','data-go="settings"']].map(([n,h,p,b,a,x])=>`<div class="step"><span>${n}</span><h3>${h}</h3><p>${p}</p>${button(b,a,'small',x)}</div>`).join('')}</div>
   <section class="card table-card">${cardhead('Good to know','','help')}<div class="table-wrap"><table data-nosort><thead><tr><th>Question</th><th>Answer</th></tr></thead><tbody>
   <tr><td>Which links work?</td><td>Most book links. Amazon, Bookshop.org, Barnes &amp; Noble, Waterstones, Booktopia, Indigo, Open Library and Google Books links carry the book’s number (its ISBN), and that’s what we look up. Goodreads links are matched by the title in the link. ${DL?'For any other link, type the book’s title instead.':'Other bookshop and publisher pages are read for their ISBN and title.'} <b>Add a book</b> lists them.</td></tr>
-  <tr><td>Kindle and audiobook links?</td><td>${DL?'They don’t carry an ISBN, so type the title instead: the link is kept with the book. If the link has the title in it, we search for that straight away.':'They don’t carry an ISBN, so we read the page for the title and show the matches; pick the right one. If Amazon won’t share the page, type the title and the link is kept with the book.'}</td></tr>
+  <tr><td>Kindle and audiobook links?</td><td>They don’t carry an ISBN, so type the title instead: the link is kept with the book. If the link has the title in it, we search for that straight away.</td></tr>
   <tr><td>No link at hand?</td><td>Type the title (add the author if it’s a common one), or the ISBN printed above the barcode on the back of the book. You can also type a book in by hand with <b>Type it in</b>.</td></tr>
   <tr><td>Moving from Goodreads or StoryGraph?</td><td>Export your library there (Goodreads: My Books, then Import and export; StoryGraph: Manage account), then choose the file in <b>Add a book → Import from Goodreads or StoryGraph</b>. Shelves, ratings, dates read and reviews come across, and books already here are skipped.</td></tr>
   <tr><td>Where do the covers and descriptions come from?</td><td>From Open Library, a free catalog run by the Internet Archive, with Google Books as a backup. Only the ISBN or title is sent to look the book up. A book without a cover gets a typeset one in its own colors; you can upload a photo of yours in <b>Edit</b>.</td></tr>
@@ -1640,7 +1638,7 @@ function renderStatus(){const s=storageProblem?'Backup needed':demo?'Sample mode
  $('#storage-banner').hidden=!storageProblem||demo;$('#storage-banner').innerHTML=storageProblem?`<span><b>Not saved.</b> ${esc(storageProblem)}</span><div class="actions">${button('Download backup','backup','small primary')}</div>`:'';
  const show=!demo&&!storageProblem&&!bannerHidden&&hasData()&&!protectedNow(),reconnect=folder&&folderStatus!=='Connected';
  $('#backup-banner').hidden=!show;$('#backup-banner').innerHTML=show?`<span>${reconnect?'<b>Your backup folder needs reconnecting.</b> Changes since then are only in this browser.':'<b>Your library is not backed up.</b> It lives only in this browser until you save a copy.'}</span><div class="actions">${folderSupported()?button(reconnect?'Reconnect folder':'Choose backup folder',reconnect?'reconnect-folder':'choose-folder','small primary'):button('Download backup','backup','small primary')}${button('Not now','banner-hide','small quiet')}</div>`:'';
- $('#demo-banner').hidden=!demo;$('#rail-demo').textContent=demo?'Return to my books':'Explore the sample library';}
+ $('#demo-banner').hidden=!demo;$('#rail-demo').textContent=demo?'Return to my books':'Explore the sample library';renderInstall();}
 
 function captureFocus(){const el=document.activeElement;if(!el||el===document.body||!$('#content').contains(el))return null;
  const key=el.id?'#'+CSS.escape(el.id):Object.keys(el.dataset||{}).length?el.tagName.toLowerCase()+Object.entries(el.dataset).map(([k,v])=>`[data-${k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())}="${CSS.escape(v)}"]`).join(''):'';
@@ -1809,7 +1807,10 @@ const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator
 const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const isMacSafari=()=>/Macintosh/.test(navigator.userAgent)&&/Safari/.test(navigator.userAgent)&&!/Chrome|Chromium|Edg|Firefox/.test(navigator.userAgent)&&!isIOS();
 function installHelp(){return standalone()?'Installed. You’re using the app.':installEvt?'One click adds it to your home screen, dock or start menu.':isIOS()?'In Safari, tap the Share button, then Add to Home Screen.':isMacSafari()?'In Safari, choose File, then Add to Dock.':'In Chrome or Edge, use the install icon in the address bar. On Android, open the browser menu and choose Install app.';}
-function renderInstall(){const b=$('#rail-install');if(b)b.hidden=DL||standalone()||!(installEvt||isIOS()||isMacSafari());}
+function renderInstall(){const b=$('#rail-install');if(b)b.hidden=DL||standalone()||!(installEvt||isIOS()||isMacSafari());
+ // on a phone that hasn't installed it yet: a one-line nudge to put it on the home screen (asked again after a month)
+ const ib=$('#install-banner'),phone=matchMedia('(max-width:900px) and (pointer:coarse)').matches,show=!DL&&!demo&&phone&&!standalone()&&(installEvt||isIOS())&&Date.now()-(+ls.get(INSTALL_KEY)||0)>30*864e5;
+ if(!ib)return;ib.hidden=!show;ib.innerHTML=show?`<span><b>Add Book Library to your home screen.</b> It opens like an app, full screen, and works offline.</span><div class="actions">${button(installEvt?'Install':'Show me how','install','small primary')}${button('Not now','install-later','small quiet')}</div>`:'';}
 async function installApp(){if(installEvt){installEvt.prompt();const c=await installEvt.userChoice.catch(()=>null);installEvt=null;renderInstall();if(c?.outcome==='accepted')toast('Installed. Find Book Library Studio with your other apps.');if(screen==='settings')render();}
  else modal('Install the app',installHelp(),`<p class="small dim">It opens in its own window, works without internet (except finding new books), and keeps your library safer on iPhone and iPad. Your library on this device is the same one; on iPhone the installed app keeps its own copy, so move it once with a backup.</p><div class="formfoot"><button type="button" class="btn primary" data-action="dismiss">Got it</button></div>`);}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;renderInstall();if(screen==='settings')render();});
@@ -1880,6 +1881,7 @@ const ACTIONS={
  undo:()=>{if(!undoState)return;state=undoState;undoState=null;save();if(screen==='book'&&!bookById(openId))screen='library';render();toast('Undone');},
  sample:()=>toggleSample(),backup,restore:()=>$('#restore-file').click(),print:printScreen,csv:exportCSV,install:installApp,
  'choose-folder':chooseFolder,'reconnect-folder':reconnectFolder,'banner-hide':()=>{bannerHidden=true;renderStatus();},
+ 'install-later':()=>{ls.set(INSTALL_KEY,String(Date.now()));renderInstall();},
  theme:b=>commit(()=>state.settings.theme=b.dataset.k,'Palette changed'),
  fresh:()=>ask('Start fresh?','This clears every book, shelf, quote and note. Download a backup first if you may need it. You can undo straight after.','Start fresh',()=>commit(()=>{const t=state.settings.theme;state=Logic.blank();state.settings.theme=t;},'Started fresh')),
  tour:()=>openTour(false),'tour-step':b=>{tourAt+=+b.dataset.d;renderTour();$('#welcome [autofocus]')?.focus();},'tour-close':closeTour,'tour-sample':()=>{closeTour();if(!demo)toggleSample();},
