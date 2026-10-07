@@ -21,17 +21,18 @@ const SEARCH = {
     { key: '/works/OL10W', title: 'Midnight Library Mysteries', author_name: ['Someone Else'], first_publish_year: 2011, subject: ['Mystery fiction'] }],
   hail: [{ key: '/works/OL1W', title: 'Project Hail Mary', author_name: ['Andy Weir'], first_publish_year: 2021, cover_i: 101, cover_edition_key: 'OL1M', number_of_pages_median: 476, subject: ['Science fiction'] }],
 };
-const json = (route, body, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
+const CORS = { 'access-control-allow-origin': '*' };   // like the real catalogs, so a page opened from a file can read the answers
+const json = (route, body, status = 200) => route.fulfill({ status, headers: CORS, contentType: 'application/json', body: JSON.stringify(body) });
 export const calls = [];
 const flaky = { done: false };
 export async function catalog(route) {
   const u = new URL(route.request().url()); calls.push(u.href);
-  if (u.hostname === 'covers.openlibrary.org') return /\/b\/id\/\d+-/.test(u.pathname) ? route.fulfill({ status: 200, contentType: 'image/png', body: PNG }) : route.fulfill({ status: 404, body: '' });
+  if (u.hostname === 'covers.openlibrary.org') return /\/b\/id\/\d+-/.test(u.pathname) ? route.fulfill({ status: 200, headers: CORS, contentType: 'image/png', body: PNG }) : route.fulfill({ status: 404, headers: CORS, body: '' });
   // Google's keyless limit: a lookup for 'ratelimit' is refused, so the app has to use its own function
   if (u.hostname === 'www.googleapis.com' && u.searchParams.get('q') === 'ratelimit') return json(route, { error: { code: 429 } }, 429);
   if (u.hostname === 'www.googleapis.com') return json(route, { kind: 'books#volumes', totalItems: 0 });
   // Dune's first lookup is turned away (busy), as the real catalog sometimes does; the app should retry
-  if (u.pathname === '/api/books' && /9780441172719/.test(u.search) && !flaky.done) { flaky.done = true; return route.fulfill({ status: 503, body: 'busy' }); }
+  if (u.pathname === '/api/books' && /9780441172719/.test(u.search) && !flaky.done) { flaky.done = true; return route.fulfill({ status: 503, headers: CORS, body: 'busy' }); }
   if (u.pathname === '/api/books') { const k = u.searchParams.get('bibkeys'); return json(route, BOOKS[k] ? { [k]: BOOKS[k] } : {}); }
   if (u.pathname === '/search.json') { const q = (u.searchParams.get('q') || '').toLowerCase(), hit = Object.keys(SEARCH).find(k => q.includes(k)); return json(route, { numFound: hit ? SEARCH[hit].length : 0, docs: hit ? SEARCH[hit] : [] }); }
   let m = u.pathname.match(/^\/books\/(OL\d+M)\.json$/); if (m) return EDITIONS[m[1]] ? json(route, EDITIONS[m[1]]) : json(route, { error: 'notfound' }, 404);

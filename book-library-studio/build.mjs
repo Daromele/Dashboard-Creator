@@ -1,4 +1,5 @@
-// Builds site/index.html from src/app.html (fonts inlined; the app never loads fonts from the web) and site/sw.js.
+// Builds site/index.html from src/app.html (fonts inlined; the app never loads fonts from the web) and site/sw.js,
+// plus download/Book-Library-Studio.html: the download edition, one file that runs without our server.
 //   node build.mjs          write the built file
 //   node build.mjs --check  exit 1 when site/index.html is stale
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -9,16 +10,25 @@ if (!src.includes('/*@@FONTS@@*/')) throw Error('src/app.html is missing the /*@
 const out = src.replace('/*@@FONTS@@*/', readFileSync(here('./src/fonts.css'), 'utf8').trim());
 // the service worker's cache name carries a hash of the app, so every new build replaces the offline copy
 const sw = readFileSync(here('./src/sw.js'), 'utf8').replace('@@VERSION@@', createHash('sha256').update(out).digest('hex').slice(0, 12));
+// the download edition: no manifest or app icons, and the app told it has no server (no link reader, no Google function)
+const HOSTED_ONLY = /<!--@@HOSTED-->[\s\S]*?<!--\/@@HOSTED-->\n?/g;
+if (!out.includes("edition:'hosted'") || !HOSTED_ONLY.test(out)) throw Error('src/app.html is missing the edition markers');
+const dl = out.replace(HOSTED_ONLY, '').replace("edition:'hosted'", "edition:'download'");
+const DL_FILE = './download/Book-Library-Studio.html';
 if (process.argv.includes('--check')) {
   let cur = '';
   try { cur = readFileSync(here('./site/index.html'), 'utf8'); } catch {}
   let curSw = '';
   try { curSw = readFileSync(here('./site/sw.js'), 'utf8'); } catch {}
-  if (cur !== out || curSw !== sw) { console.error('site/ is stale. Run: node build.mjs'); process.exit(1); }
+  let curDl = '';
+  try { curDl = readFileSync(here(DL_FILE), 'utf8'); } catch {}
+  if (cur !== out || curSw !== sw || curDl !== dl) { console.error('site/ or download/ is stale. Run: node build.mjs'); process.exit(1); }
   console.log('site/index.html is current');
 } else {
   mkdirSync(here('./site/'), { recursive: true });
   writeFileSync(here('./site/index.html'), out);
   writeFileSync(here('./site/sw.js'), sw);
-  console.log(`wrote site/index.html (${(out.length / 1024).toFixed(0)} KB)`);
+  mkdirSync(here('./download/'), { recursive: true });
+  writeFileSync(here(DL_FILE), dl);
+  console.log(`wrote site/index.html (${(out.length / 1024).toFixed(0)} KB) and ${DL_FILE.slice(2)}`);
 }

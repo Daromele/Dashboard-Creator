@@ -26,6 +26,15 @@ Moving from Goodreads or StoryGraph: import their CSV export. Books are stored i
 | `dev-server.mjs` | Local preview with the function: `node dev-server.mjs` → http://localhost:8888 |
 | `test/` | `books.test.mjs` (ISBNs, link reader, link/CSV/status/merge logic), `smoke.mjs` (browser flows, catalogs answered by `catalog.mjs`), `spacing.mjs` (no touching controls at 1440 and 390 px). |
 
+## Two editions from one source
+
+| Edition | File | What's different |
+|---|---|---|
+| Hosted | `site/` on Netlify | Everything: link reader for any link, Google fallback through the server, installable app. |
+| Download | `download/Book-Library-Studio.html` | One file the buyer opens from their computer. ISBN and title lookups go straight to Open Library and Google Books (internet needed for those and for covers). Links without an ISBN ask for the title. No install. Data is saved per browser for that file in that place, so the guide tells buyers to keep it in one folder and back up. |
+
+`node build.mjs` writes both; `CONFIG.edition` and the `<!--@@HOSTED-->` markers in `src/app.html` are the switch.
+
 ## Deploy (Netlify)
 
 New site from this repo, **Base directory** `book-library-studio`. `netlify.toml` sets publish `site` and the functions folder.
